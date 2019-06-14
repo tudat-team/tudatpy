@@ -50,21 +50,52 @@ struct ObservationSimulationTimeSettings
     LinkEndType linkEndType_;
 };
 
+//! Struct to define a list of observation times, fully defined before simulating the observations
+/*!
+ *  Struct to define a list of observation times, fully defined before simulating the observations. Simulations are simulated
+ *  at the times stored in this struct. Some may be discarded due to the use of vaibility settins
+ */
 template< typename TimeType >
 struct TabulatedObservationSimulationTimeSettings: public ObservationSimulationTimeSettings< TimeType >
 {
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEndType Link end type from which observations are to be simulated.
+     * \param simulationTimes List of times at which to perform the observation simulation
+     */
     TabulatedObservationSimulationTimeSettings(
-            const LinkEndType linkEndType, const std::vector< TimeType >& simulationTimes ): ObservationSimulationTimeSettings< TimeType >( linkEndType ),
+            const LinkEndType linkEndType, const std::vector< TimeType >& simulationTimes ):
+        ObservationSimulationTimeSettings< TimeType >( linkEndType ),
         simulationTimes_( simulationTimes ){ }
 
+    //! Destructor
     ~TabulatedObservationSimulationTimeSettings( ){ }
 
+    //! List of times at which to perform the observation simulation
     std::vector< TimeType > simulationTimes_;
 };
 
+
+//! Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings
+/*!
+ *  Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings. This class
+ *  defines an observation arc starting every X seconds, with observations simulated every M seconds from the start of this
+ *  interval until N observations have been simulated, taking into account that some are discarded due to vaibiloty settings.
+ */
 template< typename TimeType >
 struct ArcLimitedObservationSimulationTimeSettings: public ObservationSimulationTimeSettings< TimeType >
 {
+    //! Constructor
+    /*!
+     * \Constructor
+     * \param simulationTimes List of times at which to perform the observation simulation
+     * \param startTime Time at which to start simulating observations
+     * \param endTime Time at which to end simulating observations
+     * \param observationInterval Time between two subsequent observations (e.g. integration time)
+     * \param arcDuration Duration of an arc over which observationLimitPerArc observations are to be simulated
+     * \param observationLimitPerArc Number of observations that are to be simulated per arc
+     */
     ArcLimitedObservationSimulationTimeSettings(
             const LinkEndType linkEndType, const TimeType startTime, const TimeType endTime, const TimeType observationInterval,
             const TimeType arcDuration, const int observationLimitPerArc ): ObservationSimulationTimeSettings< TimeType >( linkEndType ),
@@ -73,11 +104,19 @@ struct ArcLimitedObservationSimulationTimeSettings: public ObservationSimulation
 
     ~ArcLimitedObservationSimulationTimeSettings( ){ }
 
+    //! Time at which to start simulating observations
     TimeType startTime_;
+
+    //! Time at which to end simulating observations
     TimeType endTime_;
+
+    //! Time between two subsequent observations (e.g. integration time)
     TimeType observationInterval_;
 
+    //! Duration of an arc over which observationLimitPerArc observations are to be simulated
     TimeType arcDuration_;
+
+    //! Number of observations that are to be simulated per arc
     int observationLimitPerArc_;
 };
 
@@ -126,19 +165,14 @@ simulateSingleObservationSet(
         // Define constituents of return pair.
         std::vector< TimeType > times;
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations;
-
         int observableSize = observationModel->getObservationSize( );
-//        if( ObservationSize != 1 )
-//        {
-//            std::cerr<<"Error when using arc limited observation settings, obsevation size is not 1"<<std::endl;
-//        }
 
         // Define vector to be used for storing single arc observations.
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleArcObservations =
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero(
                     observableSize * arcLimitedObservationSettings->observationLimitPerArc_ );
 
-        // Set times.
+        // Set start and end times.
         TimeType currentTime = arcLimitedObservationSettings->startTime_;
         TimeType currentArcStartTime = arcLimitedObservationSettings->startTime_;
 

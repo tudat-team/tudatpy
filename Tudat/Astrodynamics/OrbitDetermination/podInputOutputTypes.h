@@ -508,6 +508,11 @@ struct PodOutput
         return getUnnormalizedInverseCovarianceMatrix( ).inverse( );
     }
 
+    //! Function to retrieve the matrix of unnormalized partial derivatives
+    /*!
+     * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
+     * \return Matrix of unnormalized partial derivatives
+     */
     Eigen::MatrixXd getUnnormalizedPartialDerivatives( )
     {
         Eigen::MatrixXd unnormalizedPartialDerivatives = Eigen::MatrixXd::Zero(

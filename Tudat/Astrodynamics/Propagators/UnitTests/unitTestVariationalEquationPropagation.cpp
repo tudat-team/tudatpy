@@ -209,11 +209,6 @@ executeEarthMoonSimulation(
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
         testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-//        if( centralBodyMap[ "Moon" ] == "Earth" )
-//        {
-//            testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-//        }
-
         testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
         if( propagateVariationalEquations )
@@ -283,7 +278,7 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
         unsigned int maximumPropagatorType = 1;
         if( i == 1 )
         {
-            maximumPropagatorType = 1;
+            maximumPropagatorType = 2;
         }
 
         // Test for all requested propagator types.

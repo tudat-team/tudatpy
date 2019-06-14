@@ -44,6 +44,7 @@ void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorX
     setSineCoefficients_( coefficients );
 }
 
+//! Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
 Eigen::VectorXd getKaulaConstraintVector(
         const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
         const double constraintMultiplier )

@@ -575,6 +575,11 @@ public:
         cumulativeFunctionEvaluationCounter_.clear( );
     }
 
+    //! Function to retrieve the object used for computing the state derivative in the variational equations
+    /*!
+     * Function to retrieve the object used for computing the state derivative in the variational equations
+     * \return Object used for computing the state derivative in the variational equations
+     */
     std::shared_ptr< VariationalEquations > getVariationalEquationsCalculator( )
     {
         return variationalEquations_;

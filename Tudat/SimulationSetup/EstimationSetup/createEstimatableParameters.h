@@ -44,7 +44,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-
+//! Function to get a list of acceleration models that is to be linked to the given parameter
+/*!
+ *  Function to get a list of acceleration models that is to be linked to the given parameter, from single-arc propagator settings.
+ *  For selected parameter types, this function finds the acceleration models to which they have to be linked to fully create
+ *  the parameter objects. If  parameter type needs no acceleration, or no compatibel acceleration is found, an empty list is
+ *  returned.
+ *  \param propagatorSettings Single-arc propagator settings, from which acceleration models are to be extracted
+ *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
+ *  \return List of acceleration models that is to be linked to parameter defined by parameterSettings
+ */
 template< typename StateScalarType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
         const std::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
@@ -53,15 +62,20 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     using namespace estimatable_parameters;
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModelList;
 
+    // Retrieve acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = getAccelerationMapFromPropagatorSettings(
                 propagatorSettings );
+
+    // Check parameter type
     switch( parameterSettings->parameterType_.first )
     {
+    //  Empirical acceleration coefficeints need to be linked to empirical acceleration object
     case empirical_acceleration_coefficients:
     {
         std::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
                 std::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( parameterSettings );
 
+        // Check if acceleration model with required bodies undergoing/exerting accelerations exist
         if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) != 0 )
         {
             if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
@@ -83,17 +97,15 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
-//        if( accelerationModelList.size( ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when getting acceleration model for parameter empirical_acceleration_coefficients, no acceleration model found." );
-//        }
         break;
     }
+    // Arc-wise empirical acceleration coefficeints need to be linked to empirical acceleration object
     case arc_wise_empirical_acceleration_coefficients:
     {
         std::shared_ptr< ArcWiseEmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
                 std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >( parameterSettings );
 
+        // Check if acceleration model with required bodies undergoing/exerting accelerations exist
         if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) != 0 )
         {
             if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
@@ -115,12 +127,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
-//        if( accelerationModelList.size( ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when getting acceleration model for parameter arc_wise_empirical_acceleration_coefficients, no acceleration model found." );
-//        }
         break;
     }
+    // Direct tidal time lags need to be linked to direct tidal acceleration
     case direct_dissipation_tidal_time_lag:
     {
         std::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
@@ -141,15 +150,12 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
 
         }
-
-//        if( accelerationModelList.size( ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when getting acceleration model for parameter direct_dissipation_tidal_time_lag, no acceleration model found." );
-//        }
         break;
     }
+    // Desaturation Delta V needs to be linked to destauration acceleration
     case desaturation_delta_v_values:
     {
+        // Check if acceleration model with required bodies undergoing/exerting accelerations exist
         if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
         {
             if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
@@ -171,11 +177,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
-
-//        if( accelerationModelList.size( ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when getting acceleration model for parameter desaturation_delta_v_values, no acceleration model found." );
-//        }
         break;
     }
     default:
@@ -184,6 +185,16 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
+//! Function to get a list of acceleration models that is to be linked to the given parameter
+/*!
+ *  Function to get a list of acceleration models that is to be linked to the given parameter, from multi-arc propagator settings.
+ *  For selected parameter types, this function finds the acceleration models to which they have to be linked to fully create
+ *  the parameter objects. If  parameter type needs no acceleration, or no compatible acceleration is found, an empty list is
+ *  returned.
+ *  \param propagatorSettings Single-arc propagator settings, from which acceleration models are to be extracted
+ *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
+ *  \return List of acceleration models (from all arcs) that is to be linked to parameter defined by parameterSettings
+ */
 template< typename StateScalarType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
         const std::shared_ptr< propagators::MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
@@ -201,6 +212,16 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
+//! Function to get a list of acceleration models that is to be linked to the given parameter
+/*!
+ *  Function to get a list of acceleration models that is to be linked to the given parameter, from hybrid-arc propagator settings.
+ *  For selected parameter types, this function finds the acceleration models to which they have to be linked to fully create
+ *  the parameter objects. If  parameter type needs no acceleration, or no compatible acceleration is found, an empty list is
+ *  returned.
+ *  \param propagatorSettings Single-arc propagator settings, from which acceleration models are to be extracted
+ *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
+ *  \return List of acceleration models (from all arcs) that is to be linked to parameter defined by parameterSettings
+ */
 template< typename StateScalarType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParameters(
         const std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > propagatorSettings,
@@ -233,6 +254,17 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
+//! Function to get a list of acceleration models that is to be linked to the given parameter
+/*!
+ *  Function to get a list of acceleration models that is to be linked to the given parameter, from any propagator settings.
+ *  For selected parameter types, this function finds the acceleration models to which they have to be linked to fully create
+ *  the parameter objects. If  parameter type needs no acceleration, or no compatible acceleration is found, an empty list is
+ *  returned.
+ *  \param propagatorSettings Single-arc propagator settings, from which acceleration models are to be extracted
+ *  \param parameterSettings Settings for parameter settings for which acceleration models are to be found
+ *  \return List of acceleration models (from all arcs if applicable) that is to be linked to parameter defined by
+ *  parameterSettings
+ */
 template< typename StateScalarType >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModelsListForParametersFromBase(
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,

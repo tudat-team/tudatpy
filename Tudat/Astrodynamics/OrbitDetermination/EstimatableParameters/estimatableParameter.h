@@ -571,6 +571,12 @@ public:
         return estimatedVectorParameters_;
     }
 
+    //! Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+    /*!
+     * Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+     * \param requiredParameterId Parameter identifier that is to be searched in full list of patameters
+     * \return List of start indices and sizes of parameters corresponding to requiredParameterId
+     */
     std::vector< std::pair< int, int > > getIndicesForParameterType(
             const EstimatebleParameterIdentifier requiredParameterId )
     {
