@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
@@ -79,6 +81,19 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
     setLongState( state );
 }
 
+
+//! Function to define whether the body is currently being propagated, or not
+void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
+{
+    isBodyInPropagation_ = isBodyInPropagation;
+    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) != nullptr )
+    {
+        std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) ->setIsBodyInPropagation(
+                    isBodyInPropagation );
+    }
+}
+
+
 //! Function ot retrieve the common global translational state origin of the environment
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
 {
@@ -104,6 +119,16 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
         }
     }
     return globalFrameOrigin;
+}
+
+//! Function to set whether the bodies are currently being propagated, or not
+void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
+                                const bool areBodiesInPropagation )
+{
+    for( auto bodyIterator : bodyMap  )
+    {
+        bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
+    }
 }
 
 

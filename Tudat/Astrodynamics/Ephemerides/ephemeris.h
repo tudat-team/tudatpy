@@ -27,6 +27,19 @@ namespace tudat
 namespace ephemerides
 {
 
+//! Get relative state from body state function and central body state function
+/*!
+ * Get relative state from body state function and central body state function
+ * \param stateFunction Function retrieving state of body
+ * \param centralBodyStateFunction Function retrieving state of central body (in same frame as stateFunction)
+ * \param time Time at which state functions are to be evaluated
+ * \return Relative state of body w.r.t. central body at requested time.
+ */
+Eigen::Vector6d getDifferenceBetweenStates(
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
+        const double time );
+
 //! Ephemeris base class.
 /*!
  * Ephemeris base class.
@@ -55,12 +68,36 @@ public:
 
     //! Get state from ephemeris.
     /*!
-     * Returns state from ephemeris at given Julian date.
+     * Returns state from ephemeris at given time
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
     virtual Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch ) = 0;
+
+    //! Get position from ephemeris.
+    /*!
+     * Returns position from ephemeris at given time.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \return Position from ephemeris.
+     */
+    Eigen::Vector3d getCartesianPosition(
+            const double secondsSinceEpoch )
+    {
+        return getCartesianState( secondsSinceEpoch ).segment( 0, 3 );
+    }
+
+    //! Get velocity from ephemeris.
+    /*!
+     * Returns velocity from ephemeris at given time.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \return Velocity from ephemeris.
+     */
+    Eigen::Vector3d getCartesianVelocity(
+            const double secondsSinceEpoch )
+    {
+        return getCartesianState( secondsSinceEpoch ).segment( 3, 3 );
+    }
 
     //! Get state from ephemeris (with long double as state scalar).
     /*!

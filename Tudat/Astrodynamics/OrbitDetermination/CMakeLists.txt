@@ -85,6 +85,10 @@ add_executable(test_FullPlanetaryRotationModelEstimation "${SRCROOT}${ORBITDETER
 setup_custom_test_program(test_FullPlanetaryRotationModelEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_FullPlanetaryRotationModelEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_DesaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestDesaturationDeltaVsEstimation.cpp")
+setup_custom_test_program(test_DesaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_DesaturationDeltaVsEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")

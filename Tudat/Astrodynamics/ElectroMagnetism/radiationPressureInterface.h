@@ -13,10 +13,12 @@
 #define TUDAT_RADIATIONPRESSUREINTERFACE_H
 
 #include <vector>
+#include <iostream>
 
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 
+#include <Eigen/Geometry>
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
@@ -87,13 +89,22 @@ public:
     //! Destructor
     virtual ~RadiationPressureInterface( ){ }
 
+    //! Base class function to update the current properties of radiation pressure
+    /*!
+     *  Base class function to update the current properties of radiation pressure. This function is nominally called by the
+     *  updateInterface function, which may be overridden by derived classes.
+     *  \param currentTime Time at which acceleration model is to be updated.
+     */
+    void updateInterfaceBase(
+            const double currentTime );
+
     //! Function to update the current value of the radiation pressure
     /*!
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
-     * \param currentTime Time at which acceleration model is to be updated.
+     *  \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateInterface( const double currentTime = TUDAT_NAN );
+    virtual void updateInterface( const double currentTime = TUDAT_NAN );
 
     //! Function to return the current radiation pressure due to source at target (in N/m^2).
     /*!
@@ -272,7 +283,205 @@ protected:
     double currentTime_;
 };
 
+
+
+//! Class in which the properties of a panelled radiation pressure acceleration model are stored.
+/*!
+ *  Class in which the properties of a panelled radiation pressure acceleration model are stored and in which the current radiation pressure
+ *  is calculated based on the source power and geometry, as well as from the boxes-and-wings model used to describe the vehicle
+ *  undergoing the acceleration.
+ */
+class PanelledRadiationPressureInterface: public RadiationPressureInterface
+{
+public:
+
+
+    //! Constructor.
+    /*!
+     *  Class construtor for panelled radiation pressure interface.
+     *  \param sourcePower Function returning the current total power (in W) emitted by the source
+     *  body.
+     *  \param sourcePositionFunction Function returning the current position of the source body.
+     *  \param targetPositionFunction Function returning the current position of the target body.
+     *  \param localFrameSurfaceNormals Vector containing the functions returning the surface normal
+     *  in body-fixed frame for each panel.
+     *  \param emissivities Vector containing the emissivity for each panel.
+     *  \param areas Vector containing the area for each panel.
+     *  \param diffusionCoefficients Vector containing the diffuse reflection coefficient for each panel.
+     *  \param rotationFromLocalToPropagationFrame  Vector containing the functions that return the rotation
+     *  from body-fixed to propagation frame for each panel.
+     *  \param occultingBodyPositions List of functions returning the positions of the bodies
+     *  causing occultations (default none) NOTE: Multiple concurrent occultations may currently
+     *  result in slighlty underestimted radiation pressure.
+     *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
+     *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
+     */
+    PanelledRadiationPressureInterface(
+            const std::function< double( ) > sourcePower,
+            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+            const std::vector< std::function< Eigen::Vector3d( const double ) > > localFrameSurfaceNormals,
+            const std::vector< double > emissivities,
+            const std::vector< double > areas,
+            const std::vector< double > diffusionCoefficients,
+            const std::function< Eigen::Quaterniond( ) > rotationFromLocalToPropagationFrame,
+            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+            std::vector< std::function< Eigen::Vector3d( ) > >( ),
+            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
+            const double sourceRadius = 0.0 ):
+        RadiationPressureInterface(
+            sourcePower, sourcePositionFunction, targetPositionFunction, TUDAT_NAN, TUDAT_NAN,
+            occultingBodyPositions, occultingBodyRadii, sourceRadius ),
+        localFrameSurfaceNormals_( localFrameSurfaceNormals ), emissivities_( emissivities ),
+        areas_( areas ), diffusionCoefficients_( diffusionCoefficients ),
+        rotationFromLocalToPropagationFrame_( rotationFromLocalToPropagationFrame )
+    {
+        surfaceNormalsInPropagationFrame_.resize( localFrameSurfaceNormals_.size( ) );
+    }
+
+
+
+    //! Base class function to update the current properties of the panelled radiation pressure acceleration model
+    /*!
+     *  Base class function to update the current properties of the panelled radiation pressure acceleration model.
+     * This function is nominally called by the updateInterface function, which may be overridden by derived classes.
+     *  \param currentTime Time at which acceleration model is to be updated.
+     */
+    void updateInterface( const double currentTime = TUDAT_NAN )
+    {
+        updateInterfaceBase( currentTime );
+
+        Eigen::Quaterniond rotationToPropagationFrame = rotationFromLocalToPropagationFrame_( );
+        for( unsigned int i = 0; i < surfaceNormalsInPropagationFrame_.size( ); i++ )
+        {
+            surfaceNormalsInPropagationFrame_[ i ] =
+                    rotationToPropagationFrame * localFrameSurfaceNormals_.at( i )( currentTime );
+        }
+    }
+
+
+    //! Function to return the panels emissivity vector.
+    /*!
+     *  Function to return the panels emissivity vector.
+     *  \return Vector containing the panels emissivities.
+     */
+    std::vector< double > getEmissivities( )
+    {
+        return emissivities_;
+    }
+
+    //! Function to return the panels area vector.
+    /*!
+     *  Function to return the panels area vector.
+     *  \return Vector containing the panels areas.
+     */
+    std::vector< double > getAreas( )
+    {
+        return areas_;
+    }
+
+    //! Function to return the panels diffuse reflection coefficients vector.
+    /*!
+     *  Function to return the panels diffuse reflection coefficients vector.
+     *  \return Vector containing the panels diffuse reflection coefficients.
+     */
+    std::vector< double > getDiffusionCoefficients( )
+    {
+        return diffusionCoefficients_;
+    }
+
+    //! Function to return the area of a given panel.
+    /*!
+     *  Function to return the area of a given panel.
+     *  \param index Index of the panel whose area is to be returned.
+     *  \return Panel area
+     */
+    double getArea( const int index ) const
+    {
+        return areas_[ index ];
+    }
+
+    //! Function to return the emissivity of a given panel.
+    /*!
+     *  Function to return the emissivity coefficient of a given panel.
+     *  \param index Index of the panel whose emissivity is to be returned.
+     *  \return Panel emissivity
+     */
+    double getEmissivity( const int index ) const
+    {
+        return emissivities_[ index ];
+    }
+
+    //! Function to return the diffuse reflection coefficient of a given panel.
+    /*!
+     *  Function to return the diffuse reflection coefficient of a given panel.
+     *  \param index Index of the panel whose diffuse reflection coefficient is to be returned.
+     *  \return Panel diffuse reflection coefficient
+     */
+    double getDiffuseReflectionCoefficient( const int index ) const
+    {
+        return diffusionCoefficients_[ index ];
+    }
+
+    //! Function to return the current surface normal for a given panel.
+    /*!
+     *  Function to return the current surface normal for a given panel.
+     *  \param index Index of the panel whose surface normal is to be returned.
+     *  \return Panel current surface normal
+     */
+    Eigen::Vector3d getCurrentSurfaceNormal( const int index ) const
+    {
+        return surfaceNormalsInPropagationFrame_[ index ];
+    }
+
+    //! Function to return a vector containing the surface normal expressed in propagation
+    //! frame for each panel.
+    /*!
+     *  Function to return a vector containing the surface normal expressed in propagation
+     *  frame for each panel.
+     *  \return Vector of surface normals in propagation frame
+     */
+    std::vector< Eigen::Vector3d > getSurfaceNormalsInPropagationFrame( )
+    {
+        return surfaceNormalsInPropagationFrame_;
+    }
+
+    //! Function to return the total number of panels.
+    /*!
+     *  Function to return the total number of panels.
+     *  \return Number of panels
+     */
+    int getNumberOfPanels( )
+    {
+        return surfaceNormalsInPropagationFrame_.size( );
+    }
+
+
+private:
+
+    //! Vector containing the time-dependent functions that return the surface normal for each panel,
+    //! in body-fixed frame.
+    std::vector< std::function< Eigen::Vector3d( const double ) > > localFrameSurfaceNormals_;
+
+    //! Vector containing the emissivitie for all panels.
+    std::vector< double > emissivities_;
+
+    //! Vector containing the area for all panels.
+    std::vector< double > areas_;
+
+    //! Vector containing the diffuse reflection coefficient for all panels.
+    std::vector< double > diffusionCoefficients_;
+
+    //! Function returning the rotation from local to propagation frame.
+    std::function< Eigen::Quaterniond( ) > rotationFromLocalToPropagationFrame_;
+
+    //! Vector containing the surface normal expressed in propagation frame for each panel.
+    std::vector< Eigen::Vector3d > surfaceNormalsInPropagationFrame_;
+
+};
+
 } // namespace electro_magnetism
+
 } // namespace tudat
 
 #endif // TUDAT_RADIATIONPRESSUREINTERFACE_H

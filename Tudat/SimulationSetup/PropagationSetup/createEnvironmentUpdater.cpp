@@ -344,6 +344,14 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
+                case panelled_radiation_pressure_acceleration:
+                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
                 case spherical_harmonic_gravity:
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 accelerationModelIterator->first );
@@ -462,6 +470,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             push_back( accelerationModelIterator->first );
                     break;
                 case empirical_acceleration:
+                    break;
+                case momentum_wheel_desaturation_acceleration:
                     break;
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +

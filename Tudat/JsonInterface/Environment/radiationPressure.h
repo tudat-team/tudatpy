@@ -24,7 +24,7 @@ namespace simulation_setup
 //! Map of `RadiationPressureType`s string representations.
 static std::map< RadiationPressureType, std::string > radiationPressureTypes =
 {
-    { cannon_ball, "cannonBall" }
+    { cannon_ball_radiation_pressure_interface, "cannonBall" }
 };
 
 //! `RadiationPressureType`s not supported by `json_interface`.

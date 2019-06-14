@@ -281,9 +281,10 @@ protected:
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
      * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
+     * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
      */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
-            Eigen::MatrixXd& partial,
+            Eigen::MatrixXd& accelerationPartial,
             const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
     {
         // Get partial w.r.t. rdrag coefficient
@@ -295,14 +296,14 @@ protected:
                 parameter->getArcTimeLookupScheme( );
         int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
 
-        if( currentArc >= partial.cols( ) )
+        if( currentArc >= accelerationPartial.cols( ) )
         {
             throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
         }
 
         // Set partial
-        partial.setZero( 3, parameter->getNumberOfArcs( ) );
-        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
     }
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
