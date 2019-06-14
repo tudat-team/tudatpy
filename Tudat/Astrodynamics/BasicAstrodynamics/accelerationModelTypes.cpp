@@ -62,6 +62,12 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
+    case panelled_radiation_pressure_acceleration:
+        accelerationName  = "panelled radiation pressure acceleration ";
+        break;
+    case momentum_wheel_desaturation_acceleration:
+        accelerationName  = "momentum wheen desaturation acceleration ";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 std::to_string( accelerationType ) +
@@ -128,6 +134,11 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = thrust_acceleration;
     }
+    else if( std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
+                 accelerationModel ) != nullptr )
+    {
+        accelerationType = momentum_wheel_desaturation_acceleration;
+    }
     else if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
                  accelerationModel ) != nullptr )
     {
@@ -149,6 +160,10 @@ AvailableAcceleration getAccelerationModelType(
         {
             accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
         }
+    }
+    else if( std::dynamic_pointer_cast< PanelledRadiationPressureAcceleration >( accelerationModel ) != NULL )
+    {
+        accelerationType = panelled_radiation_pressure_acceleration;
     }
     else
     {

@@ -36,6 +36,7 @@
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
@@ -763,6 +764,65 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 }
 #endif
 
+#if USE_CSPICE
+//! Test set up of synchronous rotation model.
+BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
+{
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
+
+
+    // Create settings for synchronous rotation model.
+
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Europa" );
+    bodiesToCreate.push_back( "Jupiter" );
+
+    // Create bodies needed in simulation
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodiesToCreate );
+
+    bodySettings[ "Europa" ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+    bodySettings[ "Europa" ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
+            = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings[ "Europa" ]->rotationModelSettings );
+
+
+    // Create rotation model using setup function
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemerisFromRotationModelSettings =
+            createRotationModel( synchronousRotationSettings, "Europa", bodyMap );
+
+
+    // Create synchronous rotation model directly.
+    std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction = createRelativeStateFunction( bodyMap, "Europa", "Jupiter");
+
+    ephemerides::SynchronousRotationalEphemeris synchronousRotationalEphemeris( relativeStateFunction, "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+
+
+    // Verify equivalence of automatically set up and manual models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+}
+#endif
+
+
 #if USE_SOFA
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
@@ -1069,6 +1129,110 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
         BOOST_CHECK_SMALL( std::fabs( testPosition3( i ) - testCartesianPosition( i ) ), 1.0E-3 );
     }
 }
+
+
+#if USE_CSPICE
+//! Test set up of panelled radiation pressure interface environment models.
+BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
+{
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define body settings.
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+
+    // Get settings for vehicle
+    Eigen::Vector6d initialKeplerElements =
+            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+                initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+
+    // Create radiation pressure properties
+    std::vector< double > areas;
+    areas.push_back( 4.0 );
+    areas.push_back( 6.0 );
+    areas.push_back( 2.3 );
+    areas.push_back( 2.3 );
+    areas.push_back( 5.3 );
+    areas.push_back( 2.7 );
+    areas.push_back( 4.1 );
+    areas.push_back( 2.7 );
+
+    std::vector< double > emissivities;
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.0 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.94 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.94 );
+    emissivities.push_back( 0.1 );
+
+    std::vector< double > diffuseReflectionCoefficients;
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+
+    std::vector< Eigen::Vector3d > panelSurfaceNormals;
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitZ( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitZ( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
+
+
+
+    std::shared_ptr< PanelledRadiationPressureInterfaceSettings > radiationPressureInterfaceSettings =
+            std::make_shared< PanelledRadiationPressureInterfaceSettings >(
+                "Sun", emissivities, areas, diffuseReflectionCoefficients, panelSurfaceNormals );
+
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
+
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+
+    double testTime = 0.5E7;
+
+    // Update environment to current time.
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
+            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+
+    // Compute expected radiation pressure.
+    vehicleRadiationPressureInterface->updateInterface( testTime );
+    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+            segment( 0, 3 ) ).norm( );
+
+    double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
+                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
+                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
+                                std::numeric_limits< double >::epsilon( ) );
+
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 

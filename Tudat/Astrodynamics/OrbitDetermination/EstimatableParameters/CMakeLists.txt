@@ -39,6 +39,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/polarMotionAmplitude.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/coreFactor.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/freeCoreNutationRate.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/desaturationDeltaV.h"
 )
 
 # Add static libraries.

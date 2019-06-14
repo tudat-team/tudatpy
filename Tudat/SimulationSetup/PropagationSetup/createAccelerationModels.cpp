@@ -228,20 +228,20 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
         {
             gravitationalParameterFunction =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                 bodyExertingAcceleration->getGravityFieldModel( ) );
+                               bodyExertingAcceleration->getGravityFieldModel( ) );
         }
         else
         {
             std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                 bodyExertingAcceleration->getGravityFieldModel( ) );
+                               bodyExertingAcceleration->getGravityFieldModel( ) );
             std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                 bodyUndergoingAcceleration->getGravityFieldModel( ) );
+                               bodyUndergoingAcceleration->getGravityFieldModel( ) );
             gravitationalParameterFunction =
                     std::bind( &utilities::sumFunctionReturn< double >,
-                                 gravitationalParameterOfBodyExertingAcceleration,
-                                 gravitationalParameterOfBodyUndergoingAcceleration );
+                               gravitationalParameterOfBodyExertingAcceleration,
+                               gravitationalParameterOfBodyUndergoingAcceleration );
         }
 
         // Create acceleration object.
@@ -326,28 +326,28 @@ createSphericalHarmonicsGravityAcceleration(
             {
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
-                                     sphericalHarmonicsGravityField );
+                                   sphericalHarmonicsGravityField );
             }
             else
             {
                 // Create function returning summed gravitational parameter of the two bodies.
                 std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     sphericalHarmonicsGravityField );
+                                   sphericalHarmonicsGravityField );
                 std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     bodyUndergoingAcceleration->getGravityFieldModel( ) );
+                                   bodyUndergoingAcceleration->getGravityFieldModel( ) );
                 gravitationalParameterFunction =
                         std::bind( &utilities::sumFunctionReturn< double >,
-                                     gravitationalParameterOfBodyExertingAcceleration,
-                                     gravitationalParameterOfBodyUndergoingAcceleration );
+                                   gravitationalParameterOfBodyExertingAcceleration,
+                                   gravitationalParameterOfBodyUndergoingAcceleration );
             }
 
             std::function< Eigen::MatrixXd( ) > originalCosineCoefficientFunction =
                     std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
-                                 sphericalHarmonicsGravityField,
-                                 sphericalHarmonicsSettings->maximumDegree_,
-                                 sphericalHarmonicsSettings->maximumOrder_ );
+                               sphericalHarmonicsGravityField,
+                               sphericalHarmonicsSettings->maximumDegree_,
+                               sphericalHarmonicsSettings->maximumOrder_ );
 
             std::function< Eigen::MatrixXd( ) > cosineCoefficientFunction;
             if( !useDegreeZeroTerm )
@@ -368,12 +368,12 @@ createSphericalHarmonicsGravityAcceleration(
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
                       cosineCoefficientFunction,
                       std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
-                                   sphericalHarmonicsGravityField,
-                                   sphericalHarmonicsSettings->maximumDegree_,
-                                   sphericalHarmonicsSettings->maximumOrder_ ),
+                                 sphericalHarmonicsGravityField,
+                                 sphericalHarmonicsSettings->maximumDegree_,
+                                 sphericalHarmonicsSettings->maximumOrder_ ),
                       std::bind( &Body::getPosition, bodyExertingAcceleration ),
                       std::bind( &Body::getCurrentRotationToGlobalFrame,
-                                   bodyExertingAcceleration ), useCentralBodyFixedFrame );
+                                 bodyExertingAcceleration ), useCentralBodyFixedFrame );
         }
     }
     return accelerationModel;
@@ -440,21 +440,21 @@ createMutualSphericalHarmonicsGravityAcceleration(
             {
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
-                                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
+                                   sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
             }
             else
             {
                 // Create function returning summed gravitational parameter of the two bodies.
                 std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
+                                   sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
                 std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration );
+                                   sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration );
                 gravitationalParameterFunction =
                         std::bind( &utilities::sumFunctionReturn< double >,
-                                     gravitationalParameterOfBodyExertingAcceleration,
-                                     gravitationalParameterOfBodyUndergoingAcceleration );
+                                   gravitationalParameterOfBodyExertingAcceleration,
+                                   gravitationalParameterOfBodyUndergoingAcceleration );
             }
 
             // Create acceleration object.
@@ -478,25 +478,25 @@ createMutualSphericalHarmonicsGravityAcceleration(
                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
                         sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),
                         std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
-                                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
-                                     mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
-                                     mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
+                                   sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
+                                   mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
+                                   mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
                         std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
-                                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
-                                     mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
-                                     mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
+                                   sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
+                                   mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
+                                   mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
                         std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
-                                     sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
-                                     maximumDegreeOfUndergoingBody,
-                                     maximumOrderOfUndergoingBody ),
+                                   sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
+                                   maximumDegreeOfUndergoingBody,
+                                   maximumOrderOfUndergoingBody ),
                         std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
-                                     sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
-                                     maximumDegreeOfUndergoingBody,
-                                     maximumOrderOfUndergoingBody ),
+                                   sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
+                                   maximumDegreeOfUndergoingBody,
+                                   maximumOrderOfUndergoingBody ),
                         std::bind( &Body::getCurrentRotationToGlobalFrame,
-                                     bodyExertingAcceleration ),
+                                   bodyExertingAcceleration ),
                         std::bind( &Body::getCurrentRotationToGlobalFrame,
-                                     bodyUndergoingAcceleration ),
+                                   bodyUndergoingAcceleration ),
                         useCentralBodyFixedFrame );
         }
     }
@@ -737,10 +737,10 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     std::function< Eigen::Vector3d( ) > coefficientFunction =
             std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
-                         aerodynamicCoefficients );
+                       aerodynamicCoefficients );
     std::function< Eigen::Vector3d( ) > coefficientInPropagationFrameFunction =
             std::bind( &reference_frames::transformVectorFunctionFromVectorFunctions,
-                         coefficientFunction, toPropagationFrameTransformation );
+                       coefficientFunction, toPropagationFrameTransformation );
 
     // Create acceleration model.
     return std::make_shared< AerodynamicAcceleration >(
@@ -749,7 +749,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 std::bind( &AtmosphericFlightConditions::getCurrentAirspeed, bodyFlightConditions ),
                 std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),
                 std::bind( &AerodynamicCoefficientInterface::getReferenceArea,
-                             aerodynamicCoefficients ),
+                           aerodynamicCoefficients ),
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
 }
 
@@ -784,6 +784,40 @@ createCannonballRadiationPressureAcceleratioModel(
                 std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 
 }
+
+//! Function to create a panelled radiation pressure acceleration model.
+std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    using namespace tudat::electro_magnetism;
+
+    // Declare pointer to return object.
+    std::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel;
+
+    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
+    std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
+            std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
+                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
+
+    if( radiationPressureInterface == NULL )
+    {
+        throw std::runtime_error(
+                    "Error, body undergoing acceleration, " + nameOfBodyUndergoingAcceleration +
+                    " possesses no radiation pressure coefficient interface when making panelled radiation pressure acceleration due to " +
+                    nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        // Create acceleration model.
+        accelerationModel = std::make_shared< PanelledRadiationPressureAcceleration >(
+                    radiationPressureInterface, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+    }
+    return accelerationModel;
+}
+
 
 //! Function to create an orbiter relativistic correction acceleration model
 std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
@@ -869,7 +903,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
 
                 primaryBodyGravitationalParameterFunction =
                         std::bind( &GravityFieldModel::getGravitationalParameter,
-                                     bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) );
+                                   bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) );
 
 
             }
@@ -1013,7 +1047,7 @@ createThrustAcceleratioModel(
                 }
                 thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
                             std::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
-                                         vehicleStateFunction, centralBodyStateFunction, true ) );
+                                       vehicleStateFunction, centralBodyStateFunction, true ) );
             }
             else
             {
@@ -1178,6 +1212,35 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     }
 }
 
+//! Function to create a momentum wheel desaturation acceleration model.
+std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > createMomentumWheelDesaturationAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Check input consistency
+    std::shared_ptr< MomentumWheelDesaturationAccelerationSettings > desaturationAccelerationSettings =
+            std::dynamic_pointer_cast< MomentumWheelDesaturationAccelerationSettings >( accelerationSettings );
+    if( desaturationAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, input is inconsistent" );
+    }
+
+    if( nameOfBodyUndergoingAcceleration != nameOfBodyExertingAcceleration )
+    {
+        throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, exerting and undergoing bodies are not the same" );
+    }
+
+    // Return desaturation acceleration model.
+    return std::make_shared< propulsion::MomentumWheelDesaturationThrustAcceleration >(
+                desaturationAccelerationSettings->thrustMidTimes_,
+                desaturationAccelerationSettings->deltaVValues_,
+                desaturationAccelerationSettings->totalManeuverTime_,
+                desaturationAccelerationSettings->maneuverRiseTime_ );
+}
+
 //! Function to create acceleration model object.
 std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -1227,6 +1290,13 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
         break;
+    case panelled_radiation_pressure_acceleration:
+        accelerationModelPointer = createPanelledRadiationPressureAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
+        break;
     case thrust_acceleration:
         accelerationModelPointer = createThrustAcceleratioModel(
                     accelerationSettings, bodyMap,
@@ -1258,6 +1328,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         break;
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
+    case momentum_wheel_desaturation_acceleration:
+        accelerationModelPointer = createMomentumWheelDesaturationAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
