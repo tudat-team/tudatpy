@@ -258,7 +258,7 @@ private:
 };
 
 
-//! Class providing settings for the creation of a cannonball radiation pressure interface
+//! Class providing settings for the creation of a solar sail radiation pressure interface.
 class SolarSailRadiationInterfaceSettings: public RadiationPressureInterfaceSettings
 {
 public:
@@ -266,24 +266,34 @@ public:
     /*! Constructor
      * Constructor
      * \param sourceBody Name of body emitting the radiation.
-     * \param area Surface area that undergoes radiation pressure.
-     * \param radiationPressureCoefficient Radiation pressure coefficient.
+     * \param area Surface area that undergoes radiation pressure [m^2].
+     * \param coneAngle Function returning the current sail cone angle (in rad).
+     * \param clockAngle Function returning the current sail clock angle (in rad).
+     * \param frontEmissivityCoefficient Emissivity coefficient of the front of the sail [-].
+     * \param backEmissivityCoefficient Emissivity coefficient of the back of the sail [-].
+     * \param frontLambertianCoefficient Lambertian coefficient of the front of the sail [-].
+     * \param backLambertianCoefficient Lambertian coefficient of the back of the sail [-].
+     * \param reflectivityCoefficient Reflectivity coefficient of the sail [-].
+     * \param specularReflectionCoefficient Specular reflection coefficient of the sail [-].
      * \param occultingBodies List of bodies causing (partial) occultation.
+     * \param centralBodies List of central bodies.
      */
 
     SolarSailRadiationInterfaceSettings(
         const std::string& sourceBody,
-//        const std::function< void(const double) > updateFunction,
         const double area,
         const std::function< double( const double ) > coneAngle,
         const std::function< double( const double ) > clockAngle,
-        const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient,
-        const double backLambertianCoefficient, const double reflectivityCoefficient,
+        const double frontEmissivityCoefficient,
+        const double backEmissivityCoefficient,
+        const double frontLambertianCoefficient,
+        const double backLambertianCoefficient,
+        const double reflectivityCoefficient,
         const double specularReflectionCoefficient,
         const std::vector< std::string >& occultingBodies = std::vector< std::string >( ),
         const std::vector< std::string >& centralBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( solar_sailing_radiation_pressure_interface, sourceBody, occultingBodies ),
-        /*updateFunction_ (updateFunction),*/ area_( area ), coneAngleFunction_( coneAngle ),
+        area_( area ), coneAngleFunction_( coneAngle ),
         clockAngleFunction_( clockAngle ), frontEmissivityCoefficient_( frontEmissivityCoefficient ),
         backEmissivityCoefficient_( backEmissivityCoefficient ),
         frontLambertianCoefficient_( frontLambertianCoefficient ),
@@ -295,126 +305,126 @@ public:
     //! Function to return surface area that undergoes radiation pressure.
     /*!
      *  Function to return surface area that undergoes radiation pressure.
-     *  \return Surface area that undergoes radiation pressure.
+     *  \return Surface area that undergoes radiation pressure [m^2].
      */
     double getArea( ){ return area_; }
 
     //! Function to set surface area that undergoes radiation pressure.
     /*!
      *  Function to set surface area that undergoes radiation pressure.
-     *  \param area Surface area that undergoes radiation pressure.
+     *  \param area Surface area that undergoes radiation pressure [m^2].
      */
     void setArea( double area ){ area_ = area; }
 
-    //! Function to return cone angle
+    //! Returns the function returning the current sail cone angle.
     /*!
-     *  Function to return cone angle
-     *  \return Cone angle
+     *  Returns the function returning the current sail cone angle.
+     *  \return Function returning the current sail cone angle (in rad).
      */
     std::function< double( const double ) > getConeAngle(  ) {return coneAngleFunction_;}
 
-    //! Function to set cone angle.
+    //! Resets the function returning the current sail cone angle.
     /*!
-     *  Function to set cone angle.
-     *  \param cone angle.
+     *  Resets the function returning the current sail cone angle.
+     *  \param Function returning the current sail cone angle (in rad).
      */
     void setConeAngle( std::function< double( const double ) > coneAngle ){ coneAngleFunction_ = coneAngle; }
 
-    //! Function to return clock angle
+    //! Returns the function returning the current sail clock angle.
     /*!
-     *  Function to return clock angle
-     *  \return Cone angle
+     *  Returns the function returning the current sail clock angle.
+     *  \return Function returning the current clock angle (in rad).
      */
     std::function< double( const double ) > getClockAngle(  ) { return clockAngleFunction_; }
 
-    //! Function to set clock angle.
+    //! Resets the function returning the current sail clock angle.
     /*!
-     *  Function to set clock angle.
-     *  \param clock angle.
+     *  Resets the function returning the current sail clock angle.
+     *  \param Function returning the current clock angle (in rad).
      */
     void setClockAngle( std::function< double( const double ) > clockAngle ){ clockAngleFunction_ = clockAngle; }
 
-    //! Function to return front emissivity coefficient
+    //! Returns front emissivity coefficient.
     /*!
-     *  Function to return front emissivity coefficient
-     *  \return Front emissivity coefficient
+     *  Returns front emissivity coefficient.
+     *  \return Front emissivity coefficient [-].
      */
     double getFrontEmissivityCoefficient() { return frontEmissivityCoefficient_; }
 
-    //! Function to set front emissivity coefficient.
+    //! Resets front emissivity coefficient.
     /*!
-     *  Function to set front emissivity coefficient.
-     *  \param Front emissivity coefficient.
+     *  Resets front emissivity coefficient.
+     *  \param Front emissivity coefficient [-].
      */
     void setFrontEmissivityCoefficient( double frontEmissivityCoefficient ){ frontEmissivityCoefficient_ = frontEmissivityCoefficient; }
 
-    //! Function to return back emissivity coefficient
+    //! Returns back emissivity coefficient.
     /*!
-     *  Function to return back emissivity coefficient
-     *  \return Back emissivity coefficient
+     *  Returns back emissivity coefficient.
+     *  \return Back emissivity coefficient [-].
      */
     double getBackEmissivityCoefficient() { return backEmissivityCoefficient_; }
 
-    //! Function to set back emissivity coefficient.
+    //! Resets back emissivity coefficient.
     /*!
-     *  Function to set back emissivity coefficient.
-     *  \param Back emissivity coefficient.
+     *  Resets back emissivity coefficient.
+     *  \param Back emissivity coefficient [-].
      */
     void setBackEmissivityCoefficient( double backEmissivityCoefficient ){ backEmissivityCoefficient_ = backEmissivityCoefficient; }
 
-    //! Function to return front Lambertian coefficient
+    //! Returns front Lambertian coefficient.
     /*!
-     *  Function to return front Lambertian coefficient
-     *  \return Front Lambertian coefficient
+     *  Returns front Lambertian coefficient.
+     *  \return Front Lambertian coefficient [-].
      */
     double getFrontLambertianCoefficient() { return frontLambertianCoefficient_; }
 
-    //! Function to set front Lambertian coefficient.
+    //! Resets front Lambertian coefficient.
     /*!
-     *  Function to set front Lambertian coefficient.
-     *  \param Front Lambertian coefficient.
+     *  Resets front Lambertian coefficient.
+     *  \param Front Lambertian coefficient [-].
      */
     void setFrontLambertianCoefficient( double frontLambertianCoefficient ){ frontLambertianCoefficient_ = frontLambertianCoefficient; }
 
-    //! Function to return back Lambertian coefficient
+    //! Returns back Lambertian coefficient.
     /*!
-     *  Function to return back Lambertian coefficient
-     *  \return Back Lambertian coefficient
+     *  Returns back Lambertian coefficient.
+     *  \return Back Lambertian coefficient [-].
      */
     double getBackLambertianCoefficient() { return backLambertianCoefficient_; }
 
-    //! Function to set back Lambertian coefficient.
+    //! Resets back Lambertian coefficient.
     /*!
-     *  Function to set back Lambertian coefficient.
-     *  \param Back Lambertian coefficient.
+     *  Resets back Lambertian coefficient.
+     *  \param Back Lambertian coefficient [-].
      */
     void setBackLambertianCoefficient( double backLambertianCoefficient ){ backLambertianCoefficient_ = backLambertianCoefficient; }
 
-    //! Function to return reflectivity coefficient
+    //! Returns reflectivity coefficient.
     /*!
-     *  Function to return reflectivity coefficient
-     *  \return Reflectivity coefficient
+     *  Returns reflectivity coefficient.
+     *  \return Reflectivity coefficient [-].
      */
     double getReflectivityCoefficient() { return reflectivityCoefficient_; }
 
-    //! Function to set reflectivity coefficient.
+    //! Resets reflectivity coefficient.
     /*!
-     *  Function to set reflectivity coefficient.
-     *  \param Reflectivity coefficient.
+     *  Resets reflectivity coefficient.
+     *  \param Reflectivity coefficient [-].
      */
     void setReflectivityCoefficient( double reflectivityCoefficient ){ reflectivityCoefficient_ = reflectivityCoefficient; }
 
-    //! Function to return specular reflection coefficient
+    //! Returns specular reflection coefficient.
     /*!
-     *  Function to return specular reflection coefficient
-     *  \return Specular reflection coefficient
+     *  Returns specular reflection coefficient.
+     *  \return Specular reflection coefficient [-].
      */
     double getSpecularReflectionCoefficient() { return specularReflectionCoefficient_; }
 
-    //! Function to set specular reflection coefficient.
+    //! Resets specular reflection coefficient.
     /*!
-     *  Function to set specular reflection coefficient.
-     *  \param Specular reflection coefficient.
+     *  Resets specular reflection coefficient.
+     *  \param Specular reflection coefficient [-].
      */
     void setSpecularReflectionCoefficient( double specularReflectionCoefficient ){ specularReflectionCoefficient_ = specularReflectionCoefficient; }
 
@@ -425,36 +435,34 @@ public:
      */
     std::vector< std::string > getCentralBodies( ){ return centralBodies_; }
 
-//    //! Update function
-//    std::function< void( const double ) > updateFunction_;
 
 private:
 
-    //! Surface area that undergoes radiation pressure.
+    //! Surface area that undergoes radiation pressure [m^2].
     double area_;
 
-    //! Cone angle of the sail
+    //! Cone angle of the sail [rad].
     std::function< double( const double ) > coneAngleFunction_;
 
-    //! Clock angle of the sail
+    //! Clock angle of the sail [rad].
     std::function< double( const double ) > clockAngleFunction_;
 
-    //! Front emissivity coefficient of the sail
+    //! Front emissivity coefficient of the sail [-].
     double frontEmissivityCoefficient_;
 
-    //! Back emissivity coefficient of the sail
+    //! Back emissivity coefficient of the sail [-].
     double backEmissivityCoefficient_;
 
-    //! Front Lambertian coefficient of the sail
+    //! Front Lambertian coefficient of the sail [-].
     double frontLambertianCoefficient_;
 
-    //! Back lambertian coefficient of the sail
+    //! Back lambertian coefficient of the sail [-].
     double backLambertianCoefficient_;
 
-    //! Reflectivity coefficient of the sail
+    //! Reflectivity coefficient of the sail [-].
     double reflectivityCoefficient_;
 
-    //! Specular reflection coefficient of the sail
+    //! Specular reflection coefficient of the sail [-].
     double specularReflectionCoefficient_;
 
     //! List of bodies causing (partial) occultation
@@ -484,10 +492,8 @@ void getOccultingBodiesInformation(
  * Function to obtain (by reference) the position functions and velocity of central bodies.
  * \param bodyMap List of body objects.
  * \param centralBodies List of central bodies.
- * \param centralBodiesPosition List of central bodies' position functions (return by reference
- * output variable).
- * \param centralBodiesVelocity List of velocity of central bodies (return by reference
- * output variable).
+ * \param centralBodiesPosition List of central bodies' position functions (return by reference output variable).
+ * \param centralBodiesVelocity List of velocity of central bodies (return by reference output variable).
  */
 void getCentralBodiesInformation(
     const NamedBodyMap& bodyMap, const std::vector< std::string >& centralBodies,

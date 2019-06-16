@@ -820,7 +820,7 @@ std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > crea
     return accelerationModel;
 }
 
-//! Function to create the solar sail radiation pressure acceleration model.
+//! Function to create a solar sail radiation pressure acceleration model.
 std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
     const std::shared_ptr< Body > bodyUndergoingAcceleration,
     const std::shared_ptr< Body > bodyExertingAcceleration,
@@ -828,7 +828,7 @@ std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
     const std::string& nameOfBodyUndergoingAcceleration,
     const std::string& nameOfBodyExertingAcceleration )
 {
-    // Retrieve radiation pressure interface
+    // Retrieve radiation pressure interface.
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
             nameOfBodyExertingAcceleration ) == 0 )
     {
@@ -843,30 +843,23 @@ std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
             std::dynamic_pointer_cast< SolarSailingRadiationPressureInterface >(
                 bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
 
-//    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-//        bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
-//            nameOfBodyExertingAcceleration );
-
-    // Create acceleration model.
-    return /*std::make_shared< SolarSailAcceleration >(
-                radiationPressureInterface, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );*/
-
-            std::make_shared< SolarSailAcceleration >(
-        std::bind( &Body::getPosition, bodyExertingAcceleration ),
-        std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-        std::bind( &Body::getVelocity, bodyUndergoingAcceleration ),
-        std::bind( &Body::getVelocity, centralBody ),
-        std::bind( &SolarSailingRadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getBackLambertianCoefficient, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getReflectivityCoefficient, radiationPressureInterface ),
-        std::bind( &SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient, radiationPressureInterface ),
-        std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-        std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+    // Create and return solar sailing acceleration model.
+    return std::make_shared< SolarSailAcceleration >(
+                std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                std::bind( &Body::getVelocity, bodyUndergoingAcceleration ),
+                std::bind( &Body::getVelocity, centralBody ),
+                std::bind( &SolarSailingRadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getBackLambertianCoefficient, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getReflectivityCoefficient, radiationPressureInterface ),
+                std::bind( &SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient, radiationPressureInterface ),
+                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
+                std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 
 }
 

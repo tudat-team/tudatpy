@@ -327,16 +327,14 @@ std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > crea
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
-//! Function to create a non-ideal solar pressure radiation acceleration
+//! Function to create a non-ideal solar pressure radiation acceleration.
 /*!
- * Function to create a non-ideal solar pressure radiation acceleration
+ * Function to create a non-ideal solar pressure radiation acceleration.
  *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
- *  \param bodyExertingAcceleration Pointer to object of body that is exerting the central gravity
- *  acceleration.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
  *  \param centralBody Pointer to object of central body.
  *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
- *  \param nameOfBodyExertingAcceleration Name of body that is exerting the central gravity
- *   acceleration.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the acceleration.
  *  \return Solar sail acceleration model pointer.
  */
 std::shared_ptr< electro_magnetism::SolarSailAcceleration >

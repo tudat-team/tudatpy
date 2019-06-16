@@ -34,31 +34,27 @@ namespace tudat
 namespace electro_magnetism
 {
 
-//! Compute radiation pressure acceleration using an ideal and non-ideal model.
+//! Compute solar sail acceleration with a non-ideal reflective model.
 /*!
- * Computes radiation pressure acceleration using a cannon-ball model, i.e. assuming force to be in
- * opposite direction of the vector to the source. This function is essentially a wrapper for the
- * function that computes the force.
- * opposite direction of the vector to the source.
- * \param frontEmissivity Parameter determining the emissivity of the front of the sail         [-]
- * \param backEmissivity  Parameter determining the emissivity of the back of the sail          [-]
- * \param frontLambertianCoefficient  Parameter determining the Lambertian coefficient
- *        of the front of the sail                                                              [-]
- * \param backLambertianCoefficient   Parameter determining the Lambertian coefficient
- *        of the back of the sail
- * \param reflectivityCoefficient   Coefficient determining the front reflectivity of
- *        the sail
- * \param specularReflection Coefficient  Coefficient of specular reflection                    [-]
- * \param vectorToSource Vector pointing from target to source. N.B: this must be a unit
- *          vector! To compute the unit vector based on a given position vector, you can
- *          use the .normalize() or .normalized() member functions of an Eigen::Vector3d
- *          object.
- * \param radiationPressure Radiation pressure at targert                                   [N/m^2]                                                  [-]
- * \param area Area on which radiation pressure is assumed to act.                            [m^2]
- * \param coneAngle Sail cone angle                                                           [rad]
- * \param mass Mass of accelerated body.                                                       [kg]
- * \return Acceleration due to radiation pressure.                                          [m/s^2]
- * \sa computeSolarSailAccelerationForce().
+ * Compute solar sail acceleration with a non-ideal reflective model. The acceleration is computed from the force derived from
+ * the solar sailing radiation pressure model, which is itself a function of the source power and geometry, as well as of the
+ * solar sailing model.
+ * \param frontEmissivity Emissivity coefficient of the front of the sail.                               [-]
+ * \param backEmissivity Emissivity coefficient of the back of the sail.                                 [-]
+ * \param frontLambertianCoefficient Lambertian coefficient of the front of the sail.                    [-]
+ * \param backLambertianCoefficient Lambertian coefficient of the back of the sail.                      [-]
+ * \param reflectivityCoefficient Reflectivity coefficient of the sail.                                  [-]
+ * \param specularReflection Specular reflection coefficient of the sail.                                [-]
+ * \param vectorToSource Normalised vector pointing from target to source. N.B: this must be a unit vector!
+ *          To compute the unit vector based on a given position vector, you can use the
+ *          .normalize() or .normalized() member functions of an Eigen::Vector3d object.                 [-]
+ * \param velocityUnitVector Normalised velocity vector of the spacecraft w.r.t. central body.           [-]
+ * \param radiationPressure Radiation pressure at target.                                            [N/m^2]
+ * \param area Area on which radiation pressure is assumed to act.                                     [m^2]
+ * \param coneAngle Sail cone angle.                                                                   [rad]
+ * \param clockAngle Sail clock angle.                                                                 [rad]
+ * \param mass Mass of accelerated body.                                                                [kg]
+ * \return Acceleration due to radiation pressure.                                                   [m/s^2]
  */
 Eigen::Vector3d computeSolarSailAcceleration(
         const double frontEmissivityCoefficient,
@@ -77,7 +73,7 @@ Eigen::Vector3d computeSolarSailAcceleration(
 
 //! Solar sail acceleration model class.
 /*!
- * Class that can be used to compute the solar sail acceleration using a non-ideal model
+ * Class for calculating the solar sail acceleration using a non-ideally reflective model.
  */
 class SolarSailAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
@@ -101,18 +97,18 @@ public:
     /*!
      * Constructor taking function pointers for all variables.
      * \param sourcePositionFunction Function returning position of radiation source.
-     * \param acceleratedBodyPositionFunction Function returning position of body undergoing
-     *          acceleration.
-     * \param centralBodyVelocityFunction Function returning velocity of central body
+     * \param acceleratedBodyPositionFunction Function returning position of body undergoing acceleration.
+     * \param acceleratedBodyVelocityFunction Function returning velocity of body undergoing acceleration.
+     * \param centralBodyVelocityFunction Function returning velocity of central body.
      * \param radiationPressureFunction Function returning current radiation pressure.
-     * \param coneAngleFunction Function returning current cone angle
-     * \param clockAngleFunction Function returning current clock angle
-     * \param frontEmissivityCoefficientFunction Function returning current front emissivity coefficient
-     * \param backEmissivityCoefficientFunction Function returning current back emissivity coefficient
-     * \param frontLambertianCoefficientFunction Function returning current front Lambertian coefficient
-     * \param backLambertianCoefficientFunction Function returning current back Lambertian coefficient
-     * \param reflectivityCoefficientFunction Function returning current reflectivity coefficient
-     * \param specularReflectionCoefficientFunction Function returning current specular reflection coefficient
+     * \param coneAngleFunction Function returning current cone angle.
+     * \param clockAngleFunction Function returning current clock angle.
+     * \param frontEmissivityCoefficientFunction Function returning current front emissivity coefficient.
+     * \param backEmissivityCoefficientFunction Function returning current back emissivity coefficient.
+     * \param frontLambertianCoefficientFunction Function returning current front Lambertian coefficient.
+     * \param backLambertianCoefficientFunction Function returning current back Lambertian coefficient.
+     * \param reflectivityCoefficientFunction Function returning current reflectivity coefficient.
+     * \param specularReflectionCoefficientFunction Function returning current specular reflection coefficient.
      * \param areaFunction Function returning current area assumed to undergo radiation pressure.
      * \param massFunction Function returning current mass of body undergoing acceleration.
      */
@@ -156,16 +152,17 @@ public:
      * Constructor taking function pointers for position vectors and radiation pressure and
      * constant values for other parameters.
      * \param sourcePositionFunction Function returning position of radiation source.
-     * \param acceleratedBodyPositionFunction Function returning position of body undergoing
-     *          acceleration.
+     * \param acceleratedBodyPositionFunction Function returning position of body undergoing acceleration.
+     * \param acceleratedBodyVelocityFunction Function returning velocity vector of body undergoing acceleration.
+     * \param centralBodyVelocityFunction Function returning velocity vector of central body.
      * \param radiationPressureFunction Function returning current radiation pressure.
-     * \param coneAngleFunction Function returning current cone angle
-     * \param clockAngleFunction Function returning current clock angle
-     * \param frontEmissivityCoefficient Constant front emissivity coefficient
-     * \param backEmissivityCoefficient Constant back emissivity coefficient
-     * \param frontLambertianCoefficient Constant front Lambertian coefficient
-     * \param backLambertianCoefficient Constant back Lambertian coefficient
-     * \param reflectivityCoefficient Constant reflectivity coefficient
+     * \param coneAngleFunction Function returning current sail cone angle.
+     * \param clockAngleFunction Function returning current sail clock angle.
+     * \param frontEmissivityCoefficient Constant front emissivity coefficient.
+     * \param backEmissivityCoefficient Constant back emissivity coefficient.
+     * \param frontLambertianCoefficient Constant front Lambertian coefficient.
+     * \param backLambertianCoefficient Constant back Lambertian coefficient.
+     * \param reflectivityCoefficient Constant reflectivity coefficient.
      * \param coefficientSpecularReflection Constant specular reflection coefficient
      * \param area Constant area assumed to undergo radiation pressure.
      * \param mass Constant mass of body undergoing acceleration.
@@ -207,14 +204,14 @@ public:
     }
 
 
-    //! Constructor for setting up the acceleration model, with input RadiationPressureInterface (and massFunction)
+    //! Constructor for setting up the acceleration model, with input SolarSailingRadiationPressureInterface (and massFunction)
     /*!
-     *  Constructor for setting up the acceleration model, with input RadiationPressureInterface (and massFunction). The massFunction
-     *  is only used to convert force to acceleration. All radiation pressure properties are taken from the
-     *  RadiationPressureInterface object.
-     *  \param radiationPressureInterface Object in which radiation pressure properties of accelerated body due to radiation
+     *  Constructor for setting up the acceleration model, with input SolarSailingRadiationPressureInterface (and massFunction).
+     *  The massFunction is only used to convert force to acceleration. All solar sailing radiation pressure properties are taken from the
+     *  SolarSailingRadiationPressureInterface object.
+     *  \param radiationPressureInterface Object in which solar sailing radiation pressure properties of accelerated body due to radiation
      *  from body causing acceleration is stored.
-     *  \param massFunction Function returning the current mass of the body being accelerated
+     *  \param massFunction Function returning the current mass of the body being accelerated.
      */
     SolarSailAcceleration( const std::shared_ptr< SolarSailingRadiationPressureInterface > radiationPressureInterface,
                            const std::function< double( ) > massFunction ):
@@ -245,8 +242,8 @@ public:
      * classes/structs, etc., which are to be set in a derived class and evaluated by the
      * updateMembers() function below. This function is essentially a wrapper for the free
      * function that computes the solar sail acceleration.
-     * \return Solar sail acceleration.
-     * \sa computeSolarSailAcceleration().
+     *
+     * \return Solar sail acceleration [m/s^2].
      */
     Eigen::Vector3d getAcceleration( )
     {
@@ -264,7 +261,8 @@ public:
      * Updates member variables used by the acceleration model. This function evaluates all
      * dependent variables to the 'current' values of these parameters. Only these current values,
      * not the function-pointers are then used by the getAcceleration( ) function.
-     * \param currentTime Time at which acceleration model is to be updated.
+     *
+     * \param currentTime Time at which acceleration model is to be updated [s].
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
@@ -302,17 +300,17 @@ public:
     //! Returns the current normalized vector from the accelerated body to the source body
     /*!
      *  Returns the current normalized vector from the accelerated body to the source body, as set by the last call to the updateMembers function
-     *  \return The current normalized vector from the accelerated body to the source body
+     *  \return Crrent normalized vector from the accelerated body to the source body [-].
      */
     Eigen::Vector3d getCurrentVectorToSource( )
     {
         return currentNormalizedVectorToSource_;
     }
 
-    //! Returns the current normalized velocity vector vector of the accelerated body w.r.t. the source body.
+    //! Returns the current normalized velocity vector vector of the accelerated body w.r.t. the central body.
     /*!
-     *  Returns the current normalized velocity vector vector of the accelerated body w.r.t. the source body.
-     *  \return The current normalized velocity vector of the accelerated body w.r.t. the source body.
+     *  Returns the current normalized velocity vector vector of the accelerated body w.r.t. the central body.
+     *  \return Current normalized velocity vector of the accelerated body w.r.t. the central body [-].
      */
     Eigen::Vector3d getCurrentVelocityVector( )
     {
@@ -323,18 +321,18 @@ public:
     /*!
      *  Returns the current distance from the accelerated body to the source body, as set by the last call to the updateMembers function
      *  (i.e. norm of the current vector from accelerated body to the source)
-     *  \return The current distance from the accelerated body to the source body
+     *  \return Current distance from the accelerated body to the source body [m].
      */
     double getCurrentDistanceToSource( )
     {
         return currentDistanceToSource_;
     }
 
-    //! Returns the current velocity of the accelerated body w.r.t. the source body
+    //! Returns the current velocity of the accelerated body w.r.t. the central body
     /*!
-     *  Returns the current distance of the accelerated body w.r.t. the source body, as set by the last call to the updateMembers function
-     *  (i.e. norm of the current velocity vector of the accelerated body w.r.t. source body)
-     *  \return The current velocity of the accelerated body w.r.t. the source body
+     *  Returns the current distance of the accelerated body w.r.t. the central body, as set by the last call to the updateMembers function
+     *  (i.e. norm of the current velocity vector of the accelerated body w.r.t. central body)
+     *  \return Current velocity of the accelerated body w.r.t. the central body [m/s].
      */
     double getCurrentVelocityWrtSource( )
     {
@@ -345,7 +343,7 @@ public:
     /*!
      *  Returns the current radiation pressure at the accelerated body, as set by the last call to the updateMembers function
      *  (i.e. incident flux, in W/m^2, divided by speed of light)
-     *  \return The current radiation pressure at the accelerated body
+     *  \return Current radiation pressure at the accelerated body [N/m^2].
      */
     double getCurrentRadiationPressure( )
     {
@@ -355,7 +353,7 @@ public:
     //! Returns the current mass of the accelerated body
     /*!
      *  Returns the current mass of the accelerated body, as set by the last call to the updateMembers function
-     *  \return The current mass of the accelerated body
+     *  \return Current mass of the accelerated body [kg].
      */
     double getCurrentMass( )
     {
@@ -365,7 +363,7 @@ public:
     //! Returns the current area of the accelerated body
     /*!
      *  Returns the current area of the accelerated body, as set by the last call to the updateMembers function
-     *  \return The current area of the accelerated body
+     *  \return Current area of the accelerated body [m^2].
      */
     double getCurrentArea( )
     {
@@ -477,49 +475,49 @@ private:
 
     //! Current front emissivity coefficient.
     /*!
-     * Current front emissivity coefficient.
+     * Current front emissivity coefficient [-].
      */
     double currentFrontEmissivityCoefficient_;
 
     //! Current back emissivity coefficient.
     /*!
-     * Current back emissivity coefficient.
+     * Current back emissivity coefficient [-].
      */
     double currentBackEmissivityCoefficient_;
 
     //! Current front Lambertian coefficient.
     /*!
-     * Current front Lambertian coefficient.
+     * Current front Lambertian coefficient [-].
      */
     double currentFrontLambertianCoefficient_;
 
     //! Current back Lambertian coefficient.
     /*!
-     * Current back Lambertian coefficient.
+     * Current back Lambertian coefficient [-].
      */
     double currentBackLambertianCoefficient_;
 
     //! Current reflectivity coefficient.
     /*!
-     * Current reflectivity coefficient.
+     * Current reflectivity coefficient [-].
      */
     double currentReflectivityCoefficient_;
 
     //! Current specular reflection coefficient.
     /*!
-     * Current specular reflection coefficient.
+     * Current specular reflection coefficient [-].
      */
     double currentSpecularReflectionCoefficient_;
 
-    //! Current vector from accelerated body to source.
+    //! Current normalised vector from accelerated body to source.
     /*!
-     * Current vector from accelerated body to source (3D vector).
+     * Current normalised vector from accelerated body to source (3D vector) [-].
      */
     Eigen::Vector3d currentNormalizedVectorToSource_;
 
-    //! Current velocity unit vector of the propagated body.
+    //! Current normalised velocity unit vector of the propagated body w.r.t. central body.
     /*!
-     * Current velocity unit vector of the propagated body (3D vector).
+     * Current normalised velocity unit vector of the propagated body w.r.t. central body (3D vector) [-].
      */
     Eigen::Vector3d currentNormalizedVelocityVector_;
 
@@ -559,9 +557,9 @@ private:
      */
     double currentDistanceToSource_;
 
-    //! Current velocity of the accelerated body w.r.t. the source body.
+    //! Current velocity of the accelerated body w.r.t. the central body.
     /*!
-     * Current velocity of the accelerated body w.r.t. the source body [m/s].
+     * Current velocity of the accelerated body w.r.t. the central body [m/s].
      */
     double currentVelocityWrtSource_;
 

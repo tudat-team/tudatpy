@@ -20,7 +20,7 @@ namespace tudat
 namespace electro_magnetism
 {
 
-//! Compute solar sail acceleration with a non-ideal reflective model
+//! Compute solar sail acceleration with a non-ideal reflective model.
 Eigen::Vector3d computeSolarSailAcceleration(
         const double frontEmissivityCoefficient,
         const double backEmissivityCoefficient,
