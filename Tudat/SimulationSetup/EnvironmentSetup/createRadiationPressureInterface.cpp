@@ -51,13 +51,13 @@ void getOccultingBodiesInformation(
 }
 
 
-//! Function to obtain (by reference) the position functions and velocity of central bodies
+//! Function to obtain (by reference) the position functions and velocity of central bodies.
 void getCentralBodiesInformation(
     const NamedBodyMap& bodyMap, const std::vector< std::string >& centralBodies,
     std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesPosition,
     std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesVelocity )
 {
-    // Iterate over occulring bodies and retrieve radius and position function.
+    // Iterate over central bodies and retrieve position and velocity function.
     for( unsigned int i = 0; i < centralBodies.size( ); i++ )
     {
         if( bodyMap.count( centralBodies[ i ] ) == 0 )
@@ -182,13 +182,13 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
         std::shared_ptr< Body > sourceBody =
                 bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
 
-        // Get reqruied data for occulting bodies.
+        // Get required data for occulting bodies.
         std::vector< std::string > occultingBodies = panelledSettings->getOccultingBodies( );
         std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
         std::vector< double > occultingBodyRadii;
         getOccultingBodiesInformation( bodyMap, occultingBodies, occultingBodyPositions, occultingBodyRadii );
 
-        // Retrive radius of source if occultations are used.
+        // Retrieve radius of source if occultations are used.
         double sourceRadius;
         if( occultingBodyPositions.size( ) > 0 )
         {
@@ -247,8 +247,7 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
     {
         // Check type consistency.
         std::shared_ptr< SolarSailRadiationInterfaceSettings > solarSailRadiationSettings =
-                std::dynamic_pointer_cast< SolarSailRadiationInterfaceSettings >(
-                radiationPressureInterfaceSettings );
+                std::dynamic_pointer_cast< SolarSailRadiationInterfaceSettings >( radiationPressureInterfaceSettings );
 
         if( solarSailRadiationSettings == nullptr )
         {
@@ -260,19 +259,17 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
         {
             throw std::runtime_error( "Error when making solar sail radiation interface, source not found.");
         }
-
-        std::shared_ptr< Body > sourceBody =
-            bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
+        std::shared_ptr< Body > sourceBody = bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
 
 
-        // Get reqruied data for occulting bodies.
+        // Get required data for occulting bodies.
         std::vector< std::string > occultingBodies = solarSailRadiationSettings->getOccultingBodies( );
         std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
         std::vector< double > occultingBodyRadii;
         getOccultingBodiesInformation(
             bodyMap, occultingBodies, occultingBodyPositions, occultingBodyRadii );
 
-        // Retrive radius of source if occultations are used.
+        // Retrieve radius of source if occultations are used.
         double sourceRadius;
         if( occultingBodyPositions.size( ) > 0 )
         {
@@ -317,14 +314,13 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
                                                     radiationPressureInterfaceSettings->getSourceBody( ) );};
         }
 
-        // Create radiation pressure interface.
+        // Create solar sailing radiation pressure interface.
         radiationPressureInterface =
             std::make_shared< electro_magnetism::SolarSailingRadiationPressureInterface >(
                 radiatedPowerFunction,
                 std::bind( &Body::getPosition, sourceBody ),
                 std::bind( &Body::getPosition, bodyMap.at( bodyName ) ),
                 std::bind( &Body::getVelocity, bodyMap.at( bodyName ) ),
-//                solarSailRadiationSettings->updateFunction_,
                 solarSailRadiationSettings->getArea( ),
                 solarSailRadiationSettings->getConeAngle(),
                 solarSailRadiationSettings->getClockAngle(),

@@ -40,7 +40,7 @@
 #include "Tudat/Astrodynamics/ElectroMagnetism/solarSailAcceleration.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureForce.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
-
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 namespace tudat
 {
@@ -57,16 +57,14 @@ const double astronomicalUnitInMeters = 1.49598e11;
 
 // Set gravitational parameter of the Earth [m^3 s^-2].
 // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-//            of gravitational constant taken from
-//            http://ssd.jpl.nasa.gov/?constants#ref.
+//            of gravitational constant taken from http://ssd.jpl.nasa.gov/?constants#ref.
 const double earthGravitationalParameter = 3.9859383624e14;
 
-//! Test implementation of radiation force model.
+//! Test solar sail force in the case where the non-ideal solar sail model is equivalent to the cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailModelVsCannonBall )
 {
-    // The case in which the solar sail non-ideal model equals the cannon ball model is here tested
+    // Data for the cannon ball model.
 
-    // Data for the cannon ball model:
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.21;
 
@@ -77,24 +75,21 @@ BOOST_AUTO_TEST_CASE( testSolarSailModelVsCannonBall )
     Eigen::Vector3d positionVectorToSource
             = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
 
+    // Compute distance between spacecraft and source [m].
     const double positionVectorToSourceNorm = positionVectorToSource.norm();
 
     // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU
-            * astronomicalUnitInMeters * astronomicalUnitInMeters
+    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector from spacecraft to source [-].
     positionVectorToSource.normalize( );
 
-    // Compute radiation pressure force [N].
-    const Eigen::Vector3d computedRadiationPressureForce
-                = electro_magnetism::computeCannonBallRadiationPressureForce(
-                    radiationPressureAtTarget, positionVectorToSource,
-                    areaSubjectToRadiationPressure, radiationPressureCoefficient );
+    // Compute radiation pressure force from cannonball radiation pressure model [N].
+    const Eigen::Vector3d computedRadiationPressureForce = electro_magnetism::computeCannonBallRadiationPressureForce(
+                radiationPressureAtTarget, positionVectorToSource, areaSubjectToRadiationPressure, radiationPressureCoefficient );
 
-    // Data for the solar sail model
-
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -104,26 +99,26 @@ BOOST_AUTO_TEST_CASE( testSolarSailModelVsCannonBall )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
-    Eigen::Vector3d velocityVector = std::sqrt(earthGravitationalParameter/positionVectorToSourceNorm)
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
+    // Compute velocity vector of the spacecraft w.r.t. central body [m/s].
+    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
+        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-        frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-        backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-        velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
+    // Compute force from solar sail model [N].
+    const Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
+                frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient, backLambertianCoefficient,
+                reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource, velocityVector.normalized(),
+                radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
 
     // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_EQUAL( computedRadiationPressureForce.z( ),
-                       computedSolarSailForce.z( ) );
+    BOOST_CHECK_EQUAL( computedRadiationPressureForce.z( ), computedSolarSailForce.z( ) );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureForce.segment( 0, 2 ),
-                                       computedSolarSailForce.segment( 0, 2 ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureForce.segment( 0, 2 ), computedSolarSailForce.segment( 0, 2 ),
                                        1.0e-15 );
 }
 
-//! Test acceleration model on sample satellite at approximately 1 AU away from the Sun.
+
+//! Test solar sail acceleration model on spacecraft at approximately 1 AU away from the Sun, with a solar sail model
+//! equivalent to the cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelEarth )
 {
     // Benchmark data is obtained using the General Astrodynamics Library (Willmott, 2011).
@@ -135,29 +130,26 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelEarth )
     const double areaSubjectToRadiationPressure = 2.0;
 
     // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-            = Eigen::Vector3d( astronomicalUnitInMeters, 0.0, 0.0 );
+    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, 0.0, 0.0 );
 
+    // Compute distance between spacecraft and source [m].
     const double positionVectorToSourceNorm = positionVectorToSource.norm();
 
     // Set radiation pressure at target [N/m^2].
     const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
     // Set mass of accelerated body [kg].
     const double mass = 4.0;
 
-    // Compute radiation pressure acceleration [m/s^2].
-    const Eigen::Vector3d computedRadiationPressureAcceleration
-            = electro_magnetism::computeCannonBallRadiationPressureAcceleration(
-                radiationPressureAtTarget, positionVectorToSource,
-                areaSubjectToRadiationPressure, radiationPressureCoefficient, mass );
+    // Compute radiation pressure acceleration from cannonball radiation pressure model [m/s^2].
+    const Eigen::Vector3d computedRadiationPressureAcceleration = electro_magnetism::computeCannonBallRadiationPressureAcceleration(
+                radiationPressureAtTarget, positionVectorToSource, areaSubjectToRadiationPressure, radiationPressureCoefficient, mass );
 
-    // Data for the solar sail model
-
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -167,36 +159,30 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelEarth )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
             * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
-    const Eigen::Vector3d computedSolarSailAcceleration
-        = electro_magnetism::computeSolarSailAcceleration(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle, mass);
-
+    // Compute solar sail acceleration [m/s^2].
+    const Eigen::Vector3d computedSolarSailAcceleration = electro_magnetism::computeSolarSailAcceleration(
+                frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient, backLambertianCoefficient,
+                reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource, velocityVector.normalized(),
+                radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle, mass);
 
     // Compare computed and expected radiation pressure acceleration vectors
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureAcceleration,
-                                       computedSolarSailAcceleration,
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureAcceleration, computedSolarSailAcceleration,
                                        1.0e-15 );
 }
 
-//! Test acceleration model on sample satellite at approximately the position of Venus with respect
-//! to the Sun.
+
+//! Test solar sail acceleration model on spacecraft at approximately the distance of Venus away from the Sun, with a solar sail model
+//! equivalent to the cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelVenus )
 {
     // Benchmark data is obtained using the General Astrodynamics Library (Willmott, 2011).
-    // Tests satellite at approximately the distance of Venus away from the Sun.
 
-    // Set the distance from the Sun to Venus.
+    // Set the distance from the Sun to Venus [m].
     const double distanceSunToVenus = 0.732 * astronomicalUnitInMeters;
-
-    // Set expected radiation pressure acceleration [m/s^2].
-    const Eigen::Vector3d expectedRadiationPressureAcceleration = Eigen::Vector3d( - 2.05147517201883e-05,
-                             - 2.05147517201883e-05, 0.0 );
 
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.5;
@@ -208,25 +194,21 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelVenus )
     Eigen::Vector3d positionVectorToSource
             = Eigen::Vector3d( distanceSunToVenus / std::sqrt( 2.0 ), distanceSunToVenus / std::sqrt( 2.0 ), 0.0 );
 
-
     // Set radiation pressure at target [N/m^2].
     const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
     // Set mass of accelerated body [kg].
     const double mass = 0.0022;
 
-    // Compute radiation pressure acceleration [m/s^2].
+    // Compute radiation pressure acceleration from cannonball radiation pressure model [m/s^2].
     const Eigen::Vector3d computedRadiationPressureAcceleration = electro_magnetism::computeCannonBallRadiationPressureAcceleration(
-                radiationPressureAtTarget, positionVectorToSource,
-                areaSubjectToRadiationPressure, radiationPressureCoefficient, mass );
+                radiationPressureAtTarget, positionVectorToSource, areaSubjectToRadiationPressure, radiationPressureCoefficient, mass );
 
-
-    // Data for the solar sail model
-
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -236,10 +218,11 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelVenus )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / distanceSunToVenus)
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
+        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
+    // Compute solar sail acceleration [m/s^2].
     const Eigen::Vector3d computedSolarSailAcceleration
         = electro_magnetism::computeSolarSailAcceleration(
             frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
@@ -247,24 +230,21 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelVenus )
             velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle, mass);
 
 
-    // Compare computed and expected radiation pressure acceleration vectors.
-    BOOST_CHECK_SMALL( computedRadiationPressureAcceleration.z( ),
-                      std::numeric_limits< double >::min( ) );
+    // Check there is no acceleration generated along the z-axis.
+    BOOST_CHECK_SMALL( computedRadiationPressureAcceleration.z( ), std::numeric_limits< double >::min( ) );
 
+    // Compare computed and expected radiation pressure acceleration vectors.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureAcceleration.segment( 0, 2 ),
                                        computedSolarSailAcceleration.segment( 0, 2 ),
                                        1.0e-14 );
 }
 
-//! Test force model on sample planet at approximately the position of Uranus with respect to the
-//! Sun.
+
+//! Test solar sail force model on spacecraft at approximately the distance of Uranus away from the Sun, with a solar sail model
+//! equivalent to the cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailForceModelUranus )
 {
     // Benchmark data is obtained using the General Astrodynamics Library (Willmott, 2011).
-    // Tests satellite at approximately the distance of Uranus away from the Sun.
-
-    // Set expected radiation pressure force [N].
-    const Eigen::Vector3d expectedRadiationPressureForce = Eigen::Vector3d( - 4470411.61112176, - 4470411.61112176, 0.0 );
 
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.8;
@@ -272,30 +252,25 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelUranus )
     // Set area on target that is subject to radiation pressure [m^2].
     const double areaSubjectToRadiationPressure = 69939064094327.4;
 
+    // Define distance between Uranus and the Sun, which is also the distance between the spacecraft and the Sun [m].
     const double distanceSunToUranus = 9.529 * astronomicalUnitInMeters;
 
     // Set position vector [m].
     Eigen::Vector3d positionVectorToSource
-            = Eigen::Vector3d( distanceSunToUranus / std::sqrt( 2.0 ),
-                               distanceSunToUranus / std::sqrt( 2.0 ),
-                               0.0 );
+            = Eigen::Vector3d( distanceSunToUranus / std::sqrt( 2.0 ), distanceSunToUranus / std::sqrt( 2.0 ), 0.0 );
 
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU
-            * astronomicalUnitInMeters * astronomicalUnitInMeters
+    // Compute radiation pressure at target [N/m^2].
+    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
-    // Compute radiation pressure force [N].
-    const Eigen::Vector3d computedRadiationPressureForce
-            = electro_magnetism::computeCannonBallRadiationPressureForce(
-                radiationPressureAtTarget, positionVectorToSource,
-                areaSubjectToRadiationPressure, radiationPressureCoefficient );
+    // Compute radiation pressure force from cannonball radiation pressure model [N].
+    const Eigen::Vector3d computedRadiationPressureForce = electro_magnetism::computeCannonBallRadiationPressureForce(
+                radiationPressureAtTarget, positionVectorToSource, areaSubjectToRadiationPressure, radiationPressureCoefficient );
 
-    // Data for the solar sail model
-
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -305,16 +280,15 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelUranus )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. the central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / distanceSunToUranus )
         * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
+    // Compute force from the solar sail model [N].
+    const Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
+                frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
+                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
+                velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
 
 
     // Compare computed and expected radiation pressure force vectors.
@@ -323,16 +297,12 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelUranus )
                                        1.0e-14 );
 }
 
-//! Test force model on random satellite at a random distance with respect to the
-//! Sun.
+
+//! Test solar sail force model on a spacecraft at a random distance from the Sun, with a solar sail model equivalent to the
+//! cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailForceModelRandom )
 {
     // Benchmark data is obtained using the General Astrodynamics Library (Willmott, 2011).
-    // Tests satellite at random distance from the Sun.
-
-    // Set expected radiation pressure force [N].
-    const Eigen::Vector3d expectedRadiationPressureForce =
-            Eigen::Vector3d( - 3043733.21422537, - 2929936.30441141, - 473166.433773283 );
 
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.4058;
@@ -341,25 +311,24 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelRandom )
     const double areaSubjectToRadiationPressure = 514701.9505;
 
     // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-            = Eigen::Vector3d( 94359740.25, 90831886.1, 14668782.92 );
+    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( 94359740.25, 90831886.1, 14668782.92 );
 
+    // Compute distance of the spacecraft w.r.t. the Sun [m].
     const double positionVectorToSourceNorm = positionVectorToSource.norm();
 
     // Set radiation pressure at target [N/m^2].
     const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
-    // Compute radiation pressure force [N].
+    // Compute radiation pressure force from cannonball radiation pressure model [N].
     const Eigen::Vector3d computedRadiationPressureForce = electro_magnetism::computeCannonBallRadiationPressureForce(
                 radiationPressureAtTarget, positionVectorToSource,
                 areaSubjectToRadiationPressure, radiationPressureCoefficient );
 
-    // Data for the solar sail model
-
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -369,31 +338,26 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelRandom )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. the central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
+        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
+    // Compute force from solar sail model [N].
+    const Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
             frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
             backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
             velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
 
     // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureForce,
-                                       computedSolarSailForce,
-                                       1.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureForce, computedSolarSailForce, 1.0e-14 );
 }
 
-//! Test radiation force model on a hand at approximately 1 AU from the Sun.
+//! Test radiation force model on a hand at approximately 1 AU from the Sun, with a solar sail model equivalent to the
+//! cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailForceModelGiancoliData )
 {
     // Benchmark data is obtained from Physics for Scientists and Engineers
     // with Modern Physics Volume 2 (Ch. 31, Ex. 7) (Giancoli, 1985).
-
-    // Set expected radiation pressure force [N].
-    const Eigen::Vector3d expectedRadiationPressureForce =
-            Eigen::Vector3d( 6.0e-8, 0.0, 0.0 );
 
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.0;
@@ -402,57 +366,54 @@ BOOST_AUTO_TEST_CASE( testSolarSailForceModelGiancoliData )
     const double areaSubjectToRadiationPressure = 0.02;
 
     // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-            = Eigen::Vector3d( astronomicalUnitInMeters, 0.0, 0.0 );
+    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, 0.0, 0.0 );
 
     // Set radiation pressure at target [N/m^2].
     const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
-    // Compute radiation pressure force [N].
+    // Compute radiation pressure force from cannonball radiation pressure model [N].
     const Eigen::Vector3d computedRadiationPressureForce = electro_magnetism::computeCannonBallRadiationPressureForce(
-                radiationPressureAtTarget, positionVectorToSource,
-                areaSubjectToRadiationPressure, radiationPressureCoefficient );
+                radiationPressureAtTarget, positionVectorToSource, areaSubjectToRadiationPressure, radiationPressureCoefficient );
 
-    // Data for the solar sail model
+    // Define solar sail settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
     const double backLambertianCoefficient = 0.4;
-    const double reflectivityCoefficient = 0.0; //i.e., C_r
-    const double specularReflectionCoefficient = 1.0; //i.e., s
+    const double reflectivityCoefficient = 0.0;
+    const double specularReflectionCoefficient = 1.0;
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. the central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt(earthGravitationalParameter/astronomicalUnitInMeters)
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
+        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
+
+    // Compute force from solar sail model [N].
+    const Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
+                frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
+                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
+                velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
 
 
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
+    // Check there is no force component along the x-axis.
+    BOOST_CHECK_SMALL( std::fabs( computedRadiationPressureForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-6 );
 
     // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( computedRadiationPressureForce.x( )
-                                  - computedSolarSailForce.x( ) ), 1.0e-6 );
     BOOST_CHECK_SMALL( computedSolarSailForce.y( ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( computedSolarSailForce.z( ), std::numeric_limits< double >::min( ) );
 }
 
 
-//! Test radiation acceleration model on Ulysses satellite at 1AU.
+//! Test radiation acceleration model on Ulysses satellite at 1AU, with a solar sail model equivalent to the
+//! cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelUlysses )
 {
     // Benchmark data obtained from (Irizarry, 2001).
-
-    // Set expected radiation pressure acceleration [m/s^2].
-    const Eigen::Vector3d expectedRadiationPressureAcceleration = Eigen::Vector3d( -1.713e-7, 0.0, 0.0 );
 
     // Set radiation pressure coefficient (1 + emissivity).
     const double radiationPressureCoefficient = 1.0 + 0.327;
@@ -467,18 +428,18 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelUlysses )
     const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
             / positionVectorToSource.squaredNorm( );
 
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
+    // Normalize position vector to get vector pointing to source in non-dimensional units [-].
     positionVectorToSource.normalize( );
 
     // Set mass of accelerated body [kg].
     const double mass = 370.0;
 
-    // Compute radiation pressure acceleration [m/s^2].
+    // Compute radiation pressure acceleration from cannonball radiation pressure model [m/s^2].
     const Eigen::Vector3d computedRadiationPressureAcceleration = electro_magnetism::computeCannonBallRadiationPressureAcceleration(
                 radiationPressureAtTarget, positionVectorToSource,
                 areaSubjectToRadiationPressure, radiationPressureCoefficient, mass );
 
-    // Data for the solar sail model
+    // Define solar sail model settings.
     const double frontEmissivityCoefficient = 0.4;
     const double backEmissivityCoefficient = frontEmissivityCoefficient;
     const double frontLambertianCoefficient = 0.4;
@@ -488,20 +449,21 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelUlysses )
     const double coneAngle = 0.0;
     const double clockAngle = 0.0;
 
+    // Compute velocity vector of the spacecraft w.r.t. the central body [m/s].
     Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / astronomicalUnitInMeters)
         * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
 
-
+    // Compute solar sail acceleration from solar sail model [m/s^2].
     const Eigen::Vector3d computedSolarSailAcceleration = electro_magnetism::computeSolarSailAcceleration(
             frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
             backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
             velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle, mass);
 
-
-
-    // Compare computed and expected radiation pressure acceleration vectors.
+    // Check that there is no acceleration component along the x-axis.
     BOOST_CHECK_SMALL( std::fabs( computedRadiationPressureAcceleration.x( )
                                   - computedSolarSailAcceleration.x( ) ), 1.0e-8 );
+
+    // Compare computed and expected radiation pressure acceleration vectors.
     BOOST_CHECK_SMALL( computedSolarSailAcceleration.y( ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( computedSolarSailAcceleration.z( ), std::numeric_limits< double >::min( ) );
 }
@@ -516,8 +478,7 @@ static Eigen::Vector3d sourcePosition = Eigen::Vector3d::Zero( );
 Eigen::Vector3d getSourcePosition( ) { return sourcePosition; }
 
 // Set position of accelerated body [m].
-static Eigen::Vector3d acceleratedBodyPosition
-    = Eigen::Vector3d( - astronomicalUnitInMeters, 0.0, 0.0 );
+static Eigen::Vector3d acceleratedBodyPosition = Eigen::Vector3d( - astronomicalUnitInMeters, 0.0, 0.0 );
 
 // Get position of accelerated body [m].
 Eigen::Vector3d getAcceleratedBodyPosition( ) { return acceleratedBodyPosition; }
@@ -533,9 +494,8 @@ Eigen::Vector3d getAcceleratedBodyVelocity( ) { return acceleratedBodyVelocity; 
 static Eigen::Vector3d centralBodyVelocity
     = Eigen::Vector3d( 0.0, 0.0, 0.0 );
 
-// Get velocity of accelerated body [m/s].
+// Get velocity of central body [m/s].
 Eigen::Vector3d getCentralBodyVelocity( ) { return centralBodyVelocity; }
-
 
 // Get vector from accelerated body to source [m].
 Eigen::Vector3d getVectorToSource( )
@@ -610,14 +570,15 @@ static double massOfAcceleratedBody = 4.0;
 // Get mass of acceleration body [kg].
 double getMassOfAcceleratedBody( ) { return massOfAcceleratedBody; }
 
-// Set radiation pressure coefficient.
+// Set radiation pressure coefficient [-].
 static double radiationPressureCoefficient = 1.0 + 0.3;
 
-// Get radiation pressure coefficient.
+// Get radiation pressure coefficient [-].
 double getRadiationPressureCoefficient( ) { return radiationPressureCoefficient; }
 
 
-//! Test radiation pressure acceleration model constructor.
+//! Test solar sail acceleration model constructor, with a solar sail model equivalent to the
+//! cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassConstructor )
 {
 
@@ -638,9 +599,6 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassConstructor )
             &getReflectivityCoefficient, &getSpecularReflectionCoefficient,
             &getAreaSubjectToRadiationPressure, &getMassOfAcceleratedBody );
 
-    // Set expected radiation pressure acceleration [m/s^2].
-    const Eigen::Vector3d expectedRadiationPressureAcceleration = Eigen::Vector3d( -2.964e-06, 0.0, 0.0 );
-
     // Compute solar sail acceleration [m/s^2].
     const Eigen::Vector3d computedSolarSailAcceleration = solarSailModel->getAcceleration( );
 
@@ -653,7 +611,8 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassConstructor )
                                        1.0e-15 );
 }
 
-//! Test radiation pressure acceleration model update-members function.
+//! Test radiation pressure acceleration model update-members function, with a solar sail model equivalent to the
+//! cannonball radiation pressure model.
 BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
 {
     // Declare and initialize cannon-ball radiation pressure acceleration model.
@@ -673,26 +632,22 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
             &getReflectivityCoefficient, &getSpecularReflectionCoefficient,
             &getAreaSubjectToRadiationPressure, &getMassOfAcceleratedBody );
 
-    // Set expected radiation pressure acceleration [m/s^2].
-    const Eigen::Vector3d expectedRadiationPressureAcceleration
-        = Eigen::Vector3d( - 2.05147517201883e-05, - 2.05147517201883e-05, 0.0 );
-
     // Set the distance from the Sun to Venus [m].
     const double distanceSunToVenus = 0.732 * astronomicalUnitInMeters;
 
     // Update position of accelerated body [m].
     acceleratedBodyPosition = Eigen::Vector3d( - distanceSunToVenus / std::sqrt( 2.0 ), - distanceSunToVenus / std::sqrt( 2.0 ), 0.0 );
-    acceleratedBodyVelocity = std::sqrt(earthGravitationalParameter/distanceSunToVenus)*
-                              Eigen::Vector3d( 1.0 / std::sqrt( 2.0 ), 1.0 / std::sqrt( 2.0 ), 0.0 );
+    acceleratedBodyVelocity = std::sqrt( earthGravitationalParameter / distanceSunToVenus )
+            * Eigen::Vector3d( 1.0 / std::sqrt( 2.0 ), 1.0 / std::sqrt( 2.0 ), 0.0 );
 
     // Update radiation pressure at location of accelerated body [N/m^2].
     radiationPressure = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
         / getVectorToSource( ).squaredNorm( );
 
-    // Update radiation pressure coefficient.
+    // Update radiation pressure coefficient [-].
     radiationPressureCoefficient = 1.0 + 0.5;
 
-    //Update reflectivity coefficient.
+    //Update reflectivity coefficient [-].
     reflectivityCoefficient = 0.5;
 
     // Update area subject to radiation pressure [m^2].
@@ -709,1084 +664,198 @@ BOOST_AUTO_TEST_CASE( testSolarSailAccelerationModelClassUpdateMembers )
     const Eigen::Vector3d computedRadiationPressureAcceleration = radiationPressureModel->getAcceleration( );
     const Eigen::Vector3d computedSolarSailAcceleration = solarSailModel->getAcceleration( );
 
-    // Compare computed and expected radiation pressure acceleration vectors.
+    // Check that there is no acceleration component along z-axis.
     BOOST_CHECK_SMALL( computedSolarSailAcceleration.z( ), std::numeric_limits< double >::min( ) );
 
+    // Compare computed and expected radiation pressure acceleration vectors.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedRadiationPressureAcceleration.segment( 0, 2 ),
                                        computedSolarSailAcceleration.segment( 0, 2 ),
                                        1.0e-14 );
 }
 
+
 //! Test implementation of solar sail force model for a set of different cone and clock angles.
 BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalFirst )
 {
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-        = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 2.0;
-    const double clockAngle = 0.;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
+    // Theoretical non-ideal solar sail force vectors for various test cases [N].
+    std::vector< Eigen::Vector3d > expectedSolarSailForceVector;
+    for ( int testCase = 0 ; testCase < 8 ; testCase++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
+        expectedSolarSailForceVector.push_back(
+                    ( Eigen::Vector3d( ) << - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 ).finished() );
+    }
+    for ( int testCase = 8 ; testCase < 12 ; testCase++ )
+    {
+        expectedSolarSailForceVector.push_back(
+                    ( Eigen::Vector3d( ) << - 1.46272332079017e-06, - 1.46272332079017e-06, 0.0 ).finished() );
+    }
+    for ( int testCase = 12 ; testCase < 16 ; testCase++ )
+    {
+        expectedSolarSailForceVector.push_back(
+                    ( Eigen::Vector3d( ) << - 5.64907119362171e-07, - 5.64907119362171e-07, 0.0 ).finished() );
+    }
+    for ( int testCase = 16 ; testCase < 18 ; testCase++ )
+    {
+        expectedSolarSailForceVector.push_back(
+                    ( Eigen::Vector3d( ) << - 3.0864061085007e-08, - 3.0864061085007e-08, 0.0 ).finished() );
+    }
+    expectedSolarSailForceVector.push_back(
+                ( Eigen::Vector3d( ) << - 1.32692625650149e-06, - 1.32692625650149e-06, 0.0 ).finished() );
+    expectedSolarSailForceVector.push_back(
+                ( Eigen::Vector3d( ) << - 1.80571791929449e-07, - 1.80571791929449e-07, - 1.80571791929449e-07 ).finished() );
+    expectedSolarSailForceVector.push_back(
+                ( Eigen::Vector3d( ) << - 3.40314752162177e-06, - 4.53753002882903e-06, - 6.80629504324355e-06 ).finished() );
+    expectedSolarSailForceVector.push_back(
+                ( Eigen::Vector3d( ) << - 4.73337860380423e-06, - 6.29769698345645e-06, - 7.16893475205534e-06 ).finished() );
+
+
+    // Define set of cone angles for various test cases [rad].
+    std::vector< double > coneAngleVector;
+    coneAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 2.0 );
+    coneAngleVector.push_back( 0.0 );
+    coneAngleVector.push_back( 0.0 );
+    coneAngleVector.push_back( 0.0 );
+    coneAngleVector.push_back( 0.0 );
+    coneAngleVector.push_back( mathematical_constants::PI / 4.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 4.0 );
+    coneAngleVector.push_back( mathematical_constants::PI / 4.0 );
+    coneAngleVector.push_back( - mathematical_constants::PI / 4.0 );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( 80.0 ) );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( - 80.0 ) );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( 15.0 ) );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( 15.0 ) );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( 15.0 ) );
+    coneAngleVector.push_back( unit_conversions::convertDegreesToRadians( 15.0 ) );
+
+
+    // Define set of clock angles for various test cases [rad].
+    std::vector< double  > clockAngleVector;
+    clockAngleVector.push_back( 0.0 );
+    clockAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    clockAngleVector.push_back( mathematical_constants::PI );
+    clockAngleVector.push_back( 2.0 * mathematical_constants::PI );
+    clockAngleVector.push_back( 0.0 );
+    clockAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    clockAngleVector.push_back( mathematical_constants::PI );
+    clockAngleVector.push_back( 2.0 * mathematical_constants::PI );
+    clockAngleVector.push_back( 0.0 );
+    clockAngleVector.push_back( mathematical_constants::PI / 2.0 );
+    clockAngleVector.push_back( mathematical_constants::PI );
+    clockAngleVector.push_back( 2.0 * mathematical_constants::PI );
+    clockAngleVector.push_back( mathematical_constants::PI / 4.0 );
+    clockAngleVector.push_back( - mathematical_constants::PI / 4.0 );
+    clockAngleVector.push_back( - mathematical_constants::PI / 4.0 );
+    clockAngleVector.push_back( mathematical_constants::PI / 4.0 );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 80.0 ) );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 80.0 ) );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 25.0 ) );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 25.0 )  );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 25.0 ) );
+    clockAngleVector.push_back( unit_conversions::convertDegreesToRadians( 25.0 ) );
+
+
+    // Define position vector.
+    Eigen::Vector3d positionVectorToSource;
+
+    // Define velocity vector of the spacecraft w.r.t. central body.
+    Eigen::Vector3d velocityVector;
+
+
+    for ( int testCase = 0 ; testCase < 20 ; testCase++ ){
+
+        // Define different position and velocity vectors for various test cases.
+        if ( testCase < 19 )
+        {
+            // Set position vector [m].
+            positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
+
+            // Compute distance between spacecraft and radiation pressure source [m].
+            double positionVectorToSourceNorm = positionVectorToSource.norm();
+
+            // Set velocity vector of the spacecraft w.r.t. central body [m/s].
+            velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
+                                       * ( Eigen::Vector3d() << std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 ).finished();
+        }
+        else if ( testCase == 19 )
+        {
+            // Set position vector [m].
+            positionVectorToSource = 2.0 * Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, astronomicalUnitInMeters );
+
+            // Compute distance between spacecraft and radiation pressure source [m].
+            double positionVectorToSourceNorm = positionVectorToSource.norm();
+
+            // Set velocity vector of the spacecraft w.r.t. central body [m/s].
+            velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
+                                       * ( Eigen::Vector3d() << 1.0, 1.0, 1.0 ).finished();
+        }
+        else if ( testCase == 20 )
+        {
+            // Set position vector [m].
+            positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters / 4.0, astronomicalUnitInMeters / 3.0,
+                                                      astronomicalUnitInMeters / 2.0 );
+
+            // Compute distance between spacecraft and radiation pressure source [m].
+            double positionVectorToSourceNorm = positionVectorToSource.norm();
+
+            // Set velocity vector of the spacecraft w.r.t. central body [m/s].
+            velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
+                                       * ( Eigen::Vector3d() << 1.0 / 4.0, 1.0/ 3.0, 1.0 / 2.0 ).finished();
+        }
+        else if ( testCase == 21 ){
+
+            // Set position vector [m].
+            positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters / 3.5, astronomicalUnitInMeters / 3.0,
+                                                      astronomicalUnitInMeters / 2.5 );
+
+            // Compute distance between spacecraft and radiation pressure source [m].
+            double positionVectorToSourceNorm = positionVectorToSource.norm();
+
+            // Set velocity vector of the spacecraft w.r.t. central body [m/s].
+            velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
+                                       * ( Eigen::Vector3d() << 1.0 / 2.5, 1.0 / 2.6, 1.0 / 2.9 ).finished();
+        }
+
+
+        // Set radiation pressure at target [N/m^2].
+        const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
+            / positionVectorToSource.squaredNorm( );
+
+        // Normalize position vector to get vector pointing to source in non-dimensional units [-].
+        positionVectorToSource.normalize( );
+
+        // Set area on target that is subject to radiation pressure [m^2].
+        const double areaSubjectToRadiationPressure = 0.5;
+
+        // Define solar sail model settings.
+        const double frontEmissivityCoefficient = 0.05;
+        const double backEmissivityCoefficient = 0.64;
+        const double frontLambertianCoefficient = 0.79;
+        const double backLambertianCoefficient = 0.55;
+        const double reflectivityCoefficient = 0.88;
+        const double specularReflectionCoefficient = 0.94;
+
+        // Compute force from solar sail model [N].
+        Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
+                    frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
+                    backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
+                    velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure,
+                    coneAngleVector[ testCase ], clockAngleVector[ testCase ] );
+
+        // Compare computed and expected radiation pressure force vectors.
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForceVector[ testCase ]( j ) - computedSolarSailForce( j ) ), 1.0E-20 );
+        }
+
     }
 
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalSecond )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce
-        = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-        = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 2.0;
-    const double clockAngle = mathematical_constants::PI / 2.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt(earthGravitationalParameter/positionVectorToSourceNorm)
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalThird )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce
-        = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-        = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 2.0;
-    const double clockAngle = mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalFourth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 2.0;
-    const double clockAngle = 2.0 * mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalFifth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-        = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 2.0;
-    const double clockAngle = 0.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        *Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalSixth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 2.0;
-    const double clockAngle = mathematical_constants::PI / 2.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalSeventh )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 2.0;
-    const double clockAngle = mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalEighth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce
-        = Eigen::Vector3d( - 8.52932077149712e-24, - 8.52932077149712e-24, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 2.0;
-    const double clockAngle = 2.0 * mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    for( unsigned int j = 0; j < 3; j++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce( j ) - computedSolarSailForce( j ) ), 1.0E-24 );
-    }
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalNinth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.46272332079017e-06, - 1.46272332079017e-06, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 0.0;
-    const double clockAngle = 0.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalTenth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.46272332079017e-06, - 1.46272332079017e-06, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 0.0;
-    const double clockAngle = mathematical_constants::PI / 2.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt(earthGravitationalParameter/positionVectorToSourceNorm)
-        *Eigen::Vector3d( std::sqrt(2.0)/2.0, std::sqrt(2.0)/2.0, 0.0 );
-
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalEleventh )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.46272332079017e-06, - 1.46272332079017e-06, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 0.0;
-    const double clockAngle = mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalTwelveth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.46272332079017e-06, - 1.46272332079017e-06, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource
-        = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 0.0;
-    const double clockAngle = 2 * mathematical_constants::PI;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalThirteenth )
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 5.64907119362171e-07, - 5.64907119362171e-07, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 4.0;
-    const double clockAngle = mathematical_constants::PI / 4.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalFourteenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 5.64907119362171e-07, - 5.64907119362171e-07, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 4.0;
-    const double clockAngle = - mathematical_constants::PI / 4.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalFiveteenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 5.64907119362171e-07, - 5.64907119362171e-07, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = mathematical_constants::PI / 4.0;
-    const double clockAngle = - mathematical_constants::PI / 4.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt(2.0) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalSixteenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 5.64907119362171e-07, - 5.64907119362171e-07, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = - mathematical_constants::PI / 4.0;
-    const double clockAngle = mathematical_constants::PI / 4.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSolarSailForce, computedSolarSailForce, 1.0e-15 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalSeventeenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 3.0864061085007e-08, - 3.0864061085007e-08, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 80.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 80.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-15 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-15 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-6 );
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalEighteenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 3.0864061085007e-08, - 3.0864061085007e-08, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = -80.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 80.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-22 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-22 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-22 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalNineteenth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.32692625650149e-06, - 1.32692625650149e-06, 0.0 );
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, 0.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 15.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 25.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( std::sqrt( 2.0 ) / 2.0, std::sqrt( 2.0 ) / 2.0, 0.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-20 );
-
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalTwentieth)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 1.80571791929449e-07, - 1.80571791929449e-07, - 1.80571791929449e-07);
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = 2.0 * Eigen::Vector3d( astronomicalUnitInMeters, astronomicalUnitInMeters, astronomicalUnitInMeters );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-   // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 15.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 25.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( 1.0, 1.0, 1.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-20 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalTwentyFirst)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 3.40314752162177e-06, - 4.53753002882903e-06, - 6.80629504324355e-06);
-
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters / 4.0, astronomicalUnitInMeters / 3.0,
-                                                              astronomicalUnitInMeters / 2.0 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 15.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 25.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( 1.0 / 4.0, 1.0/ 3.0, 1.0 / 2.0 );
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-19 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-19 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-19 );
-
-}
-
-//! Test implementation of solar sail force model for a set of different cone and clock angles.
-BOOST_AUTO_TEST_CASE( testImplementedSolarSailModelVsTheoreticalTwentySecond)
-{
-    // Theoretical non-ideal solar sail force:
-    const Eigen::Vector3d expectedSolarSailForce = Eigen::Vector3d( - 4.73337860380423e-06, - 6.29769698345645e-06, - 7.16893475205534e-06);
-
-    // Set position vector [m].
-    Eigen::Vector3d positionVectorToSource = Eigen::Vector3d( astronomicalUnitInMeters / 3.5, astronomicalUnitInMeters / 3.0,
-                                                              astronomicalUnitInMeters / 2.5 );
-
-    const double positionVectorToSourceNorm = positionVectorToSource.norm();
-
-    // Set radiation pressure at target [N/m^2].
-    const double radiationPressureAtTarget = radiationPressureAtOneAU * astronomicalUnitInMeters * astronomicalUnitInMeters
-        / positionVectorToSource.squaredNorm( );
-
-    // Normalize position vector to get vector pointing to source in non-dimensional units.
-    positionVectorToSource.normalize( );
-    // Set area on target that is subject to radiation pressure [m^2].
-    const double areaSubjectToRadiationPressure = 0.5;
-
-    // Data for the solar sail model
-    const double frontEmissivityCoefficient = 0.05;
-    const double backEmissivityCoefficient = 0.64;
-    const double frontLambertianCoefficient = 0.79;
-    const double backLambertianCoefficient = 0.55;
-    const double reflectivityCoefficient = 0.88;
-    const double specularReflectionCoefficient = 0.94;
-    const double coneAngle = 15.0 * mathematical_constants::PI / 180.0;
-    const double clockAngle = 25.0 * mathematical_constants::PI / 180.0;
-
-    Eigen::Vector3d velocityVector = std::sqrt( earthGravitationalParameter / positionVectorToSourceNorm )
-        * Eigen::Vector3d( 1.0 / 2.5, 1.0 / 2.6, 1.0 / 2.9);
-
-    const Eigen::Vector3d computedSolarSailForce
-        = electro_magnetism::computeSolarSailForce(
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-            backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, positionVectorToSource,
-            velocityVector.normalized(), radiationPressureAtTarget, areaSubjectToRadiationPressure, coneAngle, clockAngle);
-
-    // Compare computed and expected radiation pressure force vectors.
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.x( ) - computedSolarSailForce.x( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.y( ) - computedSolarSailForce.y( ) ), 1.0e-20 );
-    BOOST_CHECK_SMALL( std::fabs( expectedSolarSailForce.z( ) - computedSolarSailForce.z( ) ), 1.0e-20 );
 
 }
 

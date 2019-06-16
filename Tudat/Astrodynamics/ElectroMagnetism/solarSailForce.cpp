@@ -29,10 +29,12 @@ Eigen::Vector3d computeSolarSailForce(const double frontEmissivityCoefficient, c
         const double area, const double coneAngle, const double clockAngle)
 {
 
+    // Define constant A to simplify the formulae of the solar sail model.
     double A = frontLambertianCoefficient * reflectivityCoefficient * ( 1.0 - specularReflectionCoefficient )
             + ( 1.0 - reflectivityCoefficient ) * ( frontEmissivityCoefficient * frontLambertianCoefficient - backEmissivityCoefficient * backLambertianCoefficient)
             / ( frontEmissivityCoefficient + backEmissivityCoefficient );
 
+    // Compute cosinus and sinus of the sail cone angle.
     double cosinusConeAngle = cos( coneAngle );
     double sinusConeAngle = sin( coneAngle );
 
@@ -42,18 +44,21 @@ Eigen::Vector3d computeSolarSailForce(const double frontEmissivityCoefficient, c
                          + std::pow( ( 1.0 - specularReflectionCoefficient * reflectivityCoefficient ) * sinusConeAngle , 2 ) );
 
 
-    //I now have to compute the phi and theta angles, useful for retrieving the force direction:
+    // Compute phi and theta angles, to later define the force direction.
     double phi = atan2( ( ( 1.0 - specularReflectionCoefficient * reflectivityCoefficient ) * cosinusConeAngle * sinusConeAngle ),
                         ( ( 1.0 + reflectivityCoefficient * specularReflectionCoefficient ) * std::pow( cosinusConeAngle, 2 )
                           + A * cosinusConeAngle ) );
 
     double theta = coneAngle - phi;
 
-    // Compute the normalised direction vector of the force defined in the (r,theta,k) frame.
+
+    // Compute the normalised direction vector of the force defined in the (r, theta, k) frame.
     Eigen::Vector3d forceDirectionLocalFrame = ( Eigen::Vector3d() << cos( theta ), sin( theta ) * sin( clockAngle ),
                                                  sin( theta ) * cos( clockAngle ) ).finished();
 
+    // Compute normalised vector from source to target.
     Eigen::Vector3d normalisedVectorFromSource = - normalisedVectorToSource;
+
 
     // Compute the rotation matrix from local to inertial reference frame.
     Eigen::Matrix3d rotationMatrixFromLocalToInertial;
@@ -79,8 +84,10 @@ Eigen::Vector3d computeSolarSailForce(const double frontEmissivityCoefficient, c
             ( normalisedVectorFromSource[1] * normalisedVelocityVector[1] + normalisedVectorFromSource[0] * normalisedVelocityVector[0] );
     rotationMatrixFromLocalToInertial(2,2) = normalisedVectorFromSource.cross( normalisedVelocityVector )[2];
 
+    // Compute force direction in inertial frame.
     Eigen::Vector3d forceDirection = rotationMatrixFromLocalToInertial * forceDirectionLocalFrame;
 
+    // Return solar sail force in inertial frame.
     return forceMagnitude * forceDirection;
 }
 
