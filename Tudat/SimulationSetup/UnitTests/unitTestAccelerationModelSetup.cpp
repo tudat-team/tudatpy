@@ -801,15 +801,186 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
     }
 
 
-
-
-
-
     // Compare results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
+}
 
+//! Test solar sailing radiation pressure acceleration
+BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureAcceleration )
+{
+    using namespace tudat::simulation_setup;
+    using namespace tudat;
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Get settings for celestial bodies
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 );
+
+
+    // Create solar sailing radiation pressure settings.
+
+    // Define area subject to radiation pressure [m^2].
+    double area = 2.0;
+
+    // Set cone angle of the solar sail [rad].
+    double coneAngle = 0.25;
+
+    // Get cone angle of the solar sail [rad].
+    std::function< double( const double ) > coneAngleFunction
+            = [ = ]( const double ){ return coneAngle; };
+
+    // Define clock angle of the solar sail [rad].
+    double clockAngle = 0.2;
+
+    // Get clock angle of the solar sail [rad].
+    std::function< double( const double ) > clockAngleFunction
+            = [ = ]( const double ){ return clockAngle; };
+
+    // Define front emissivity coefficient of the solar sail [-].
+    double frontEmissivityCoefficient = 0.4;
+
+    // Define back emissivity coefficient of the solar sail [-].
+    double backEmissivityCoefficient = 0.4;
+
+    // Define front Lambertian coefficient of the solar sail [-].
+    double frontLambertianCoefficient = 0.4;
+
+    // Define back Lambertian coefficient of the solar sail [-].
+    double backLambertianCoefficient = 0.4;
+
+    // Define reflectivity coefficient of the solar sail [-].
+    double reflectivityCoefficient = 0.3;
+
+    // Define specular reflection coefficient of the solar sail [-].
+    double specularReflectionCoefficient = 1.0;
+
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( "Earth" );
+
+
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
+            std::make_shared< SolarSailRadiationInterfaceSettings >( "Sun", area, coneAngleFunction, clockAngleFunction, frontEmissivityCoefficient,
+                                                                     backEmissivityCoefficient, frontLambertianCoefficient, backLambertianCoefficient,
+                                                                     reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
+                                                                     centralBodies );
+
+    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
+                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
+    Eigen::Vector7d rotationalStateVehicle;
+    rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
+    rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
+    bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
+                    rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
+
+    // Define settings for accelerations
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
+                std::make_shared< AccelerationSettings >( solar_sail_acceleration ) );
+
+    // Define origin of integration
+    std::map< std::string, std::string > centralBodiesMap;
+    centralBodiesMap[ "Vehicle" ] = "Earth";
+
+    // Create accelerations
+    AccelerationMap accelerationsMap = createAccelerationModelsMap( bodyMap, accelerationSettingsMap, centralBodiesMap );
+    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
+
+    // Set (arbitrary) test time.
+    double testTime = 5.0 * 86400.0;
+
+    // Set vehicle mass
+    double bodyMass = 500.0;
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
+    bodyMap[ "Vehicle" ]->updateMass( testTime );
+
+    // Update environment to current time.
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+    bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
+
+    double currentRadiationPressure = bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces().at( "Sun" )->getCurrentRadiationPressure();
+    double currentBodyMass = bodyMap[ "Vehicle" ]->getBodyMass();
+
+    // Get acceleration
+    Eigen::Vector3d calculatedAcceleration = updateAndGetAcceleration( radiationPressureAcceleration );
+
+    Eigen::Vector3d expectedVehicleToSunNormalisedVector =
+            ( bodyMap[ "Sun" ]->getState( ) - bodyMap[ "Vehicle" ]->getState( ) ).segment( 0, 3 ).normalized();
+
+
+    // Manually calculate acceleration.
+    double A = frontLambertianCoefficient * reflectivityCoefficient * ( 1.0 - specularReflectionCoefficient )
+            + ( 1.0 - reflectivityCoefficient ) * ( frontEmissivityCoefficient * frontLambertianCoefficient - backEmissivityCoefficient * backLambertianCoefficient)
+            / ( frontEmissivityCoefficient + backEmissivityCoefficient );
+
+    double cosinusConeAngle = cos( coneAngle );
+    double sinusConeAngle = sin( coneAngle );
+
+    // Compute force magnitude.
+    double forceMagnitude = currentRadiationPressure * area * cosinusConeAngle
+            * std::sqrt( std::pow( cosinusConeAngle * ( 1.0 + reflectivityCoefficient * specularReflectionCoefficient ) + A, 2 )
+                         + std::pow( ( 1.0 - specularReflectionCoefficient * reflectivityCoefficient ) * sinusConeAngle , 2 ) );
+
+    double phi = std::atan2( ( ( 1.0 - specularReflectionCoefficient * reflectivityCoefficient ) * cosinusConeAngle * sinusConeAngle ),
+                             ( ( 1.0 + reflectivityCoefficient * specularReflectionCoefficient ) * std::pow( cosinusConeAngle, 2 )
+                             + A * cosinusConeAngle ) );
+
+    double theta = coneAngle - phi;
+
+    // Compute the normalised direction vector of the force defined in the (r,theta,k) frame.
+    Eigen::Vector3d forceDirectionLocalFrame = ( Eigen::Vector3d() << cos( theta ), sin( theta ) * sin( clockAngle ), sin( theta ) * cos( clockAngle ) ).finished();
+
+    Eigen::Vector3d normalisedVectorFromSource = - expectedVehicleToSunNormalisedVector;
+
+    // Compute expected vehicle velocity w.r.t. central body.
+    Eigen::Vector3d normalisedVelocityVector = ( bodyMap[ "Vehicle" ]->getState( ) - bodyMap[ "Earth" ]->getState( ) ).segment(3,3).normalized();
+
+    // Compute the rotation matrix from local to inertial reference frame.
+    Eigen::Matrix3d rotationMatrixFromLocalToInertial;
+
+    rotationMatrixFromLocalToInertial(0,0) = normalisedVectorFromSource[0];
+    rotationMatrixFromLocalToInertial(0,1) =
+            normalisedVelocityVector[0] * ( std::pow( normalisedVectorFromSource[2], 2 ) + std::pow( normalisedVectorFromSource[1], 2 ) )
+            - normalisedVectorFromSource[0] *
+            ( normalisedVectorFromSource[1] * normalisedVelocityVector[1] + normalisedVectorFromSource[2] * normalisedVelocityVector[2] );
+    rotationMatrixFromLocalToInertial(0,2) = normalisedVectorFromSource.cross( normalisedVelocityVector )[0];
+
+    rotationMatrixFromLocalToInertial(1,0) = normalisedVectorFromSource[1];
+    rotationMatrixFromLocalToInertial(1,1) =
+            normalisedVelocityVector[1] *  ( std::pow( normalisedVectorFromSource[2], 2 ) + std::pow( normalisedVectorFromSource[0], 2 ) )
+            - normalisedVectorFromSource[1] *
+            ( normalisedVectorFromSource[0] * normalisedVelocityVector[0] + normalisedVectorFromSource[2] * normalisedVelocityVector[2] );
+    rotationMatrixFromLocalToInertial(1,2) = normalisedVectorFromSource.cross( normalisedVelocityVector )[1];
+
+    rotationMatrixFromLocalToInertial(2,0) = normalisedVectorFromSource[2];
+    rotationMatrixFromLocalToInertial(2,1) =
+            normalisedVelocityVector[2] * ( std::pow( normalisedVectorFromSource[1], 2 ) + std::pow( normalisedVectorFromSource[0], 2 ) )
+            - normalisedVectorFromSource[2] *
+            ( normalisedVectorFromSource[1] * normalisedVelocityVector[1] + normalisedVectorFromSource[0] * normalisedVelocityVector[0] );
+    rotationMatrixFromLocalToInertial(2,2) = normalisedVectorFromSource.cross( normalisedVelocityVector )[2];
+
+
+    Eigen::Vector3d expectedAcceleration = forceMagnitude / currentBodyMass * rotationMatrixFromLocalToInertial * forceDirectionLocalFrame;
+
+    // Compare results.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

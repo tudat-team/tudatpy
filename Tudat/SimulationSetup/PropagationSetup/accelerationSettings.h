@@ -11,7 +11,10 @@
 #ifndef TUDAT_ACCELERATIONSETTINGS_H
 #define TUDAT_ACCELERATIONSETTINGS_H
 
+#include <functional>
+#include <memory>
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/solarSailAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"

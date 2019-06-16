@@ -9,6 +9,8 @@
  */
 
 #include <algorithm>
+#include <functional>
+#include <memory>
 
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
@@ -818,6 +820,56 @@ std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > crea
     return accelerationModel;
 }
 
+//! Function to create the solar sail radiation pressure acceleration model.
+std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
+    const std::shared_ptr< Body > bodyUndergoingAcceleration,
+    const std::shared_ptr< Body > bodyExertingAcceleration,
+    const std::shared_ptr< Body > centralBody,
+    const std::string& nameOfBodyUndergoingAcceleration,
+    const std::string& nameOfBodyExertingAcceleration )
+{
+    // Retrieve radiation pressure interface
+    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
+            nameOfBodyExertingAcceleration ) == 0 )
+    {
+        throw std::runtime_error(
+            "Error when making radiation pressure, no radiation pressure interface found  in " +
+            nameOfBodyUndergoingAcceleration +
+            " for body " + nameOfBodyExertingAcceleration );
+    }
+
+    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
+    std::shared_ptr< SolarSailingRadiationPressureInterface > radiationPressureInterface =
+            std::dynamic_pointer_cast< SolarSailingRadiationPressureInterface >(
+                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
+
+//    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+//        bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
+//            nameOfBodyExertingAcceleration );
+
+    // Create acceleration model.
+    return /*std::make_shared< SolarSailAcceleration >(
+                radiationPressureInterface, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );*/
+
+            std::make_shared< SolarSailAcceleration >(
+        std::bind( &Body::getPosition, bodyExertingAcceleration ),
+        std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+        std::bind( &Body::getVelocity, bodyUndergoingAcceleration ),
+        std::bind( &Body::getVelocity, centralBody ),
+        std::bind( &SolarSailingRadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getBackLambertianCoefficient, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getReflectivityCoefficient, radiationPressureInterface ),
+        std::bind( &SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient, radiationPressureInterface ),
+        std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
+        std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+
+}
+
 
 //! Function to create an orbiter relativistic correction acceleration model
 std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
@@ -1341,6 +1393,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
+        break;
+    case solar_sail_acceleration:
+        accelerationModelPointer = createSolarSailAccelerationModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    centralBody,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
         break;
     default:
         throw std::runtime_error(
