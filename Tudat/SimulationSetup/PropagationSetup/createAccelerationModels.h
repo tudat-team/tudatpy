@@ -13,6 +13,8 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
@@ -20,6 +22,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/solarSailAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
@@ -323,6 +326,25 @@ std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > crea
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
+
+//! Function to create a non-ideal solar pressure radiation acceleration
+/*!
+ * Function to create a non-ideal solar pressure radiation acceleration
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the central gravity
+ *  acceleration.
+ *  \param centralBody Pointer to object of central body.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the central gravity
+ *   acceleration.
+ *  \return Solar sail acceleration model pointer.
+ */
+std::shared_ptr< electro_magnetism::SolarSailAcceleration >
+createSolarSailAccelerationModel(const std::shared_ptr< Body > bodyUndergoingAcceleration,
+                                 const std::shared_ptr< Body > bodyExertingAcceleration,
+                                 const std::shared_ptr< Body > centralBody,
+                                 const std::string& nameOfBodyUndergoingAcceleration,
+                                 const std::string& nameOfBodyExertingAcceleration);
 
 //! Function to create a thrust acceleration model.
 /*!
