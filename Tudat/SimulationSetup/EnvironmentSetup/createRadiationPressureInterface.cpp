@@ -70,23 +70,6 @@ void getCentralBodyInformation(
         centralBodyPosition = std::bind( &Body::getPosition, bodyMap.at( centralBody ) );
         centralBodyVelocity = std::bind( &Body::getVelocity, bodyMap.at( centralBody ) );
     }
-
-
-//    for( unsigned int i = 0; i < centralBodies.size( ); i++ )
-//    {
-//        if( bodyMap.count( centralBodies[ i ] ) == 0 )
-//        {
-//            throw std::runtime_error( "Error, could not find body " + centralBodies[ i ] +
-//                                     " in body map when making central bodies body settings" );
-//        }
-//        else
-//        {
-//            centralBodiesPosition.push_back(
-//                std::bind( &Body::getPosition, bodyMap.at( centralBodies[ i ] ) ) );
-//            centralBodiesVelocity.push_back(
-//                std::bind( &Body::getVelocity, bodyMap.at( centralBodies[ i ] ) ) );
-//        }
-//    }
 }
 
 
