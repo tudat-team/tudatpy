@@ -28,8 +28,8 @@ Eigen::Vector3d computeSolarSailAcceleration(
         const double backLambertianCoefficient,
         const double reflectivityCoefficient,
         const double specularReflectionCoefficient,
-        const Eigen::Vector3d& vectorToSource,
-        const Eigen::Vector3d& velocityUnitVector,
+        const Eigen::Vector3d& normalisedVectorToSource,
+        const Eigen::Vector3d& normalisedVelocityVector,
         const double radiationPressure,
         const double area,
         const double coneAngle,
@@ -39,8 +39,8 @@ Eigen::Vector3d computeSolarSailAcceleration(
 
     return computeSolarSailForce(
                 frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, vectorToSource,
-                velocityUnitVector, radiationPressure, area, coneAngle, clockAngle) / mass;
+                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, normalisedVectorToSource,
+                normalisedVelocityVector, radiationPressure, area, coneAngle, clockAngle) / mass;
 }
 
 } // namespace electro_magnetism

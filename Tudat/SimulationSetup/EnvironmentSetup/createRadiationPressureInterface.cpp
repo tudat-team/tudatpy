@@ -51,28 +51,42 @@ void getOccultingBodiesInformation(
 }
 
 
-//! Function to obtain (by reference) the position functions and velocity of central bodies.
-void getCentralBodiesInformation(
-    const NamedBodyMap& bodyMap, const std::vector< std::string >& centralBodies,
-    std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesPosition,
-    std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesVelocity )
+//! Function to obtain (by reference) the position and velocity functions of the central body.
+void getCentralBodyInformation(
+    const NamedBodyMap& bodyMap, const std::string& centralBody,
+    std::function< Eigen::Vector3d( ) >& centralBodyPosition,
+    std::function< Eigen::Vector3d( ) >& centralBodyVelocity )
 {
-    // Iterate over central bodies and retrieve position and velocity function.
-    for( unsigned int i = 0; i < centralBodies.size( ); i++ )
+
+    // Check that the central body is defined.
+    if( bodyMap.count( centralBody ) == 0 )
     {
-        if( bodyMap.count( centralBodies[ i ] ) == 0 )
-        {
-            throw std::runtime_error( "Error, could not find body " + centralBodies[ i ] +
-                                     " in body map when making central bodies body settings" );
-        }
-        else
-        {
-            centralBodiesPosition.push_back(
-                std::bind( &Body::getPosition, bodyMap.at( centralBodies[ i ] ) ) );
-            centralBodiesVelocity.push_back(
-                std::bind( &Body::getVelocity, bodyMap.at( centralBodies[ i ] ) ) );
-        }
+        throw std::runtime_error( "Error, could not find body " + centralBody +
+                                 " in body map when making central body body settings" );
     }
+    // Retrieve position and velocity functions.
+    else
+    {
+        centralBodyPosition = std::bind( &Body::getPosition, bodyMap.at( centralBody ) );
+        centralBodyVelocity = std::bind( &Body::getVelocity, bodyMap.at( centralBody ) );
+    }
+
+
+//    for( unsigned int i = 0; i < centralBodies.size( ); i++ )
+//    {
+//        if( bodyMap.count( centralBodies[ i ] ) == 0 )
+//        {
+//            throw std::runtime_error( "Error, could not find body " + centralBodies[ i ] +
+//                                     " in body map when making central bodies body settings" );
+//        }
+//        else
+//        {
+//            centralBodiesPosition.push_back(
+//                std::bind( &Body::getPosition, bodyMap.at( centralBodies[ i ] ) ) );
+//            centralBodiesVelocity.push_back(
+//                std::bind( &Body::getVelocity, bodyMap.at( centralBodies[ i ] ) ) );
+//        }
+//    }
 }
 
 
@@ -294,10 +308,10 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
 
 
         // Get required data for central bodies.
-        std::vector< std::string > centralBodies = solarSailRadiationSettings->getCentralBodies();
-        std::vector< std::function< Eigen::Vector3d( ) > > centralBodyPositions;
-        std::vector< std::function< Eigen::Vector3d( ) > > centralBodyVelocity;
-        getCentralBodiesInformation( bodyMap, centralBodies, centralBodyPositions, centralBodyVelocity );
+        std::string centralBody = solarSailRadiationSettings->getCentralBody();
+        std::function< Eigen::Vector3d( ) > centralBodyPosition;
+        std::function< Eigen::Vector3d( ) > centralBodyVelocity;
+        getCentralBodyInformation( bodyMap, centralBody, centralBodyPosition, centralBodyVelocity );
 
         // Create function returning radiated power.
         std::function< double( ) > radiatedPowerFunction;
@@ -309,9 +323,7 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
         }
         else
         {
-            radiatedPowerFunction = [ = ]( ){ return
-                                                defaultRadiatedPowerValues.at(
-                                                    radiationPressureInterfaceSettings->getSourceBody( ) );};
+            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at( radiationPressureInterfaceSettings->getSourceBody( ) );};
         }
 
         // Create solar sailing radiation pressure interface.

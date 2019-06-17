@@ -45,10 +45,11 @@ namespace electro_magnetism
  * \param backLambertianCoefficient Lambertian coefficient of the back of the sail.                      [-]
  * \param reflectivityCoefficient Reflectivity coefficient of the sail.                                  [-]
  * \param specularReflection Specular reflection coefficient of the sail.                                [-]
- * \param vectorToSource Normalised vector pointing from target to source. N.B: this must be a unit vector!
+ * \param normalisedVectorToSource Normalised vector pointing from target to source.
+ *          N.B: this must be a unit vector!
  *          To compute the unit vector based on a given position vector, you can use the
  *          .normalize() or .normalized() member functions of an Eigen::Vector3d object.                 [-]
- * \param velocityUnitVector Normalised velocity vector of the spacecraft w.r.t. central body.           [-]
+ * \param normalisedVelocityVector Normalised velocity vector of the spacecraft w.r.t. central body.     [-]
  * \param radiationPressure Radiation pressure at target.                                            [N/m^2]
  * \param area Area on which radiation pressure is assumed to act.                                     [m^2]
  * \param coneAngle Sail cone angle.                                                                   [rad]
@@ -63,8 +64,8 @@ Eigen::Vector3d computeSolarSailAcceleration(
         const double backLambertianCoefficient,
         const double reflectivityCoefficient,
         const double specularReflectionCoefficient,
-        const Eigen::Vector3d& vectorToSource,
-        const Eigen::Vector3d& velocityUnitVector,
+        const Eigen::Vector3d& normalisedVectorToSource,
+        const Eigen::Vector3d& normalisedVelocityVector,
         const double radiationPressure,
         const double area,
         const double coneAngle,
@@ -218,7 +219,7 @@ public:
         sourcePositionFunction_( std::bind( &RadiationPressureInterface::getCurrentSolarVector, radiationPressureInterface ) ),
         acceleratedBodyPositionFunction_( radiationPressureInterface->getTargetPositionFunction() ),
         acceleratedBodyVelocityFunction_( radiationPressureInterface->getTargetVelocityFunction() ),
-        centralBodyVelocityFunction_( radiationPressureInterface->getCentralBodyVelocity()[0] ),
+        centralBodyVelocityFunction_( radiationPressureInterface->getCentralBodyVelocity() ),
         radiationPressureFunction_( std::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ) ),
         coneAngleFunction_( std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ) ),
         clockAngleFunction_( std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ) ),
