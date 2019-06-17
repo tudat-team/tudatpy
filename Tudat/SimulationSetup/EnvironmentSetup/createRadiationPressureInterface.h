@@ -276,7 +276,7 @@ public:
      * \param reflectivityCoefficient Reflectivity coefficient of the sail [-].
      * \param specularReflectionCoefficient Specular reflection coefficient of the sail [-].
      * \param occultingBodies List of bodies causing (partial) occultation.
-     * \param centralBodies List of central bodies.
+     * \param centralBody Name of the central body.
      */
 
     SolarSailRadiationInterfaceSettings(
@@ -291,7 +291,7 @@ public:
         const double reflectivityCoefficient,
         const double specularReflectionCoefficient,
         const std::vector< std::string >& occultingBodies = std::vector< std::string >( ),
-        const std::vector< std::string >& centralBodies = std::vector< std::string >( ) ):
+        const std::string& centralBody = std::string( ) ):
         RadiationPressureInterfaceSettings( solar_sailing_radiation_pressure_interface, sourceBody, occultingBodies ),
         area_( area ), coneAngleFunction_( coneAngle ),
         clockAngleFunction_( clockAngle ), frontEmissivityCoefficient_( frontEmissivityCoefficient ),
@@ -300,7 +300,7 @@ public:
         backLambertianCoefficient_( backLambertianCoefficient ),
         reflectivityCoefficient_( reflectivityCoefficient ),
         specularReflectionCoefficient_( specularReflectionCoefficient ),
-        centralBodies_( centralBodies ){ }
+        centralBody_( centralBody ){ }
 
     //! Function to return surface area that undergoes radiation pressure.
     /*!
@@ -428,12 +428,12 @@ public:
      */
     void setSpecularReflectionCoefficient( double specularReflectionCoefficient ){ specularReflectionCoefficient_ = specularReflectionCoefficient; }
 
-    //! Function returning list of central bodies.
+    //! Returns the name of the central body.
     /*!
-     *  Function returning list of central bodies.
-     *  \return List of central bodies.
+     *  Returns the name of the central body.
+     *  \return Name of the central body.
      */
-    std::vector< std::string > getCentralBodies( ){ return centralBodies_; }
+    std::string getCentralBody( ){ return centralBody_; }
 
 
 private:
@@ -465,8 +465,8 @@ private:
     //! Specular reflection coefficient of the sail [-].
     double specularReflectionCoefficient_;
 
-    //! List of bodies causing (partial) occultation
-    std::vector< std::string > centralBodies_;
+    //! Name of the central body.
+    std::string centralBody_;
 
 };
 
@@ -487,18 +487,18 @@ void getOccultingBodiesInformation(
         std::vector< double >& occultingBodyRadii );
 
 
-//! Function to obtain (by reference) the position functions and velocity of central bodies
+//! Function to obtain (by reference) the position functions and velocity of the central body.
 /*!
- * Function to obtain (by reference) the position functions and velocity of central bodies.
+ * Function to obtain (by reference) the position functions and velocity of the central body.
  * \param bodyMap List of body objects.
- * \param centralBodies List of central bodies.
- * \param centralBodiesPosition List of central bodies' position functions (return by reference output variable).
- * \param centralBodiesVelocity List of velocity of central bodies (return by reference output variable).
+ * \param centralBody Name of the central body.
+ * \param centralBodyPosition Central body's position function (return by reference output variable).
+ * \param centralBodyVelocity Central body's velocity function (return by reference output variable).
  */
-void getCentralBodiesInformation(
-    const NamedBodyMap& bodyMap, const std::vector< std::string >& centralBodies,
-    std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesPosition,
-    std::vector< std::function< Eigen::Vector3d( ) > >& centralBodiesVelocity);
+void getCentralBodyInformation(
+    const NamedBodyMap& bodyMap, const std::string& centralBody,
+    std::function< Eigen::Vector3d( ) >& centralBodyPosition,
+    std::function< Eigen::Vector3d( ) >& centralBodyVelocity);
 
 //! Function to create a radiation pressure interface.
 /*!

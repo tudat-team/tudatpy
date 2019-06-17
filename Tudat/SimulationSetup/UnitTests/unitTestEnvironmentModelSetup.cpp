@@ -764,63 +764,63 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 }
 #endif
 
-//#if USE_CSPICE
-////! Test set up of synchronous rotation model.
-//BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
-//{
+#if USE_CSPICE
+//! Test set up of synchronous rotation model.
+BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
+{
 
-//    // Load Spice kernels
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
-
-
-//    // Create settings for synchronous rotation model.
-
-//    std::vector< std::string > bodiesToCreate;
-//    bodiesToCreate.push_back( "Europa" );
-//    bodiesToCreate.push_back( "Jupiter" );
-
-//    // Create bodies needed in simulation
-//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-//            getDefaultBodySettings( bodiesToCreate );
-
-//    bodySettings[ "Europa" ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
-//    bodySettings[ "Europa" ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
-
-//    NamedBodyMap bodyMap = createBodies( bodySettings );
-//    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
-
-//    std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
-//            = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings[ "Europa" ]->rotationModelSettings );
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
 
 
-//    // Create rotation model using setup function
-//    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemerisFromRotationModelSettings =
-//            createRotationModel( synchronousRotationSettings, "Europa", bodyMap );
+    // Create settings for synchronous rotation model.
+
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Europa" );
+    bodiesToCreate.push_back( "Jupiter" );
+
+    // Create bodies needed in simulation
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodiesToCreate );
+
+    bodySettings[ "Europa" ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+    bodySettings[ "Europa" ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
+            = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings[ "Europa" ]->rotationModelSettings );
 
 
-//    // Create synchronous rotation model directly.
-//    std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction = createRelativeStateFunction( bodyMap, "Europa", "Jupiter");
+    // Create rotation model using setup function
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemerisFromRotationModelSettings =
+            createRotationModel( synchronousRotationSettings, "Europa", bodyMap );
 
-//    ephemerides::SynchronousRotationalEphemeris synchronousRotationalEphemeris( relativeStateFunction, "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+
+    // Create synchronous rotation model directly.
+    std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction = createRelativeStateFunction( bodyMap, "Europa", "Jupiter");
+
+    ephemerides::SynchronousRotationalEphemeris synchronousRotationalEphemeris( relativeStateFunction, "Jupiter", "ECLIPJ2000", "IAU_Europa" );
 
 
-//    // Verify equivalence of automatically set up and manual models.
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToBaseFrame(
-//                                       4.0E7) ) ),
-//                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToBaseFrame(
-//                                       4.0E7) ) ),
-//                std::numeric_limits< double >::epsilon( ) );
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToTargetFrame(
-//                                       4.0E7) ) ),
-//                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToTargetFrame(
-//                                       4.0E7) ) ),
-//                std::numeric_limits< double >::epsilon( ) );
+    // Verify equivalence of automatically set up and manual models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( synchronousRotationalEphemeris.getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
 
-//}
-//#endif
+}
+#endif
 
 
 #if USE_SOFA
@@ -1133,15 +1133,15 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     // Define specular reflection coefficient of the solar sail [-].
     double specularReflectionCoefficient = 1.0;
 
-    std::vector< std::string > centralBodies;
-    centralBodies.push_back( "Earth" );
+    // Define central body.
+    std::string centralBody = "Earth";
 
     // Create radiation pressure interface settings.
     std::shared_ptr< SolarSailRadiationInterfaceSettings > radiationPressureInterfaceSettings =
             std::make_shared< SolarSailRadiationInterfaceSettings >(
                 "Sun", area, coneAngleFunction, clockAngleFunction, frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
                 backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
-                centralBodies );
+                centralBody );
 
     bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
 
@@ -1179,7 +1179,7 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
 
     for ( int i = 0 ; i < 3 ; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )[ 0 ]( )[ i ] -
+        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )( )[ i ] -
                            bodyMap[ "Earth" ]->getState()[ i + 3 ] ), 1.0E-15 );
 
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentVelocityVector( )[ i ] -

@@ -484,8 +484,8 @@ private:
 
 //! Class in which the properties of a solar sailing radiation pressure acceleration model are stored.
 /*!
- *  Class in which the properties of a solar sailing radiation pressure acceleration model are stored and in which the current radiation pressure
- *  is calculated based on the source power and geometry, as well as from the spacecraft solar sail model.
+ *  Class in which the properties of a solar sailing radiation pressure acceleration model are stored and in which the current solar sailing
+ *  radiation pressure is calculated based on the source power and geometry, as well as on the spacecraft solar sail model.
  */
 class SolarSailingRadiationPressureInterface: public RadiationPressureInterface
 {
@@ -510,6 +510,7 @@ public:
      *  \param occultingBodyPositions List of functions returning the positions of the bodies
      *  causing occultations (default none) NOTE: Multiple concurrent occultations may currently
      *  result in slighlty underestimted radiation pressure.
+     *  \param centralBodyVelocity Function returning the current velocity of the central body.
      *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
      *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
      */
@@ -529,8 +530,8 @@ public:
             const double specularReflectionCoefficient,
             const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
                 std::vector< std::function< Eigen::Vector3d( ) > >( ),
-            const std::vector< std::function< Eigen::Vector3d( ) > > centralBodyVelocity =
-                std::vector< std::function< Eigen::Vector3d( ) > >( ),
+            const std::function< Eigen::Vector3d( ) > centralBodyVelocity =
+                std::function< Eigen::Vector3d( ) >( ),
             const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
             const double sourceRadius = 0.0 ):
             RadiationPressureInterface( sourcePower, sourcePositionFunction, targetPositionFunction, TUDAT_NAN, area,
@@ -562,7 +563,7 @@ public:
         currentClockAngle_ = clockAngleFunction_( currentTime );
 
         // Update normalised velocity vector of the spacecraft w.r.t. central body.
-        currentUnitVelocityVector_ = ( targetVelocityFunction_( ) - centralBodyVelocity_[0]( ) ).normalized( );
+        currentUnitVelocityVector_ = ( targetVelocityFunction_( ) - centralBodyVelocity_( ) ).normalized( );
 
     }
 
@@ -687,12 +688,12 @@ public:
         return specularReflectionCoefficient_;
     }
 
-    //! Function to return the list of functions returning the velocity of the central bodies
+    //! Returns the function returning the velocity of the central body.
     /*!
-     *  Function to return the list of functions returning the velocity of the central bodies
-     *  \return List of functions returning the velocity of the central bodies.
+     * Returns the function returning the velocity of the central body.
+     *  \return Function returning the velocity of the central body.
      */
-    std::vector< std::function< Eigen::Vector3d( ) > > getCentralBodyVelocity( )
+    std::function< Eigen::Vector3d( ) > getCentralBodyVelocity( )
     {
         return centralBodyVelocity_;
     }
@@ -733,8 +734,8 @@ private:
     //! Specular reflection coefficient of the target body.
     double specularReflectionCoefficient_;
 
-    //! List of functions returning the velocity of the central bodies.
-    std::vector< std::function< Eigen::Vector3d( ) > > centralBodyVelocity_;
+    //! Function returning the velocity of the central body.
+    std::function< Eigen::Vector3d( ) > centralBodyVelocity_;
 
     //! Current vector of the target's normalised velocity.
     Eigen::Vector3d currentUnitVelocityVector_;

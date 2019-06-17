@@ -21,12 +21,19 @@ namespace electro_magnetism
 {
 
 //! Compute solar sail force using a non-ideal reflective model.
-Eigen::Vector3d computeSolarSailForce(const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient,
-        const double backLambertianCoefficient , const double reflectivityCoefficient, const double specularReflectionCoefficient,
+Eigen::Vector3d computeSolarSailForce(
+        const double frontEmissivityCoefficient,
+        const double backEmissivityCoefficient,
+        const double frontLambertianCoefficient,
+        const double backLambertianCoefficient,
+        const double reflectivityCoefficient,
+        const double specularReflectionCoefficient,
         const Eigen::Vector3d& normalisedVectorToSource,
         const Eigen::Vector3d& normalisedVelocityVector,
         const double radiationPressure,
-        const double area, const double coneAngle, const double clockAngle)
+        const double area,
+        const double coneAngle,
+        const double clockAngle)
 {
 
     // Define constant A to simplify the formulae of the solar sail model.

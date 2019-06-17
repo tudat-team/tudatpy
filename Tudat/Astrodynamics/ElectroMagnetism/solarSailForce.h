@@ -21,7 +21,7 @@ namespace electro_magnetism
 
 //! Compute solar sail force using a non-ideal reflective model.
 /*!
- * Computes solar sail force using a non-ideal reflective model
+ * Computes solar sail force using a non-ideal reflective model.
  * \param frontEmissivity Emissivity coefficient of the front of the sail.                                   [-]
  * \param backEmissivity Emissivity coefficient of the back of the sail.                                     [-]
  * \param frontLambertianCoefficient Lambertian coefficient of the front of the sail.                        [-]
