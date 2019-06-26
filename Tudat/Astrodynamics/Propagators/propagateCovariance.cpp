@@ -7,6 +7,18 @@ namespace tudat
 namespace propagators
 {
 
+void getFullVariationalEquationsSolutionHistory(
+        std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory,
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes )
+{
+    for( int i = 0; i < evaluationTimes.size( ); i++ )
+    {
+        fullVariationalEquationsSolutionHistory[ evaluationTimes.at( i ) ] =
+                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i )  );
+    }
+}
+
 //! Function to retrueve full state transition and sensitivity matrices at epochs
 void getFullVariationalEquationsSolutionHistory(
         std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory,
@@ -15,14 +27,16 @@ void getFullVariationalEquationsSolutionHistory(
         const double initialTime,
         const double finalTime )
 {
+    std::vector< double > evaluationTimes;
     double currentTime = initialTime;
     while( currentTime < finalTime )
     {
-        fullVariationalEquationsSolutionHistory[ currentTime ] =
-                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( currentTime );
+        evaluationTimes.push_back( currentTime );
         currentTime += timeStep;
-
     }
+
+    getFullVariationalEquationsSolutionHistory(
+                fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
 }
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
@@ -44,9 +58,7 @@ void propagateCovariance(
         std::map< double, Eigen::MatrixXd >& propagatedCovariance,
         const Eigen::MatrixXd& initialCovariance,
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const double timeStep,
-        const double initialTime,
-        const double finalTime )
+        const std::vector< double > evaluationTimes )
 {
     if( initialCovariance.rows( ) != stateTransitionInterface->getFullParameterVectorSize( ) )
     {
@@ -55,8 +67,48 @@ void propagateCovariance(
 
     std::map< double, Eigen::MatrixXd > fullVariationalEquationsSolutionHistory;
     getFullVariationalEquationsSolutionHistory(
-                fullVariationalEquationsSolutionHistory, stateTransitionInterface, timeStep, initialTime, finalTime );
+                fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
     propagateCovariance( propagatedCovariance, initialCovariance, fullVariationalEquationsSolutionHistory );
+}
+
+
+//! Function to propagate full covariance at the initial time to state covariance at later times
+void propagateCovariance(
+        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+        const Eigen::MatrixXd& initialCovariance,
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const double timeStep,
+        const double initialTime,
+        const double finalTime )
+{
+    std::vector< double > evaluationTimes;
+    double currentTime = initialTime;
+    while( currentTime < finalTime )
+    {
+        evaluationTimes.push_back( currentTime );
+        currentTime += timeStep;
+    }
+
+    propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+
+}
+
+//! Function to propagate full covariance at the initial time to state formal errors at later times
+void propagateFormalErrors(
+        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+        const Eigen::MatrixXd& initialCovariance,
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    propagateCovariance(
+                propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+
+    for( auto covarianceIterator : propagatedCovariance )
+    {
+        propagatedFormalErrors[ covarianceIterator.first ] =
+                Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
+    }
 }
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
