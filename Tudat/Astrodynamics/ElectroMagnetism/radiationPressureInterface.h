@@ -480,6 +480,269 @@ private:
 
 };
 
+
+
+//! Class in which the properties of a solar sailing radiation pressure acceleration model are stored.
+/*!
+ *  Class in which the properties of a solar sailing radiation pressure acceleration model are stored and in which the current solar sailing
+ *  radiation pressure is calculated based on the source power and geometry, as well as on the spacecraft solar sail model.
+ */
+class SolarSailingRadiationPressureInterface: public RadiationPressureInterface
+{
+public:
+
+    //! Constructor
+    /*!
+     * Class constructor for radiation pressure interface (appropriate for solar sail model)
+     *  \param sourcePower Function returning the current total power (in W) emitted by the source body.
+     *  \param sourcePositionFunction Function returning the current position of the source body.
+     *  \param targetPositionFunction Function returning the current position of the target body.
+     *  \param targetVelocityFunction Function returning the current velocity of the target body w.r.t. central body.
+     *  \param area Reflecting area of the target body.
+     *  \param coneAngle Function returning the current cone angle of the target body.
+     *  \param clockAngle Function returning the current clock angle of the target body.
+     *  \param frontEmissivityCoefficient Front emissivity coefficient of the target body.
+     *  \param backEmissivityCoefficient Back emissivity coefficient of the target body.
+     *  \param frontLambertianCoefficient Front Lambertian coefficient of the target body.
+     *  \param backLambertianCoefficient Back Lambertian coefficient of the target body.
+     *  \param reflectivityCoefficient Reflectivity coefficient of the target body.
+     *  \param specularReflectionCoefficient Specular reflection coefficient of the target body.
+     *  \param occultingBodyPositions List of functions returning the positions of the bodies
+     *  causing occultations (default none) NOTE: Multiple concurrent occultations may currently
+     *  result in slighlty underestimted radiation pressure.
+     *  \param centralBodyVelocity Function returning the current velocity of the central body.
+     *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
+     *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
+     */
+    SolarSailingRadiationPressureInterface(
+            const std::function< double( ) > sourcePower,
+            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetVelocityFunction,
+            const double area,
+            const std::function< double( const double ) > coneAngle,
+            const std::function< double( const double  ) > clockAngle,
+            const double frontEmissivityCoefficient,
+            const double backEmissivityCoefficient,
+            const double frontLambertianCoefficient,
+            const double backLambertianCoefficient,
+            const double reflectivityCoefficient,
+            const double specularReflectionCoefficient,
+            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+                std::vector< std::function< Eigen::Vector3d( ) > >( ),
+            const std::function< Eigen::Vector3d( ) > centralBodyVelocity =
+                std::function< Eigen::Vector3d( ) >( ),
+            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
+            const double sourceRadius = 0.0 ):
+            RadiationPressureInterface( sourcePower, sourcePositionFunction, targetPositionFunction, TUDAT_NAN, area,
+            occultingBodyPositions, occultingBodyRadii, sourceRadius ),
+            targetVelocityFunction_( targetVelocityFunction ),
+            coneAngleFunction_( coneAngle ),
+            clockAngleFunction_( clockAngle ),
+            frontEmissivityCoefficient_( frontEmissivityCoefficient ),
+            backEmissivityCoefficient_( backEmissivityCoefficient ),
+            frontLambertianCoefficient_( frontLambertianCoefficient ),
+            backLambertianCoefficient_( backLambertianCoefficient ),
+            reflectivityCoefficient_( reflectivityCoefficient ),
+            specularReflectionCoefficient_( specularReflectionCoefficient ),
+            centralBodyVelocity_( centralBodyVelocity ){ }
+
+
+    //! Base class function to update the current properties of the solar sailing radiation pressure acceleration model
+    /*!
+     *  Base class function to update the current properties of the solar sailing radiation pressure acceleration model.
+     * This function is nominally called by the updateInterface function, which may be overridden by derived classes.
+     *  \param currentTime Time at which acceleration model is to be updated.
+     */
+    void updateInterface( const double currentTime = TUDAT_NAN )
+    {
+        updateInterfaceBase( currentTime );
+
+        // Update cone and clock angles.
+        currentConeAngle_ = coneAngleFunction_( currentTime );
+        currentClockAngle_ = clockAngleFunction_( currentTime );
+
+        // Update normalised velocity vector of the spacecraft w.r.t. central body.
+        currentUnitVelocityVector_ = ( targetVelocityFunction_( ) - centralBodyVelocity_( ) ).normalized( );
+
+    }
+
+
+    //! Function to return the current normalised velocity of the target.
+    /*!
+     *  Function to return the current normalised velocity of the target.
+     *  \return Current normalised velocity vector of the target [-].
+     */
+    Eigen::Vector3d getCurrentVelocityVector( ) const
+    {
+        return currentUnitVelocityVector_;
+    }
+
+    //! Function to return the function returning the current normalised velocity of the target body.
+    /*!
+     *  Function to return the function returning the current normalised velocity of the target body.
+     *  \return Function returning the current normalised velocity of the target body.
+     */
+    std::function< Eigen::Vector3d( ) > getTargetVelocityFunction( ) const
+    {
+        return targetVelocityFunction_;
+    }
+
+    //! Function to return the current cone angle of the target body.
+    /*!
+     *  Function to return the current cone angle of the target body.
+     *  \return Current cone angle of the target body [rad].
+     */
+    double getCurrentConeAngle( ) const
+    {
+        return currentConeAngle_;
+    }
+
+    //! Function to return the current clock angle of the target body.
+    /*!
+     *  Function to return the current clock angle of the target body.
+     *  \return The current clock angle of the target body.
+     */
+    double getCurrentClockAngle( ) const
+    {
+        return currentClockAngle_;
+    }
+
+    //! Function to return the cone angle function
+    /*!
+     *  Function to return the cone angle function
+     *  \return Cone angle function.
+     */
+    std::function< double( const double ) > getConeAngleFunction( ) const
+    {
+        return coneAngleFunction_;
+    }
+
+    //! Function to return the clock angle function
+    /*!
+     *  Function to return the clock angle function
+     *  \return Clock angle function.
+     */
+    std::function< double( const double ) > getClockAngleFunction( ) const
+    {
+        return clockAngleFunction_;
+    }
+
+    //! Function to return the front emissivity coefficient of the target body.
+    /*!
+     *  Function to return the front emissivity coefficient of the target body.
+     *  \return Front emissivity coefficient of the target body [-].
+     */
+    double getFrontEmissivityCoefficient( ) const
+    {
+        return frontEmissivityCoefficient_;
+    }
+
+    //! Function to return the back emissivity coefficient of the target body.
+    /*!
+     *  Function to return the back emissivity coefficient of the target body.
+     *  \return Back emissivity coefficient of the target body [-].
+     */
+    double getBackEmissivityCoefficient( ) const
+    {
+        return backEmissivityCoefficient_;
+    }
+
+    //! Function to return the front Lambertian coefficient of the target body.
+    /*!
+     *  Function to return the front Lambertian coefficient of the target body.
+     *  \return Front Lambertian coefficient of the target body [-].
+     */
+    double getFrontLambertianCoefficient( ) const
+    {
+        return frontLambertianCoefficient_;
+    }
+
+    //! Function to return the back Lambertian coefficient of the target body.
+    /*!
+     *  Function to return the back Lambertian coefficient of the target body.
+     *  \return Back Lambertian coefficient of the target body [-].
+     */
+    double getBackLambertianCoefficient( ) const
+    {
+        return backLambertianCoefficient_;
+    }
+
+    //! Function to return the reflectivity coefficient of the target body.
+    /*!
+     *  Function to return the reflectivity coefficient of the target body.
+     *  \return Reflectivity coefficient of the target body  [-].
+     */
+    double getReflectivityCoefficient( ) const
+    {
+        return reflectivityCoefficient_;
+    }
+
+    //! Function to return the specular reflection coefficient of the target body.
+    /*!
+     *  Function to return the specular reflection coefficient of the target body.
+     *  \return Specular reflection coefficient of the target body [-].
+     */
+    double getSpecularReflectionCoefficient( ) const
+    {
+        return specularReflectionCoefficient_;
+    }
+
+    //! Returns the function returning the velocity of the central body.
+    /*!
+     * Returns the function returning the velocity of the central body.
+     *  \return Function returning the velocity of the central body.
+     */
+    std::function< Eigen::Vector3d( ) > getCentralBodyVelocity( )
+    {
+        return centralBodyVelocity_;
+    }
+
+
+private:
+
+    //! Function returning the current position of the source body.
+    std::function< Eigen::Vector3d( ) > targetVelocityFunction_;
+
+    //! Function returning the current cone angle of the target body.
+    std::function< double( const double  ) > coneAngleFunction_;
+
+    //! Function returning the current clock angle of the target body.
+    std::function< double( const double  ) > clockAngleFunction_;
+
+    //! Current cone angle of the body (in rad).
+    double currentConeAngle_;
+
+    //! Current clock angle of the body (in rad).
+    double currentClockAngle_;
+
+    //! Front emissivity coefficient of the target body.
+    double frontEmissivityCoefficient_;
+
+    //! Back emissivity coefficient of the target body.
+    double backEmissivityCoefficient_;
+
+    //! Front Lambertian coefficient of the target body.
+    double frontLambertianCoefficient_;
+
+    //! Back Lambertian coefficient of the target body.
+    double backLambertianCoefficient_;
+
+    //! Reflectivity coefficient of the target body.
+    double reflectivityCoefficient_;
+
+    //! Specular reflection coefficient of the target body.
+    double specularReflectionCoefficient_;
+
+    //! Function returning the velocity of the central body.
+    std::function< Eigen::Vector3d( ) > centralBodyVelocity_;
+
+    //! Current vector of the target's normalised velocity.
+    Eigen::Vector3d currentUnitVelocityVector_;
+
+};
+
+
 } // namespace electro_magnetism
 
 } // namespace tudat
