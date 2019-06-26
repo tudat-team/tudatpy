@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/Propulsion/massRateFromThrust.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/solarSailAcceleration.h"
 
 namespace tudat
 {
@@ -59,7 +60,8 @@ enum AvailableAcceleration
     direct_tidal_dissipation_in_central_body_acceleration,
     direct_tidal_dissipation_in_orbiting_body_acceleration,
     panelled_radiation_pressure_acceleration,
-    momentum_wheel_desaturation_acceleration
+    momentum_wheel_desaturation_acceleration,
+    solar_sail_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type
