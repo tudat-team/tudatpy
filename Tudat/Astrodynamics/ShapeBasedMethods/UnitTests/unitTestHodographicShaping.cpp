@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
     std::map< double, Eigen::VectorXd > shapingMethodResults;
-    std::map< double, Eigen::VectorXd > dependentVariables;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -295,12 +295,12 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
-    bodyToPropagateAccelerations[ "Mars" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
-    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
-    bodyToPropagateAccelerations[ "Jupiter" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Mars" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Jupiter" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
 
     // Define integrator settings
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 100.0 );
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 400.0 );
 
     // Define mass function of the vehicle.
     std::function< double( const double ) > newMassFunction = [ = ]( const double currentTime )
@@ -345,14 +345,33 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     };
     bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
 
+
+    // Define specific impulse function.
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+    {
+        return 200.0;
+    };
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
+
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeShapingTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, cartesianStateDepartureBody,
-                                                                      "Sun", "Vehicle", propagators::cowell, integratorSettings,
-                                                                      fullPropagationResults, shapingMethodResults, dependentVariables );
-
-
-
-
+    VelocityShapingMethod.computeShapingTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, "Sun", "Vehicle", specificImpulseFunction,
+                                                                      integratorSettings, terminationConditions,
+                                                                      fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
+                                                                      propagators::cowell, dependentVariablesToSave );
 
     tudat::input_output::writeDataMapToTextFile( outputRadialDistance,
                                           "outputRadialDistance.dat",
@@ -418,7 +437,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
                                           std::numeric_limits< double >::digits10,
                                           "," );
 
-    tudat::input_output::writeDataMapToTextFile( dependentVariables,
+    tudat::input_output::writeDataMapToTextFile( dependentVariablesHistory,
                                           "dependentVariables.dat",
                                            "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
                                           "",
@@ -427,7 +446,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
                                           "," );
 
     std::map< double, Eigen::VectorXd > thrustAccelerationMap;
-    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariables.begin() ; itr != dependentVariables.end() ; itr++ )
+    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariablesHistory.begin() ; itr != dependentVariablesHistory.end() ; itr++ )
     {
         thrustAccelerationMap[ itr->first ] = VelocityShapingMethod.computeCartesianAcceleration( itr->first );
     }
@@ -467,7 +486,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
             / cylindricalState[ 0 ];
     testCylindricalAcceleration[ 1 ] = ( cartesianState[ 0 ] * cartesianAcceleration[ 1 ] - cartesianState[ 1 ] * cartesianAcceleration[ 0 ] )
             / std::pow( cylindricalState[ 0 ], 1 );
-    testCylindricalAcceleration[ 2 ] = testCylindricalAcceleration[ 2 ];
+    testCylindricalAcceleration[ 2 ] = cylindricalAcceleration[ 2 ];
 
     std::cout << "cylindrical acceleration: " << cylindricalAcceleration << "\n\n";
     std::cout << "cartesian acceleration: " << cartesianAcceleration << "\n\n";
