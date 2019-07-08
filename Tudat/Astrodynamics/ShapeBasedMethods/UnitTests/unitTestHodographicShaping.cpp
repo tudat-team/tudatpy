@@ -46,6 +46,8 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
 
     double julianDate = 2458849.5;
 
+    double timeOfFlight = 500.0;
+
     // Ephemeris departure body.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
@@ -71,60 +73,22 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     std::cout << "cartesian state departure body = Earth: " << pointerToDepartureBodyEphemeris->getCartesianState( julianDate ).segment(0,3)
               << "\n\n";
 
-    std::cout << "radial distance Earth departure: " << pointerToDepartureBodyEphemeris->getCartesianState( julianDate ).segment(0,3).norm()
-              << "\n\n";
-
     std::cout << "cartesian state arrival body = Mars: " << pointerToArrivalBodyEphemeris->getCartesianState( julianDate ).segment(0,3) << "\n\n";
 
-    std::cout << "radial distance Mars departure: " << pointerToArrivalBodyEphemeris->getCartesianState( julianDate ).segment(0,3).norm() << "\n\n";
 
     // Compute cylindrical state of arrival body.
     Eigen::VectorXd cylindricalStateOfArrivalBody = coordinate_conversions::convertCartesianToCylindricalState(
-                pointerToArrivalBodyEphemeris->getCartesianState( julianDate ) );
-
-    double timeOfFlight = 500.0;
-
-    // If transfer angle crossed 2*PI.
-    double transferAngle = basic_mathematics::computeModulo(
-                ( cylindricalStateOfArrivalBody( 1 ) - cylindricalStateOfDepartureBody( 1 ) ), 2.0 * mathematical_constants::PI );
-
-    // Set boundary conditions.
-    std::vector< double > boundaryTimes(2);
-    boundaryTimes[0] = 0.0;                                                   //* Initial time
-    boundaryTimes[1] = timeOfFlight * tudat::physical_constants::JULIAN_DAY;  //* Final time
-
-    // Set boundary conditions for the radial direction.
-    std::vector< double > boundaryConditionsRadial(4);
-    boundaryConditionsRadial[0] = cylindricalStateOfDepartureBody(0);   //* Initial radial distance
-    boundaryConditionsRadial[1] = cylindricalStateOfArrivalBody(0);     //* Final radial distance
-    boundaryConditionsRadial[2] = cylindricalStateOfDepartureBody(3);   //* Initial radial velocity
-    boundaryConditionsRadial[3] = cylindricalStateOfArrivalBody(3);     //* Final radial velocity
+                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY ) );
 
     std::cout << "cylindrical state of departure body: " << cylindricalStateOfDepartureBody.segment(0,3) << "\n\n";
     std::cout << "cylindrical state of arrival body: " << cylindricalStateOfArrivalBody.segment(0,3) << "\n\n";
 
-    // Set boundary conditions for the normal direction.
-    std::vector< double > boundaryConditionsNormal(3);
-    boundaryConditionsNormal[0] = cylindricalStateOfDepartureBody(4);   //* Initial normal velocity
-    boundaryConditionsNormal[1] = cylindricalStateOfArrivalBody(4);     //* Final normal velocity
-    boundaryConditionsNormal[2] = numberOfRevolutions * 2.0 * mathematical_constants::PI + transferAngle; //* Final polar angle
-
-    // Set boundary conditions for the axial direction.
-    std::vector< double > boundaryConditionsAxial(4);
-    boundaryConditionsAxial[0] = cylindricalStateOfDepartureBody(2);    //* Initial axial distance
-    boundaryConditionsAxial[1] = cylindricalStateOfArrivalBody(2);      //* Final axial distance
-    boundaryConditionsAxial[2] = cylindricalStateOfDepartureBody(5);    //* Initial axial velocity
-    boundaryConditionsAxial[3] = cylindricalStateOfArrivalBody(5);      //* Final axial velocity
-
-    std::cout << "initial axial distance: " << cylindricalStateOfDepartureBody[2] << "\n\n";
-    std::cout << "final axial distance: " << cylindricalStateOfArrivalBody[2] << "\n\n";
-
     // Set velocity functions.
-    double frequency = 2.0 * mathematical_constants::PI / ( boundaryTimes[1] - boundaryTimes[0] );
+    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
 
     // Set components for the radial velocity function.
-    double scaleFactor = 1.0 / ( boundaryTimes[1] - boundaryTimes[0] );
+    double scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
     radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
@@ -138,17 +102,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
                                                     shape_based_methods::scaledPowerCosine, 1.0, 0.5 * frequency, scaleFactor ) );
 
-    Eigen::VectorXd radialVelocityComponentsCoefficients;
-    radialVelocityComponentsCoefficients.resize( 5 );
-    radialVelocityComponentsCoefficients[0] = 500.0;
-    radialVelocityComponentsCoefficients[1] = 500.0;
-    radialVelocityComponentsCoefficients[2] = 500.0;
-    radialVelocityComponentsCoefficients[3] = 500.0;
-    radialVelocityComponentsCoefficients[4] = 500.0;
-
-    shape_based_methods::CompositeFunction radialVelocityFunction( radialVelocityFunctionComponents, radialVelocityComponentsCoefficients );
-
-
     // Set components for the normal velocity function.
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
     normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
@@ -161,17 +114,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
                                                     shape_based_methods::scaledPowerSine, 1.0, 0.5 * frequency, scaleFactor ) );
     normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
                                                     shape_based_methods::scaledPowerCosine, 1.0, 0.5 * frequency, scaleFactor ) );
-
-    Eigen::VectorXd normalVelocityComponentsCoefficients;
-    normalVelocityComponentsCoefficients.resize( 5 );
-    normalVelocityComponentsCoefficients[0] = 500.0;
-    normalVelocityComponentsCoefficients[1] = 500.0;
-    normalVelocityComponentsCoefficients[2] = 500.0;
-    normalVelocityComponentsCoefficients[3] = 500.0;
-    normalVelocityComponentsCoefficients[4] = - 200.0;
-
-    shape_based_methods::CompositeFunction normalVelocityFunction( normalVelocityFunctionComponents, normalVelocityComponentsCoefficients );
-
 
     // Set components for the axial velocity function.
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
@@ -190,58 +132,36 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
                                                    shape_based_methods::scaledPowerSine, 4.0,
                                                    ( numberOfRevolutions + 0.5 ) * frequency, std::pow( scaleFactor, 4 ) ) );
 
-    Eigen::VectorXd axialVelocityComponentsCoefficients;
-    axialVelocityComponentsCoefficients.resize( 5 );
-    axialVelocityComponentsCoefficients[0] = 500.0;
-    axialVelocityComponentsCoefficients[1] = 500.0;
-    axialVelocityComponentsCoefficients[2] = 500.0;
-    axialVelocityComponentsCoefficients[3] = 500.0;
-    axialVelocityComponentsCoefficients[4] = 2000.0;
-
-    shape_based_methods::CompositeFunction axialVelocityFunction( axialVelocityFunctionComponents, axialVelocityComponentsCoefficients );
-
     Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
+
+    // Initialize free coefficients vector for radial function.
+    Eigen::VectorXd freeCoefficientsRadialFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsRadialFunction[ 0 ] = 500.0;
+    freeCoefficientsRadialFunction[ 1 ] = 500.0;
+
+    // Initialize free coefficients vector for normal function.
+    Eigen::VectorXd freeCoefficientsNormalFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsNormalFunction[ 0 ] = 500.0;
+    freeCoefficientsNormalFunction[ 1 ] = - 200.0;
+
+    // Initialize free coefficients vector for axial function.
+    Eigen::VectorXd freeCoefficientsAxialFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsAxialFunction[ 0 ] = 500.0;
+    freeCoefficientsAxialFunction[ 1 ] = 2000.0;
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod( radialVelocityFunction,
-                                                                normalVelocityFunction,
-                                                                axialVelocityFunction,
-                                                                cartesianStateDepartureBody,
-                                                                boundaryConditionsRadial,
-                                                                boundaryConditionsNormal,
-                                                                boundaryConditionsAxial,
-                                                                boundaryTimes,
-                                                                0.0,
-                                                                timeOfFlight * tudat::physical_constants::JULIAN_DAY );
-
-    // Compute number of free coefficients for the radial velocity function.
-    int numberOfFreeCoefficientsRadial = radialVelocityFunction.getNumberOfCompositeFunctionComponents()
-                                    - std::min( 3, static_cast< int >( boundaryConditionsRadial.size() ) );
-
-    // Compute number of free coefficients for the normal velocity function.
-    int numberOfFreeCoefficientsNormal = normalVelocityFunction.getNumberOfCompositeFunctionComponents()
-                                    - std::min( 3, static_cast< int >( boundaryConditionsNormal.size() ) );
-
-    std::cout << "boundary conditions normal: " <<  static_cast< int >( boundaryConditionsNormal.size() ) << "\n\n";
-
-    // Compute number of free coefficients for the normal velocity function.
-    int numberOfFreeCoefficientsAxial = axialVelocityFunction.getNumberOfCompositeFunctionComponents()
-                                    - std::min( 3, static_cast< int > (boundaryConditionsAxial.size()) );
-
-    // Compute total number of free coefficients.
-    int numberOfFreeCoefficients = numberOfFreeCoefficientsRadial + numberOfFreeCoefficientsNormal
-                                   + numberOfFreeCoefficientsAxial;
-
-    std::cout << "number free coefficients normal: " << numberOfFreeCoefficientsNormal << "\n\n";
-
-    // Initialize free coefficients vector.
-    Eigen::VectorXd freeCoefficients = Eigen::VectorXd::Zero( numberOfFreeCoefficients );
-    freeCoefficients[0] = 500.0;
-    freeCoefficients[1] = 500.0;
-    freeCoefficients[2] = 500.0;
-    freeCoefficients[3] = -200.0;
-    freeCoefficients[4] = 500.0;
-    freeCoefficients[5] = 2000.0;
+    shape_based_methods::HodographicShaping VelocityShapingMethod(
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                freeCoefficientsRadialFunction,
+                freeCoefficientsNormalFunction,
+                freeCoefficientsAxialFunction,
+                0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1 );
 
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -309,18 +229,15 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
-    VelocityShapingMethod.satisfyRadialBoundaryConditions( freeCoefficients );
-    VelocityShapingMethod.satisfyNormalBoundaryConditionsWithFinalPolarAngle( freeCoefficients );
-    VelocityShapingMethod.satisfyAxialBoundaryConditions( freeCoefficients );
     std::map< double, double > outputRadialDistance;
     std::map< double, double > outputAxialDistance;
     std::map< double, double > outputPolarAngle;
     std::map< double, Eigen::Vector3d > outputCartesianPosition;
     std::map< double, Eigen::Vector3d > outputAccelerationVector;
 
-    double stepSize = ( boundaryTimes[1] - boundaryTimes[0] ) / static_cast< double >( 50 );
+    double stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );
     for ( int currentStep = 0 ; currentStep <= 50 ; currentStep++ ){
-        double currentTime = boundaryTimes[0] + currentStep * stepSize;
+        double currentTime = currentStep * stepSize;
 
         outputRadialDistance[ currentStep ] = VelocityShapingMethod.computeRadialDistanceCurrentTime( currentTime );
         outputAxialDistance[ currentStep ] = VelocityShapingMethod.computeAxialDistanceCurrentTime( currentTime );

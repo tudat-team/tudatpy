@@ -630,7 +630,7 @@ private:
     double scaleFactor_;
 };
 
-
+//! Function to create a base function for hodographic shaping.
 std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
         const baseFunctionHodographicShapingType baseFunctionType,
         const double power = 0.0,

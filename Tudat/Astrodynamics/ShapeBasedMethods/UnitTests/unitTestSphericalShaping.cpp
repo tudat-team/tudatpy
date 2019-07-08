@@ -90,7 +90,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping1 )
     std::cout << "test initial cartesian position: " << sphericalShaping.computeCurrentCartesianState( sphericalShaping.getInitialAzimuthalAngle() /*2.25776*/ ).transpose() << "\n\n";
     std::cout << "test final cartesian position: " << sphericalShaping.computeCurrentCartesianState( sphericalShaping.getFinalAzimuthalAngle() /*12.8632*/ ).transpose() << "\n\n";
 
-    std::cout << "difference final cartesian state: " << ( sphericalShaping.computeCurrentCartesianState( sphericalShaping.getFinalAzimuthalAngle() )
+    std::cout << "difference final cartesian state: " <<
+                 ( sphericalShaping.computeCurrentCartesianState( sphericalShaping.getFinalAzimuthalAngle() ) * physical_constants::ASTRONOMICAL_UNIT
                  - pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY ) ).transpose() << "\n\n";
 
     std::map< double, Eigen::Vector6d > mapPosition;
