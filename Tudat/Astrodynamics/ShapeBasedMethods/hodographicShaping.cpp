@@ -15,11 +15,7 @@
 #include <iostream>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
 
@@ -46,8 +42,7 @@ HodographicShaping::HodographicShaping( CompositeFunction& radialVelocityFunctio
     axialVelocityFunction_( axialVelocityFunction ),
     initialState_( initialState ),
     initialTime_( initialTime ),
-    finalTime_( finalTime ),
-    numberOfIntegrationSteps_( 25 )
+    finalTime_( finalTime )
 {
 
     // Compute number of free coefficients for each velocity function.
@@ -69,13 +64,15 @@ HodographicShaping::HodographicShaping( CompositeFunction& radialVelocityFunctio
         boundaryConditionsNormal_ = boundaryConditionsNormal;
         boundaryConditionsAxial_ = boundaryConditionsAxial;
         boundaryValuesTime_ = boundaryValuesTime;
-        stepsize_ = ( boundaryValuesTime_[1] - boundaryValuesTime_[0] ) / static_cast< double >( numberOfIntegrationSteps_ );
 
         // Compute inverse of matrices containing boundary values.
         inverseMatrixBoundaryValuesRadial = computeInverseMatrixRadialOrAxialBoundaries( radialVelocityFunction );
         inverseMatrixBoundaryValuesNormal = computeInverseMatrixNormalBoundaries( normalVelocityFunction );
         inverseMatrixBoundaryValuesAxial = computeInverseMatrixRadialOrAxialBoundaries( axialVelocityFunction );
     }
+
+    // Define numerical quadrature settings, required to compute the current polar angle and final deltaV.
+    quadratureSettings_ = std::make_shared< numerical_quadrature::GaussianQuadratureSettings< double > >( initialTime_, 64 );
 }
 
 //! Set boundary conditions.
@@ -432,20 +429,18 @@ double HodographicShaping::computeDeltaV( )
 
     } ;
 
-    // Initialise deltaV before integration.
-    Eigen::Vector1d initialValueDeltaV = Eigen::Vector1d::Zero();
+    // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
+    std::function< double( const double ) > derivativeFunctionDeltaVtest = [ = ] ( const double currentTime ){
 
+        return computeThrustAccelerationCurrentTime( currentTime );
 
-    // Define integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepsize_ );
+    } ;
 
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator < double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativeFunctionDeltaV, integratorSettings->initialTime_, initialValueDeltaV ) ;
+    // Define numerical quadrature.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeFunctionDeltaVtest, quadratureSettings_, finalTime_ );
 
-    return integrator->integrateTo( finalTime_, stepsize_ )[ 0 ];
+    return quadrature->getQuadrature( );
 }
 
 
@@ -472,27 +467,25 @@ double HodographicShaping::computeFinalPolarAngle( )
 
     } ;
 
-    // Initialise polar angle before integration.
-    Eigen::Vector1d initialValuePolarAngle = Eigen::Vector1d::Zero();
 
-    // Define integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepsize_ );
+    // Define the derivative of the polar angle, ie angular velocity function, as a function of time.
+    std::function< double( const double ) > derivativeFunctionPolarAngleTest = [ = ]
+            ( const double currentTime ){
 
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator < double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativeFunctionPolarAngle, integratorSettings->initialTime_, initialValuePolarAngle ) ;
+        return computeAngularVelocityCurrentTime( currentTime );
 
-    return integrator->integrateTo( finalTime_, stepsize_ )[ 0 ] + coordinate_conversions::convertCartesianToCylindricalState( initialState_ )[ 1 ];
+    } ;
+
+    // Define numerical quadrature.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeFunctionPolarAngleTest, quadratureSettings_, finalTime_ );
+
+    return quadrature->getQuadrature() + coordinate_conversions::convertCartesianToCylindricalState( initialState_ )[ 1 ];
 }
 
 //! Compute polar angle.
 double HodographicShaping::computePolarAngle( double currentTime )
 {
-    // Integration step size
-    double stepsize = ( currentTime - boundaryValuesTime_[0] )
-                        / static_cast< double >( numberOfIntegrationSteps_ );
 
     // Define the derivative of the polar angle, ie angular velocity function, as a function of time.
     std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativeFunctionPolarAngle = [ = ]
@@ -504,19 +497,18 @@ double HodographicShaping::computePolarAngle( double currentTime )
 
     } ;
 
-    // Initialise polar angle before integration.
-    Eigen::Vector1d initialValuePolarAngle = Eigen::Vector1d::Zero();
+    // Define the derivative of the polar angle, ie angular velocity function, as a function of time.
+    std::function< double( const double ) > derivativeFunctionPolarAngleTest = [ = ] ( const double currentTime ){
 
-    // Define integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepsize );
+        return computeAngularVelocityCurrentTime( currentTime );
 
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator < double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativeFunctionPolarAngle, integratorSettings->initialTime_, initialValuePolarAngle ) ;
+    } ;
 
-    return integrator->integrateTo( currentTime, stepsize )[ 0 ] + coordinate_conversions::convertCartesianToCylindricalState( initialState_ )[ 1 ];
+    // Define numerical quadrature.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeFunctionPolarAngleTest, quadratureSettings_, currentTime );
+
+    return quadrature->getQuadrature( ) + coordinate_conversions::convertCartesianToCylindricalState( initialState_ )[ 1 ];
 
 }
 
@@ -659,9 +651,6 @@ double HodographicShaping::computeThirdFixedCoefficientAxialVelocityFromFinalPol
     Eigen::Vector2d matrixL;
     matrixL = inverseMatrixBoundaryValuesNormal * vectorBoundaryConditionsNormal;
 
-    // Integration step size
-    double stepSize = ( boundaryValuesTime_[ 1 ] - boundaryValuesTime_[ 0 ] ) / static_cast< double >( numberOfIntegrationSteps_ );
-
     Eigen::Vector2d initialAndFinalValuesThirdComponentFunction( - normalVelocityFunction_.getComponentFunctionCurrentValue( 2, 0.0 ),
                                   - normalVelocityFunction_.getComponentFunctionCurrentValue( 2, finalTime_ ) );
     Eigen::Vector2d matrixK;
@@ -669,11 +658,9 @@ double HodographicShaping::computeThirdFixedCoefficientAxialVelocityFromFinalPol
 
 
     // Define angular velocity due to the third component of the composite function only.
-    std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativePolarAngleDueToThirdComponent = [ = ]
-            ( const double currentTime, const Eigen::Vector1d& currentState ){
+    std::function< double( const double ) > derivativePolarAngleDueToThirdComponent = [ = ] ( const double currentTime ){
 
-        Eigen::Vector1d angularVelocityDueToThirdComponent;
-        angularVelocityDueToThirdComponent[ 0 ] = ( matrixK( 0 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 0, currentTime )
+        double angularVelocityDueToThirdComponent = ( matrixK( 0 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 0, currentTime )
                 + matrixK( 1 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 1, currentTime )
                 + normalVelocityFunction_.getComponentFunctionCurrentValue( 2, currentTime ) ) / computeRadialDistanceCurrentTime( currentTime );
 
@@ -683,8 +670,7 @@ double HodographicShaping::computeThirdFixedCoefficientAxialVelocityFromFinalPol
 
 
     // Define the angular velocity due to all the other components of the composite function, once combined.
-    std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativePolarAngleDueToOtherComponents = [ = ]
-            ( const double currentTime, const Eigen::Vector1d& currentState ){
+    std::function< double( const double ) > derivativePolarAngleDueToOtherComponents = [ = ] ( const double currentTime ){
 
         double angularVelocityDueToFreeCoefficients = 0.0;
         for( int j = 0; j < numberOfFreeCoefficientsNormal ; j++ )
@@ -693,93 +679,42 @@ double HodographicShaping::computeThirdFixedCoefficientAxialVelocityFromFinalPol
                              * normalVelocityFunction_.getComponentFunctionCurrentValue( j + 3 , currentTime );
         }
 
-        Eigen::Vector1d angularVelocityDueToOtherComponents;
-        angularVelocityDueToOtherComponents[ 0 ] = ( matrixL( 0 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 0 , currentTime )
+        double angularVelocityDueToOtherComponents = ( matrixL( 0 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 0 , currentTime )
                                                      + matrixL( 1 ) * normalVelocityFunction_.getComponentFunctionCurrentValue( 1 , currentTime )
                                                      + angularVelocityDueToFreeCoefficients )
                 / computeRadialDistanceCurrentTime( currentTime );
 
         return angularVelocityDueToOtherComponents;
 
-    } ;
+    };
 
-    // Initialise polar angle before integration.
-    Eigen::Vector1d initialValuePolarAngle = Eigen::Vector1d::Zero();
+    // Define numerical quadratures.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToThirdComponentTest =
+            numerical_quadrature::createQuadrature( derivativePolarAngleDueToThirdComponent, quadratureSettings_, finalTime_ );
 
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > integratorPolarAngleDueToOtherComponentsTest =
+            numerical_quadrature::createQuadrature( derivativePolarAngleDueToOtherComponents, quadratureSettings_, finalTime_ );
 
-    // Define integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
-
-    // Create numerical integrator.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            numerical_integrators::createIntegrator< double, Eigen::Vector1d, double  >(
-                derivativePolarAngleDueToOtherComponents, initialValuePolarAngle, integratorSettings );
-
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator
-            < double, Eigen::Vector1d, Eigen::Vector1d, double > > integratorPolarAngleDueToThirdComponent =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativePolarAngleDueToThirdComponent, integratorSettings->initialTime_, initialValuePolarAngle ) ;
-
-    std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            integratorPolarAngleDueToOtherComponents =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativePolarAngleDueToOtherComponents, integratorSettings->initialTime_, initialValuePolarAngle );
-
-
-    // Compute coefficient of the third component of the composite function.
-    double c3 = ( boundaryConditionsNormal_[ 2 ] - integratorPolarAngleDueToOtherComponents->integrateTo( finalTime_, stepSize )[ 0 ] )
-                    / integratorPolarAngleDueToThirdComponent->integrateTo( finalTime_, stepSize )[ 0 ];
-
-    return c3;
+    return ( boundaryConditionsNormal_[ 2 ] - integratorPolarAngleDueToOtherComponentsTest->getQuadrature() )
+            / integratorPolarAngleDueToThirdComponentTest->getQuadrature();;
 
 }
 
-void HodographicShaping::computeShapingTrajectoryAndFullPropagation(
+
+//! Get low-thrust acceleration model from shaping method.
+std::shared_ptr< propulsion::ThrustAcceleration > HodographicShaping::getLowThrustAccelerationModel(
         simulation_setup::NamedBodyMap& bodyMap,
-        basic_astrodynamics::AccelerationMap& accelerationMap,
-        const Eigen::Vector6d initialCartesianState,
-        const std::string& centralBody,
         const std::string& bodyToPropagate,
-//        std::map< int, std::map< double, Eigen::VectorXd > >& dependentVariableResultForEachLeg,
-//        const bool terminationSphereOfInfluence = false,
-//        const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave =
-//        std::vector < std::shared_ptr< DependentVariableSaveSettings > >( ),
-        const propagators::TranslationalPropagatorType propagator,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        std::map< double, Eigen::VectorXd >& fullPropagationResults,
-        std::map< double, Eigen::VectorXd >& shapingMethodResults,
-        std::map< double, Eigen::VectorXd >& dependentVariables ){
-
-    // Starting the integration at half of the time of flight.
-    integratorSettings->initialTime_ = 0.0 ;//finalTime_ / 2.0;
-
-    // Retrieve gravitational parameter of the central body.
-    double centralBodyGravitationalParameter = bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter();
-
-    // Compute state at half of the time of flight.
-    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = orbital_element_conversions::convertKeplerianToCartesianElements(
-                orbital_element_conversions::propagateKeplerOrbit( initialCartesianState, finalTime_ / 2.0,
-                                                                   centralBodyGravitationalParameter ),
-                centralBodyGravitationalParameter );
-
+        std::function< double( const double ) > specificImpulseFunction )
+{
+    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
     std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
             std::make_shared< simulation_setup::CustomThrustDirectionSettings >(
                 std::bind( &HodographicShaping::computeDirectionCartesianAcceleration, this, std::placeholders::_1 ) );
 
-//    // Retrieve current mass of the vehicle.
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( 200.0 );
-
-//    std::function< double( const double ) > newMassFunction = [ = ]( const double currentTime )
-//    {
-//        return 200.0 - 50.0 / ( finalTime_ - initialTime_ ) * currentTime ;
-//    };
-//    bodyMap[ bodyToPropagate ]->setBodyMassFunction( newMassFunction );
-
-
     std::shared_ptr< simulation_setup::Body > vehicle = bodyMap[ bodyToPropagate ];
 
+    // Define thrust magnitude function from the shaped trajectory.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
     {
         // Compute current acceleration.
@@ -792,22 +727,52 @@ void HodographicShaping::computeShapingTrajectoryAndFullPropagation(
         return currentAcceleration * currentMass;
     };
 
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return 200.0;
-    };
-
+    // Define thrust magnitude settings from thrust magnitude function.
     std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
             = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
                 thrustMagnitudeFunction, specificImpulseFunction );
 
+    // Define thrust acceleration settings.
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
             std::make_shared< simulation_setup::ThrustAccelerationSettings >(
                 thrustDirectionSettings, thrustMagnitudeSettings );
 
-
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap, bodyToPropagate );
+
+    return lowThrustAccelerationModel;
+}
+
+
+void HodographicShaping::computeShapingTrajectoryAndFullPropagation(
+        simulation_setup::NamedBodyMap& bodyMap,
+        basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::map< double, Eigen::VectorXd >& fullPropagationResults,
+        std::map< double, Eigen::VectorXd >& shapingMethodResults,
+        std::map< double, Eigen::VectorXd >& dependentVariablesHistory,
+        propagators::TranslationalPropagatorType propagatorType,
+        const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ){
+
+    fullPropagationResults.clear();
+    shapingMethodResults.clear();
+    dependentVariablesHistory.clear();
+
+    // Compute halved time of flight.
+    double halvedTimeOfFlight = finalTime_ / 2.0;
+
+
+    // Compute state at half of the time of flight.
+    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = computeCurrentCartesianState( halvedTimeOfFlight );
+
+
+    // Create low thrust acceleration model.
+    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = getLowThrustAccelerationModel( bodyMap, bodyToPropagate, specificImpulseFunction );
 
     accelerationMap[ bodyToPropagate ][ bodyToPropagate ].push_back( lowThrustAccelerationModel );
 
@@ -818,66 +783,60 @@ void HodographicShaping::computeShapingTrajectoryAndFullPropagation(
     std::vector< std::string > bodiesToPropagate;
     bodiesToPropagate.push_back( bodyToPropagate );
 
-    // Define list of dependent variables to save.
-    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
-    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
-                        basic_astrodynamics::thrust_acceleration /*low_thrust_shape_based_acceleration*/, bodyToPropagate, bodyToPropagate, 0 ) );
+    // Define forward propagator settings variables.
+    integratorSettings->initialTime_ = initialTime_ + halvedTimeOfFlight;
 
-    // Create object with list of dependent variables
-    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
-            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+    // Define propagation settings
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
 
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationMap, bodiesToPropagate, initialCartesianState, finalTime_,
-              propagators::cowell, dependentVariablesToSave );
+    // Define forward propagation settings.
+    propagatorSettingsForwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationSettings.second,
+                          propagatorType, dependentVariablesToSave );
 
-    // Create simulation object and propagate dynamics.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
-    fullPropagationResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    // Define backward propagation settings.
+    propagatorSettingsBackwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationSettings.first,
+                          propagatorType, dependentVariablesToSave );
 
-    for ( std::map< double, Eigen::VectorXd >::iterator itr = fullPropagationResults.begin() ;
-          itr != fullPropagationResults.end() ; itr++ ){
+    // Perform forward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap, integratorSettings, propagatorSettingsForwardPropagation );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
+    // Compute and save full propagation and shaping method results along the forward propagation direction.
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
+         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
+    {
         shapingMethodResults[ itr->first ] = computeCurrentCartesianState( itr->first );
-
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
-    std::map< double, Eigen::VectorXd > dependentVariableSolution;
-    dependentVariables = dynamicsSimulator.getDependentVariableHistory( );
 
+    // Define backward propagator settings variables.
+    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+    integratorSettings->initialTime_ = initialTime_ + halvedTimeOfFlight;
+
+    // Perform the backward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+
+    // Compute and save full propagation and shaping method results along the backward propagation direction
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
+         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
+    {
+        shapingMethodResults[ itr->first ] = computeCurrentCartesianState( itr->first );
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
+    }
+
+    // Reset initial integrator settings.
+    integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
 
 }
-
-//std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThrustAccelerationModel( )
-//{
-
-//    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > thrustAccelerationModel;
-
-//    std::function< double( ) > thrustMagnitudeFunction;
-//    std::function< Eigen::Vector3d( ) > thrustDirectionFunction;
-//    std::function< double( ) > bodyMassFunction;
-//    std::function< double( ) > massRateFunction;
-//    std::function< void( const double ) > thrustUpdateFunction;
-
-//    std::function< double( ) > thrustMagnitudeFunctionTest = [ = ](  ){
-
-//        double thrustMagnitude = 0.0;
-
-//        return thrustMagnitude;
-
-//    } ;
-
-//    std::make_shared< propulsion::ThrustAcceleration >( thrustMagnitudeFunction,
-//                                                        thrustDirectionFunction,
-//                                                        bodyMassFunction,
-//                                                        massRateFunction,
-//                                                        "",
-//                                                        thrustUpdateFunction ) ;
-
-//    return thrustAccelerationModel;
-
-//}
 
 } // namespace shape_based_methods
 } // namespace tudat

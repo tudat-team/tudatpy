@@ -15,6 +15,7 @@
 #include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
+#include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 #include <math.h>
 #include <vector>
@@ -38,7 +39,7 @@ public:
                      double initialValueCoefficientRadialInversePolynomial,
                      Eigen::VectorXd freeCoefficientsRadialFunction,
                      Eigen::VectorXd freeCoefficientsElevationFunction,
-                     double centralBodyGravitationalParameter ,
+                     double centralBodyGravitationalParameter,
                      root_finders::RootFinderType rootFinderType = root_finders::bisection_root_finder,
                      const double lowerBoundFreeCoefficient = TUDAT_NAN,
                      const double upperBoundFreeCoefficient = TUDAT_NAN,
@@ -102,6 +103,15 @@ public:
 
     //! Compute control acceleration vector in spherical coordinates.
     Eigen::Vector3d computeSphericalControlAccelerationVector( const double currentAzimuthalAngle );
+
+    //! Compute current control acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCartesianControlAcceleration( const double currentAzimuthAngle );
+
+    //! Compute magnitude thrust acceleration.
+    double computeMagnitudeCartesianAcceleration( double currentTime );
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeDirectionCartesianAcceleration( double currentTime );
 
     //! Compute final deltaV.
     double computeDeltav( );
@@ -204,8 +214,8 @@ public:
     //! Compute time of flight.
     double computeTimeOfFlight();
 
-    //! Iterate to match the required time of flight
-    void iterateToMatchRequiredTimeOfFlight2( int maximumNumberOfIterations );
+    //! Compute current time from azimuth angle.
+    double computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle );
 
     //! Iterate to match the required time of flight
     void iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
@@ -214,19 +224,30 @@ public:
                                              const double initialGuess = TUDAT_NAN );
 
 
-    void computeShapingTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
-            basic_astrodynamics::AccelerationMap& accelerationMap,
-            const Eigen::Vector6d initialCartesianState,
-            const std::string& centralBody,
-            const std::string& bodyToPropagate,
-            const propagators::TranslationalPropagatorType propagator/*propagators::cowell*/,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-            std::map< double, Eigen::VectorXd >& shapingMethodResults,
-            std::map<double, Eigen::VectorXd>& dependentVariables );
-
     double computeScalarFunctionTimeEquation( double currentAzimuthalAngle );
     double computeDerivativeScalarFunctionTimeEquation( double currentAzimuthalAngle );
+
+    //! Get low-thrust acceleration model from shaping method.
+    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(simulation_setup::NamedBodyMap& bodyMap,
+            const std::string& bodyToPropagate,
+            std::function< double( const double ) > specificImpulseFunction,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
+
+    //! Function to compute the shaped trajectory and the propagation fo the full problem.
+    void computeShapingTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
+            basic_astrodynamics::AccelerationMap& accelerationMap,
+            const std::string& centralBody,
+            const std::string& bodyToPropagate,
+            std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
+            std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+                                                    std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+            std::map< double, Eigen::VectorXd >& fullPropagationResults,
+            std::map< double, Eigen::VectorXd >& shapingMethodResults,
+            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
+            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
 
 
 
@@ -309,6 +330,8 @@ private:
     //! Required tolerance between the actual time of flight and the required one.
     const double requiredToleranceForTimeOfFlight_;
 
+    //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
+    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
     /*! Inverse of matrix containing the boundary conditions
      */

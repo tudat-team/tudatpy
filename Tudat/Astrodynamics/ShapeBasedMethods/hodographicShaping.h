@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+#include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 #include <math.h>
 #include <vector>
 #include <Eigen/Dense>
@@ -31,14 +32,14 @@ class HodographicShaping
 {
 public:
 
-    //! Constructor which sets radial, normal and axial velocity functions.
-    HodographicShaping( CompositeFunction& radialVelocityFunction,
-                        CompositeFunction& normalVelocityFunction,
-                        CompositeFunction& axialVelocityFunction ):
-        radialVelocityFunction_( radialVelocityFunction ),
-        normalVelocityFunction_( normalVelocityFunction ),
-        axialVelocityFunction_( axialVelocityFunction ),
-        numberOfIntegrationSteps_( 25 ) { }
+//    //! Constructor which sets radial, normal and axial velocity functions.
+//    HodographicShaping( CompositeFunction& radialVelocityFunction,
+//                        CompositeFunction& normalVelocityFunction,
+//                        CompositeFunction& axialVelocityFunction ):
+//        radialVelocityFunction_( radialVelocityFunction ),
+//        normalVelocityFunction_( normalVelocityFunction ),
+//        axialVelocityFunction_( axialVelocityFunction ),
+//        numberOfIntegrationSteps_( 25 ) { }
 
     //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
     HodographicShaping( CompositeFunction& radialVelocityFunction,
@@ -184,30 +185,27 @@ public:
                                         - std::min( 3, static_cast< int > ( boundaryConditionsAxial.size() ) );
     }
 
-    //! Set number of integration steps.
-    void setNumberOfIntegrationSteps( unsigned int numberOfIntegrationSteps )
-    {
-        numberOfIntegrationSteps_ = numberOfIntegrationSteps;
-    }
+    //! Get low-thrust acceleration model from shaping method.
+    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
+            simulation_setup::NamedBodyMap& bodyMap,
+            const std::string& bodyToPropagate,
+            std::function< double( const double ) > specificImpulseFunction );
 
-    //! Get number of integration steps.
-    unsigned int getNumberOfIntegrationSteps( )
-    {
-        return numberOfIntegrationSteps_;
-    }
-
+    //! Function to compute the shaped trajectory and the propagation fo the full problem.
     void computeShapingTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
             basic_astrodynamics::AccelerationMap& accelerationMap,
-            const Eigen::Vector6d initialCartesianState,
             const std::string& centralBody,
             const std::string& bodyToPropagate,
-            const propagators::TranslationalPropagatorType propagator/*propagators::cowell*/,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+            std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
+            std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+                                                    std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
             std::map< double, Eigen::VectorXd >& fullPropagationResults,
             std::map< double, Eigen::VectorXd >& shapingMethodResults,
-            std::map<double, Eigen::VectorXd>& dependentVariables );
-
-    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThrustAccelerationModel( );
+            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
+            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
 
 
 
@@ -259,8 +257,8 @@ private:
     //! Final time.
     double finalTime_;
 
-    //! Time of flight
-    double stepsize_;
+    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
+    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
     /*! Inverse of matrix containing the boundary values of the terms in the radial velocity
      *  function which are used to satisfy the radial boundary conditions.
@@ -286,10 +284,6 @@ private:
     //! Number of free coefficients for the axial velocity function.
     int numberOfFreeCoefficientsAxial;
 
-    //! Number of integration steps.
-    /*! Number of integration steps used to computed the required DeltaV and final polar angle.
-     */
-    unsigned int numberOfIntegrationSteps_;
 };
 
 

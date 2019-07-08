@@ -37,9 +37,9 @@ include(tudatLinkLibraries)
 ## Add unit tests.
 add_executable(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/UnitTests/unitTestHodographicShaping.cpp")
 setup_custom_test_program(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_HodographicShaping tudat_shape_based_methods ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+target_link_libraries(test_HodographicShaping tudat_shape_based_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 
 add_executable(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/UnitTests/unitTestSphericalShaping.cpp")
 setup_custom_test_program(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_SphericalShaping tudat_shape_based_methods ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+target_link_libraries(test_SphericalShaping tudat_shape_based_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 

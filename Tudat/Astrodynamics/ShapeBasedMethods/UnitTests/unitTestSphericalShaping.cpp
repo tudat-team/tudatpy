@@ -143,6 +143,141 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping1 )
     std::cout << "peak acceleration: " << peakThrustAcceleration * physical_constants::ASTRONOMICAL_UNIT / std::pow( physical_constants::JULIAN_YEAR, 2.0 ) << "\n\n";
     std::cout << "free coefficient: " << sphericalShaping.getRadialCompositionFunctionCoefficients().transpose() << "\n\n";
 
+
+
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::VectorXd > shapingMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+    bodiesToCreate.push_back( "Earth" );
+    bodiesToCreate.push_back( "Mars" );
+    bodiesToCreate.push_back( "Jupiter" );
+
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back( "Vehicle" );
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( "Sun" );
+
+    // Acceleration from the central body.
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Mars" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Jupiter" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+
+    simulation_setup::SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Define integrator settings
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0,
+                                                                                      timeOfFlight * physical_constants::JULIAN_DAY / ( 1000.0 ) /*/ 400.0*/ );
+
+    // Define mass function of the vehicle.
+    std::function< double( const double ) > newMassFunction = [ = ]( const double currentTime )
+    {
+        return 200.0 - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
+    };
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
+
+
+    // Define specific impulse function.
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+    {
+        return 200.0;
+    };
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY, true );
+
+    // Compute shaped trajectory and propagated trajectory.
+    sphericalShaping.computeShapingTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, "Sun", "Vehicle", specificImpulseFunction,
+                                                                      integratorSettings, terminationConditions,
+                                                                      fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
+                                                                      propagators::cowell, dependentVariablesToSave );
+
+    tudat::input_output::writeDataMapToTextFile( fullPropagationResults,
+                                          "fullPropagationResults.dat",
+                                           "C:/Users/chamb/Documents/Master_2/SOCIS/SphericalShapingTest/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
+    tudat::input_output::writeDataMapToTextFile( shapingMethodResults,
+                                          "shapingMethodResults.dat",
+                                           "C:/Users/chamb/Documents/Master_2/SOCIS/SphericalShapingTest/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
+    tudat::input_output::writeDataMapToTextFile( dependentVariablesHistory,
+                                          "dependentVariables.dat",
+                                           "C:/Users/chamb/Documents/Master_2/SOCIS/SphericalShapingTest/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
+    std::cout << "test conversion azimuth angle -> time: " << sphericalShaping.computeCurrentTimeFromAzimuthAngle( sphericalShaping.getFinalAzimuthalAngle() )
+                 * physical_constants::JULIAN_YEAR << "\n\n";
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

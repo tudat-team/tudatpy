@@ -10,19 +10,10 @@
  */
 
 
-#include "sphericalShaping.h"
-#include <math.h>
-#include <iostream>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
-#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
-
+#include "sphericalShaping.h"
 
 namespace tudat
 {
@@ -103,15 +94,22 @@ SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
             finalStateSphericalCoordinates_[ 4 ] / finalDerivativeAzimuthalAngle,
             finalStateSphericalCoordinates_[ 5 ] / finalDerivativeAzimuthalAngle ).finished();
 
+    // Retrieve the initial value of the azimuth angle.
     initialAzimuthalAngle_ = initialStateSphericalCoordinates_[ 1 ];
 
-
+    // Define coefficients for radial distance and elevation angle composite functions.
     compositeRadialFunction_ = std::make_shared< CompositeRadialFunctionSphericalShaping >( freeCoefficientsRadialFunction_ );
     compositeElevationFunction_ = std::make_shared< CompositeElevationFunctionSphericalShaping >( freeCoefficientsElevationFunction_ );
 
+    // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
             std::make_shared< root_finders::RootFinderSettings >( rootFinderType_, requiredToleranceForTimeOfFlight_, maxNumberOfIterations_ );
 
+
+    // Define settings for numerical quadrature, to be used to compute time of flight and final deltaV.
+    quadratureSettings_ = std::make_shared< numerical_quadrature::GaussianQuadratureSettings < double > >( initialAzimuthalAngle_, 64 );
+
+    // Iterate on the free coefficient value until the time of flight matches its required value.
     iterateToMatchRequiredTimeOfFlight( rootFinderSettings, lowerBoundFreeCoefficient_, upperBoundFreeCoefficient_, initialGuessForFreeCoefficient_ );
 
 }
@@ -330,100 +328,49 @@ double SphericalShaping::computeTimeOfFlight()
     }
 
     // Define the derivative of the time function w.r.t the azimuthal angle theta.
-    std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativeTimeFunction = [ = ]
-            ( const double currentAzimuthalAngle, const Eigen::Vector1d& currentState ){
+    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthalAngle ){
 
-        Eigen::Vector1d timeDerivative;
-        timeDerivative[ 0 ] = std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthalAngle ) *
-                                         std::pow( compositeRadialFunction_->evaluateCompositeFunction( currentAzimuthalAngle ), 2.0 )
-                                         / centralBodyGravitationalParameter_ );
-        return timeDerivative;
-    } ;
+        return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthalAngle ) *
+                          std::pow( compositeRadialFunction_->evaluateCompositeFunction( currentAzimuthalAngle ), 2.0 )
+                          / centralBodyGravitationalParameter_ );
+    };
 
-    // Initialise deltaV before integration.
-    Eigen::Vector1d initialValueTimeOfFlight = Eigen::Vector1d::Zero();
+    // Create numerical quadrature from quadrature settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, finalAzimuthalAngle_ );
 
-    // Define integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, initialAzimuthalAngle_, stepSize );
-
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator < double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativeTimeFunction, initialAzimuthalAngle_, initialValueTimeOfFlight ) ;
-
-    return integrator->integrateTo( finalAzimuthalAngle_, stepSize )[ 0 ];
+    return quadrature->getQuadrature( );
 }
 
-//! Iterate to match the required time of flight
-void SphericalShaping::iterateToMatchRequiredTimeOfFlight2( int maximumNumberOfIterations )
+//! Compute current time from azimuth angle.
+double SphericalShaping::computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle )
 {
-    std::cout << "START ITERATE TO MATCH TIME OF FLIGHT" << "\n\n";
+//    // Compute step size.
+//    double stepSize = 2.0 * mathematical_constants::PI / 100.0;
 
-    double stepSizeFreeCoefficient = 1.0e-14;
-    int currentIteration = 0;
+//    // Check that the trajectory is feasible, ie curved toward the central body.
+//    for ( int i = 0 ; i < std::ceil( ( finalAzimuthalAngle_ - initialAzimuthalAngle_ ) / stepSize ) ; i++ )
+//    {
+//        if ( computeScalarFunctionTimeEquation( initialAzimuthalAngle_ + i * stepSize ) < 0.0 )
+//        {
+//            std::cerr << "Error, trajectory not curved toward the central body, and thus not feasible." << "\n\n";
+//        }
+//    }
 
-    while( currentIteration < maximumNumberOfIterations )
-    {
-        std::cout << "ITERATION " << currentIteration << "\n\n";
+    // Define the derivative of the time function w.r.t the azimuthal angle theta.
+    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthalAngle ){
 
-        double timeOfFlight = computeTimeOfFlight();
-        double differenceBetweenCurrentAndTargetedTimeOfFlights = requiredTimeOfFlight_ - timeOfFlight;
+        return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthalAngle ) *
+                          std::pow( compositeRadialFunction_->evaluateCompositeFunction( currentAzimuthalAngle ), 2.0 )
+                          / centralBodyGravitationalParameter_ );
+    };
 
-        std::cout << "required TOF: " << requiredTimeOfFlight_ << "\n\n";
-        std::cout << "current TOF: " << timeOfFlight << "\n\n";
+    // Create numerical quadrature from quadrature settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, currentAzimuthAngle );
 
-        double currentValueFreeCoefficient = initialValueCoefficientRadialInversePolynomial_;
-        double currentValueDerivativeTOFwrtFreeParameter = 0.0;
-
-        // Calculate TOF for a free coefficient value shifted one step size forward.
-        initialValueCoefficientRadialInversePolynomial_ = currentValueFreeCoefficient + stepSizeFreeCoefficient;
-        satisfyBoundaryConditions();
-        currentValueDerivativeTOFwrtFreeParameter += 8.0 * computeTimeOfFlight();
-
-        std::cout << "TOF one step forward: " << computeTimeOfFlight() << "\n\n";
-
-        // Calculate TOF for a free coefficient value shifted one step size backward.
-        initialValueCoefficientRadialInversePolynomial_ = currentValueFreeCoefficient - stepSizeFreeCoefficient;
-        satisfyBoundaryConditions();
-        currentValueDerivativeTOFwrtFreeParameter += - 8.0 * computeTimeOfFlight();
-
-        std::cout << "TOF one step backward: " << computeTimeOfFlight() << "\n\n";
-
-        // Calculate TOF for a free coefficient value shifted two step sizes forward.
-        initialValueCoefficientRadialInversePolynomial_ = currentValueFreeCoefficient + 2.0 * stepSizeFreeCoefficient;
-        satisfyBoundaryConditions();
-        currentValueDerivativeTOFwrtFreeParameter += - computeTimeOfFlight();
-
-        std::cout << "TOF two steps forward: " << computeTimeOfFlight() << "\n\n";
-
-        // Calculate TOF for a free coefficient value shifted two step sizes backward.
-        initialValueCoefficientRadialInversePolynomial_ = currentValueFreeCoefficient - 2.0 * stepSizeFreeCoefficient;
-        satisfyBoundaryConditions();
-        currentValueDerivativeTOFwrtFreeParameter += computeTimeOfFlight();
-
-        std::cout << "TOF two steps backward: " << computeTimeOfFlight() << "\n\n";
-
-        // Final value derivative time of flight w.r.t. free parameter.
-        currentValueDerivativeTOFwrtFreeParameter = currentValueDerivativeTOFwrtFreeParameter / ( 12.0 * stepSizeFreeCoefficient );
-
-        //  Update current value of the free parameter.
-        initialValueCoefficientRadialInversePolynomial_ =
-                currentValueFreeCoefficient + differenceBetweenCurrentAndTargetedTimeOfFlights / currentValueDerivativeTOFwrtFreeParameter;
-        satisfyBoundaryConditions();
-
-        std::cout << "updated value free parameter: " << initialValueCoefficientRadialInversePolynomial_ << "\n\n";
-        std::cout << "old value free parameter: " << currentValueFreeCoefficient << "\n\n";
-        std::cout << "difference between required TOF and current TOF: " << differenceBetweenCurrentAndTargetedTimeOfFlights << "\n\n";
-        std::cout << "derivative TOF w.r.t. free parameter: " << currentValueDerivativeTOFwrtFreeParameter << "\n\n";
-
-        std::cout << "update TOF: " << + differenceBetweenCurrentAndTargetedTimeOfFlights / currentValueDerivativeTOFwrtFreeParameter << "\n\n";
-
-        currentIteration++;
-    }
-
+    return quadrature->getQuadrature( );
 }
-
 
 //! Iterate to match the required time of flight
 void SphericalShaping::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
@@ -584,44 +531,59 @@ Eigen::Vector3d SphericalShaping::computeSphericalControlAccelerationVector( con
     // Compute acceleration vector parametrized by azimuth angle theta.
     Eigen::Vector3d accelerationParametrizedByAzimuthAngle = computeCurrentAccelerationParametrizedByAzimuthAngle( currentAzimuthalAngle );
 
-    // Compute and return the current thrust acceleration vector in spherical coordinates.
 
+    // Compute and return the current thrust acceleration vector in spherical coordinates.
     return std::pow( firstDerivativeAzimuthAngleWrtTime, 2.0 ) * accelerationParametrizedByAzimuthAngle
             + secondDerivativeAzimuthAngleWrtTime * velocityParametrizedByAzimuthAngle
             + centralBodyGravitationalParameter_ / std::pow( radialDistance, 3.0 ) * ( Eigen::Vector3d() << radialDistance, 0.0, 0.0 ).finished();
 
 }
 
+//! Compute current control acceleration in cartesian coordinates.
+Eigen::Vector3d SphericalShaping::computeCartesianControlAcceleration( const double currentAzimuthAngle )
+{
+    Eigen::Vector3d cartesianAcceleration;
+
+    Eigen::Vector6d sphericalStateToBeConverted;
+    sphericalStateToBeConverted.segment( 0, 3 ) = computeCurrentSphericalPosition( currentAzimuthAngle );
+    sphericalStateToBeConverted.segment( 3, 3 ) = computeSphericalControlAccelerationVector( currentAzimuthAngle );
+
+    cartesianAcceleration = coordinate_conversions::convertSphericalToCartesianState( sphericalStateToBeConverted ).segment( 3, 3 );
+
+    return cartesianAcceleration;
+}
+
+//! Compute magnitude cartesian acceleration.
+double  SphericalShaping::computeMagnitudeCartesianAcceleration( double currentAzimuthAngle )
+{
+    return computeCartesianControlAcceleration( currentAzimuthAngle ).norm();
+}
+
+//! Compute direction cartesian acceleration.
+Eigen::Vector3d SphericalShaping::computeDirectionCartesianAcceleration( double currentAzimuthAngle )
+{
+    return computeCartesianControlAcceleration( currentAzimuthAngle ).normalized();
+}
+
 //! Compute final deltaV.
 double SphericalShaping::computeDeltav( )
 {
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of the azimuth angle.
-    std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativeFunctionDeltaV = [ = ]
-            ( const double currentAzimuthAngle, const Eigen::Vector1d& currentState ){
+    std::function< double( const double ) > derivativeFunctionDeltaV = [ = ] ( const double currentAzimuthAngle ){
 
-        Eigen::Vector1d thrustAcceleration;
-        thrustAcceleration[ 0 ] = computeSphericalControlAccelerationVector( currentAzimuthAngle ).norm()
+        double thrustAcceleration = computeSphericalControlAccelerationVector( currentAzimuthAngle ).norm()
                 * std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle )
                              * std::pow( compositeRadialFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 ) / centralBodyGravitationalParameter_ );
 
         return thrustAcceleration;
 
-    } ;
+    };
 
-    // Initialise deltaV before integration.
-    Eigen::Vector1d initialValueDeltaV = Eigen::Vector1d::Zero();
+    // Define numerical quadrature from quadratrure settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeFunctionDeltaV, quadratureSettings_, finalAzimuthalAngle_ );
 
-    // Define integrator settings
-    double stepSize = 2.0 * mathematical_constants::PI / 100.0;
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, initialAzimuthalAngle_, stepSize );
-
-    // Directly define RK4 integrators.
-    std::shared_ptr< numerical_integrators::NumericalIntegrator < double, Eigen::Vector1d, Eigen::Vector1d, double > > integrator =
-            std::make_shared< numerical_integrators::RungeKutta4Integrator< double, Eigen::Vector1d, Eigen::Vector1d, double > >
-            ( derivativeFunctionDeltaV, initialAzimuthalAngle_, initialValueDeltaV ) ;
-
-    return integrator->integrateTo( finalAzimuthalAngle_, stepSize )[ 0 ];
+    return quadrature->getQuadrature( );
 }
 
 //! Compute current spherical state.
@@ -638,6 +600,201 @@ Eigen::Vector6d SphericalShaping::computeCurrentSphericalState( const double cur
 Eigen::Vector6d SphericalShaping::computeCurrentCartesianState( const double currentAzimuthalAngle )
 {
     return coordinate_conversions::convertSphericalToCartesianState( computeCurrentSphericalState( currentAzimuthalAngle ) );
+}
+
+
+//! Get low-thrust acceleration model from shaping method.
+std::shared_ptr< propulsion::ThrustAcceleration > SphericalShaping::getLowThrustAccelerationModel(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        std::function< double( const double ) > specificImpulseFunction,
+        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime )
+{
+
+    std::shared_ptr< simulation_setup::Body > vehicle = bodyMap[ bodyToPropagate ];
+
+    // Define thrust magnitude function from the shaped trajectory.
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
+    {
+
+        // Compute current azimuth angle.
+        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
+
+        // Compute current acceleration.
+        double currentAcceleration = computeMagnitudeCartesianAcceleration( currentAzimuthAngle ) * physical_constants::ASTRONOMICAL_UNIT
+                / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
+
+        // Compute current mass of the vehicle.
+        double currentMass = vehicle->getBodyMass();
+
+        // Compute and return magnitude of the low-thrust force.
+        return currentAcceleration * currentMass;
+    };
+
+    // Define thrust magnitude settings from thrust magnitude function.
+    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
+            = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
+                thrustMagnitudeFunction, specificImpulseFunction );
+
+
+    // Define thrust direction function from the shaped trajectory.
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
+    {
+        // Compute current azimuth angle.
+        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
+
+        // Compute current acceleration.
+        Eigen::Vector3d currentAccelerationDirection = computeDirectionCartesianAcceleration( currentAzimuthAngle );
+
+        // Return direction of the low-thrust acceleration.
+        return currentAccelerationDirection;
+    };
+
+    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
+    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
+            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
+
+    // Define thrust acceleration settings.
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
+            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
+                thrustDirectionSettings, thrustMagnitudeSettings );
+
+    // Create low thrust acceleration model.
+    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap, bodyToPropagate );
+
+    return lowThrustAccelerationModel;
+}
+
+
+void SphericalShaping::computeShapingTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
+        basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::map< double, Eigen::VectorXd >& fullPropagationResults,
+        std::map< double, Eigen::VectorXd >& shapingMethodResults,
+        std::map< double, Eigen::VectorXd >& dependentVariablesHistory,
+        propagators::TranslationalPropagatorType propagatorType,
+        const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ){
+
+    fullPropagationResults.clear();
+    shapingMethodResults.clear();
+    dependentVariablesHistory.clear();
+
+    // Retrieve initial step size.
+    double initialStepSize = integratorSettings->initialTimeStep_;
+
+    // Vector of azimuth angles at which the time should be computed.
+    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
+            Eigen::VectorXd::LinSpaced( std::ceil( computeTimeOfFlight() * physical_constants::JULIAN_YEAR / initialStepSize ),
+                                        initialAzimuthalAngle_, finalAzimuthalAngle_ );
+
+    std::map< double, double > dataToInterpolate;
+    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
+    {
+        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
+                = azimuthAnglesToComputeAssociatedEpochs[ i ];
+    }
+
+    // Create interpolator.
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator =
+            interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+
+    // Compute halved time of flight.
+    double halvedTimeOfFlight = computeTimeOfFlight() / 2.0;
+
+    // Compute azimuth angle at half of the time of flight.
+    double azimuthAngleAtHalvedTimeOfFlight = interpolator->interpolate( halvedTimeOfFlight * physical_constants::JULIAN_YEAR );
+
+    // Compute state at half of the time of flight.
+    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = computeCurrentCartesianState( azimuthAngleAtHalvedTimeOfFlight );
+    initialStateAtHalvedTimeOfFlight.segment( 0, 3 ) *= physical_constants::ASTRONOMICAL_UNIT;
+    initialStateAtHalvedTimeOfFlight.segment( 3, 3 ) *= physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+
+    // Create low thrust acceleration model.
+    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
+            getLowThrustAccelerationModel( bodyMap, bodyToPropagate, specificImpulseFunction, interpolator );
+
+    accelerationMap[ bodyToPropagate ][ bodyToPropagate ].push_back( lowThrustAccelerationModel );
+
+
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( centralBody );
+
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back( bodyToPropagate );
+
+    // Define forward propagator settings variables.
+    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+
+    // Define propagation settings
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
+
+    // Define forward propagation settings.
+    propagatorSettingsForwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationSettings.second,
+                          propagatorType, dependentVariablesToSave );
+
+    // Define backward propagation settings.
+    propagatorSettingsBackwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationSettings.first,
+                          propagatorType, dependentVariablesToSave );
+
+    // Perform forward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap, integratorSettings, propagatorSettingsForwardPropagation );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+
+    // Compute and save full propagation and shaping method results along the forward propagation direction.
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
+         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
+    {
+        double currentAzimuthAngle = interpolator->interpolate( itr->first );
+
+        Eigen::Vector6d currentNormalisedState = computeCurrentCartesianState( currentAzimuthAngle );
+        Eigen::Vector6d currentState;
+        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
+        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+        shapingMethodResults[ itr->first ] = currentState;
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
+    }
+
+
+    // Define backward propagator settings variables.
+    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+
+    // Perform the backward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+
+    // Compute and save full propagation and shaping method results along the backward propagation direction
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
+         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
+    {
+        double currentAzimuthAngle = interpolator->interpolate( itr->first );
+
+        Eigen::Vector6d currentNormalisedState = computeCurrentCartesianState( currentAzimuthAngle );
+        Eigen::Vector6d currentState;
+        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
+        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+        shapingMethodResults[ itr->first ] = currentState;
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
+    }
+
+    // Reset initial integrator settings.
+    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+
 }
 
 
