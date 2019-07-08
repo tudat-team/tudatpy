@@ -32,26 +32,19 @@ class HodographicShaping
 {
 public:
 
-//    //! Constructor which sets radial, normal and axial velocity functions.
-//    HodographicShaping( CompositeFunction& radialVelocityFunction,
-//                        CompositeFunction& normalVelocityFunction,
-//                        CompositeFunction& axialVelocityFunction ):
-//        radialVelocityFunction_( radialVelocityFunction ),
-//        normalVelocityFunction_( normalVelocityFunction ),
-//        axialVelocityFunction_( axialVelocityFunction ),
-//        numberOfIntegrationSteps_( 25 ) { }
-
     //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
-    HodographicShaping( CompositeFunction& radialVelocityFunction,
-                        CompositeFunction& normalVelocityFunction,
-                        CompositeFunction& axialVelocityFunction,
-                        Eigen::Vector6d initialState,
-                        std::vector< double > boundaryConditionsRadial,
-                        std::vector< double > boundaryConditionsNormal,
-                        std::vector< double > boundaryConditionsAxial,
-                        std::vector< double > boundaryValuesTime,
-                        double initialTime,
-                        double finalTime );
+    HodographicShaping(
+            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+            const Eigen::Vector6d initialState,
+            const Eigen::Vector6d finalState,
+            const Eigen::VectorXd freeCoefficientsRadialFunction,
+            const Eigen::VectorXd freeCoefficientsNormalFunction,
+            const Eigen::VectorXd freeCoefficientsAxialFunction,
+            const double initialTime,
+            const double finalTime,
+            const int numberOfRevolutions );
 
     //! Default destructor.
     /*!
@@ -60,20 +53,14 @@ public:
     ~HodographicShaping( ) { }
 
     //! Set radial, normal and axial velocity functions.
-    void setVelocityFunctions( CompositeFunction& radialVelocityFunction,
-                               CompositeFunction& normalVelocityFunction,
-                               CompositeFunction& axialVelocityFunction )
+    void setVelocityFunctions( std::shared_ptr< CompositeFunction > radialVelocityFunction,
+                               std::shared_ptr< CompositeFunction > normalVelocityFunction,
+                               std::shared_ptr< CompositeFunction > axialVelocityFunction )
     {
         radialVelocityFunction_ = radialVelocityFunction;
         normalVelocityFunction_ = normalVelocityFunction;
         axialVelocityFunction_  = axialVelocityFunction;
     }
-
-    //! Set boundary conditions.
-    void setBoundaryConditions( std::vector< double > boundaryConditionsRadial,
-                                std::vector< double > boundaryConditionsNormal,
-                                std::vector< double > boundaryConditionsAxial,
-                                std::vector< double > boundaryValuesTime );
 
     //! Satisfy boundary conditions in radial direction.
     void satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients );
@@ -144,45 +131,21 @@ public:
     Eigen::Vector6d computeCurrentCartesianState( const double currentTime );
 
     //! Set velocity function for the radial direction.
-    void setRadialVelocityFunction( CompositeFunction& radialVelocityFunction )
+    void setRadialVelocityFunction( std::shared_ptr< CompositeFunction > radialVelocityFunction )
     {
         radialVelocityFunction_ = radialVelocityFunction;
     }
 
     //! Set velocity function for the normal direction.
-    void setNormalVelocityFunction( CompositeFunction& normalVelocityFunction )
+    void setNormalVelocityFunction( std::shared_ptr< CompositeFunction > normalVelocityFunction )
     {
         normalVelocityFunction_ = normalVelocityFunction;
     }
 
     //! Set velocity function for the axial direction.
-    void setAxialVelocityFunction( CompositeFunction& axialVelocityFunction )
+    void setAxialVelocityFunction( std::shared_ptr< CompositeFunction > axialVelocityFunction )
     {
         axialVelocityFunction_ = axialVelocityFunction;
-    }
-
-    //! Set boundary conditions for the radial direction.
-    void setBoundaryConditionsRadial( std::vector< double > boundaryConditionsRadial )
-    {
-        boundaryConditionsRadial_ = boundaryConditionsRadial;
-        numberOfFreeCoefficientsRadial = radialVelocityFunction_.getNumberOfCompositeFunctionComponents()
-                                        - std::min( 3, static_cast< int >( boundaryConditionsRadial.size() ) );
-    }
-
-    //! Set boundary conditions for the normal direction.
-    void setBoundaryConditionsNormal( std::vector< double > boundaryConditionsNormal )
-    {
-        boundaryConditionsNormal_ = boundaryConditionsNormal;
-        numberOfFreeCoefficientsNormal = normalVelocityFunction_.getNumberOfCompositeFunctionComponents()
-                                        - std::min( 3, static_cast< int >( boundaryConditionsNormal.size() ) );
-    }
-
-    //! Set boundary conditions for the axial direction.
-    void setBoundaryConditionsAxial( std::vector< double > boundaryConditionsAxial )
-    {
-        boundaryConditionsAxial_ = boundaryConditionsAxial;
-        numberOfFreeCoefficientsAxial = axialVelocityFunction_.getNumberOfCompositeFunctionComponents()
-                                        - std::min( 3, static_cast< int > ( boundaryConditionsAxial.size() ) );
     }
 
     //! Get low-thrust acceleration model from shaping method.
@@ -211,9 +174,9 @@ public:
 
 protected:
 
-    Eigen::Matrix2d computeInverseMatrixNormalBoundaries( CompositeFunction& velocityFunction );
+    Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunction > velocityFunction );
 
-    Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( CompositeFunction& velocityFunction );
+    Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunction > velocityFunction );
 
     //! Compute first part of final polar angle integral.
     double computeFirstPartialFinalPolarAngle( );
@@ -227,17 +190,32 @@ protected:
 
 private:
 
-    //! Initial state in cylindrical coordinates.
+    //! Initial state in cartesian coordinates.
     Eigen::Vector6d initialState_;
 
+    //! Final state in cartesian coordinates.
+    Eigen::Vector6d finalState_;
+
+    //! Vector containing the coefficients of the radial function.
+    Eigen::VectorXd freeCoefficientsRadialFunction_;
+
+    //! Vector containing the coefficients of the normal function.
+    Eigen::VectorXd freeCoefficientsNormalFunction_;
+
+    //! Vector containing the coefficients of the axial function.
+    Eigen::VectorXd freeCoefficientsAxialFunction_;
+
+    //! Number of revolutions.
+    int numberOfRevolutions_;
+
     //! Radial velocity function.
-    CompositeFunction& radialVelocityFunction_;
+    std::shared_ptr< CompositeFunction > radialVelocityFunction_;
 
     //! Normal velocity function.
-    CompositeFunction& normalVelocityFunction_;
+    std::shared_ptr< CompositeFunction > normalVelocityFunction_;
 
     //! Axial velocity function.
-    CompositeFunction& axialVelocityFunction_;
+    std::shared_ptr< CompositeFunction > axialVelocityFunction_;
 
     //! Radial boundary conditions.
     std::vector< double > boundaryConditionsRadial_;
@@ -247,9 +225,6 @@ private:
 
     //! Axial boundary conditions.
     std::vector< double > boundaryConditionsAxial_;
-
-    //! Time boundary values.
-    std::vector< double > boundaryValuesTime_;
 
     //! Initial time.
     double initialTime_;

@@ -275,31 +275,30 @@ double ScaledPowerSineFunction::evaluateDerivative( double independentVariable )
 
 double ScaledPowerSineFunction::evaluateIntegral( double independentVariable )
 {
-    double counterDouble = -0.0;
-    double functionValue = 0.0;
-    double integrationFactor = 1.0;
+    double integralValue = 0.0;
+    double integrationScaleFactor = 1.0;
 
     // Integration by parts
-    for ( int counterInt = 1 ; counterInt <= exponentPowerFunction_ + 1 ; counterInt++ )
+    for ( int counterSuccessiveIntegrations = 1 ; counterSuccessiveIntegrations <= exponentPowerFunction_ + 1 ; counterSuccessiveIntegrations++ )
     {
-        counterDouble = static_cast<double>(counterInt);
-        if ( ( counterInt%2 ) == 0.0 )
+        double doubleCounterSuccessiveIntegrations = static_cast< double >( counterSuccessiveIntegrations );
+        if ( ( counterSuccessiveIntegrations % 2 ) == 0.0 )
         {
-            functionValue += std::pow( -1.0, counterDouble / 2.0 + 1.0 ) * integrationFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - counterDouble + 1.0 )
-                             / std::pow( frequencySineFunction_, counterDouble )
+            integralValue += std::pow( - 1.0, doubleCounterSuccessiveIntegrations / 2.0 + 1.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
                              * std::sin( frequencySineFunction_ * independentVariable );
         }
         else
         {
-            functionValue += std::pow( -1.0, ( counterDouble + 1.0 ) / 2.0 ) * integrationFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - counterDouble + 1.0 )
-                             / std::pow( frequencySineFunction_, counterDouble )
+            integralValue += std::pow( - 1.0, ( doubleCounterSuccessiveIntegrations + 1.0 ) / 2.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
                              * std::cos( frequencySineFunction_ * independentVariable );
         }
-        integrationFactor *= exponentPowerFunction_ - counterDouble + 1.0;
+        integrationScaleFactor *= exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0;
     }
-    return scaleFactor_ * functionValue;
+    return scaleFactor_ * integralValue;
 }
 
 
@@ -322,35 +321,34 @@ double ScaledPowerCosineFunction::evaluateDerivative( double independentVariable
 
 double ScaledPowerCosineFunction::evaluateIntegral( double independentVariable )
 {
-    double counterDouble = -0.0;
-    double functionValue = 0.0;
-    double integrationFactor = 1.0;
+    double integralValue = 0.0;
+    double integrationScaleFactor = 1.0;
 
     // Integration by parts
-    for ( int counterInt = 1; counterInt <= exponentPowerFunction_ + 1 ; counterInt++ )
+    for ( int counterSuccessiveIntegrations = 1 ; counterSuccessiveIntegrations <= exponentPowerFunction_ + 1 ; counterSuccessiveIntegrations++ )
     {
-        counterDouble = static_cast< double >( counterInt );
-        if ( ( counterInt%2 ) == 0.0 )
+        double doubleCounterSuccessiveIntegrations = static_cast< double >( counterSuccessiveIntegrations );
+        if ( ( counterSuccessiveIntegrations % 2 ) == 0.0 )
         {
-            functionValue += std::pow( - 1.0, counterDouble / 2.0 + 1.0 ) * integrationFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - counterDouble + 1.0 )
-                             / std::pow( frequencyCosineFunction_, counterDouble )
+            integralValue += std::pow( - 1.0, doubleCounterSuccessiveIntegrations / 2.0 + 1.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencyCosineFunction_, doubleCounterSuccessiveIntegrations )
                              * std::cos( frequencyCosineFunction_ * independentVariable );
         }
         else
         {
-            functionValue += std::pow( -1.0, ( counterDouble - 1.0 ) / 2.0 ) * integrationFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - counterDouble + 1.0 )
-                             / std::pow( frequencyCosineFunction_, counterDouble )
+            integralValue += std::pow( - 1.0, ( doubleCounterSuccessiveIntegrations - 1.0 ) / 2.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencyCosineFunction_, doubleCounterSuccessiveIntegrations )
                              * std::sin( frequencyCosineFunction_ * independentVariable );
         }
-        integrationFactor *= exponentPowerFunction_ - counterDouble + 1.0;
+        integrationScaleFactor *= exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0;
     }
-    return scaleFactor_ * functionValue;
+    return scaleFactor_ * integralValue;
 }
 
 
-
+//! Function to create a base function for hodographic shaping.
 std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
         const baseFunctionHodographicShapingType baseFunctionType,
         const double exponent,
