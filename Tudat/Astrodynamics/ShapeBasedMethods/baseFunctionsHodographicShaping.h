@@ -26,8 +26,11 @@ enum baseFunctionHodographicShapingType
     sine,
     cosine,
     exponential,
-    exponentialCosine,
+    scaledExponential,
     exponentialSine,
+    scaledExponentialSine,
+    exponentialCosine,
+    scaledExponentialCosine,
     power,
     scaledPower,
     powerCosine,
@@ -45,17 +48,17 @@ public:
     /*!
      * Default constructor.
      */
-    BaseFunctionHodographicShaping(  ):
-    power_( 0.0 ),
-    frequency_( 0.0 ){ }
+    BaseFunctionHodographicShaping(  ){ }//:
+//    power_( 0.0 ),
+//    frequency_( 0.0 ){ }
 
-    BaseFunctionHodographicShaping( double power ):
-    power_( power ),
-    frequency_( 0.0 ){}
+//    BaseFunctionHodographicShaping( double power ):
+//    power_( power ),
+//    frequency_( 0.0 ){}
 
-    BaseFunctionHodographicShaping( double power, double frequency ):
-    power_( power ),
-    frequency_( frequency ){}
+//    BaseFunctionHodographicShaping( double power, double frequency ):
+//    power_( power ),
+//    frequency_( frequency ){}
 
     //! Default destructor.
     /*!
@@ -69,20 +72,20 @@ public:
 
     virtual double evaluateIntegral( double independentVariable ) = 0;
 
-    double getPowerBaseFunctionHodographicShaping(){
-        return power_;
-    }
+//    double getPowerBaseFunctionHodographicShaping(){
+//        return power_;
+//    }
 
-    double getFrequencyBaseFunctionHodographicShaping(){
-        return frequency_;
-    }
+//    double getFrequencyBaseFunctionHodographicShaping(){
+//        return frequency_;
+//    }
 
 protected:
 
 private:
 
-    double power_;
-    double frequency_;
+//    double power_;
+//    double frequency_;
 
 };
 
@@ -121,89 +124,6 @@ public:
 protected:
 
 private:
-
-};
-
-
-//! Power function.
-class PowerFunction : public BaseFunctionHodographicShaping
-{
-public:
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    PowerFunction( ) : exponent_( 0.0 ) { }
-
-    //! Constructor with the order of the power function as input.
-    PowerFunction( double exponent )
-    {
-        exponent_ = exponent;
-    }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~PowerFunction( ) { }
-
-
-    double evaluateFunction( double independentVariable );
-
-    double evaluateDerivative( double independentVariable );
-
-    double evaluateIntegral( double independentVariable );
-
-    void setOrder( double exponent )
-    {
-        exponent_ = exponent;
-    }
-
-protected:
-
-private:
-    double exponent_;
-
-};
-
-
-//! Exponential function.
-class ExponentialFunction : public BaseFunctionHodographicShaping
-{
-public:
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    ExponentialFunction( ) : exponent_( 0.0 ) { }
-
-    //! Constructor taking the order of the exponential function as input.
-    ExponentialFunction( double exponent )
-    {
-        exponent_ = exponent;
-    }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ExponentialFunction( ) { }
-
-    double evaluateFunction( double independentVariable );
-
-    double evaluateDerivative( double independentVariable );
-
-    double evaluateIntegral( double independentVariable );
-
-    void setOrder( double exponent )
-    {
-        exponent_ = exponent;
-    }
-
-protected:
-
-private:
-    double exponent_;
 
 };
 
@@ -290,29 +210,27 @@ private:
 };
 
 
-//! Power times sine function.
-class PowerSineFunction : public BaseFunctionHodographicShaping
+//! Exponential function.
+class ExponentialFunction : public BaseFunctionHodographicShaping
 {
 public:
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    PowerSineFunction( ) : exponentPowerFunction_( 0.0 ), frequencySineFunction_( 0.0 ) { }
+    ExponentialFunction( ) : exponent_( 0.0 ) { }
 
-    //! Constructor taking exponent of the power function and frequency of the sine function as inputs.
-    PowerSineFunction( double exponentPowerFunction, double frequencySineFunction )
+    //! Constructor taking the order of the exponential function as input.
+    ExponentialFunction( double exponent )
     {
-        exponentPowerFunction_ = exponentPowerFunction;
-        frequencySineFunction_ = frequencySineFunction;
+        exponent_ = exponent;
     }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~PowerSineFunction( ) { }
-
+    ~ExponentialFunction( ) { }
 
     double evaluateFunction( double independentVariable );
 
@@ -320,47 +238,40 @@ public:
 
     double evaluateIntegral( double independentVariable );
 
-    void setExponentPowerFunction( double exponentPowerFunction )
+    void setOrder( double exponent )
     {
-        exponentPowerFunction_ = exponentPowerFunction;
-    }
-
-    void setFrequencySineFunction( double frequency )
-    {
-        frequencySineFunction_ = frequency;
+        exponent_ = exponent;
     }
 
 protected:
 
 private:
-    double exponentPowerFunction_;
-    double frequencySineFunction_;
+    double exponent_;
+
 };
 
-
-//! Power times cosine function.
-class PowerCosineFunction : public BaseFunctionHodographicShaping
+//! Scaled exponential function.
+class ScaledExponentialFunction : public BaseFunctionHodographicShaping
 {
 public:
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    PowerCosineFunction( ) : exponentPowerFunction_( 0.0 ), frequencyCosineFunction_( 0.0 ) { }
+    ScaledExponentialFunction( ) : exponent_( 0.0 ), scaleFactor_( 0.0 ) { }
 
-    //! Constructor taking exponent of the power function and frequency of the cosine function as inputs.
-    PowerCosineFunction( double exponentPowerFunction, double frequencyCosineFunction )
+    //! Constructor taking the exponent and scaling factor as inputs.
+    ScaledExponentialFunction( double exponent, double scaleFactor )
     {
-        exponentPowerFunction_ = exponentPowerFunction;
-        frequencyCosineFunction_ = frequencyCosineFunction;
+        exponent_ = exponent;
+        scaleFactor_ = scaleFactor;
     }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~PowerCosineFunction( ) { }
-
+    ~ScaledExponentialFunction( ) { }
 
     double evaluateFunction( double independentVariable );
 
@@ -368,23 +279,22 @@ public:
 
     double evaluateIntegral( double independentVariable );
 
-    void setOrderPower( double exponentPowerFunction )
+    void setOrder( double exponent )
     {
-        exponentPowerFunction_ = exponentPowerFunction;
+        exponent_ = exponent;
     }
 
-    void setFrequency( double frequencyCosineFunction )
+    void setScaleFactor( double scaleFactor )
     {
-        frequencyCosineFunction_ = frequencyCosineFunction;
+        scaleFactor_ = scaleFactor;
     }
 
 protected:
 
 private:
-    double exponentPowerFunction_;
-    double frequencyCosineFunction_;
+    double exponent_;
+    double scaleFactor_;
 };
-
 
 //! Exponential times sine function.
 class ExponentialSineFunction : public BaseFunctionHodographicShaping
@@ -433,6 +343,58 @@ private:
     double frequencySineFunction_;
 };
 
+//! Scaled exponential times sine function.
+class ScaledExponentialSineFunction : public BaseFunctionHodographicShaping
+{
+public:
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    ScaledExponentialSineFunction( ) : exponentExponentialFunction_( 0.0 ), frequencySineFunction_( 0.0 ), scaleFactor_( 0.0 ) { }
+
+    //! Constructor taking exponent of the exponential function, frequency of the sine function, and scaling factor as inputs.
+    ScaledExponentialSineFunction( double exponentExponentialFunction, double frequencySineFunction, double scaleFactor )
+    {
+        exponentExponentialFunction_ = exponentExponentialFunction;
+        frequencySineFunction_ = frequencySineFunction;
+        scaleFactor_ = scaleFactor;
+    }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~ScaledExponentialSineFunction( ) { }
+
+    double evaluateFunction( double independentVariable );
+
+    double evaluateDerivative( double independentVariable );
+
+    double evaluateIntegral( double independentVariable );
+
+    void setOrderExponential( double exponentExponentialFunction )
+    {
+        exponentExponentialFunction_ = exponentExponentialFunction;
+    }
+
+    void setFrequency( double frequencySineFunction )
+    {
+        frequencySineFunction_ = frequencySineFunction;
+    }
+
+    void setScaleFactor( double scaleFactor )
+    {
+        scaleFactor_ = scaleFactor;
+    }
+
+protected:
+
+private:
+    double exponentExponentialFunction_;
+    double frequencySineFunction_;
+    double scaleFactor_;
+};
 
 //! Exponential times cosine function.
 class ExponentialCosineFunction : public BaseFunctionHodographicShaping
@@ -482,13 +444,108 @@ private:
 };
 
 
-class ScaledPowerFunction : public BaseFunctionHodographicShaping
+//! Scaled exponential times cosine function.
+class ScaledExponentialCosineFunction : public BaseFunctionHodographicShaping
 {
 public:
     //! Default constructor.
     /*!
      * Default constructor.
      */
+    ScaledExponentialCosineFunction( ) : exponentExponentialFunction_( 0.0 ), frequencyCosineFunction_( 0.0 ), scaleFactor_( 0.0 ) { }
+
+    //! Constructor taking order of the exponential function, frequency of the cosine function, and scaling factor as inputs.
+    ScaledExponentialCosineFunction( double exponentExponentialFunction, double frequencyCosineFunction, double scaleFactor )
+    {
+        exponentExponentialFunction_ = exponentExponentialFunction;
+        frequencyCosineFunction_ = frequencyCosineFunction;
+        scaleFactor_ = scaleFactor;
+    }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~ScaledExponentialCosineFunction( ) { }
+
+    double evaluateFunction( double independentVariable );
+
+    double evaluateDerivative( double independentVariable );
+
+    double evaluateIntegral( double independentVariable );
+
+    void setOrderExponential( double exponentExponentialFunction )
+    {
+        exponentExponentialFunction_ = exponentExponentialFunction;
+    }
+
+    void setFrequency( double frequencyCosineFunction )
+    {
+        frequencyCosineFunction_ = frequencyCosineFunction;
+    }
+
+    void setScaleFactor( double scaleFactor )
+    {
+        scaleFactor_ = scaleFactor;
+    }
+
+protected:
+
+private:
+    double exponentExponentialFunction_;
+    double frequencyCosineFunction_;
+    double scaleFactor_;
+};
+
+
+//! Power function.
+class PowerFunction : public BaseFunctionHodographicShaping
+{
+public:
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    PowerFunction( ) : exponent_( 0.0 ) { }
+
+    //! Constructor with the order of the power function as input.
+    PowerFunction( double exponent )
+    {
+        exponent_ = exponent;
+    }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~PowerFunction( ) { }
+
+
+    double evaluateFunction( double independentVariable );
+
+    double evaluateDerivative( double independentVariable );
+
+    double evaluateIntegral( double independentVariable );
+
+    void setOrder( double exponent )
+    {
+        exponent_ = exponent;
+    }
+
+protected:
+
+private:
+    double exponent_;
+
+};
+
+
+//! Scaled power function.
+class ScaledPowerFunction : public BaseFunctionHodographicShaping
+{
+public:
+
+    //! Constructor taking the exponent and scaling factor as inputs.
     ScaledPowerFunction( ) : exponent_( 0.0 ), scaleFactor_( 0.0 ) { }
 
     //! Default destructor.
@@ -524,6 +581,54 @@ protected:
 private:
     double exponent_;
     double scaleFactor_;
+};
+
+
+//! Power times sine function.
+class PowerSineFunction : public BaseFunctionHodographicShaping
+{
+public:
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    PowerSineFunction( ) : exponentPowerFunction_( 0.0 ), frequencySineFunction_( 0.0 ) { }
+
+    //! Constructor taking exponent of the power function and frequency of the sine function as inputs.
+    PowerSineFunction( double exponentPowerFunction, double frequencySineFunction )
+    {
+        exponentPowerFunction_ = exponentPowerFunction;
+        frequencySineFunction_ = frequencySineFunction;
+    }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~PowerSineFunction( ) { }
+
+
+    double evaluateFunction( double independentVariable );
+
+    double evaluateDerivative( double independentVariable );
+
+    double evaluateIntegral( double independentVariable );
+
+    void setExponentPowerFunction( double exponentPowerFunction )
+    {
+        exponentPowerFunction_ = exponentPowerFunction;
+    }
+
+    void setFrequencySineFunction( double frequency )
+    {
+        frequencySineFunction_ = frequency;
+    }
+
+protected:
+
+private:
+    double exponentPowerFunction_;
+    double frequencySineFunction_;
 };
 
 
@@ -579,6 +684,54 @@ private:
 };
 
 
+//! Power times cosine function.
+class PowerCosineFunction : public BaseFunctionHodographicShaping
+{
+public:
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    PowerCosineFunction( ) : exponentPowerFunction_( 0.0 ), frequencyCosineFunction_( 0.0 ) { }
+
+    //! Constructor taking exponent of the power function and frequency of the cosine function as inputs.
+    PowerCosineFunction( double exponentPowerFunction, double frequencyCosineFunction )
+    {
+        exponentPowerFunction_ = exponentPowerFunction;
+        frequencyCosineFunction_ = frequencyCosineFunction;
+    }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~PowerCosineFunction( ) { }
+
+
+    double evaluateFunction( double independentVariable );
+
+    double evaluateDerivative( double independentVariable );
+
+    double evaluateIntegral( double independentVariable );
+
+    void setOrderPower( double exponentPowerFunction )
+    {
+        exponentPowerFunction_ = exponentPowerFunction;
+    }
+
+    void setFrequency( double frequencyCosineFunction )
+    {
+        frequencyCosineFunction_ = frequencyCosineFunction;
+    }
+
+protected:
+
+private:
+    double exponentPowerFunction_;
+    double frequencyCosineFunction_;
+};
+
+
 class ScaledPowerCosineFunction : public BaseFunctionHodographicShaping
 {
 public:
@@ -629,13 +782,6 @@ private:
     double frequencyCosineFunction_;
     double scaleFactor_;
 };
-
-//! Function to create a base function for hodographic shaping.
-std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
-        const baseFunctionHodographicShapingType baseFunctionType,
-        const double power = 0.0,
-        const double frequency = 0.0,
-        const double scaleFactor = 0.0 );
 
 
 } // namespace shape_based_methods

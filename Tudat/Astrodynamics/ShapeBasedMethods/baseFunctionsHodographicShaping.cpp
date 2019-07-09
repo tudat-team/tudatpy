@@ -19,40 +19,6 @@ namespace tudat
 namespace shape_based_methods
 {
 
-//! Function, derivative, and integral of the power function.
-
-double PowerFunction::evaluateFunction( double independentVariable )
-{
-    return std::pow( independentVariable , exponent_ );
-}
-
-double PowerFunction::evaluateDerivative( double independentVariable )
-{
-    return exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
-}
-
-double PowerFunction::evaluateIntegral( double independentVariable )
-{
-    return std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
-}
-
-
-//! Function, derivative, and integral of the exponential function.
-double ExponentialFunction::evaluateFunction( double independentVariable )
-{
-    return std::exp( exponent_ * independentVariable );
-}
-
-double ExponentialFunction::evaluateDerivative( double independentVariable )
-{
-    return exponent_ * std::exp( exponent_ * independentVariable );
-}
-
-double ExponentialFunction::evaluateIntegral( double independentVariable )
-{
-    return std::exp( exponent_ * independentVariable ) / exponent_;
-}
-
 
 //! Function, derivative, and integral of the sine function.
 
@@ -89,6 +55,172 @@ double CosineFunction::evaluateIntegral( double independentVariable )
     return std::sin( frequency_ * independentVariable ) / frequency_;
 }
 
+
+//! Function, derivative, and integral of the exponential function.
+
+double ExponentialFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( exponent_ * independentVariable );
+}
+
+double ExponentialFunction::evaluateDerivative( double independentVariable )
+{
+    return exponent_ * std::exp( exponent_ * independentVariable );
+}
+
+double ExponentialFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( exponent_ * independentVariable ) / exponent_;
+}
+
+
+//! Function, derivative, and integral of the scaled exponential function.
+double ScaledExponentialFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponent_ * independentVariable );
+}
+
+double ScaledExponentialFunction::evaluateDerivative( double independentVariable )
+{
+    return scaleFactor_ * exponent_ * std::exp( scaleFactor_ * exponent_ * independentVariable );
+}
+
+double ScaledExponentialFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponent_ * independentVariable ) / ( scaleFactor_ * exponent_ );
+}
+
+
+//! Function, derivative, and integral of exponential times sine function.
+
+double ExponentialSineFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+           * std::sin( frequencySineFunction_ * independentVariable );
+}
+
+double ExponentialSineFunction::evaluateDerivative( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+           * ( exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable )
+               + frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) );
+}
+
+double ExponentialSineFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+            / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencySineFunction_, 2.0 ) )
+            * ( - frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable )
+                + exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable ) );
+}
+
+
+//! Function, derivative, and integral of scaled exponential times sine function.
+
+double ScaledExponentialSineFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+           * std::sin( frequencySineFunction_ * independentVariable );
+}
+
+double ScaledExponentialSineFunction::evaluateDerivative( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+            * ( scaleFactor_ * exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable )
+                + frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) );
+}
+
+double ScaledExponentialSineFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+           / ( std::pow( scaleFactor_ * exponentExponentialFunction_, 2.0 ) + std::pow( frequencySineFunction_, 2.0 ) )
+           * ( - frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable )
+               + scaleFactor_ * exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable ) );
+}
+
+
+//! Function, derivative, and integral of exponential times cosine function.
+
+double ExponentialCosineFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+           * std::cos( frequencyCosineFunction_ * independentVariable );
+}
+
+double ExponentialCosineFunction::evaluateDerivative( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+           * ( exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable )
+               - frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
+}
+
+double ExponentialCosineFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( exponentExponentialFunction_ * independentVariable )
+            / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencyCosineFunction_, 2.0 ) )
+            * ( frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable )
+                + exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable ) );
+}
+
+
+//! Function, derivative, and integral of the scaled exponential times cosine function.
+
+double ScaledExponentialCosineFunction::evaluateFunction( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+           * std::cos( frequencyCosineFunction_ * independentVariable );
+}
+
+double ScaledExponentialCosineFunction::evaluateDerivative( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+            * ( scaleFactor_ * exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable )
+                - frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
+}
+
+double ScaledExponentialCosineFunction::evaluateIntegral( double independentVariable )
+{
+    return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
+           / ( std::pow( scaleFactor_ * exponentExponentialFunction_, 2.0 ) + std::pow( frequencyCosineFunction_, 2.0 ) )
+           * ( frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable )
+               + scaleFactor_ * exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable ) );
+}
+
+
+//! Function, derivative, and integral of the power function.
+
+double PowerFunction::evaluateFunction( double independentVariable )
+{
+    return std::pow( independentVariable , exponent_ );
+}
+
+double PowerFunction::evaluateDerivative( double independentVariable )
+{
+    return exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
+}
+
+double PowerFunction::evaluateIntegral( double independentVariable )
+{
+    return std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
+}
+
+
+//! Function, derivative, and integral of scaled power function.
+
+double ScaledPowerFunction::evaluateFunction( double independentVariable )
+{
+    return scaleFactor_ * std::pow( independentVariable , exponent_ );
+}
+
+double ScaledPowerFunction::evaluateDerivative( double independentVariable )
+{
+    return scaleFactor_ * exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
+}
+
+double ScaledPowerFunction::evaluateIntegral( double independentVariable )
+{
+    return scaleFactor_ * std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
+}
 
 
 //! Function, derivative, and integral of the power times sine function.
@@ -137,6 +269,52 @@ double PowerSineFunction::evaluateIntegral( double independentVariable )
     }
 
     return integralValue;
+}
+
+
+//! Function, derivative, and integral of scaled power times sine function.
+
+double ScaledPowerSineFunction::evaluateFunction( double independentVariable )
+{
+    return scaleFactor_ * std::pow( independentVariable, exponentPowerFunction_ )
+           * std::sin( frequencySineFunction_ * independentVariable );
+}
+
+double ScaledPowerSineFunction::evaluateDerivative( double independentVariable )
+{
+    return scaleFactor_ *
+           ( exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
+               * std::sin( frequencySineFunction_ * independentVariable )
+             + std::pow( independentVariable, exponentPowerFunction_ )
+               * frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) ) ;
+}
+
+double ScaledPowerSineFunction::evaluateIntegral( double independentVariable )
+{
+    double integralValue = 0.0;
+    double integrationScaleFactor = 1.0;
+
+    // Integration by parts.
+    for ( int counterSuccessiveIntegrations = 1 ; counterSuccessiveIntegrations <= exponentPowerFunction_ + 1 ; counterSuccessiveIntegrations++ )
+    {
+        double doubleCounterSuccessiveIntegrations = static_cast< double >( counterSuccessiveIntegrations );
+        if ( ( counterSuccessiveIntegrations % 2 ) == 0.0 )
+        {
+            integralValue += std::pow( - 1.0, doubleCounterSuccessiveIntegrations / 2.0 + 1.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
+                             * std::sin( frequencySineFunction_ * independentVariable );
+        }
+        else
+        {
+            integralValue += std::pow( - 1.0, ( doubleCounterSuccessiveIntegrations + 1.0 ) / 2.0 ) * integrationScaleFactor
+                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
+                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
+                             * std::cos( frequencySineFunction_ * independentVariable );
+        }
+        integrationScaleFactor *= exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0;
+    }
+    return scaleFactor_ * integralValue;
 }
 
 
@@ -189,119 +367,6 @@ double PowerCosineFunction::evaluateIntegral( double independentVariable )
 }
 
 
-
-//! Function, derivative, and integral of exponential times sine function.
-
-double ExponentialSineFunction::evaluateFunction( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-           * std::sin( frequencySineFunction_ * independentVariable );
-}
-
-double ExponentialSineFunction::evaluateDerivative( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-           * ( exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable )
-               + frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) );
-}
-
-double ExponentialSineFunction::evaluateIntegral( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-            / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencySineFunction_, 2.0 ) )
-            * ( - frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable )
-                + exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable ) );
-}
-
-
-//! Function, derivative, and integral of exponential times cosine function.
-
-double ExponentialCosineFunction::evaluateFunction( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-           * std::cos( frequencyCosineFunction_ * independentVariable );
-}
-
-double ExponentialCosineFunction::evaluateDerivative( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-           * ( exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable )
-               - frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
-}
-
-double ExponentialCosineFunction::evaluateIntegral( double independentVariable )
-{
-    return std::exp( exponentExponentialFunction_ * independentVariable )
-            / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencyCosineFunction_, 2.0 ) )
-            * ( frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable )
-                + exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable ) );
-}
-
-
-//! Function, derivative, and integral of scaled power function.
-
-double ScaledPowerFunction::evaluateFunction( double independentVariable )
-{
-    return scaleFactor_ * std::pow( independentVariable , exponent_ );
-}
-
-double ScaledPowerFunction::evaluateDerivative( double independentVariable )
-{
-    return scaleFactor_ * exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
-}
-
-double ScaledPowerFunction::evaluateIntegral( double independentVariable )
-{
-    return scaleFactor_ * std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
-}
-
-
-//! Function, derivative, and integral of scaled power times sine function.
-
-double ScaledPowerSineFunction::evaluateFunction( double independentVariable )
-{
-    return scaleFactor_ * std::pow( independentVariable, exponentPowerFunction_ )
-           * std::sin( frequencySineFunction_ * independentVariable );
-}
-
-double ScaledPowerSineFunction::evaluateDerivative( double independentVariable )
-{
-    return scaleFactor_ *
-           ( exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
-               * std::sin( frequencySineFunction_ * independentVariable )
-             + std::pow( independentVariable, exponentPowerFunction_ )
-               * frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) ) ;
-}
-
-double ScaledPowerSineFunction::evaluateIntegral( double independentVariable )
-{
-    double integralValue = 0.0;
-    double integrationScaleFactor = 1.0;
-
-    // Integration by parts
-    for ( int counterSuccessiveIntegrations = 1 ; counterSuccessiveIntegrations <= exponentPowerFunction_ + 1 ; counterSuccessiveIntegrations++ )
-    {
-        double doubleCounterSuccessiveIntegrations = static_cast< double >( counterSuccessiveIntegrations );
-        if ( ( counterSuccessiveIntegrations % 2 ) == 0.0 )
-        {
-            integralValue += std::pow( - 1.0, doubleCounterSuccessiveIntegrations / 2.0 + 1.0 ) * integrationScaleFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
-                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
-                             * std::sin( frequencySineFunction_ * independentVariable );
-        }
-        else
-        {
-            integralValue += std::pow( - 1.0, ( doubleCounterSuccessiveIntegrations + 1.0 ) / 2.0 ) * integrationScaleFactor
-                             * std::pow( independentVariable, exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0 )
-                             / std::pow( frequencySineFunction_, doubleCounterSuccessiveIntegrations )
-                             * std::cos( frequencySineFunction_ * independentVariable );
-        }
-        integrationScaleFactor *= exponentPowerFunction_ - doubleCounterSuccessiveIntegrations + 1.0;
-    }
-    return scaleFactor_ * integralValue;
-}
-
-
 //! Function, derivative, and integral of scaled power times cosine function.
 
 double ScaledPowerCosineFunction::evaluateFunction( double independentVariable )
@@ -324,7 +389,7 @@ double ScaledPowerCosineFunction::evaluateIntegral( double independentVariable )
     double integralValue = 0.0;
     double integrationScaleFactor = 1.0;
 
-    // Integration by parts
+    // Integration by parts.
     for ( int counterSuccessiveIntegrations = 1 ; counterSuccessiveIntegrations <= exponentPowerFunction_ + 1 ; counterSuccessiveIntegrations++ )
     {
         double doubleCounterSuccessiveIntegrations = static_cast< double >( counterSuccessiveIntegrations );
@@ -347,92 +412,6 @@ double ScaledPowerCosineFunction::evaluateIntegral( double independentVariable )
     return scaleFactor_ * integralValue;
 }
 
-
-//! Function to create a base function for hodographic shaping.
-std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
-        const baseFunctionHodographicShapingType baseFunctionType,
-        const double exponent,
-        const double frequency,
-        const double scaleFactor ){
-
-    // Declare return object.
-    std::shared_ptr< BaseFunctionHodographicShaping > baseFunctionHodographicShaping;
-
-    // Check which type of base function is to be created.
-    switch( baseFunctionType )
-    {
-    case constant:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ConstantFunction >( );
-        break;
-    }
-    case sine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< SineFunction >( frequency );
-        break;
-    }
-    case cosine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< CosineFunction >( frequency );
-        break;
-    }
-    case exponential:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ExponentialFunction >( exponent );
-        break;
-    }
-    case exponentialSine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ExponentialSineFunction >( exponent, frequency );
-        break;
-    }
-    case exponentialCosine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ExponentialCosineFunction >( exponent, frequency );
-        break;
-    }
-    case power:
-    {
-        baseFunctionHodographicShaping = std::make_shared< PowerFunction >( exponent );
-        break;
-    }
-    case powerSine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< PowerSineFunction >( exponent, frequency );
-        break;
-    }
-    case powerCosine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< PowerCosineFunction >( exponent, frequency );
-        break;
-    }
-    case scaledPower:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ScaledPowerFunction >( exponent, scaleFactor );
-        break;
-    }
-    case scaledPowerSine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ScaledPowerSineFunction >( exponent, frequency, scaleFactor );
-        break;
-    }
-    case scaledPowerCosine:
-    {
-        baseFunctionHodographicShaping = std::make_shared< ScaledPowerCosineFunction >( exponent, frequency, scaleFactor );
-        break;
-    }
-
-    default:
-    {
-        throw std::runtime_error(
-                    "Error, did not recognize base function type for hodographic shaping" );
-    }
-
-    }
-
-    return baseFunctionHodographicShaping;
-
-};
 
 } // namespace shape_based_methods
 } // namespace tudat
