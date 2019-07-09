@@ -11,6 +11,7 @@
 # Set the source files.
 set(SHAPEBASEDMETHODS_SOURCES
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.cpp"
+  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.cpp"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.cpp"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.cpp"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
@@ -21,6 +22,7 @@ set(SHAPEBASEDMETHODS_SOURCES
 # Set the header files.
 set(SHAPEBASEDMETHODS_HEADERS
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.h"
+  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"

@@ -24,6 +24,7 @@
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/hodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
+#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
@@ -42,6 +43,8 @@ BOOST_AUTO_TEST_SUITE( test_hodographic_shaping )
 //! Test.
 BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
 {        
+    using namespace shape_based_methods;
+
     double numberOfRevolutions = 1.0;
 
     double julianDate = 2458849.5;
@@ -83,54 +86,89 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     std::cout << "cylindrical state of departure body: " << cylindricalStateOfDepartureBody.segment(0,3) << "\n\n";
     std::cout << "cylindrical state of arrival body: " << cylindricalStateOfArrivalBody.segment(0,3) << "\n\n";
 
-    // Set velocity functions.
+
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
-
-    // Set components for the radial velocity function.
     double scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
-    radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::constant ) );
-    radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPower, 1.0, 0.0, scaleFactor ) );
-    radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPower, 2.0, 0.0, std::pow( scaleFactor, 2 ) ) );
-    radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPowerSine, 1.0, 0.5 * frequency, scaleFactor ) );
-    radialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPowerCosine, 1.0, 0.5 * frequency, scaleFactor ) );
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
 
-    // Set components for the normal velocity function.
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+
+    // Create components of the normal velocity composite function.
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
-    normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                     shape_based_methods::constant ) );
-    normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPower, 1.0, 0.0, scaleFactor ) );
-    normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPower, 2.0, 0.0, std::pow( scaleFactor, 2 ) ) );
-    normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPowerSine, 1.0, 0.5 * frequency, scaleFactor ) );
-    normalVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                    shape_based_methods::scaledPowerCosine, 1.0, 0.5 * frequency, scaleFactor ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
 
     // Set components for the axial velocity function.
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
-    axialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                   shape_based_methods::cosine, 0.0, ( numberOfRevolutions + 0.5 ) * frequency ) );
-    axialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                   shape_based_methods::scaledPowerCosine, 3.0,
-                                                   ( numberOfRevolutions + 0.5 ) * frequency , std::pow( scaleFactor, 3 ) ) );
-    axialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                   shape_based_methods::scaledPowerSine, 3.0,
-                                                   ( numberOfRevolutions + 0.5 ) * frequency , std::pow( scaleFactor, 3 ) ) );
-    axialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                   shape_based_methods::scaledPowerCosine, 4.0,
-                                                   ( numberOfRevolutions + 0.5 ) * frequency, std::pow( scaleFactor, 4 ) ) );
-    axialVelocityFunctionComponents.push_back( shape_based_methods::createBaseFunctionHodographicShaping(
-                                                   shape_based_methods::scaledPowerSine, 4.0,
-                                                   ( numberOfRevolutions + 0.5 ) * frequency, std::pow( scaleFactor, 4 ) ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fourthAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
 
     Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
