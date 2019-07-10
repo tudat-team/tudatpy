@@ -189,21 +189,21 @@ if (PYTHONINTERP_FOUND)
             # NOTE: As far as is known, building boost.python3 provides the lib files
             # in the form of python3 and not python3.6 as is suggested by original
             # code.
-            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR})
+            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR})
             FIND_PACKAGE(PythonInterp 3)
             FIND_PACKAGE(PythonLibs 3 REQUIRED)
         else ()
-            FIND_PACKAGE(Boost 1.61 COMPONENTS python)
+            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python)
             FIND_PACKAGE(PythonInterp)
             FIND_PACKAGE(PythonLibs REQUIRED)
         endif ()
     else ()
         if (PYTHON_VERSION_MAJOR EQUAL 3)
-            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
             FIND_PACKAGE(PythonInterp 3)
             FIND_PACKAGE(PythonLibs 3 REQUIRED)
         else ()
-            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
             FIND_PACKAGE(PythonInterp)
             FIND_PACKAGE(PythonLibs REQUIRED)
         endif ()
@@ -232,8 +232,8 @@ include_directories(
 
 
 add_library(boost_numpy_eigen SHARED
-        ${BOOST_EIGEN_NUMPY_SRCDIR}/eigen_numpy.cc
-        ${BOOST_EIGEN_NUMPY_SRCDIR}/eigen_numpy.h)
+        include/eigen_numpy.cc
+        include/eigen_numpy.h)
 setup_tudatpy_library_target(boost_numpy_eigen "${BOOST_EIGEN_NUMPY_SRCDIR}")
 
 target_link_libraries(boost_numpy_eigen ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
@@ -243,24 +243,29 @@ target_compile_options(boost_numpy_eigen PUBLIC PRIVATE
         -Wdeprecated-declarations
         -Wold-style-cast)
 
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions
+#        -Wignored-attributes
+#        -Wdeprecated-declarations
+#        -Wold-style-cast")
+
+message("${boost_numpy_eigen}")
 link_libraries(
         ${Boost_LIBRARIES}
-        ${Boost_LOG_LIBRARY}
-        ${Boost_TEST_LIBRARY}
-        ${Boost_FILESYSTEM_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${PYTHON_LIBRARIES}
         ${tudat_basic_mathematics}
         ${TUDAT_PROPAGATION_LIBRARIES}
-        ${boost_numpy_eigen}
+        ${tudat_environment_setup}
         ${LIBROOT}/libboost_numpy_eigen.so) # Deprecated but so convenient!
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
 message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
-message(STATUS "boost_numpy_eigen = ${boost_numpy_eigen}")
+#message(STATUS "boost_numpy_eigen = ${boost_numpy_eigen}")
 message(STATUS "NUMPY_INCLUDE_DIRS = ${NUMPY_INCLUDE_DIRS}")
+message(STATUS "TUDAT_PROPAGATION_LIBRARIES = ${TUDAT_PROPAGATION_LIBRARIES}")
+message(STATUS "tudat_environment_setup = ${tudat_environment_setup}")
 
 # TODO: Setup the CMakelist.txt such that tudatPy is installed to the detected dist-packages of python library.
 

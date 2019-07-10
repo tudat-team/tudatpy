@@ -8,5 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 FILE(COPY __init__.py DESTINATION .)
-LINK_LIBRARIES(${tudat_environment_setup})
-PYTHON_ADD_MODULE(_environment _environment.cpp)
+LINK_LIBRARIES(${tudat_propagation_setup})
+PYTHON_ADD_MODULE(_propagation _propagation.cpp)
+

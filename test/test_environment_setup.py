@@ -42,6 +42,7 @@ class TestBody(unittest.TestCase):
     def test_default_body_settings(self):
         load_standard_spice_kernels()
         test = get_default_body_settings(["Earth", "Venus"])
+
         body_map = create_bodies(test)
         print(body_map)
         print(type(test))
