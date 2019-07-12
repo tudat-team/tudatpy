@@ -22,17 +22,17 @@ namespace shape_based_methods
 
 //! Function, derivative, and integral of the sine function.
 
-double SineFunction::evaluateFunction( double independentVariable )
+double SineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::sin( frequency_ * independentVariable );
 }
 
-double SineFunction::evaluateDerivative( double independentVariable )
+double SineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return frequency_ * std::cos( frequency_ * independentVariable );
 }
 
-double SineFunction::evaluateIntegral( double independentVariable )
+double SineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return - std::cos( frequency_ * independentVariable ) / frequency_;
 }
@@ -40,17 +40,17 @@ double SineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of the cosine function.
 
-double CosineFunction::evaluateFunction( double independentVariable )
+double CosineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::cos( frequency_ * independentVariable );
 }
 
-double CosineFunction::evaluateDerivative( double independentVariable )
+double CosineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return - frequency_ * std::sin( frequency_ * independentVariable );
 }
 
-double CosineFunction::evaluateIntegral( double independentVariable )
+double CosineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::sin( frequency_ * independentVariable ) / frequency_;
 }
@@ -58,34 +58,34 @@ double CosineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of the exponential function.
 
-double ExponentialFunction::evaluateFunction( double independentVariable )
+double ExponentialFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( exponent_ * independentVariable );
 }
 
-double ExponentialFunction::evaluateDerivative( double independentVariable )
+double ExponentialFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return exponent_ * std::exp( exponent_ * independentVariable );
 }
 
-double ExponentialFunction::evaluateIntegral( double independentVariable )
+double ExponentialFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( exponent_ * independentVariable ) / exponent_;
 }
 
 
 //! Function, derivative, and integral of the scaled exponential function.
-double ScaledExponentialFunction::evaluateFunction( double independentVariable )
+double ScaledExponentialFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponent_ * independentVariable );
 }
 
-double ScaledExponentialFunction::evaluateDerivative( double independentVariable )
+double ScaledExponentialFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return scaleFactor_ * exponent_ * std::exp( scaleFactor_ * exponent_ * independentVariable );
 }
 
-double ScaledExponentialFunction::evaluateIntegral( double independentVariable )
+double ScaledExponentialFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponent_ * independentVariable ) / ( scaleFactor_ * exponent_ );
 }
@@ -93,20 +93,20 @@ double ScaledExponentialFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of exponential times sine function.
 
-double ExponentialSineFunction::evaluateFunction( double independentVariable )
+double ExponentialSineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
            * std::sin( frequencySineFunction_ * independentVariable );
 }
 
-double ExponentialSineFunction::evaluateDerivative( double independentVariable )
+double ExponentialSineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
            * ( exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable )
                + frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) );
 }
 
-double ExponentialSineFunction::evaluateIntegral( double independentVariable )
+double ExponentialSineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
             / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencySineFunction_, 2.0 ) )
@@ -117,20 +117,20 @@ double ExponentialSineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of scaled exponential times sine function.
 
-double ScaledExponentialSineFunction::evaluateFunction( double independentVariable )
+double ScaledExponentialSineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
            * std::sin( frequencySineFunction_ * independentVariable );
 }
 
-double ScaledExponentialSineFunction::evaluateDerivative( double independentVariable )
+double ScaledExponentialSineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
             * ( scaleFactor_ * exponentExponentialFunction_ * std::sin( frequencySineFunction_ * independentVariable )
                 + frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) );
 }
 
-double ScaledExponentialSineFunction::evaluateIntegral( double independentVariable )
+double ScaledExponentialSineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
            / ( std::pow( scaleFactor_ * exponentExponentialFunction_, 2.0 ) + std::pow( frequencySineFunction_, 2.0 ) )
@@ -141,20 +141,20 @@ double ScaledExponentialSineFunction::evaluateIntegral( double independentVariab
 
 //! Function, derivative, and integral of exponential times cosine function.
 
-double ExponentialCosineFunction::evaluateFunction( double independentVariable )
+double ExponentialCosineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
            * std::cos( frequencyCosineFunction_ * independentVariable );
 }
 
-double ExponentialCosineFunction::evaluateDerivative( double independentVariable )
+double ExponentialCosineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
            * ( exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable )
                - frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
 }
 
-double ExponentialCosineFunction::evaluateIntegral( double independentVariable )
+double ExponentialCosineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( exponentExponentialFunction_ * independentVariable )
             / ( std::pow( exponentExponentialFunction_, 2.0 ) + std::pow( frequencyCosineFunction_, 2.0 ) )
@@ -165,20 +165,20 @@ double ExponentialCosineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of the scaled exponential times cosine function.
 
-double ScaledExponentialCosineFunction::evaluateFunction( double independentVariable )
+double ScaledExponentialCosineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
            * std::cos( frequencyCosineFunction_ * independentVariable );
 }
 
-double ScaledExponentialCosineFunction::evaluateDerivative( double independentVariable )
+double ScaledExponentialCosineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
             * ( scaleFactor_ * exponentExponentialFunction_ * std::cos( frequencyCosineFunction_ * independentVariable )
                 - frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
 }
 
-double ScaledExponentialCosineFunction::evaluateIntegral( double independentVariable )
+double ScaledExponentialCosineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::exp( scaleFactor_ * exponentExponentialFunction_ * independentVariable )
            / ( std::pow( scaleFactor_ * exponentExponentialFunction_, 2.0 ) + std::pow( frequencyCosineFunction_, 2.0 ) )
@@ -189,17 +189,17 @@ double ScaledExponentialCosineFunction::evaluateIntegral( double independentVari
 
 //! Function, derivative, and integral of the power function.
 
-double PowerFunction::evaluateFunction( double independentVariable )
+double PowerFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::pow( independentVariable , exponent_ );
 }
 
-double PowerFunction::evaluateDerivative( double independentVariable )
+double PowerFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
 }
 
-double PowerFunction::evaluateIntegral( double independentVariable )
+double PowerFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
 }
@@ -207,17 +207,17 @@ double PowerFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of scaled power function.
 
-double ScaledPowerFunction::evaluateFunction( double independentVariable )
+double ScaledPowerFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return scaleFactor_ * std::pow( independentVariable , exponent_ );
 }
 
-double ScaledPowerFunction::evaluateDerivative( double independentVariable )
+double ScaledPowerFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return scaleFactor_ * exponent_ * std::pow( independentVariable , ( exponent_ - 1.0 ) );
 }
 
-double ScaledPowerFunction::evaluateIntegral( double independentVariable )
+double ScaledPowerFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     return scaleFactor_ * std::pow( independentVariable , ( exponent_ + 1.0 ) ) / ( exponent_ + 1.0 );
 }
@@ -225,13 +225,13 @@ double ScaledPowerFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of the power times sine function.
 
-double PowerSineFunction::evaluateFunction( double independentVariable )
+double PowerSineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::pow( independentVariable, exponentPowerFunction_ )
            * std::sin( frequencySineFunction_ * independentVariable );
 }
 
-double PowerSineFunction::evaluateDerivative( double independentVariable )
+double PowerSineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
            * std::sin( frequencySineFunction_ * independentVariable )
@@ -239,7 +239,7 @@ double PowerSineFunction::evaluateDerivative( double independentVariable )
            * frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) ;
 }
 
-double PowerSineFunction::evaluateIntegral( double independentVariable )
+double PowerSineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
 
     double integralValue = 0.0;
@@ -274,13 +274,13 @@ double PowerSineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of scaled power times sine function.
 
-double ScaledPowerSineFunction::evaluateFunction( double independentVariable )
+double ScaledPowerSineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return scaleFactor_ * std::pow( independentVariable, exponentPowerFunction_ )
            * std::sin( frequencySineFunction_ * independentVariable );
 }
 
-double ScaledPowerSineFunction::evaluateDerivative( double independentVariable )
+double ScaledPowerSineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return scaleFactor_ *
            ( exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
@@ -289,7 +289,7 @@ double ScaledPowerSineFunction::evaluateDerivative( double independentVariable )
                * frequencySineFunction_ * std::cos( frequencySineFunction_ * independentVariable ) ) ;
 }
 
-double ScaledPowerSineFunction::evaluateIntegral( double independentVariable )
+double ScaledPowerSineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     double integralValue = 0.0;
     double integrationScaleFactor = 1.0;
@@ -320,13 +320,13 @@ double ScaledPowerSineFunction::evaluateIntegral( double independentVariable )
 
 //!  Function, derivative, and integral of the power times cosine function.
 
-double PowerCosineFunction::evaluateFunction( double independentVariable )
+double PowerCosineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return std::pow( independentVariable, exponentPowerFunction_ )
            * std::cos( frequencyCosineFunction_ * independentVariable );
 }
 
-double PowerCosineFunction::evaluateDerivative( double independentVariable )
+double PowerCosineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
            * std::cos( frequencyCosineFunction_ * independentVariable )
@@ -334,7 +334,7 @@ double PowerCosineFunction::evaluateDerivative( double independentVariable )
            * frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) ;
 }
 
-double PowerCosineFunction::evaluateIntegral( double independentVariable )
+double PowerCosineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
 
     double integralValue = 0.0;
@@ -369,13 +369,13 @@ double PowerCosineFunction::evaluateIntegral( double independentVariable )
 
 //! Function, derivative, and integral of scaled power times cosine function.
 
-double ScaledPowerCosineFunction::evaluateFunction( double independentVariable )
+double ScaledPowerCosineFunctionHodographicShaping::evaluateFunction( double independentVariable )
 {
     return scaleFactor_ * std::pow( independentVariable, exponentPowerFunction_ )
            * std::cos( frequencyCosineFunction_ * independentVariable );
 }
 
-double ScaledPowerCosineFunction::evaluateDerivative( double independentVariable )
+double ScaledPowerCosineFunctionHodographicShaping::evaluateDerivative( double independentVariable )
 {
     return scaleFactor_ *
            ( exponentPowerFunction_ * std::pow( independentVariable, exponentPowerFunction_ - 1.0 )
@@ -384,7 +384,7 @@ double ScaledPowerCosineFunction::evaluateDerivative( double independentVariable
                * frequencyCosineFunction_ * std::sin( frequencyCosineFunction_ * independentVariable ) );
 }
 
-double ScaledPowerCosineFunction::evaluateIntegral( double independentVariable )
+double ScaledPowerCosineFunctionHodographicShaping::evaluateIntegral( double independentVariable )
 {
     double integralValue = 0.0;
     double integrationScaleFactor = 1.0;
