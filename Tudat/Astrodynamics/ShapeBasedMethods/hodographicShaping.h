@@ -12,6 +12,7 @@
 #ifndef HODOGRAPHICSHAPING_H
 #define HODOGRAPHICSHAPING_H
 
+#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethod.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -28,125 +29,44 @@ namespace shape_based_methods
 {
 
 
-class HodographicShaping
+class HodographicShaping : public ShapeBasedMethod
 {
 public:
 
     //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
     HodographicShaping(
+            const Eigen::Vector6d initialState,
+            const Eigen::Vector6d finalState,
+            const double timeOfFlight,
+            const int numberOfRevolutions,
+            const double centralBodyGravitationalParameter,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
-            const Eigen::Vector6d initialState,
-            const Eigen::Vector6d finalState,
-            const Eigen::VectorXd freeCoefficientsRadialFunction,
-            const Eigen::VectorXd freeCoefficientsNormalFunction,
-            const Eigen::VectorXd freeCoefficientsAxialFunction,
-            const double initialTime,
-            const double finalTime,
-            const int numberOfRevolutions );
+            const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
+            const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
+            const Eigen::VectorXd freeCoefficientsAxialVelocityFunction );
 
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
     ~HodographicShaping( ) { }
 
-    //! Set radial, normal and axial velocity functions.
-    void setVelocityFunctions( std::shared_ptr< CompositeFunction > radialVelocityFunction,
-                               std::shared_ptr< CompositeFunction > normalVelocityFunction,
-                               std::shared_ptr< CompositeFunction > axialVelocityFunction )
-    {
-        radialVelocityFunction_ = radialVelocityFunction;
-        normalVelocityFunction_ = normalVelocityFunction;
-        axialVelocityFunction_  = axialVelocityFunction;
-    }
-
-    //! Satisfy boundary conditions in radial direction.
-    void satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients );
-
-    //! Satisfy boundary conditions in normal direction.
-    void satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients );
-
-    //! Satisfy boundary conditions in axial direction.
-    void satisfyAxialBoundaryConditions( Eigen::VectorXd freeCoefficients );
-
-    //! Satisfy boundary conditions in normal direction with fixed final polar angle.
-    void satisfyNormalBoundaryConditionsWithFinalPolarAngle( Eigen::VectorXd freeCoefficients );
-
-    //! Compute thrust acceleration.
-    double computeThrustAccelerationCurrentTime( const double currentTime );
-
-    //! Compute cartesian acceleration.
-    Eigen::Vector3d computeCartesianAcceleration( double currentTime );
-
-    //! Convert cartesian acceleration into cylindrical one.
-    Eigen::Vector3d convertCartesianToCylindricalAcceleration( Eigen::Vector3d cartesianAcceleration, Eigen::Vector3d cartesianState );
-
-    //! Compute magnitude cartesian acceleration.
-    double computeMagnitudeCartesianAcceleration( double currentTime );
-
-    //! Compute direction cartesian acceleration.
-    Eigen::Vector3d computeDirectionCartesianAcceleration( double currentTime );
-
-    //! Compute DeltaV.
-    /*!
-     * Computes the required DeltaV by integrating the required thrust acceleration over time using a fast RK4-integrator.
-     */
-    double computeDeltaV( );
-
-    //! Compute angular velocity.
-    double computeAngularVelocityCurrentTime( const double currentTime );
-
-    //! Compute final polar angle.
-    /*!
-     * Computes the final polar angle by integrating the angular velocity over time
-       using a fast RK4-integrator.
-     */
-    double computeFinalPolarAngle( );
+    //! Compute radial distance from the central body.
+    double computeCurrentRadialDistance( const double currentTime );
 
     //! Compute polar angle.
-    double computePolarAngle( double currentTime );
-
-    //! Compute components of the thrust acceleration.
-    Eigen::Vector3d computeThrustAccelerationComponents( double currentTime );
-
-    //! Compute thrust acceleration direction.
-    Eigen::Vector3d computeThrustAccelerationDirection( double currentTime );
-
-    //! Compute components of the velocity.
-    std::vector< double > computeVelocityComponents( double currentTime );
-
-
-    //! Compute radial distance from the Sun.
-    double computeRadialDistanceCurrentTime( const double currentTime );
+    double computeCurrentPolarAngle( double currentTime );
 
     //! Compute axial distance from central body.
-    double computeAxialDistanceCurrentTime( const double currentTime );
-
-    //! Compute current cylindrical state.
-    Eigen::Vector6d computeCurrentCylindricalState( const double currentTime );
+    double computeCurrentAxialDistance( const double currentTime );
 
     //! Compute current cartesian state.
-    Eigen::Vector6d computeCurrentCartesianState( const double currentTime );
+    Eigen::Vector6d computeCurrentStateVector( const double currentTime );
 
-    //! Set velocity function for the radial direction.
-    void setRadialVelocityFunction( std::shared_ptr< CompositeFunction > radialVelocityFunction )
-    {
-        radialVelocityFunction_ = radialVelocityFunction;
-    }
+    //! Compute thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCurrentThrustAccelerationVector( double currentTime );
 
-    //! Set velocity function for the normal direction.
-    void setNormalVelocityFunction( std::shared_ptr< CompositeFunction > normalVelocityFunction )
-    {
-        normalVelocityFunction_ = normalVelocityFunction;
-    }
-
-    //! Set velocity function for the axial direction.
-    void setAxialVelocityFunction( std::shared_ptr< CompositeFunction > axialVelocityFunction )
-    {
-        axialVelocityFunction_ = axialVelocityFunction;
-    }
+    //! Compute DeltaV.
+    double computeDeltaV( );
 
     //! Get low-thrust acceleration model from shaping method.
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
@@ -155,7 +75,7 @@ public:
             std::function< double( const double ) > specificImpulseFunction );
 
     //! Function to compute the shaped trajectory and the propagation fo the full problem.
-    void computeShapingTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
+    void computeShapedTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
             basic_astrodynamics::AccelerationMap& accelerationMap,
             const std::string& centralBody,
             const std::string& bodyToPropagate,
@@ -178,15 +98,37 @@ protected:
 
     Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunction > velocityFunction );
 
-    //! Compute first part of final polar angle integral.
-    double computeFirstPartialFinalPolarAngle( );
+    //! Satisfy boundary conditions in radial direction.
+    void satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients );
 
-    //! Compute second part of final polar angle integral.
-    double computeSecondPartialFinalPolarAngle( Eigen::VectorXd freeCoefficients );
+    //! Satisfy boundary conditions in axial direction.
+    void satisfyAxialBoundaryConditions( Eigen::VectorXd freeCoefficients );
+
+    //! Satisfy boundary conditions in normal direction.
+    void satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients );
 
     //! Compute third fixed coefficient of the normal velocity composite function, so that the condition on the final polar angle
     //! is fulfilled.
     double computeThirdFixedCoefficientAxialVelocityFromFinalPolarAngle( Eigen::VectorXd freeCoefficients );
+
+    //! Compute velocity vector in cylindrical coordinates.
+    Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( double currentTime );
+
+    //! Compute angular velocity.
+    double evaluateDerivativePolarAngleWrtTime( const double currentTime );
+
+    //! Compute state vector in cylindrical coordinates.
+    Eigen::Vector6d computeStateVectorInCylindricalCoordinates( const double currentTime );
+
+    //! Compute thrust acceleration vector in cylindrical coordinates.
+    Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double currentTime );
+
+    //! Compute magnitude thrust acceleration.
+    double computeCurrentThrustAccelerationMagnitude( const double currentTime );
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
+
 
 private:
 
@@ -196,17 +138,17 @@ private:
     //! Final state in cartesian coordinates.
     Eigen::Vector6d finalState_;
 
-    //! Vector containing the coefficients of the radial function.
-    Eigen::VectorXd freeCoefficientsRadialFunction_;
+    //! Initial time.
+    double initialTime_;
 
-    //! Vector containing the coefficients of the normal function.
-    Eigen::VectorXd freeCoefficientsNormalFunction_;
-
-    //! Vector containing the coefficients of the axial function.
-    Eigen::VectorXd freeCoefficientsAxialFunction_;
+    //! Time of flight.
+    double timeOfFlight_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
+
+    //! Central body gravitational parameter.
+    double centralBodyGravitationalParameter_;
 
     //! Radial velocity function.
     std::shared_ptr< CompositeFunction > radialVelocityFunction_;
@@ -217,47 +159,50 @@ private:
     //! Axial velocity function.
     std::shared_ptr< CompositeFunction > axialVelocityFunction_;
 
+    //! Vector containing the coefficients of the radial function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction_;
+
+    //! Vector containing the coefficients of the normal function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction_;
+
+    //! Vector containing the coefficients of the axial function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction_;
+
+    //! Number of free coefficients for the radial velocity function.
+    int numberOfFreeCoefficientsRadialVelocityFunction_;
+
+    //! Number of free coefficients for the normal velocity function.
+    int numberOfFreeCoefficientsNormalVelocityFunction_;
+
+    //! Number of free coefficients for the axial velocity function.
+    int numberOfFreeCoefficientsAxialVelocityFunction;
+
     //! Radial boundary conditions.
-    std::vector< double > boundaryConditionsRadial_;
+    std::vector< double > radialBoundaryConditions_;
 
     //! Normal boundary conditions.
-    std::vector< double > boundaryConditionsNormal_;
+    std::vector< double > normalBoundaryConditions_;
 
     //! Axial boundary conditions.
-    std::vector< double > boundaryConditionsAxial_;
-
-    //! Initial time.
-    double initialTime_;
-
-    //! Final time.
-    double finalTime_;
-
-    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
-    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
+    std::vector< double > axialBoundaryConditions_;
 
     /*! Inverse of matrix containing the boundary values of the terms in the radial velocity
      *  function which are used to satisfy the radial boundary conditions.
      */
-    Eigen::MatrixXd inverseMatrixBoundaryValuesRadial;
+    Eigen::MatrixXd inverseMatrixRadialBoundaryValues_;
 
     /*! Inverse of matrix containing the boundary values of the terms in the normal velocity
      *  function which are used to satisfy the normal boundary conditions.
      */
-    Eigen::MatrixXd inverseMatrixBoundaryValuesNormal;
+    Eigen::MatrixXd inverseMatrixNormalBoundaryValues_;
 
     /*! Inverse of matrix containing the boundary values of the terms in the axial velocity
      *  function which are used to satisfy the normal boundary conditions.
      */
-    Eigen::MatrixXd inverseMatrixBoundaryValuesAxial;
+    Eigen::MatrixXd inverseAxialMatrixBoundaryValues_;
 
-    //! Number of free coefficients for the radial velocity function.
-    int numberOfFreeCoefficientsRadial;
-
-    //! Number of free coefficients for the normal velocity function.
-    int numberOfFreeCoefficientsNormal;
-
-    //! Number of free coefficients for the axial velocity function.
-    int numberOfFreeCoefficientsAxial;
+    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
+    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
 };
 

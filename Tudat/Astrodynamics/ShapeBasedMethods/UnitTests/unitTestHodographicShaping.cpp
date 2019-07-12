@@ -31,6 +31,8 @@
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 
 namespace tudat
 {
@@ -40,9 +42,1050 @@ namespace unit_tests
 //! Test hodographic shaping implementation.
 BOOST_AUTO_TEST_SUITE( test_hodographic_shaping )
 
+//! Test Earth-Mars transfers, based on the thesis by Gondelach (ADD PROPER REFERENCE).
+BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
+{
+    using namespace shape_based_methods;
+
+    int numberOfRevolutions = 2;
+
+    /// First Earth-Mars transfer.
+
+    double julianDate = 9264.5 * physical_constants::JULIAN_DAY;
+
+    double timeOfFlight = 1070.0;
+
+    // Ephemeris departure body.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+
+    // Ephemeris arrival body.
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+
+    // Initialize free coefficients vector for radial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Initialize free coefficients vector for normal velocity function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Initialize free coefficients vector for axial velocity function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+
+    // Retrieve cartesian state at departure and arrival.
+    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    double scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the normal velocity composite function.
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    shape_based_methods::HodographicShaping VelocityShapingMethod(
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+
+    int numberOfSteps = 500;
+    double stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( numberOfSteps );
+    double peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= numberOfSteps ; currentStep++ ){
+
+        double currentTime = currentStep * stepSize;
+
+        double currentAccelerationMagnitude = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+
+        if ( currentAccelerationMagnitude > peakAcceleration )
+        {
+            peakAcceleration = currentAccelerationMagnitude;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+
+    double expectedDeltaV = 7751.0;
+    double expectedPeakAcceleration = 2.64e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+
+
+    /// Second Earth-Mars transfer.
+
+    julianDate = 10034.5 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 1070.0;
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< TrigonometricFunctionHodographicShapingSettings >( 0.5 * frequency );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings = std::make_shared< TrigonometricFunctionHodographicShapingSettings >( 0.5 * frequency );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+   firstAxialVelocityBaseFunctionSettings = std::make_shared< TrigonometricFunctionHodographicShapingSettings >
+           ( ( numberOfRevolutions + 0.5 ) * frequency );
+    secondAxialVelocityBaseFunctionSettings = std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    thirdAxialVelocityBaseFunctionSettings = std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    axialVelocityFunctionComponents.clear();
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    peakAcceleration = 0.0;
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+
+    expectedDeltaV = 6742.0;
+    expectedPeakAcceleration = 1.46e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+
+
+    /// Third Earth-Mars transfer.
+
+    julianDate = 9244.5 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 1090.0;
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    axialVelocityFunctionComponents.clear();
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    peakAcceleration = 0.0;
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+
+    expectedDeltaV = 6686.0;
+    expectedPeakAcceleration = 2.46e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+
+    /// Fourth Earth-Mars transfer.
+
+    julianDate = 10024.5 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 1050.0;
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( 0.5 * frequency );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    axialVelocityFunctionComponents.clear();
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+
+    peakAcceleration = 0.0;
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+
+    expectedDeltaV = 6500.0;
+    expectedPeakAcceleration = 1.58e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+
+
+    /// Fifth Earth-Mars transfer.
+
+    julianDate = 10024.5 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 1050.0;
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    axialVelocityFunctionComponents.clear();
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    peakAcceleration = 0.0;
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+
+    expectedDeltaV = 6342.0;
+    expectedPeakAcceleration = 1.51e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
+
+
+}
+
+
+//! Test Earth-Mercury transfer, based on the thesis by Gondelach.
+BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
+{
+    using namespace shape_based_methods;
+
+    spice_interface::loadStandardSpiceKernels();
+
+    /// First Earth-Mercury transfer.
+
+    int numberOfRevolutions = 1;
+
+    double julianDate = 5025 * physical_constants::JULIAN_DAY;
+
+    double timeOfFlight = 440.0;
+
+    // Ephemeris departure body.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+
+    // Ephemeris arrival body.
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
+
+    // Retrieve cartesian state at departure and arrival.
+    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+
+    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    double scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the normal velocity composite function.
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 6.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                6.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+
+    // Initialize free coefficients vector for radial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Initialize free coefficients vector for normal velocity function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Initialize free coefficients vector for axial velocity function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    shape_based_methods::HodographicShaping VelocityShapingMethod(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    double stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    double peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in Mercury's ephemeris.
+    double expectedDeltaV = 28082.0;
+    double expectedPeakAcceleration = 64.1e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+
+
+    /// Second Earth-Mercury transfer.
+
+    numberOfRevolutions = 1;
+
+    julianDate = 5015 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 450.0;
+
+    // Retrieve cartesian state at departure and arrival.
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, thirdNormalVelocityBaseFunctionSettings ) );
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in Mercury's ephemeris.
+    expectedDeltaV = 26997.0;
+    expectedPeakAcceleration = 63.5e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+
+    /// Third Earth-Mercury transfer.
+
+    numberOfRevolutions = 0;
+
+    julianDate = 4675 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 190.0;
+
+    // Retrieve cartesian state at departure and arrival.
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency * 0.5 );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdNormalVelocityBaseFunctionSettings ) );
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in Mercury's ephemeris.
+    expectedDeltaV = 22683.0;
+    expectedPeakAcceleration = 56.0e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+
+
+    /// Fourth Earth-Mercury transfer.
+
+    numberOfRevolutions = 0;
+
+    julianDate = 4675 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 190.0;
+
+    // Retrieve cartesian state at departure and arrival.
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< TrigonometricFunctionHodographicShapingSettings >( frequency * 0.5 );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings = std::make_shared< TrigonometricFunctionHodographicShapingSettings >( 0.5 * frequency );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( sine, thirdNormalVelocityBaseFunctionSettings ) );
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in Mercury's ephemeris.
+    expectedDeltaV = 22613.0;
+    expectedPeakAcceleration = 56.0e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+
+
+    /// Fifth Earth-Mercury transfer.
+
+    numberOfRevolutions = 0;
+
+    julianDate = 4355 * physical_constants::JULIAN_DAY;
+
+    timeOfFlight = 160.0;
+
+    // Retrieve cartesian state at departure and arrival.
+    cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
+
+    frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdRadialVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    radialVelocityFunctionComponents.clear();
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    firstNormalVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    secondNormalVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    thirdNormalVelocityBaseFunctionSettings = std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+
+    // Create components of the normal velocity composite function.
+    normalVelocityFunctionComponents.clear();
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents,
+                normalVelocityFunctionComponents,
+                axialVelocityFunctionComponents,    
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
+
+    stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
+    peakAcceleration = 0.0;
+
+    for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
+        double currentTime = currentStep * stepSize;
+
+        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        if ( currentAcceleration > peakAcceleration )
+        {
+            peakAcceleration = currentAcceleration;
+        }
+
+    }
+
+
+    // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
+    // The expected differences are a bit larger than for Earth-Mars transfer due to the higher uncertainty in Mercury's ephemeris.
+    expectedDeltaV = 21766.0;
+    expectedPeakAcceleration = 50.3e-4;
+
+    // DeltaV provided with a precision of 1 m/s
+    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    // Peak acceleration provided with a precision 1.0e-6 m/s^2
+    BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+}
+
+
 //! Test.
-BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
-{        
+BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
+{
     using namespace shape_based_methods;
 
     double numberOfRevolutions = 1.0;
@@ -59,32 +1102,10 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
-    // Retrieve ephemerides for departure and arrival bodies.
-    std::map< double, Eigen::Vector3d > cartesianPositionDepartureBody;
-    std::map< double, Eigen::Vector3d > cartesianPositionArrivalBody;
-    for ( int i = 0 ; i < 690 ; i++ ){
-        cartesianPositionDepartureBody[ i * physical_constants::JULIAN_DAY ] =
-                pointerToDepartureBodyEphemeris->getCartesianState( julianDate + i * physical_constants::JULIAN_DAY ).segment(0,3);
-        cartesianPositionArrivalBody[ i * physical_constants::JULIAN_DAY ] =
-                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + i * physical_constants::JULIAN_DAY ).segment(0,3);
-    }
-
-    // Compute cylindrical state of departure body.
-    Eigen::VectorXd cylindricalStateOfDepartureBody = coordinate_conversions::convertCartesianToCylindricalState(
-                pointerToDepartureBodyEphemeris->getCartesianState( julianDate ) );
-
-    std::cout << "cartesian state departure body = Earth: " << pointerToDepartureBodyEphemeris->getCartesianState( julianDate ).segment(0,3)
-              << "\n\n";
-
-    std::cout << "cartesian state arrival body = Mars: " << pointerToArrivalBodyEphemeris->getCartesianState( julianDate ).segment(0,3) << "\n\n";
-
-
-    // Compute cylindrical state of arrival body.
-    Eigen::VectorXd cylindricalStateOfArrivalBody = coordinate_conversions::convertCartesianToCylindricalState(
-                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY ) );
-
-    std::cout << "cylindrical state of departure body: " << cylindricalStateOfDepartureBody.segment(0,3) << "\n\n";
-    std::cout << "cylindrical state of arrival body: " << cylindricalStateOfArrivalBody.segment(0,3) << "\n\n";
+    // Retrieve cartesian state at departure and arrival.
+    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
 
 
     double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
@@ -170,36 +1191,33 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     axialVelocityFunctionComponents.push_back(
                 createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
 
-    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
-    Eigen::Vector6d cartesianStateArrivalBody =
-            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
+    // Initialize free coefficients vector for radial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsRadialVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsRadialVelocityFunction[ 1 ] = 500.0;
 
-    // Initialize free coefficients vector for radial function.
-    Eigen::VectorXd freeCoefficientsRadialFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsRadialFunction[ 0 ] = 500.0;
-    freeCoefficientsRadialFunction[ 1 ] = 500.0;
+    // Initialize free coefficients vector for normal velocity function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsNormalVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsNormalVelocityFunction[ 1 ] = - 200.0;
 
-    // Initialize free coefficients vector for normal function.
-    Eigen::VectorXd freeCoefficientsNormalFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsNormalFunction[ 0 ] = 500.0;
-    freeCoefficientsNormalFunction[ 1 ] = - 200.0;
-
-    // Initialize free coefficients vector for axial function.
-    Eigen::VectorXd freeCoefficientsAxialFunction = Eigen::VectorXd::Zero( 2 );
-    freeCoefficientsAxialFunction[ 0 ] = 500.0;
-    freeCoefficientsAxialFunction[ 1 ] = 2000.0;
+    // Initialize free coefficients vector for axial velocity function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     shape_based_methods::HodographicShaping VelocityShapingMethod(
+                cartesianStateDepartureBody,
+                cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents,
                 normalVelocityFunctionComponents,
                 axialVelocityFunctionComponents,
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                freeCoefficientsRadialFunction,
-                freeCoefficientsNormalFunction,
-                freeCoefficientsAxialFunction,
-                0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1 );
+                freeCoefficientsRadialVelocityFunction,
+                freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
 
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -214,7 +1232,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Mars" );
     bodiesToCreate.push_back( "Jupiter" );
-
 
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
             simulation_setup::getDefaultBodySettings( bodiesToCreate );
@@ -243,7 +1260,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
 
-
+    // Define body to propagate and central body.
     std::vector< std::string > bodiesToPropagate;
     bodiesToPropagate.push_back( "Vehicle" );
     std::vector< std::string > centralBodies;
@@ -253,12 +1270,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
-//    bodyToPropagateAccelerations[ "Mars" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                          basic_astrodynamics::central_gravity ) );
-//    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                          basic_astrodynamics::central_gravity ) );
-//    bodyToPropagateAccelerations[ "Jupiter" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                          basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
@@ -267,29 +1278,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
-    std::map< double, double > outputRadialDistance;
-    std::map< double, double > outputAxialDistance;
-    std::map< double, double > outputPolarAngle;
-    std::map< double, Eigen::Vector3d > outputCartesianPosition;
-    std::map< double, Eigen::Vector3d > outputAccelerationVector;
 
+    // Define integrator settings.
     double stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );
-    for ( int currentStep = 0 ; currentStep <= 50 ; currentStep++ ){
-        double currentTime = currentStep * stepSize;
-
-        outputRadialDistance[ currentStep ] = VelocityShapingMethod.computeRadialDistanceCurrentTime( currentTime );
-        outputAxialDistance[ currentStep ] = VelocityShapingMethod.computeAxialDistanceCurrentTime( currentTime );
-        outputPolarAngle[ currentStep ] = VelocityShapingMethod.computePolarAngle( currentTime ); // + cylindricalStateOfDepartureBody( 1 );
-
-        outputCartesianPosition[ currentStep ] = coordinate_conversions::convertCylindricalToCartesian(
-                    ( Eigen::Vector3d() << outputRadialDistance[ currentStep ], outputPolarAngle[ currentStep ],
-                      outputAxialDistance[ currentStep ] ).finished() );
-
-        outputAccelerationVector[ currentStep ] = VelocityShapingMethod.computeThrustAccelerationComponents( currentTime );
-
-    }
-
-    // Define integrator settings
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 400.0 );
 
@@ -323,131 +1314,32 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping1 )
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeShapingTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, "Sun", "Vehicle", specificImpulseFunction,
+    VelocityShapingMethod.computeShapedTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, "Sun", "Vehicle", specificImpulseFunction,
                                                                       integratorSettings, terminationConditions,
                                                                       fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
                                                                       propagators::cowell, dependentVariablesToSave );
 
-    tudat::input_output::writeDataMapToTextFile( outputRadialDistance,
-                                          "outputRadialDistance.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
 
-    tudat::input_output::writeDataMapToTextFile( outputAxialDistance,
-                                          "outputAxialDistance.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( outputPolarAngle,
-                                          "outputPolarAngle.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( outputCartesianPosition,
-                                          "outputCartesianPosition.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( outputAccelerationVector,
-                                          "outputAccelerationVector.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( cartesianPositionDepartureBody,
-                                          "cartesianPositionDepartureBody.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( fullPropagationResults,
-                                          "fullPropagationResults.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( shapingMethodResults,
-                                          "shapingMethodResults.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    tudat::input_output::writeDataMapToTextFile( dependentVariablesHistory,
-                                          "dependentVariables.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    std::map< double, Eigen::VectorXd > thrustAccelerationMap;
-    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariablesHistory.begin() ; itr != dependentVariablesHistory.end() ; itr++ )
+    // Check that boundary conditions are still fulfilled when free parameters are added.
+    for ( int i = 0 ; i < 6 ; i++ )
     {
-        thrustAccelerationMap[ itr->first ] = VelocityShapingMethod.computeCartesianAcceleration( itr->first );
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin()->second[ i ] - cartesianStateDepartureBody[ i ] )
+                           / shapingMethodResults.begin()->second[ i ], 1.0e-8 );
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin()->second[ i ] - cartesianStateArrivalBody[ i ] )
+                           / shapingMethodResults.rbegin()->second[ i ], 1.0e-8 );
     }
 
-    tudat::input_output::writeDataMapToTextFile( thrustAccelerationMap,
-                                          "thrustAccelerationMap.dat",
-                                           "C:/Users/chamb/Documents/Master_2/SOCIS/HodographicShapingTest/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    std::cout << "final polar angle: " << VelocityShapingMethod.computeFinalPolarAngle() << "\n\n";
-    std::cout << "final cartesian state: " << coordinate_conversions::convertCylindricalToCartesian(
-                     ( Eigen::Vector3d() << outputRadialDistance[ 50 ], VelocityShapingMethod.computeFinalPolarAngle(),
-                       outputAxialDistance[ 50 ] ).finished() ) << "\n\n";
-
-    std::cout << "deltaV: " << VelocityShapingMethod.computeDeltaV() << "\n\n";
-    std::cout << "compute acceleration cylindrical coordinates: " << VelocityShapingMethod.computeThrustAccelerationComponents( 100.0 ) << "\n\n" ;
-    std::cout << "compute acceleration cartesian coordinates: " << VelocityShapingMethod.computeCartesianAcceleration( 100.0 ) << "\n\n";
-    std::cout << "norm cylindrical acceleration: " << VelocityShapingMethod.computeThrustAccelerationCurrentTime( 100.0 ) << "\n\n";
-    std::cout << "norm cartesian acceleration: " << VelocityShapingMethod.computeMagnitudeCartesianAcceleration(100.0 ) << "\n\n";
-
-    Eigen::Vector3d cylindricalAcceleration = VelocityShapingMethod.computeThrustAccelerationComponents( 100.0 );
-    Eigen::Vector3d cylindricalState = VelocityShapingMethod.computeCurrentCylindricalState( 100.0 ).segment(0,3);
-    Eigen::Vector3d cartesianState = VelocityShapingMethod.computeCurrentCartesianState( 100.0 ).segment(0,3);
-
-    Eigen::Vector3d cartesianAcceleration;
-    cartesianAcceleration[ 0 ] = ( cartesianState[ 0 ] / std::pow( cylindricalState[ 0 ], 2 ) ) * ( cylindricalState[ 0 ] * cylindricalAcceleration[ 0 ]
-            - ( cartesianState[ 1 ] / cartesianState[ 0 ] ) * std::pow( cylindricalState[ 0 ], 1 ) * cylindricalAcceleration[ 1 ] );
-    cartesianAcceleration[ 1 ] = ( std::pow( cylindricalState[ 0 ], 1 ) * cylindricalAcceleration[ 1 ]
-            + cartesianState[ 1 ] * cartesianAcceleration[ 0 ] ) / cartesianState[ 0 ];
-    cartesianAcceleration[ 2 ] = cylindricalAcceleration[ 2 ];
-
-    Eigen::Vector3d testCylindricalAcceleration;
-    testCylindricalAcceleration[ 0 ] = ( cartesianState[ 0 ] * cartesianAcceleration[ 0 ] + cartesianState[ 1 ] * cartesianAcceleration[ 1 ] )
-            / cylindricalState[ 0 ];
-    testCylindricalAcceleration[ 1 ] = ( cartesianState[ 0 ] * cartesianAcceleration[ 1 ] - cartesianState[ 1 ] * cartesianAcceleration[ 0 ] )
-            / std::pow( cylindricalState[ 0 ], 1 );
-    testCylindricalAcceleration[ 2 ] = cylindricalAcceleration[ 2 ];
-
-    std::cout << "cylindrical acceleration: " << cylindricalAcceleration << "\n\n";
-    std::cout << "cartesian acceleration: " << cartesianAcceleration << "\n\n";
-    std::cout << "test cylindrical acceleration: " << testCylindricalAcceleration << "\n\n";
+    // Check results consistency between full propagation and shaped trajectory at departure and arrival.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin()->second[ i ] - fullPropagationResults.begin()->second[ i ] )
+                           / shapingMethodResults.begin()->second[ i ], 1.0e-7 );
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin()->second[ i ] - fullPropagationResults.rbegin()->second[ i ] )
+                           / shapingMethodResults.rbegin()->second[ i ], 1.0e-7 );
+    }
 
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

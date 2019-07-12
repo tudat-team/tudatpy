@@ -28,6 +28,7 @@ set(SHAPEBASEDMETHODS_HEADERS
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.h"
+  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.h"
 )
 
 # Add static libraries.

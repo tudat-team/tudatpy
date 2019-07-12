@@ -33,7 +33,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
     {
     case constant:
     {
-        baseFunctionHodographicShaping = std::make_shared< ConstantFunction >( );
+        baseFunctionHodographicShaping = std::make_shared< ConstantFunctionHodographicShaping >( );
         break;
     }
     case sine:
@@ -43,7 +43,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( trigonometricFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< SineFunction >( trigonometricFunctionSettings->frequency_ );
+            baseFunctionHodographicShaping = std::make_shared< SineFunctionHodographicShaping >( trigonometricFunctionSettings->frequency_ );
         }
         else
         {
@@ -59,7 +59,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( trigonometricFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< CosineFunction >( trigonometricFunctionSettings->frequency_ );
+            baseFunctionHodographicShaping = std::make_shared< CosineFunctionHodographicShaping >( trigonometricFunctionSettings->frequency_ );
         }
         else
         {
@@ -75,7 +75,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ExponentialFunction >( exponentialFunctionSettings->exponent_ );
+            baseFunctionHodographicShaping = std::make_shared< ExponentialFunctionHodographicShaping >( exponentialFunctionSettings->exponent_ );
         }
         else
         {
@@ -91,9 +91,9 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialFunctionHodographicShaping >(
                         exponentialFunctionSettings->exponent_,
-                        std::pow( exponentialFunctionSettings->scaleFactor_, exponentialFunctionSettings->exponent_ ) );
+                        exponentialFunctionSettings->scaleFactor_ );
         }
         else
         {
@@ -109,7 +109,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialTimeSineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ExponentialSineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ExponentialSineFunctionHodographicShaping >(
                         exponentialTimeSineFunctionSettings->exponent_,
                         exponentialTimeSineFunctionSettings->frequency_ );
         }
@@ -127,10 +127,10 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialTimesSineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialSineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialSineFunctionHodographicShaping >(
                         exponentialTimesSineFunctionSettings->exponent_,
                         exponentialTimesSineFunctionSettings->frequency_,
-                        std::pow( exponentialTimesSineFunctionSettings->scaleFactor_, exponentialTimesSineFunctionSettings->exponent_ ) );
+                        exponentialTimesSineFunctionSettings->scaleFactor_ );
         }
         else
         {
@@ -146,7 +146,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialTimesCosineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ExponentialCosineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ExponentialCosineFunctionHodographicShaping >(
                         exponentialTimesCosineFunctionSettings->exponent_,
                         exponentialTimesCosineFunctionSettings->frequency_ );
         }
@@ -164,10 +164,10 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( exponentialTimesCosineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialCosineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledExponentialCosineFunctionHodographicShaping >(
                         exponentialTimesCosineFunctionSettings->exponent_,
                         exponentialTimesCosineFunctionSettings->frequency_,
-                        std::pow( exponentialTimesCosineFunctionSettings->scaleFactor_, exponentialTimesCosineFunctionSettings->exponent_ ) );
+                        exponentialTimesCosineFunctionSettings->scaleFactor_ );
         }
         else
         {
@@ -183,7 +183,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< PowerFunction >( powerFunctionSettings->exponent_ );
+            baseFunctionHodographicShaping = std::make_shared< PowerFunctionHodographicShaping >( powerFunctionSettings->exponent_ );
         }
         else
         {
@@ -199,7 +199,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledPowerFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledPowerFunctionHodographicShaping >(
                         powerFunctionSettings->exponent_,
                         std::pow( powerFunctionSettings->scaleFactor_, powerFunctionSettings->exponent_ ) );
         }
@@ -217,7 +217,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerTimesSineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< PowerSineFunction >( powerTimesSineFunctionSettings->exponent_,
+            baseFunctionHodographicShaping = std::make_shared< PowerSineFunctionHodographicShaping >( powerTimesSineFunctionSettings->exponent_,
                                                                                     powerTimesSineFunctionSettings->frequency_ );
         }
         else
@@ -234,7 +234,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerTimesSineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledPowerSineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledPowerSineFunctionHodographicShaping >(
                         powerTimesSineFunctionSettings->exponent_,
                         powerTimesSineFunctionSettings->frequency_,
                         std::pow( powerTimesSineFunctionSettings->scaleFactor_, powerTimesSineFunctionSettings->exponent_ ) );
@@ -253,7 +253,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerTimesCosineFunctionSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< PowerCosineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< PowerCosineFunctionHodographicShaping >(
                         powerTimesCosineFunctionSettings->exponent_,
                         powerTimesCosineFunctionSettings->frequency_ );
         }
@@ -271,7 +271,7 @@ std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicS
 
         if ( powerTimesCosineSettings != nullptr )
         {
-            baseFunctionHodographicShaping = std::make_shared< ScaledPowerCosineFunction >(
+            baseFunctionHodographicShaping = std::make_shared< ScaledPowerCosineFunctionHodographicShaping >(
                         powerTimesCosineSettings->exponent_,
                         powerTimesCosineSettings->frequency_,
                         std::pow( powerTimesCosineSettings->scaleFactor_, powerTimesCosineSettings->exponent_ ) );

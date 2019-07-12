@@ -164,7 +164,7 @@ std::pair< double, double  > readGravityFieldFile(
 
     // Read coefficients up to required maximum degree and order.
     while ( !stream.fail( ) && !stream.eof( ) &&
-            ( currentDegree <= maximumDegree || currentOrder <= maximumOrder )  )
+            ( currentDegree <= maximumDegree && currentOrder < maximumOrder )  )
     {
         // Read current line
         std::getline( stream, line );
