@@ -76,19 +76,14 @@ public:
 
     //! Function to compute the shaped trajectory and the propagation fo the full problem.
     void computeShapedTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
-            basic_astrodynamics::AccelerationMap& accelerationMap,
-            const std::string& centralBody,
-            const std::string& bodyToPropagate,
             std::function< double ( const double ) > specificImpulseFunction,
             const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-            std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-                                                    std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+           std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+                   std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
             std::map< double, Eigen::VectorXd >& fullPropagationResults,
             std::map< double, Eigen::VectorXd >& shapingMethodResults,
             std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
-            std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
+            const bool isMassPropagated );
 
 
 
