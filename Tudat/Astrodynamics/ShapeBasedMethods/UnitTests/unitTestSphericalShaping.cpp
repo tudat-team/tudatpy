@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
-    Eigen::VectorXd radialFunctionCoefficients = ( Eigen::Vector7d() << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished();
-    Eigen::Vector4d elevationFunctionCoefficients = ( Eigen::Vector4d() << 1.0, 1.0, 1.0, 1.0 ).finished();
+//    Eigen::VectorXd radialFunctionCoefficients = ( Eigen::Vector7d() << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished();
+//    Eigen::Vector4d elevationFunctionCoefficients = ( Eigen::Vector4d() << 1.0, 1.0, 1.0, 1.0 ).finished();
 
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
@@ -166,10 +166,94 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     double expectedDeltaV = 4530.0;
     double expectedPeakAcceleration = 1.8e-4;
 
-    // DeltaV provided with a precision of 0.01 km/s
+    // DeltaV provided with a precision of 0.1 km/s
     BOOST_CHECK_SMALL( std::fabs(  sphericalShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-5 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakThrustAcceleration - expectedPeakAcceleration ), 1e-5 );
+
+}
+
+
+//! Test spherical shaping method with various number of revolutions.
+BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutions )
+{
+
+    double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
+
+    std::vector< int > numberOfRevolutionsVector = { 0, 1, 2 };
+    std::vector< double > timeOfFlightVector = { 300.0, 580.0, 750.0 };
+
+    // Ephemeris departure body.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+
+    // Ephemeris arrival body.
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+
+    // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
+        std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
+                std::make_shared< root_finders::RootFinderSettings >( root_finders::bisection_root_finder, 1.0e-6, 30 );
+
+    // Lower bounds for the free parameter.
+    std::vector< double > freeParameterLowerBoundVector = { -1.0, 1.0e-6, -1.0e-2 };
+    // Upper bounds for the free parameter.
+    std::vector< double > freeParameterUpperBoundVector = { 5.0e-1, 1.0e-1, 1.0e-2 };
+
+    // Define initial state.
+    Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+
+    for ( unsigned int currentTestCase = 0 ; currentTestCase < numberOfRevolutionsVector.size() ; currentTestCase++ )
+    {
+
+        // Define final state.
+        Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
+                    julianDate + timeOfFlightVector[ currentTestCase ] * tudat::physical_constants::JULIAN_DAY );
+
+        // Compute shaped trajectory.
+        shape_based_methods::SphericalShaping sphericalShaping = shape_based_methods::SphericalShaping(
+                    initialState, finalState, timeOfFlightVector[ currentTestCase ] * tudat::physical_constants::JULIAN_DAY,
+                    numberOfRevolutionsVector[ currentTestCase ], celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER, 0.000703,
+                    rootFinderSettings, freeParameterLowerBoundVector[ currentTestCase ], freeParameterUpperBoundVector[ currentTestCase ] );
+
+        // Check consistency of final azimuth angle value with required number of revolutions.
+        double initialAzimuthAngle = sphericalShaping.getInitialAzimuthAngle();
+        double finalAzimuthAngle = sphericalShaping.getFinalAzimuthAngle();
+
+        double expectedInitialAzimuthAngle = coordinate_conversions::convertCartesianToSphericalState( initialState )[ 1 ];
+        if ( expectedInitialAzimuthAngle < 0.0 )
+        {
+            expectedInitialAzimuthAngle += 2.0 * mathematical_constants::PI;
+        }
+        double expectedFinalAzimuthAngle = coordinate_conversions::convertCartesianToSphericalState( finalState )[ 1 ];
+        if ( expectedFinalAzimuthAngle < 0.0 )
+        {
+            expectedFinalAzimuthAngle += 2.0 * mathematical_constants::PI;
+        }
+
+        if ( expectedFinalAzimuthAngle - expectedInitialAzimuthAngle < 0 )
+        {
+            expectedFinalAzimuthAngle += 2.0 * mathematical_constants::PI * ( numberOfRevolutionsVector[ currentTestCase ] + 1 );
+        }
+        else
+        {
+            expectedFinalAzimuthAngle += 2.0 * mathematical_constants::PI * numberOfRevolutionsVector[ currentTestCase ];
+        }
+
+        BOOST_CHECK_SMALL( std::fabs(  initialAzimuthAngle - expectedInitialAzimuthAngle ), 1.0e-15 );
+        BOOST_CHECK_SMALL( std::fabs(  finalAzimuthAngle - expectedFinalAzimuthAngle ), 1.0e-15 );
+
+        // Check consistency of expected and calculated states (both at departure and arrival).
+        for ( int i = 0 ; i < 6 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( ( initialState[ i ] - sphericalShaping.computeCurrentStateVector( initialAzimuthAngle )[ i ] )
+                                          / initialState[ i ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( ( finalState[ i ] - sphericalShaping.computeCurrentStateVector( finalAzimuthAngle )[ i ] )
+                                          / finalState[ i ] ), 1.0e-12 );
+        }
+
+    }
+
 
 }
 
@@ -295,11 +379,22 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY, true );
 
+    // Create pair of propagator settings (for both forward and backward propagations).
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+    propagatorSettings.first =  std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
+                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+
+    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
+                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
+
     // Compute shaped trajectory and propagated trajectory.
-    sphericalShaping.computeShapedTrajectoryAndFullPropagation( bodyMap, accelerationModelMap, "Sun", "Vehicle", specificImpulseFunction,
-                                                                      integratorSettings, terminationConditions,
-                                                                      fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
-                                                                      propagators::cowell, dependentVariablesToSave );
+    sphericalShaping.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction,
+                                                                integratorSettings, propagatorSettings, fullPropagationResults,
+                                                                shapingMethodResults, dependentVariablesHistory, false );
 
 
 
@@ -332,6 +427,191 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     for ( int i = 0 ; i < 6 ; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) / shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
+    }
+
+
+}
+
+
+//! Test.
+BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
+{
+
+    int numberOfRevolutions = 1;
+    double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
+    double  timeOfFlight = 580.0;
+
+    // Ephemeris departure body.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+
+    // Ephemeris arrival body.
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+
+    // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
+        std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings =
+                std::make_shared< root_finders::RootFinderSettings >( root_finders::bisection_root_finder, 1.0e-6, 30 );
+
+    // Compute shaped trajectory.
+    shape_based_methods::SphericalShaping sphericalShaping = shape_based_methods::SphericalShaping(
+                pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
+                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY ),
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                numberOfRevolutions, celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER, 0.000703,
+                rootFinderSettings, 1.0e-6, 1.0e-1 );
+
+
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::VectorXd > shapingMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+    bodiesToCreate.push_back( "Earth" );
+    bodiesToCreate.push_back( "Mars" );
+    bodiesToCreate.push_back( "Jupiter" );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back( "Vehicle" );
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( "Sun" );
+
+    // Acceleration from the central body.
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
+
+    simulation_setup::SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Define integrator settings
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0,
+                                                                                      timeOfFlight * physical_constants::JULIAN_DAY / ( 1000.0 ) );
+
+    // Set mass of the vehicle.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 200.0 );
+
+
+    // Define specific impulse function.
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+    {
+        return 3000.0;
+    };
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                    propagators::total_mass_rate_dependent_variables, "Vehicle" ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY, true );
+
+    // Create pair of propagator settings (for both forward and backward propagations).
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
+                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+
+    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
+                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
+
+    // Compute shaped trajectory and propagated trajectory.
+    sphericalShaping.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction, integratorSettings, propagatorSettings,
+                                                                fullPropagationResults, shapingMethodResults, dependentVariablesHistory, true );
+
+
+
+    // Check difference between full propagation and shaping method at arrival
+    // (disregarding the very last values because of expected interpolation errors).
+    int numberOfDisregardedValues = 7;
+    std::map< double, Eigen::VectorXd >::iterator itr = fullPropagationResults.end();
+    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
+    {
+        itr--;
+    }
+
+    // Check results consistency between full propagation and shaped trajectory at arrival.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) / shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
+    }
+
+
+
+    // Check difference between full propagation and shaping method at departure
+    // (disregarding the very first values because of expected interpolation errors).
+    itr = fullPropagationResults.begin();
+    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
+    {
+        itr++;
+    }
+
+    // Check results consistency between full propagation and shaped trajectory at departure.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) / shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
+    }
+
+    // Check consistency between current and expected mass rates.
+    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariablesHistory.begin() ; itr != dependentVariablesHistory.end() ; itr++ )
+    {
+        Eigen::Vector3d currentThrustVector = itr->second.segment( 0, 3 );
+        double currentMass = fullPropagationResults.at( itr->first )( 6 );
+        double currentMassRate = - itr->second( 3 );
+        double expectedMassRate = currentThrustVector.norm() * currentMass /
+                ( specificImpulseFunction( itr->first ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+        BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
+
     }
 
 
