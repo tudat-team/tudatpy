@@ -1,0 +1,285 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#ifndef SIMSFLANAGANLEG_H
+#define SIMSFLANAGANLEG_H
+
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include <math.h>
+#include <vector>
+#include <Eigen/Dense>
+
+namespace tudat
+{
+namespace low_thrust_direct_methods
+{
+
+class SimsFlanaganLeg
+{
+public:
+
+    //! Constructor.
+    SimsFlanaganLeg( const Eigen::Vector6d& stateAtDeparture,
+                     const Eigen::Vector6d& stateAtArrival,
+                     const double maximumThrust,
+                     const std::function< double ( const double ) > specificImpulseFunction,
+                     const double timeOfFlight,
+                     simulation_setup::NamedBodyMap& bodyMap,
+                     std::vector< Eigen::Vector3d >& throttles,
+                     const std::string bodyToPropagate,
+                     const std::string centralBody ):
+    stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), maximumThrust_( maximumThrust ),
+    specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ), bodyMap_( bodyMap ),
+    throttles_( throttles ), bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
+    {
+
+        // Retrieve number of segments from the size of the throttles vector.
+        numberSegments_ = throttles_.size();
+
+        // Calculate number of segments for both the forward propagation (from departure to match point)
+        // and the backward propagation (from arrival to match point).
+        numberSegmentsForwardPropagation_ = ( numberSegments_ + 1 ) / 2;
+        numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
+
+        // Compute time at match point (half of the time of flight).
+        timeAtMatchPoint_ = timeOfFlight_ / 2.0;
+
+        // Compute the times at the different nodes of the leg.
+        double segmentDurationForwardPropagation = timeAtMatchPoint_ / numberSegmentsForwardPropagation_;
+        double segmentDurationBackwardPropagation = timeAtMatchPoint_ / numberSegmentsBackwardPropagation_;
+        for ( int i = 0 ; i <= numberSegmentsForwardPropagation_ ; i++ )
+        {
+            timesAtNodes_.push_back( i * segmentDurationForwardPropagation );
+        }
+        for ( int i = 1 ; i <= numberSegmentsBackwardPropagation_ ; i++ )
+        {
+            timesAtNodes_.push_back( timeAtMatchPoint_ + i * segmentDurationBackwardPropagation );
+        }
+
+        // Initialise value of the total deltaV.
+        totalDeltaV_ = 0.0;
+
+        // Retrieve gravitational parameter of the central body.
+        centralBodyGravitationalParameter_ = bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter();
+
+        // Retrieve initial mass of the spacecraft.
+        initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+    }
+
+
+    //! Default destructor.
+    ~SimsFlanaganLeg( ) { }
+
+    //! Propagate the spacecraft trajectory forward over a leg segment.
+    Eigen::Vector6d propagateForwardSegment( unsigned int indexSegment, Eigen::Vector6d initialState );
+
+    //! Propagate the spacecraft trajectory backward over a leg segment.
+    Eigen::Vector6d propagateBackwardSegment( unsigned int indexSegment, Eigen::Vector6d initialState );
+
+    //! Propagate the spacecraft trajectory from departure to match point (forward propagation).
+    void propagateForwardFromDepartureToMatchPoint( );
+
+    //! Propagate the spacecraft trajectory from arrival to match point (backward propagation).
+    void propagateBackwardFromArrivalToMatchPoint( );
+
+    //! Propagate the spacecraft trajectory forward over a leg segment (high order solution).
+    Eigen::Vector6d propagateForwardSegmentHighOrderSolution(unsigned int indexSegment, Eigen::Vector6d initialState,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+    //! Propagate the spacecraft trajectory backward over a leg segment (high order solution).
+    Eigen::Vector6d propagateBackwardSegmentHighOrderSolution(
+            unsigned int indexSegment, Eigen::Vector6d initialState,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+    //! Propagate the spacecraft trajectory forward over a leg segment (high order solution).
+    void propagateForwardFromDepartureToMatchPointHighOrderSolution(
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+    //! Propagate the spacecraft trajectory backward over a leg segment (high order solution).
+    void propagateBackwardFromArrivalToMatchPointHighOrderSolution(
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+    //! Returns initial state at leg departure.
+    Eigen::VectorXd getStateAtLegDeparture( )
+    {
+        return stateAtDeparture_;
+    }
+
+    //! Returns final state at leg arrival.
+    Eigen::VectorXd getStateAtLegArrival( )
+    {
+        return stateAtArrival_;
+    }
+
+    //! Returns maximum allowed thrust.
+    double getMaximumThrustValue( )
+    {
+        return maximumThrust_;
+    }
+
+    //! Returns number of segments into which the leg is subdivided.
+    int getNumberOfSegments( )
+    {
+        return numberSegments_;
+    }
+
+    //! Returns time of flight.
+    double getTimeOfFlight( )
+    {
+        return timeOfFlight_;
+    }
+
+    //! Return state vector at match point from forward propagation.
+    Eigen::Vector6d getStateAtMatchPointForwardPropagation( )
+    {
+        return stateAtMatchPointFromForwardPropagation_;
+    }
+
+    //! Return state vector at match point from backward propagation.
+    Eigen::Vector6d getStateAtMatchPointBackwardPropagation( )
+    {
+        return stateAtMatchPointFromBackwardPropagation_;
+    }
+
+    //! Return spacecraft mass at match point from forward propagation.
+    double getMassAtMatchPointForwardPropagation( )
+    {
+        return massAtMatchPointFromForwardPropagation_;
+    }
+
+    //! Return spacecraft mass at match point from backward propagation.
+    double getMassAtMatchPointBackwardPropagation( )
+    {
+        return massAtMatchPointFromBackwardPropagation_;
+    }
+
+    //! Return total deltaV required by the trajectory.
+    double getTotalDeltaV( )
+    {
+        return totalDeltaV_;
+    }
+
+    basic_astrodynamics::AccelerationMap getAccelerationModelFullLeg( );
+
+    //! Propagate the trajectory to given time (low order solution).
+    Eigen::Vector6d propagateTrajectory( double currentTime );
+
+    //! Propagate the trajectory to given time (high order solution).
+    Eigen::Vector6d propagateTrajectoryHighOrderSolution(
+            double currentTime,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+protected:
+
+    //! Propagate the mass from departure to arrival for low order solution (return mass of the spacecraft at end of the leg).
+    double propagateMassToLegArrival( );
+
+    //! Propagate the mass from departure to a given segment.
+    double propagateMassToSegment( int indexSegment );
+
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
+            unsigned int indexSegment );
+
+    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( unsigned int indexSegment );
+
+    //! Propagate the mass from departure to arrival for high order solution.
+    std::map< double, Eigen::VectorXd > propagateMassToLegArrivalHighOrderSolution(
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg( );
+
+    double computeDeltaVperSegmentHighOrderSolution(
+            unsigned int indexSegment,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    int convertTimeToLegSegment( double currentTime );
+
+
+private:
+
+    //! State vector of the vehicle at the leg departure.
+    Eigen::Vector6d stateAtDeparture_;
+
+    //! State vector of the vehicle at the leg arrival.
+    Eigen::Vector6d stateAtArrival_;
+
+    //! Maximum allowed thrust.
+    double maximumThrust_;
+
+    //! Specific impulse.
+    std::function< double ( const double ) > specificImpulseFunction_;
+
+    //! Number of segments into which the leg is subdivided.
+    int numberSegments_;
+
+    //! Time of flight for the leg.
+    double timeOfFlight_;
+
+    //! Pointer to the body map object.
+    simulation_setup::NamedBodyMap bodyMap_;
+
+    //! Vector of throttles for each segment of the leg.
+    std::vector< Eigen::Vector3d > throttles_;
+
+    //! Gravitational parameter of the central body of the 2-body problem.
+    double centralBodyGravitationalParameter_;
+
+    //! Name of the body to be propagated.
+    std::string bodyToPropagate_;
+
+    //! Name of the central body.
+    std::string centralBody_;
+
+    //! Number of segments for the forward propagation from departure to match point.
+    int numberSegmentsForwardPropagation_;
+
+    //! Number of segments for the backward propagation from arrival to match point.
+    int numberSegmentsBackwardPropagation_;
+
+    //! Time defining the match point (half of the time of flight).
+    double timeAtMatchPoint_;
+
+    //! State at match point from forward propagation.
+    Eigen::Vector6d stateAtMatchPointFromForwardPropagation_;
+
+    //! State at match point from backward propagation.
+    Eigen::Vector6d stateAtMatchPointFromBackwardPropagation_;
+
+    //! Mass of the body to be propagated at match point from forward propagation.
+    double massAtMatchPointFromForwardPropagation_;
+
+    //! Mass of the body to be propagated at match point from backward propagation.
+    double massAtMatchPointFromBackwardPropagation_;
+
+    //! Total deltaV.
+    double totalDeltaV_;
+
+    //! Vector containing the time associated to each node of the leg.
+    std::vector< double > timesAtNodes_;
+
+    //! Initial mass of the spacecraft.
+    double initialSpacecraftMass_;
+
+};
+
+
+} // namespace low_thrust_direct_methods
+} // namespace tudat
+
+#endif // SIMSFLANAGANLEG_H
