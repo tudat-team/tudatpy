@@ -44,7 +44,7 @@ struct SimsFlanaganProblem
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    SimsFlanaganProblem( ):  propagatorType_( propagators::cowell ), useHighOrderSolution_( false ){ }
+    SimsFlanaganProblem( ):  propagatorType_( propagators::cowell ), useHighOrderSolution_( false ), optimiseTimeOfFlight_( false ){ }
 
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,
@@ -58,7 +58,9 @@ struct SimsFlanaganProblem
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
                          const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-                         const bool useHighOrderSolution = false );
+                         const bool useHighOrderSolution = false,
+                         const bool optimiseTimeOfFlight = false,
+                         const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) );
 
     //! Calculate the fitness as a function of the parameter vector x
     std::vector< double > fitness( const std::vector< double > &x ) const;
@@ -72,7 +74,14 @@ struct SimsFlanaganProblem
     //! Retrieve the number of objectives in problem, e.g. the size of the vector returned by the fitness function
     vector_double::size_type get_nobj() const
     {
-        return 1u;
+        if ( optimiseTimeOfFlight_ )
+        {
+            return 2u;
+        }
+        else
+        {
+            return 1u;
+        }
     }
 
     vector_double::size_type get_nic() const
@@ -93,7 +102,6 @@ struct SimsFlanaganProblem
 //    }
 
 protected:
-
 
 private:
 
@@ -135,6 +143,12 @@ private:
 
     //! Boolean defining which of the low or high order solutions is used.
     const bool useHighOrderSolution_;
+
+    //! Boolean defining if the time of flight should also be optimised.
+    const bool optimiseTimeOfFlight_;
+
+    //! Bounds for time of flight optimisation, if necessary.
+    const std::pair< double, double > timeOfFlightBounds_;
 
 //    //! Propagator settings (for high order solution).
 //    mutable std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings_;

@@ -177,11 +177,24 @@ public:
     basic_astrodynamics::AccelerationMap getAccelerationModelFullLeg( );
 
     //! Propagate the trajectory to given time (low order solution).
-    Eigen::Vector6d propagateTrajectory( double currentTime );
+    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState );
+
+    //! Propagate the trajectory to set of epochs (low order solution).
+    std::map< double, Eigen::Vector6d > propagateTrajectory( std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
+
+    //! Propagate the trajectory inside one segment (low order solution).
+    Eigen::Vector6d propagateInsideSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
     //! Propagate the trajectory to given time (high order solution).
     Eigen::Vector6d propagateTrajectoryHighOrderSolution(
             double currentTime,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
+
+    //! Propagate the trajectory to set of epochs (high order solution).
+    void propagateTrajectoryHighOrderSolution(
+            std::vector< double > epochs,
+            std::map< double, Eigen::Vector6d >& propagatedTrajectory,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
 
