@@ -17,12 +17,19 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
+#include "pagmo/algorithm.hpp"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
+//#include "pagmo/problems/unconstrain.hpp"
+//#include "pagmo/algorithms/compass_search.hpp"
 
 namespace tudat
 {
 namespace low_thrust_direct_methods
 {
 
+//using namespace tudat_pagmo_applications;
 
 class SimsFlanagan
 {
@@ -39,9 +46,12 @@ public:
             simulation_setup::NamedBodyMap bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
+            pagmo::algorithm optimisationAlgorithm,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-            const bool useHighOrderSolution = false ) :
+            const bool useHighOrderSolution = false,
+            const bool optimiseTimeOfFlight = false,
+            const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) ) :
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
@@ -51,9 +61,12 @@ public:
         bodyMap_( bodyMap ),
         bodyToPropagate_( bodyToPropagate ),
         centralBody_( centralBody ),
+        optimisationAlgorithm_( optimisationAlgorithm ),
         integratorSettings_( integratorSettings ),
         propagatorType_( propagatorType ),
-        useHighOrderSolution_( useHighOrderSolution )
+        useHighOrderSolution_( useHighOrderSolution ),
+        optimiseTimeOfFlight_( optimiseTimeOfFlight ),
+        timeOfFlightBounds_( timeOfFlightBounds )
     {
 
         // Store initial spacecraft mass.
@@ -83,7 +96,7 @@ public:
          std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
             std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
          std::map< double, Eigen::VectorXd >& fullPropagationResults,
-         std::map< double, Eigen::VectorXd >& SimsFlanaganResults,
+         std::map< double, Eigen::Vector6d >& SimsFlanaganResults,
          std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
 
 
@@ -118,6 +131,9 @@ private:
     //! Name of the central body.
     std::string centralBody_;
 
+    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
+    pagmo::algorithm optimisationAlgorithm_;
+
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
@@ -126,6 +142,12 @@ private:
 
     //! Boolean defining which of the low or high order solutions is used.
     bool useHighOrderSolution_;
+
+    //! Boolean defining if the time of flight should also be optimised.
+    const bool optimiseTimeOfFlight_;
+
+    //! Bounds for time of flight optimisation, if necessary.
+    const std::pair< double, double > timeOfFlightBounds_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;

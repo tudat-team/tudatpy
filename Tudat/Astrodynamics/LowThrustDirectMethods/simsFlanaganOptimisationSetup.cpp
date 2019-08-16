@@ -26,7 +26,9 @@ SimsFlanaganProblem::SimsFlanaganProblem(
         const std::string centralBody,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const propagators::TranslationalPropagatorType propagatorType,
-        const bool useHighOrderSolution ) :
+        const bool useHighOrderSolution,
+        const bool optimiseTimeOfFlight,
+        const std::pair< double, double > timeOfFlightBounds ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
     maximumThrust_( maximumThrust ),
@@ -38,7 +40,9 @@ SimsFlanaganProblem::SimsFlanaganProblem(
     centralBody_( centralBody ),
     integratorSettings_( integratorSettings ),
     propagatorType_( propagatorType ),
-    useHighOrderSolution_( useHighOrderSolution )
+    useHighOrderSolution_( useHighOrderSolution ),
+    optimiseTimeOfFlight_( optimiseTimeOfFlight ),
+    timeOfFlightBounds_( timeOfFlightBounds )
 {
     initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 }
@@ -72,6 +76,19 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
         upperBounds.push_back( 1.0 );
     }
 
+    // Add lower and upper bounds for time of flight optimisation if necessary.
+    if ( optimiseTimeOfFlight_ )
+    {
+        if ( timeOfFlightBounds_.first == TUDAT_NAN || timeOfFlightBounds_.second == TUDAT_NAN )
+        {
+            throw std::runtime_error( "Error when trying to optimise time of flight in Sims-Flanagan method, boundaries for time of flight"
+                                      "are not defined." );
+        }
+
+        lowerBounds.push_back( timeOfFlightBounds_.first );
+        upperBounds.push_back( timeOfFlightBounds_.second );
+    }
+
     return { lowerBounds, upperBounds };
 }
 
@@ -90,20 +107,27 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
         throw std::runtime_error( "Error, size of the design variables vector unconsistent with number of segments." );
     }
 
-    for ( unsigned int i = 0 ; i < designVariables.size() / 3 ; i++ )
+    for ( unsigned int i = 0 ; i < numberSegments_ ; i++ )
     {
         throttles.push_back( ( Eigen::Vector3d( ) << designVariables[ i * 3 ],
                              designVariables[ i * 3 + 1 ], designVariables[ i * 3 + 2 ] ).finished( ) );
     }
 
-    std::vector< double > output;
+    // Update timeOfFlight_ if minimising the time of flight is one of the optimisation objectives.
+    double timeOfFlight = timeOfFlight_;
+    if ( optimiseTimeOfFlight_ )
+    {
+        timeOfFlight = designVariables[ 3 * numberSegments_ ];
+    }
+
+    std::vector< double > fitness;
 
     // Create Sims Flanagan trajectory leg.
     low_thrust_direct_methods::SimsFlanaganLeg currentLeg = low_thrust_direct_methods::SimsFlanaganLeg( stateAtDeparture_,
                                                                                                         stateAtArrival_,
                                                                                                         maximumThrust_,
                                                                                                         specificImpulseFunction_,
-                                                                                                        timeOfFlight_,
+                                                                                                        timeOfFlight,
                                                                                                         bodyMap_,
                                                                                                         throttles,
                                                                                                         bodyToPropagate_,
@@ -130,7 +154,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
 
 
     // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
-    double fitness = currentLeg.getTotalDeltaV( );
+    double deltaV = currentLeg.getTotalDeltaV( );
 
     // Equality constraints (must be ... = 0 )
     std::vector< double > equalityConstraints;
@@ -170,17 +194,27 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
 
 
     // Output of the fitness function.
-    output.push_back( fitness );
-    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
+
+    // Optimisation objectives
+    fitness.push_back( deltaV );
+    if ( optimiseTimeOfFlight_ )
     {
-        output.push_back( equalityConstraints[ i ] );
-    }
-    for ( unsigned int i = 0 ; i < inequalityConstraints.size() ; i++ )
-    {
-        output.push_back( inequalityConstraints[ i ] );
+        fitness.push_back( timeOfFlight );
     }
 
-    return output;
+    // Return equality constraints
+    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
+    {
+        fitness.push_back( equalityConstraints[ i ] );
+    }
+
+    // Return inequality constraints.
+    for ( unsigned int i = 0 ; i < inequalityConstraints.size() ; i++ )
+    {
+        fitness.push_back( inequalityConstraints[ i ] );
+    }
+
+    return fitness;
 }
 
 

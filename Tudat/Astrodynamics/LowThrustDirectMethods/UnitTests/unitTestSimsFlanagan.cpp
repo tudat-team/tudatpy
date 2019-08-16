@@ -26,6 +26,7 @@
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
+#include "pagmo/algorithms/de1220.hpp"
 
 namespace tudat
 {
@@ -139,9 +140,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 //    }
 
 
+    // Define optimisation algorithm.
+    algorithm optimisationAlgorithm{ pagmo::de1220() };
+
     SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings, propagators::cowell,
-                                              false );
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm,
+                                              integratorSettings, propagators::cowell, true );
 
     std::pair< std::vector< double >, std::vector< double > > champion = simsFlanagan.performOptimisation();
 
@@ -215,7 +219,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 
     // Define empty maps to store the propagation results.
     std::map< double, Eigen::VectorXd > fullPropagationResults;
-    std::map< double, Eigen::VectorXd > simsFlanaganResults;
+    std::map< double, Eigen::Vector6d > simsFlanaganResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
     // Compute full propagation.
@@ -227,6 +231,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     std::cout << "state at departure full propagation: " << fullPropagationResults.begin()->second << "\n\n";
     std::cout << "state at arrival Sims Flanagan: " << simsFlanaganResults.rbegin()->second << "\n\n";
     std::cout << "state at arrival full propagation: " << fullPropagationResults.rbegin()->second << "\n\n";
+
+    std::cout << "time of flight: " << timeOfFlight << "\n\n";
 
 
 }
