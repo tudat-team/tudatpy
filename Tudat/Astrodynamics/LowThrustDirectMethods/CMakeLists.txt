@@ -13,6 +13,8 @@ set(LOWTHRUSTDIRECTMETHODS_SOURCES
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganLeg.cpp"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanagan.cpp"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganOptimisationSetup.cpp"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethodLeg.cpp"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridOptimisationSetup.cpp"
 )
 
 # Set the header files.
@@ -20,6 +22,8 @@ set(LOWTHRUSTDIRECTMETHODS_HEADERS
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganLeg.h"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanagan.h"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganOptimisationSetup.h"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethodLeg.h"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridOptimisationSetup.h"
 )
 
 # Find PaGMO library on local system.
@@ -44,3 +48,7 @@ include(tudatLinkLibraries)
 add_executable(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/UnitTests/unitTestSimsFlanagan.cpp")
 setup_custom_test_program(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}")
 target_link_libraries(test_SimsFlanagan tudat_low_thrust_direct_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+
+add_executable(test_HybridMethod "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/UnitTests/unitTestHybridMethod.cpp")
+setup_custom_test_program(test_HybridMethod "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}")
+target_link_libraries(test_HybridMethod tudat_low_thrust_direct_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})

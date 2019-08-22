@@ -97,6 +97,21 @@ void MeeCostateBasedThrustGuidance::updateForceDirection( const double time )
                     cos( thrustAngleAlpha ) * cos( thrustAngleBeta ), sin( thrustAngleAlpha ) * cos( thrustAngleBeta ) ,
                     sin( thrustAngleBeta )  ).finished( ).normalized( ) );
         currentTime_ = time;
+
+
+//        // Switching function for the thrust magnitude.
+//        double thrustMagnitudeSwitchingCondition = /*( 1.0 / thrustingBodyMassFunction_( ) ) **/
+//                ( Lbp * cos( thrustAngleBeta ) + Lbh * sin( thrustAngleBeta ) + Lbk * sin( thrustAngleBeta )
+//                + Lbf1 * cos( thrustAngleBeta ) + Lbf2 * cos( thrustAngleBeta ) - Lbf3 * sin( thrustAngleBeta )
+//                - Lbg1 * cos( thrustAngleBeta ) + Lbg2 * cos( thrustAngleBeta ) + Lbg3 * sin( thrustAngleBeta ) );
+//        if ( thrustMagnitudeSwitchingCondition <= 0.0 )
+//        {
+//            std::cout << "INSIDE THRUST DIRECTION FUNCTION, THRUST ON. " << "\n\n";
+//        }
+//        else
+//        {
+//            std::cout << "INSIDE THRUST DIRECTION FUNCTION, THRUST OFF. " << "\n\n";
+//        }
     }
 
 }
