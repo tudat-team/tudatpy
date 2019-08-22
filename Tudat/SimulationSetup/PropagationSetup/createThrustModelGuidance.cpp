@@ -359,6 +359,22 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         }
         break;
     }
+    case bang_bang_thrust_magnitude_from_mee_costates:
+    {
+        // Check input consistency
+        std::shared_ptr< FromMeeCostatesBangBangThrustMagnitudeSettings > fromMeeCostatesBangBangThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromMeeCostatesBangBangThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        if( fromMeeCostatesBangBangThrustMagnitudeSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating body-fixed thrust direction of type "
+                                      "bang_bang_thrust_magnitude_from_mee_costates, input is inconsistent" );
+        }
+        else
+        {
+            thrustDirectionFunction =  fromMeeCostatesBangBangThrustMagnitudeSettings->bodyFixedThrustDirection_;
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error when creating body-fixed thrust direction, type not identified" );
     }
@@ -486,6 +502,64 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
 
         break;
 
+    }
+    case bang_bang_thrust_magnitude_from_mee_costates:
+    {
+        // Check input consistency
+        std::shared_ptr< FromMeeCostatesBangBangThrustMagnitudeSettings > fromMeeCostatesBangBangThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromMeeCostatesBangBangThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        if( fromMeeCostatesBangBangThrustMagnitudeSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating bang-bang thrust magnitude wrapper based on Mee costates, input is inconsistent" );
+        }
+        else
+        {
+            // Check whether all required environment properties exist
+            if( bodyMap.count( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+                                          fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ + " not found." );
+            }
+            else if( bodyMap.count( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
+                                          fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ + " not found." );
+            }
+            else if( bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+                                          fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ + " has no gravity field." );
+            }
+            else
+            {
+                // Retrieve required functions and create guidance object
+                std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
+                        std::bind( &simulation_setup::Body::getState,
+                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
+                std::function< double( ) > thrustingBodyMassFunction =
+                        std::bind( &simulation_setup::Body::getBodyMass,
+                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
+                std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
+                        std::bind( &simulation_setup::Body::getState,
+                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) );
+                std::function< double( ) > centralBodyGravitationalParameterFunction =
+                        std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) );
+
+                // Create thrust magnitude wrapper
+                thrustMagnitudeWrapper = std::make_shared< propulsion::MeeCostatesBangBangThrustMagnitudeWrapper >(
+                            thrustingBodyStateFunction,
+                            centralBodyStateFunction,
+                            centralBodyGravitationalParameterFunction,
+                            fromMeeCostatesBangBangThrustMagnitudeSettings->costatesFunction_,
+                            fromMeeCostatesBangBangThrustMagnitudeSettings->maximumThrustMagnitude_,
+                            fromMeeCostatesBangBangThrustMagnitudeSettings->specificImpulseFunction_,
+                            thrustingBodyMassFunction,
+                            fromMeeCostatesBangBangThrustMagnitudeSettings->customThrustResetFunction_ );
+            }
+        }
+
+        break;
     }
     default:
         throw std::runtime_error( "Error when creating thrust magnitude wrapper, type not identified" );

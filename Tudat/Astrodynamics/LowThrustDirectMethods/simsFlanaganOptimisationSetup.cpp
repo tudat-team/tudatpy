@@ -102,7 +102,8 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     std::vector< Eigen::Vector3d > throttles;
 
     // Check consistency of the size of the design variables vector.
-    if ( designVariables.size( ) != 3 * numberSegments_ /*( designVariables.size() / 3 != numberSegments_ ) || ( designVariables.size() % 3 != 0 )*/ )
+    if ( ( ( designVariables.size( ) != 3 * numberSegments_ ) && ( !optimiseTimeOfFlight_ ) )
+         || ( ( designVariables.size() != 3 * numberSegments_ + 1 ) && ( optimiseTimeOfFlight_ ) ) ) /*( designVariables.size() / 3 != numberSegments_ ) || ( designVariables.size() % 3 != 0 ) )*/
     {
         throw std::runtime_error( "Error, size of the design variables vector unconsistent with number of segments." );
     }
