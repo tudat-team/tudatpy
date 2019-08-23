@@ -241,7 +241,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
     std::map< double, Eigen::VectorXd > stateHistoryAfterOneRevolution;
     std::map< double, Eigen::VectorXd > dependentVariablesHistoryAfterOneRevolution;
 
-    bool isOrbitalAveragingUsed = true;
+    bool isOrbitalAveragingUsed = false;
 
 
     while( !hasTimeOfFlightBeenReached )

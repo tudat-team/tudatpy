@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef HYBRIDMETHOD_H
-#define HYBRIDMETHOD_H
+#ifndef HYBRIDMETHODLEG_H
+#define HYBRIDMETHODLEG_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include <math.h>
@@ -208,4 +208,4 @@ private:
 } // namespace low_thrust_direct_methods
 } // namespace tudat
 
-#endif // HYBRIDMETHOD_H
+#endif // HYBRIDMETHODLEG_H

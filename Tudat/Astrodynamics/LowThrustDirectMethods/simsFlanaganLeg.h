@@ -179,11 +179,30 @@ public:
     //! Propagate the trajectory to given time (low order solution).
     Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState );
 
+    //! Propagate the trajectory to given time (low order solution).
+    Eigen::Vector6d propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
+
+    //! Propagate the trajectory to given time (low order solution).
+    Eigen::Vector6d propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
+
     //! Propagate the trajectory to set of epochs (low order solution).
     std::map< double, Eigen::Vector6d > propagateTrajectory( std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
+    //! Propagate the trajectory to set of epochs (low order solution).
+    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
+            Eigen::Vector6d initialState, double initialMass, double segmentDuration );
+
+    //! Propagate the trajectory to set of epochs (low order solution).
+    std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
+            double initialMass, double segmentDuration );
+
     //! Propagate the trajectory inside one segment (low order solution).
     Eigen::Vector6d propagateInsideSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
+
+    //! Propagate the trajectory inside one segment (low order solution).
+    Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
     //! Propagate the trajectory to given time (high order solution).
     Eigen::Vector6d propagateTrajectoryHighOrderSolution(

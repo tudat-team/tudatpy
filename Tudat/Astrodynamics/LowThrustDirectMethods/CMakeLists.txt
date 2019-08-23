@@ -15,6 +15,7 @@ set(LOWTHRUSTDIRECTMETHODS_SOURCES
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganOptimisationSetup.cpp"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethodLeg.cpp"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridOptimisationSetup.cpp"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethod.cpp"
 )
 
 # Set the header files.
@@ -24,6 +25,7 @@ set(LOWTHRUSTDIRECTMETHODS_HEADERS
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/simsFlanaganOptimisationSetup.h"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethodLeg.h"
   "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridOptimisationSetup.h"
+  "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/hybridMethod.h"
 )
 
 # Find PaGMO library on local system.

@@ -57,7 +57,7 @@ struct HybridMethodProblem
                          const std::string bodyToPropagate,
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-                         const double relativeToleranceConstraints = 1.0e6,
+                         const double relativeToleranceConstraints = 1.0e-6,
 //                         const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
 //                         const bool useHighOrderSolution = false,
                          const bool optimiseTimeOfFlight = false,

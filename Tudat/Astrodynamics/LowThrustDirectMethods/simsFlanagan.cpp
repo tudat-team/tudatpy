@@ -61,7 +61,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
         algoUnconstrained.set_verbosity( 10 );
         algoUnconstrained.evolve( pop );
 
-        island islUnconstrained{ algoUnconstrained, unconstrainedProb, 50 /*5000*/ };
+        island islUnconstrained{ algoUnconstrained, unconstrainedProb, 10 /*5000*/ };
 
         // Evolve for 10 generations
         for( int i = 0 ; i < 1 /*600*/ ; i++ )
@@ -313,25 +313,16 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
          itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
     {
-        if ( useHighOrderSolution_ )
-        {
-//            SimsFlanaganResults[ itr->first ] = simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
-//                        itr->first, integratorSettings_, propagatorType_ );
-            epochsVector.push_back( itr->first );
-        }
-        else
-        {
-//            SimsFlanaganResults[ itr->first ] = simsFlanaganLeg.propagateTrajectory( itr->first );
-            epochsVector.push_back( itr->first );
-        }
+        epochsVector.push_back( itr->first );
         fullPropagationResults[ itr->first ] = itr->second;
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
     }
-//    if ( !useHighOrderSolution_ )
-//    {
-//        simsFlanaganLeg.propagateTrajectory( epochsVector, SimsFlanaganResults );
-//        std::cout << "size sims flanagan results map: " << SimsFlanaganResults.size() << "\n\n";
-//    }
+
+    std::vector< double > epochsBackwardPropagation;
+    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
+    {
+        epochsBackwardPropagation.push_back( epochsVector[ i ] );
+    }
 
     // Reset initial integrator settings.
     integratorSettings_->initialTimeStep_ = - integratorSettings_->initialTimeStep_;
@@ -342,37 +333,25 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     // Initialise spacecraft mass to mass at halved time of flight in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
 
-//    std::cout << "mass halved time of flight: " << massAtHalvedTimeOfFlight << "\n\n";
-
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings_, completePropagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
+
+    std::vector< double > epochsForwardPropagation;
+    std::map< double, Eigen::VectorXd > mapTest;
+
+
     // Compute and save full propagation and shaping method results along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
          itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
     {
-        if ( useHighOrderSolution_ )
-        {
-//            SimsFlanaganResults[ itr->first ] = simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
-//                        itr->first, integratorSettings_, propagatorType_ );
-            epochsVector.push_back( itr->first );
-        }
-        else
-        {
-            epochsVector.push_back( itr->first );
-//            SimsFlanaganResults[ itr->first ] = simsFlanaganLeg.propagateTrajectory( itr->first );
-//            std::cout << "current time: " << itr->first << "\n\n";
-        }
+        epochsForwardPropagation.push_back( itr->first );
         fullPropagationResults[ itr->first ] = itr->second;
+        mapTest[ itr->first ] = itr->second;
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
-//    if ( !useHighOrderSolution_ )
-//    {
-//        simsFlanaganLeg.propagateTrajectory( epochsVector, SimsFlanaganResults );
-//        std::cout << "size sims flanagan results map: " << SimsFlanaganResults.size() << "\n\n";
-//    }
 
 
     if ( useHighOrderSolution_ )
@@ -381,10 +360,13 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     }
     else
     {
-        simsFlanaganLeg.propagateTrajectory( epochsVector, SimsFlanaganResults );
-        std::cout << "size sims flanagan results map: " << SimsFlanaganResults.size() << "\n\n";
+        int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
+        simsFlanaganLeg.propagateTrajectoryBackward( epochsBackwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
+                                                    ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+        int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
+        simsFlanaganLeg.propagateTrajectoryForward( epochsForwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
+                                                    ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
     }
-
 
 }
 
