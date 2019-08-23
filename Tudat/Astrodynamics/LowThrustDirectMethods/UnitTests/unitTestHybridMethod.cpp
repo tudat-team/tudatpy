@@ -25,6 +25,7 @@
 //#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
 #include "pagmo/algorithms/de1220.hpp"
 
 namespace tudat
@@ -41,7 +42,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     spice_interface::loadStandardSpiceKernels( );
 
-    double maximumThrust = 0.350;
+    double maximumThrust = 0.450;
     double specificImpulse = 3000.0;
     double mass = 1800.0;
 //    int numberSegments = 10;
@@ -144,47 +145,53 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     std::cout << "delta m: " << mass - hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
     std::cout << "time of flight: " << timeOfFlight << "\n\n";
 
+    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
+    std::cout << "state at arrival: " << stateAtArrival << "\n\n";
 
 
 
-//    SimsFlanaganProblem problem = SimsFlanaganProblem( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
-//                                                       numberSegments, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
-//                                                       propagators::cowell, false );
 
-////    std::vector< double > designVariables;
-////    for ( int i = 0 ; i < numberSegments ; i++ )
-////    {
-////        designVariables.push_back( 1.0 );
-////        designVariables.push_back( 0.0 );
-////        designVariables.push_back( 0.0 );
-////    }
-////    std::vector< double > output = problem.fitness( designVariables );
+    HybridMethodProblem problem = HybridMethodProblem( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
+                                                       1.0, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings, 1.0e-6,
+                                                       false );
 
-////    std::cout << "size output vector: " << output.size() << "\n\n";
-////    for ( int i = 0 ; i < output.size() ; i++ )
-////    {
-////        std::cout << "output: " << output[ i ] << "\n\n";
-////    }
-
-
-//    // Define optimisation algorithm.
-//    algorithm optimisationAlgorithm{ pagmo::de1220() };
-
-//    SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-//                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm,
-//                                              integratorSettings, propagators::cowell, true );
-
-//    std::pair< std::vector< double >, std::vector< double > > champion = simsFlanagan.performOptimisation();
-
-//    std::vector< double > fitnessVector = champion.first;
-//    std::vector< double > bestIndividual = champion.second;
-
-//    std::vector< Eigen::Vector3d > bestThrottles;
-//    for ( int i = 0 ; i < numberSegments ; i++ )
+//    std::vector< double > designVariables;
+//    for ( int i = 0 ; i < 5 ; i++ )
 //    {
-//        bestThrottles.push_back( ( Eigen::Vector3d( ) << bestIndividual[ i * 3 ], bestIndividual[ i * 3 + 1 ],
-//                bestIndividual[ i * 3 + 2 ] ).finished( ) );
+//        designVariables.push_back( 0.0 );
+//        designVariables.push_back( 1.0 );
 //    }
+//    std::vector< double > output = problem.fitness( designVariables );
+
+//    std::cout << "size output vector: " << output.size() << "\n\n";
+//    for ( int i = 0 ; i < output.size() ; i++ )
+//    {
+//        std::cout << "output: " << output[ i ] << "\n\n";
+//    }
+
+
+    // Define optimisation algorithm.
+    algorithm optimisationAlgorithm{ pagmo::de1220() };
+
+    HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, 1.0,
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm,
+                                              integratorSettings, 1.0e-3 );
+
+    std::pair< std::vector< double >, std::vector< double > > champion = hybridMethod.performOptimisation();
+
+    std::vector< double > fitnessVector = champion.first;
+    std::vector< double > bestIndividual = champion.second;
+
+    std::vector< double > bestDesignVariables = bestIndividual;
+    std::vector< double > bestOutput = problem.fitness( bestDesignVariables );
+
+    std::cout << "size output vector: " << bestOutput.size() << "\n\n";
+    for ( int i = 0 ; i < bestOutput.size() ; i++ )
+    {
+        std::cout << "output: " << bestOutput[ i ] << "\n\n";
+    }
+
+
 
 //    /// TEST PROPAGATE SIMS FLANAGAN SOLUTION TO GIVEN TIME.
 ////    // Re-initialise mass of the spacecraft in the body map.
