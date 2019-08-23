@@ -340,16 +340,14 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
 
 
     std::vector< double > epochsForwardPropagation;
-    std::map< double, Eigen::VectorXd > mapTest;
-
 
     // Compute and save full propagation and shaping method results along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
          itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
     {
+        epochsVector.push_back( itr->first );
         epochsForwardPropagation.push_back( itr->first );
         fullPropagationResults[ itr->first ] = itr->second;
-        mapTest[ itr->first ] = itr->second;
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
