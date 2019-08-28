@@ -26,7 +26,7 @@ SimsFlanaganProblem::SimsFlanaganProblem(
         const std::string centralBody,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const propagators::TranslationalPropagatorType propagatorType,
-        const bool useHighOrderSolution,
+//        const bool useHighOrderSolution,
         const bool optimiseTimeOfFlight,
         const std::pair< double, double > timeOfFlightBounds ) :
     stateAtDeparture_( stateAtDeparture ),
@@ -40,7 +40,6 @@ SimsFlanaganProblem::SimsFlanaganProblem(
     centralBody_( centralBody ),
     integratorSettings_( integratorSettings ),
     propagatorType_( propagatorType ),
-    useHighOrderSolution_( useHighOrderSolution ),
     optimiseTimeOfFlight_( optimiseTimeOfFlight ),
     timeOfFlightBounds_( timeOfFlightBounds )
 {
@@ -135,23 +134,10 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
                                                                                                         centralBody_ );
 
     // Forward propagation from departure to match point.
-    if ( useHighOrderSolution_ )
-    {
-        currentLeg.propagateForwardFromDepartureToMatchPointHighOrderSolution( integratorSettings_, propagatorType_ );
-    }
-    else{
         currentLeg.propagateForwardFromDepartureToMatchPoint();
-    }
 
-    // Backward propagation from arrival to match point.
-    if ( useHighOrderSolution_ )
-    {
-        currentLeg.propagateBackwardFromArrivalToMatchPointHighOrderSolution( integratorSettings_, propagatorType_ );
-    }
-    else
-    {
+//    // Backward propagation from arrival to match point.
         currentLeg.propagateBackwardFromArrivalToMatchPoint();
-    }
 
 
     // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
