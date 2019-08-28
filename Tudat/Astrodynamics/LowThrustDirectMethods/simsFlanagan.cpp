@@ -179,7 +179,9 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
 ////        std::cout << "state halved time of flight high fidelity solution: " << simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
 ////                         timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ ) << "\n\n";
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-        stateHalvedTimeOfFlight = simsFlanaganLeg.propagateTrajectory( 0.0,  timeOfFlight_ / 2.0, stateAtDeparture_ );
+        stateHalvedTimeOfFlight = simsFlanaganLeg.propagateTrajectoryForward( 0.0, timeOfFlight_ / 2.0, stateAtDeparture_,
+                                                                              timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
+                // 0.0,  timeOfFlight_ / 2.0, stateAtDeparture_ );
         std::cout << "state halved time of flight low fidelity solution: " << stateHalvedTimeOfFlight << "\n\n";
 ////        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 ////        simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );

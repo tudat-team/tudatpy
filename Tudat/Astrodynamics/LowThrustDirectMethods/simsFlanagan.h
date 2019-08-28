@@ -71,6 +71,11 @@ public:
         // Store initial spacecraft mass.
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
+        // Calculate number of segments for both the forward propagation (from departure to match point)
+        // and the backward propagation (from arrival to match point).
+        numberSegmentsForwardPropagation_ = ( numberSegments_ + 1 ) / 2;
+        numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
+
 //        // Perform optimisation
 //        std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
 //        championFitness_ = bestIndividual.first;
@@ -153,6 +158,12 @@ private:
 
     //! Initial mass of the spacecraft.
     double initialSpacecraftMass_;
+
+    //! Number of segments for the forward propagation from departure to match point.
+    int numberSegmentsForwardPropagation_;
+
+    //! Number of segments for the backward propagation from arrival to match point.
+    int numberSegmentsBackwardPropagation_;
 
 };
 
