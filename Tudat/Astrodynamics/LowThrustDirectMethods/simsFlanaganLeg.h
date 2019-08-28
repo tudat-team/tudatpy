@@ -146,38 +146,29 @@ public:
 
     basic_astrodynamics::AccelerationMap getAccelerationModelFullLeg( );
 
-    //! Propagate the trajectory to given time (low order solution).
-    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState );
-
-    //! Propagate the trajectory to given time (low order solution).
+    //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
 
-    //! Propagate the trajectory to given time (low order solution).
+    //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
 
-    //! Propagate the trajectory to set of epochs (low order solution).
-    std::map< double, Eigen::Vector6d > propagateTrajectory( std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
-
-    //! Propagate the trajectory to set of epochs (low order solution).
+    //! Propagate the trajectory to set of epochs.
     std::map< double, Eigen::Vector6d > propagateTrajectoryForward(std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
             Eigen::Vector6d initialState, double initialMass, double initialTime, double segmentDuration );
 
-    //! Propagate the trajectory to set of epochs (low order solution).
+    //! Propagate the trajectory to set of epochs.
     std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
             std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
             double initialMass, double initialTime, double segmentDuration );
 
-    //! Propagate the trajectory inside one segment (low order solution).
-    Eigen::Vector6d propagateInsideSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
+    //! Propagate the trajectory inside one segment.
+    Eigen::Vector6d propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
-    //! Propagate the trajectory inside one segment (low order solution).
+    //! Propagate the trajectory inside one segment.
     Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
 
 protected:
-
-    //! Propagate the mass from departure to arrival for low order solution (return mass of the spacecraft at end of the leg).
-    double propagateMassToLegArrival( );
 
     //! Propagate the mass from departure to a given segment.
     double propagateMassToSegment( int indexSegment );
@@ -187,15 +178,7 @@ protected:
 
     basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( unsigned int indexSegment );
 
-    //! Propagate the mass from departure to arrival for high order solution.
-    std::map< double, Eigen::VectorXd > propagateMassToLegArrivalHighOrderSolution(
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg( );
-
-    double computeDeltaVperSegmentHighOrderSolution(
-            unsigned int indexSegment,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     int convertTimeToLegSegment( double currentTime );
 
