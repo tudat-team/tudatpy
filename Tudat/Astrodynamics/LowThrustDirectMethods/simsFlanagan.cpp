@@ -38,7 +38,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
     // Create object to compute the problem fitness
     problem prob{ SimsFlanaganProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, numberSegments_,
                                        timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings_, propagatorType_,
-                                       useHighOrderSolution_, optimiseTimeOfFlight_, timeOfFlightBounds_ )};
+                                       optimiseTimeOfFlight_, timeOfFlightBounds_ )};
 
 
 
@@ -176,21 +176,13 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
 
     // Compute state at half of the time of flight.
     Eigen::Vector6d stateHalvedTimeOfFlight;
-    if ( useHighOrderSolution_ )
-    {
-        stateHalvedTimeOfFlight = simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
-                    timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ );
-    }
-    else
-    {
-//        std::cout << "state halved time of flight high fidelity solution: " << simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
-//                         timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ ) << "\n\n";
+////        std::cout << "state halved time of flight high fidelity solution: " << simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
+////                         timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ ) << "\n\n";
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
         stateHalvedTimeOfFlight = simsFlanaganLeg.propagateTrajectory( 0.0,  timeOfFlight_ / 2.0, stateAtDeparture_ );
         std::cout << "state halved time of flight low fidelity solution: " << stateHalvedTimeOfFlight << "\n\n";
-//        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-//        simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
-    }
+////        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+////        simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
 
     // Re-initialise spacecraft mass in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
@@ -352,19 +344,12 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     }
 
 
-    if ( useHighOrderSolution_ )
-    {
-        simsFlanaganLeg.propagateTrajectoryHighOrderSolution( epochsVector, SimsFlanaganResults, integratorSettings_, propagatorType_ );
-    }
-    else
-    {
         int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
         simsFlanaganLeg.propagateTrajectoryBackward( epochsBackwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
-                                                    ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+                                                     timeOfFlight_ / 2.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
         int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
         simsFlanaganLeg.propagateTrajectoryForward( epochsForwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
-                                                    ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
-    }
+                                                    timeOfFlight_ / 2.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
 
 }
 

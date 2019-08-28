@@ -64,7 +64,6 @@ public:
         optimisationAlgorithm_( optimisationAlgorithm ),
         integratorSettings_( integratorSettings ),
         propagatorType_( propagatorType ),
-        useHighOrderSolution_( useHighOrderSolution ),
         optimiseTimeOfFlight_( optimiseTimeOfFlight ),
         timeOfFlightBounds_( timeOfFlightBounds )
     {
@@ -139,9 +138,6 @@ private:
 
     //! Propagator type.
     propagators::TranslationalPropagatorType propagatorType_;
-
-    //! Boolean defining which of the low or high order solutions is used.
-    bool useHighOrderSolution_;
 
     //! Boolean defining if the time of flight should also be optimised.
     const bool optimiseTimeOfFlight_;

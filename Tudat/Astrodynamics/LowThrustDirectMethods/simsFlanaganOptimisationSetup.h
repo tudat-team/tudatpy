@@ -44,7 +44,7 @@ struct SimsFlanaganProblem
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    SimsFlanaganProblem( ):  propagatorType_( propagators::cowell ), useHighOrderSolution_( false ), optimiseTimeOfFlight_( false ){ }
+    SimsFlanaganProblem( ):  propagatorType_( propagators::cowell ), optimiseTimeOfFlight_( false ){ }
 
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,
@@ -58,7 +58,7 @@ struct SimsFlanaganProblem
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
                          const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-                         const bool useHighOrderSolution = false,
+//                         const bool useHighOrderSolution = false,
                          const bool optimiseTimeOfFlight = false,
                          const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) );
 
@@ -140,9 +140,6 @@ private:
 
     //! Propagator type.
     const propagators::TranslationalPropagatorType propagatorType_;
-
-    //! Boolean defining which of the low or high order solutions is used.
-    const bool useHighOrderSolution_;
 
     //! Boolean defining if the time of flight should also be optimised.
     const bool optimiseTimeOfFlight_;

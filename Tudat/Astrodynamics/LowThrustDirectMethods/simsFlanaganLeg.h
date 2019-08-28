@@ -78,41 +78,11 @@ public:
     //! Default destructor.
     ~SimsFlanaganLeg( ) { }
 
-    //! Propagate the spacecraft trajectory forward over a leg segment.
-    Eigen::Vector6d propagateForwardSegment( unsigned int indexSegment, Eigen::Vector6d initialState );
-
-    //! Propagate the spacecraft trajectory backward over a leg segment.
-    Eigen::Vector6d propagateBackwardSegment( unsigned int indexSegment, Eigen::Vector6d initialState );
-
     //! Propagate the spacecraft trajectory from departure to match point (forward propagation).
     void propagateForwardFromDepartureToMatchPoint( );
 
     //! Propagate the spacecraft trajectory from arrival to match point (backward propagation).
     void propagateBackwardFromArrivalToMatchPoint( );
-
-    //! Propagate the spacecraft trajectory forward over a leg segment (high order solution).
-    Eigen::Vector6d propagateForwardSegmentHighOrderSolution(unsigned int indexSegment, Eigen::Vector6d initialState,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
-
-    //! Propagate the spacecraft trajectory backward over a leg segment (high order solution).
-    Eigen::Vector6d propagateBackwardSegmentHighOrderSolution(
-            unsigned int indexSegment, Eigen::Vector6d initialState,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
-
-    //! Propagate the spacecraft trajectory forward over a leg segment (high order solution).
-    void propagateForwardFromDepartureToMatchPointHighOrderSolution(
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
-
-    //! Propagate the spacecraft trajectory backward over a leg segment (high order solution).
-    void propagateBackwardFromArrivalToMatchPointHighOrderSolution(
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >& propagatorSettings*/,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
 
     //! Returns initial state at leg departure.
     Eigen::VectorXd getStateAtLegDeparture( )
@@ -189,14 +159,13 @@ public:
     std::map< double, Eigen::Vector6d > propagateTrajectory( std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
     //! Propagate the trajectory to set of epochs (low order solution).
-    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
-            Eigen::Vector6d initialState, double initialMass, double segmentDuration );
+    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
+            Eigen::Vector6d initialState, double initialMass, double initialTime, double segmentDuration );
 
     //! Propagate the trajectory to set of epochs (low order solution).
     std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
             std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
-            double initialMass, double segmentDuration );
+            double initialMass, double initialTime, double segmentDuration );
 
     //! Propagate the trajectory inside one segment (low order solution).
     Eigen::Vector6d propagateInsideSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
@@ -204,18 +173,6 @@ public:
     //! Propagate the trajectory inside one segment (low order solution).
     Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
-    //! Propagate the trajectory to given time (high order solution).
-    Eigen::Vector6d propagateTrajectoryHighOrderSolution(
-            double currentTime,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
-
-    //! Propagate the trajectory to set of epochs (high order solution).
-    void propagateTrajectoryHighOrderSolution(
-            std::vector< double > epochs,
-            std::map< double, Eigen::Vector6d >& propagatedTrajectory,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            propagators::TranslationalPropagatorType propagatorType = propagators::cowell );
 
 protected:
 
