@@ -44,7 +44,7 @@ struct SimsFlanaganProblem
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    SimsFlanaganProblem( ):  propagatorType_( propagators::cowell ), optimiseTimeOfFlight_( false ){ }
+    SimsFlanaganProblem( ){ }
 
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,
@@ -55,12 +55,7 @@ struct SimsFlanaganProblem
                          const double timeOfFlight,
                          simulation_setup::NamedBodyMap bodyMap,
                          const std::string bodyToPropagate,
-                         const std::string centralBody,
-                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-                         const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-//                         const bool useHighOrderSolution = false,
-                         const bool optimiseTimeOfFlight = false,
-                         const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) );
+                         const std::string centralBody );
 
     //! Calculate the fitness as a function of the parameter vector x
     std::vector< double > fitness( const std::vector< double > &x ) const;
@@ -74,14 +69,7 @@ struct SimsFlanaganProblem
     //! Retrieve the number of objectives in problem, e.g. the size of the vector returned by the fitness function
     vector_double::size_type get_nobj() const
     {
-        if ( optimiseTimeOfFlight_ )
-        {
-            return 2u;
-        }
-        else
-        {
-            return 1u;
-        }
+        return 1u;
     }
 
     vector_double::size_type get_nic() const
@@ -132,23 +120,8 @@ private:
     //! Name of the central body.
     const std::string centralBody_;
 
-    //! Integrator settings (for high order solution).
-    mutable std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
-
     //! Initial spacecraft mass.
     double initialSpacecraftMass_;
-
-    //! Propagator type.
-    const propagators::TranslationalPropagatorType propagatorType_;
-
-    //! Boolean defining if the time of flight should also be optimised.
-    const bool optimiseTimeOfFlight_;
-
-    //! Bounds for time of flight optimisation, if necessary.
-    const std::pair< double, double > timeOfFlightBounds_;
-
-//    //! Propagator settings (for high order solution).
-//    mutable std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings_;
 
 
 };

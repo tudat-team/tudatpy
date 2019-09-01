@@ -19,33 +19,22 @@ HybridMethodProblem::HybridMethodProblem(
         const Eigen::Vector6d &stateAtArrival,
         const double maximumThrust,
         const std::function< double ( const double ) > specificImpulseFunction,
-        const int numberOfRevolutions,
         const double timeOfFlight,
         simulation_setup::NamedBodyMap bodyMap,
         const std::string bodyToPropagate,
         const std::string centralBody,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const double relativeToleranceConstraints,
-//        const propagators::TranslationalPropagatorType propagatorType,
-//        const bool useHighOrderSolution,
-        const bool optimiseTimeOfFlight,
-        const std::pair< double, double > timeOfFlightBounds ) :
+        const double relativeToleranceConstraints ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
     maximumThrust_( maximumThrust ),
     specificImpulseFunction_( specificImpulseFunction ),
-//    numberSegments_( numberSegments ),
-    numberOfRevolutions_( numberOfRevolutions ),
     timeOfFlight_( timeOfFlight ),
     bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ),
     centralBody_( centralBody ),
     integratorSettings_( integratorSettings ),
-//    propagatorType_( propagatorType ),
-//    useHighOrderSolution_( useHighOrderSolution ),
-    relativeToleranceConstraints_( relativeToleranceConstraints ),
-    optimiseTimeOfFlight_( optimiseTimeOfFlight ),
-    timeOfFlightBounds_( timeOfFlightBounds )
+    relativeToleranceConstraints_( relativeToleranceConstraints )
 {
     initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 }
@@ -75,19 +64,6 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
         upperBounds.push_back( 10.0 );
     }
 
-    // Add lower and upper bounds for time of flight optimisation if necessary.
-    if ( optimiseTimeOfFlight_ )
-    {
-        if ( timeOfFlightBounds_.first == TUDAT_NAN || timeOfFlightBounds_.second == TUDAT_NAN )
-        {
-            throw std::runtime_error( "Error when trying to optimise time of flight in Sims-Flanagan method, boundaries "
-                                      "for time of flight are not defined." );
-        }
-
-        lowerBounds.push_back( timeOfFlightBounds_.first );
-        upperBounds.push_back( timeOfFlightBounds_.second );
-    }
-
     return { lowerBounds, upperBounds };
 }
 
@@ -102,8 +78,7 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
     Eigen::VectorXd finalCostates; finalCostates.resize( 5 );
 
     // Check consistency of the size of the design variables vector.
-    if ( ( ( designVariables.size( ) != 10 ) && ( !optimiseTimeOfFlight_ ) )
-         || ( ( designVariables.size( ) != 11 ) && ( optimiseTimeOfFlight_ ) ) )
+    if ( designVariables.size( ) != 10 )
     {
         throw std::runtime_error( "Error, size of the design variables vector unconsistent with initial and final "
                                   "MEE costates sizes." );
@@ -115,13 +90,6 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
         finalCostates[ i ] = designVariables[ i + 5 ];
     }
 
-    // Update timeOfFlight_ if minimising the time of flight is one of the optimisation objectives.
-    double timeOfFlight = timeOfFlight_;
-    if ( optimiseTimeOfFlight_ )
-    {
-        timeOfFlight = designVariables[ 10 ];
-    }
-
     std::vector< double > fitness;
 
     // Create hybrid method leg.
@@ -129,10 +97,9 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                                                                                                         stateAtArrival_,
                                                                                                         initialCostates,
                                                                                                         finalCostates,
-                                                                                                        numberOfRevolutions_,
                                                                                                         maximumThrust_,
                                                                                                         specificImpulseFunction_,
-                                                                                                        timeOfFlight,
+                                                                                                        timeOfFlight_,
                                                                                                         bodyMap_,
                                                                                                         bodyToPropagate_,
                                                                                                         centralBody_ );
@@ -171,7 +138,8 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                                    finalTargetedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ]
               * mathematical_constants::PI );
     equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::eccentricityIndex ]
-                                   - finalTargetedKeplerianElements[ orbital_element_conversions::eccentricityIndex ] ) * mathematical_constants::PI );
+                                   - finalTargetedKeplerianElements[ orbital_element_conversions::eccentricityIndex ] )
+            / finalTargetedKeplerianElements[ orbital_element_conversions::eccentricityIndex ] * mathematical_constants::PI );
     equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::inclinationIndex ]
                                    - finalTargetedKeplerianElements[ orbital_element_conversions::inclinationIndex ] ) );
     equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::longitudeOfAscendingNodeIndex ]
@@ -179,8 +147,8 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
     equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::argumentOfPeriapsisIndex ]
                                    - finalTargetedKeplerianElements[ orbital_element_conversions::argumentOfPeriapsisIndex ] ) );
 
-    std::cout << "targeted keplerian elements: " << finalTargetedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
-    std::cout << "propagated keplerian elements: " << finalPropagatedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
+    std::cout << "targeted keplerian elements: " << finalTargetedKeplerianElements.transpose() << "\n\n"; // [ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
+    std::cout << "propagated keplerian elements: " << finalPropagatedKeplerianElements.transpose() << "\n\n"; //[ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
 
     // Compute auxiliary variables.
     Eigen::Vector6d c;
@@ -211,10 +179,6 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
 
 //    // Optimisation objectives
 //    fitness.push_back( deltaV );
-//    if ( optimiseTimeOfFlight_ )
-//    {
-//        fitness.push_back( timeOfFlight );
-//    }
 
 //    // Return equality constraints
 //    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
@@ -224,10 +188,6 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
 
     // Output of the fitness function.
     fitness.push_back( optimisationObjective );
-    if ( optimiseTimeOfFlight_ )
-    {
-        fitness.push_back( timeOfFlight );
-    }
 
 
     return fitness;

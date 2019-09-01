@@ -18,18 +18,18 @@
 #include <Eigen/Dense>
 #include <map>
 #include "pagmo/algorithm.hpp"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
-//#include "pagmo/problems/unconstrain.hpp"
-//#include "pagmo/algorithms/compass_search.hpp"
 
 namespace tudat
 {
 namespace low_thrust_direct_methods
 {
 
-//using namespace tudat_pagmo_applications;
+//! Transform thrust model as a function of time into Sims Flanagan thrust model.
+std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
+                                                                 const double maximumThrust,
+                                                                 const double timeOfFlight, const int numberSegmentsForwardPropagation,
+                                                                 const int numberSegmentsBackwardPropagation );
+
 
 class SimsFlanagan
 {
@@ -47,11 +47,9 @@ public:
             const std::string bodyToPropagate,
             const std::string centralBody,
             pagmo::algorithm optimisationAlgorithm,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            const propagators::TranslationalPropagatorType propagatorType = propagators::cowell,
-            const bool useHighOrderSolution = false,
-            const bool optimiseTimeOfFlight = false,
-            const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) ) :
+            const int numberOfGenerations,
+            const int numberOfIndividualsPerPopulation,
+            std::function< Eigen::Vector3d( const double ) > initialGuessThrustModel = nullptr ) :
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
@@ -62,10 +60,9 @@ public:
         bodyToPropagate_( bodyToPropagate ),
         centralBody_( centralBody ),
         optimisationAlgorithm_( optimisationAlgorithm ),
-        integratorSettings_( integratorSettings ),
-        propagatorType_( propagatorType ),
-        optimiseTimeOfFlight_( optimiseTimeOfFlight ),
-        timeOfFlightBounds_( timeOfFlightBounds )
+        numberOfGenerations_( numberOfGenerations ),
+        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
+        initialGuessThrustModel_( initialGuessThrustModel )
     {
 
         // Store initial spacecraft mass.
@@ -97,6 +94,7 @@ public:
 
     //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
     void computeSimsFlanaganTrajectoryAndFullPropagation(
+         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
          std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
             std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
          std::map< double, Eigen::VectorXd >& fullPropagationResults,
@@ -138,17 +136,14 @@ private:
     //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
     pagmo::algorithm optimisationAlgorithm_;
 
-    //! Integrator settings.
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
+    //! Number of generations for the optimisation algorithm.
+    int numberOfGenerations_;
 
-    //! Propagator type.
-    propagators::TranslationalPropagatorType propagatorType_;
+    //! Number of individuals per population for the optimisation algorithm.
+    int numberOfIndividualsPerPopulation_;
 
-    //! Boolean defining if the time of flight should also be optimised.
-    const bool optimiseTimeOfFlight_;
-
-    //! Bounds for time of flight optimisation, if necessary.
-    const std::pair< double, double > timeOfFlightBounds_;
+    //! Thrust model as a function of time to be used an initial guess for the optimisation.
+    std::function< Eigen::Vector3d( const double ) > initialGuessThrustModel_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;

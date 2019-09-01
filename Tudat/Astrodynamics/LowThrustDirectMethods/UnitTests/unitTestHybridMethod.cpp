@@ -45,7 +45,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     double maximumThrust = 0.450;
     double specificImpulse = 3000.0;
     double mass = 1800.0;
-//    int numberSegments = 10;
 
     // Define (constant) specific impulse function.
     std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
@@ -128,7 +127,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         finalCostates[ i ] = 1.0;
     }
 
-    HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture, stateAtArrival, initialCostates, finalCostates, 0,
+    HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture, stateAtArrival, initialCostates, finalCostates, /*0,*/
                                                        maximumThrust, specificImpulseFunction, timeOfFlight, bodyMap,
                                                        bodyToPropagate, centralBody );
 
@@ -138,22 +137,25 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( integratorSettings );
 
     std::cout << "final state after propagation: " << finalState << "\n\n";
+
+    Eigen::Vector6d finalStateTest = hybridMethodLeg.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass, integratorSettings );
+    std::cout << "final state after propagation test: " << finalStateTest << "\n\n";
+
     std::cout << "deltaV after propagation: " << hybridMethodLeg.getTotalDeltaV() << "\n\n";
     std::cout << "confirmation computation deltaV: " << hybridMethodLeg.computeTotalDeltaV() << "\n\n";
-    std::cout << "mass at time of flight: " << hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
-    std::cout << "initial mass: " << mass << "\n\n";
-    std::cout << "delta m: " << mass - hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
-    std::cout << "time of flight: " << timeOfFlight << "\n\n";
+//    std::cout << "mass at time of flight: " << hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
+//    std::cout << "initial mass: " << mass << "\n\n";
+//    std::cout << "delta m: " << mass - hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
+//    std::cout << "time of flight: " << timeOfFlight << "\n\n";
 
-    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
-    std::cout << "state at arrival: " << stateAtArrival << "\n\n";
+//    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
+//    std::cout << "state at arrival: " << stateAtArrival << "\n\n";
 
 
-
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     HybridMethodProblem problem = HybridMethodProblem( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
-                                                       1.0, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings, 1.0e-6,
-                                                       false );
+                                                       /*1.0,*/ timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings, 1.0e-6 );
 
 //    std::vector< double > designVariables;
 //    for ( int i = 0 ; i < 5 ; i++ )
@@ -173,7 +175,9 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220() };
 
-    HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, 1.0,
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, /*1.0,*/
                                               timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm,
                                               integratorSettings, 1.0e-3 );
 
@@ -190,6 +194,104 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     {
         std::cout << "output: " << bestOutput[ i ] << "\n\n";
     }
+
+
+    // Test full propagation.
+
+    // Define pair of propagatorSettings for backward and forward propagation.
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    // Acceleration from the central body.
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
+
+    simulation_setup::SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
+                std::vector< std::string >{ centralBody } );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
+
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
+                          terminationConditions.first, propagators::cowell, std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
+
+    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
+                          terminationConditions.second, propagators::cowell, std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
+
+    // Define empty maps to store the propagation results.
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::Vector6d > hybridMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+
+    // Compute full propagation.
+    hybridMethod.computeHybridMethodTrajectoryAndFullPropagation( propagatorSettings, fullPropagationResults,
+                                                                  hybridMethodResults, dependentVariablesHistory );
+
+
+
+
+
+    Eigen::VectorXd bestInitialMEEcostates; bestInitialMEEcostates.resize( 5 );
+    Eigen::VectorXd bestFinalMEEcostates; bestFinalMEEcostates.resize( 5 );
+    for ( int i = 0 ; i < 5 ; i++ )
+    {
+        bestInitialMEEcostates[ i ] = hybridMethod.getBestIndividual( )[ i ];
+        bestFinalMEEcostates[ i ] = hybridMethod.getBestIndividual( )[ i + 5 ]; // championDesignVariables_[ i + 5 ];
+    }
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    HybridMethodLeg hybridMethodLegTest = HybridMethodLeg( stateAtDeparture, stateAtArrival, bestInitialMEEcostates, bestFinalMEEcostates, /*0,*/
+                                                       maximumThrust, specificImpulseFunction, timeOfFlight, bodyMap,
+                                                       bodyToPropagate, centralBody );
+
+    std::cout.precision( 20 );
+
+
+    Eigen::Vector6d finalStateTestFullPropagation = hybridMethodLegTest.propagateTrajectory( 0.0, timeOfFlight,
+                                                                                             stateAtDeparture, mass, integratorSettings );
+    std::cout << "final state after propagation test: " << finalStateTestFullPropagation << "\n\n";
+
+    std::cout << "state at departure hybrid method: " << hybridMethodResults.begin()->second << "\n\n";
+    std::cout << "state at departure full propagation: " << fullPropagationResults.begin()->second << "\n\n";
+    std::cout << "state at arrival hybrid method: " << hybridMethodResults.rbegin()->second << "\n\n";
+    std::cout << "state at arrival full propagation: " << fullPropagationResults.rbegin()->second << "\n\n";
+
+    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
+
+
+    input_output::writeDataMapToTextFile( hybridMethodResults,
+                                          "hybridMethodResults.dat",
+                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
+    input_output::writeDataMapToTextFile( fullPropagationResults,
+                                          "fullPropagationHybridMethodResults.dat",
+                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
 
 }
 
