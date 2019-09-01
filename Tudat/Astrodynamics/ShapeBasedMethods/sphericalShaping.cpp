@@ -760,13 +760,13 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
     {
         // Create mass rate models
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-        massRateModels[ "Vehicle" ] = createMassRateModel( "Vehicle", std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+        massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
                                                            bodyMap, accelerationMap );
 
 
         // Propagate mass until half of the time of flight.
         std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
-                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ "Vehicle" }, massRateModels,
+                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
                     ( Eigen::Vector1d() << bodyMap[ bodyToPropagate ]->getBodyMass() ).finished(),
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight * physical_constants::JULIAN_YEAR, true ) );
 
@@ -786,12 +786,12 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
 
         // Define backward mass propagation settings.
         massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ "Vehicle" }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
                                                                       propagatorSettings.first->getTerminationSettings() );
 
         // Define forward mass propagation settings.
         massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ "Vehicle" }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
                                                                       propagatorSettings.second->getTerminationSettings() );
 
 

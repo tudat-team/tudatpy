@@ -35,30 +35,24 @@ public:
             const Eigen::Vector6d& stateAtArrival,
             const double maximumThrust,
             const std::function< double ( const double ) > specificImpulseFunction,
-            const int numberOfRevolutions,
             const double timeOfFlight,
             simulation_setup::NamedBodyMap bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
             pagmo::algorithm optimisationAlgorithm,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            const double relativeToleranceConstraints = 1.0e-6,
-            const bool optimiseTimeOfFlight = false,
-            const std::pair< double, double > timeOfFlightBounds = std::make_pair< double, double >( TUDAT_NAN, TUDAT_NAN ) ) :
+            const double relativeToleranceConstraints = 1.0e-6 ) :
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
-        numberOfRevolutions_( numberOfRevolutions ),
         timeOfFlight_( timeOfFlight ),
         bodyMap_( bodyMap ),
         bodyToPropagate_( bodyToPropagate ),
         centralBody_( centralBody ),
         optimisationAlgorithm_( optimisationAlgorithm ),
         integratorSettings_( integratorSettings ),
-        relativeToleranceConstraints_( relativeToleranceConstraints ),
-        optimiseTimeOfFlight_( optimiseTimeOfFlight ),
-        timeOfFlightBounds_( timeOfFlightBounds )
+        relativeToleranceConstraints_( relativeToleranceConstraints )
     {
 
         // Store initial spacecraft mass.
@@ -83,12 +77,24 @@ public:
         return championFitness_[ 0 ];
     }
 
+    //! Return best individual.
+    std::vector< double > getBestIndividual( )
+    {
+        return championDesignVariables_;
+    }
+
+    //! Return fitness of best individual.
+    std::vector< double > getBestIndividualFitness( )
+    {
+        return championFitness_;
+    }
+
 
     void computeHybridMethodTrajectoryAndFullPropagation(
          std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
             std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
          std::map< double, Eigen::VectorXd >& fullPropagationResults,
-         std::map< double, Eigen::Vector6d >& SimsFlanaganResults,
+         std::map< double, Eigen::Vector6d >& hybridMethodResults,
          std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
 
 
@@ -107,9 +113,6 @@ private:
 
     //! Specific impulse function.
     std::function< double ( const double ) > specificImpulseFunction_;
-
-    //! Number of revolutions.
-    int numberOfRevolutions_;
 
     //! Time of flight for the leg.
     double timeOfFlight_;
@@ -131,12 +134,6 @@ private:
 
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;
-
-    //! Boolean defining if the time of flight should also be optimised.
-    const bool optimiseTimeOfFlight_;
-
-    //! Bounds for time of flight optimisation, if necessary.
-    const std::pair< double, double > timeOfFlightBounds_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;

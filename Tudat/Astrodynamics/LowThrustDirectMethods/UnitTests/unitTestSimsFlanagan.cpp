@@ -144,8 +144,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     algorithm optimisationAlgorithm{ pagmo::de1220() };
 
     SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm,
-                                              integratorSettings, propagators::cowell, true );
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm, 10, 10 );
 
     std::pair< std::vector< double >, std::vector< double > > champion = simsFlanagan.performOptimisation();
 
@@ -175,7 +174,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+    bodyToPropagateAccelerations[ "Earth" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
@@ -223,7 +222,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
     // Compute full propagation.
-    simsFlanagan.computeSimsFlanaganTrajectoryAndFullPropagation( propagatorSettings, fullPropagationResults,
+    simsFlanagan.computeSimsFlanaganTrajectoryAndFullPropagation( integratorSettings, propagatorSettings, fullPropagationResults,
                                                                   simsFlanaganResults, dependentVariablesHistory );
 
 
@@ -232,7 +231,190 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     std::cout << "state at arrival Sims Flanagan: " << simsFlanaganResults.rbegin()->second << "\n\n";
     std::cout << "state at arrival full propagation: " << fullPropagationResults.rbegin()->second << "\n\n";
 
+    input_output::writeDataMapToTextFile( simsFlanaganResults,
+                                          "simsFlanaganHFResults.dat",
+                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
+    input_output::writeDataMapToTextFile( fullPropagationResults,
+                                          "fullPropagationSFResults.dat",
+                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
     std::cout << "time of flight: " << timeOfFlight << "\n\n";
+
+
+    //! Test full propagation w.r.t. impulsive shots as thrust acceleration.
+
+    // Calculate number of segments for both the forward propagation (from departure to match point)
+    // and the backward propagation (from arrival to match point).
+    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
+    int numberSegmentsBackwardPropagation = numberSegments / 2;
+    int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
+    int segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
+
+    // Compute times at half of each segment.
+    std::vector< double > thrustMidTimes;
+    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+    {
+        thrustMidTimes.push_back( segmentDurationForwardPropagation / 2.0 + i * segmentDurationForwardPropagation );
+    }
+    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        thrustMidTimes.push_back( segmentDurationBackwardPropagation / 2.0 + timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
+    }
+
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    SimsFlanaganLeg simsFlanaganLegTest = SimsFlanaganLeg( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
+                                                           timeOfFlight, bodyMap, bestThrottles, bodyToPropagate, centralBody );
+
+    // Compute state at half of the time of flight.
+    simsFlanaganLegTest.propagateForwardFromDepartureToMatchPoint( );
+    Eigen::Vector6d stateAtHalfTimeOfFlight = simsFlanaganLegTest.getStateAtMatchPointForwardPropagation( );
+
+    // Compute mass at half of the time of flight.
+    double massAtHalfTimeOfFlight = simsFlanaganLegTest.getMassAtMatchPointForwardPropagation( );
+
+    // Compute deltaVs.
+    double totalManeuverTime = 90.0;
+    double maneuverRiseTime = 15.0;
+    double currentMass = mass;
+    std::vector< Eigen::Vector3d > deltaVs;
+
+    // Compute deltaVs for the forward propagation half.
+    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+    {
+        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i ] * segmentDurationForwardPropagation / currentMass;
+        deltaVs.push_back( currentDeltaVvector );
+
+        // Update mass.
+        currentMass *= std::exp( - currentDeltaVvector.norm() /
+                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
+    }
+    // Compute deltaVs for the backward propagation half.
+    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i + numberSegmentsForwardPropagation ] *
+                segmentDurationBackwardPropagation / currentMass;
+        deltaVs.push_back( currentDeltaVvector );
+
+        // Update mass.
+        currentMass *= std::exp( - currentDeltaVvector.norm() /
+                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
+    }
+    std::cout << "current mass: " << currentMass << "\n\n";
+
+
+    bodyToPropagateAccelerations.clear();
+    bodyToPropagateAccelerations[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ bodyToPropagate ].push_back( std::make_shared< simulation_setup::MomentumWheelDesaturationAccelerationSettings >(
+                                                                   thrustMidTimes, deltaVs, totalManeuverTime, maneuverRiseTime ) );
+
+    accelerationMap.clear();
+    accelerationMap[ bodyToPropagate ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    accelerationModelMap.clear();
+    accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
+                std::vector< std::string >{ centralBody } );
+
+    // BACKWARD PROPAGATION.
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtHalfTimeOfFlight );
+
+    // Create termination conditions settings.
+    std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings
+            = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+
+    //  Create propagator settings.
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsImpulsiveDeltaV =
+            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
+                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
+                stateAtHalfTimeOfFlight, terminationSettings, propagators::cowell );
+
+    integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ / 10000.0 );
+    integratorSettings->initialTime_ = timeOfFlight / 2.0;
+
+    Eigen::Vector6d currentState = stateAtHalfTimeOfFlight;
+
+    // Backward propagation (corresponding to forward propagation in Sims-Flanagan method).
+    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+    {
+        integratorSettings->initialTime_ = timeOfFlight / 2.0 - i * segmentDurationForwardPropagation;
+        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >(
+                    ( timeOfFlight / 2.0 ) - ( i + 1 ) * segmentDurationForwardPropagation, true );
+        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
+        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
+
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+
+//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i ] * segmentDurationForwardPropagation /
+//                bodyMap[ bodyToPropagate ]->getBodyMass();
+
+        // Update mass.
+//        bodyMap[ bodyToPropagate ]->setConstantBodyMass( bodyMap[ bodyToPropagate ]->getBodyMass() * std::exp( - currentDeltaVvector.norm() /
+//                        ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) ) );
+
+        std::map< double, Eigen::VectorXd > impulsiveDeltaVsResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution();
+        currentState = impulsiveDeltaVsResults.begin( )->second;
+
+        std::cout << "impulsive deltaV segment " << std::to_string( numberSegmentsForwardPropagation - 1 - i ) << " : " <<
+                     impulsiveDeltaVsResults.rbegin()->second.transpose() << "\n\n";
+        std::cout << "Sims-Flanagan " << std::to_string( numberSegmentsForwardPropagation - 1 - i ) << " : " <<
+                     simsFlanaganResults[ ( timeOfFlight / 2.0 ) - ( i ) * segmentDurationForwardPropagation ].transpose() << "\n\n";
+    }
+
+
+    // FORWARD PROPAGATION.
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtHalfTimeOfFlight );
+
+    // Create termination conditions settings.
+    terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
+
+    //  Create propagator settings.
+    propagatorSettingsImpulsiveDeltaV = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
+                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
+                stateAtHalfTimeOfFlight, terminationSettings, propagators::cowell );
+
+    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+    integratorSettings->initialTime_ = timeOfFlight / 2.0;
+
+    currentState = stateAtHalfTimeOfFlight;
+
+    // Forward propagation (corresponding to backward propagation in Sims-Flanagan method).
+    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        integratorSettings->initialTime_ = ( timeOfFlight/ 2.0 ) +  i * segmentDurationBackwardPropagation;
+        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >(
+                    ( timeOfFlight / 2.0 ) + ( i + 1 ) * segmentDurationBackwardPropagation, true );
+        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
+        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
+
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+
+//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i + numberSegmentsForwardPropagation ]
+//                * segmentDurationBackwardPropagation / bodyMap[ bodyToPropagate ]->getBodyMass();
+
+        // Update mass.
+//        bodyMap[ bodyToPropagate ]->setConstantBodyMass( bodyMap[ bodyToPropagate ]->getBodyMass() * std::exp( - currentDeltaVvector.norm() /
+//                        ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) ) );
+
+        currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().rbegin()->second;
+
+        std::cout << "impulsive deltaV segment " << std::to_string( i + numberSegmentsForwardPropagation ) << " : " <<
+                     currentState.transpose() << "\n\n";
+        std::cout << "Sims-Flanagan " << std::to_string( i + numberSegmentsForwardPropagation ) << " : " <<
+                     simsFlanaganResults[ ( timeOfFlight / 2.0 ) + ( i + 1 ) * segmentDurationBackwardPropagation ].transpose() << "\n\n";
+    }
 
 
 }

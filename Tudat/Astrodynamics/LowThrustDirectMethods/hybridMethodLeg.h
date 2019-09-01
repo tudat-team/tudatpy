@@ -42,7 +42,7 @@ public:
                      const Eigen::Vector6d& stateAtArrival,
                      const Eigen::VectorXd& initialCoStates,
                      const Eigen::VectorXd& finalCoStates,
-                     const int numberOfRevolutions,
+//                     const int numberOfRevolutions,
                      const double maximumThrust,
                      const std::function< double ( const double ) > specificImpulseFunction,
                      const double timeOfFlight,
@@ -50,7 +50,7 @@ public:
                      const std::string bodyToPropagate,
                      const std::string centralBody ):
     stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), initialCoStates_( initialCoStates ),
-    finalCoStates_( finalCoStates ), numberOfRevolutions_( numberOfRevolutions ), maximumThrust_( maximumThrust ),
+    finalCoStates_( finalCoStates ), maximumThrust_( maximumThrust ),
     specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ), bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
     {
@@ -80,8 +80,6 @@ public:
             return currentCostates;
         };
 
-        // Define step-size for integration.
-//        double
     }
 
 
@@ -89,11 +87,24 @@ public:
     ~HybridMethodLeg( ) { }
 
     //! Retrieve MEE costates-based thrust acceleration.
-    std::shared_ptr< propulsion::ThrustAcceleration > getMEEcostatesBasedThrustAccelerationModel( );
+//    std::shared_ptr< propulsion::ThrustAcceleration > getMEEcostatesBasedThrustAccelerationModel( );
+    std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );
 
-    //! Propagate the spacecraft trajectory.
+    //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
+    basic_astrodynamics::AccelerationMap getAccelerationModel( );
+
+    //! Propagate the spacecraft trajectory to time of flight.
     Eigen::Vector6d propagateTrajectory(
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Propagate the spacecraft trajectory to a given time.
+    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass,
+                                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Propagate the trajectory to set of epochs.
+    std::map< double, Eigen::Vector6d > propagateTrajectory(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState, double initialMass,
+            double initialTime, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute dynamics matrix.
     Eigen::Matrix< double, 6, 3 > computeDynamicsMatrix( Eigen::Vector6d modifiedEquinoctialElements );
@@ -130,12 +141,6 @@ public:
         return maximumThrust_;
     }
 
-    //! Returns number of segments into which the leg is subdivided.
-    int getNumberOfRevolutions( )
-    {
-        return numberOfRevolutions_;
-    }
-
     //! Returns time of flight.
     double getTimeOfFlight( )
     {
@@ -168,9 +173,6 @@ private:
 
     //! Function returning the current MEE co-states.
     std::function< Eigen::VectorXd( const double ) > costatesFunction_;
-
-    //! Number of revolutions.
-    int numberOfRevolutions_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;

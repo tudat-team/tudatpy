@@ -127,7 +127,8 @@ using namespace orbital_element_conversions;
 //}
 
 //! Retrieve MEE costates-based thrust acceleration.
-std::shared_ptr< propulsion::ThrustAcceleration > HybridMethodLeg::getMEEcostatesBasedThrustAccelerationModel( )
+//std::shared_ptr< propulsion::ThrustAcceleration > HybridMethodLeg::getMEEcostatesBasedThrustAccelerationModel( )
+std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodLeg::getMEEcostatesBasedThrustAccelerationSettings( )
 {
     // Define thrust direction settings from the MEE costates.
     std::shared_ptr< simulation_setup::MeeCostateBasedThrustDirectionSettings > thrustDirectionSettings =
@@ -144,12 +145,35 @@ std::shared_ptr< propulsion::ThrustAcceleration > HybridMethodLeg::getMEEcostate
             std::make_shared< simulation_setup::ThrustAccelerationSettings >(
                 thrustDirectionSettings, thrustMagnitudeSettings );
 
-    // Create MEE costates-based thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > meeCostatesBasedThrustAccelerationModel =
-            createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap_, bodyToPropagate_ );
+//    // Create MEE costates-based thrust acceleration model.
+//    std::shared_ptr< propulsion::ThrustAcceleration > meeCostatesBasedThrustAccelerationModel =
+//            createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap_, bodyToPropagate_ );
 
-    return meeCostatesBasedThrustAccelerationModel;
+    return thrustAccelerationSettings;
 
+}
+
+
+//! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
+basic_astrodynamics::AccelerationMap HybridMethodLeg::getAccelerationModel( )
+{
+    // Acceleration from the central body.
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+//    bodyToPropagateAccelerations[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                                basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
+
+    simulation_setup::SelectedAccelerationMap accelerationMap;
+    accelerationMap[ bodyToPropagate_ ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+
+////     Add thurst acceleration.
+//    accelerationModelMap[ bodyToPropagate_ ] = getMEEcostatesBasedThrustAccelerationModel( );
+
+    return accelerationModelMap;
 }
 
 
@@ -167,14 +191,15 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
 //    propagatorSettings->propagator_ = propagators::gauss_modified_equinoctial;
 
 
-    // Retrieve bang-bang thrust acceleration model from MEE costates.
-    std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration = getMEEcostatesBasedThrustAccelerationModel( );
+//    // Retrieve bang-bang thrust acceleration model from MEE costates.
+//    std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration = getMEEcostatesBasedThrustAccelerationModel( );
 
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ bodyToPropagate_ ] = bodyToPropagateAccelerations;
@@ -183,11 +208,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
 
-//    basic_astrodynamics::AccelerationMap accelerationMap;  = propagators::getAccelerationMapFromPropagatorSettings(
-//                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
-
-    accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( thrustAcceleration );
-//    accelerationMap[  ]
+//    accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( thrustAcceleration );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModel;
@@ -650,6 +671,447 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
                                           "," );
 
     return propagatedState;
+}
+
+
+//! Propagate the spacecraft trajectory to a given time.
+Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass,
+                                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    // Re-initialise integrator settings.
+    integratorSettings->initialTime_ = initialTime;
+
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
+
+    std::cout << "initial mass in propagate trajectory to set of epochs: " << bodyMap_[ bodyToPropagate_ ]->getBodyMass() << "\n\n";
+
+//    propagatorSettings->resetInitialStates( stateAtDeparture_ );
+//    propagatorSettings->bodiesToIntegrate_ = std::vector< std::string >{ bodyToPropagate_ };
+//    propagatorSettings->centralBodies_ = std::vector< std::string >{ centralBody_ };
+//    propagatorSettings->propagator_ = propagators::gauss_modified_equinoctial;
+
+
+//    // Retrieve bang-bang thrust acceleration model from MEE costates.
+//    std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration = getMEEcostatesBasedThrustAccelerationModel( );
+
+
+    // Acceleration from the central body.
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+    bodyToPropagateAccelerations[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
+
+    simulation_setup::SelectedAccelerationMap accelerationMap;
+    accelerationMap[ bodyToPropagate_ ] = bodyToPropagateAccelerations;
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+
+//    accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( thrustAcceleration );
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModel;
+    massRateModel[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap_, accelerationModelMap );
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                    propagators::modified_equinocial_state_dependent_variable,  bodyToPropagate_, centralBody_ ) );
+//    dependentVariables.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+//                        basic_astrodynamics::thrust_acceleration, bodyToPropagate_, bodyToPropagate_, 0 ) );
+    dependentVariables.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                    propagators::total_acceleration_dependent_variable, bodyToPropagate_ ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariables );
+
+
+    bool hasTimeOfFlightBeenReached = false;
+    Eigen::Vector6d initialModifiedEquinoctialElements = convertCartesianToModifiedEquinoctialElements( stateAtDeparture_, centralBodyGravitationalParameter_ );
+    double initialTrueLongitude = initialModifiedEquinoctialElements[ trueLongitudeIndex ];
+
+    // Compute intermediate true longitude = initialTrueLongitude + pi (modulo 2pi).
+    double intermediateTrueLongitude = initialModifiedEquinoctialElements[ trueLongitudeIndex ]
+            + mathematical_constants::PI;
+    if ( intermediateTrueLongitude > 2.0 * mathematical_constants::PI )
+    {
+        intermediateTrueLongitude += - 2.0 * mathematical_constants::PI;
+    }
+
+    std::map< double, Eigen::VectorXd > results;
+    std::map< double, Eigen::VectorXd > dependentVariableSolution;
+    Eigen::VectorXd propagationResult; propagationResult.resize( 7 );
+    propagationResult.segment( 0, 6 ) = initialState;
+    propagationResult[ 6 ] = initialMass;
+    double currentInitialPropagationTime = initialTime;
+
+    // Ensure that the propagation stops when the required time of flight is required.
+    std::shared_ptr< propagators::PropagationTimeTerminationSettings > timeOfFlightTerminationSettings
+            = std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTime, false );
+
+    std::function< Eigen::Vector6d( ) > vehicleStateFunction = std::bind(
+                &simulation_setup::Body::getState, bodyMap_.at( bodyToPropagate_ ) );
+
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction = std::bind(
+                &simulation_setup::Body::getState, bodyMap_.at( centralBody_ ) );
+
+    int numberOfCompletedRevolutions = 0;
+    std::map< double, Eigen::VectorXd > stateHistoryAfterOneRevolution;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistoryAfterOneRevolution;
+
+    bool isOrbitalAveragingUsed = false;
+
+
+    while( !hasTimeOfFlightBeenReached )
+    {
+
+        if ( ( !isOrbitalAveragingUsed ) || ( numberOfCompletedRevolutions == 0 ) )
+        {
+
+        // Create custom termination settings.
+        std::function< bool( const double, const std::function< Eigen::Vector6d( ) >,
+                             const std::function< Eigen::Vector6d( ) > ) > customTerminationFunction = [ = ]
+                ( const double currentTime, const std::function< Eigen::Vector6d( ) > getSpacecraftState,
+                const std::function< Eigen::Vector6d( ) > getCentralBodyState )
+        {
+          bool terminationCondition = false;
+
+//          Eigen::Vector6d initialModifiedEquinoctialElements = convertCartesianToModifiedEquinoctialElements(
+//                      stateAtDeparture_, centralBodyGravitationalParameter_ );
+
+          Eigen::Vector6d currentState = getSpacecraftState( ) - getCentralBodyState( );
+
+          Eigen::Vector6d currentModifiedEquinoctialElements = convertCartesianToModifiedEquinoctialElements(
+                      currentState, centralBodyGravitationalParameter_ );
+
+//          double initialTrueLongitude = initialModifiedEquinoctialElements[ trueLongitudeIndex ];
+          double currentTrueLongitude = currentModifiedEquinoctialElements[ trueLongitudeIndex ];
+
+          if ( ( initialTrueLongitude >= mathematical_constants::PI )
+               && ( currentTrueLongitude < initialTrueLongitude ) && ( currentTrueLongitude >= intermediateTrueLongitude ) )
+          {
+                terminationCondition = true;
+          }
+          if ( ( initialTrueLongitude < mathematical_constants::PI )
+               && ( currentTrueLongitude >= intermediateTrueLongitude ) )
+          {
+              terminationCondition = true;
+          }
+          if ( currentTime >= finalTime )
+          {
+              terminationCondition = true;
+          }
+          return terminationCondition;
+        };
+
+
+        std::shared_ptr< propagators::PropagationTerminationSettings > customTerminationSettings =
+                std::make_shared< propagators::PropagationCustomTerminationSettings >(
+                    std::bind( customTerminationFunction, std::placeholders::_1, vehicleStateFunction, centralBodyStateFunction ) ) ;
+
+
+        // Re-define propagator settings.
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalStatePropagatorSettings =
+                std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
+                    std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+                    propagationResult.segment( 0, 6 ), customTerminationSettings, propagators::gauss_modified_equinoctial, dependentVariablesToSave/*,
+                    propagatorSettings->getDependentVariablesToSave( )*/ );
+
+//        // Create mass rate models
+//        std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModel;
+//        massRateModel[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+//                                                           bodyMap_, accelerationModelMap );
+
+        // Create settings for propagating the mass of the vehicle.
+        std::shared_ptr< propagators::MassPropagatorSettings< double > > massPropagatorSettings
+                = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                    std::vector< std::string >{ bodyToPropagate_ }, massRateModel,
+                    ( Eigen::Matrix< double, 1, 1 >( ) << bodyMap_[ bodyToPropagate_ ]->getBodyMass( ) ).finished( ),
+                    customTerminationSettings );
+
+        // Create list of propagation settings.
+        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
+        propagatorSettingsVector.push_back( translationalStatePropagatorSettings );
+        propagatorSettingsVector.push_back( massPropagatorSettings );
+
+        // Hybrid propagation settings.
+        std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings =
+                std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
+                                                                                        dependentVariablesToSave );
+
+        integratorSettings->initialTime_ = currentInitialPropagationTime;
+
+        // Propagate the trajectory.
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings, propagatorSettings );
+        std::map< double, Eigen::VectorXd > intermediateResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        propagationResult = intermediateResults.rbegin( )->second;
+        currentInitialPropagationTime = intermediateResults.rbegin( )->first;
+
+        // Retrieve dependent variables history.
+        std::map< double, Eigen::VectorXd > intermediateDependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+
+        for ( std::map< double, Eigen::VectorXd >::iterator itr = intermediateResults.begin( ) ; itr != intermediateResults.end( ) ; itr++ )
+        {
+            results[ itr->first ] = itr->second;
+            dependentVariableSolution[ itr->first ] = intermediateDependentVariableSolution[ itr->first ];
+        }
+
+
+        if ( currentInitialPropagationTime >= finalTime )
+        {
+            hasTimeOfFlightBeenReached = true;
+        }
+        else
+        {
+
+
+            // Create custom termination settings.
+/*            std::function< bool( const double, const std::function< Eigen::Vector6d( ) >,
+                                 const std::function< Eigen::Vector6d( ) > ) >*/ customTerminationFunction = [ = ]
+                    ( const double currentTime, const std::function< Eigen::Vector6d( ) > getSpacecraftState,
+                    const std::function< Eigen::Vector6d( ) > getCentralBodyState )
+            {
+              bool terminationCondition = false;
+
+//              Eigen::Vector6d initialModifiedEquinoctialElements = convertCartesianToModifiedEquinoctialElements(
+//                          stateAtDeparture_, centralBodyGravitationalParameter_ );
+
+              Eigen::Vector6d currentState = getSpacecraftState( ) - getCentralBodyState( );
+
+              Eigen::Vector6d currentModifiedEquinoctialElements = convertCartesianToModifiedEquinoctialElements(
+                          currentState, centralBodyGravitationalParameter_ );
+
+//              double initialTrueLongitude = initialModifiedEquinoctialElements[ trueLongitudeIndex ];
+              double currentTrueLongitude = currentModifiedEquinoctialElements[ trueLongitudeIndex ];
+
+              if ( ( intermediateTrueLongitude >= mathematical_constants::PI )
+                   && ( currentTrueLongitude < intermediateTrueLongitude ) && ( currentTrueLongitude >= initialTrueLongitude ) )
+              {
+                    terminationCondition = true;
+              }
+              if ( ( intermediateTrueLongitude < mathematical_constants::PI )
+                   && ( currentTrueLongitude >= initialTrueLongitude ) )
+              {
+                  terminationCondition = true;
+              }
+              if ( currentTime >= finalTime )
+              {
+                  terminationCondition = true;
+              }
+              return terminationCondition;
+            };
+
+
+            /*std::shared_ptr< propagators::PropagationTerminationSettings >*/ customTerminationSettings =
+                    std::make_shared< propagators::PropagationCustomTerminationSettings >(
+                        std::bind( customTerminationFunction, std::placeholders::_1, vehicleStateFunction, centralBodyStateFunction ) ) ;
+
+        // Re-define propagator settings.
+        translationalStatePropagatorSettings = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
+                    std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+                    propagationResult.segment( 0, 6 ), customTerminationSettings, propagators::gauss_modified_equinoctial, dependentVariablesToSave/*,
+                    propagatorSettings->getDependentVariablesToSave( )*/ );
+
+        std::cout << "initial state second part of the propagation: " << propagationResult.segment( 0, 6 ) << "\n\n";
+
+
+        // Create settings for propagating the mass of the vehicle.
+        massPropagatorSettings = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                    std::vector< std::string >{ bodyToPropagate_ }, massRateModel,
+                    ( Eigen::Matrix< double, 1, 1 >( ) << bodyMap_[ bodyToPropagate_ ]->getBodyMass( ) ).finished( ), customTerminationSettings );
+
+        // Create list of propagation settings.
+        propagatorSettingsVector.clear( );
+        propagatorSettingsVector.push_back( translationalStatePropagatorSettings );
+        propagatorSettingsVector.push_back( massPropagatorSettings );
+
+        // Hybrid propagation settings.
+        propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
+                                                                                        dependentVariablesToSave );
+
+        integratorSettings->initialTime_ = currentInitialPropagationTime; //  results.rbegin( )->first;
+        std::cout << "initial time second part of the propagation: " << results.rbegin( )->first << "\n\n";
+
+        // Propagate the trajectory.
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorSecondPartOrbit( bodyMap_, integratorSettings, propagatorSettings );
+        intermediateResults = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution( );
+        propagationResult = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution().rbegin()->second;
+//        propagationResult = intermediateResults.rbegin( )->second;
+        currentInitialPropagationTime = intermediateResults.rbegin( )->first;
+
+        // Retrieve dependent variables history.
+        intermediateDependentVariableSolution = dynamicsSimulatorSecondPartOrbit.getDependentVariableHistory( );
+
+        for ( std::map< double, Eigen::VectorXd >::iterator itr = intermediateResults.begin( ) ; itr != intermediateResults.end( ) ; itr++ )
+        {
+            results[ itr->first ] = itr->second;
+            dependentVariableSolution[ itr->first ] = intermediateDependentVariableSolution[ itr->first ];
+        }
+
+        if ( numberOfCompletedRevolutions == 0 )
+        {
+            stateHistoryAfterOneRevolution = results;
+            dependentVariablesHistoryAfterOneRevolution = dependentVariableSolution;
+        }
+
+        // Check if time of flight has been reached.
+        if ( currentInitialPropagationTime >= finalTime )
+        {
+            hasTimeOfFlightBeenReached = true;
+        }
+        else
+        {
+            numberOfCompletedRevolutions++;
+        }
+
+
+
+//        hasTimeOfFlightBeenReached = true;
+
+        }
+
+
+    }
+
+
+    // Use orbital averaging to propagate the trajectory.
+    else
+    {
+
+        // Compute averaged state derivative.
+        Eigen::Vector7d averagedStateDerivative = computeAveragedStateDerivative(
+                    stateHistoryAfterOneRevolution, dependentVariablesHistoryAfterOneRevolution );
+
+        // Compute number of steps to propagate until time of flight.
+        int numberOfSteps = ( finalTime - currentInitialPropagationTime ) / integratorSettings->initialTimeStep_ + 1;
+
+        std::cout << "number of steps until TOF: " << numberOfSteps << "\n\n";
+        std::cout << "( finalTime - currentInitialPropagationTime ): " << ( finalTime - currentInitialPropagationTime ) << "\n\n";
+
+        // Define current state.
+        Eigen::Vector7d currentState;
+        Eigen::Vector6d currentCartesianState = propagationResult.segment( 0, 6 );
+        currentState.segment( 0, 6 ) = convertCartesianToModifiedEquinoctialElements(
+                    currentCartesianState, centralBodyGravitationalParameter_ );
+        currentState[ 6 ] = propagationResult[ 6 ];
+
+        // Propagate over required number of steps.
+        propagationResult = currentState + averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps;
+        std::cout << "propagation results after OA: " << propagationResult << "\n\n";
+        std::cout << "averaged state derivative: " << averagedStateDerivative << "\n\n";
+        std::cout << "current state: " << currentState << "\n\n";
+        std::cout << "delta current state: " << averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps << "\n\n";
+
+        hasTimeOfFlightBeenReached = true;
+
+    }
+
+
+    }
+
+
+        std::cout << "number of completed revolutions: " << numberOfCompletedRevolutions << "\n\n";
+
+
+
+
+    // Retrieve state and mass of the spacecraft at the end of the propagation.
+    Eigen::Vector6d propagatedState = propagationResult.segment( 0, 6 );
+//    massAtTimeOfFlight_ = propagationResult[ 6 ];
+
+    // Compute deltaV required by the trajectory.
+    totalDeltaV_ = computeTotalDeltaV( );
+
+    std::cout << "current mass in propagate trajectory( initialTime, finalTime, ... ): " <<
+                 bodyMap_[ bodyToPropagate_ ]->getBodyMass() << "\n\n";
+    std::cout << "current state in propagate trajectory( initialTime, finalTime, ... ): " <<
+                 propagatedState << "\n\n";
+
+
+//    input_output::writeDataMapToTextFile( dependentVariableSolution,
+//                                          "dependentVariablesHybridMethod.dat",
+//                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+//                                          "",
+//                                          std::numeric_limits< double >::digits10,
+//                                          std::numeric_limits< double >::digits10,
+//                                          "," );
+
+//    input_output::writeDataMapToTextFile( results,
+//                                          "propagationResultHybridMethod.dat",
+//                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
+//                                          "",
+//                                          std::numeric_limits< double >::digits10,
+//                                          std::numeric_limits< double >::digits10,
+//                                          "," );
+
+    return propagatedState;
+}
+
+
+//! Propagate the trajectory to set of epochs.
+std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
+        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
+        double initialMass, double initialTime, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    // Initialise propagated state.
+    Eigen::Vector6d propagatedState = initialState;
+
+    // Initialise mass of the spacecraft at departure.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
+    double currentMass = initialMass;
+
+    std::cout << "initial mass in propagate trajectory to set of epochs: " << currentMass << "\n\n";
+
+
+    for ( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
+    {
+        double currentTime = epochs[ epochIndex ];
+        if ( epochIndex > 0 )
+        {
+            if ( currentTime < epochs[ epochIndex - 1 ] )
+            {
+                throw std::runtime_error( "Error when propagating trajectory in Sims-Flanagan, epochs at which the trajectory should be "
+                                          "computed are not in increasing order." );
+            }
+        }
+        if ( ( currentTime < 0.0 ) || ( currentTime > timeOfFlight_ ) )
+        {
+            throw std::runtime_error( "Error when propagating trajectory in Sims-Flanagan, epochs at which the trajectory should be "
+                                      "computed are not constrained between 0.0 and timeOfFlight." );
+        }
+
+
+        if ( epochIndex == 0 )
+        {
+            if ( currentTime >= initialTime )
+            {
+                propagatedState = propagateTrajectory( initialTime, currentTime, propagatedState, currentMass, integratorSettings );
+                currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
+            }
+            propagatedTrajectory[ currentTime ] = propagatedState;
+            std::cout << "current time test: " << currentTime << "\n\n";
+            std::cout << "initial time test: " << initialTime << "\n\n";
+        }
+        else
+        {
+            propagatedState = propagateTrajectory( epochs[ epochIndex - 1 ], currentTime, propagatedState, currentMass, integratorSettings );
+            currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
+            propagatedTrajectory[ currentTime ] = propagatedState;
+        }
+        std::cout << "current mass in propagateTrajectory( epochs,... ): " << currentMass << "\n\n";
+        std::cout << "current state in propagateTrajectory( epochs,... ): " << propagatedState << "\n\n";
+
+    }
+
+    bodyMap_[ centralBody_ ]->setConstantBodyMass( initialMass );
+
+        std::cout << "TEST: " << "\n\n";
+
+
+    return propagatedTrajectory;
 }
 
 

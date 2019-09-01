@@ -633,16 +633,8 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
             }
             else
             {
-                if ( currentTime < timeAtMatchPoint_ )
-                {
-                    propagatedState = propagateTrajectoryForward( epochs[ epochIndex - 1 ], currentTime,
-                            propagatedState, segmentDuration ); //timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
-                }
-                if ( currentTime >= timeAtMatchPoint_ )
-                {
-                    propagatedState = propagateTrajectoryForward( epochs[ epochIndex - 1 ], currentTime,
-                            propagatedState, segmentDuration ); // timeAtMatchPoint_ / numberSegmentsBackwardPropagation_ /*segmentDuration*/ );
-                }
+                propagatedState = propagateTrajectoryForward( epochs[ epochIndex - 1 ], currentTime,
+                        propagatedState, segmentDuration );
                 propagatedTrajectory[ currentTime ] = propagatedState;
             }
 
