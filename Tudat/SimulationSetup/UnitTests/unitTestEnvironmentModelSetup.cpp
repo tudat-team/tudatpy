@@ -1078,6 +1078,121 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 }
 #endif
 
+//! Test set up of solar sailing radiation pressure interface environment models.
+BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
+{
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define body settings.
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+
+    // Get settings for vehicle
+    Eigen::Vector6d initialKeplerElements =
+            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+                initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+
+    // Define area subject to radiation pressure [m^2].
+    double area = 2.0;
+
+    // Set cone angle of the solar sail [rad].
+    double coneAngle = 0.25;
+
+    // Get cone angle of the solar sail [rad].
+    std::function< double( const double ) > coneAngleFunction
+            = [ = ]( const double ){ return coneAngle; };
+
+    // Define clock angle of the solar sail [rad].
+    double clockAngle = 0.2;
+
+    // Get clock angle of the solar sail [rad].
+    std::function< double( const double ) > clockAngleFunction
+            = [ = ]( const double ){ return clockAngle; };
+
+    // Define front emissivity coefficient of the solar sail [-].
+    double frontEmissivityCoefficient = 0.4;
+
+    // Define back emissivity coefficient of the solar sail [-].
+    double backEmissivityCoefficient = 0.4;
+
+    // Define front Lambertian coefficient of the solar sail [-].
+    double frontLambertianCoefficient = 0.4;
+
+    // Define back Lambertian coefficient of the solar sail [-].
+    double backLambertianCoefficient = 0.4;
+
+    // Define reflectivity coefficient of the solar sail [-].
+    double reflectivityCoefficient = 0.3;
+
+    // Define specular reflection coefficient of the solar sail [-].
+    double specularReflectionCoefficient = 1.0;
+
+    // Define central body.
+    std::string centralBody = "Earth";
+
+    // Create radiation pressure interface settings.
+    std::shared_ptr< SolarSailRadiationInterfaceSettings > radiationPressureInterfaceSettings =
+            std::make_shared< SolarSailRadiationInterfaceSettings >(
+                "Sun", area, coneAngleFunction, clockAngleFunction, frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
+                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
+                centralBody );
+
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+
+    double testTime = 0.5E7;
+
+    // Update environment to current time.
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
+            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+
+    // Compute expected radiation pressure.
+    vehicleRadiationPressureInterface->updateInterface( testTime );
+    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+            segment( 0, 3 ) ).norm( );
+
+    double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
+                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
+                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
+                                std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< electro_magnetism::SolarSailingRadiationPressureInterface > vehicleSolarSailingRadiationPressureInterface
+            = std::dynamic_pointer_cast< electro_magnetism::SolarSailingRadiationPressureInterface > ( vehicleRadiationPressureInterface );
+
+    for ( int i = 0 ; i < 3 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )( )[ i ] -
+                           bodyMap[ "Earth" ]->getState()[ i + 3 ] ), 1.0E-15 );
+
+        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentVelocityVector( )[ i ] -
+                           ( bodyMap[ "Vehicle" ]->getState( ) - bodyMap[ "Earth" ]->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
+
+        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentSolarVector( )[ i ] -
+                           ( - bodyMap[ "Vehicle" ]->getState( ) + bodyMap[ "Sun" ]->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
+
+    }
+
+}
+
+
 BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 {
     using namespace unit_conversions;
