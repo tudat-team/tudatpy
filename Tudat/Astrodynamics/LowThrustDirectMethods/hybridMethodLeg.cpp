@@ -135,10 +135,15 @@ std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodLeg::getME
             std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >( bodyToPropagate_, centralBody_,
                                                                                           costatesFunction_ );
 
+    std::function< double ( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+    {
+      return specificImpulse_;
+    };
+
     // Define bang-bang thrust magnitude settings based on MEE co-states.
     std::shared_ptr< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings > thrustMagnitudeSettings
             = std::make_shared< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings >(
-                maximumThrust_, specificImpulseFunction_, costatesFunction_, bodyToPropagate_, centralBody_ );
+                maximumThrust_, specificImpulseFunction, costatesFunction_, bodyToPropagate_, centralBody_ );
 
     // Define thrust acceleration settings.
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
@@ -1121,7 +1126,7 @@ double HybridMethodLeg::computeTotalDeltaV( )
 
     // Compute (constant) mass rate.
     double massRate = - maximumThrust_ /
-            ( specificImpulseFunction_( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+            ( specificImpulse_ * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
     // Compute time during which the engine was switched on.
     double engineSwitchedOnDuration = ( massAtTimeOfFlight_ - initialSpacecraftMass_ ) / massRate;
@@ -1172,7 +1177,7 @@ double HybridMethodLeg::computeTotalDeltaV( )
 //    double deltaV = integrator->integrateTo( engineSwitchedOnDuration, integratorSettings->initialTimeStep_ )[ 0 ];
 
     // Compute deltaV analytically.
-    double deltaV = - specificImpulseFunction_( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION
+    double deltaV = - specificImpulse_ * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION
             * std::log( 1.0 + massRate / initialSpacecraftMass_ * engineSwitchedOnDuration );
     std::cout << "deltaV computed analytically: " << deltaV << "\n\n";
 
@@ -1271,7 +1276,7 @@ Eigen::Vector7d HybridMethodLeg::computeAveragedStateDerivative(
         // Compute state derivative vector.
         Eigen::Vector6d modifiedEquinoctialElementsDerivatives = dynamicsMatrix * perturbingAccelerationsInRsw + b;
         double massDerivative = - ( perturbingAccelerationsInInertialFrame.norm( ) * currentMass )  /
-                ( specificImpulseFunction_( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+                ( specificImpulse_ * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
         Eigen::Vector7d stateDerivativeVector;
         stateDerivativeVector.segment( 0, 6 ) = modifiedEquinoctialElementsDerivatives;

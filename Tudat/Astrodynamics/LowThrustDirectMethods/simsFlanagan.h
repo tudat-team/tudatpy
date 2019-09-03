@@ -49,7 +49,8 @@ public:
             pagmo::algorithm optimisationAlgorithm,
             const int numberOfGenerations,
             const int numberOfIndividualsPerPopulation,
-            std::function< Eigen::Vector3d( const double ) > initialGuessThrustModel = nullptr ) :
+            const double relativeToleranceConstraints = 1.0e-6,
+            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
@@ -62,7 +63,8 @@ public:
         optimisationAlgorithm_( optimisationAlgorithm ),
         numberOfGenerations_( numberOfGenerations ),
         numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        initialGuessThrustModel_( initialGuessThrustModel )
+        relativeToleranceConstraints_( relativeToleranceConstraints ) //,
+//        initialGuessThrustModel_( initialGuessThrustModel )
     {
 
         // Store initial spacecraft mass.
@@ -73,10 +75,22 @@ public:
         numberSegmentsForwardPropagation_ = ( numberSegments_ + 1 ) / 2;
         numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
 
-//        // Perform optimisation
-//        std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
-//        championFitness_ = bestIndividual.first;
-//        championDesignVariables_ = bestIndividual.second;
+        // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
+        if ( initialGuessThrustModel.first != nullptr )
+        {
+            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( initialGuessThrustModel.first, maximumThrust_, timeOfFlight_,
+                                                                               numberSegmentsForwardPropagation_, numberSegmentsBackwardPropagation_ );
+        }
+        else
+        {
+            initialGuessThrustModel_.first = std::vector< Eigen::Vector3d >( );
+        }
+        initialGuessThrustModel_.second = initialGuessThrustModel.second;
+
+        // Perform optimisation
+        std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
+        championFitness_ = bestIndividual.first;
+        championDesignVariables_ = bestIndividual.second;
 
     }
 
@@ -90,6 +104,18 @@ public:
     double computeDeltaV( )
     {
         return championFitness_[ 0 ];
+    }
+
+    //! Return best individual.
+    std::vector< double > getBestIndividual( )
+    {
+        return championDesignVariables_;
+    }
+
+    //! Return fitness of best individual.
+    std::vector< double > getBestIndividualFitness( )
+    {
+        return championFitness_;
     }
 
     //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
@@ -142,8 +168,13 @@ private:
     //! Number of individuals per population for the optimisation algorithm.
     int numberOfIndividualsPerPopulation_;
 
-    //! Thrust model as a function of time to be used an initial guess for the optimisation.
-    std::function< Eigen::Vector3d( const double ) > initialGuessThrustModel_;
+    //! Relative tolerance for optimisation constraints.
+    double relativeToleranceConstraints_;
+
+    //! Initial guess for the optimisation.
+    //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
+    //! The second element defines the bounds around the initial time (in percentage).
+    std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;

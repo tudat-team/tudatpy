@@ -50,12 +50,13 @@ struct HybridMethodProblem
     HybridMethodProblem( const Eigen::Vector6d& stateAtDeparture,
                          const Eigen::Vector6d& stateAtArrival,
                          const double maximumThrust,
-                         const std::function< double ( const double ) > specificImpulseFunction,
+                         const double specificImpulse,
                          const double timeOfFlight,
                          simulation_setup::NamedBodyMap bodyMap,
                          const std::string bodyToPropagate,
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+                         const std::pair< Eigen::VectorXd, double > initialGuessThrustModel,
                          const double relativeToleranceConstraints = 1.0e-6 );
 
     //! Calculate the fitness as a function of the parameter vector x
@@ -103,8 +104,8 @@ private:
     //! Maximum allowed thrust.
     double maximumThrust_;
 
-    //! Specific impulse function.
-    std::function< double ( const double ) > specificImpulseFunction_;
+    //! Specific impulse.
+    double specificImpulse_;
 
     //! Time of flight for the leg.
     double timeOfFlight_;
@@ -123,6 +124,17 @@ private:
 
     //! Initial spacecraft mass.
     double initialSpacecraftMass_;
+
+    //! Initial guess for the optimisation.
+    //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
+    //! The second element defines the bounds around the initial time (in percentage).
+    std::pair< Eigen::VectorXd, double > initialGuessThrustModel_;
+
+    //! Initial and final MEE costates for the thrust model initial guess.
+    Eigen::VectorXd guessInitialAndFinalCostates_;
+
+    //! Relative margin w.r.t. initial guess.
+    double relativeMarginWrtInitialGuess_;
 
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;

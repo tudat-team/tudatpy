@@ -42,16 +42,15 @@ public:
                      const Eigen::Vector6d& stateAtArrival,
                      const Eigen::VectorXd& initialCoStates,
                      const Eigen::VectorXd& finalCoStates,
-//                     const int numberOfRevolutions,
                      const double maximumThrust,
-                     const std::function< double ( const double ) > specificImpulseFunction,
+                     const double specificImpulse,
                      const double timeOfFlight,
                      simulation_setup::NamedBodyMap& bodyMap,
                      const std::string bodyToPropagate,
                      const std::string centralBody ):
     stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), initialCoStates_( initialCoStates ),
     finalCoStates_( finalCoStates ), maximumThrust_( maximumThrust ),
-    specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ), bodyMap_( bodyMap ),
+    specificImpulse_( specificImpulse ), timeOfFlight_( timeOfFlight ), bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
     {
         // Initialise value of the total deltaV.
@@ -178,7 +177,7 @@ private:
     double maximumThrust_;
 
     //! Specific impulse.
-    std::function< double ( const double ) > specificImpulseFunction_;
+    double specificImpulse_;
 
     //! Time of flight for the leg.
     double timeOfFlight_;

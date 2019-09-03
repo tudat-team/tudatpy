@@ -167,11 +167,11 @@ public:
     //! Propagate the trajectory inside one segment.
     Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
-
-protected:
-
     //! Propagate the mass from departure to a given segment.
     double propagateMassToSegment( int indexSegment );
+
+
+protected:
 
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
             unsigned int indexSegment );
