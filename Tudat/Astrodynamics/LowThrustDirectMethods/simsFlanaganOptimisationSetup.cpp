@@ -23,7 +23,9 @@ SimsFlanaganProblem::SimsFlanaganProblem(
         const double timeOfFlight,
         simulation_setup::NamedBodyMap bodyMap,
         const std::string bodyToPropagate,
-        const std::string centralBody ) :
+        const std::string centralBody,
+        const std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel,
+        const double relativeToleranceConstraints ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
     maximumThrust_( maximumThrust ),
@@ -32,9 +34,24 @@ SimsFlanaganProblem::SimsFlanaganProblem(
     timeOfFlight_( timeOfFlight ),
     bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ),
-    centralBody_( centralBody )
+    centralBody_( centralBody ),
+    initialGuessThrustModel_( initialGuessThrustModel ),
+    relativeToleranceConstraints_( relativeToleranceConstraints )
 {
     initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+
+    // Retrieve initial guess.
+    initialGuessThrottles_ = initialGuessThrustModel_.first;
+    relativeMarginWrtInitialGuess_ = initialGuessThrustModel_.second;
+
+    if ( ( relativeMarginWrtInitialGuess_ != TUDAT_NAN ) && ( ( relativeMarginWrtInitialGuess_ < 0.0) || ( relativeMarginWrtInitialGuess_ > 1.0 ) ) )
+    {
+        std::string errorMessage = "Error when using initial guess to create Sims-Flanagan optimisation problem, the relative margin w.r.t. the "
+                                   "initial guess should be constrained between [0,1], the current value is "
+                + std::to_string( relativeMarginWrtInitialGuess_ ) + ".";
+
+        throw std::runtime_error( errorMessage );
+    }
 }
 
 
@@ -50,20 +67,59 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
     std::vector< double > lowerBounds;
     for ( int i = 0 ; i < numberSegments_ ; i++ )
     {
+        bool isInitialGuessUsedForLowerBounds = false;
+
         // Lower bound for the 3 components of the thrust vector.
-        lowerBounds.push_back( - 1.0 );
-        lowerBounds.push_back( - 1.0 );
-        lowerBounds.push_back( - 1.0 );
+        if ( ( initialGuessThrottles_.size( ) != 0 ) )
+        {
+            Eigen::Vector3d lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ];
+
+            if ( ( lowerBoundsFromInitialGuess[ 0 ] >= -1 ) && ( lowerBoundsFromInitialGuess[ 1 ] >= -1 )
+                 && ( lowerBoundsFromInitialGuess[ 2 ] >= -1 ) )
+            {
+                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 0 ] );
+                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
+                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
+                isInitialGuessUsedForLowerBounds = true;
+            }
+        }
+
+        if ( !isInitialGuessUsedForLowerBounds )
+        {
+            lowerBounds.push_back( - 1.0 );
+            lowerBounds.push_back( - 1.0 );
+            lowerBounds.push_back( - 1.0 );
+        }
+
     }
 
     // Define upper bounds.
     std::vector< double > upperBounds;
     for ( int i = 0 ; i < numberSegments_ ; i++ )
     {
+        bool isInitialGuessUsedForUpperBounds = false;
+
         // Upper bound for the 3 components of the thrust vector.
-        upperBounds.push_back( 1.0 );
-        upperBounds.push_back( 1.0 );
-        upperBounds.push_back( 1.0 );
+        if ( ( initialGuessThrottles_.size( ) != 0 ) )
+        {
+            Eigen::Vector3d upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ];
+
+            if ( ( upperBoundsFromInitialGuess[ 0 ] <= 1.0 ) && ( upperBoundsFromInitialGuess[ 1 ] <= 1.0 )
+                 && ( upperBoundsFromInitialGuess[ 2 ] <= 1.0 ) )
+            {
+                upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
+                upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
+                upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
+                isInitialGuessUsedForUpperBounds = true;
+            }
+        }
+
+        if ( !isInitialGuessUsedForUpperBounds )
+        {
+            upperBounds.push_back( 1.0 );
+            upperBounds.push_back( 1.0 );
+            upperBounds.push_back( 1.0 );
+        }
     }
 
     return { lowerBounds, upperBounds };
@@ -79,8 +135,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     std::vector< Eigen::Vector3d > throttles;
 
     // Check consistency of the size of the design variables vector.
-    if ( ( /*(*/ designVariables.size( ) != 3 * numberSegments_ )/* && ( !optimiseTimeOfFlight_ ) )
-         || ( ( designVariables.size() != 3 * numberSegments_ + 1 ) && ( optimiseTimeOfFlight_ ) )*/ ) /*( designVariables.size() / 3 != numberSegments_ ) || ( designVariables.size() % 3 != 0 ) )*/
+    if ( designVariables.size( ) != 3 * numberSegments_ )
     {
         throw std::runtime_error( "Error, size of the design variables vector unconsistent with number of segments." );
     }
@@ -129,21 +184,53 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
                                        stateAtDeparture_.segment(3 ,3 ).norm() );
     }
 
+    // Inequality constraints.
+    std::vector< double > inequalityConstraints;
+    // Magnitude of the normalised thrust vector must be inferior or equal to 1 )
+    for ( unsigned int currentThrottle = 0 ; currentThrottle < throttles.size() ; currentThrottle++ )
+    {
+        if ( throttles[ currentThrottle ].norm( ) > 1.0 )
+        {
+            inequalityConstraints.push_back( throttles[ currentThrottle ][ 0 ] * throttles[ currentThrottle ][ 0 ]
+                    + throttles[ currentThrottle ][ 1 ] * throttles[ currentThrottle ][ 1 ]
+                    + throttles[ currentThrottle ][ 2 ] * throttles[ currentThrottle ][ 2 ] - 1.0 );
+        }
+        else
+        {
+            inequalityConstraints.push_back( 0.0 );
+        }
+    }
+
 //    for ( int i = 0 ; i < 6 ; i++ )
 //    {
 //        std::cout << "difference in extended state at match point: " << equalityConstraints[ i ] << "\n\n";
 //    }
 
 
-    // Inequality constraints
-    std::vector< double > inequalityConstraints;
-    // Magnitude of the normalised thrust vector must be inferior or equal to 1 )
-    for ( unsigned int currentThrottle = 0 ; currentThrottle < throttles.size() ; currentThrottle++ )
+    // Compute auxiliary variables.
+    Eigen::VectorXd c; c.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
+    Eigen::VectorXd r; r.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
+    Eigen::VectorXd epsilon; epsilon.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
+    for ( int i = 0 ; i < equalityConstraints.size( ) ; i++ )
     {
-        inequalityConstraints.push_back( throttles[ currentThrottle ][ 0 ] * throttles[ currentThrottle ][ 0 ]
-                + throttles[ currentThrottle ][ 1 ] * throttles[ currentThrottle ][ 1 ]
-                + throttles[ currentThrottle ][ 2 ] * throttles[ currentThrottle ][ 2 ] - 1.0 );
+        c[ i ] = 1.0 / relativeToleranceConstraints_;
+        r[ i ] = 1.0 - relativeToleranceConstraints_ * c[ i ];
+        epsilon[ i ] = equalityConstraints[ i ] * c[ i ] + r[ i ];
     }
+    for ( int i = 0 ; i < inequalityConstraints.size( ) ; i++ )
+    {
+        c[ equalityConstraints.size( ) + i ] = 1.0 / relativeToleranceConstraints_;
+        r[ equalityConstraints.size( ) + i ] = 1.0 - relativeToleranceConstraints_ * c[ equalityConstraints.size( ) + i ];
+        epsilon[ equalityConstraints.size( ) + i ] = inequalityConstraints[ i ] * c[ equalityConstraints.size( ) + i ] + r[ equalityConstraints.size( ) + i ];
+    }
+
+//    double weightTimeOfFlight = 1.0;
+    double weightDeltaV = 1.0;
+    double weightConstraints = 10.0;
+    double optimisationObjective = weightDeltaV * deltaV + weightConstraints * ( epsilon.norm( ) * epsilon.norm( ) );
+
+
+
 
 //    std::cout << "number inequality constraints: " << inequalityConstraints.size() << "\n\n";
 //    for ( int i = 0 ; i < inequalityConstraints.size() ; i++ )
@@ -155,20 +242,21 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     // Output of the fitness function.
 
     // Optimisation objectives
-    fitness.push_back( deltaV );
+//    fitness.push_back( deltaV );
+    fitness.push_back( optimisationObjective );
 
 
-    // Return equality constraints
-    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
-    {
-        fitness.push_back( equalityConstraints[ i ] );
-    }
+//    // Return equality constraints
+//    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
+//    {
+//        fitness.push_back( equalityConstraints[ i ] );
+//    }
 
-    // Return inequality constraints.
-    for ( unsigned int i = 0 ; i < inequalityConstraints.size() ; i++ )
-    {
-        fitness.push_back( inequalityConstraints[ i ] );
-    }
+//    // Return inequality constraints.
+//    for ( unsigned int i = 0 ; i < inequalityConstraints.size() ; i++ )
+//    {
+//        fitness.push_back( inequalityConstraints[ i ] );
+//    }
 
     return fitness;
 }

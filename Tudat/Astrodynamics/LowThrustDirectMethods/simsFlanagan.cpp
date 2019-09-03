@@ -60,7 +60,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
 
     // Create object to compute the problem fitness
     problem prob{ SimsFlanaganProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, numberSegments_,
-                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_ )};
+                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, initialGuessThrustModel_ )};
 
 
 
@@ -72,21 +72,27 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
     prob.set_c_tol( constraintsTolerance );
 
 
-//    algorithm algo{ pagmo::ihs() };
-//    algo.set_verbosity( 10 );
+    algorithm algo{ optimisationAlgorithm_ };
+////    algo.set_verbosity( 10 );
 
-        unconstrain unconstrainedProb{ prob, "ignore_o" };
-        population pop{ unconstrainedProb, 10 };
+//        unconstrain unconstrainedProb{ prob, "ignore_o" };
+//        population pop{ unconstrainedProb, 10 };
 
-//        algorithm algoUnconstrained{ pagmo::de1220() };
-        algorithm algoUnconstrained = optimisationAlgorithm_;
-        algoUnconstrained.set_verbosity( 10 );
-        algoUnconstrained.evolve( pop );
+////        algorithm algoUnconstrained{ pagmo::de1220() };
+//        algorithm algoUnconstrained = optimisationAlgorithm_;
+//        algoUnconstrained.set_verbosity( 10 );
+//        algoUnconstrained.evolve( pop );
 
-        island islUnconstrained{ algoUnconstrained, unconstrainedProb, 10 /*5000*/ };
+//        unsigned long long populationSize = numberOfIndividualsPerPopulation_;
 
-        // Evolve for 10 generations
-        for( int i = 0 ; i < 1 /*600*/ ; i++ )
+//        island islUnconstrained{ algoUnconstrained, unconstrainedProb, populationSize };
+
+        unsigned long long populationSize = numberOfIndividualsPerPopulation_;
+
+        island islUnconstrained{ algo, prob, populationSize };
+
+        // Evolve for a given number of generations.
+        for( int i = 0 ; i < numberOfGenerations_ ; i++ )
         {
             islUnconstrained.evolve( );
             while( islUnconstrained.status( ) != pagmo::evolve_status::idle &&
@@ -195,15 +201,24 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     // Retrieve Sims Flanagan acceleration map.
     basic_astrodynamics::AccelerationMap accelerationMapSimsFlanagan = simsFlanaganLeg.getAccelerationModelFullLeg( );
 
-    // Compute state at half of the time of flight.
-    Eigen::Vector6d stateHalvedTimeOfFlight;
+    // Compute state at half of the time of flight after forward propagation.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanaganLeg.propagateTrajectoryForward(
+                0.0, timeOfFlight_ / 2.0, stateAtDeparture_, timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
 ////        std::cout << "state halved time of flight high fidelity solution: " << simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
 ////                         timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ ) << "\n\n";
-        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-        stateHalvedTimeOfFlight = simsFlanaganLeg.propagateTrajectoryForward( 0.0, timeOfFlight_ / 2.0, stateAtDeparture_,
-                                                                              timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
+
+    // Compute state at half of the time of flight after backward propagation.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation = simsFlanaganLeg.propagateTrajectoryBackward(
+                timeOfFlight_, timeOfFlight_ / 2.0, stateAtArrival_, timeOfFlight_ / ( 2.0 * numberSegmentsBackwardPropagation_ ) );
+
+    Eigen::Vector6d stateHalfOfTimeOfFlight = ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation ) / 2.0;
                 // 0.0,  timeOfFlight_ / 2.0, stateAtDeparture_ );
-        std::cout << "state halved time of flight low fidelity solution: " << stateHalvedTimeOfFlight << "\n\n";
+        std::cout << "state halved time of flight low fidelity solution: " << stateHalfOfTimeOfFlight << "\n\n";
+
+        std::cout << "state half TOF backward propagation: " << stateHalfOfTimeOfFlightBackwardPropagation.transpose() << "\n\n";
+        std::cout << "state half TOF backward propagation TEST: " << simsFlanaganLeg.getStateAtMatchPointBackwardPropagation().transpose() << "\n\n";
 ////        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 ////        simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
 
@@ -230,14 +245,14 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     // Define backward translational state propagation settings.
     translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalvedTimeOfFlight,
+                          std::vector< std::string >{ bodyToPropagate_ }, stateHalfOfTimeOfFlightForwardPropagation,
                           propagatorSettings.first->getTerminationSettings(),
                           propagatorSettings.first->propagator_, propagatorSettings.first->getDependentVariablesToSave() );
 
     // Define forward translational state propagation settings.
     translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalvedTimeOfFlight,
+                          std::vector< std::string >{ bodyToPropagate_ }, stateHalfOfTimeOfFlightBackwardPropagation,
                           propagatorSettings.second->getTerminationSettings(),
                           propagatorSettings.first->propagator_, propagatorSettings.second->getDependentVariablesToSave() );
 
@@ -333,11 +348,11 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
     }
 
-    std::vector< double > epochsBackwardPropagation;
-    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
-    {
-        epochsBackwardPropagation.push_back( epochsVector[ i ] );
-    }
+    std::vector< double > epochsBackwardPropagation = epochsVector;
+//    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
+//    {
+//        epochsBackwardPropagation.push_back( epochsVector[ i ] );
+//    }
 
     // Reset initial integrator settings.
     integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
@@ -366,13 +381,21 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
+    std::vector< double > epochsForwardPropagationTest;
+    for ( int i = epochsForwardPropagation.size() - 1 ; i >= 0 ; i-- )
+    {
+        epochsForwardPropagationTest.push_back( epochsForwardPropagation[ i ] );
+    }
 
-        int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
-        simsFlanaganLeg.propagateTrajectoryBackward( epochsBackwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
-                                                     timeOfFlight_ / 2.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
-        int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
-        simsFlanaganLeg.propagateTrajectoryForward( epochsForwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
-                                                    timeOfFlight_ / 2.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
+    double massAtTimeOfFlight = simsFlanaganLeg.propagateMassToSegment( numberSegments_ );
+
+    int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
+    simsFlanaganLeg.propagateTrajectoryForward( epochsBackwardPropagation, SimsFlanaganResults, stateAtDeparture_,
+                                                 initialSpacecraftMass_, 0.0 /* timeOfFlight_ / 2.0 */, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
+
+    int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
+    simsFlanaganLeg.propagateTrajectoryBackward( epochsForwardPropagationTest, SimsFlanaganResults, stateAtArrival_,
+                                                massAtTimeOfFlight, timeOfFlight_ /*/ 2.0*/, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
 
 }
 

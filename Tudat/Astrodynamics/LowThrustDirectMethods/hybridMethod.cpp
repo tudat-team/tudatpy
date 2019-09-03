@@ -27,6 +27,15 @@ namespace low_thrust_direct_methods
 {
 
 
+//! Transform thrust model as a function of time into hybrid method thrust model.
+Eigen::Matrix< double, 10, 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime )
+{
+    Eigen::Matrix< double, 10, 1 > meeInitialAndFinalCostates;
+
+    return meeInitialAndFinalCostates;
+}
+
+
 //! Perform optimisation.
 std::pair< std::vector< double >, std::vector< double > > HybridMethod::performOptimisation( )
 {
@@ -36,8 +45,8 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
     pagmo::random_device::set_seed( 456 );
 
     // Create object to compute the problem fitness
-    problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
-                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings_, relativeToleranceConstraints_ )};
+    problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_,
+                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, relativeToleranceConstraints_ )};
 
     std::vector< double > constraintsTolerance;
     for ( unsigned int i = 0 ; i < ( prob.get_nec() + prob.get_nic() ) ; i++ )
@@ -54,10 +63,12 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 //    algoUnconstrained.set_verbosity( 10 );
 //    algoUnconstrained.evolve( pop );
 
-    island island{ algo, prob, 10 /*5000*/ };
+    unsigned long long populationSize = numberOfIndividualsPerPopulation_;
+
+    island island{ algo, prob, populationSize };
 
     // Evolve for 10 generations
-    for( int i = 0 ; i < 1 /*600*/ ; i++ )
+    for( int i = 0 ; i < numberOfGenerations_ ; i++ )
     {
         island.evolve( );
         while( island.status( ) != pagmo::evolve_status::idle &&
@@ -162,7 +173,7 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
 
     // Create hybrid method leg object.
     HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture_, stateAtArrival_, bestInitialMEEcostates, bestFinalMEEcostates,
-                                                       maximumThrust_, specificImpulseFunction_, timeOfFlight_, bodyMap_, bodyToPropagate_,
+                                                       maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_,
                                                        centralBody_ );
 
     // Retrieve hybrid method acceleration map.

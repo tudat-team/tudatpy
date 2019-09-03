@@ -25,6 +25,9 @@ namespace low_thrust_direct_methods
 {
 
 
+//! Transform thrust model as a function of time into hybrid method thrust model.
+Eigen::Matrix< double, 10 , 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime );
+
 class HybridMethod
 {
 public:
@@ -34,34 +37,52 @@ public:
             const Eigen::Vector6d& stateAtDeparture,
             const Eigen::Vector6d& stateAtArrival,
             const double maximumThrust,
-            const std::function< double ( const double ) > specificImpulseFunction,
+            const double specificImpulse,
             const double timeOfFlight,
             simulation_setup::NamedBodyMap bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
-            pagmo::algorithm optimisationAlgorithm,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            const double relativeToleranceConstraints = 1.0e-6 ) :
+            pagmo::algorithm optimisationAlgorithm,
+            const int numberOfGenerations,
+            const int numberOfIndividualsPerPopulation,
+            const double relativeToleranceConstraints = 1.0e-6,
+            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
-        specificImpulseFunction_( specificImpulseFunction ),
+        specificImpulse_( specificImpulse ),
         timeOfFlight_( timeOfFlight ),
         bodyMap_( bodyMap ),
         bodyToPropagate_( bodyToPropagate ),
         centralBody_( centralBody ),
-        optimisationAlgorithm_( optimisationAlgorithm ),
         integratorSettings_( integratorSettings ),
-        relativeToleranceConstraints_( relativeToleranceConstraints )
+        optimisationAlgorithm_( optimisationAlgorithm ),
+        numberOfGenerations_( numberOfGenerations ),
+        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
+        relativeToleranceConstraints_( relativeToleranceConstraints ) //,
+//        initialGuessThrustModel_( initialGuessThrustModel )
     {
 
         // Store initial spacecraft mass.
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
-//        // Perform optimisation
-//        std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
-//        championFitness_ = bestIndividual.first;
-//        championDesignVariables_ = bestIndividual.second;
+        // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the hybrid method.
+        if ( initialGuessThrustModel.first != nullptr )
+        {
+            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( initialGuessThrustModel.first );
+        }
+        else
+        {
+            Eigen::VectorXd emptyVector;
+            initialGuessThrustModel_.first = emptyVector; //Eigen::VectorXd::Zero( 10 ); // emptyVector;
+        }
+        initialGuessThrustModel_.second = initialGuessThrustModel.second;
+
+        // Perform optimisation
+        std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
+        championFitness_ = bestIndividual.first;
+        championDesignVariables_ = bestIndividual.second;
 
     }
 
@@ -111,8 +132,8 @@ private:
     //! Maximum allowed thrust.
     double maximumThrust_;
 
-    //! Specific impulse function.
-    std::function< double ( const double ) > specificImpulseFunction_;
+    //! Specific impulse.
+    double specificImpulse_;
 
     //! Time of flight for the leg.
     double timeOfFlight_;
@@ -126,14 +147,25 @@ private:
     //! Name of the central body.
     std::string centralBody_;
 
-    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-    pagmo::algorithm optimisationAlgorithm_;
-
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
+    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
+    pagmo::algorithm optimisationAlgorithm_;
+
+    //! Number of generations for the optimisation algorithm.
+    int numberOfGenerations_;
+
+    //! Number of individuals per population for the optimisation algorithm.
+    int numberOfIndividualsPerPopulation_;
+
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;
+
+    //! Initial guess for the optimisation.
+    //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
+    //! The second element defines the bounds around the initial time (in percentage).
+    std::pair< Eigen::VectorXd, double > initialGuessThrustModel_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;

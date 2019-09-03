@@ -55,7 +55,9 @@ struct SimsFlanaganProblem
                          const double timeOfFlight,
                          simulation_setup::NamedBodyMap bodyMap,
                          const std::string bodyToPropagate,
-                         const std::string centralBody );
+                         const std::string centralBody,
+                         const std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel,
+                         const double relativeToleranceConstraints = 1.0e-6 );
 
     //! Calculate the fitness as a function of the parameter vector x
     std::vector< double > fitness( const std::vector< double > &x ) const;
@@ -74,12 +76,12 @@ struct SimsFlanaganProblem
 
     vector_double::size_type get_nic() const
     {
-        return numberSegments_;
+        return 0u; //numberSegments_;
     }
 
     vector_double::size_type get_nec() const
     {
-        return 6u;
+        return 0u; //6u;
     }
 
 //    //! Serialization function for Pagmo compatibility
@@ -122,6 +124,20 @@ private:
 
     //! Initial spacecraft mass.
     double initialSpacecraftMass_;
+
+    //! Initial guess for the optimisation.
+    //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
+    //! The second element defines the bounds around the initial time (in percentage).
+    std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel_;
+
+    //! Thrust throttles for the thrust model initial guess.
+    std::vector< Eigen::Vector3d > initialGuessThrottles_;
+
+    //! Relative margin w.r.t. initial guess.
+    double relativeMarginWrtInitialGuess_;
+
+    //! Relative tolerance for optimisation constraints.
+    double relativeToleranceConstraints_;
 
 
 };
