@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulse,
                                               timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
-                                               optimisationAlgorithm, 2, 1000, 1.0e-3 );
+                                               optimisationAlgorithm, 1, 10, 1.0e-3 );
 
     std::pair< std::vector< double >, std::vector< double > > champion = hybridMethod.performOptimisation();
 

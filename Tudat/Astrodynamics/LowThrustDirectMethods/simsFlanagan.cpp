@@ -73,99 +73,42 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
 
 
     algorithm algo{ optimisationAlgorithm_ };
-////    algo.set_verbosity( 10 );
 
-//        unconstrain unconstrainedProb{ prob, "ignore_o" };
-//        population pop{ unconstrainedProb, 10 };
+    unsigned long long populationSize = numberOfIndividualsPerPopulation_;
 
-////        algorithm algoUnconstrained{ pagmo::de1220() };
-//        algorithm algoUnconstrained = optimisationAlgorithm_;
-//        algoUnconstrained.set_verbosity( 10 );
-//        algoUnconstrained.evolve( pop );
+    island islUnconstrained{ algo, prob, populationSize };
 
-//        unsigned long long populationSize = numberOfIndividualsPerPopulation_;
-
-//        island islUnconstrained{ algoUnconstrained, unconstrainedProb, populationSize };
-
-        unsigned long long populationSize = numberOfIndividualsPerPopulation_;
-
-        island islUnconstrained{ algo, prob, populationSize };
-
-        // Evolve for a given number of generations.
-        for( int i = 0 ; i < numberOfGenerations_ ; i++ )
+    // Evolve for a given number of generations.
+    for( int i = 0 ; i < numberOfGenerations_ ; i++ )
+    {
+        islUnconstrained.evolve( );
+        while( islUnconstrained.status( ) != pagmo::evolve_status::idle &&
+               islUnconstrained.status( ) != pagmo::evolve_status::idle_error )
         {
-            islUnconstrained.evolve( );
-            while( islUnconstrained.status( ) != pagmo::evolve_status::idle &&
-                   islUnconstrained.status( ) != pagmo::evolve_status::idle_error )
-            {
-                islUnconstrained.wait( );
-            }
-            islUnconstrained.wait_check( ); // Raises errors
-
-            // Write current iteration results to file
-            printPopulationToFile( islUnconstrained.get_population( ).get_x( ), "testSimsFlanagan_generation_" + std::to_string( i ) , false );
-            printPopulationToFile( islUnconstrained.get_population( ).get_f( ), "testSimsFlanagan_generation_" + std::to_string( i ) , true );
-
-            std::vector< double > championFitness = islUnconstrained.get_population().champion_f();
-            for ( int i = 0 ; i < championFitness.size() ; i++ )
-            {
-                std::cout << "champion fitness: " << championFitness[ i ] << "\n\n";
-            }
-            std::cout << "TEST" << "\n\n";
-            std::cout<< "current generation: " << i << std::endl;
+            islUnconstrained.wait( );
         }
-        std::cout << "TEST" << "\n\n";
+        islUnconstrained.wait_check( ); // Raises errors
+
+        // Write current iteration results to file
+        printPopulationToFile( islUnconstrained.get_population( ).get_x( ), "testSimsFlanagan_generation_" + std::to_string( i ) , false );
+        printPopulationToFile( islUnconstrained.get_population( ).get_f( ), "testSimsFlanagan_generation_" + std::to_string( i ) , true );
 
         std::vector< double > championFitness = islUnconstrained.get_population().champion_f();
-        std::vector< double > championDesignVariables = islUnconstrained.get_population().champion_x();
-        for ( int i = 0 ; i < championFitness.size() ; i++ )
-        {
-            std::cout << "champion fitness: " << championFitness[ i ] << "\n\n";
-        }
-        for ( int i = 0 ; i < championDesignVariables.size() ; i++ )
-        {
-            std::cout << "champion design variables: " << championDesignVariables[ i ] << "\n\n";
-        }
+    }
 
-        std::vector< double > championFitnessConstrainedPb = prob.fitness( championDesignVariables );
-        for ( int i = 0 ; i < championFitnessConstrainedPb.size() ; i++ )
-        {
-            std::cout << "champion fitness constrained problem: " << championFitnessConstrainedPb[ i ] << "\n\n";
-        }
+    std::vector< double > championFitness = islUnconstrained.get_population().champion_f();
+    std::vector< double > championDesignVariables = islUnconstrained.get_population().champion_x();
 
-        std::cout << "champion fitness: " << championFitness[ 0 ] << "\n\n";
+    std::vector< double > championFitnessConstrainedPb = prob.fitness( championDesignVariables );
 
+    std::pair< std::vector< double >, std::vector< double > > output;
+    output.first = championFitness;
+    output.second = championDesignVariables;
 
+    championFitness_ = championFitness;
+    championDesignVariables_ = championDesignVariables;
 
-//        // Create an island with 1024 individuals
-//        island isl{ algo, prob, 100}; //1024};
-
-//        // Evolve for 100 generations
-//        for( int i = 0 ; i < 1 ; i++ ) //300 ; i++) //100; i++ )
-//        {
-//            isl.evolve( );
-//            while( isl.status( ) != pagmo::evolve_status::idle &&
-//                   isl.status( ) != pagmo::evolve_status::idle_error )
-//            {
-//                isl.wait( );
-//            }
-//            isl.wait_check( ); // Raises errors
-
-//            // Write current iteration results to file
-//            printPopulationToFile( isl.get_population( ).get_x( ), "testSimsFlanagan_generation_" + std::to_string( i ) , false );
-//            printPopulationToFile( isl.get_population( ).get_f( ), "testSimsFlanagan_generation_" + std::to_string( i ) , true );
-
-//            std::cout<< "current generation: " << i << std::endl;
-//        }
-
-        std::pair< std::vector< double >, std::vector< double > > output;
-        output.first = championFitness;
-        output.second = championDesignVariables;
-
-        championFitness_ = championFitness;
-        championDesignVariables_ = championDesignVariables;
-
-        return output;
+    return output;
 
 }
 
@@ -205,22 +148,11 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
     Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanaganLeg.propagateTrajectoryForward(
                 0.0, timeOfFlight_ / 2.0, stateAtDeparture_, timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
-////        std::cout << "state halved time of flight high fidelity solution: " << simsFlanaganLeg.propagateTrajectoryHighOrderSolution(
-////                         timeOfFlight_ / 2.0, integratorSettings_, propagatorType_ ) << "\n\n";
 
     // Compute state at half of the time of flight after backward propagation.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
     Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation = simsFlanaganLeg.propagateTrajectoryBackward(
                 timeOfFlight_, timeOfFlight_ / 2.0, stateAtArrival_, timeOfFlight_ / ( 2.0 * numberSegmentsBackwardPropagation_ ) );
-
-    Eigen::Vector6d stateHalfOfTimeOfFlight = ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation ) / 2.0;
-                // 0.0,  timeOfFlight_ / 2.0, stateAtDeparture_ );
-        std::cout << "state halved time of flight low fidelity solution: " << stateHalfOfTimeOfFlight << "\n\n";
-
-        std::cout << "state half TOF backward propagation: " << stateHalfOfTimeOfFlightBackwardPropagation.transpose() << "\n\n";
-        std::cout << "state half TOF backward propagation TEST: " << simsFlanaganLeg.getStateAtMatchPointBackwardPropagation().transpose() << "\n\n";
-////        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-////        simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
 
     // Re-initialise spacecraft mass in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
@@ -391,11 +323,13 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
 
     int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
     simsFlanaganLeg.propagateTrajectoryForward( epochsBackwardPropagation, SimsFlanaganResults, stateAtDeparture_,
-                                                 initialSpacecraftMass_, 0.0 /* timeOfFlight_ / 2.0 */, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
+                                                 initialSpacecraftMass_, 0.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
 
     int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
     simsFlanaganLeg.propagateTrajectoryBackward( epochsForwardPropagationTest, SimsFlanaganResults, stateAtArrival_,
-                                                massAtTimeOfFlight, timeOfFlight_ /*/ 2.0*/, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+                                                massAtTimeOfFlight, timeOfFlight_, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+
+    deltaV_ = simsFlanaganLeg.getTotalDeltaV();
 
 }
 

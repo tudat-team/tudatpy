@@ -103,7 +103,7 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( )
     {
-        return championFitness_[ 0 ];
+        return deltaV_; //championFitness_[ 0 ];
     }
 
     //! Return best individual.
@@ -117,6 +117,8 @@ public:
     {
         return championFitness_;
     }
+
+
 
     //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
     void computeSimsFlanaganTrajectoryAndFullPropagation(
@@ -190,6 +192,9 @@ private:
 
     //! Number of segments for the backward propagation from arrival to match point.
     int numberSegmentsBackwardPropagation_;
+
+    //! DeltaV corresponding to best trajectory.
+    double deltaV_;
 
 };
 

@@ -48,7 +48,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
     // Define (constant) thrust magnitude function.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
     {
-        return maximumThrust_ /*/ bodyMap_[ bodyToPropagate_ ]->getBodyMass()*/ * throttles_[ indexSegment ].norm();
+        return maximumThrust_ * throttles_[ indexSegment ].norm();
     };
 
     // Define thrust magnitude settings from thrust magnitude function.
@@ -104,25 +104,10 @@ basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getAccelerationModelPerSeg
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg::getThrustAccelerationSettingsFullLeg( )
 {
 
-//    double segmentDurationForwardPropagation = timeAtMatchPoint_ / numberSegmentsForwardPropagation_;
-//    double segmentDurationBackwardPropagation = timeAtMatchPoint_ / numberSegmentsBackwardPropagation_;
-
     // Define thrust magnitude function.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
     {
         int indexSegment = convertTimeToLegSegment( currentTime );
-//        if ( currentTime < timeAtMatchPoint_ )
-//        {
-//            indexSegment = currentTime / segmentDurationForwardPropagation;
-//        }
-//        else if ( currentTime == timeOfFlight_ )
-//        {
-//            indexSegment = numberSegments_ - 1;
-//        }
-//        else
-//        {
-//            indexSegment = numberSegmentsForwardPropagation_ + ( currentTime - timeAtMatchPoint_ ) / segmentDurationBackwardPropagation;
-//        }
 
         return maximumThrust_ * throttles_[ indexSegment ].norm();
     };
@@ -136,18 +121,6 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
     {
         int indexSegment = convertTimeToLegSegment( currentTime );
-//        if ( currentTime < timeAtMatchPoint_ )
-//        {
-//            indexSegment = currentTime / segmentDurationForwardPropagation;
-//        }
-//        else if ( currentTime == timeOfFlight_ )
-//        {
-//            indexSegment = numberSegments_ - 1;
-//        }
-//        else
-//        {
-//            indexSegment = numberSegmentsForwardPropagation_ + ( currentTime - timeAtMatchPoint_ ) / segmentDurationBackwardPropagation;
-//        }
 
         return throttles_[ indexSegment ].normalized();
     };
@@ -234,18 +207,6 @@ void SimsFlanaganLeg::propagateForwardFromDepartureToMatchPoint( )
     // Initialise current state at the leg departure.
     Eigen::Vector6d currentState = stateAtDeparture_;
 
-//    Eigen::Vector6d testWithoutThrust = orbital_element_conversions::convertKeplerianToCartesianElements(
-//                orbital_element_conversions::propagateKeplerOrbit(
-//                orbital_element_conversions::convertCartesianToKeplerianElements( currentState, centralBodyGravitationalParameter_ ),
-//                timeOfFlight_ / 2.0, centralBodyGravitationalParameter_ ), centralBodyGravitationalParameter_ );
-
-
-//    // Loop over the leg segments of the forward propagation.
-//    for ( unsigned int currentSegment = 0 ; currentSegment < numberSegmentsForwardPropagation_ ; currentSegment++ )
-//    {
-//        // Forward propagation over one segment of the leg.
-//        currentState = propagateForwardSegment( currentSegment, currentState );
-//    }
     currentState = propagateTrajectoryForward( 0.0, timeAtMatchPoint_, stateAtDeparture_, timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
 
     // Set state vector at match point once the forward propagation is over.
@@ -254,11 +215,6 @@ void SimsFlanaganLeg::propagateForwardFromDepartureToMatchPoint( )
     // Set mass of the spacecraft at match point after the forward propagation.
     massAtMatchPointFromForwardPropagation_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
 
-    std::cout << "END OF FORWARD PROPAGATION: " << "\n\n";
-    std::cout << "state at match point: " << stateAtMatchPointFromForwardPropagation_ << "\n\n";
-    std::cout << "mass at match point: " << massAtMatchPointFromForwardPropagation_ << "\n\n";
-
-//    std::cout << "test without thrust: " << testWithoutThrust << "\n\n";
 
 }
 
@@ -271,18 +227,6 @@ void SimsFlanaganLeg::propagateBackwardFromArrivalToMatchPoint( )
     // Initialise mass of the spacecraft at the end of the leg.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( propagateMassToSegment( numberSegments_ ) );
 
-//    Eigen::Vector6d testWithoutThrust = orbital_element_conversions::convertKeplerianToCartesianElements(
-//                orbital_element_conversions::propagateKeplerOrbit(
-//                orbital_element_conversions::convertCartesianToKeplerianElements( currentState, centralBodyGravitationalParameter_ ),
-//                - timeOfFlight_ / 2.0, centralBodyGravitationalParameter_ ), centralBodyGravitationalParameter_ );
-
-//    // Loop over the leg segments of the backward propagation.
-//    for ( unsigned int currentSegment = numberSegments_ - 1 ;
-//          currentSegment >= numberSegmentsForwardPropagation_ ; currentSegment-- )
-//    {
-//        // Backward propagation over one segment of the leg.
-//        currentState = propagateBackwardSegment( currentSegment, currentState );
-//    }
     currentState = propagateTrajectoryBackward( timeOfFlight_, timeAtMatchPoint_, stateAtArrival_, timeAtMatchPoint_ / numberSegmentsBackwardPropagation_ );
 
     // Set state vector at match point once the backward propagation is over.
@@ -290,15 +234,6 @@ void SimsFlanaganLeg::propagateBackwardFromArrivalToMatchPoint( )
 
     // Set mass of the spacecraft at match point after the backward propagation.
     massAtMatchPointFromBackwardPropagation_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
-
-
-    std::cout << "END OF BACKWARD PROPAGATION: " << "\n\n";
-    std::cout << "state at match point: " << stateAtMatchPointFromBackwardPropagation_ << "\n\n";
-    std::cout << "mass at match point: " << massAtMatchPointFromBackwardPropagation_ << "\n\n";
-
-//    std::cout << "test without thrust: " << testWithoutThrust << "\n\n";
-
-//    std::cout << "mass at the end of the leg (after propagation): " << propagateMassToLegArrival( ) << "n\n";
 
 }
 
@@ -312,8 +247,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
 
     // Compute current segment.
     int currentSegment = convertTimeToLegSegment( initialTime );
-    std::cout << "mid-segment: " << ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) << "\n\n";
-    std::cout << "current segment: " << currentSegment << "\n\n";
 
     // Initialise propagated state.
     Eigen::Vector6d propagatedState = initialState;
@@ -323,11 +256,9 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
 
 
     // Propagate from start of the current leg segment to the required propagation final time.
-    if ( /*timeElapsedCurrentSegment <= segmentDuration */
-         ( finalTime <= ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) )
+    if ( ( finalTime <= ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) )
          || ( initialTime > ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) ) )
     {
-        std::cout << "no DELTAV: " << "\n\n";
         // Directly propagate the current state over the time elapsed since the start of the current leg segment.
         propagatedState = orbital_element_conversions::convertKeplerianToCartesianElements(
                     orbital_element_conversions::propagateKeplerOrbit(
@@ -337,8 +268,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
     }
     else
     {
-        std::cout << "detection DELTAV" << "\n\n";
-
         // First propagate the current state to half of the current segment.
         if ( ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) - initialTime > 0.0 )
         {
@@ -346,7 +275,8 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
                         orbital_element_conversions::propagateKeplerOrbit(
                             orbital_element_conversions::convertCartesianToKeplerianElements(
                                 propagatedState, centralBodyGravitationalParameter_ ),
-                            ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) - initialTime /*segmentDuration / 2.0*/, centralBodyGravitationalParameter_ ), centralBodyGravitationalParameter_ );
+                            ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) - initialTime, centralBodyGravitationalParameter_ ),
+                        centralBodyGravitationalParameter_ );
         }
 
         // Compute the deltaV that needs to be applied at half of the current segment.
@@ -367,21 +297,15 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
                         orbital_element_conversions::propagateKeplerOrbit(
                             orbital_element_conversions::convertCartesianToKeplerianElements(
                                 propagatedState, centralBodyGravitationalParameter_ ),
-                            finalTime - ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) /*timeElapsedCurrentSegment - segmentDuration / 2.0*/, centralBodyGravitationalParameter_ ),
+                            finalTime - ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ), centralBodyGravitationalParameter_ ),
                         centralBodyGravitationalParameter_ );
         }
 
-        // Update mass of the vehicle.
-//        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( bodyMap_[ bodyToPropagate_ ]->getBodyMass() *
-//                    std::exp( - deltaVvector.norm() / ( specificImpulseFunction_( initialTime + segmentDuration / 2.0 ) *
-//                                                        physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) ) );
 
         // Update mass of the vehicle.
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( propagateMassToSegment( currentSegment + 1 ) );
 
     }
-
-    std::cout << "propagated state: " << propagatedState << "\n\n";
 
     return propagatedState;
 }
@@ -395,8 +319,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
 
     // Compute current segment.
     int currentSegment = convertTimeToLegSegment( finalTime );
-    std::cout << "mid-segment: " << ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) << "\n\n";
-    std::cout << "current segment: " << currentSegment << "\n\n";
 
     // Initialise propagated state.
     Eigen::Vector6d propagatedState = initialState;
@@ -406,7 +328,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
     if ( ( finalTime >= ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) )
          || ( initialTime < ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) ) )
     {
-        std::cout << "no DELTAV: " << "\n\n";
         // Directly propagate the current state over the time elapsed since the start of the current leg segment.
         propagatedState = orbital_element_conversions::convertKeplerianToCartesianElements(
                     orbital_element_conversions::propagateKeplerOrbit(
@@ -416,8 +337,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
     }
     else
     {
-        std::cout << "detection DELTAV" << "\n\n";
-
         // First propagate the current state to half of the current segment.
         if ( initialTime - ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) > 0.0 )
         {
@@ -425,7 +344,8 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
                         orbital_element_conversions::propagateKeplerOrbit(
                             orbital_element_conversions::convertCartesianToKeplerianElements(
                                 propagatedState, centralBodyGravitationalParameter_ ),
-                            ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) - initialTime /*segmentDuration / 2.0*/, centralBodyGravitationalParameter_ ), centralBodyGravitationalParameter_ );
+                            ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) - initialTime,
+                            centralBodyGravitationalParameter_ ), centralBodyGravitationalParameter_ );
         }
 
         // Update mass of the vehicle.
@@ -449,15 +369,13 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
                         orbital_element_conversions::propagateKeplerOrbit(
                             orbital_element_conversions::convertCartesianToKeplerianElements(
                                 propagatedState, centralBodyGravitationalParameter_ ),
-                            finalTime - ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ) /*timeElapsedCurrentSegment - segmentDuration / 2.0*/, centralBodyGravitationalParameter_ ),
+                            finalTime - ( timesAtNodes_[ currentSegment ] + segmentDuration / 2.0 ), centralBodyGravitationalParameter_ ),
                         centralBodyGravitationalParameter_ );
         }
 
 
 
     }
-
-    std::cout << "propagated state: " << propagatedState << "\n\n";
 
     return propagatedState;
 }
@@ -481,7 +399,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime,
 
     if ( initialSegment == finalSegment )
     {
-        std::cout << "propagation over less than one segment: " << "\n\n";
         // Directly propagate to final time inside the current segment.
         if ( finalTime - initialTime > 0 )
         {
@@ -490,8 +407,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime,
     }
     else
     {
-        std::cout << "propagate through several segments" << "\n\n";
-
         // First propagate to beginning of next segment.
         propagatedState = propagateInsideForwardSegment( initialTime, timesAtNodes_[ initialSegment + 1 ], segmentDuration, propagatedState );
 
@@ -501,7 +416,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime,
         // Compute number of segments the trajectory should be propagated through before reaching the segment corresponding
         // to the final propagation time.
         int propagatedSegments = ( finalTime - timesAtNodes_[ currentSegment ] ) / segmentDuration;
-//            std::cout << "propagated segments: " << propagatedSegments << "\n\n";
 
         // Propagate through these segments.
         for ( int i = 0 ; i < propagatedSegments ; i++ )
@@ -517,8 +431,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime,
             propagatedState = propagateInsideForwardSegment( timesAtNodes_[ currentSegment ], finalTime, segmentDuration, propagatedState );
             currentSegment++;
         }
-
-//            std::cout << "number of segments to match point: " << currentSegment << "\n\n";
 
     }
 
@@ -545,18 +457,14 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime
 
     if ( initialSegment == finalSegment )
     {
-        std::cout << "propagation over less than one segment: " << "\n\n";
         // Directly propagate to final time inside the current segment.
         if ( finalTime - initialTime < 0 )
         {
             propagatedState = propagateInsideBackwardSegment( initialTime, finalTime, segmentDuration, propagatedState );
         }
-        std::cout << "initial time: " << initialTime << "\n\n";
-        std::cout << "final time: " << finalTime << "\n\n";
     }
     else
     {
-        std::cout << "propagate through several segments" << "\n\n";
 
         // First propagate to beginning of next segment.
         propagatedState = propagateInsideBackwardSegment( initialTime, timesAtNodes_[ initialSegment ], segmentDuration, propagatedState );
@@ -567,7 +475,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime
         // Compute number of segments the trajectory should be propagated through before reaching the segment corresponding
         // to the final propagation time.
         int propagatedSegments = ( timesAtNodes_[ currentSegment + 1 ] - finalTime ) / segmentDuration;
-//            std::cout << "propagated segments: " << propagatedSegments << "\n\n";
 
         // Propagate through these segments.
         for ( int i = 0 ; i < propagatedSegments ; i++ )
@@ -583,8 +490,6 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime
             propagatedState = propagateInsideBackwardSegment( timesAtNodes_[ currentSegment + 1 ], finalTime, segmentDuration, propagatedState );
             currentSegment--;
         }
-
-//            std::cout << "number of segments to match point: " << currentSegment << "\n\n";
 
     }
 
@@ -624,7 +529,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
 
             if ( epochIndex == 0 )
             {
-                if ( ( currentTime > initialTime ) /*&& ( currentTime <= timeAtMatchPoint_ )*/ )
+                if ( currentTime > initialTime )
                 {
                     propagatedState = propagateTrajectoryForward( initialTime, currentTime, propagatedState,
                                                                   timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
@@ -662,7 +567,6 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
         for ( int epochIndex = 0 ; epochIndex < epochs.size() ; epochIndex++ )
         {
             double currentTime = epochs[ epochIndex ];
-    //        std::cout << "current time: " << currentTime << "\n\n";
             if ( epochIndex > 0 )
             {
                 if ( currentTime > epochs[ epochIndex - 1 ] )
@@ -680,9 +584,10 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
 
             if ( epochIndex == 0 )
             {
-                if ( ( currentTime < initialTime ) /*&& ( currentTime <= timeAtMatchPoint_ )*/ )
+                if ( currentTime < initialTime )
                 {
-                    propagatedState = propagateTrajectoryBackward( initialTime, currentTime, propagatedState, timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
+                    propagatedState = propagateTrajectoryBackward( initialTime, currentTime, propagatedState,
+                                                                   timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
                 }
                 propagatedTrajectory[ currentTime ] = propagatedState;
             }
