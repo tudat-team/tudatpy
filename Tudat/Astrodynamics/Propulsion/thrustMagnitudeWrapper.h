@@ -307,7 +307,7 @@ public:
                     std::sqrt( ( lambdaf1 - lambdag1 ) * ( lambdaf1 - lambdag1 ) +
                                ( lambdap + lambdaf2 + lambdag2 ) * ( lambdap + lambdaf2 + lambdag2 ) );
 
-            // Compute all required auxiliary variables to compute optial angle beta.
+            // Compute all required auxiliary variables to compute optimal angle beta.
             lambdap = costates_[ orbital_element_conversions::semiParameterIndex ] * ( 2.0 * p ) / w1 * cosOptimalAlpha;
             lambdaf1 = costates_[ orbital_element_conversions::fElementIndex ] * std::sin( L ) * sinOptimalAlpha;
             lambdag1 = costates_[ orbital_element_conversions::gElementIndex ] * std::cos( L ) * sinOptimalAlpha;
@@ -349,7 +349,7 @@ public:
             {
 //                std::cout << "INSIDE THRUST MAGNITUDE FUNCTION, THRUST OFF. " << "\n\n";
                 currentThrustMagnitude_ = 0.0;
-                currentSpecificImpulse_ = TUDAT_NAN;
+                currentSpecificImpulse_ = specificImpulseFunction_( time );
             }
 
             currentTime_ = time;

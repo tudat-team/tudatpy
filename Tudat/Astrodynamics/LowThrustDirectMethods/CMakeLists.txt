@@ -49,7 +49,7 @@ include(tudatLinkLibraries)
 ## Add unit tests.
 add_executable(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/UnitTests/unitTestSimsFlanagan.cpp")
 setup_custom_test_program(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}")
-target_link_libraries(test_SimsFlanagan tudat_low_thrust_direct_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+target_link_libraries(test_SimsFlanagan tudat_low_thrust_direct_methods tudat_shape_based_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 
 add_executable(test_HybridMethod "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}/UnitTests/unitTestHybridMethod.cpp")
 setup_custom_test_program(test_HybridMethod "${SRCROOT}${LOWTHRUSTDIRECTMETHODSDIR}")
