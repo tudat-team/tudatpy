@@ -12,7 +12,7 @@
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
 
 #include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
 #include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
@@ -112,6 +112,16 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
 
 }
 
+
+////! Compute state history.
+//void SimsFlanagan::getTrajectory(
+//        std::vector< double >& epochsVector,
+//        std::map< double, Eigen::VectorXd >& propagatedTrajectory )
+//{
+//    std
+//}
+
+
 //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
 void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
      std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -142,7 +152,7 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
                                                        centralBody_ );
 
     // Retrieve Sims Flanagan acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMapSimsFlanagan = simsFlanaganLeg.getAccelerationModelFullLeg( );
+    basic_astrodynamics::AccelerationMap accelerationMapSimsFlanagan = simsFlanaganLeg.getLowThrustTrajectoryAccelerationMap( );
 
     // Compute state at half of the time of flight after forward propagation.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
@@ -153,6 +163,9 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
     Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation = simsFlanaganLeg.propagateTrajectoryBackward(
                 timeOfFlight_, timeOfFlight_ / 2.0, stateAtArrival_, timeOfFlight_ / ( 2.0 * numberSegmentsBackwardPropagation_ ) );
+
+    // Compute state at half of the time of flight (averaged between forward and backward propagation results).
+    Eigen::Vector6d stateHalfOfTimeOfFlight = 1.0 / 2.0 * ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation );
 
     // Re-initialise spacecraft mass in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
@@ -177,14 +190,14 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     // Define backward translational state propagation settings.
     translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalfOfTimeOfFlightForwardPropagation,
+                          std::vector< std::string >{ bodyToPropagate_ }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightForwardPropagation,
                           propagatorSettings.first->getTerminationSettings(),
                           propagatorSettings.first->propagator_, propagatorSettings.first->getDependentVariablesToSave() );
 
     // Define forward translational state propagation settings.
     translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalfOfTimeOfFlightBackwardPropagation,
+                          std::vector< std::string >{ bodyToPropagate_ }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightBackwardPropagation,
                           propagatorSettings.second->getTerminationSettings(),
                           propagatorSettings.first->propagator_, propagatorSettings.second->getDependentVariablesToSave() );
 
@@ -280,7 +293,7 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
     }
 
-    std::vector< double > epochsBackwardPropagation = epochsVector;
+//    std::vector< double > epochsBackwardPropagation = epochsVector;
 //    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
 //    {
 //        epochsBackwardPropagation.push_back( epochsVector[ i ] );
@@ -301,33 +314,37 @@ void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
 
-    std::vector< double > epochsForwardPropagation;
+//    std::vector< double > epochsForwardPropagation;
 
     // Compute and save full propagation and shaping method results along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
          itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
     {
         epochsVector.push_back( itr->first );
-        epochsForwardPropagation.push_back( itr->first );
+//        epochsForwardPropagation.push_back( itr->first );
         fullPropagationResults[ itr->first ] = itr->second;
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
-    std::vector< double > epochsForwardPropagationTest;
-    for ( int i = epochsForwardPropagation.size() - 1 ; i >= 0 ; i-- )
-    {
-        epochsForwardPropagationTest.push_back( epochsForwardPropagation[ i ] );
-    }
+//    std::vector< double > epochsForwardPropagationTest;
+//    for ( int i = epochsForwardPropagation.size() - 1 ; i >= 0 ; i-- )
+//    {
+//        epochsForwardPropagationTest.push_back( epochsForwardPropagation[ i ] );
+//    }
 
-    double massAtTimeOfFlight = simsFlanaganLeg.propagateMassToSegment( numberSegments_ );
+//    double massAtTimeOfFlight = simsFlanaganLeg.propagateMassToSegment( numberSegments_ );
 
-    int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
-    simsFlanaganLeg.propagateTrajectoryForward( epochsBackwardPropagation, SimsFlanaganResults, stateAtDeparture_,
-                                                 initialSpacecraftMass_, 0.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
+//    int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
+//    simsFlanaganLeg.propagateTrajectoryForward( epochsBackwardPropagation, SimsFlanaganResults, stateAtDeparture_,
+//                                                 initialSpacecraftMass_, 0.0, ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
+//    simsFlanaganLeg.propagateTrajectory( epochsBackwardPropagation, SimsFlanaganResults, stateAtDeparture_, initialSpacecraftMass_, 0.0 );
 
-    int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
-    simsFlanaganLeg.propagateTrajectoryBackward( epochsForwardPropagationTest, SimsFlanaganResults, stateAtArrival_,
-                                                massAtTimeOfFlight, timeOfFlight_, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+//    int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
+//    simsFlanaganLeg.propagateTrajectoryBackward( epochsForwardPropagationTest, SimsFlanaganResults, stateAtArrival_,
+//                                                massAtTimeOfFlight, timeOfFlight_, ( timeOfFlight_ / 2.0 ) / numberSegmentsBackwardPropagation );
+//    simsFlanaganLeg.propagateTrajectory( epochsForwardPropagation, SimsFlanaganResults, stateAtArrival_, massAtTimeOfFlight, timeOfFlight_ );
+
+    simsFlanaganLeg.propagateTrajectory( epochsVector, SimsFlanaganResults );
 
     deltaV_ = simsFlanaganLeg.getTotalDeltaV();
 

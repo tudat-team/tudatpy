@@ -12,7 +12,7 @@
 #ifndef HODOGRAPHICSHAPING_H
 #define HODOGRAPHICSHAPING_H
 
-#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethod.h"
+#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethodLeg.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -29,7 +29,7 @@ namespace shape_based_methods
 {
 
 
-class HodographicShaping : public ShapeBasedMethod
+class HodographicShaping : public ShapeBasedMethodLeg
 {
 public:
 
@@ -39,16 +39,45 @@ public:
             const Eigen::Vector6d finalState,
             const double timeOfFlight,
             const int numberOfRevolutions,
-            const double centralBodyGravitationalParameter,
+            simulation_setup::NamedBodyMap& bodyMap,
+            const std::string bodyToPropagate,
+            const std::string centralBody,
+//            const double centralBodyGravitationalParameter,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
             const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
             const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
-            const Eigen::VectorXd freeCoefficientsAxialVelocityFunction );
+            const Eigen::VectorXd freeCoefficientsAxialVelocityFunction,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+                std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) );
 
     //! Default destructor.
     ~HodographicShaping( ) { }
+
+    //! Convert time to independent variable.
+    double convertTimeToIndependentVariable( const double time )
+    {
+        return time;
+    }
+
+    //! Convert independent variable to time.
+    double convertIndependentVariableToTime( const double independentVariable )
+    {
+        return independentVariable;
+    }
+
+    //! Returns initial value of the independent variable.
+    double getInitialValueInpendentVariable( )
+    {
+        return 0.0;
+    }
+
+    //! Returns final value of the independent variable.
+    double getFinalValueInpendentVariable( )
+    {
+        return timeOfFlight_;
+    }
 
     //! Compute radial distance from the central body.
     double computeCurrentRadialDistance( const double currentTime );
@@ -68,14 +97,15 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( );
 
-    //! Get low-thrust acceleration model from shaping method.
-    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
-            simulation_setup::NamedBodyMap& bodyMap,
-            const std::string& bodyToPropagate,
-            std::function< double( const double ) > specificImpulseFunction );
+//    //! Get low-thrust acceleration model from shaping method.
+//    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
+//            simulation_setup::NamedBodyMap& bodyMap,
+//            const std::string& bodyToPropagate,
+//            std::function< double( const double ) > specificImpulseFunction );
 
     //! Function to compute the shaped trajectory and the propagation fo the full problem.
-    void computeShapedTrajectoryAndFullPropagation(simulation_setup::NamedBodyMap& bodyMap,
+    void computeShapedTrajectoryAndFullPropagation(
+            simulation_setup::NamedBodyMap& bodyMap,
             std::function< double ( const double ) > specificImpulseFunction,
             const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
@@ -196,8 +226,8 @@ private:
      */
     Eigen::MatrixXd inverseAxialMatrixBoundaryValues_;
 
-    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
-    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
+//    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
+//    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
 };
 

@@ -47,11 +47,12 @@ public:
                      const double timeOfFlight,
                      simulation_setup::NamedBodyMap& bodyMap,
                      const std::string bodyToPropagate,
-                     const std::string centralBody ):
+                     const std::string centralBody,
+                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ):
     stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), initialCoStates_( initialCoStates ),
     finalCoStates_( finalCoStates ), maximumThrust_( maximumThrust ),
     specificImpulse_( specificImpulse ), timeOfFlight_( timeOfFlight ), bodyMap_( bodyMap ),
-    bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
+    bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody ), integratorSettings_( integratorSettings )
     {
         // Initialise value of the total deltaV.
         totalDeltaV_ = 0.0;
@@ -90,20 +91,20 @@ public:
     std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );
 
     //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
-    basic_astrodynamics::AccelerationMap getAccelerationModel( );
+    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
 
     //! Propagate the spacecraft trajectory to time of flight.
     Eigen::Vector6d propagateTrajectory(
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            /*std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
 
     //! Propagate the spacecraft trajectory to a given time.
-    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass,
-                                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass/*,
+                                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
 
     //! Propagate the trajectory to set of epochs.
     std::map< double, Eigen::Vector6d > propagateTrajectory(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState, double initialMass,
-            double initialTime, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory/*, Eigen::Vector6d initialState, double initialMass,
+            double initialTime*//*, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
 
     //! Compute dynamics matrix.
     Eigen::Matrix< double, 6, 3 > computeDynamicsMatrix( Eigen::Vector6d modifiedEquinoctialElements );
@@ -114,7 +115,7 @@ public:
             std::map< double, Eigen::VectorXd > dependentVariableHistory );
 
     //! Return the deltaV associated with the thrust profile of the trajectory.
-    double computeTotalDeltaV( );
+    double computeDeltaV( );
 
     //! Returns initial state at leg departure.
     Eigen::VectorXd getStateAtLegDeparture( )
@@ -193,6 +194,9 @@ private:
 
     //! Name of the central body.
     std::string centralBody_;
+
+    //! Integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
     //! Total deltaV.
     double totalDeltaV_;

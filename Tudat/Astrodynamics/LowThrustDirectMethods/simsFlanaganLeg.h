@@ -53,15 +53,15 @@ public:
         timeAtMatchPoint_ = timeOfFlight_ / 2.0;
 
         // Compute the times at the different nodes of the leg.
-        double segmentDurationForwardPropagation = timeAtMatchPoint_ / numberSegmentsForwardPropagation_;
-        double segmentDurationBackwardPropagation = timeAtMatchPoint_ / numberSegmentsBackwardPropagation_;
+        segmentDurationForwardPropagation_ = timeAtMatchPoint_ / numberSegmentsForwardPropagation_;
+        segmentDurationBackwardPropagation_ = timeAtMatchPoint_ / numberSegmentsBackwardPropagation_;
         for ( int i = 0 ; i <= numberSegmentsForwardPropagation_ ; i++ )
         {
-            timesAtNodes_.push_back( i * segmentDurationForwardPropagation );
+            timesAtNodes_.push_back( i * segmentDurationForwardPropagation_ );
         }
         for ( int i = 1 ; i <= numberSegmentsBackwardPropagation_ ; i++ )
         {
-            timesAtNodes_.push_back( timeAtMatchPoint_ + i * segmentDurationBackwardPropagation );
+            timesAtNodes_.push_back( timeAtMatchPoint_ + i * segmentDurationBackwardPropagation_ );
         }
 
         // Initialise value of the total deltaV.
@@ -144,7 +144,7 @@ public:
         return totalDeltaV_;
     }
 
-    basic_astrodynamics::AccelerationMap getAccelerationModelFullLeg( );
+    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
 
     //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
@@ -152,14 +152,17 @@ public:
     //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
 
-    //! Propagate the trajectory to set of epochs.
-    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
-            Eigen::Vector6d initialState, double initialMass, double initialTime, double segmentDuration );
+    //! Propagate the trajectory to set of epochs (forward propagation).
+    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration );
+
+    //! Propagate the trajectory to set of epochs (backward propagation).
+    std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration );
 
     //! Propagate the trajectory to set of epochs.
-    std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
-            double initialMass, double initialTime, double segmentDuration );
+    void propagateTrajectory(
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
     //! Propagate the trajectory inside one segment.
     Eigen::Vector6d propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
@@ -223,6 +226,12 @@ private:
 
     //! Number of segments for the backward propagation from arrival to match point.
     int numberSegmentsBackwardPropagation_;
+
+    //! Segment duration for forward propagation.
+    double segmentDurationForwardPropagation_;
+
+    //! Segment duration for backward propagation.
+    double segmentDurationBackwardPropagation_;
 
     //! Time defining the match point (half of the time of flight).
     double timeAtMatchPoint_;

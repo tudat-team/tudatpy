@@ -138,7 +138,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
     return thrustAccelerationSettings;
 }
 
-basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getAccelerationModelFullLeg( )
+basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getLowThrustTrajectoryAccelerationMap( )
 {
     // Define acceleration settings.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationsSettings;
@@ -499,14 +499,13 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime
 
 //! Propagate the trajectory to set of epochs.
 std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
-        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
-        double initialMass, double initialTime, double segmentDuration )
+        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration )
 {
         // Initialise propagated state.
-        Eigen::Vector6d propagatedState = initialState;
+        Eigen::Vector6d propagatedState = stateAtDeparture_ /*initialState*/;
 
         // Initialise mass of the spacecraft at departure.
-        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
+        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ /*initialMass*/ );
 
 
         for ( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
@@ -529,10 +528,10 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
 
             if ( epochIndex == 0 )
             {
-                if ( currentTime > initialTime )
+                if ( currentTime > 0.0 /*initialTime*/ )
                 {
-                    propagatedState = propagateTrajectoryForward( initialTime, currentTime, propagatedState,
-                                                                  timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
+                    propagatedState = propagateTrajectoryForward( 0.0 /*initialTime*/, currentTime, propagatedState, segmentDuration
+                                                                  /*timeAtMatchPoint_ / numberSegmentsForwardPropagation_*/ );
                 }
                 propagatedTrajectory[ currentTime ] = propagatedState;
             }
@@ -545,7 +544,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
 
         }
 
-        bodyMap_[ centralBody_ ]->setConstantBodyMass( initialMass );
+        bodyMap_[ centralBody_ ]->setConstantBodyMass( initialSpacecraftMass_ /*initialMass*/ );
 
         return propagatedTrajectory;
 }
@@ -554,15 +553,17 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
 
 //! Propagate the trajectory to set of epochs.
 std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward(
-        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory,
-        Eigen::Vector6d initialState, double initialMass, double initialTime, double segmentDuration )
+        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration )
 {
 
         // Initialise propagated state.
-        Eigen::Vector6d propagatedState = initialState;
+        Eigen::Vector6d propagatedState = stateAtArrival_ /*initialState*/;
+
+        // Compute mass at time of flight.
+        double massAtTimeOfFlight = propagateMassToSegment( numberSegments_ );
 
         // Initialise mass of the spacecraft at departure.
-        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
+        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtTimeOfFlight /*initialMass*/ );
 
         for ( int epochIndex = 0 ; epochIndex < epochs.size() ; epochIndex++ )
         {
@@ -584,10 +585,10 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
 
             if ( epochIndex == 0 )
             {
-                if ( currentTime < initialTime )
+                if ( currentTime < timeOfFlight_ /*initialTime*/ )
                 {
-                    propagatedState = propagateTrajectoryBackward( initialTime, currentTime, propagatedState,
-                                                                   timeAtMatchPoint_ / numberSegmentsForwardPropagation_ );
+                    propagatedState = propagateTrajectoryBackward( timeOfFlight_ /*initialTime*/, currentTime, propagatedState, segmentDuration
+                                                                   /*timeAtMatchPoint_ / numberSegmentsForwardPropagation_*/ );
                 }
                 propagatedTrajectory[ currentTime ] = propagatedState;
             }
@@ -600,6 +601,64 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
         }
 
         return propagatedTrajectory;
+}
+
+
+//! Propagate the trajectory to set of epochs.
+void SimsFlanaganLeg::propagateTrajectory(
+        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory )
+{
+//    // Initialise propagated state.
+//    Eigen::Vector6d propagatedState = stateAtDeparture_;
+
+    // Index of the last epoch in the forward propagation leg.
+    int index = epochs.size( ) - 1;
+
+    for ( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
+    {
+        double currentTime = epochs[ epochIndex ];
+        if ( ( epochIndex != 0 ) && ( epochs[ epochIndex - 1 ] > epochs[ epochIndex ] ) )
+        {
+            throw std::runtime_error( "Error when propagating trajectory in Sims-Flanagan, epochs at which the trajectory should be "
+                                      "computed are not in increasing order." );
+        }
+        if ( ( currentTime < 0.0 ) || ( currentTime > timeOfFlight_ ) )
+        {
+            throw std::runtime_error( "Error when propagating trajectory backward in Sims-Flanagan, epochs at which the trajectory should be "
+                                      "computed are not constrained between 0.0 and timeOfFlight." );
+        }
+
+
+        if ( ( epochIndex == 0 ) && ( currentTime >= timeOfFlight_ / 2.0 ) )
+        {
+            index = epochIndex;
+        }
+        if ( ( epochIndex != epochs.size( ) - 1 ) && ( ( currentTime <= timeOfFlight_ / 2.0 ) && ( epochs[ epochIndex + 1 ] >= timeOfFlight_ / 2.0 ) ) )
+        {
+            index = epochIndex;
+        }
+
+   }
+
+   // Retrieve epochs corresponding to the forward and backward propagation legs in two separate vectors.
+   std::vector< double > epochsVectorForwardPropagation;
+   std::vector< double > epochsVectorBackwardPropagation;
+   for ( int epochIndex = 0 ; epochIndex <= index ; epochIndex++ )
+   {
+       epochsVectorForwardPropagation.push_back( epochs[ epochIndex ] );
+   }
+   for ( int epochIndex = epochs.size( ) - 1; epochIndex > index ; epochIndex-- ) // index + 1 ; epochIndex < epochs.size( ) ; epochIndex++ )
+   {
+       epochsVectorBackwardPropagation.push_back( epochs[ epochIndex ] );
+   }
+
+   // Propagate the forward part of the trajectory.
+   propagatedTrajectory = propagateTrajectoryForward( epochsVectorForwardPropagation, propagatedTrajectory, segmentDurationForwardPropagation_ );
+
+   // Propagate the backward part of the trajectory.
+//   double massAtTimeOfFlight = propagateMassToSegment( numberSegments_ );
+   propagatedTrajectory = propagateTrajectoryBackward( epochsVectorBackwardPropagation, propagatedTrajectory, segmentDurationBackwardPropagation_ );
+
 }
 
 

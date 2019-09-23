@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
 #include "pagmo/algorithms/de1220.hpp"
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 
 namespace tudat
 {
@@ -39,6 +40,7 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_method )
 BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 {
     using namespace low_thrust_direct_methods;
+    using namespace transfer_trajectories;
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -129,20 +131,20 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture, stateAtArrival, initialCostates, finalCostates,
                                                        maximumThrust, specificImpulse, timeOfFlight, bodyMap,
-                                                       bodyToPropagate, centralBody );
+                                                       bodyToPropagate, centralBody, integratorSettings );
 
     std::cout.precision( 20 );
     std::cout << "deltaV: " << hybridMethodLeg.getTotalDeltaV( ) << "\n\n";
 
-    Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( integratorSettings );
+    Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( /*integratorSettings*/ );
 
     std::cout << "final state after propagation: " << finalState << "\n\n";
 
-    Eigen::Vector6d finalStateTest = hybridMethodLeg.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass, integratorSettings );
+    Eigen::Vector6d finalStateTest = hybridMethodLeg.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass/*, integratorSettings*/ );
     std::cout << "final state after propagation test: " << finalStateTest << "\n\n";
 
     std::cout << "deltaV after propagation: " << hybridMethodLeg.getTotalDeltaV() << "\n\n";
-    std::cout << "confirmation computation deltaV: " << hybridMethodLeg.computeTotalDeltaV() << "\n\n";
+    std::cout << "confirmation computation deltaV: " << hybridMethodLeg.computeDeltaV() << "\n\n";
 //    std::cout << "mass at time of flight: " << hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
 //    std::cout << "initial mass: " << mass << "\n\n";
 //    std::cout << "delta m: " << mass - hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
@@ -263,13 +265,13 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     HybridMethodLeg hybridMethodLegTest = HybridMethodLeg( stateAtDeparture, stateAtArrival, bestInitialMEEcostates, bestFinalMEEcostates,
                                                        maximumThrust, specificImpulse, timeOfFlight, bodyMap,
-                                                       bodyToPropagate, centralBody );
+                                                       bodyToPropagate, centralBody, integratorSettings );
 
     std::cout.precision( 20 );
 
 
     Eigen::Vector6d finalStateTestFullPropagation = hybridMethodLegTest.propagateTrajectory( 0.0, timeOfFlight,
-                                                                                             stateAtDeparture, mass, integratorSettings );
+                                                                                             stateAtDeparture, mass/*, integratorSettings*/ );
     std::cout << "final state after propagation test: " << finalStateTestFullPropagation << "\n\n";
 
     std::cout << "state at departure hybrid method: " << hybridMethodResults.begin()->second << "\n\n";

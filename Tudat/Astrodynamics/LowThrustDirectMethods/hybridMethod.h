@@ -19,16 +19,18 @@
 #include <map>
 #include "pagmo/algorithm.hpp"
 
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
+
 namespace tudat
 {
 namespace low_thrust_direct_methods
 {
 
-
 //! Transform thrust model as a function of time into hybrid method thrust model.
 Eigen::Matrix< double, 10 , 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime );
 
-class HybridMethod
+class HybridMethod /*: public transfer_trajectories::LowThrustLeg*/
 {
 public:
 
@@ -48,6 +50,7 @@ public:
             const int numberOfIndividualsPerPopulation,
             const double relativeToleranceConstraints = 1.0e-6,
             std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
+//        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
         stateAtDeparture_( stateAtDeparture ),
         stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
@@ -84,10 +87,36 @@ public:
         championFitness_ = bestIndividual.first;
         championDesignVariables_ = bestIndividual.second;
 
+
+        // Transform vector of design variables into 3D vector of throttles.
+        Eigen::VectorXd initialCostates; initialCostates.resize( 5 );
+        Eigen::VectorXd finalCostates; finalCostates.resize( 5 );
+        for ( unsigned int i = 0 ; i < 5 ; i++ )
+        {
+            initialCostates[ i ] = championDesignVariables_[ i ];
+            finalCostates[ i ] = championDesignVariables_[ i + 5 ];
+        }
+
+        // Create Sims-Flanagan leg from the best optimisation individual.
+        hybridMethodLeg_ = std::make_shared< HybridMethodLeg >( stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_,
+                                                                specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings );
+
     }
 
     //! Default destructor.
     ~HybridMethod( ) { }
+
+    //! Convert time to independent variable.
+    double convertTimeToIndependentVariable( const double time )
+    {
+        return time;
+    }
+
+    //! Convert independent variable to time.
+    double convertIndependentVariableToTime( const double independentVariable )
+    {
+        return independentVariable;
+    }
 
     //! Perform optimisation.
     std::pair< std::vector< double >, std::vector< double > > performOptimisation( );
@@ -97,6 +126,41 @@ public:
     {
         return championFitness_[ 0 ];
     }
+
+    //! Compute state history.
+    void getTrajectory(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::Vector6d >& propagatedTrajectory )
+    {
+        hybridMethodLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
+    }
+
+    //! Return mass profile.
+    void getMassProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& massProfile,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
+
+    //! Compute magnitude thrust acceleration.
+    double computeCurrentThrustAccelerationMagnitude( double currentTime );
+
+    //! Compute current thrust vector.
+    Eigen::Vector3d computeCurrentThrustAcceleration( double independentVariable );
+
+    //! Return thrust acceleration profile.
+    void getThrustAccelerationProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
+
+    //! Return thrust profile.
+    void getThrustProfile( std::vector< double >& epochsVector,
+           std::map< double, Eigen::VectorXd >& thrustProfile,
+           std::function< double ( const double ) > specificImpulseFunction,
+           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Return best individual.
     std::vector< double > getBestIndividual( )
@@ -120,6 +184,14 @@ public:
 
 
 protected:
+
+    //! Compute current mass of the spacecraft between two epochs.
+    double computeCurrentMass(
+            const double timeInitialEpoch,
+            const double timeFinalEpoch,
+            const double massInitialEpoch,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 private:
 
@@ -175,6 +247,9 @@ private:
 
     //! Initial mass of the spacecraft.
     double initialSpacecraftMass_;
+
+    //! Hybrid method leg corresponding to the best optimisation output.
+    std::shared_ptr< HybridMethodLeg > hybridMethodLeg_;
 
 };
 

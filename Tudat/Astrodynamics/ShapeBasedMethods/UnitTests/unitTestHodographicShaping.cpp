@@ -49,11 +49,51 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
     int numberOfRevolutions = 2;
 
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+    // Define central body ephemeris settings.
+    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
     /// First Earth-Mars transfer.
 
     double julianDate = 9264.5 * physical_constants::JULIAN_DAY;
 
     double timeOfFlight = 1070.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
+
 
     // Ephemeris departure body.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
@@ -137,16 +177,14 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
+    HodographicShaping VelocityShapingMethod = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction, integratorSettings );
 
 
     int numberOfSteps = 500;
@@ -188,6 +226,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -243,13 +288,11 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
                 cartesianStateDepartureBody,
                 cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction, integratorSettings );
 
     peakAcceleration = 0.0;
 
@@ -286,6 +329,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -343,17 +393,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                bodyMap, "Vehicle", "Sun",
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     peakAcceleration = 0.0;
 
@@ -390,6 +436,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -447,17 +500,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
 
     peakAcceleration = 0.0;
@@ -496,6 +545,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     scaleFactor = 1.0 / ( timeOfFlight * tudat::physical_constants::JULIAN_DAY );
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Create base function settings for the components of the radial velocity composite function.
     firstRadialVelocityBaseFunctionSettings = std::make_shared< BaseFunctionHodographicShapingSettings >( );
@@ -553,17 +609,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     peakAcceleration = 0.0;
 
@@ -601,6 +653,34 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     spice_interface::loadStandardSpiceKernels();
 
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+    // Define central body ephemeris settings.
+    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
     /// First Earth-Mercury transfer.
 
     int numberOfRevolutions = 1;
@@ -608,6 +688,14 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     double julianDate = 5025 * physical_constants::JULIAN_DAY;
 
     double timeOfFlight = 440.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Ephemeris departure body.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
@@ -691,17 +779,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     shape_based_methods::HodographicShaping VelocityShapingMethod(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     double stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
     double peakAcceleration = 0.0;
@@ -736,6 +820,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     julianDate = 5015 * physical_constants::JULIAN_DAY;
 
     timeOfFlight = 450.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Retrieve cartesian state at departure and arrival.
     cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
@@ -780,17 +871,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
     peakAcceleration = 0.0;
@@ -825,6 +912,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     julianDate = 4675 * physical_constants::JULIAN_DAY;
 
     timeOfFlight = 190.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Retrieve cartesian state at departure and arrival.
     cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
@@ -869,17 +963,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
     peakAcceleration = 0.0;
@@ -915,6 +1005,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     julianDate = 4675 * physical_constants::JULIAN_DAY;
 
     timeOfFlight = 190.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Retrieve cartesian state at departure and arrival.
     cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
@@ -956,17 +1053,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
     peakAcceleration = 0.0;
@@ -1002,6 +1095,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     julianDate = 4355 * physical_constants::JULIAN_DAY;
 
     timeOfFlight = 160.0;
+
+    // Set vehicle mass.
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Define integrator settings.
+    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * tudat::physical_constants::JULIAN_DAY / 500.0 );
 
     // Retrieve cartesian state at departure and arrival.
     cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
@@ -1043,17 +1143,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
     VelocityShapingMethod = shape_based_methods::HodographicShaping(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
-                numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,    
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     stepSize = ( timeOfFlight * tudat::physical_constants::JULIAN_DAY ) / static_cast< double >( 500 );
     peakAcceleration = 0.0;
@@ -1206,18 +1302,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
     freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
 
-    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
 
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -1287,16 +1371,27 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     // Define mass function of the vehicle.
     std::function< double( const double ) > newMassFunction = [ = ]( const double currentTime )
     {
-        return 200.0 - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
+        return 2000.0 - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
     };
     bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
+//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 2000.0 );
 
 
     // Define specific impulse function.
     std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
     {
-        return 200.0;
+        return 3000.0;
     };
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    shape_based_methods::HodographicShaping VelocityShapingMethod(
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
@@ -1313,22 +1408,108 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Create pair of propagator settings (for both forward and backward propagations).
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+    // Compute halved time of flight.
+    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
-    propagatorSettings.first =
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.first,
+    // Compute state at half of the time of flight.
+    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = VelocityShapingMethod.computeCurrentStateVector( halfOfTimeOfFlight );
+
+    // Create low thrust acceleration model.
+    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
+            VelocityShapingMethod.getLowThrustAccelerationModel( /*bodyMap, bodyToPropagate,*/ specificImpulseFunction );
+
+//    basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
+//                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
+
+    accelerationModelMap[ "Vehicle" ][ "Vehicle" ].push_back( lowThrustAccelerationModel );
+
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
+
+
+
+    // Define translational state propagation settings
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
+
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationConditions.first,
                           propagators::cowell, dependentVariablesToSave );
-    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.second,
-              propagators::cowell, dependentVariablesToSave );
+
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate,
+                          initialStateAtHalvedTimeOfFlight, terminationConditions.second,
+                          propagators::cowell, dependentVariablesToSave );
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle" ] = simulation_setup::createMassRateModel( "Vehicle", std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap, accelerationModelMap );
+
+//    double massHalfOfTimeOfFlight = VelocityShapingMethod.computeCurrentMass( halfOfTimeOfFlight, specificImpulseFunction, integratorSettings );
+
+//    // Create settings for propagating the mass of the vehicle.
+//    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+//            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+//    // Define backward mass propagation settings.
+//    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+//                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+//                terminationConditions.first );
+
+//    // Define forward mass propagation settings.
+//    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+//                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+//                terminationConditions.second );
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+//    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+//    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+
+//    // Create pair of propagator settings (for both forward and backward propagations).
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+//    propagatorSettings.first =
+////    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings =
+//            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.first,
+//                          propagators::cowell, dependentVariablesToSave );
+//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//            ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.second,
+//              propagators::cowell, dependentVariablesToSave );
+
+
+
+
+//    // Compute shaped trajectory and propagated trajectory.
+//    VelocityShapingMethod.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction, integratorSettings, propagatorSettings,
+//                                                                      fullPropagationResults, shapingMethodResults, dependentVariablesHistory, false );
 
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction, integratorSettings, propagatorSettings,
-                                                                      fullPropagationResults, shapingMethodResults, dependentVariablesHistory, false );
+    VelocityShapingMethod.computeSemiAnalyticalAndFullPropagation( specificImpulseFunction, integratorSettings, propagatorSettings,
+                                                                   fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 
     // Check that boundary conditions are still fulfilled when free parameters are added.
@@ -1475,18 +1656,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
     freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
     freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
 
-    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
-                cartesianStateDepartureBody,
-                cartesianStateArrivalBody,
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents,
-                axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction,
-                freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
 
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -1554,7 +1723,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
             std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 400.0 );
 
     // Set vehicle mass.
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 200.0 );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 2000.0 );
 
 
     // Define specific impulse function.
@@ -1563,6 +1732,20 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
         return 3000.0;
     };
 
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    shape_based_methods::HodographicShaping VelocityShapingMethod(
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
+                bodyMap, "Vehicle", "Sun",
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                integratorSettings );
+
+//    // Define list of dependent variables to save.
+//    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+//    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+//                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
@@ -1575,28 +1758,137 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
             std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
 
     // Create termination conditions settings.
-    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > >
-            terminationConditions;
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
 
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Create pair of propagator settings (for both forward and backward propagations).
+    // Compute halved time of flight.
+    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
+
+    // Compute state at half of the time of flight.
+    Eigen::Vector6d initialStateAtHalfOfTimeOfFlight = VelocityShapingMethod.computeCurrentStateVector( halfOfTimeOfFlight );
+
+    // Create low thrust acceleration model.
+    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
+            VelocityShapingMethod.getLowThrustAccelerationModel( /*bodyMap, bodyToPropagate,*/ specificImpulseFunction );
+
+//    basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
+//                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
+
+    accelerationModelMap[ "Vehicle" ][ "Vehicle" ].push_back( lowThrustAccelerationModel );
+
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
+
+
+
+    // Define translational state propagation settings
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.first,
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalfOfTimeOfFlight, terminationConditions.first,
                           propagators::cowell, dependentVariablesToSave );
 
-    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.second,
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalfOfTimeOfFlight, terminationConditions.second,
                           propagators::cowell, dependentVariablesToSave );
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle" ] = simulation_setup::createMassRateModel( "Vehicle", std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap, accelerationModelMap );
+
+    double massHalfOfTimeOfFlight = VelocityShapingMethod.computeCurrentMass( halfOfTimeOfFlight, specificImpulseFunction, integratorSettings );
+
+    // Create settings for propagating the mass of the vehicle.
+    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+    // Define backward mass propagation settings.
+    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+                terminationConditions.first );
+
+    // Define forward mass propagation settings.
+    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+                terminationConditions.second );
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+//    // Define list of dependent variables to save.
+//    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+//    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+//                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+//    dependentVariablesList.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
+//                    propagators::total_mass_rate_dependent_variables, "Vehicle" ) );
+
+//    // Create object with list of dependent variables
+//    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+//            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+
+//    // Create termination conditions settings.
+//    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > >
+//            terminationConditions;
+
+//    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
+//    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
+
+//    // Create pair of propagator settings (for both forward and backward propagations).
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+//    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.first,
+//                          propagators::cowell, dependentVariablesToSave );
+
+//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( centralBodies, accelerationModelMap, bodiesToPropagate, cartesianStateDepartureBody, terminationConditions.second,
+//                          propagators::cowell, dependentVariablesToSave );
+
+
+//    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+//    shape_based_methods::HodographicShaping VelocityShapingMethod(
+//                cartesianStateDepartureBody, cartesianStateArrivalBody,
+//                timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
+//                bodyMap, "Vehicle", "Sun",
+////                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+//                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+//                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+//                integratorSettings );
+
+//    // Compute shaped trajectory and propagated trajectory.
+//    VelocityShapingMethod.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction, integratorSettings, propagatorSettings,
+//                                                                     fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
+//                                                                     true );
 
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeShapedTrajectoryAndFullPropagation( bodyMap, specificImpulseFunction, integratorSettings, propagatorSettings,
-                                                                     fullPropagationResults, shapingMethodResults, dependentVariablesHistory,
-                                                                     true );
+    VelocityShapingMethod.computeSemiAnalyticalAndFullPropagation( specificImpulseFunction, integratorSettings, propagatorSettings,
+                                                                   fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
     // Check that boundary conditions are still fulfilled when free parameters are added.
     for ( int i = 0 ; i < 6 ; i++ )
@@ -1628,7 +1920,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
         BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
 
     }
-
 
 }
 

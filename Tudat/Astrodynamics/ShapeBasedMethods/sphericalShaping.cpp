@@ -26,17 +26,26 @@ SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
                                     Eigen::Vector6d finalState,
                                     double requiredTimeOfFlight,
                                     int numberOfRevolutions,
-                                    double centralBodyGravitationalParameter,
+//                                    double centralBodyGravitationalParameter,
+                                    simulation_setup::NamedBodyMap& bodyMap,
+                                    const std::string bodyToPropagate,
+                                    const std::string centralBody,
                                     double initialValueFreeCoefficient,
                                     std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient ):
+                                    const double upperBoundFreeCoefficient,
+                                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ):
+    ShapeBasedMethodLeg( initialState, finalState, requiredTimeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
     numberOfRevolutions_( numberOfRevolutions ),
+    bodyMap_( bodyMap ), bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     rootFinderSettings_( rootFinderSettings ),
     lowerBoundFreeCoefficient_( lowerBoundFreeCoefficient ),
-    upperBoundFreeCoefficient_( upperBoundFreeCoefficient )
+    upperBoundFreeCoefficient_( upperBoundFreeCoefficient ),
+    integratorSettings_( integratorSettings )
 {
+    // Retrieve gravitational parameter of the central body.
+    double centralBodyGravitationalParameter = bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter( );
 
     // Normalize the initial state.
     initialState_.segment( 0, 3 ) = initialState.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
@@ -130,7 +139,96 @@ SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
     // Iterate on the free coefficient value until the time of flight matches its required value.
     iterateToMatchRequiredTimeOfFlight( rootFinderSettings_, lowerBoundFreeCoefficient_, upperBoundFreeCoefficient_, initialValueFreeCoefficient_ );
 
+
+
+
+
+
+    // Retrieve initial step size.
+    double initialStepSize = integratorSettings->initialTimeStep_;
+
+    // Vector of azimuth angles at which the time should be computed.
+    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
+            Eigen::VectorXd::LinSpaced( std::ceil( computeNormalizedTimeOfFlight() * physical_constants::JULIAN_YEAR / initialStepSize ),
+                                        initialAzimuthAngle_, finalAzimuthAngle_ );
+
+    std::map< double, double > dataToInterpolate;
+    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
+    {
+        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
+                = azimuthAnglesToComputeAssociatedEpochs[ i ];
+    }
+
+    // Create interpolator.
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
+
+    interpolator_ = interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+
 }
+
+
+//! Convert time to independent variable.
+double SphericalShaping::convertTimeToIndependentVariable( const double time )
+{
+//    // Retrieve initial step size.
+//    double initialStepSize = integratorSettings_->initialTimeStep_;
+
+//    // Vector of azimuth angles at which the time should be computed.
+//    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
+//            Eigen::VectorXd::LinSpaced( std::ceil( computeNormalizedTimeOfFlight( ) * physical_constants::JULIAN_YEAR / initialStepSize ),
+//                                        initialAzimuthAngle_, finalAzimuthAngle_ );
+
+//    std::map< double, double > dataToInterpolate;
+//    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
+//    {
+//        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
+//                = azimuthAnglesToComputeAssociatedEpochs[ i ];
+//    }
+
+//    // Create interpolator.
+//    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+//            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
+
+//    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator =
+//            interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+
+//    double independentVariable = interpolator->interpolate( time );
+
+    return  interpolator_->interpolate( time ); //independentVariable;
+}
+
+
+//! Convert independent variable to time.
+double SphericalShaping::convertIndependentVariableToTime( const double independentVariable )
+{
+    // Define the derivative of the time function w.r.t the azimuth angle theta.
+    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
+
+        double scalarFunctionTimeEquation = computeScalarFunctionTimeEquation( currentAzimuthAngle );
+
+        // Check that the trajectory is feasible, ie curved toward the central body.
+        if ( scalarFunctionTimeEquation < 0.0 )
+        {
+            throw std::runtime_error ( "Error, trajectory not curved toward the central body, and thus not feasible." );
+        }
+        else
+        {
+            return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle ) *
+                              std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
+                              / centralBodyGravitationalParameter_ );
+        }
+    };
+
+    // Create numerical quadrature from quadrature settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, independentVariable );
+
+    double time = quadrature->getQuadrature( );
+
+    return time;
+}
+
 
 Eigen::MatrixXd SphericalShaping::computeInverseMatrixBoundaryConditions( )
 {
@@ -578,7 +676,8 @@ Eigen::Vector3d SphericalShaping::computeNormalizedThrustAccelerationVector( con
 //! Compute magnitude cartesian acceleration.
 double  SphericalShaping::computeCurrentThrustAccelerationMagnitude( double currentAzimuthAngle )
 {
-    return computeNormalizedThrustAccelerationVector( currentAzimuthAngle ).norm();
+    return computeNormalizedThrustAccelerationVector( currentAzimuthAngle ).norm() * physical_constants::ASTRONOMICAL_UNIT
+            / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
 }
 
 //! Compute direction thrust acceleration in cartesian coordinates.
@@ -611,70 +710,74 @@ double SphericalShaping::computeDeltaV( )
 }
 
 
-//! Get low-thrust acceleration model from shaping method.
-std::shared_ptr< propulsion::ThrustAcceleration > SphericalShaping::getLowThrustAccelerationModel(
-        simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        std::function< double( const double ) > specificImpulseFunction,
-        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime )
-{
-
-    std::shared_ptr< simulation_setup::Body > vehicle = bodyMap[ bodyToPropagate ];
-
-    // Define thrust magnitude function from the shaped trajectory.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
-    {
-
-        // Compute current azimuth angle.
-        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
-
-        // Compute current acceleration.
-        double currentAcceleration = computeCurrentThrustAccelerationMagnitude( currentAzimuthAngle ) * physical_constants::ASTRONOMICAL_UNIT
-                / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
-
-        // Compute current mass of the vehicle.
-        double currentMass = vehicle->getBodyMass();
-
-        // Compute and return magnitude of the low-thrust force.
-        return currentAcceleration * currentMass;
-    };
-
-    // Define thrust magnitude settings from thrust magnitude function.
-    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
-            = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
-                thrustMagnitudeFunction, specificImpulseFunction );
 
 
-    // Define thrust direction function from the shaped trajectory.
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
-    {
-        // Compute current azimuth angle.
-        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
+////! Get low-thrust acceleration model from shaping method.
+//std::shared_ptr< propulsion::ThrustAcceleration > SphericalShaping::getLowThrustAccelerationModel(
+////        simulation_setup::NamedBodyMap& bodyMap,
+////        const std::string& bodyToPropagate,
+//        std::function< double( const double ) > specificImpulseFunction,
+//        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime )
+//{
 
-        // Compute current direction of the acceleration vector.
-        Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection( currentAzimuthAngle );
+//    std::shared_ptr< simulation_setup::Body > vehicle = bodyMap_[ bodyToPropagate_ ];
 
-        // Return direction of the low-thrust acceleration.
-        return currentAccelerationDirection;
-    };
+//    // Define thrust magnitude function from the shaped trajectory.
+//    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
+//    {
 
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
+//        // Compute current azimuth angle.
+//        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
 
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
-                thrustDirectionSettings, thrustMagnitudeSettings );
+//        // Compute current acceleration.
+//        double currentAcceleration = computeCurrentThrustAccelerationMagnitude( currentAzimuthAngle ) * physical_constants::ASTRONOMICAL_UNIT
+//                / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
 
-    // Create low thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap, bodyToPropagate );
+//        // Compute current mass of the vehicle.
+//        double currentMass = vehicle->getBodyMass();
 
-    return lowThrustAccelerationModel;
-}
+//        // Compute and return magnitude of the low-thrust force.
+//        return currentAcceleration * currentMass;
+//    };
+
+//    // Define thrust magnitude settings from thrust magnitude function.
+//    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
+//            = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
+//                thrustMagnitudeFunction, specificImpulseFunction );
 
 
-void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_setup::NamedBodyMap& bodyMap,
+//    // Define thrust direction function from the shaped trajectory.
+//    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
+//    {
+//        // Compute current azimuth angle.
+//        double currentAzimuthAngle = interpolatorPolarAngleFromTime->interpolate( currentTime );
+
+//        // Compute current direction of the acceleration vector.
+//        Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection( currentAzimuthAngle );
+
+//        // Return direction of the low-thrust acceleration.
+//        return currentAccelerationDirection;
+//    };
+
+//    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
+//    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
+//            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
+
+//    // Define thrust acceleration settings.
+//    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
+//            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
+//                thrustDirectionSettings, thrustMagnitudeSettings );
+
+//    // Create low thrust acceleration model.
+//    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel(
+//                thrustAccelerationSettings, bodyMap_, bodyToPropagate_ );
+
+//    return lowThrustAccelerationModel;
+//}
+
+
+void SphericalShaping::computeShapedTrajectoryAndFullPropagation(
+//        simulation_setup::NamedBodyMap& bodyMap,
         std::function< double( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
@@ -725,12 +828,15 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( bodyMap, propagatorSettings.first->bodiesToIntegrate_[ 0 ], specificImpulseFunction, interpolator );
+            getLowThrustAccelerationModel( /*bodyMap, propagatorSettings.first->bodiesToIntegrate_[ 0 ],*/ specificImpulseFunction/*,
+                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationDirection, this, std::placeholders::_1 ),
+                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationMagnitude, this, std::placeholders::_1 )*/ /*, interpolator*/ );
 
     basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
                 std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
 
-    accelerationMap[ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ][ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ].push_back( lowThrustAccelerationModel );
+    accelerationMap[ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ][ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ]
+            .push_back( lowThrustAccelerationModel );
 
 
     // Create complete propagation settings (backward and forward propagations).
@@ -761,20 +867,20 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
         // Create mass rate models
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                           bodyMap, accelerationMap );
+                                                           bodyMap_, accelerationMap );
 
 
         // Propagate mass until half of the time of flight.
         std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
                 std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
-                    ( Eigen::Vector1d() << bodyMap[ bodyToPropagate ]->getBodyMass() ).finished(),
+                    ( Eigen::Vector1d() << bodyMap_[ bodyToPropagate ]->getBodyMass() ).finished(),
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight * physical_constants::JULIAN_YEAR, true ) );
 
         integratorSettings->initialTime_ = 0.0;
 
         // Create dynamics simulation object.
         propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                    bodyMap, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
+                    bodyMap_, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
 
         // Propagate spacecraft mass until half of the time of flight.
         std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -850,7 +956,7 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
 //                          propagatorSettings.first->propagator_ /*propagatorType*/, propagatorSettings.first->getDependentVariablesToSave() /*dependentVariablesToSave*/ );
 
     // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap, integratorSettings, completePropagatorSettings.second );
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, completePropagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
@@ -875,7 +981,7 @@ void SphericalShaping::computeShapedTrajectoryAndFullPropagation( simulation_set
     integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap, integratorSettings, completePropagatorSettings.first );
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, completePropagatorSettings.first );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
 

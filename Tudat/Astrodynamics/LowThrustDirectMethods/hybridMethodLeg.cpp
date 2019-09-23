@@ -160,7 +160,7 @@ std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodLeg::getME
 
 
 //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
-basic_astrodynamics::AccelerationMap HybridMethodLeg::getAccelerationModel( )
+basic_astrodynamics::AccelerationMap HybridMethodLeg::getLowThrustTrajectoryAccelerationMap( )
 {
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
@@ -184,11 +184,12 @@ basic_astrodynamics::AccelerationMap HybridMethodLeg::getAccelerationModel( )
 
 //! Propagate the spacecraft trajectory.
 Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
-        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings/*,
+//        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings
+        /*,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings*/ )
 {
     // Re-initialise integrator settings.
-    integratorSettings->initialTime_ = 0.0;
+    integratorSettings_->initialTime_ = 0.0;
 
 //    propagatorSettings->resetInitialStates( stateAtDeparture_ );
 //    propagatorSettings->bodiesToIntegrate_ = std::vector< std::string >{ bodyToPropagate_ };
@@ -369,10 +370,10 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
                 std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
                                                                                         dependentVariablesToSave );
 
-        integratorSettings->initialTime_ = currentInitialPropagationTime;
+        integratorSettings_->initialTime_ = currentInitialPropagationTime;
 
         // Propagate the trajectory.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings_, propagatorSettings );
         std::map< double, Eigen::VectorXd > intermediateResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         propagationResult = intermediateResults.rbegin( )->second;
         currentInitialPropagationTime = intermediateResults.rbegin( )->first;
@@ -495,11 +496,11 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
         propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
                                                                                         dependentVariablesToSave );
 
-        integratorSettings->initialTime_ = currentInitialPropagationTime; //  results.rbegin( )->first;
+        integratorSettings_->initialTime_ = currentInitialPropagationTime; //  results.rbegin( )->first;
         std::cout << "initial time second part of the propagation: " << results.rbegin( )->first << "\n\n";
 
         // Propagate the trajectory.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorSecondPartOrbit( bodyMap_, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorSecondPartOrbit( bodyMap_, integratorSettings_, propagatorSettings );
         intermediateResults = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution( );
         propagationResult = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution().rbegin()->second;
 //        propagationResult = intermediateResults.rbegin( )->second;
@@ -549,7 +550,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
                     stateHistoryAfterOneRevolution, dependentVariablesHistoryAfterOneRevolution );
 
         // Compute number of steps to propagate until time of flight.
-        int numberOfSteps = ( timeOfFlight_ - currentInitialPropagationTime ) / integratorSettings->initialTimeStep_ + 1;
+        int numberOfSteps = ( timeOfFlight_ - currentInitialPropagationTime ) / integratorSettings_->initialTimeStep_ + 1;
 
         std::cout << "number of steps until TOF: " << numberOfSteps << "\n\n";
         std::cout << "( timeOfFlight_ - currentInitialPropagationTime ): " << ( timeOfFlight_ - currentInitialPropagationTime ) << "\n\n";
@@ -562,11 +563,11 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
         currentState[ 6 ] = propagationResult[ 6 ];
 
         // Propagate over required number of steps.
-        propagationResult = currentState + averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps;
+        propagationResult = currentState + averagedStateDerivative * integratorSettings_->initialTimeStep_ * numberOfSteps;
         std::cout << "propagation results after OA: " << propagationResult << "\n\n";
         std::cout << "averaged state derivative: " << averagedStateDerivative << "\n\n";
         std::cout << "current state: " << currentState << "\n\n";
-        std::cout << "delta current state: " << averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps << "\n\n";
+        std::cout << "delta current state: " << averagedStateDerivative * integratorSettings_->initialTimeStep_ * numberOfSteps << "\n\n";
 
         hasTimeOfFlightBeenReached = true;
 
@@ -577,7 +578,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
 
 
         std::cout << "number of completed revolutions: " << numberOfCompletedRevolutions << "\n\n";
-        std::cout << "initial time step: " << integratorSettings->initialTimeStep_ << "\n\n";
+        std::cout << "initial time step: " << integratorSettings_->initialTimeStep_ << "\n\n";
 
 
 //    std::vector< std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettingsList;
@@ -654,7 +655,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
     massAtTimeOfFlight_ = propagationResult[ 6 ];
 
     // Compute deltaV required by the trajectory.
-    totalDeltaV_ = computeTotalDeltaV( );
+    totalDeltaV_ = computeDeltaV( );
 
 //    // Retrieve dependent variables history.
 //    std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
@@ -680,11 +681,11 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory(
 
 
 //! Propagate the spacecraft trajectory to a given time.
-Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass,
-                                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass/*,
+                                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings*/ )
 {
     // Re-initialise integrator settings.
-    integratorSettings->initialTime_ = initialTime;
+    integratorSettings_->initialTime_ = initialTime;
 
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
 
@@ -847,10 +848,10 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
                 std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
                                                                                         dependentVariablesToSave );
 
-        integratorSettings->initialTime_ = currentInitialPropagationTime;
+        integratorSettings_->initialTime_ = currentInitialPropagationTime;
 
         // Propagate the trajectory.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings_, propagatorSettings );
         std::map< double, Eigen::VectorXd > intermediateResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         propagationResult = intermediateResults.rbegin( )->second;
         currentInitialPropagationTime = intermediateResults.rbegin( )->first;
@@ -937,11 +938,11 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
         propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, customTerminationSettings,
                                                                                         dependentVariablesToSave );
 
-        integratorSettings->initialTime_ = currentInitialPropagationTime; //  results.rbegin( )->first;
+        integratorSettings_->initialTime_ = currentInitialPropagationTime; //  results.rbegin( )->first;
         std::cout << "initial time second part of the propagation: " << results.rbegin( )->first << "\n\n";
 
         // Propagate the trajectory.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorSecondPartOrbit( bodyMap_, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorSecondPartOrbit( bodyMap_, integratorSettings_, propagatorSettings );
         intermediateResults = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution( );
         propagationResult = dynamicsSimulatorSecondPartOrbit.getEquationsOfMotionNumericalSolution().rbegin()->second;
 //        propagationResult = intermediateResults.rbegin( )->second;
@@ -991,7 +992,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
                     stateHistoryAfterOneRevolution, dependentVariablesHistoryAfterOneRevolution );
 
         // Compute number of steps to propagate until time of flight.
-        int numberOfSteps = ( finalTime - currentInitialPropagationTime ) / integratorSettings->initialTimeStep_ + 1;
+        int numberOfSteps = ( finalTime - currentInitialPropagationTime ) / integratorSettings_->initialTimeStep_ + 1;
 
         std::cout << "number of steps until TOF: " << numberOfSteps << "\n\n";
         std::cout << "( finalTime - currentInitialPropagationTime ): " << ( finalTime - currentInitialPropagationTime ) << "\n\n";
@@ -1004,11 +1005,11 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
         currentState[ 6 ] = propagationResult[ 6 ];
 
         // Propagate over required number of steps.
-        propagationResult = currentState + averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps;
+        propagationResult = currentState + averagedStateDerivative * integratorSettings_->initialTimeStep_ * numberOfSteps;
         std::cout << "propagation results after OA: " << propagationResult << "\n\n";
         std::cout << "averaged state derivative: " << averagedStateDerivative << "\n\n";
         std::cout << "current state: " << currentState << "\n\n";
-        std::cout << "delta current state: " << averagedStateDerivative * integratorSettings->initialTimeStep_ * numberOfSteps << "\n\n";
+        std::cout << "delta current state: " << averagedStateDerivative * integratorSettings_->initialTimeStep_ * numberOfSteps << "\n\n";
 
         hasTimeOfFlightBeenReached = true;
 
@@ -1028,7 +1029,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
 //    massAtTimeOfFlight_ = propagationResult[ 6 ];
 
     // Compute deltaV required by the trajectory.
-    totalDeltaV_ = computeTotalDeltaV( );
+    totalDeltaV_ = computeDeltaV( );
 
     std::cout << "current mass in propagate trajectory( initialTime, finalTime, ... ): " <<
                  bodyMap_[ bodyToPropagate_ ]->getBodyMass() << "\n\n";
@@ -1058,15 +1059,15 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
 
 //! Propagate the trajectory to set of epochs.
 std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
-        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, Eigen::Vector6d initialState,
-        double initialMass, double initialTime, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory/*, Eigen::Vector6d initialState,
+        double initialMass, double initialTime*//*, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings*/ )
 {
     // Initialise propagated state.
-    Eigen::Vector6d propagatedState = initialState;
+    Eigen::Vector6d propagatedState = stateAtDeparture_ /*initialState*/;
 
     // Initialise mass of the spacecraft at departure.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
-    double currentMass = initialMass;
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ /*initialMass*/ );
+    double currentMass = initialSpacecraftMass_ /*initialMass*/;
 
     std::cout << "initial mass in propagate trajectory to set of epochs: " << currentMass << "\n\n";
 
@@ -1091,18 +1092,18 @@ std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
 
         if ( epochIndex == 0 )
         {
-            if ( currentTime >= initialTime )
+            if ( currentTime >= 0.0 /*initialTime*/ )
             {
-                propagatedState = propagateTrajectory( initialTime, currentTime, propagatedState, currentMass, integratorSettings );
+                propagatedState = propagateTrajectory( 0.0 /*initialTime*/, currentTime, propagatedState, currentMass/*, integratorSettings_*/ );
                 currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
             }
             propagatedTrajectory[ currentTime ] = propagatedState;
             std::cout << "current time test: " << currentTime << "\n\n";
-            std::cout << "initial time test: " << initialTime << "\n\n";
+//            std::cout << "initial time test: " << initialTime << "\n\n";
         }
         else
         {
-            propagatedState = propagateTrajectory( epochs[ epochIndex - 1 ], currentTime, propagatedState, currentMass, integratorSettings );
+            propagatedState = propagateTrajectory( epochs[ epochIndex - 1 ], currentTime, propagatedState, currentMass/*, integratorSettings_*/ );
             currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
             propagatedTrajectory[ currentTime ] = propagatedState;
         }
@@ -1111,7 +1112,7 @@ std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
 
     }
 
-    bodyMap_[ centralBody_ ]->setConstantBodyMass( initialMass );
+    bodyMap_[ centralBody_ ]->setConstantBodyMass( initialSpacecraftMass_ /*initialMass*/ );
 
         std::cout << "TEST: " << "\n\n";
 
@@ -1121,7 +1122,7 @@ std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
 
 
 //! Return the deltaV associated with the thrust profile of the trajectory.
-double HybridMethodLeg::computeTotalDeltaV( )
+double HybridMethodLeg::computeDeltaV( )
 {
 
     // Compute (constant) mass rate.
