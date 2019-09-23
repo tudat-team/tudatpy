@@ -136,10 +136,11 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                                                                                                         timeOfFlight_,
                                                                                                         bodyMap_,
                                                                                                         bodyToPropagate_,
-                                                                                                        centralBody_ );
+                                                                                                        centralBody_,
+                                                                                                        integratorSettings_ );
 
     // Propagate until time of flight is reached.
-    Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( integratorSettings_ );
+    Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( /*integratorSettings_*/ );
 
     // Convert final propagated state to keplerian elements.
     Eigen::Vector6d finalPropagatedKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(

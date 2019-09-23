@@ -12,7 +12,7 @@
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
 
 #include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
 #include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
@@ -146,6 +146,149 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 }
 
 
+//! Compute current mass of the spacecraft between two epochs.
+double HybridMethod::computeCurrentMass(
+        const double timeInitialEpoch,
+        const double timeFinalEpoch,
+        const double massInitialEpoch,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    // Retrieve acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationMap = hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap_, accelerationMap );
+
+    // Define mass propagator settings.
+    std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettings =
+            std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
+                ( Eigen::Vector1d() << massInitialEpoch ).finished(),
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( timeFinalEpoch, true ) );
+
+    // Re-initialise integrator settings.
+    integratorSettings->initialTime_ = timeInitialEpoch;
+    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+
+    // Create dynamics simulation object.
+    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+                bodyMap_, integratorSettings, massPropagatorSettings, true, false, false );
+
+    // Propagate spacecraft mass.
+    std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    double currentMass = propagatedMass.rbegin()->second[ 0 ];
+
+    return currentMass;
+}
+
+
+//! Compute magnitude thrust acceleration.
+double HybridMethod::computeCurrentThrustAccelerationMagnitude( double currentTime )
+{
+    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
+            hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
+
+    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+    {
+        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
+                                  "the body Vehicle on Vehicle" );
+    }
+    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
+    Eigen::Vector3d thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
+    double thrustAccelerationMagnitude = thrustAcceleration.norm( );
+
+    return thrustAccelerationMagnitude;
+}
+
+
+//! Compute direction thrust acceleration in cartesian coordinates.
+Eigen::Vector3d HybridMethod::computeCurrentThrustAccelerationDirection( double currentTime )
+{
+    Eigen::Vector3d thrustAcceleration;
+
+    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
+            hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
+
+    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+    {
+        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
+                                  "the body Vehicle on Vehicle" );
+    }
+    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
+    thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
+
+    return thrustAcceleration;
+}
+
+
+//! Compute current thrust vector.
+Eigen::Vector3d HybridMethod::computeCurrentThrustAcceleration( double time )
+{
+
+    double independentVariable = convertTimeToIndependentVariable( time );
+    return computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
+}
+
+
+//! Return thrust acceleration profile.
+void HybridMethod::getThrustAccelerationProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+{
+    thrustAccelerationProfile.clear();
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( epochsVector[ i ] );
+        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+
+    }
+
+}
+
+
+////! Return mass profile.
+//void HybridMethod::getMassProfile(
+//        std::vector< double >& epochsVector,
+//        std::map< double, Eigen::VectorXd >& massProfile,
+//        std::function< double ( const double ) > specificImpulseFunction,
+//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+//{
+//    massProfile.clear( );
+
+//    double currentMass = initialMass_;
+
+//    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+//    {
+//        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+//        {
+//            throw std::runtime_error( "Error when retrieving the mass profile of a shape-based trajectories, "
+//                                      "epochs are not provided in increasing order." );
+//        }
+
+//        if ( i == 0 )
+//        {
+//            currentMass = computeCurrentMass( epochsVector[ i ], specificImpulseFunction, integratorSettings );
+//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
+//        }
+//        else
+//        {
+//            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
+//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
+//        }
+//    }
+
+//}
+
+
 void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
      std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
@@ -174,10 +317,10 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
     // Create hybrid method leg object.
     HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture_, stateAtArrival_, bestInitialMEEcostates, bestFinalMEEcostates,
                                                        maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_,
-                                                       centralBody_ );
+                                                       centralBody_, integratorSettings_ );
 
     // Retrieve hybrid method acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMapHybridMethod = hybridMethodLeg.getAccelerationModel( );
+    basic_astrodynamics::AccelerationMap accelerationMapHybridMethod = hybridMethodLeg.getLowThrustTrajectoryAccelerationMap( );
 
     // Re-initialise spacecraft mass in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
@@ -185,7 +328,7 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
 
     // Compute state at half of the time of flight.
     Eigen::Vector6d stateHalvedTimeOfFlight = hybridMethodLeg.propagateTrajectory(
-                0.0, timeOfFlight_ / 2.0, stateAtDeparture_, initialSpacecraftMass_, integratorSettings_ );
+                0.0, timeOfFlight_ / 2.0, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
     std::cout << "state at half TOF in full propagation function: " << stateHalvedTimeOfFlight << "\n\n";
 
     // Retrieve acceleration map for full propagation.
@@ -354,8 +497,8 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
 
 
 
-        hybridMethodLeg.propagateTrajectory( epochsVector, hybridMethodResults, stateAtDeparture_, initialSpacecraftMass_,
-                                                    0.0, integratorSettings_ );
+        hybridMethodLeg.propagateTrajectory( epochsVector, hybridMethodResults/*, stateAtDeparture_, initialSpacecraftMass_,
+                                                    0.0*//*, integratorSettings_*/ );
 
 //        hybridMethodResults.clear();
 //        for ( int i = 0 ; i < epochsVector.size() ; i++ )

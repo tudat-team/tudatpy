@@ -32,22 +32,29 @@ HodographicShaping::HodographicShaping(
         const Eigen::Vector6d finalState,
         const double timeOfFlight,
         const int numberOfRevolutions,
-        const double centralBodyGravitationalParameter,
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToPropagate,
+        const std::string centralBody,
+//        const double centralBodyGravitationalParameter,
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
         const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
         const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
-        const Eigen::VectorXd freeCoefficientsAxialVelocityFunction ) :
+        const Eigen::VectorXd freeCoefficientsAxialVelocityFunction,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) :
+    ShapeBasedMethodLeg( initialState, finalState, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
     initialState_( initialState ),
     finalState_( finalState ),
     timeOfFlight_( timeOfFlight ),
     numberOfRevolutions_( numberOfRevolutions ),
-    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+//    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),
     freeCoefficientsNormalVelocityFunction_( freeCoefficientsNormalVelocityFunction ),
     freeCoefficientsAxialVelocityFunction_( freeCoefficientsAxialVelocityFunction )
 {
+    // Retrieve gravitational parameter of the central body.
+    centralBodyGravitationalParameter_ = bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter( );
 
     // Define composite function in radial direction.
     Eigen::VectorXd radialVelocityCoefficients;
@@ -600,47 +607,47 @@ double HodographicShaping::computeDeltaV( )
 }
 
 
-//! Get low-thrust acceleration model from shaping method.
-std::shared_ptr< propulsion::ThrustAcceleration > HodographicShaping::getLowThrustAccelerationModel(
-        simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        std::function< double( const double ) > specificImpulseFunction )
-{
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::CustomThrustDirectionSettings >(
-                std::bind( &HodographicShaping::computeCurrentThrustAccelerationDirection, this, std::placeholders::_1 ) );
+////! Get low-thrust acceleration model from shaping method.
+//std::shared_ptr< propulsion::ThrustAcceleration > HodographicShaping::getLowThrustAccelerationModel(
+//        simulation_setup::NamedBodyMap& bodyMap,
+//        const std::string& bodyToPropagate,
+//        std::function< double( const double ) > specificImpulseFunction )
+//{
+//    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
+//    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
+//            std::make_shared< simulation_setup::CustomThrustDirectionSettings >(
+//                std::bind( &HodographicShaping::computeCurrentThrustAccelerationDirection, this, std::placeholders::_1 ) );
 
-    std::shared_ptr< simulation_setup::Body > vehicle = bodyMap[ bodyToPropagate ];
+//    std::shared_ptr< simulation_setup::Body > vehicle = bodyMap[ bodyToPropagate ];
 
-    // Define thrust magnitude function from the shaped trajectory.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
-    {
-        // Compute current acceleration.
-        double currentAcceleration = computeCurrentThrustAccelerationMagnitude( currentTime );
+//    // Define thrust magnitude function from the shaped trajectory.
+//    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
+//    {
+//        // Compute current acceleration.
+//        double currentAcceleration = computeCurrentThrustAccelerationMagnitude( currentTime );
 
-        // Compute current mass of the vehicle.
-        double currentMass = vehicle->getBodyMass();
+//        // Compute current mass of the vehicle.
+//        double currentMass = vehicle->getBodyMass();
 
-        // Compute and return magnitude of the low-thrust force.
-        return currentAcceleration * currentMass;
-    };
+//        // Compute and return magnitude of the low-thrust force.
+//        return currentAcceleration * currentMass;
+//    };
 
-    // Define thrust magnitude settings from thrust magnitude function.
-    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
-            = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
-                thrustMagnitudeFunction, specificImpulseFunction );
+//    // Define thrust magnitude settings from thrust magnitude function.
+//    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
+//            = std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
+//                thrustMagnitudeFunction, specificImpulseFunction );
 
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
-                thrustDirectionSettings, thrustMagnitudeSettings );
+//    // Define thrust acceleration settings.
+//    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
+//            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
+//                thrustDirectionSettings, thrustMagnitudeSettings );
 
-    // Create low thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap, bodyToPropagate );
+//    // Create low thrust acceleration model.
+//    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel = createThrustAcceleratioModel( thrustAccelerationSettings, bodyMap, bodyToPropagate );
 
-    return lowThrustAccelerationModel;
-}
+//    return lowThrustAccelerationModel;
+//}
 
 
 void HodographicShaping::computeShapedTrajectoryAndFullPropagation(
@@ -670,7 +677,7 @@ void HodographicShaping::computeShapedTrajectoryAndFullPropagation(
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( bodyMap, bodyToPropagate, specificImpulseFunction );
+            getLowThrustAccelerationModel( /*bodyMap, bodyToPropagate,*/ specificImpulseFunction );
 
     basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
                 std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
@@ -711,21 +718,21 @@ void HodographicShaping::computeShapedTrajectoryAndFullPropagation(
                                                            bodyMap, accelerationMap );
 
 
-        // Propagate mass until half of the time of flight.
-        std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
-                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
-                    ( Eigen::Vector1d() << bodyMap[ bodyToPropagate ]->getBodyMass() ).finished(),
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight, true ) );
+//        // Propagate mass until half of the time of flight.
+//        std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
+//                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
+//                    ( Eigen::Vector1d() << bodyMap[ bodyToPropagate ]->getBodyMass() ).finished(),
+//                    std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight, true ) );
 
-        integratorSettings->initialTime_ = 0.0;
+//        integratorSettings->initialTime_ = 0.0;
 
-        // Create dynamics simulation object.
-        propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                    bodyMap, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
+//        // Create dynamics simulation object.
+//        propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+//                    bodyMap, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
 
         // Propagate spacecraft mass until half of the time of flight.
-        std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        double massAtHalvedTimeOfFlight = propagatedMass.rbegin()->second[ 0 ];
+//        std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        double massAtHalvedTimeOfFlight = computeCurrentMass( halvedTimeOfFlight, specificImpulseFunction, integratorSettings ); // propagatedMass.rbegin()->second[ 0 ];
 
         // Create settings for propagating the mass of the vehicle.
         std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,

@@ -18,6 +18,7 @@
 #include <Eigen/Dense>
 #include <map>
 #include "pagmo/algorithm.hpp"
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
 
 namespace tudat
 {
@@ -92,10 +93,34 @@ public:
         championFitness_ = bestIndividual.first;
         championDesignVariables_ = bestIndividual.second;
 
+        // Transform best design variables into vector of throttles.
+        std::vector< Eigen::Vector3d > throttles;
+        for ( int i = 0 ; i < numberSegments ; i++ )
+        {
+            throttles.push_back( ( Eigen::Vector3d( ) << championDesignVariables_[ i * 3 ], championDesignVariables_[ i * 3 + 1 ],
+                    championDesignVariables_[ i * 3 + 2 ] ).finished( ) );
+        }
+
+        // Create Sims-Flanagan leg from the best optimisation individual.
+        simsFlanaganLeg_ = std::make_shared< SimsFlanaganLeg >( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
+                                            timeOfFlight_, bodyMap_, throttles, bodyToPropagate_, centralBody_ );
+
     }
 
     //! Default destructor.
     ~SimsFlanagan( ) { }
+
+    //! Convert time to independent variable.
+    double convertTimeToIndependentVariable( const double time )
+    {
+        return time;
+    }
+
+    //! Convert independent variable to time.
+    double convertIndependentVariableToTime( const double independentVariable )
+    {
+        return independentVariable;
+    }
 
     //! Perform optimisation.
     std::pair< std::vector< double >, std::vector< double > > performOptimisation( );
@@ -104,6 +129,14 @@ public:
     double computeDeltaV( )
     {
         return deltaV_; //championFitness_[ 0 ];
+    }
+
+    //! Compute state history.
+    void getTrajectory(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::Vector6d >& propagatedTrajectory )
+    {
+        simsFlanaganLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
     //! Return best individual.
@@ -195,6 +228,9 @@ private:
 
     //! DeltaV corresponding to best trajectory.
     double deltaV_;
+
+    //! Sims-Flanagan leg corresponding to the best optimisation output.
+    std::shared_ptr< SimsFlanaganLeg > simsFlanaganLeg_;
 
 };
 

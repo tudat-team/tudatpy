@@ -12,7 +12,7 @@
 #ifndef SPHERICALSHAPING_H
 #define SPHERICALSHAPING_H
 
-#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethod.h"
+#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethodLeg.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -29,7 +29,7 @@ namespace shape_based_methods
 {
 
 
-class SphericalShaping : public ShapeBasedMethod
+class SphericalShaping : public ShapeBasedMethodLeg  /*: public ShapeBasedMethod*/
 {
 public:
 
@@ -38,14 +38,37 @@ public:
                      Eigen::Vector6d finalState,
                      double requiredTimeOfFlight,
                      int numberOfRevolutions,
-                     double centralBodyGravitationalParameter,
+                     simulation_setup::NamedBodyMap& bodyMap,
+                     const std::string bodyToPropagate,
+                     const std::string centralBody,
+//                     double centralBodyGravitationalParameter,
                      double initialValueFreeCoefficient,
                      std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
                      const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                     const double upperBoundFreeCoefficient = TUDAT_NAN );
+                     const double upperBoundFreeCoefficient = TUDAT_NAN,
+                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings
+                        = std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) );
 
     //! Default destructor.
     ~SphericalShaping( ) { }
+
+    //! Convert time to independent variable.
+    double convertTimeToIndependentVariable( const double time );
+
+    //! Convert independent variable to time.
+    double convertIndependentVariableToTime( const double independentVariable );
+
+    //! Returns initial value of the independent variable.
+    double getInitialValueInpendentVariable( )
+    {
+        return initialAzimuthAngle_;
+    }
+
+    //! Returns final value of the independent variable.
+    double getFinalValueInpendentVariable( )
+    {
+        return finalAzimuthAngle_;
+    }
 
     //! Return the coefficients of the radial distance composite function.
     Eigen::VectorXd getRadialDistanceFunctionCoefficients( )
@@ -92,15 +115,16 @@ public:
     //! Compute deltaV.
     double computeDeltaV( );
 
-
-    //! Get low-thrust acceleration model from shaping method.
-    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(simulation_setup::NamedBodyMap& bodyMap,
-            const std::string& bodyToPropagate,
-            std::function< double( const double ) > specificImpulseFunction,
-            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
+//    //! Get low-thrust acceleration model from shaping method.
+//    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
+////            simulation_setup::NamedBodyMap& bodyMap,
+////            const std::string& bodyToPropagate,
+//            std::function< double( const double ) > specificImpulseFunction,
+//            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
 
     //! Function to compute the shaped trajectory and the propagation fo the full problem.
-    void computeShapedTrajectoryAndFullPropagation( simulation_setup::NamedBodyMap& bodyMap,
+    void computeShapedTrajectoryAndFullPropagation(
+//            simulation_setup::NamedBodyMap& bodyMap,
             std::function< double ( const double ) > specificImpulseFunction,
             const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
             std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
@@ -277,6 +301,15 @@ private:
     //! Number of revolutions.
     int numberOfRevolutions_;
 
+    //! Body map object.
+    simulation_setup::NamedBodyMap bodyMap_;
+
+    //! Name of the body to be propagated.
+    std::string bodyToPropagate_;
+
+    //! Name of the central body.
+    std::string centralBody_;
+
     //! Central body gravitational parameter.
     double centralBodyGravitationalParameter_;
 
@@ -322,11 +355,18 @@ private:
     //! Upper bound for the free coefficient, to be used when trying to match the required time of flight.
     const double upperBoundFreeCoefficient_;
 
-    //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
-    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
+    //! Integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
+
+//    //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
+//    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
     //! Inverse of matrix containing the boundary conditions
     Eigen::MatrixXd inverseMatrixBoundaryConditions_;
+
+
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
 };
 
 

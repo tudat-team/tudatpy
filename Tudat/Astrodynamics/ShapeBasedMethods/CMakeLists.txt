@@ -17,6 +17,7 @@ set(SHAPEBASEDMETHODS_SOURCES
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
+  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethodLeg.cpp"
 )
 
 # Set the header files.
@@ -28,7 +29,7 @@ set(SHAPEBASEDMETHODS_HEADERS
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.h"
   "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.h"
+  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethodLeg.h"
 )
 
 # Add static libraries.
@@ -40,9 +41,9 @@ include(tudatLinkLibraries)
 ## Add unit tests.
 add_executable(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/UnitTests/unitTestHodographicShaping.cpp")
 setup_custom_test_program(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_HodographicShaping tudat_shape_based_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+target_link_libraries(test_HodographicShaping tudat_shape_based_methods tudat_low_thrust_direct_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 
 add_executable(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/UnitTests/unitTestSphericalShaping.cpp")
 setup_custom_test_program(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_SphericalShaping tudat_shape_based_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+target_link_libraries(test_SphericalShaping tudat_shape_based_methods tudat_low_thrust_direct_methods tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 

@@ -695,6 +695,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     using namespace shape_based_methods;
 
 
+    spice_interface::loadStandardSpiceKernels( );
+
     /// Shape-based Earth-Mars transfer.
 
     double julianDate = 9264.5 * physical_constants::JULIAN_DAY;
@@ -702,6 +704,50 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     double timeOfFlight = 1000.0 * physical_constants::JULIAN_DAY;
 
     int numberOfRevolutions = 2;
+
+    double maximumThrust = 5.0; //0.8;
+    double specificImpulse = 3000.0;
+    double mass = 2800.0;
+    int numberSegments = 50;
+
+
+    std::string bodyToPropagate = "Vehicle";
+    std::string centralBody = "Sun";
+
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+    // Set vehicle mass.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
 
     // Ephemeris departure body.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
@@ -788,14 +834,14 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     shape_based_methods::HodographicShaping VelocityShapingMethod(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight, numberOfRevolutions,
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
+                bodyMap, bodyToPropagate, centralBody,
+//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents,
                 normalVelocityFunctionComponents,
                 axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction,
                 freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction );
-
 
     int numberOfSteps = 10000;
     double stepSize = timeOfFlight / static_cast< double >( numberOfSteps );
@@ -814,13 +860,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     }
 
-
-    spice_interface::loadStandardSpiceKernels( );
-
-    double maximumThrust = 5.0; //0.8;
-    double specificImpulse = 3000.0;
-    double mass = 2800.0;
-    int numberSegments = 50;
 
     // Calculate number of segments for both the forward propagation (from departure to match point)
     // and the backward propagation (from arrival to match point).
@@ -943,43 +982,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
         return specificImpulse;
     };
 
-    std::string bodyToPropagate = "Vehicle";
-    std::string centralBody = "Sun";
-
-
-    // Create central, departure and arrival bodies.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Sun" );
-
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "ECLIPJ2000";
-
-
-    // Define central body ephemeris settings.
-    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-    // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
 
 //    // Ephemeris departure body.
 //    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
@@ -996,8 +998,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     // Define integrator settings.
 //    double stepSize = ( timeOfFlight ) / static_cast< double >( 50 );
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 10.0 );
-
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
 
 
     // Define optimisation algorithm.
