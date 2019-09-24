@@ -19,6 +19,7 @@
 #include <map>
 #include "pagmo/algorithm.hpp"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
+#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 
 namespace tudat
 {
@@ -32,7 +33,7 @@ std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< 
                                                                  const int numberSegmentsBackwardPropagation );
 
 
-class SimsFlanagan
+class SimsFlanagan : public transfer_trajectories::LowThrustLeg
 {
 public:
 
@@ -52,15 +53,16 @@ public:
             const int numberOfIndividualsPerPopulation,
             const double relativeToleranceConstraints = 1.0e-6,
             std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
-        stateAtDeparture_( stateAtDeparture ),
-        stateAtArrival_( stateAtArrival ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
+//        stateAtDeparture_( stateAtDeparture ),
+//        stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberSegments ),
-        timeOfFlight_( timeOfFlight ),
-        bodyMap_( bodyMap ),
-        bodyToPropagate_( bodyToPropagate ),
-        centralBody_( centralBody ),
+//        timeOfFlight_( timeOfFlight ),
+//        bodyMap_( bodyMap ),
+//        bodyToPropagate_( bodyToPropagate ),
+//        centralBody_( centralBody ),
         optimisationAlgorithm_( optimisationAlgorithm ),
         numberOfGenerations_( numberOfGenerations ),
         numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
@@ -139,6 +141,49 @@ public:
         simsFlanaganLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime )
+    {
+
+    }
+
+    //! Compute magnitude thrust acceleration.
+    double computeCurrentThrustAccelerationMagnitude( double currentTime )
+    {
+
+    }
+
+
+    //! Return mass profile.
+    void getMassProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& massProfile,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+    {
+
+    }
+
+    //! Return thrust profile.
+    void getThrustProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& thrustProfile,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+    {
+
+    }
+
+    //! Return thrust acceleration profile.
+    void getThrustAccelerationProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+    {
+
+    }
+
+
     //! Return best individual.
     std::vector< double > getBestIndividual( )
     {
@@ -167,11 +212,11 @@ protected:
 
 private:
 
-    //! State vector of the vehicle at the leg departure.
-    Eigen::Vector6d stateAtDeparture_;
+//    //! State vector of the vehicle at the leg departure.
+//    Eigen::Vector6d stateAtDeparture_;
 
-    //! State vector of the vehicle at the leg arrival.
-    Eigen::Vector6d stateAtArrival_;
+//    //! State vector of the vehicle at the leg arrival.
+//    Eigen::Vector6d stateAtArrival_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -182,17 +227,17 @@ private:
     //! Number of segments into which the leg is subdivided.
     int numberSegments_;
 
-    //! Time of flight for the leg.
-    double timeOfFlight_;
+//    //! Time of flight for the leg.
+//    double timeOfFlight_;
 
-    //! Body map object.
-    simulation_setup::NamedBodyMap bodyMap_;
+//    //! Body map object.
+//    simulation_setup::NamedBodyMap bodyMap_;
 
-    //! Name of the body to be propagated.
-    std::string bodyToPropagate_;
+//    //! Name of the body to be propagated.
+//    std::string bodyToPropagate_;
 
-    //! Name of the central body.
-    std::string centralBody_;
+//    //! Name of the central body.
+//    std::string centralBody_;
 
     //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
     pagmo::algorithm optimisationAlgorithm_;
