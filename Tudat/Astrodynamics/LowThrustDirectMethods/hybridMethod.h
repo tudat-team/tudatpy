@@ -30,7 +30,7 @@ namespace low_thrust_direct_methods
 //! Transform thrust model as a function of time into hybrid method thrust model.
 Eigen::Matrix< double, 10 , 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime );
 
-class HybridMethod /*: public transfer_trajectories::LowThrustLeg*/
+class HybridMethod : public transfer_trajectories::LowThrustLeg
 {
 public:
 
@@ -41,7 +41,7 @@ public:
             const double maximumThrust,
             const double specificImpulse,
             const double timeOfFlight,
-            simulation_setup::NamedBodyMap bodyMap,
+            simulation_setup::NamedBodyMap& bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -50,15 +50,15 @@ public:
             const int numberOfIndividualsPerPopulation,
             const double relativeToleranceConstraints = 1.0e-6,
             std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
-//        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
-        stateAtDeparture_( stateAtDeparture ),
-        stateAtArrival_( stateAtArrival ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
+//        stateAtDeparture_( stateAtDeparture ),
+//        stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
-        timeOfFlight_( timeOfFlight ),
-        bodyMap_( bodyMap ),
-        bodyToPropagate_( bodyToPropagate ),
-        centralBody_( centralBody ),
+//        timeOfFlight_( timeOfFlight ),
+//        bodyMap_( bodyMap ),
+//        bodyToPropagate_( bodyToPropagate ),
+//        centralBody_( centralBody ),
         integratorSettings_( integratorSettings ),
         optimisationAlgorithm_( optimisationAlgorithm ),
         numberOfGenerations_( numberOfGenerations ),
@@ -132,7 +132,7 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory )
     {
-        hybridMethodLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
+        propagatedTrajectory = hybridMethodLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
     //! Return mass profile.
@@ -149,18 +149,25 @@ public:
     double computeCurrentThrustAccelerationMagnitude( double currentTime );
 
     //! Compute current thrust vector.
-    Eigen::Vector3d computeCurrentThrustAcceleration( double independentVariable );
+    Eigen::Vector3d computeCurrentThrustAcceleration( double time );
 
     //! Return thrust acceleration profile.
     void getThrustAccelerationProfile(
             std::vector< double >& epochsVector,
             std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
 
+    //! Compute current thrust vector.
+    Eigen::Vector3d computeCurrentThrust(
+            double time,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
     //! Return thrust profile.
     void getThrustProfile( std::vector< double >& epochsVector,
            std::map< double, Eigen::VectorXd >& thrustProfile,
            std::function< double ( const double ) > specificImpulseFunction,
            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
 
     //! Return best individual.
     std::vector< double > getBestIndividual( )
@@ -195,11 +202,11 @@ protected:
 
 private:
 
-    //! State vector of the vehicle at the leg departure.
-    Eigen::Vector6d stateAtDeparture_;
+//    //! State vector of the vehicle at the leg departure.
+//    Eigen::Vector6d stateAtDeparture_;
 
-    //! State vector of the vehicle at the leg arrival.
-    Eigen::Vector6d stateAtArrival_;
+//    //! State vector of the vehicle at the leg arrival.
+//    Eigen::Vector6d stateAtArrival_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -207,17 +214,17 @@ private:
     //! Specific impulse.
     double specificImpulse_;
 
-    //! Time of flight for the leg.
-    double timeOfFlight_;
+//    //! Time of flight for the leg.
+//    double timeOfFlight_;
 
-    //! Body map object.
-    simulation_setup::NamedBodyMap bodyMap_;
+//    //! Body map object.
+//    simulation_setup::NamedBodyMap bodyMap_;
 
-    //! Name of the body to be propagated.
-    std::string bodyToPropagate_;
+//    //! Name of the body to be propagated.
+//    std::string bodyToPropagate_;
 
-    //! Name of the central body.
-    std::string centralBody_;
+//    //! Name of the central body.
+//    std::string centralBody_;
 
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;

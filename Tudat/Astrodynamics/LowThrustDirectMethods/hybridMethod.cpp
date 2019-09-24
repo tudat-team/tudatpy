@@ -184,6 +184,40 @@ double HybridMethod::computeCurrentMass(
 }
 
 
+//! Return mass profile.
+void HybridMethod::getMassProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& massProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    massProfile.clear( );
+
+    double currentMass = initialMass_;
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the mass profile of a hybrid trajectory, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        if ( i == 0 )
+        {
+            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
+            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
+        }
+        else
+        {
+            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
+            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
+        }
+    }
+
+}
+
+
 //! Compute magnitude thrust acceleration.
 double HybridMethod::computeCurrentThrustAccelerationMagnitude( double currentTime )
 {
@@ -255,38 +289,48 @@ void HybridMethod::getThrustAccelerationProfile(
 }
 
 
-////! Return mass profile.
-//void HybridMethod::getMassProfile(
-//        std::vector< double >& epochsVector,
-//        std::map< double, Eigen::VectorXd >& massProfile,
-//        std::function< double ( const double ) > specificImpulseFunction,
-//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-//{
-//    massProfile.clear( );
+//! Compute current thrust vector.
+Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
+                                                    std::function< double ( const double ) > specificImpulseFunction,
+                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    double independentVariable = convertTimeToIndependentVariable( time );
+    return computeCurrentMass( 0.0, time, initialSpacecraftMass_, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
+}
 
-//    double currentMass = initialMass_;
 
-//    for ( int i = 0 ; i < epochsVector.size() ; i++ )
-//    {
-//        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
-//        {
-//            throw std::runtime_error( "Error when retrieving the mass profile of a shape-based trajectories, "
-//                                      "epochs are not provided in increasing order." );
-//        }
+//! Return thrust profile.
+void HybridMethod::getThrustProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings)
+{
+    thrustProfile.clear( );
 
-//        if ( i == 0 )
-//        {
-//            currentMass = computeCurrentMass( epochsVector[ i ], specificImpulseFunction, integratorSettings );
-//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
-//        }
-//        else
-//        {
-//            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
-//        }
-//    }
+    // Retrieve corresponding mass profile.
+    std::map< double, Eigen::VectorXd > massProfile;
+    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    std::vector< double > massProfileVector;
+    for ( std::map< double, Eigen::VectorXd >::iterator itr = massProfile.begin( ) ; itr != massProfile.end( ) ; itr++ )
+    {
+        massProfileVector.push_back( itr->second[ 0 ] );
+    }
 
-//}
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        Eigen::Vector3d currentThrustVector = computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
+        thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
+
+    }
+}
 
 
 void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
