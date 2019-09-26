@@ -273,81 +273,39 @@ void ShapeBasedMethodLeg::getTrajectory(
 //}
 
 
+//! Define appropriate translational state propagator settings for the full propagation.
+std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > ShapeBasedMethodLeg::createLowThrustTranslationalStatePropagatorSettings(
+        basic_astrodynamics::AccelerationMap accelerationModelMap,
+        std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
+{
 
-void ShapeBasedMethodLeg::computeSemiAnalyticalAndFullPropagation(
-//        simulation_setup::NamedBodyMap& bodyMap,
-        std::function< double( const double ) > specificImpulseFunction,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-                std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-        std::map< double, Eigen::VectorXd >& fullPropagationResults,
-        std::map< double, Eigen::VectorXd >& semiAnalyticalResults,
-        std::map< double, Eigen::VectorXd >& dependentVariablesHistory/*,
-        const bool isMassPropagated */){
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
 
-    fullPropagationResults.clear();
-    semiAnalyticalResults.clear();
-    dependentVariablesHistory.clear();
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
 
+    // Compute state vector at half of the time of flight.
+    double independentVariableAtHalfTimeOfFlight = convertTimeToIndependentVariable( timeOfFlight_ / 2.0 );
+    Eigen::Vector6d stateAtHalfOfTimeOfFlight = computeCurrentStateVector( independentVariableAtHalfTimeOfFlight );
 
-//    // Retrieve initial step size.
-//    double initialStepSize = integratorSettings->initialTimeStep_;
+    // Define translational state propagator settings.
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    // Compute half of the time of flight.
-    double halfOfTimeOfFlight = timeOfFlight_ / 2.0;
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+              stateAtHalfOfTimeOfFlight, terminationConditions.first, propagators::cowell, dependentVariablesToSave );
 
-//    // Compute independent variable at half of the time of flight.
-//    double independentVariableAtHalfOfTimeOfFlight = convertTimeToIndependentVariable( halfOfTimeOfFlight  );
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+              stateAtHalfOfTimeOfFlight, terminationConditions.second, propagators::cowell, dependentVariablesToSave );
 
-//    // Compute state at half of the time of flight.
-//    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = computeCurrentStateVector( independentVariableAtHalfOfTimeOfFlight );
-
-    // Define forward propagator settings variables.
-    integratorSettings->initialTime_ = halfOfTimeOfFlight;
-
-
-    // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, propagatorSettings.second );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
-
-    // Compute and save full propagation and shaping method results along the forward propagation direction.
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
-         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
-    {
-        double currentIndependentVariable = convertTimeToIndependentVariable( itr->first );
-
-        Eigen::Vector6d currentState = computeCurrentStateVector( currentIndependentVariable );
-        semiAnalyticalResults[ itr->first ] = currentState;
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
-    }
-
-
-    // Define backward propagator settings variables.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
-    integratorSettings->initialTime_ = halfOfTimeOfFlight;
-
-    // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, propagatorSettings.first );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
-
-    // Compute and save full propagation and shaping method results along the backward propagation direction
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
-         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
-    {
-        double currentIndependentVariable = convertTimeToIndependentVariable( itr->first );
-
-        Eigen::Vector6d currentState = computeCurrentStateVector( currentIndependentVariable );
-        semiAnalyticalResults[ itr->first ] = currentState;
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
-    }
-
-    // Reset initial integrator settings.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
-
+    return translationalStatePropagatorSettings;
 }
 
 

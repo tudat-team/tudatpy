@@ -199,14 +199,12 @@ public:
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
 
-    //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
-    void computeSimsFlanaganTrajectoryAndFullPropagation(
-         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-         std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-         std::map< double, Eigen::VectorXd >& fullPropagationResults,
-         std::map< double, Eigen::Vector6d >& SimsFlanaganResults,
-         std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
+
+    //! Define appropriate translational state propagator settings for the full propagation.
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
+            basic_astrodynamics::AccelerationMap accelerationModelMap,
+            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
 protected:

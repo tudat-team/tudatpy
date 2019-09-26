@@ -361,89 +361,41 @@ basic_astrodynamics::AccelerationMap HybridMethod::retrieveLowThrustAcceleration
 }
 
 
-void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
-     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-        std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-     std::map< double, Eigen::VectorXd >& fullPropagationResults,
-     std::map< double, Eigen::Vector6d >& hybridMethodResults,
-     std::map< double, Eigen::VectorXd>& dependentVariablesHistory )
+//! Define appropriate translational state propagator settings for the full propagation.
+std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > HybridMethod::createLowThrustTranslationalStatePropagatorSettings(
+        basic_astrodynamics::AccelerationMap accelerationModelMap,
+        std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
 {
 
-    fullPropagationResults.clear();
-    hybridMethodResults.clear();
-    dependentVariablesHistory.clear();
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
 
-    std::function< double ( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return specificImpulse_;
-    };
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
 
-    double massAtHalvedTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction, integratorSettings_ );
+    // Compute state vector at half of the time of flight.
+    double independentVariableAtHalfTimeOfFlight = convertTimeToIndependentVariable( timeOfFlight_ / 2.0 );
+    Eigen::Vector6d stateAtHalfOfTimeOfFlight = computeCurrentStateVector( timeOfFlight_ / 2.0 );
 
-    // Define backward propagator settings variables.
-    integratorSettings_->initialTimeStep_ = - std::fabs( integratorSettings_->initialTimeStep_ );
-    integratorSettings_->initialTime_ = timeOfFlight_ / 2.0;
+    // Define translational state propagator settings.
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    // Initialise spacecraft mass to mass at halved time of flight in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
+                          terminationConditions.first, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
 
-    // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings_, propagatorSettings.first );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
+                          terminationConditions.second, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
 
-    // Declare vector of epochs at which the trajectory has to be calculated.
-//    std::vector< double > epochsVectorBackwardPropagation;
-
-    // Declare vector of epochs at which the trajectory has to be calculated.
-    std::vector< double > epochsVector;
-
-    // Compute and save full propagation and shaping method results along the backward propagation direction
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
-         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
-    {
-        epochsVector.push_back( itr->first );
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
-    }
-
-//    std::vector< double > epochsBackwardPropagation;
-//    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
-//    {
-//        epochsBackwardPropagation.push_back( epochsVector[ i ] );
-//    }
-
-    // Reset initial integrator settings.
-    integratorSettings_->initialTimeStep_ = std::fabs( integratorSettings_->initialTimeStep_ );
-
-    // Define forward propagator settings variables.
-    integratorSettings_->initialTime_ = timeOfFlight_ / 2.0;
-
-    // Initialise spacecraft mass to mass at halved time of flight in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
-
-    // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings_, propagatorSettings.second );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
-
-
-//    std::vector< double > epochsForwardPropagation;
-
-    // Compute and save full propagation and shaping method results along the forward propagation direction.
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
-         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
-    {
-        epochsVector.push_back( itr->first );
-//        epochsForwardPropagation.push_back( itr->first );
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
-    }
-
-    hybridMethodLeg_->propagateTrajectory( epochsVector, hybridMethodResults );
-
+    return translationalStatePropagatorSettings;
 }
 
 

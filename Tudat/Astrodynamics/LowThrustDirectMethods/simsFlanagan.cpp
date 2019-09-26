@@ -175,88 +175,58 @@ basic_astrodynamics::AccelerationMap SimsFlanagan::retrieveLowThrustAcceleration
 }
 
 
-//! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
-void SimsFlanagan::computeSimsFlanaganTrajectoryAndFullPropagation(
-     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-        std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-     std::map< double, Eigen::VectorXd >& fullPropagationResults,
-     std::map< double, Eigen::Vector6d >& SimsFlanaganResults,
-     std::map< double, Eigen::VectorXd>& dependentVariablesHistory )
+//! Define appropriate translational state propagator settings for the full propagation.
+std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > SimsFlanagan::createLowThrustTranslationalStatePropagatorSettings(
+        basic_astrodynamics::AccelerationMap accelerationModelMap,
+        std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
 {
 
-    fullPropagationResults.clear();
-    SimsFlanaganResults.clear();
-    dependentVariablesHistory.clear();
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
 
-    double massAtHalvedTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction_, integratorSettings );
-
-    // Define backward propagator settings variables.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
-    integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
-
-    // Initialise spacecraft mass to mass at halved time of flight in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
-
-    // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, propagatorSettings.first );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
-
-    // Declare vector of epochs at which the trajectory has to be calculated.
-//    std::vector< double > epochsVectorBackwardPropagation;
-
-    // Declare vector of epochs at which the trajectory has to be calculated.
-    std::vector< double > epochsVector;
-
-    // Compute and save full propagation and shaping method results along the backward propagation direction
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
-         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
-    {
-        epochsVector.push_back( itr->first );
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
-    }
-
-//    std::vector< double > epochsBackwardPropagation = epochsVector;
-//    for ( int i = epochsVector.size() - 1 ; i >= 0 ; i-- )
-//    {
-//        epochsBackwardPropagation.push_back( epochsVector[ i ] );
-//    }
-
-    // Reset initial integrator settings.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
-
-    // Define forward propagator settings variables.
-    integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
-
-    // Initialise spacecraft mass to mass at halved time of flight in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
-
-    // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, propagatorSettings.second );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
 
 
-//    std::vector< double > epochsForwardPropagation;
+    // Compute state at half of the time of flight after forward propagation.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanaganLeg_->propagateTrajectoryForward(
+                0.0, timeOfFlight_ / 2.0, stateAtDeparture_, timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
 
-    // Compute and save full propagation and shaping method results along the forward propagation direction.
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
-         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
-    {
-        epochsVector.push_back( itr->first );
-//        epochsForwardPropagation.push_back( itr->first );
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
-    }
+    // Compute state at half of the time of flight after backward propagation.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanaganLeg_->propagateTrajectoryBackward(
+                timeOfFlight_, timeOfFlight_ / 2.0, stateAtArrival_, timeOfFlight_ / ( 2.0 * numberSegmentsBackwardPropagation_ ) );
 
-    simsFlanaganLeg_->propagateTrajectory( epochsVector, SimsFlanaganResults );
 
-    deltaV_ = simsFlanaganLeg_->getTotalDeltaV();
+    // Compute state at half of the time of flight (averaged between forward and backward propagation results).
+    Eigen::Vector6d stateHalfOfTimeOfFlight = 1.0 / 2.0 * ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation );
 
+    // Re-initialise spacecraft mass in body map.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+
+
+    // Define translational state propagator settings.
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
+
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate_ }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightForwardPropagation,
+                          terminationConditions.first,
+                          propagators::cowell, dependentVariablesToSave );
+
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+                          std::vector< std::string >{ bodyToPropagate_ }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightBackwardPropagation,
+                          terminationConditions.second,
+                          propagators::cowell, dependentVariablesToSave );
+
+    return translationalStatePropagatorSettings;
 }
 
 

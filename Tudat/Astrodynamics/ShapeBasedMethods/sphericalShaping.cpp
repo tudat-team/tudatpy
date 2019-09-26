@@ -776,234 +776,234 @@ double SphericalShaping::computeDeltaV( )
 //}
 
 
-void SphericalShaping::computeShapedTrajectoryAndFullPropagation(
-//        simulation_setup::NamedBodyMap& bodyMap,
-        std::function< double( const double ) > specificImpulseFunction,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-                std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-        std::map< double, Eigen::VectorXd >& fullPropagationResults,
-        std::map< double, Eigen::VectorXd >& shapingMethodResults,
-        std::map< double, Eigen::VectorXd >& dependentVariablesHistory,
-        const bool isMassPropagated ){
+//void SphericalShaping::computeShapedTrajectoryAndFullPropagation(
+////        simulation_setup::NamedBodyMap& bodyMap,
+//        std::function< double( const double ) > specificImpulseFunction,
+//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//        std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//                std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+//        std::map< double, Eigen::VectorXd >& fullPropagationResults,
+//        std::map< double, Eigen::VectorXd >& shapingMethodResults,
+//        std::map< double, Eigen::VectorXd >& dependentVariablesHistory,
+//        const bool isMassPropagated ){
 
-    fullPropagationResults.clear();
-    shapingMethodResults.clear();
-    dependentVariablesHistory.clear();
+//    fullPropagationResults.clear();
+//    shapingMethodResults.clear();
+//    dependentVariablesHistory.clear();
 
-    std::string bodyToPropagate = propagatorSettings.first->bodiesToIntegrate_[ 0 ];
+//    std::string bodyToPropagate = propagatorSettings.first->bodiesToIntegrate_[ 0 ];
 
-    // Retrieve initial step size.
-    double initialStepSize = integratorSettings->initialTimeStep_;
+//    // Retrieve initial step size.
+//    double initialStepSize = integratorSettings->initialTimeStep_;
 
-    // Vector of azimuth angles at which the time should be computed.
-    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
-            Eigen::VectorXd::LinSpaced( std::ceil( computeNormalizedTimeOfFlight() * physical_constants::JULIAN_YEAR / initialStepSize ),
-                                        initialAzimuthAngle_, finalAzimuthAngle_ );
+//    // Vector of azimuth angles at which the time should be computed.
+//    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
+//            Eigen::VectorXd::LinSpaced( std::ceil( computeNormalizedTimeOfFlight() * physical_constants::JULIAN_YEAR / initialStepSize ),
+//                                        initialAzimuthAngle_, finalAzimuthAngle_ );
 
-    std::map< double, double > dataToInterpolate;
-    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
-    {
-        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
-                = azimuthAnglesToComputeAssociatedEpochs[ i ];
-    }
+//    std::map< double, double > dataToInterpolate;
+//    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
+//    {
+//        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
+//                = azimuthAnglesToComputeAssociatedEpochs[ i ];
+//    }
 
-    // Create interpolator.
-    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
+//    // Create interpolator.
+//    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+//            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
 
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator =
-            interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+//    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator =
+//            interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
 
-    // Compute halved time of flight.
-    double halvedTimeOfFlight = computeNormalizedTimeOfFlight() / 2.0;
+//    // Compute halved time of flight.
+//    double halvedTimeOfFlight = computeNormalizedTimeOfFlight() / 2.0;
 
-    // Compute azimuth angle at half of the time of flight.
-    double azimuthAngleAtHalvedTimeOfFlight = interpolator->interpolate( halvedTimeOfFlight * physical_constants::JULIAN_YEAR );
+//    // Compute azimuth angle at half of the time of flight.
+//    double azimuthAngleAtHalvedTimeOfFlight = interpolator->interpolate( halvedTimeOfFlight * physical_constants::JULIAN_YEAR );
 
-    // Compute state at half of the time of flight.
-    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = computeNormalizedStateVector( azimuthAngleAtHalvedTimeOfFlight );
-    initialStateAtHalvedTimeOfFlight.segment( 0, 3 ) *= physical_constants::ASTRONOMICAL_UNIT;
-    initialStateAtHalvedTimeOfFlight.segment( 3, 3 ) *= physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+//    // Compute state at half of the time of flight.
+//    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = computeNormalizedStateVector( azimuthAngleAtHalvedTimeOfFlight );
+//    initialStateAtHalvedTimeOfFlight.segment( 0, 3 ) *= physical_constants::ASTRONOMICAL_UNIT;
+//    initialStateAtHalvedTimeOfFlight.segment( 3, 3 ) *= physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
 
-    // Create low thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( /*bodyMap, propagatorSettings.first->bodiesToIntegrate_[ 0 ],*/ specificImpulseFunction/*,
-                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationDirection, this, std::placeholders::_1 ),
-                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationMagnitude, this, std::placeholders::_1 )*/ /*, interpolator*/ );
+//    // Create low thrust acceleration model.
+//    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
+//            getLowThrustAccelerationModel( /*bodyMap, propagatorSettings.first->bodiesToIntegrate_[ 0 ],*/ specificImpulseFunction/*,
+//                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationDirection, this, std::placeholders::_1 ),
+//                                           std::bind( &SphericalShaping::computeCurrentThrustAccelerationMagnitude, this, std::placeholders::_1 )*/ /*, interpolator*/ );
 
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
-                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
+//    basic_astrodynamics::AccelerationMap accelerationMap = propagators::getAccelerationMapFromPropagatorSettings(
+//                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
 
-    accelerationMap[ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ][ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ]
-            .push_back( lowThrustAccelerationModel );
-
-
-    // Create complete propagation settings (backward and forward propagations).
-    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > completePropagatorSettings;
+//    accelerationMap[ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ][ propagatorSettings.first->bodiesToIntegrate_[ 0 ] ]
+//            .push_back( lowThrustAccelerationModel );
 
 
-    // Define translational state propagation settings
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
-
-    // Define backward translational state propagation settings.
-    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( propagatorSettings.first->centralBodies_, accelerationMap, propagatorSettings.first->bodiesToIntegrate_,
-                          initialStateAtHalvedTimeOfFlight, propagatorSettings.first->getTerminationSettings(),
-                          propagatorSettings.first->propagator_, propagatorSettings.first->getDependentVariablesToSave() );
-
-    // Define forward translational state propagation settings.
-    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( propagatorSettings.second->centralBodies_, accelerationMap, propagatorSettings.second->bodiesToIntegrate_,
-                          initialStateAtHalvedTimeOfFlight, propagatorSettings.second->getTerminationSettings(),
-                          propagatorSettings.second->propagator_, propagatorSettings.second->getDependentVariablesToSave() );
+//    // Create complete propagation settings (backward and forward propagations).
+//    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+//            std::shared_ptr< propagators::PropagatorSettings< double > > > completePropagatorSettings;
 
 
-    // If translational state and mass are propagated concurrently.
-    if ( isMassPropagated )
-    {
-        // Create mass rate models
-        std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-        massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                           bodyMap_, accelerationMap );
+//    // Define translational state propagation settings
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
+
+//    // Define backward translational state propagation settings.
+//    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( propagatorSettings.first->centralBodies_, accelerationMap, propagatorSettings.first->bodiesToIntegrate_,
+//                          initialStateAtHalvedTimeOfFlight, propagatorSettings.first->getTerminationSettings(),
+//                          propagatorSettings.first->propagator_, propagatorSettings.first->getDependentVariablesToSave() );
+
+//    // Define forward translational state propagation settings.
+//    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( propagatorSettings.second->centralBodies_, accelerationMap, propagatorSettings.second->bodiesToIntegrate_,
+//                          initialStateAtHalvedTimeOfFlight, propagatorSettings.second->getTerminationSettings(),
+//                          propagatorSettings.second->propagator_, propagatorSettings.second->getDependentVariablesToSave() );
 
 
-        // Propagate mass until half of the time of flight.
-        std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
-                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
-                    ( Eigen::Vector1d() << bodyMap_[ bodyToPropagate ]->getBodyMass() ).finished(),
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight * physical_constants::JULIAN_YEAR, true ) );
-
-        integratorSettings->initialTime_ = 0.0;
-
-        // Create dynamics simulation object.
-        propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                    bodyMap_, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
-
-        // Propagate spacecraft mass until half of the time of flight.
-        std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        double massAtHalvedTimeOfFlight = propagatedMass.rbegin()->second[ 0 ];
-
-        // Create settings for propagating the mass of the vehicle.
-        std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
-                std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
-
-        // Define backward mass propagation settings.
-        massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                                                                      propagatorSettings.first->getTerminationSettings() );
-
-        // Define forward mass propagation settings.
-        massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                                                                      propagatorSettings.second->getTerminationSettings() );
+//    // If translational state and mass are propagated concurrently.
+//    if ( isMassPropagated )
+//    {
+//        // Create mass rate models
+//        std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+//        massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+//                                                           bodyMap_, accelerationMap );
 
 
-        // Create list of propagation settings.
-        std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
-                std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+//        // Propagate mass until half of the time of flight.
+//        std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
+//                std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate }, massRateModels,
+//                    ( Eigen::Vector1d() << bodyMap_[ bodyToPropagate ]->getBodyMass() ).finished(),
+//                    std::make_shared< propagators::PropagationTimeTerminationSettings >( halvedTimeOfFlight * physical_constants::JULIAN_YEAR, true ) );
 
-        // Backward propagator settings vector.
-        propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
-        propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+//        integratorSettings->initialTime_ = 0.0;
 
-        // Forward propagator settings vector.
-        propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
-        propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+//        // Create dynamics simulation object.
+//        propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+//                    bodyMap_, integratorSettings, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
 
+//        // Propagate spacecraft mass until half of the time of flight.
+//        std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+//        double massAtHalvedTimeOfFlight = propagatedMass.rbegin()->second[ 0 ];
 
-        // Backward hybrid propagation settings.
-        completePropagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                    propagatorSettings.first->getTerminationSettings(), propagatorSettings.first->getDependentVariablesToSave() );
+//        // Create settings for propagating the mass of the vehicle.
+//        std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+//                std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
 
-        // Forward hybrid propagation settings.
-        completePropagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                    propagatorSettings.second->getTerminationSettings(), propagatorSettings.second->getDependentVariablesToSave() );
+//        // Define backward mass propagation settings.
+//        massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+//                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+//                                                                      propagatorSettings.first->getTerminationSettings() );
 
-
-    }
-
-    // If only translational state is propagated.
-    else
-    {
-        // Backward hybrid propagation settings.
-        completePropagatorSettings.first = translationalStatePropagatorSettings.first;
-
-        // Forward hybrid propagation settings.
-        completePropagatorSettings.second =  translationalStatePropagatorSettings.second;
-    }
+//        // Define forward mass propagation settings.
+//        massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+//                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+//                                                                      propagatorSettings.second->getTerminationSettings() );
 
 
-    // Define forward propagator settings variables.
-    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+//        // Create list of propagation settings.
+//        std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+//                std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
 
-//    // Define propagation settings
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
+//        // Backward propagator settings vector.
+//        propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+//        propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
 
-//    // Define forward propagation settings.
-//    propagatorSettingsForwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-//                        ( propagatorSettings.second->centralBodies_ /*centralBodies*/, accelerationMap, propagatorSettings.second->bodiesToIntegrate_ /*bodiesToPropagate*/,
-//                          initialStateAtHalvedTimeOfFlight, propagatorSettings.second->getTerminationSettings() /*terminationSettings.second*/,
-//                          propagatorSettings.second->propagator_ /*propagatorType*/, propagatorSettings.second->getDependentVariablesToSave() /*dependentVariablesToSave*/ );
-
-//    // Define backward propagation settings.
-//    propagatorSettingsBackwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-//                        ( propagatorSettings.first->centralBodies_ /*centralBodies*/, accelerationMap, propagatorSettings.first->bodiesToIntegrate_ /*bodiesToPropagate*/,
-//                          initialStateAtHalvedTimeOfFlight, propagatorSettings.first->getTerminationSettings() /*terminationSettings.first*/,
-//                          propagatorSettings.first->propagator_ /*propagatorType*/, propagatorSettings.first->getDependentVariablesToSave() /*dependentVariablesToSave*/ );
-
-    // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, completePropagatorSettings.second );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
-
-    // Compute and save full propagation and shaping method results along the forward propagation direction.
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
-         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
-    {
-        double currentAzimuthAngle = interpolator->interpolate( itr->first );
-
-        Eigen::Vector6d currentNormalisedState = computeNormalizedStateVector( currentAzimuthAngle );
-        Eigen::Vector6d currentState;
-        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
-        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
-        shapingMethodResults[ itr->first ] = currentState;
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
-    }
+//        // Forward propagator settings vector.
+//        propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+//        propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
 
 
-    // Define backward propagator settings variables.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
-    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+//        // Backward hybrid propagation settings.
+//        completePropagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+//                    propagatorSettings.first->getTerminationSettings(), propagatorSettings.first->getDependentVariablesToSave() );
 
-    // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, completePropagatorSettings.first );
-    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+//        // Forward hybrid propagation settings.
+//        completePropagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+//                    propagatorSettings.second->getTerminationSettings(), propagatorSettings.second->getDependentVariablesToSave() );
 
-    // Compute and save full propagation and shaping method results along the backward propagation direction
-    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
-         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
-    {
-        double currentAzimuthAngle = interpolator->interpolate( itr->first );
 
-        Eigen::Vector6d currentNormalisedState = computeNormalizedStateVector( currentAzimuthAngle );
-        Eigen::Vector6d currentState;
-        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
-        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
-        shapingMethodResults[ itr->first ] = currentState;
-        fullPropagationResults[ itr->first ] = itr->second;
-        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
-    }
+//    }
 
-    // Reset initial integrator settings.
-    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+//    // If only translational state is propagated.
+//    else
+//    {
+//        // Backward hybrid propagation settings.
+//        completePropagatorSettings.first = translationalStatePropagatorSettings.first;
 
-}
+//        // Forward hybrid propagation settings.
+//        completePropagatorSettings.second =  translationalStatePropagatorSettings.second;
+//    }
+
+
+//    // Define forward propagator settings variables.
+//    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+
+////    // Define propagation settings
+////    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
+////    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
+
+////    // Define forward propagation settings.
+////    propagatorSettingsForwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+////                        ( propagatorSettings.second->centralBodies_ /*centralBodies*/, accelerationMap, propagatorSettings.second->bodiesToIntegrate_ /*bodiesToPropagate*/,
+////                          initialStateAtHalvedTimeOfFlight, propagatorSettings.second->getTerminationSettings() /*terminationSettings.second*/,
+////                          propagatorSettings.second->propagator_ /*propagatorType*/, propagatorSettings.second->getDependentVariablesToSave() /*dependentVariablesToSave*/ );
+
+////    // Define backward propagation settings.
+////    propagatorSettingsBackwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+////                        ( propagatorSettings.first->centralBodies_ /*centralBodies*/, accelerationMap, propagatorSettings.first->bodiesToIntegrate_ /*bodiesToPropagate*/,
+////                          initialStateAtHalvedTimeOfFlight, propagatorSettings.first->getTerminationSettings() /*terminationSettings.first*/,
+////                          propagatorSettings.first->propagator_ /*propagatorType*/, propagatorSettings.first->getDependentVariablesToSave() /*dependentVariablesToSave*/ );
+
+//    // Perform forward propagation.
+//    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, completePropagatorSettings.second );
+//    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+//    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+
+//    // Compute and save full propagation and shaping method results along the forward propagation direction.
+//    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
+//         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
+//    {
+//        double currentAzimuthAngle = interpolator->interpolate( itr->first );
+
+//        Eigen::Vector6d currentNormalisedState = computeNormalizedStateVector( currentAzimuthAngle );
+//        Eigen::Vector6d currentState;
+//        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
+//        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+//        shapingMethodResults[ itr->first ] = currentState;
+//        fullPropagationResults[ itr->first ] = itr->second;
+//        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
+//    }
+
+
+//    // Define backward propagator settings variables.
+//    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+//    integratorSettings->initialTime_ = halvedTimeOfFlight * physical_constants::JULIAN_YEAR;
+
+//    // Perform the backward propagation.
+//    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, completePropagatorSettings.first );
+//    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+//    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+
+//    // Compute and save full propagation and shaping method results along the backward propagation direction
+//    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
+//         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
+//    {
+//        double currentAzimuthAngle = interpolator->interpolate( itr->first );
+
+//        Eigen::Vector6d currentNormalisedState = computeNormalizedStateVector( currentAzimuthAngle );
+//        Eigen::Vector6d currentState;
+//        currentState.segment( 0, 3 ) = currentNormalisedState.segment( 0, 3 ) * physical_constants::ASTRONOMICAL_UNIT;
+//        currentState.segment( 3, 3 ) = currentNormalisedState.segment( 3, 3 ) * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+//        shapingMethodResults[ itr->first ] = currentState;
+//        fullPropagationResults[ itr->first ] = itr->second;
+//        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
+//    }
+
+//    // Reset initial integrator settings.
+//    integratorSettings->initialTimeStep_ = - integratorSettings->initialTimeStep_;
+
+//}
 
 
 } // namespace shape_based_methods
