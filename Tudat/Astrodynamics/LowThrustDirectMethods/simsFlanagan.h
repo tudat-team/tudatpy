@@ -103,6 +103,8 @@ public:
                     championDesignVariables_[ i * 3 + 2 ] ).finished( ) );
         }
 
+        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+
         // Create Sims-Flanagan leg from the best optimisation individual.
         simsFlanaganLeg_ = std::make_shared< SimsFlanaganLeg >( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
                                             timeOfFlight_, bodyMap_, throttles, bodyToPropagate_, centralBody_ );
@@ -133,6 +135,9 @@ public:
         return deltaV_; //championFitness_[ 0 ];
     }
 
+    //! Compute current cartesian state.
+    Eigen::Vector6d computeCurrentStateVector( const double currentTime );
+
     //! Compute state history.
     void getTrajectory(
             std::vector< double >& epochsVector,
@@ -143,45 +148,32 @@ public:
 
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime )
-    {
-
-    }
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
 
     //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude( double currentTime )
-    {
+    double computeCurrentThrustAccelerationMagnitude( double currentTime );
 
-    }
+//    //! Return mass profile.
+//    void getMassProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& massProfile,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
+//    //! Return thrust profile.
+//    void getThrustProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& thrustProfile,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+//    {
 
-    //! Return mass profile.
-    void getMassProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& massProfile,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-    {
+//    }
 
-    }
-
-    //! Return thrust profile.
-    void getThrustProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& thrustProfile,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-    {
-
-    }
-
-    //! Return thrust acceleration profile.
-    void getThrustAccelerationProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
-    {
-
-    }
+//    //! Return thrust acceleration profile.
+//    void getThrustAccelerationProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
 
 
     //! Return best individual.
@@ -197,12 +189,21 @@ public:
     }
 
 
+    //! Return best Sims-Flanagan leg after optimisation.
+    std::shared_ptr< SimsFlanaganLeg > getOptimalSimsFlanaganLeg( )
+    {
+        return simsFlanaganLeg_;
+    }
+
+
+    //! Retrieve acceleration map (thrust and central gravity accelerations).
+    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
 
     //! Function to compute the Sims Flanagan trajectory and the propagation fo the full problem.
     void computeSimsFlanaganTrajectoryAndFullPropagation(
          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+         std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
          std::map< double, Eigen::VectorXd >& fullPropagationResults,
          std::map< double, Eigen::Vector6d >& SimsFlanaganResults,
          std::map< double, Eigen::VectorXd>& dependentVariablesHistory );

@@ -205,6 +205,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     double specificImpulse = 3000.0;
     double mass = 1800.0;
     int numberSegments = 10;
+    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
+    int numberSegmentsBackwardPropagation = numberSegments / 2;
 
     // Define (constant) specific impulse function.
     std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
@@ -292,16 +294,14 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
+//    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                                basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
-                std::vector< std::string >{ centralBody } );
+    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -320,19 +320,109 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
 
-    // Define pair of propagatorSettings for backward and forward propagation.
+
+    // Compute state at half of the time of flight after forward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryForward(
+                0.0, timeOfFlight / 2.0, stateAtDeparture, timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation) );
+
+    // Compute state at half of the time of flight after backward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryBackward(
+                timeOfFlight, timeOfFlight / 2.0, stateAtArrival, timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation ) );
+
+
+    // Compute state at half of the time of flight (averaged between forward and backward propagation results).
+    Eigen::Vector6d stateHalfOfTimeOfFlight = 1.0 / 2.0 * ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation );
+
+    // Re-initialise spacecraft mass in body map.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
+
+
+    // Define translational state propagation settings
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
-                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightForwardPropagation,
+                          terminationConditions.first,
+                          propagators::cowell, dependentVariablesToSave );
 
-    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
-                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightBackwardPropagation,
+                          terminationConditions.second,
+                          propagators::cowell, dependentVariablesToSave );
+
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate ] = createMassRateModel(
+                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                bodyMap, accelerationModelMap );
+
+    double massAtHalvedTimeOfFlight = simsFlanagan.computeCurrentMass( timeOfFlight / 2.0, specificImpulseFunction, integratorSettings );
+
+    // Create settings for propagating the mass of the vehicle.
+    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+    // Define backward mass propagation settings.
+    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate }, massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.first );
+
+    // Define forward mass propagation settings.
+    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate },
+                massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.second );
+
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+
+
+//    // Define pair of propagatorSettings for backward and forward propagation.
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+//    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
+//                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+
+//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
+//                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
 
     // Define empty maps to store the propagation results.
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -348,8 +438,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 
     // Calculate number of segments for both the forward propagation (from departure to match point)
     // and the backward propagation (from arrival to match point).
-    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
-    int numberSegmentsBackwardPropagation = numberSegments / 2;
     int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
     int segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
 
@@ -374,8 +462,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     simsFlanaganLegTest.propagateBackwardFromArrivalToMatchPoint( );
     Eigen::Vector6d stateAtHalfTimeOfFlight = simsFlanaganLegTest.getStateAtMatchPointForwardPropagation( );
     Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation = simsFlanaganLegTest.getStateAtMatchPointBackwardPropagation( );
-    std::cout << "state half TOF test unit test: " << stateAtHalfTimeOfFlight.transpose() << "\n\n";
-    std::cout << "state half TOF test unit test: " << stateAtHalfTimeOfFlightBackwardPropagation.transpose() << "\n\n";
 
     // Compute mass at half of the time of flight.
     double massAtHalfTimeOfFlight = simsFlanaganLegTest.getMassAtMatchPointForwardPropagation( );
@@ -513,6 +599,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     double specificImpulse = 3000.0;
     double mass = 1800.0;
     int numberSegments = 10;
+    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
+    int numberSegmentsBackwardPropagation = numberSegments / 2;
 
     // Define (constant) specific impulse function.
     std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
@@ -601,15 +689,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
+    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -628,19 +713,108 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
 
-    // Define pair of propagatorSettings for backward and forward propagation.
+    // Compute state at half of the time of flight after forward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryForward(
+                0.0, timeOfFlight / 2.0, stateAtDeparture, timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation) );
+
+    // Compute state at half of the time of flight after backward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryBackward(
+                timeOfFlight, timeOfFlight / 2.0, stateAtArrival, timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation ) );
+
+
+    // Compute state at half of the time of flight (averaged between forward and backward propagation results).
+    Eigen::Vector6d stateHalfOfTimeOfFlight = 1.0 / 2.0 * ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation );
+
+    // Re-initialise spacecraft mass in body map.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
+
+
+    // Define translational state propagation settings
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
-                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightForwardPropagation,
+                          terminationConditions.first,
+                          propagators::cowell, dependentVariablesToSave );
 
-    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
-                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightBackwardPropagation,
+                          terminationConditions.second,
+                          propagators::cowell, dependentVariablesToSave );
+
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate ] = createMassRateModel(
+                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                bodyMap, accelerationModelMap );
+
+    double massAtHalvedTimeOfFlight = simsFlanagan.computeCurrentMass( timeOfFlight / 2.0, specificImpulseFunction, integratorSettings );
+
+    // Create settings for propagating the mass of the vehicle.
+    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+    // Define backward mass propagation settings.
+    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate }, massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.first );
+
+    // Define forward mass propagation settings.
+    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate },
+                massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.second );
+
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+
+//    // Define pair of propagatorSettings for backward and forward propagation.
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+//    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
+//                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+
+//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
+//                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
 
     // Define empty maps to store the propagation results.
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -983,14 +1157,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     };
 
 
-//    // Ephemeris departure body.
-//    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-//    // Ephemeris arrival body.
-//    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
-
     // Define state at departure and arrival.
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
@@ -1024,16 +1190,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
 
-    simulation_setup::SelectedAccelerationMap accelerationMap;
-    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
+//    simulation_setup::SelectedAccelerationMap accelerationMap;
+//    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
-                std::vector< std::string >{ centralBody } );
+    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -1052,19 +1214,110 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
 
-    // Define pair of propagatorSettings for backward and forward propagation.
+
+
+    // Compute state at half of the time of flight after forward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryForward(
+                0.0, timeOfFlight / 2.0, stateAtDeparture, timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation) );
+
+    // Compute state at half of the time of flight after backward propagation.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateTrajectoryBackward(
+                timeOfFlight, timeOfFlight / 2.0, stateAtArrival, timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation ) );
+
+
+    // Compute state at half of the time of flight (averaged between forward and backward propagation results).
+    Eigen::Vector6d stateHalfOfTimeOfFlight = 1.0 / 2.0 * ( stateHalfOfTimeOfFlightForwardPropagation + stateHalfOfTimeOfFlightBackwardPropagation );
+
+    // Re-initialise spacecraft mass in body map.
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
+
+
+    // Define translational state propagation settings
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
 
-    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define backward translational state propagation settings.
+    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
-                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightForwardPropagation,
+                          terminationConditions.first,
+                          propagators::cowell, dependentVariablesToSave );
 
-    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+    // Define forward translational state propagation settings.
+    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
                         ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
-                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
+                          std::vector< std::string >{ bodyToPropagate }, /*stateHalfOfTimeOfFlight*/ stateHalfOfTimeOfFlightBackwardPropagation,
+                          terminationConditions.second,
+                          propagators::cowell, dependentVariablesToSave );
+
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate ] = createMassRateModel(
+                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                bodyMap, accelerationModelMap );
+
+    // Propagate mass until half of the time of flight.
+    double massAtHalvedTimeOfFlight = simsFlanagan.computeCurrentMass( timeOfFlight / 2.0, specificImpulseFunction, integratorSettings );
+
+    // Create settings for propagating the mass of the vehicle.
+    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+    // Define backward mass propagation settings.
+    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate }, massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.first );
+
+    // Define forward mass propagation settings.
+    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate },
+                massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
+                terminationConditions.second );
+
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+
+//    // Define pair of propagatorSettings for backward and forward propagation.
+//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+//    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
+//                          terminationConditions.first, propagators::cowell, dependentVariablesToSave );
+
+//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
+//                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
+//                          terminationConditions.second, propagators::cowell, dependentVariablesToSave );
 
     // Define empty maps to store the propagation results.
     std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -1101,164 +1354,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     std::cout << "DELTAV SIMS FLANAGAN: " << simsFlanagan.computeDeltaV( ) << "\n\n";
     std::cout << "DELTAV SHAPE BASED: " << VelocityShapingMethod.computeDeltaV( ) << "\n\n";
-
-
-//    //! Test full propagation w.r.t. impulsive shots as thrust acceleration.
-
-//    // Calculate number of segments for both the forward propagation (from departure to match point)
-//    // and the backward propagation (from arrival to match point).
-//    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
-//    int numberSegmentsBackwardPropagation = numberSegments / 2;
-//    int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
-//    int segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
-
-//    // Compute times at half of each segment.
-//    std::vector< double > thrustMidTimes;
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        thrustMidTimes.push_back( segmentDurationForwardPropagation / 2.0 + i * segmentDurationForwardPropagation );
-//    }
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        thrustMidTimes.push_back( segmentDurationBackwardPropagation / 2.0 + timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
-//    }
-
-
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-//    SimsFlanaganLeg simsFlanaganLegTest = SimsFlanaganLeg( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
-//                                                           timeOfFlight, bodyMap, bestThrottles, bodyToPropagate, centralBody );
-
-//    // Compute state at half of the time of flight.
-//    simsFlanaganLegTest.propagateForwardFromDepartureToMatchPoint( );
-//    simsFlanaganLegTest.propagateBackwardFromArrivalToMatchPoint( );
-//    Eigen::Vector6d stateAtHalfTimeOfFlight = simsFlanaganLegTest.getStateAtMatchPointForwardPropagation( );
-//    Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation = simsFlanaganLegTest.getStateAtMatchPointBackwardPropagation( );
-//    std::cout << "state half TOF test unit test: " << stateAtHalfTimeOfFlight.transpose() << "\n\n";
-//    std::cout << "state half TOF test unit test: " << stateAtHalfTimeOfFlightBackwardPropagation.transpose() << "\n\n";
-
-//    // Compute mass at half of the time of flight.
-//    double massAtHalfTimeOfFlight = simsFlanaganLegTest.getMassAtMatchPointForwardPropagation( );
-
-//    // Compute deltaVs.
-//    double totalManeuverTime = 90.0;
-//    double maneuverRiseTime = 15.0;
-//    double currentMass = mass;
-//    std::vector< Eigen::Vector3d > deltaVs;
-
-//    // Compute deltaVs for the forward propagation half.
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i ] * segmentDurationForwardPropagation / currentMass;
-//        deltaVs.push_back( currentDeltaVvector );
-
-//        // Update mass.
-//        currentMass *= std::exp( - currentDeltaVvector.norm() /
-//                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
-//    }
-//    // Compute deltaVs for the backward propagation half.
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i + numberSegmentsForwardPropagation ] *
-//                segmentDurationBackwardPropagation / currentMass;
-//        deltaVs.push_back( currentDeltaVvector );
-
-//        // Update mass.
-//        currentMass *= std::exp( - currentDeltaVvector.norm() /
-//                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
-//    }
-//    std::cout << "current mass: " << currentMass << "\n\n";
-
-
-//    bodyToPropagateAccelerations.clear();
-//    bodyToPropagateAccelerations[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                                basic_astrodynamics::central_gravity ) );
-//    bodyToPropagateAccelerations[ bodyToPropagate ].push_back( std::make_shared< simulation_setup::MomentumWheelDesaturationAccelerationSettings >(
-//                                                                   thrustMidTimes, deltaVs, totalManeuverTime, maneuverRiseTime ) );
-
-//    accelerationMap.clear();
-//    accelerationMap[ bodyToPropagate ] = bodyToPropagateAccelerations;
-
-//    // Create the acceleration map.
-//    accelerationModelMap.clear();
-//    accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
-//                std::vector< std::string >{ centralBody } );
-
-//    // BACKWARD PROPAGATION.
-
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtHalfTimeOfFlight );
-
-//    // Create termination conditions settings.
-//    std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings
-//            = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
-
-//    //  Create propagator settings.
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsImpulsiveDeltaV =
-//            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-//                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
-//                stateAtHalfTimeOfFlight, terminationSettings, propagators::cowell );
-
-//    integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ /* / 10000.0 */ );
-//    integratorSettings->initialTime_ = timeOfFlight / 2.0;
-
-//    Eigen::Vector6d currentState = stateAtHalfTimeOfFlight;
-
-//    // Backward propagation (corresponding to forward propagation in Sims-Flanagan method).
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        integratorSettings->initialTime_ = timeOfFlight / 2.0 - i * segmentDurationForwardPropagation;
-//        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >(
-//                    ( timeOfFlight / 2.0 ) - ( i + 1 ) * segmentDurationForwardPropagation, true );
-//        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
-//        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
-
-//        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
-
-//        std::map< double, Eigen::VectorXd > impulsiveDeltaVsResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution();
-//        currentState = impulsiveDeltaVsResults.begin( )->second;
-
-//        std::cout << "impulsive deltaV segment " << std::to_string( numberSegmentsForwardPropagation - 1 - i ) << " : " <<
-//                     impulsiveDeltaVsResults[ ( timeOfFlight / 2.0 ) - ( i + 1 ) * segmentDurationForwardPropagation ].transpose() << "\n\n"; //.rbegin()->second.transpose() << "\n\n";
-//        std::cout << "Sims-Flanagan " << std::to_string( numberSegmentsForwardPropagation - 1 - i ) << " : " <<
-//                     simsFlanaganResults[ ( timeOfFlight / 2.0 ) - ( i + 1 ) * segmentDurationForwardPropagation ].transpose() << "\n\n";
-//    }
-
-
-//    // FORWARD PROPAGATION.
-
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtHalfTimeOfFlight );
-
-//    // Create termination conditions settings.
-//    terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
-
-//    //  Create propagator settings.
-//    propagatorSettingsImpulsiveDeltaV = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-//                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
-//                stateAtHalfTimeOfFlightBackwardPropagation, terminationSettings, propagators::cowell );
-
-//    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
-//    integratorSettings->initialTime_ = timeOfFlight / 2.0;
-
-//    currentState = stateAtHalfTimeOfFlightBackwardPropagation;
-
-//    // Forward propagation (corresponding to backward propagation in Sims-Flanagan method).
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        integratorSettings->initialTime_ = ( timeOfFlight / 2.0 ) +  i * segmentDurationBackwardPropagation;
-//        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >(
-//                    ( timeOfFlight / 2.0 ) + ( i + 1 ) * segmentDurationBackwardPropagation, true );
-//        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
-//        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
-
-//        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
-
-//        currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().rbegin()->second;
-
-//        std::cout << "impulsive deltaV segment " << std::to_string( i + numberSegmentsForwardPropagation ) << " : " <<
-//                     currentState.transpose() << "\n\n";
-//        std::cout << "Sims-Flanagan " << std::to_string( i + numberSegmentsForwardPropagation ) << " : " <<
-//                     simsFlanaganResults[ ( timeOfFlight / 2.0 ) + ( i + 1 ) * segmentDurationBackwardPropagation ].transpose() << "\n\n";
-//    }
-
 
 
 }
