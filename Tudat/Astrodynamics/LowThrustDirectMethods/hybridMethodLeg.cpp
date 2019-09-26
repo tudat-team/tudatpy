@@ -164,8 +164,8 @@ basic_astrodynamics::AccelerationMap HybridMethodLeg::getLowThrustTrajectoryAcce
 {
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-//    bodyToPropagateAccelerations[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                                basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+                                                                basic_astrodynamics::central_gravity ) );
     bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
@@ -174,9 +174,6 @@ basic_astrodynamics::AccelerationMap HybridMethodLeg::getLowThrustTrajectoryAcce
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
-
-////     Add thurst acceleration.
-//    accelerationModelMap[ bodyToPropagate_ ] = getMEEcostatesBasedThrustAccelerationModel( );
 
     return accelerationModelMap;
 }
@@ -1092,7 +1089,7 @@ std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
 
         if ( epochIndex == 0 )
         {
-            if ( currentTime >= 0.0 /*initialTime*/ )
+            if ( currentTime > 0.0 /*initialTime*/ )
             {
                 propagatedState = propagateTrajectory( 0.0 /*initialTime*/, currentTime, propagatedState, currentMass/*, integratorSettings_*/ );
                 currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );

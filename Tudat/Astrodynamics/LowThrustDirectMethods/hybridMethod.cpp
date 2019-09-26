@@ -146,76 +146,77 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 }
 
 
-//! Compute current mass of the spacecraft between two epochs.
-double HybridMethod::computeCurrentMass(
-        const double timeInitialEpoch,
-        const double timeFinalEpoch,
-        const double massInitialEpoch,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-{
-    // Retrieve acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMap = hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
+////! Compute current mass of the spacecraft between two epochs.
+//double HybridMethod::computeCurrentMass(
+//        const double timeInitialEpoch,
+//        const double timeFinalEpoch,
+//        const double massInitialEpoch,
+//        std::function< double ( const double ) > specificImpulseFunction,
+//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+//{
+//    // Retrieve acceleration map.
+//    basic_astrodynamics::AccelerationMap accelerationMap = retrieveLowThrustAccelerationMap( specificImpulseFunction ); // hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
 
-    // Create mass rate models
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap_, accelerationMap );
+//    // Create mass rate models
+//    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+//    massRateModels[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+//                                                       bodyMap_, accelerationMap );
 
-    // Define mass propagator settings.
-    std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettings =
-            std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
-                ( Eigen::Vector1d() << massInitialEpoch ).finished(),
-                std::make_shared< propagators::PropagationTimeTerminationSettings >( timeFinalEpoch, true ) );
+//    // Define mass propagator settings.
+//    std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettings =
+//            std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
+//                ( Eigen::Vector1d() << massInitialEpoch ).finished(),
+//                std::make_shared< propagators::PropagationTimeTerminationSettings >( timeFinalEpoch, true ) );
 
-    // Re-initialise integrator settings.
-    integratorSettings->initialTime_ = timeInitialEpoch;
-    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+//    // Re-initialise integrator settings.
+//    integratorSettings->initialTime_ = timeInitialEpoch;
+//    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
 
-    // Create dynamics simulation object.
-    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap_, integratorSettings, massPropagatorSettings, true, false, false );
+//    // Create dynamics simulation object.
+//    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+//                bodyMap_, integratorSettings, massPropagatorSettings, true, false, false );
 
-    // Propagate spacecraft mass.
-    std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    double currentMass = propagatedMass.rbegin()->second[ 0 ];
+//    // Propagate spacecraft mass.
+//    std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+//    double currentMass = propagatedMass.rbegin()->second[ 0 ];
 
-    return currentMass;
-}
+//    return currentMass;
+
+//}
 
 
-//! Return mass profile.
-void HybridMethod::getMassProfile(
-        std::vector< double >& epochsVector,
-        std::map< double, Eigen::VectorXd >& massProfile,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-{
-    massProfile.clear( );
+////! Return mass profile.
+//void HybridMethod::getMassProfile(
+//        std::vector< double >& epochsVector,
+//        std::map< double, Eigen::VectorXd >& massProfile,
+//        std::function< double ( const double ) > specificImpulseFunction,
+//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+//{
+//    massProfile.clear( );
 
-    double currentMass = initialMass_;
+//    double currentMass = initialMass_;
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
-    {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
-        {
-            throw std::runtime_error( "Error when retrieving the mass profile of a hybrid trajectory, "
-                                      "epochs are not provided in increasing order." );
-        }
+//    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+//    {
+//        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+//        {
+//            throw std::runtime_error( "Error when retrieving the mass profile of a hybrid trajectory, "
+//                                      "epochs are not provided in increasing order." );
+//        }
 
-        if ( i == 0 )
-        {
-            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
-        }
-        else
-        {
-            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
-        }
-    }
+//        if ( i == 0 )
+//        {
+//            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
+//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
+//        }
+//        else
+//        {
+//            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
+//            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
+//        }
+//    }
 
-}
+//}
 
 
 //! Compute magnitude thrust acceleration.
@@ -256,86 +257,113 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustAccelerationDirection( double 
     return thrustAcceleration;
 }
 
-
-//! Compute current thrust vector.
-Eigen::Vector3d HybridMethod::computeCurrentThrustAcceleration( double time )
+//! Compute current cartesian state.
+Eigen::Vector6d HybridMethod::computeCurrentStateVector( const double currentTime )
 {
 
-    double independentVariable = convertTimeToIndependentVariable( time );
-    return computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
+    return hybridMethodLeg_->propagateTrajectory( 0.0, currentTime, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
+
+//    std::vector< double > epochsVector;
+////    epochsVector.push_back( 0.0 );
+//    epochsVector.push_back( currentTime );
+
+//    std::map< double, Eigen::Vector6d > propagatedTrajectory;
+//    getTrajectory( epochsVector, propagatedTrajectory );
+
+//    std::cout << "size propagated trajectory: " << propagatedTrajectory.size(  ) << "\n\n";
+
+//    return propagatedTrajectory.rbegin( )->second;
 }
 
 
-//! Return thrust acceleration profile.
-void HybridMethod::getThrustAccelerationProfile(
-        std::vector< double >& epochsVector,
-        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+////! Compute current thrust vector.
+//Eigen::Vector3d HybridMethod::computeCurrentThrustAcceleration( double time )
+//{
+
+//    double independentVariable = convertTimeToIndependentVariable( time );
+//    return computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
+//}
+
+
+////! Return thrust acceleration profile.
+//void HybridMethod::getThrustAccelerationProfile(
+//        std::vector< double >& epochsVector,
+//        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+//{
+//    thrustAccelerationProfile.clear();
+
+//    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+//    {
+//        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+//        {
+//            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+//                                      "epochs are not provided in increasing order." );
+//        }
+
+//        Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( epochsVector[ i ] );
+//        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+
+//    }
+
+//}
+
+
+////! Compute current thrust vector.
+//Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
+//                                                    std::function< double ( const double ) > specificImpulseFunction,
+//                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+//{
+//    double independentVariable = convertTimeToIndependentVariable( time );
+//    return computeCurrentMass( 0.0, time, initialSpacecraftMass_, specificImpulseFunction, integratorSettings )
+//            * computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
+//}
+
+
+////! Return thrust profile.
+//void HybridMethod::getThrustProfile(
+//        std::vector< double >& epochsVector,
+//        std::map< double, Eigen::VectorXd >& thrustProfile,
+//        std::function< double ( const double ) > specificImpulseFunction,
+//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings)
+//{
+//    thrustProfile.clear( );
+
+//    // Retrieve corresponding mass profile.
+//    std::map< double, Eigen::VectorXd > massProfile;
+//    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+//    std::vector< double > massProfileVector;
+//    for ( std::map< double, Eigen::VectorXd >::iterator itr = massProfile.begin( ) ; itr != massProfile.end( ) ; itr++ )
+//    {
+//        massProfileVector.push_back( itr->second[ 0 ] );
+//    }
+
+//    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+//    {
+//        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+//        {
+//            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+//                                      "epochs are not provided in increasing order." );
+//        }
+
+//        Eigen::Vector3d currentThrustVector = computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
+//        thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
+
+//    }
+//}
+
+
+//! Retrieve acceleration map (thrust and central gravity accelerations).
+basic_astrodynamics::AccelerationMap HybridMethod::retrieveLowThrustAccelerationMap(
+        std::function< double ( const double ) > specificImpulseFunction )
 {
-    thrustAccelerationProfile.clear();
-
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
-    {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
-        {
-            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
-                                      "epochs are not provided in increasing order." );
-        }
-
-        Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( epochsVector[ i ] );
-        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
-
-    }
-
-}
-
-
-//! Compute current thrust vector.
-Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
-                                                    std::function< double ( const double ) > specificImpulseFunction,
-                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-{
-    double independentVariable = convertTimeToIndependentVariable( time );
-    return computeCurrentMass( 0.0, time, initialSpacecraftMass_, specificImpulseFunction, integratorSettings )
-            * computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
-}
-
-
-//! Return thrust profile.
-void HybridMethod::getThrustProfile(
-        std::vector< double >& epochsVector,
-        std::map< double, Eigen::VectorXd >& thrustProfile,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings)
-{
-    thrustProfile.clear( );
-
-    // Retrieve corresponding mass profile.
-    std::map< double, Eigen::VectorXd > massProfile;
-    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-    std::vector< double > massProfileVector;
-    for ( std::map< double, Eigen::VectorXd >::iterator itr = massProfile.begin( ) ; itr != massProfile.end( ) ; itr++ )
-    {
-        massProfileVector.push_back( itr->second[ 0 ] );
-    }
-
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
-    {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
-        {
-            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
-                                      "epochs are not provided in increasing order." );
-        }
-
-        Eigen::Vector3d currentThrustVector = computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
-        thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
-
-    }
+    basic_astrodynamics::AccelerationMap hybridMethodAccelerationMap = hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
+    return hybridMethodAccelerationMap;
 }
 
 
 void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
-     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+        std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
      std::map< double, Eigen::VectorXd >& fullPropagationResults,
      std::map< double, Eigen::Vector6d >& hybridMethodResults,
      std::map< double, Eigen::VectorXd>& dependentVariablesHistory )
@@ -345,127 +373,12 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
     hybridMethodResults.clear();
     dependentVariablesHistory.clear();
 
-    integratorSettings_->initialTimeStep_ = std::fabs( integratorSettings_->initialTimeStep_ );
-
-    Eigen::VectorXd bestInitialMEEcostates; bestInitialMEEcostates.resize( 5 );
-    Eigen::VectorXd bestFinalMEEcostates; bestFinalMEEcostates.resize( 5 );
-    for ( int i = 0 ; i < 5 ; i++ )
+    std::function< double ( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
     {
-        bestInitialMEEcostates[ i ] = championDesignVariables_[ i ];
-        bestFinalMEEcostates[ i ] = championDesignVariables_[ i + 5 ];
-    }
+        return specificImpulse_;
+    };
 
-    // Re-initialise spacecraft mass in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-
-    // Create hybrid method leg object.
-    HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture_, stateAtArrival_, bestInitialMEEcostates, bestFinalMEEcostates,
-                                                       maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_,
-                                                       centralBody_, integratorSettings_ );
-
-    // Retrieve hybrid method acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMapHybridMethod = hybridMethodLeg.getLowThrustTrajectoryAccelerationMap( );
-
-    // Re-initialise spacecraft mass in body map.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-    std::cout << "initial spacecraft mass in full propagation function: " << initialSpacecraftMass_ << "\n\n";
-
-    // Compute state at half of the time of flight.
-    Eigen::Vector6d stateHalvedTimeOfFlight = hybridMethodLeg.propagateTrajectory(
-                0.0, timeOfFlight_ / 2.0, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
-    std::cout << "state at half TOF in full propagation function: " << stateHalvedTimeOfFlight << "\n\n";
-
-    // Retrieve acceleration map for full propagation.
-    basic_astrodynamics::AccelerationMap accelerationMapFullPropagation = propagators::getAccelerationMapFromPropagatorSettings(
-                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< double > >( propagatorSettings.first ) );
-
-    // Add thrust acceleration model to the full propagation acceleration map.
-    accelerationMapFullPropagation[ bodyToPropagate_ ][ bodyToPropagate_ ] = accelerationMapHybridMethod[ bodyToPropagate_ ][ bodyToPropagate_ ];
-
-    // Create complete propagation settings (backward and forward propagations).
-    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > completePropagatorSettings;
-
-
-    // Define translational state propagation settings
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
-
-    // Define backward translational state propagation settings.
-    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalvedTimeOfFlight,
-                          propagatorSettings.first->getTerminationSettings(),
-                          propagators::gauss_modified_equinoctial, propagatorSettings.first->getDependentVariablesToSave() );
-
-    // Define forward translational state propagation settings.
-    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody_ }, accelerationMapFullPropagation,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateHalvedTimeOfFlight,
-                          propagatorSettings.second->getTerminationSettings(),
-                          propagators::gauss_modified_equinoctial, propagatorSettings.second->getDependentVariablesToSave() );
-
-
-    // Create mass rate models
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                bodyMap_, accelerationMapFullPropagation );
-
-    // Propagate mass until half of the time of flight.
-    std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettingsToHalvedTimeOfFlight =
-            std::make_shared< propagators::MassPropagatorSettings< double > >( std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
-                ( Eigen::Vector1d() << initialSpacecraftMass_ ).finished(),
-                std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_ / 2.0, true ) );
-
-    integratorSettings_->initialTime_ = 0.0;
-
-    // Create dynamics simulation object.
-    propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap_, integratorSettings_, massPropagatorSettingsToHalvedTimeOfFlight, true, false, false );
-
-    // Propagate spacecraft mass until half of the time of flight.
-    std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    double massAtHalvedTimeOfFlight = propagatedMass.rbegin()->second[ 0 ];
-    std::cout << "mass at half TOF in full propagation function: " << massAtHalvedTimeOfFlight << "\n\n";
-
-    // Create settings for propagating the mass of the vehicle.
-    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
-            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
-
-    // Define backward mass propagation settings.
-    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
-                ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                propagatorSettings.first->getTerminationSettings() );
-
-    // Define forward mass propagation settings.
-    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate_ },
-                massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                propagatorSettings.second->getTerminationSettings() );
-
-
-    // Create list of propagation settings.
-    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
-            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
-
-    // Backward propagator settings vector.
-    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
-    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
-
-    // Forward propagator settings vector.
-    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
-    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
-
-
-    // Backward hybrid propagation settings.
-    completePropagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                propagatorSettings.first->getTerminationSettings(), propagatorSettings.first->getDependentVariablesToSave() );
-
-    // Forward hybrid propagation settings.
-    completePropagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                propagatorSettings.second->getTerminationSettings(), propagatorSettings.second->getDependentVariablesToSave() );
-
+    double massAtHalvedTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction, integratorSettings_ );
 
     // Define backward propagator settings variables.
     integratorSettings_->initialTimeStep_ = - std::fabs( integratorSettings_->initialTimeStep_ );
@@ -475,8 +388,7 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(
-                bodyMap_, integratorSettings_, completePropagatorSettings.first );
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings_, propagatorSettings.first );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
@@ -513,7 +425,7 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
 
     // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings_, completePropagatorSettings.second );
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings_, propagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
@@ -530,31 +442,7 @@ void HybridMethod::computeHybridMethodTrajectoryAndFullPropagation(
         dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
-
-//    if ( useHighOrderSolution_ )
-//    {
-//        simsFlanaganLeg.propagateTrajectoryHighOrderSolution( epochsVector, SimsFlanaganResults, integratorSettings_, propagatorType_ );
-//    }
-//    else
-//    {
-//        int numberSegmentsBackwardPropagation = ( numberSegments_ + 1 ) / 2;
-
-
-
-        hybridMethodLeg.propagateTrajectory( epochsVector, hybridMethodResults/*, stateAtDeparture_, initialSpacecraftMass_,
-                                                    0.0*//*, integratorSettings_*/ );
-
-//        hybridMethodResults.clear();
-//        for ( int i = 0 ; i < epochsVector.size() ; i++ )
-//        {
-//            hybridMethodResults[ epochsVector[ i ] ] = hybridMethodLeg.propagateTrajectory(
-//                        0.0, epochsVector[ i ], stateAtDeparture_, initialSpacecraftMass_, integratorSettings_ );
-//        }
-
-//        int numberSegmentsForwardPropagation = ( numberSegments_ ) / 2;
-//        simsFlanaganLeg.propagateTrajectoryForward( epochsForwardPropagation, SimsFlanaganResults, stateHalvedTimeOfFlight, massAtHalvedTimeOfFlight,
-//                                                    ( timeOfFlight_ / 2.0 ) / numberSegmentsForwardPropagation );
-//    }
+    hybridMethodLeg_->propagateTrajectory( epochsVector, hybridMethodResults );
 
 }
 

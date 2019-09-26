@@ -732,7 +732,7 @@ void HodographicShaping::computeShapedTrajectoryAndFullPropagation(
 
         // Propagate spacecraft mass until half of the time of flight.
 //        std::map< double, Eigen::VectorXd > propagatedMass = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        double massAtHalvedTimeOfFlight = computeCurrentMass( halvedTimeOfFlight, specificImpulseFunction, integratorSettings ); // propagatedMass.rbegin()->second[ 0 ];
+        double massAtHalvedTimeOfFlight = computeCurrentMass( 0.0, halvedTimeOfFlight, initialMass_, specificImpulseFunction, integratorSettings ); // propagatedMass.rbegin()->second[ 0 ];
 
         // Create settings for propagating the mass of the vehicle.
         std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,

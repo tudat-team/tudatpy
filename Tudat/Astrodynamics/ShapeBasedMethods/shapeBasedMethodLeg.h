@@ -68,41 +68,41 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
-    //! Compute current mass of the spacecraft.
-    double computeCurrentMass( const double independentVariable,
-                               std::function< double ( const double ) > specificImpulseFunction,
-                               std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+//    //! Compute current mass of the spacecraft.
+//    double computeCurrentMass( const double independentVariable,
+//                               std::function< double ( const double ) > specificImpulseFunction,
+//                               std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-    //! Return mass profile.
-    void getMassProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& massProfile,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+//    //! Return mass profile.
+//    void getMassProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& massProfile,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-    //! Compute current thrust vector.
-    Eigen::Vector3d computeCurrentThrustAcceleration( double independentVariable );
+//    //! Compute current thrust vector.
+//    Eigen::Vector3d computeCurrentThrustAcceleration( double independentVariable );
 
-    //! Return thrust acceleration profile.
-    void getThrustAccelerationProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
+//    //! Return thrust acceleration profile.
+//    void getThrustAccelerationProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
 
-    //! Compute current thrust vector.
-    Eigen::Vector3d computeCurrentThrust(
-            double time,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+//    //! Compute current thrust vector.
+//    Eigen::Vector3d computeCurrentThrust(
+//            double time,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-    //! Return thrust profile.
-    void getThrustProfile( std::vector< double >& epochsVector,
-                           std::map< double, Eigen::VectorXd >& thrustProfile,
-                           std::function< double ( const double ) > specificImpulseFunction,
-                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+//    //! Return thrust profile.
+//    void getThrustProfile( std::vector< double >& epochsVector,
+//                           std::map< double, Eigen::VectorXd >& thrustProfile,
+//                           std::function< double ( const double ) > specificImpulseFunction,
+//                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 
-    basic_astrodynamics::AccelerationMap retrieveShapeBasedAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
-
+    //! Retrieve acceleration map (thrust and central gravity accelerations).
+    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
 
     //! Full propagation.
     void computeSemiAnalyticalAndFullPropagation(
@@ -117,13 +117,13 @@ public:
 
 protected:
 
-    //! Compute current mass of the spacecraft between two epochs.
-    double computeCurrentMass(
-            const double timeInitialEpoch,
-            const double timeFinalEpoch,
-            const double massInitialEpoch,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+//    //! Compute current mass of the spacecraft between two epochs.
+//    double computeCurrentMass(
+//            const double timeInitialEpoch,
+//            const double timeFinalEpoch,
+//            const double massInitialEpoch,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 
     //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
