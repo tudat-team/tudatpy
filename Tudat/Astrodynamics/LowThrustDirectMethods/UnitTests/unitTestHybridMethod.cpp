@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     std::cout.precision( 20 );
     std::cout << "deltaV: " << hybridMethodLeg.getTotalDeltaV( ) << "\n\n";
 
-    Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( /*integratorSettings*/ );
+    Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( );
 
     std::cout << "final state after propagation: " << finalState << "\n\n";
 
@@ -145,13 +145,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     std::cout << "deltaV after propagation: " << hybridMethodLeg.getTotalDeltaV() << "\n\n";
     std::cout << "confirmation computation deltaV: " << hybridMethodLeg.computeDeltaV() << "\n\n";
-//    std::cout << "mass at time of flight: " << hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
-//    std::cout << "initial mass: " << mass << "\n\n";
-//    std::cout << "delta m: " << mass - hybridMethodLeg.getMassAtTimeOfFlight() << "\n\n";
-//    std::cout << "time of flight: " << timeOfFlight << "\n\n";
-
-//    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
-//    std::cout << "state at arrival: " << stateAtArrival << "\n\n";
 
 
     bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
@@ -161,20 +154,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     HybridMethodProblem problem = HybridMethodProblem( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulse,
                                                        timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
                                                        std::make_pair( initialGuess, TUDAT_NAN ), 1.0e-6 );
-
-//    std::vector< double > designVariables;
-//    for ( int i = 0 ; i < 5 ; i++ )
-//    {
-//        designVariables.push_back( 0.0 );
-//        designVariables.push_back( 1.0 );
-//    }
-//    std::vector< double > output = problem.fitness( designVariables );
-
-//    std::cout << "size output vector: " << output.size() << "\n\n";
-//    for ( int i = 0 ; i < output.size() ; i++ )
-//    {
-//        std::cout << "output: " << output[ i ] << "\n\n";
-//    }
 
 
     // Define optimisation algorithm.
@@ -188,8 +167,8 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     std::pair< std::vector< double >, std::vector< double > > champion = hybridMethod.performOptimisation();
 
-    std::vector< double > fitnessVector =  hybridMethod.getBestIndividualFitness( ); // champion.first;
-    std::vector< double > bestIndividual = hybridMethod.getBestIndividual( );// champion.second;
+    std::vector< double > fitnessVector =  hybridMethod.getBestIndividualFitness( );
+    std::vector< double > bestIndividual = hybridMethod.getBestIndividual( );
 
     std::vector< double > bestDesignVariables = bestIndividual;
     std::vector< double > bestOutput = problem.fitness( bestDesignVariables );
@@ -213,9 +192,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     };
 
 
-    // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = hybridMethod.retrieveLowThrustAccelerationMap( specificImpulseFunction );
-
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
@@ -232,107 +208,20 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
 
-    Eigen::Vector6d initialStateAtHalfOfTimeOfFlight = hybridMethod.computeCurrentStateVector( timeOfFlight / 2.0 );
-
-    std::cout << "initial state at half of TOF: " << initialStateAtHalfOfTimeOfFlight.transpose() << "\n\n";
-    std::cout << "initial state at half of TOF: " << hybridMethod.computeCurrentStateVector( timeOfFlight ).transpose( ) << "\n\n";
-
-
-    // Re-initialise spacecraft mass in body map.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-    // Compute state at half of the time of flight.
-    Eigen::Vector6d stateHalvedTimeOfFlight = hybridMethod.computeCurrentStateVector( timeOfFlight / 2.0 );
-
-    // Create complete propagation settings (backward and forward propagations).
-    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > completePropagatorSettings;
-
-    // Define translational state propagation settings
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
-
-    // Define backward translational state propagation settings.
-    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateHalvedTimeOfFlight,
-                          terminationConditions.first, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
-
-    // Define forward translational state propagation settings.
-    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate }, stateHalvedTimeOfFlight,
-                          terminationConditions.second, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
-
-
-    // Create mass rate models
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                bodyMap, accelerationModelMap );
-
-    double massAtHalvedTimeOfFlight = hybridMethod.computeCurrentMass( timeOfFlight / 2.0, specificImpulseFunction, integratorSettings );
-    std::cout << "mass at half TOF in full propagation function: " << massAtHalvedTimeOfFlight << "\n\n";
-
-    // Create settings for propagating the mass of the vehicle.
-    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
-            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
-
-    // Define backward mass propagation settings.
-    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate }, massRateModels,
-                ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                 terminationConditions.first );
-
-    // Define forward mass propagation settings.
-    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate },
-                massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massAtHalvedTimeOfFlight ).finished( ),
-                terminationConditions.second );
-
-
-    // Create list of propagation settings.
-    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
-            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
-
-    // Backward propagator settings vector.
-    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
-    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
-
-    // Forward propagator settings vector.
-    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
-    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
-
-
-    // Backward hybrid propagation settings.
-    completePropagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                terminationConditions.first, dependentVariablesToSave );
-
-    // Forward hybrid propagation settings.
-    completePropagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                terminationConditions.second, dependentVariablesToSave );
-
-
-
-//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
-
-//    propagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-//                          std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
-//                          terminationConditions.first, propagators::cowell, std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
-
-//    propagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-//                        ( std::vector< std::string >{ centralBody }, accelerationModelMap,
-//                          std::vector< std::string >{ bodyToPropagate }, stateAtArrival,
-//                          terminationConditions.second, propagators::cowell, std::shared_ptr< propagators::DependentVariableSaveSettings >( ) );
-
     // Define empty maps to store the propagation results.
     std::map< double, Eigen::VectorXd > fullPropagationResults;
     std::map< double, Eigen::Vector6d > hybridMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
+    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = hybridMethod.createLowThrustPropagatorSettings(
+                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
+
     // Compute full propagation.
-    hybridMethod.computeHybridMethodTrajectoryAndFullPropagation( completePropagatorSettings, fullPropagationResults,
+    hybridMethod.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings, fullPropagationResults,
                                                                   hybridMethodResults, dependentVariablesHistory );
 
 
@@ -356,8 +245,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     std::cout.precision( 20 );
 
 
-    Eigen::Vector6d finalStateTestFullPropagation = hybridMethodLegTest.propagateTrajectory( 0.0, timeOfFlight,
-                                                                                             stateAtDeparture, mass/*, integratorSettings*/ );
+    Eigen::Vector6d finalStateTestFullPropagation = hybridMethodLegTest.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass );
     std::cout << "final state after propagation test: " << finalStateTestFullPropagation << "\n\n";
 
     std::cout << "state at departure hybrid method: " << hybridMethodResults.begin()->second << "\n\n";

@@ -122,17 +122,17 @@ public:
 //            std::function< double( const double ) > specificImpulseFunction,
 //            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
 
-    //! Function to compute the shaped trajectory and the propagation fo the full problem.
-    void computeShapedTrajectoryAndFullPropagation(
-//            simulation_setup::NamedBodyMap& bodyMap,
-            std::function< double ( const double ) > specificImpulseFunction,
-            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-                    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-            std::map< double, Eigen::VectorXd >& shapingMethodResults,
-            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
-            const bool isMassPropagated );
+//    //! Function to compute the shaped trajectory and the propagation fo the full problem.
+//    void computeShapedTrajectoryAndFullPropagation(
+////            simulation_setup::NamedBodyMap& bodyMap,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
+//            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//                    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+//            std::map< double, Eigen::VectorXd >& fullPropagationResults,
+//            std::map< double, Eigen::VectorXd >& shapingMethodResults,
+//            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
+//            const bool isMassPropagated );
 
 
 

@@ -21,6 +21,7 @@
 
 #include <Eigen/Core>
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLegSettings.h"
 
 //#include "Tudat/Astrodynamics/TrajectoryDesign/missionLeg.h"
 
@@ -92,6 +93,9 @@ public:
 //            const double initialTime,
 //            const double finalTime );
 
+    //! Compute current cartesian state.
+    virtual Eigen::Vector6d computeCurrentStateVector( const double currentTime ) = 0;
+
     //! Compute state history.
     virtual void getTrajectory(
             std::vector< double >& epochsVector,
@@ -156,17 +160,30 @@ public:
     //! Compute total deltaV.
     virtual double computeDeltaV( ) = 0;
 
-//    //! Full propagation.
-//    void computeSemiAnalyticalAndFullPropagation(
-////            simulation_setup::NamedBodyMap& bodyMap,
+
+    //! Full propagation.
+    void computeSemiAnalyticalAndFullPropagation(
 //            std::function< double ( const double ) > specificImpulseFunction,
-//            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-//            std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-//                    std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-//            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-//            std::map< double, Eigen::VectorXd >& semiAnalyticalResults,
-//            std::map< double, Eigen::VectorXd>& dependentVariablesHistory/*,
-//            const bool isMassPropagated*/ );
+            std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
+            std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+                    std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
+            std::map< double, Eigen::VectorXd >& fullPropagationResults,
+            std::map< double, Eigen::Vector6d >& semiAnalyticalResults,
+            std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
+
+    //! Define appropriate propagator settings for the full propagation.
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+    std::shared_ptr< propagators::PropagatorSettings< double > > > createLowThrustPropagatorSettings(
+            std::function< double( const double ) > specificImpulseFunction,
+            basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
+
+    //! Define appropriate propagator settings for the full propagation.
+    virtual std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
+            basic_astrodynamics::AccelerationMap accelerationModelMap,
+            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ) = 0;
 
 
 ////    //! Update the ephemeris.

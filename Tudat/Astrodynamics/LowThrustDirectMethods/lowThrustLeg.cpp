@@ -222,15 +222,159 @@ void LowThrustLeg::getThrustAccelerationProfile(
 }
 
 
-////! Full propagation.
-//void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
-//        std::function< double ( const double ) > specificImpulseFunction,
-//        const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-//        std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-//                std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-//        std::map< double, Eigen::VectorXd >& fullPropagationResults,
-//        std::map< double, Eigen::VectorXd >& semiAnalyticalResults,
-//        std::map< double, Eigen::VectorXd>& dependentVariablesHistory )
+void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
+//        std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+                std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
+        std::map< double, Eigen::VectorXd >& fullPropagationResults,
+        std::map< double, Eigen::Vector6d >& semiAnalyticalResults,
+        std::map< double, Eigen::VectorXd >& dependentVariablesHistory ){
+
+    fullPropagationResults.clear();
+    semiAnalyticalResults.clear();
+    dependentVariablesHistory.clear();
+
+//    double massAtHalvedTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction, integratorSettings );
+
+    // Define backward propagator settings variables.
+    integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ );
+    integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
+
+//    // Initialise spacecraft mass to mass at half of time of flight.
+//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
+
+    // Perform the backward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, propagatorSettings.first );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+
+    // Declare vector of epochs at which the trajectory has to be calculated.
+    std::vector< double > epochsVector;
+
+    // Compute and save full propagation and shaping method results along the backward propagation direction
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
+         itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
+    {
+        epochsVector.push_back( itr->first );
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
+    }
+
+    // Define forward propagator settings variables.
+    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+    integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
+
+//    // Initialise spacecraft mass to mass at half of time of flight.
+//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
+
+    // Perform forward propagation.
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, propagatorSettings.second );
+    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation = dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+
+    // Compute and save full propagation and shaping method results along the forward propagation direction.
+    for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
+         itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
+    {
+        epochsVector.push_back( itr->first );
+        fullPropagationResults[ itr->first ] = itr->second;
+        dependentVariablesHistory[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
+    }
+
+    getTrajectory( epochsVector, semiAnalyticalResults );
+
+    // Reset initial integrator settings.
+    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+
+}
+
+
+//! Define appropriate propagator settings for the full propagation.
+std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::createLowThrustPropagatorSettings(
+//        LowThrustLegTypes lowThrustLegType,
+        std::function< double( const double ) > specificImpulseFunction,
+        basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
+{
+
+    // Define propagator settings.
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
+            propagatorSettings;
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
+
+    // Re-initialise spacecraft mass in body map.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass_ );
+
+//    // Compute state at half of the time of flight.
+//    Eigen::Vector6d stateHalfOfTimeOfFlight = computeCurrentStateVector( timeOfFlight_ / 2.0 );
+
+    // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
+    basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations = retrieveLowThrustAccelerationMap( specificImpulseFunction );
+
+    // Add perturbing accelerations given as input.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = perturbingAccelerationsMap;
+    accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( lowThrustTrajectoryAccelerations[ bodyToPropagate_ ][ bodyToPropagate_ ][ 0 ] );
+    accelerationModelMap[ bodyToPropagate_ ][ centralBody_ ].push_back( lowThrustTrajectoryAccelerations[ bodyToPropagate_ ][ centralBody_ ][ 0 ] );
+
+
+    // Define translational state propagation settings
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings =
+            createLowThrustTranslationalStatePropagatorSettings( accelerationModelMap, dependentVariablesToSave );
+
+    double massHalfOfTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction, integratorSettings );
+
+    // Create settings for propagating the mass of the vehicle.
+    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
+            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate_ ] = simulation_setup::createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap_, accelerationModelMap );
+
+    // Define backward mass propagation settings.
+    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate_ }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+                terminationConditions.first );
+
+    // Define forward mass propagation settings.
+    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
+                std::vector< std::string >{ bodyToPropagate_ }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
+                terminationConditions.second );
+
+    // Create list of propagation settings.
+    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
+            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
+
+    // Backward propagator settings vector.
+    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
+    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
+
+    // Forward propagator settings vector.
+    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
+    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
+
+    // Backward hybrid propagation settings.
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
+                terminationConditions.first, dependentVariablesToSave );
+
+    // Forward hybrid propagation settings.
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
+                terminationConditions.second, dependentVariablesToSave );
+
+
+    return propagatorSettings;
+}
 
 
 
