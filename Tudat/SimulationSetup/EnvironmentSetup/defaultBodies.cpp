@@ -116,6 +116,84 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 #endif
 }
 
+double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 )
+{
+    double centuriesSinceJ2000 = secondsSinceJ2000 / ( 100.0 * physical_constants::JULIAN_YEAR );
+    return ( 142.0 + 1.3 * centuriesSinceJ2000 ) * mathematical_constants::PI / 180.0;
+}
+
+// Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+        const double initialTime, const double finalTime  )
+{
+    std::shared_ptr< RotationModelSettings > rotationModelSettings;
+
+    using namespace tudat::unit_conversions;
+
+    double milliArcSecondToRadian = mathematical_constants::PI / ( 180.0 * 1000.0 * 3600.0 );
+
+    std::map< double, std::pair< double, double > > nutationCorrectionSettings;
+    nutationCorrectionSettings[ 0.0 ] = std::make_pair( -1.4 * milliArcSecondToRadian, 0.0 );
+    nutationCorrectionSettings[ 1.0 ] = std::make_pair( -0.4 * milliArcSecondToRadian, -632.6 * milliArcSecondToRadian );
+    nutationCorrectionSettings[ 2.0 ] = std::make_pair( 0.0, -44.2 * milliArcSecondToRadian );
+    nutationCorrectionSettings[ 3.0 ] = std::make_pair( 0.0, -4.0 * milliArcSecondToRadian );
+
+    std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections;
+    std::map< double, std::pair< double, double > > meanMotionTimeDependentPhaseNutationCorrection;
+    meanMotionTimeDependentPhaseNutationCorrection[ 1.0 ] = std::make_pair( -49.1 * milliArcSecondToRadian, -104.5 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 2.0 ] = std::make_pair( 515.7 * milliArcSecondToRadian, 1097.0 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 3.0 ] = std::make_pair( 112.8 * milliArcSecondToRadian, 240.1 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 4.0 ] = std::make_pair( 19.2 * milliArcSecondToRadian, 40.9 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 5.0 ] = std::make_pair( 3.0 * milliArcSecondToRadian, 6.5 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 6.0 ] = std::make_pair( 0.4 * milliArcSecondToRadian, 1.0 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrections.push_back( meanMotionTimeDependentPhaseNutationCorrection );
+
+    std::map< double, std::pair< double, double > > rotationRateCorrections;
+    rotationRateCorrections[ 1.0 ] = std::make_pair( 481.0 * milliArcSecondToRadian, -155.0 * milliArcSecondToRadian -176 * milliArcSecondToRadian );
+    rotationRateCorrections[ 2.0 ] = std::make_pair( -103.0 * milliArcSecondToRadian, -93.0 * milliArcSecondToRadian -8 * milliArcSecondToRadian );
+    rotationRateCorrections[ 3.0 ] = std::make_pair( -35.0 * milliArcSecondToRadian, -3.0 * milliArcSecondToRadian -1 * milliArcSecondToRadian );
+    rotationRateCorrections[ 4.0 ] = std::make_pair( -10.0 * milliArcSecondToRadian, -8.0 * milliArcSecondToRadian );
+
+    std::map< double, std::pair< double, double > > xPolarMotionCoefficients;
+    xPolarMotionCoefficients[ 1.0 ] =  std::make_pair( 2.8 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 46.5 ) ) ,
+                                                       2.8 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 46.5 ) ) );
+    xPolarMotionCoefficients[ 2.0 ] =  std::make_pair( 8.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( -150.1 ) ) ,
+                                                       8.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( -150.1 ) ) );
+    xPolarMotionCoefficients[ 3.0 ] =  std::make_pair( 0.0 , 0.0 );
+    xPolarMotionCoefficients[ 4.0 ] =  std::make_pair( 0.0 , 0.0 );
+    xPolarMotionCoefficients[ 3.34 ] =  std::make_pair( 0.0 , 50.0 * milliArcSecondToRadian ); //Mars’s Chandler wobble T=205 dd
+
+    std::map< double, std::pair< double, double > > yPolarMotionCoefficients;
+    yPolarMotionCoefficients[ 1.0 ] =  std::make_pair( 11.7 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 118.7 ) ) ,
+                                                       11.7 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+    yPolarMotionCoefficients[ 2.0 ] =  std::make_pair( 3.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 172.5 ) ) ,
+                                                       3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+    yPolarMotionCoefficients[ 3.0 ] =  std::make_pair( 0.0 , 0.0 );
+    yPolarMotionCoefficients[ 4.0 ] =  std::make_pair( 0.0 , 0.0 );
+    yPolarMotionCoefficients[ 3.34 ] =  std::make_pair( 0.0 , 50.0 * milliArcSecondToRadian ); //Mars's Chandler wobble T=205 dd
+
+    std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions;
+    timeDependentPhaseCorrectionFunctions.push_back(
+                std::bind( &tudat::simulation_setup::marsTimeDependentPhaseAngleCorrectionFunction, std::placeholders::_1 ) );
+
+    rotationModelSettings = std::make_shared< PlanetaryRotationModelSettings >(
+                convertDegreesToRadians( 3.37919183 ),
+                convertDegreesToRadians( 24.67682669 ),
+                convertDegreesToRadians( 81.9683988 ),
+                ( -7608.3 * milliArcSecondToRadian ) / physical_constants::JULIAN_YEAR,
+                convertDegreesToRadians( 25.1893823 ),
+                ( -2.0 * milliArcSecondToRadian  ) / physical_constants::JULIAN_YEAR,
+                convertDegreesToRadians( 133.386277 ),
+                convertDegreesToRadians( 350.891985307 ) / physical_constants::JULIAN_DAY,
+                0.07,
+                convertDegreesToRadians( -1.5 ) / physical_constants::JULIAN_DAY,
+                "ECLIPJ2000", "Mars_Fixed", "Sun", initialTime, finalTime, 150.0, nutationCorrectionSettings,
+                meanMotionTimeDependentPhaseNutationCorrections, timeDependentPhaseCorrectionFunctions, rotationRateCorrections,
+                xPolarMotionCoefficients, yPolarMotionCoefficients );
+
+    return rotationModelSettings;
+}
+
 //! Function to create default settings for a body's shape model.
 std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
         const std::string& bodyName,
