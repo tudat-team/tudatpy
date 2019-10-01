@@ -2066,7 +2066,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Compute thrust start times from maneuvers mid-times.
     std::vector< double > thrustStartTimes;
-    for( int i = 0; i < thrustMidTimes.size( ); i++ )
+    for( unsigned int i = 0; i < thrustMidTimes.size( ); i++ )
     {
         thrustStartTimes.push_back( thrustMidTimes.at( i ) - totalManeuverTime / 2.0 );
     }
