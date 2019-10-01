@@ -308,7 +308,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
         // Perturb deltaVs estimate.
-        for ( int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++){
+        for ( unsigned int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++)
+        {
             parameterPerturbation[ i ] = 1.0e-3;
         }
 
