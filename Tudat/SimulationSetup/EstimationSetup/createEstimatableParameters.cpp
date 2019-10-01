@@ -24,7 +24,14 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/meanMomentOfInertiaParameter.h"
+<<<<<<< HEAD
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/desaturationDeltaV.h"
+=======
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/periodicSpinVariation.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/polarMotionAmplitude.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/coreFactor.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/freeCoreNutationRate.h"
+>>>>>>> marie-origin/fullPlanetaryRotationalModel
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -211,6 +218,38 @@ std::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstimat
                         ( std::bind( &simulation_setup::Body::getScaledMeanMomentOfInertia, currentBody ),
                           std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, std::placeholders::_1 ),
                           currentBodyName );
+            }
+            break;
+        }
+        case core_factor:
+        {
+            if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
+                        " when making free core parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = std::make_shared< CoreFactor >
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
+            }
+            break;
+        }
+        case free_core_nutation_rate:
+        {
+            if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
+                        " when making free core nutation rate parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = std::make_shared< FreeCoreNutationRate >
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
             }
             break;
         }
@@ -811,6 +850,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
             }
             break;
         }
+<<<<<<< HEAD
         case desaturation_delta_v_values:
         {
             // Check input consistency.
@@ -848,6 +888,38 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                                 std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
                                     desaturationAccelerationModels.at( 0 ) ), acceleratedBody );
                 }
+=======
+        case periodic_spin_variation:
+        {
+            if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
+                        " when making periodic spin variation parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+
+                vectorParameterToEstimate = std::make_shared< PeriodicSpinVariation >
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
+            }
+            break;
+        }
+        case polar_motion_amplitude:
+        {
+            if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
+                        " when making polar motion amplitude parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
+>>>>>>> marie-origin/fullPlanetaryRotationalModel
             }
             break;
         }
