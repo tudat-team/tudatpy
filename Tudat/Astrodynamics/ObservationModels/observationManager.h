@@ -201,7 +201,7 @@ public:
     std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
-       return observationSimulator_->getObservationModel( linkEnds );
+        return observationSimulator_->getObservationModel( linkEnds );
     }
 
     //! Function to return the object used to simulate noise-free observations
@@ -366,8 +366,8 @@ protected:
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
 
-//            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
-//            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
+            //            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
+            //            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.
@@ -398,7 +398,6 @@ protected:
                 }
             }
         }
-
         return partialMatrix;
     }
 

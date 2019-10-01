@@ -294,9 +294,9 @@ class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public Estim
 public:
 
 
-    //! Constructor, sets initial value of translational state.
+    //! Constructor, sets initial value of translational state and a single central body.
     /*!
-     * Constructor, sets initial value of translational state.
+     * Constructor, sets initial value of translational state and a single central body
      * \param associatedBody Body for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
@@ -309,10 +309,34 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        arcStartTimes_( arcStartTimes ), frameOrientation_( frameOrientation ),
+        isStateSet_( 1 )
+    {
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            centralBodies_.push_back( centralBody );
+        }
+    }
+
+    //! Constructor, sets initial value of translational state and an arc-wise variable central body.
+    /*!
+     * Constructor, sets initial value of translational state and an arc-wise variable central body
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBodies List of central bodies (per arc) w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
+            const std::vector< double >& arcStartTimes,
+            const std::vector< std::string > centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ),
         isStateSet_( 1 ){ }
 
-    //! Constructor, without initial value of translational state.
+    //! Constructor, without initial value of translational state, for a single central body
     /*!
      * Constructor, without initial value of translational state. Current initial state is retrieved from environment
      * (ephemeris objects) during creation of parameter object.
@@ -326,7 +350,31 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        arcStartTimes_( arcStartTimes ), frameOrientation_( frameOrientation ),
+        isStateSet_( 0 )
+    {
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            centralBodies_.push_back( centralBody );
+        }
+    }
+
+    //! Constructor, without initial value of translational state, for an arc-wise variable central body
+    /*!
+     * Constructor, without initial value of translational state, for an arc-wise variable central body.
+     * Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBodies List of central bodies (per arc) w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const std::vector< double >& arcStartTimes,
+            const std::vector< std::string > centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ),
         isStateSet_( 0 ){ }
 
     //! Current value of initial arc states (concatenated in same order as arcs)
@@ -335,8 +383,8 @@ public:
     //! Start times for separate arcs
     std::vector< double > arcStartTimes_;
 
-    //! Body w.r.t. which the initial state is to be estimated.
-    std::string centralBody_;
+    //! List of bodies (arc-wise) w.r.t. which the initial state is to be estimated.
+    std::vector< std::string > centralBodies_;
 
     //!Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
@@ -416,11 +464,8 @@ public:
             const std::string centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
-        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate ){ }
-
-    //! Name of central body
-    std::string centralBody_;
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
@@ -446,12 +491,9 @@ public:
             const std::string centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
-            const std::vector< double > arcStartTimeList):
-        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+            const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
-
-    //! Name of central body
-    std::string centralBody_;
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
@@ -476,7 +518,7 @@ public:
      */
     ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
             const std::string associatedBody,
-            const std::vector< double > arcStartTimeList):
+            const std::vector< double > arcStartTimeList ):
         EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
         arcStartTimeList_( arcStartTimeList ){ }
 

@@ -59,14 +59,11 @@ enum EstimatebleParametersEnum
     direct_dissipation_tidal_time_lag,
     mean_moment_of_inertia,
     arc_wise_constant_drag_coefficient,
-<<<<<<< HEAD
-    desaturation_delta_v_values
-=======
     periodic_spin_variation,
     polar_motion_amplitude,
     core_factor,
-    free_core_nutation_rate
->>>>>>> marie-origin/fullPlanetaryRotationalModel
+    free_core_nutation_rate,
+    desaturation_delta_v_values
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -576,6 +573,52 @@ public:
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
     {
         return estimatedVectorParameters_;
+    }
+
+    //! Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+    /*!
+     * Function to retrieve the start index and size of (a) parameters(s) with a given identifier
+     * \param requiredParameterId Parameter identifier that is to be searched in full list of patameters
+     * \return List of start indices and sizes of parameters corresponding to requiredParameterId
+     */
+    std::vector< std::pair< int, int > > getIndicesForParameterType(
+            const EstimatebleParameterIdentifier requiredParameterId )
+    {
+        std::vector< std::pair< int, int > > typeIndices;
+
+        for( auto parameterIterator : initialSingleArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : initialMultiArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        return typeIndices;
     }
 
     //! Function to get list of initial dynamical states that are to be estimated.

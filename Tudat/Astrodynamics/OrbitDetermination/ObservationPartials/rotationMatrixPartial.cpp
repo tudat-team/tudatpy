@@ -1119,6 +1119,75 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculateParti
     return rotatedVectorPartial;
 }
 
+//! Function to compute the required partial derivative of rotation matrix.
+std::vector< Eigen::Matrix3d > SynchronousRotationMatrixPartialWrtTranslationalState::
+calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
+{
+    // Get current state/rotation
+    Eigen::Matrix3d currentRotationMatrix =
+            synchronousRotationaModel_->getRotationToBaseFrame( time ).toRotationMatrix( );
+    Eigen::Vector6d currentState =
+            synchronousRotationaModel_->getCurrentRelativeState( time );
+    Eigen::Vector3d positionVector = currentState.segment( 0, 3 );
+    Eigen::Vector3d velocityVector = currentState.segment( 3, 3 );
+    double positionNorm = positionVector.norm( );
+
+    // Compute r and w vectors
+    Eigen::Vector3d rVector = -currentRotationMatrix.block( 0, 0, 3, 1 );
+    Eigen::Vector3d wVector = currentRotationMatrix.block( 0, 2, 3, 1 );
+    Eigen::Vector3d unnormalizedWVector = positionVector.cross( velocityVector );
+    double unnormalizedWVectorNorm = unnormalizedWVector.norm( );
+
+    // Compute r vector partials
+    Eigen::Matrix3d rVectorDerivativeWrtPosition =
+            Eigen::Matrix3d::Identity( ) / positionNorm - positionVector * positionVector.transpose( ) / (
+                positionNorm * positionNorm * positionNorm );
+
+    // Compute partials for unnormalized w vector
+    Eigen::Matrix3d unnormalizedWVectorDerivativeWrtPosition =
+            -linear_algebra::getCrossProductMatrix( velocityVector );
+    Eigen::Matrix3d unnormalizedWVectorDerivativeWrtVelocity =
+            linear_algebra::getCrossProductMatrix( positionVector );
+    Eigen::Matrix3d wPartialScalingTerm =
+            ( Eigen::Matrix3d::Identity( ) / unnormalizedWVectorNorm -
+              unnormalizedWVector * unnormalizedWVector.transpose( ) /
+              ( unnormalizedWVectorNorm * unnormalizedWVectorNorm * unnormalizedWVectorNorm ) );
+
+    // Compute w vector partials
+    Eigen::Matrix3d wVectorDerivativeWrtPosition =
+            wPartialScalingTerm * unnormalizedWVectorDerivativeWrtPosition;
+    Eigen::Matrix3d wVectorDerivativeWrtVelocity =
+            wPartialScalingTerm * unnormalizedWVectorDerivativeWrtVelocity;
+
+    // Compute s vector partials
+    Eigen::Matrix3d sVectorDerivativeWrtPosition =
+            linear_algebra::getCrossProductMatrix( wVector ) * rVectorDerivativeWrtPosition -
+            linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtPosition;
+    Eigen::Matrix3d sVectorDerivativeWrtVelocity =
+            -linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtVelocity;
+
+    // Build vector of partial derivatives
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+    rotationMatrixPartials.resize( 6 );
+    for( int i = 0; i < 3; i++ )
+    {
+        rotationMatrixPartials[ i ].block( 0, 0, 3, 1 ) =
+                -rVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+        rotationMatrixPartials[ i ].block( 0, 1, 3, 1 ) =
+                -sVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+        rotationMatrixPartials[ i ].block( 0, 2, 3, 1 ) =
+                wVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+
+        rotationMatrixPartials[ i + 3 ].block( 0, 0, 3, 1 ).setZero( );
+        rotationMatrixPartials[ i + 3 ].block( 0, 1, 3, 1 ) =
+                -sVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+        rotationMatrixPartials[ i + 3 ].block( 0, 2, 3, 1 ) =
+                wVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+    }
+
+    return rotationMatrixPartials;
+
+}
 
 }
 

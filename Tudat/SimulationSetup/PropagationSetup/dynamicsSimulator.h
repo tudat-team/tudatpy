@@ -214,7 +214,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfB
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody(
         const std::string& bodyToIntegrate,
-        const std::string& centralBody,
+        const std::vector< std::string >& centralBodies,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< TimeType > arcStartTimes )
 {
@@ -223,7 +223,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
         initialStates.block( 6 * i, 0, 6, 1 ) = getInitialStateOfBody< double, StateScalarType >(
-                    bodyToIntegrate, centralBody, bodyMap, arcStartTimes.at( i ) );
+                    bodyToIntegrate, centralBodies.at( i ), bodyMap, arcStartTimes.at( i ) );
     }
     return initialStates;
 }
@@ -1539,6 +1539,54 @@ public:
                         false, false, true );
             multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, hybridPropagatorSettings->getMultiArcPropagatorSettings( ), arcStartTimes,
+                        false, false, setIntegratedResult );
+        }
+        else
+        {
+            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
+        }
+
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( hybridPropagatorSettings->getInitialStates( ) );
+        }
+    }
+
+    HybridArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< double > arcStartTimes,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true,
+            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+        DynamicsSimulator< StateScalarType, TimeType >(
+            bodyMap, clearNumericalSolutions, setIntegratedResult )
+    {
+        std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( hybridPropagatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
+        }
+
+        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
+        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
+
+        if( !addSingleArcBodiesToMultiArcDynamics )
+        {
+            if( !setIntegratedResult )
+            {
+                std::cerr << "Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation "
+                             "result will be set in environment for consistency with multi-arc " << std::endl;
+            }
+            singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, singleArcIntegratorSettings, hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
+                        false, false, true );
+            multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, multiArcIntegratorSettings, hybridPropagatorSettings->getMultiArcPropagatorSettings( ), arcStartTimes,
                         false, false, setIntegratedResult );
         }
         else

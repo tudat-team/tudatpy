@@ -42,16 +42,6 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
 
         }
-        else
-        {
-            std::string observedBodyEphemerisOrigin =
-                    bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
-            if( observedBodyEphemerisOrigin == bodyToEstimate )
-            {
-                partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
-
-            }
-        }
     }
 
     return partialMap;
@@ -299,6 +289,20 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
+//! Function to create partial object(s) of rotation matrix wrt translational state
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody )
+{
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
+    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
+                currentBody->getRotationalEphemeris( ) ) != nullptr )
+    {
+        rotationMatrixPartial = std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >(
+                    std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
+                        currentBody->getRotationalEphemeris( ) ) );
+    }
+    return rotationMatrixPartial;
+}
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(

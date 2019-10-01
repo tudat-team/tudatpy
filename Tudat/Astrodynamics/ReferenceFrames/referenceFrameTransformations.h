@@ -145,7 +145,7 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
  * \return Velocity based LVLH to inertial (I) frame transformation matrix.
  */
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const Eigen::Vector6d& vehicleState,
-                                                       const Eigen::Vector6d& centralBodyState,
+                                                       const Eigen::Vector6d& centralBodyState = Eigen::Vector6d::Zero( ),
                                                        const bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based LVLH frame to inertial (I) frame.

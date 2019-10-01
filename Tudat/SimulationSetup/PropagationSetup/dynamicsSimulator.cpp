@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/SimulationSetup/PropagationSetup/createStateDerivativeModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Basics/timeType.h"
 

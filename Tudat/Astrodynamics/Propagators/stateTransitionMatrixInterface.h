@@ -130,10 +130,12 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             sensitivityMatrixInterpolator,
             const int numberOfInitialDynamicalParameters,
-            const int numberOfParameters ):
+            const int numberOfParameters,
+            const std::vector< std::pair< int, int > >& statePartialAdditionIndices ):
         CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
         stateTransitionMatrixInterpolator_( stateTransitionMatrixInterpolator ),
-        sensitivityMatrixInterpolator_( sensitivityMatrixInterpolator )
+        sensitivityMatrixInterpolator_( sensitivityMatrixInterpolator ),
+        statePartialAdditionIndices_( statePartialAdditionIndices )
     {
         combinedStateTransitionMatrix_ = Eigen::MatrixXd::Zero(
                         stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
@@ -152,7 +154,8 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             stateTransitionMatrixInterpolator,
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
-            sensitivityMatrixInterpolator );
+            sensitivityMatrixInterpolator,
+            const std::vector< std::pair< int, int > >& statePartialAdditionIndices );
 
     //! Function to get the interpolator returning the state transition matrix as a function of time.
     /*!
@@ -219,6 +222,9 @@ private:
     //! Interpolator returning the sensitivity matrix as a function of time.
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     sensitivityMatrixInterpolator_;
+
+    std::vector< std::pair< int, int > > statePartialAdditionIndices_;
+
 };
 
 //! Interface object of interpolation of numerically propagated state transition and sensitivity matrices for multi-arc
@@ -245,8 +251,10 @@ public:
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
             const std::vector< double >& arcStartTimes,
+            const std::vector< double >& arcEndTimes,
             const int numberOfInitialDynamicalParameters,
-            const int numberOfParameters );
+            const int numberOfParameters,
+            const std::vector< std::vector< std::pair< int, int > > >& statePartialAdditionIndices );
 
     //! Destructor
     ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
@@ -264,7 +272,9 @@ public:
             stateTransitionMatrixInterpolators,
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
-            const std::vector< double >& arcStartTimes );
+            const std::vector< double >& arcStartTimes,
+            const std::vector< double >& arcEndTimes,
+            const std::vector< std::vector< std::pair< int, int > > >& statePartialAdditionIndices  );
 
     //! Function to get the vector of interpolators returning the state transition matrix as a function of time.
     /*!
@@ -298,6 +308,9 @@ public:
         return sensitivityMatrixSize_ + numberOfStateArcs_ * stateTransitionMatrixSize_;
     }
 
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
+            const double evaluationTime, const bool addCentralBodySensitivity = true );
+
     //! Function to get the concatenated single-arc state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the concatenated single-arc state transition and sensitivity matrix at a given time, evaluates matrices
@@ -306,6 +319,9 @@ public:
      *  \return Concatenated state transition and sensitivity matrices.
      */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix(
+            const double evaluationTime, const bool addCentralBodySensitivity = true );
 
     //! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
     /*!
@@ -335,6 +351,13 @@ public:
         return arcStartTimes_.size( );
     }
 
+    std::vector< std::pair< int, int > > getStatePartialAdditionIndices(
+            const int arcIndex )
+    {
+        return statePartialAdditionIndices_.at( arcIndex );
+    }
+
+
 private:
 
     //! List of interpolators returning the state transition matrix as a function of time.
@@ -348,11 +371,15 @@ private:
     //! Times at which the multiple arcs start
     std::vector< double > arcStartTimes_;
 
+    std::vector< double > arcEndTimes_;
+
     //! Number of arcs.
     int numberOfStateArcs_;
 
     //! Look-up algorithm to determine the arc of a given time.
     std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
+
+    std::vector< std::vector< std::pair< int, int > > > statePartialAdditionIndices_;
 
 };
 
@@ -379,7 +406,7 @@ public:
             const std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
         CombinedStateTransitionAndSensitivityMatrixInterface(
             multiArcInterface->getStateTransitionMatrixSize( ),
-            multiArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( )),
+            multiArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( ) ),
         singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
     {
         // Check input consistency

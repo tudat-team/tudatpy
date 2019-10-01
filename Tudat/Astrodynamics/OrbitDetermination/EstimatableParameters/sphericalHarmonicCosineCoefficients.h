@@ -160,6 +160,27 @@ private:
     int parameterSize_;
 };
 
+//! Function to get a list of Kaula constraint values for gravity field coefficients at given degrees and indices
+/*!
+ * Function to get a list of Kaula constraint values for gravity field coefficients at given degrees and indices
+ * \param blockIndices List of indices (degree and order) of coefficients for which Kaula constraint is to be given
+ * \param constraintMultiplier Multiplier A for Kaula constraint, obtained from A/l^{2}, which l the current coefficient's degree
+ * \return Vector of Kaula constraint values on gravity field coefficients
+ */
+Eigen::VectorXd getKaulaConstraintVector(
+        const std::vector< std::pair< int, int > > blockIndices,
+        const double constraintMultiplier );
+
+//! Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
+/*!
+ * Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
+ * \param parameter Parameter that defines the list of cosine spherical harmonic coefficients
+ * \param constraintMultiplier Multiplier A for Kaula constraint, obtained from A/l^{2}, which l the current coefficient's degree
+ * \return Vector of Kaula constraint values on gravity field coefficients
+ */
+Eigen::VectorXd getKaulaConstraintVector(const std::shared_ptr< SphericalHarmonicsCosineCoefficients > parameter,
+        const double constraintMultiplier );
+
 } // namespace estimatable_parameters
 
 } // namespace tudat

@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate( parameterNames, bodyMap , accelerationModelMap);
+                createParametersToEstimate< double >( parameterNames, bodyMap , propagatorSettings );
 
         printEstimatableParameterEntries( parametersToEstimate );
 

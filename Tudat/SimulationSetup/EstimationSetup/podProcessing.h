@@ -268,21 +268,32 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
+std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
         const Eigen::VectorXd& normalizationFactors,
-        const double outputTimeStep,
+        const std::vector< double >& outputTimes,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& normalizedInverseAPrioriCovariance )
+        const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
+    int totalNumberOfParameters = unnormalizedInverseAPrioriCovariance.cols( );
+
+    Eigen::MatrixXd normalizedInverseAPrioriCovariance = Eigen::MatrixXd(  totalNumberOfParameters, totalNumberOfParameters );
+    for( int j = 0; j < totalNumberOfParameters; j++ )
+    {
+        for( int k = 0; k < totalNumberOfParameters; k++ )
+        {
+            normalizedInverseAPrioriCovariance( j, k ) = unnormalizedInverseAPrioriCovariance( j, k ) /
+                    ( normalizationFactors( j ) * normalizationFactors( k ) );
+        }
+    }
+
     // Check consistency of input data
     if( normalizedInverseAPrioriCovariance.cols( ) != normalizedInverseAPrioriCovariance.rows( ) )
     {
         throw std::runtime_error( "Error when calculating covariance as function of time, a priori covariance is not square" );
     }
 
-    int totalNumberOfParameters = normalizedInverseAPrioriCovariance.cols( );
     if( typeAndLinkSortedNormalizedInformationMatrix.cols( ) != totalNumberOfParameters )
     {
         throw std::runtime_error(
@@ -317,9 +328,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
     interpolators::BinarySearchLookupScheme< TimeType > timeLookup =
             interpolators::BinarySearchLookupScheme< TimeType >( orderedTimeVector );
 
-    // Create matrix to unnormalize parameters.
-    Eigen::MatrixXd unnormalizationMatrix = normalizationFactors.asDiagonal( );
-
     // Declare return map.
     std::map< TimeType, Eigen::MatrixXd > covarianceMatrixHistory;
 
@@ -329,10 +337,10 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
     Eigen::MatrixXd currentInverseNormalizedCovarianceMatrix;
 
     // Loop over matrix at given time interval.
-    while( currentTime < orderedTimeVector[ orderedTimeVector.size( ) - 1 ] )
+    for( unsigned int i = 0; i < outputTimes.size( ); i++ )
     {
         // Increment time (no covariance computed for t=t0)
-        currentTime += outputTimeStep;
+        currentTime = outputTimes.at( i );
 
         // Find index in list of times.
         currentIndex = timeLookup.findNearestLowerNeighbour( currentTime );
@@ -361,12 +369,50 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
         // Create inverse of covariance matrix
         currentInverseNormalizedCovarianceMatrix = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
                     currentInformationMatrix, timeOrderedDiagonalOfWeightMatrix.segment( 0, currentIndex + 1 ), normalizedInverseAPrioriCovariance );
-        covarianceMatrixHistory[ orderedTimeVector.at( currentIndex ) ] = unnormalizationMatrix.inverse( ) *
-                currentInverseNormalizedCovarianceMatrix.inverse( ) * unnormalizationMatrix.inverse( );
+        Eigen::MatrixXd covarianceMatrix = currentInverseNormalizedCovarianceMatrix.inverse( );
+
+        for( int i = 0; i < covarianceMatrix.rows( ); i++ )
+        {
+            for( int j = 0; j < covarianceMatrix.rows( ); j++ )
+            {
+                covarianceMatrix( i, j ) /= normalizationFactors( i ) * normalizationFactors( j );
+            }
+        }
+
+        covarianceMatrixHistory[ currentTime ] = covarianceMatrix;
     }
 
 
     return covarianceMatrixHistory;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
+        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
+        const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
+        const Eigen::VectorXd& normalizationFactors,
+        const double outputTimeStep,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
+{
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector(
+                getConcatenatedTimeVector( measurementData ) );
+    double minimumTime = timeVector.minCoeff( );
+    double maximumTime = timeVector.maxCoeff( );
+    double currentTime = minimumTime;
+    std::vector< double > outputTimes;
+
+    // Loop over matrix at given time interval.
+    while( currentTime < maximumTime )
+    {
+        // Increment time (no covariance computed for t=t0)
+        currentTime += outputTimeStep;
+        outputTimes.push_back( currentTime );
+    }
+
+    return calculateCovarianceUsingDataUpToEpoch(
+                measurementData, typeAndLinkSortedNormalizedInformationMatrix, normalizationFactors,
+                outputTimes, diagonalOfWeightMatrix, unnormalizedInverseAPrioriCovariance );
 }
 
 //! Function to create a map of the estimation covariance as a function of time
@@ -379,16 +425,30 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
  */
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
           typename ParameterScalarType = double >
-std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceMatrixAsFunctionOfTime(
+std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
+        const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInputData,
+        const std::shared_ptr< PodOutput< ParameterScalarType > >& podOutputData,
+        const std::vector< double >& outputTimes )
+{
+    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
+                podInputData->getObservationsAndTimes( ), podOutputData->normalizedInformationMatrix_,
+                podOutputData->informationMatrixTransformationDiagonal_, outputTimes,
+                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
+          typename ParameterScalarType = double >
+std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInputData,
         const std::shared_ptr< PodOutput< ParameterScalarType > >& podOutputData,
         const double outputTimeStep )
 {
-    return calculateCovarianceMatrixAsFunctionOfTime< ObservationScalarType, TimeType >(
+    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationsAndTimes( ), podOutputData->normalizedInformationMatrix_,
                 podOutputData->informationMatrixTransformationDiagonal_, outputTimeStep,
                 podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
 }
+
 
 }
 

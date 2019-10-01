@@ -24,11 +24,8 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.cpp"
-<<<<<<< HEAD
   "${SRCROOT}${EPHEMERIDESDIR}/synchronousRotationalEphemeris.cpp"
-=======
   "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.cpp"
->>>>>>> marie-origin/fullPlanetaryRotationalModel
 )
 
 # Set the header files.
@@ -53,11 +50,8 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
-<<<<<<< HEAD
-  "${SRCROOT}${EPHEMERIDESDIR}/synchronousRotationalEphemeris.h"
-=======
   "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.h"
->>>>>>> marie-origin/fullPlanetaryRotationalModel
+  "${SRCROOT}${EPHEMERIDESDIR}/synchronousRotationalEphemeris.h"
 )
 
 # Add static libraries.

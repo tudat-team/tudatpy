@@ -124,6 +124,11 @@ integrateEquations( const bool performIntegrationsSequentially )
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, centralBodyMap );
 
+    // Define propagator settings.
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
+
     // Set parameters that are to be included.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
@@ -133,7 +138,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Moon", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap, accelerationModelMap );
+            createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< > > matrixTypeIntegratorSettings =
@@ -141,10 +146,7 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( initialEphemerisTime, 10.0,
               RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
 
-    // Define propagator settings.
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
+
 
     // Perform requested propagation
     std::shared_ptr< SingleArcVariationalEquationsSolver< double, double> > variationalEquationSolver;

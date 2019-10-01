@@ -516,7 +516,7 @@ void setMultiTypePropagationClosure(
                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
+                                       bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
@@ -588,41 +588,41 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
-extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
-extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
+//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const double propagationStartTime );
+//extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const double propagationStartTime );
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
-extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, Time > > > createStateDerivativeModels< double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const Time propagationStartTime );
-extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, Time > > > createStateDerivativeModels< long double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const Time propagationStartTime );
-extern template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
-extern template std::shared_ptr< SingleStateTypeDerivative< double, Time > > createStateDerivativeModel< double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const Time propagationStartTime );
-extern template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > createStateDerivativeModel< long double, Time >(
-        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const Time propagationStartTime );
-#endif
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const double propagationStartTime );
+//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, Time > > > createStateDerivativeModels< double, Time >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const Time propagationStartTime );
+//extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, Time > > > createStateDerivativeModels< long double, Time >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const Time propagationStartTime );
+//extern template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const double propagationStartTime );
+//extern template std::shared_ptr< SingleStateTypeDerivative< double, Time > > createStateDerivativeModel< double, Time >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const Time propagationStartTime );
+//extern template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > createStateDerivativeModel< long double, Time >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const Time propagationStartTime );
+//#endif
 
 //! Function to convert a list of state derivative models to a map sorted by state type
 /*!
@@ -664,7 +664,7 @@ createStateDerivativeModelMap(
         const TimeType propagationStartTime )
 {
     return getStateDerivativeModelMapFromVector( createStateDerivativeModels(
-                propagatorSettings, bodyMap, propagationStartTime ) );
+                                                     propagatorSettings, bodyMap, propagationStartTime ) );
 }
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
