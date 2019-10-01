@@ -110,6 +110,17 @@ public:
         isBodyInPropagation_ = isBodyInPropagation;
     }
 
+    //! Function to retrieve the current relative translational state of the synchronously rotating body
+    /*!
+     * Function to retrieve the current relative translational state of the synchronously rotating body
+     * \param currentTime Time at which to evaluate state function
+     * \return Current relative translational state of the synchronously rotating body
+     */
+    Eigen::Vector6d getCurrentRelativeState( const double currentTime )
+    {
+        return relativeStateFunction_( currentTime, isBodyInPropagation_ );
+    }
+
 private:
 
     //! Function returning the current state of the body relative to the central body, in the base frame

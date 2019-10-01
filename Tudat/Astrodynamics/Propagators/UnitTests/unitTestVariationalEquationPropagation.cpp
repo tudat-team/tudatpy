@@ -209,11 +209,6 @@ executeEarthMoonSimulation(
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
         testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-        if( centralBodyMap[ "Moon" ] == "Earth" )
-        {
-            testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-        }
-
         testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
         if( propagateVariationalEquations )
@@ -330,6 +325,9 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
                 manualPartial.block( 0, j + 12, 12, 1 ) =
                         ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
             }
+
+            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
+            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
 
             // Check results
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(

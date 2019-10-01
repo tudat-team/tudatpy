@@ -59,7 +59,7 @@ void to_json( nlohmann::json& jsonObject,
                     parameterSettings );
         assertNonnullptrPointer( stateEstimationSettings );
         jsonObject[ K::initialStateValue ] = stateEstimationSettings->initialStateValue_;
-        jsonObject[ K::centralBody ] = stateEstimationSettings->centralBody_;
+        jsonObject[ K::centralBody ] = stateEstimationSettings->centralBodies_;
         jsonObject[ K::arcStartTimes ] = stateEstimationSettings->arcStartTimes_;
         jsonObject[ K::frameOrientation ] = stateEstimationSettings->frameOrientation_;
 
@@ -181,7 +181,7 @@ void to_json( nlohmann::json& jsonObject,
                 EmpiricalAccelerationEstimatableParameterSettings >(
                     parameterSettings );
         assertNonnullptrPointer( empiricalAccelerationSettings );
-        jsonObject[ K::centralBody ] = empiricalAccelerationSettings->centralBody_;
+        jsonObject[ K::centralBody ] = empiricalAccelerationSettings->parameterType_.second.second;
         jsonObject[ K::componentsToEstimate ] = empiricalAccelerationSettings->componentsToEstimate_;
 
         return;
@@ -204,7 +204,7 @@ void to_json( nlohmann::json& jsonObject,
                 ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
                     parameterSettings );
         assertNonnullptrPointer( empiricalAccelerationSettings );
-        jsonObject[ K::centralBody ] = empiricalAccelerationSettings->centralBody_;
+        jsonObject[ K::centralBody ] = empiricalAccelerationSettings->parameterType_.second.second;
         jsonObject[ K::componentsToEstimate ] = empiricalAccelerationSettings->componentsToEstimate_;
         jsonObject[ K::arcStartTimes ] = empiricalAccelerationSettings->arcStartTimeList_;
 

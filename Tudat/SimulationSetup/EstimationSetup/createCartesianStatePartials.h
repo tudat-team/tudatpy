@@ -100,7 +100,14 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
 
-
+//! Function to create partial object(s) of rotation matrix wrt translational state
+/*!
+ *  Function to create partial object(s) of rotation matrix wrt a state parameter
+ *  \param currentBody Body for which partial is to be created (must have a synchronous rotation model for output to be non-null)
+ *  \return Rotation matrix partial object
+ */
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody );
 
 //! Function to create partial object(s) of rotation matrix wrt a state parameter
 /*!
@@ -194,13 +201,21 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             rotationMatrixPartials;
 
     // Retrieve double and vector parameters from total set of parameters.
-   std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > stateParameters =
             parametersToEstimate->getInitialStateParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
             parametersToEstimate->getDoubleParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getVectorParameters( );
+
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialWrtTranslationalState =
+            createRotationMatrixPartialsWrtTranslationalState( bodyMap.at( bodyName ) );
+    if( rotationMatrixPartialWrtTranslationalState != nullptr )
+    {
+        rotationMatrixPartials[ std::make_pair(
+                    estimatable_parameters::initial_body_state, "" ) ] = rotationMatrixPartialWrtTranslationalState;
+    }
 
     for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( );
          parameterIterator++ )
@@ -213,7 +228,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtStateParameter( bodyMap, parameterIterator->second );
         }
     }
@@ -230,7 +245,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtParameter( bodyMap, parameterIterator->second );
         }
     }
@@ -247,7 +262,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtParameter( bodyMap, parameterIterator->second );
         }
     }

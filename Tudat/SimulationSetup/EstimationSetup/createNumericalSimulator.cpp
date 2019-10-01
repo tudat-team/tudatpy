@@ -40,7 +40,7 @@ createMultiArcVariationalEquationsSolver< double, double >(
 template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< double, double > >
 createHybridArcVariationalEquationsSolver< double, double >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -52,7 +52,7 @@ createHybridArcVariationalEquationsSolver< double, double >(
 template std::shared_ptr< propagators::VariationalEquationsSolver< double, double > >
 createVariationalEquationsSolver< double, double >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -128,7 +128,7 @@ createSingleArcVariationalEquationsSolver< long double, double >(
 template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< double, Time > >
 createHybridArcVariationalEquationsSolver< double, Time >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -139,7 +139,7 @@ createHybridArcVariationalEquationsSolver< double, Time >(
 template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< long double, Time > >
 createHybridArcVariationalEquationsSolver< long double, Time >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -150,7 +150,7 @@ createHybridArcVariationalEquationsSolver< long double, Time >(
 template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< long double, double > >
 createHybridArcVariationalEquationsSolver< long double, double >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -199,7 +199,7 @@ createMultiArcVariationalEquationsSolver< long double, double >(
 template std::shared_ptr< propagators::VariationalEquationsSolver< double, Time > >
 createVariationalEquationsSolver< double, Time >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -210,7 +210,7 @@ createVariationalEquationsSolver< double, Time >(
 template std::shared_ptr< propagators::VariationalEquationsSolver< long double, Time > >
 createVariationalEquationsSolver< long double, Time >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
@@ -221,15 +221,14 @@ createVariationalEquationsSolver< long double, Time >(
 template std::shared_ptr< propagators::VariationalEquationsSolver< long double, double > >
 createVariationalEquationsSolver< long double, double >(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings,
         const bool clearNumericalSolution,
         const bool integrateEquationsOnCreation );
-
-#endif
+ #endif
 
 } // namespace simulation_setup
 

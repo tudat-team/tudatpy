@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
     }
 
     // Use final calculations to compute covariance as a function of time
-    std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceMatrixAsFunctionOfTime(
+    std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
                 podData.second, podData.first, 86400.0 - 1.0 );
 
     // Check consistency

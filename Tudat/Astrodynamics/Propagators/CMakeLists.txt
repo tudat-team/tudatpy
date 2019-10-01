@@ -30,6 +30,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/propagateCovariance.cpp"
 )
 
 # Add header files.
@@ -57,6 +58,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionExponentialMapStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${PROPAGATORSDIR}/getZeroProperModeRotationalInitialState.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagateCovariance.h"
 )
 
 # Add static libraries.

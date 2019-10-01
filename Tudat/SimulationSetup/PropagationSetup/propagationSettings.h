@@ -456,7 +456,7 @@ public:
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
             this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) ) =
-                     singleArcSettings_.at( i )->getInitialStates( );
+                    singleArcSettings_.at( i )->getInitialStates( );
             currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
         }
     }
@@ -1222,37 +1222,38 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
                         "Error when making multi-arc propagator settings from single arc. Translational input not consistent." );
         }
 
-        // Check multi-arc consistency
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > firstArcTranslationalSettings =
-                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
-                    multiArcSettings->getSingleArcSettings( ).at( 0 ) );
-        if( firstArcTranslationalSettings == nullptr )
-        {
-            throw std::runtime_error(
-                        "Error when making multi-arc propagator settings from single arc. Multi-arc input not consistent with single-arc (translational)." );
-        }
-
-        // Create full list of central bodies
-        std::vector< std::string > multiArcCentralBodies = firstArcTranslationalSettings->centralBodies_;
-        std::vector< std::string > fullCentralBodies = singleArcTranslationalSettings->centralBodies_;
-        fullCentralBodies.insert( fullCentralBodies.end( ), multiArcCentralBodies.begin( ), multiArcCentralBodies.end( ) );
-
-        // Create full accelerations map
-        basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = firstArcTranslationalSettings->getAccelerationsMap( );
-        basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->getAccelerationsMap( );
-        fullAccelerationsMap.insert( multiArcAccelerationsMap.begin( ), multiArcAccelerationsMap.end( ) );
-
-        // Create full list of propagated bodies
-        std::vector< std::string > multiArcBodiesToIntegrate = firstArcTranslationalSettings->bodiesToIntegrate_;
-        std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
-        fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
-
-        // Create full initial state list
-        int fullSingleArcSize = 6 * fullCentralBodies.size( );
-        int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
-        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialBodyStatesList;
+        // Create list of single-arc settings
         for( int i = 0; i < numberofArcs; i++ )
         {
+            // Check multi-arc consistency
+            std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > currentArcTranslationalSettings =
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                        multiArcSettings->getSingleArcSettings( ).at( i ) );
+            if( currentArcTranslationalSettings == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when making multi-arc propagator settings from single arc. Multi-arc input not consistent with single-arc (translational)." );
+            }
+
+            // Create full list of central bodies
+            std::vector< std::string > multiArcCentralBodies = currentArcTranslationalSettings->centralBodies_;
+            std::vector< std::string > fullCentralBodies = singleArcTranslationalSettings->centralBodies_;
+            fullCentralBodies.insert( fullCentralBodies.end( ), multiArcCentralBodies.begin( ), multiArcCentralBodies.end( ) );
+
+            // Create full accelerations map
+            basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = currentArcTranslationalSettings->getAccelerationsMap( );
+            basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->getAccelerationsMap( );
+            fullAccelerationsMap.insert( multiArcAccelerationsMap.begin( ), multiArcAccelerationsMap.end( ) );
+
+            // Create full list of propagated bodies
+            std::vector< std::string > multiArcBodiesToIntegrate = currentArcTranslationalSettings->bodiesToIntegrate_;
+            std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
+            fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
+
+            // Create full initial state list
+            int fullSingleArcSize = 6 * fullCentralBodies.size( );
+            int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
+
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
 
@@ -1270,41 +1271,38 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             // Get existing multi-arc initial states
             currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
                     multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
-            initialBodyStatesList.push_back( currentArcInitialStates );
-        }
 
-        TranslationalPropagatorType propagatorToUse = firstArcTranslationalSettings->propagator_;
 
-        // Retrieve dependent variables that are to be saved.
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > multiArcDependentVariablesToSave;
-        if( firstArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
-        {
-            multiArcDependentVariablesToSave  = firstArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
-        }
-        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > fullDependentVariablesToSave;
-        if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
-        {
-            fullDependentVariablesToSave = singleArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
-        }
-        fullDependentVariablesToSave.insert(
-                    fullDependentVariablesToSave.end( ), multiArcDependentVariablesToSave.begin( ),
-                    multiArcDependentVariablesToSave.end( ) );
+            TranslationalPropagatorType propagatorToUse = currentArcTranslationalSettings->propagator_;
 
-        // Create dependent variables object
-        std::shared_ptr< DependentVariableSaveSettings > fullDependentVariablesObject;
-        if( fullDependentVariablesToSave.size( ) > 0 )
-        {
-            fullDependentVariablesObject = std::make_shared< DependentVariableSaveSettings >(
-                        fullDependentVariablesToSave, true );
-        }
+            // Retrieve dependent variables that are to be saved.
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > multiArcDependentVariablesToSave;
+            if( currentArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
+            {
+                multiArcDependentVariablesToSave  = currentArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+            }
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > fullDependentVariablesToSave;
+            if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
+            {
+                fullDependentVariablesToSave = singleArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+            }
+            fullDependentVariablesToSave.insert(
+                        fullDependentVariablesToSave.end( ), multiArcDependentVariablesToSave.begin( ),
+                        multiArcDependentVariablesToSave.end( ) );
 
-        // Create list of single-arc settings
-        for( int i = 0; i < numberofArcs; i++ )
-        {
+            // Create dependent variables object
+            std::shared_ptr< DependentVariableSaveSettings > fullDependentVariablesObject;
+            if( fullDependentVariablesToSave.size( ) > 0 )
+            {
+                fullDependentVariablesObject = std::make_shared< DependentVariableSaveSettings >(
+                            fullDependentVariablesToSave, true );
+            }
+
+
             constituentSingleArcSettings.push_back(
                         std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
                             fullCentralBodies, fullAccelerationsMap, fullBodiesToIntegrate,
-                            initialBodyStatesList.at( i ),
+                            currentArcInitialStates,
                             multiArcSettings->getSingleArcSettings( ).at( i )->getTerminationSettings( ), propagatorToUse,
                             fullDependentVariablesObject, singleArcTranslationalSettings->getPrintInterval( ) ) );
         }
@@ -1801,7 +1799,7 @@ void resetSingleArcInitialStates(
         {
             if( currentArcInitialStates.at( translational_state ).count( std::make_pair( propagatedBodies.at( i ), "" ) ) == 0 )
             {
-                    throw std::runtime_error(
+                throw std::runtime_error(
                             "Error when resetting initial translational state from sorted data, did not find body " + propagatedBodies.at( i ) );
             }
 

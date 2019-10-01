@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/fullPlanetaryRotationModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -828,6 +829,64 @@ private:
     //! List of rotation matrix partial derivatives w.r.t. rotational state vector, as last computed by
     //! calculatePartialOfRotationMatrixToBaseFrameWrParameter
     std::vector< Eigen::Matrix3d > currentQuaternionPartials_;
+};
+
+//! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the translational state for synchronous rotation
+/*!
+ *  Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the translational state for a synchronous
+ *  rotation model
+ */
+class SynchronousRotationMatrixPartialWrtTranslationalState: public RotationMatrixPartial
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param synchronousRotationaModel Rotation model that defines the synchronous rotation
+     */
+    SynchronousRotationMatrixPartialWrtTranslationalState(
+            const std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel ):
+        RotationMatrixPartial( synchronousRotationaModel ),
+        synchronousRotationaModel_( synchronousRotationaModel )
+    {
+
+    }
+
+    //! Destructor
+    ~SynchronousRotationMatrixPartialWrtTranslationalState( ){ }
+
+    //! Function to compute the required partial derivative of rotation matrix.
+    /*!
+     * Function to compute the partial derivative of rotation matrix from a body-fixed to inertial frame w.r.t.
+     * the translational state
+     * \param time Time at which partials are to be computed
+     * \return Vector of size 6 containing partials of rotation matrix from body-fixed to inertial frame w.r.t. the six
+     * inertial Cartesian translational state elements.
+     */
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time );
+
+    //! Function to compute the required partial derivative of rotation matrix derivative.
+    /*!
+     * Function to compute the partial derivative of derivative of rotation matrix from a body-fixed to inertial frame w.r.t.
+     * the rotational state vector. NOTE: function not yet implemented
+     * \param time Time at which partials are to be computed
+     * \return Vector of size 7 containing partials of rotation matrix derivative from body-fixed to inertial frame w.r.t. the
+     * rotational state vector
+     */
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
+
+    }
+
+
+private:
+
+    //! Rotation model that defines the synchronous rotation
+    std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel_;
+
 };
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.

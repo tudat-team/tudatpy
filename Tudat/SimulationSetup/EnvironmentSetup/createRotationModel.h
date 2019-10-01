@@ -39,11 +39,8 @@ enum RotationModelType
     simple_rotation_model,
     spice_rotation_model,
     gcrs_to_itrs_rotation_model,
-<<<<<<< HEAD
-    synchronous_rotation_model
-=======
+    synchronous_rotation_model,
     planetary_rotation_model
->>>>>>> marie-origin/fullPlanetaryRotationalModel
 };
 
 //! Class for providing settings for rotation model.
@@ -342,7 +339,7 @@ private:
 };
 #endif
 
-<<<<<<< HEAD
+
 //! RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
 //! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
 class SynchronousRotationModelSettings: public RotationModelSettings
@@ -406,210 +403,223 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
         const NamedBodyMap& bodyMap,
         const std::string orbitingBody,
         const std::string centralBody );
-=======
+
 class PlanetaryRotationModelSettings: public RotationModelSettings
+{
+public:
+    PlanetaryRotationModelSettings( const double angleN,
+                                    const double angleJ,
+                                    const double anglePsiAtEpoch,
+                                    const double anglePsiRateAtEpoch,
+                                    const double angleIAtEpoch,
+                                    const double angleIRateAtEpoch,
+                                    const double anglePhiAtEpoch,
+                                    const double anglePhiRateAtEpoch,
+                                    const double coreFactor,
+                                    const double freeCoreNutationRate,
+                                    const std::string originalFrame,
+                                    const std::string targetFrame,
+                                    const std::string centralBody,
+                                    const double initialTime,
+                                    const double finalTime,
+                                    const double timeStep = 150.0,
+                                    const std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections =
+            ( std::map< double, std::pair< double, double > >( ) ),
+                                    std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections =
+            ( std::vector< std::map< double, std::pair< double, double > > > ( ) ),
+                                    std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions =
+            ( std::vector< std::function< double( const double ) > >( ) ),
+                                    const std::map< double, std::pair< double, double > > rotationRateCorrections =
+            ( std::map< double, std::pair< double, double > >( ) ),
+                                    const std::map< double, std::pair< double, double > > xPolarMotionCoefficients =
+            ( std::map< double, std::pair< double, double > >( ) ),
+                                    const std::map< double, std::pair< double, double > > yPolarMotionCoefficients =
+            ( std::map< double, std::pair< double, double > >( ) ) ):
+
+        RotationModelSettings( planetary_rotation_model, originalFrame, targetFrame ),
+        angleN_( angleN ), angleJ_( angleJ ), anglePsiAtEpoch_( anglePsiAtEpoch ), anglePsiRateAtEpoch_( anglePsiRateAtEpoch ),
+        angleIAtEpoch_( angleIAtEpoch ), angleIRateAtEpoch_( angleIRateAtEpoch ), anglePhiAtEpoch_( anglePhiAtEpoch ),
+        anglePhiRateAtEpoch_( anglePhiRateAtEpoch ), coreFactor_( coreFactor ), freeCoreNutationRate_( freeCoreNutationRate ),
+        meanMotionDirectNutationCorrections_( meanMotionDirectNutationCorrections ),
+        meanMotionTimeDependentPhaseNutationCorrections_( meanMotionTimeDependentPhaseNutationCorrections ),
+        timeDependentPhaseCorrectionFunctions_( timeDependentPhaseCorrectionFunctions ),
+        rotationRateCorrections_( rotationRateCorrections ),
+        xPolarMotionCoefficients_( xPolarMotionCoefficients ), yPolarMotionCoefficients_( yPolarMotionCoefficients ),
+        centralBody_( centralBody ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+
+    void updateAnglesAtEpoch( Eigen::Vector3d anglesAtEpoch )
     {
-    public:
-        PlanetaryRotationModelSettings( const double angleN,
-                                       const double angleJ,
-                                       const double anglePsiAtEpoch,
-                                       const double anglePsiRateAtEpoch,
-                                       const double angleIAtEpoch,
-                                       const double angleIRateAtEpoch,
-                                       const double anglePhiAtEpoch,
-                                       const double anglePhiRateAtEpoch,
-                                       const double coreFactor,
-                                       const double freeCoreNutationRate,
-                                       const std::string originalFrame,
-                                       const std::string targetFrame,
-                                       const std::string centralBody,
-                                       const double initialTime,
-                                       const double finalTime,
-                                       const double timeStep = 150.0,
-                                       const std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections =
-                                       ( std::map< double, std::pair< double, double > >( ) ),
-                                       std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections =
-                                       ( std::vector< std::map< double, std::pair< double, double > > > ( ) ),
-                                       std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions =
-                                       ( std::vector< std::function< double( const double ) > >( ) ),
-                                       const std::map< double, std::pair< double, double > > rotationRateCorrections =
-                                       ( std::map< double, std::pair< double, double > >( ) ),
-                                       const std::map< double, std::pair< double, double > > xPolarMotionCoefficients =
-                                       ( std::map< double, std::pair< double, double > >( ) ),
-                                       const std::map< double, std::pair< double, double > > yPolarMotionCoefficients =
-                                       ( std::map< double, std::pair< double, double > >( ) ) ):
+        anglePsiAtEpoch_ = anglesAtEpoch.x( );
+        angleIAtEpoch_ = anglesAtEpoch.y( );
+        anglePhiAtEpoch_ = anglesAtEpoch.z( );
+    }
 
-            RotationModelSettings( planetary_rotation_model, originalFrame, targetFrame ),
-            angleN_( angleN ), angleJ_( angleJ ), anglePsiAtEpoch_( anglePsiAtEpoch ), anglePsiRateAtEpoch_( anglePsiRateAtEpoch ),
-            angleIAtEpoch_( angleIAtEpoch ), angleIRateAtEpoch_( angleIRateAtEpoch ), anglePhiAtEpoch_( anglePhiAtEpoch ),
-            anglePhiRateAtEpoch_( anglePhiRateAtEpoch ), coreFactor_( coreFactor ), freeCoreNutationRate_( freeCoreNutationRate ),
-            meanMotionDirectNutationCorrections_( meanMotionDirectNutationCorrections ),
-            meanMotionTimeDependentPhaseNutationCorrections_( meanMotionTimeDependentPhaseNutationCorrections ),
-            timeDependentPhaseCorrectionFunctions_( timeDependentPhaseCorrectionFunctions ),
-            rotationRateCorrections_( rotationRateCorrections ),
-            xPolarMotionCoefficients_( xPolarMotionCoefficients ), yPolarMotionCoefficients_( yPolarMotionCoefficients ),
-            centralBody_( centralBody ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+    double getAngleN( )
+    {
+        return angleN_;
+    }
 
-        void updateAnglesAtEpoch( Eigen::Vector3d anglesAtEpoch )
-        {
-            anglePsiAtEpoch_ = anglesAtEpoch.x( );
-            angleIAtEpoch_ = anglesAtEpoch.y( );
-            anglePhiAtEpoch_ = anglesAtEpoch.z( );
-        }
+    double getAngleJ( )
+    {
+        return angleJ_;
+    }
 
-        double getAngleN( )
-        {
-            return angleN_;
-        }
+    double getAnglePsiAtEpoch( )
+    {
+        return anglePsiAtEpoch_;
+    }
+    double getAnglePsiRateAtEpoch( )
+    {
+        return anglePsiRateAtEpoch_;
+    }
 
-        double getAngleJ( )
-        {
-            return angleJ_;
-        }
+    double getAngleIAtEpoch( )
+    {
+        return angleIAtEpoch_;
+    }
 
-        double getAnglePsiAtEpoch( )
-        {
-            return anglePsiAtEpoch_;
-        }
-        double getAnglePsiRateAtEpoch( )
-        {
-            return anglePsiRateAtEpoch_;
-        }
+    double getAngleIRateAtEpoch( )
+    {
+        return angleIRateAtEpoch_;
+    }
 
-        double getAngleIAtEpoch( )
-        {
-            return angleIAtEpoch_;
-        }
+    double getAnglePhiAtEpoch( )
+    {
+        return anglePhiAtEpoch_;
+    }
 
-        double getAngleIRateAtEpoch( )
-        {
-            return angleIRateAtEpoch_;
-        }
+    double getAnglePhiRateAtEpoch( )
+    {
+        return anglePhiRateAtEpoch_;
+    }
 
-        double getAnglePhiAtEpoch( )
-        {
-            return anglePhiAtEpoch_;
-        }
+    double getCoreFactor()
+    {
+        return coreFactor_;
+    }
 
-        double getAnglePhiRateAtEpoch( )
-        {
-            return anglePhiRateAtEpoch_;
-        }
+    double getFreeCoreNutationRate()
+    {
+        return freeCoreNutationRate_;
+    }
 
-        double getCoreFactor()
-        {
-            return coreFactor_;
-        }
+    std::map< double, std::pair< double, double > > getMeanMotionDirectNutationCorrections( )
+    {
+        return meanMotionDirectNutationCorrections_;
+    }
 
-        double getFreeCoreNutationRate()
-        {
-            return freeCoreNutationRate_;
-        }
+    std::vector< std::map< double, std::pair< double, double > > > getMeanMotionTimeDependentPhaseNutationCorrections( )
+    {
+        return meanMotionTimeDependentPhaseNutationCorrections_;
+    }
 
-        std::map< double, std::pair< double, double > > getMeanMotionDirectNutationCorrections( )
-        {
-            return meanMotionDirectNutationCorrections_;
-        }
+    std::vector< std::function< double( const double ) > > getTimeDependentPhaseCorrectionFunctions( )
+    {
+        return timeDependentPhaseCorrectionFunctions_;
+    }
 
-        std::vector< std::map< double, std::pair< double, double > > > getMeanMotionTimeDependentPhaseNutationCorrections( )
-        {
-            return meanMotionTimeDependentPhaseNutationCorrections_;
-        }
+    std::map< double, std::pair< double, double > > getRotationRateCorrections( )
+    {
+        return rotationRateCorrections_;
+    }
 
-        std::vector< std::function< double( const double ) > > getTimeDependentPhaseCorrectionFunctions( )
-        {
-            return timeDependentPhaseCorrectionFunctions_;
-        }
+    std::map< double, std::pair< double, double > > getxPolarMotionCoefficients( )
+    {
+        return xPolarMotionCoefficients_;
+    }
 
-        std::map< double, std::pair< double, double > > getRotationRateCorrections( )
-        {
-            return rotationRateCorrections_;
-        }
+    std::map< double, std::pair< double, double > > getyPolarMotionCoefficients( )
+    {
+        return yPolarMotionCoefficients_;
+    }
 
-        std::map< double, std::pair< double, double > > getxPolarMotionCoefficients( )
-        {
-            return xPolarMotionCoefficients_;
-        }
+    double getInitialTime( )
+    {
+        return initialTime_;
+    }
 
-        std::map< double, std::pair< double, double > > getyPolarMotionCoefficients( )
-        {
-            return yPolarMotionCoefficients_;
-        }
+    double getFinalTime( )
+    {
+        return finalTime_;
+    }
 
-        double getInitialTime( )
-        {
-            return initialTime_;
-        }
+    double getTimeStep( )
+    {
+        return timeStep_;
+    }
 
-        double getFinalTime( )
-        {
-            return finalTime_;
-        }
+    std::string getCentralBody( )
+    {
+        return centralBody_;
+    }
 
-        double getTimeStep( )
-        {
-            return timeStep_;
-        }
+    void setPeriodTermsToZero( )
+    {
+        meanMotionDirectNutationCorrections_.clear( );
+        meanMotionTimeDependentPhaseNutationCorrections_.clear( );
+        timeDependentPhaseCorrectionFunctions_.clear( );
+        rotationRateCorrections_.clear( );
+        xPolarMotionCoefficients_.clear( );
+        yPolarMotionCoefficients_.clear( );
+    }
 
-        std::string getCentralBody( )
-        {
-            return centralBody_;
-        }
+    void setPeriodTerms( std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections,
+                         std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrection,
+                         std::map< double, std::pair< double, double > > rotationRateCorrections,
+                         std::map< double, std::pair< double, double > > xPolarMotionCoefficients,
+                         std::map< double, std::pair< double, double > > yPolarMotionCoefficients)
+    {
+        meanMotionDirectNutationCorrections_ = meanMotionDirectNutationCorrections;
+        meanMotionTimeDependentPhaseNutationCorrections_ = meanMotionTimeDependentPhaseNutationCorrection;
+        rotationRateCorrections_ = rotationRateCorrections;
+        xPolarMotionCoefficients_ = xPolarMotionCoefficients;
+        yPolarMotionCoefficients_ = yPolarMotionCoefficients;
+    }
 
-        void setPeriodTermsToZero( )
-        {
-            meanMotionDirectNutationCorrections_.clear( );
-            meanMotionTimeDependentPhaseNutationCorrections_.clear( );
-            timeDependentPhaseCorrectionFunctions_.clear( );
-            rotationRateCorrections_.clear( );
-            xPolarMotionCoefficients_.clear( );
-            yPolarMotionCoefficients_.clear( );
-        }
+    void setCoreFactorAndFreeCoreNutation ( double coreFactor, double freeCoreNutationRate )
+    {
+        coreFactor_ = coreFactor;
+        freeCoreNutationRate_ = freeCoreNutationRate;
+    }
 
-        void setPeriodTerms( std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections,
-                             std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrection,
-                             std::map< double, std::pair< double, double > > rotationRateCorrections,
-                             std::map< double, std::pair< double, double > > xPolarMotionCoefficients,
-                             std::map< double, std::pair< double, double > > yPolarMotionCoefficients)
-        {
-            meanMotionDirectNutationCorrections_ = meanMotionDirectNutationCorrections;
-            meanMotionTimeDependentPhaseNutationCorrections_ = meanMotionTimeDependentPhaseNutationCorrection;
-            rotationRateCorrections_ = rotationRateCorrections;
-            xPolarMotionCoefficients_ = xPolarMotionCoefficients;
-            yPolarMotionCoefficients_ = yPolarMotionCoefficients;
-        }
+private:
+    double angleN_;
+    double angleJ_;
+    double anglePsiAtEpoch_;
+    double anglePsiRateAtEpoch_;
+    double angleIAtEpoch_;
+    double angleIRateAtEpoch_;
+    double anglePhiAtEpoch_;
+    double anglePhiRateAtEpoch_;
+    double coreFactor_;
+    double freeCoreNutationRate_;
+    std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections_;
+    std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections_;
+    std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions_;
+    std::map< double, std::pair< double, double > > rotationRateCorrections_;
+    std::map< double, std::pair< double, double > > xPolarMotionCoefficients_;
+    std::map< double, std::pair< double, double > > yPolarMotionCoefficients_;
 
-        void setCoreFactorAndFreeCoreNutation ( double coreFactor, double freeCoreNutationRate )
-        {
-            coreFactor_ = coreFactor;
-            freeCoreNutationRate_ = freeCoreNutationRate;
-        }
+    std::string centralBody_;
 
-    private:
-        double angleN_;
-        double angleJ_;
-        double anglePsiAtEpoch_;
-        double anglePsiRateAtEpoch_;
-        double angleIAtEpoch_;
-        double angleIRateAtEpoch_;
-        double anglePhiAtEpoch_;
-        double anglePhiRateAtEpoch_;
-        double coreFactor_;
-        double freeCoreNutationRate_;
-        std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections_;
-        std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections_;
-        std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions_;
-        std::map< double, std::pair< double, double > > rotationRateCorrections_;
-        std::map< double, std::pair< double, double > > xPolarMotionCoefficients_;
-        std::map< double, std::pair< double, double > > yPolarMotionCoefficients_;
+    double initialTime_;
+    double finalTime_;
+    double timeStep_;
+};
 
-        std::string centralBody_;
 
-        double initialTime_;
-        double finalTime_;
-        double timeStep_;
-    };
->>>>>>> marie-origin/fullPlanetaryRotationalModel
+//! Function to create a state function for a body, valid both during propagation, and outside propagation
+/*!
+ * Function to create a state function for a body, valid both during propagation, and outside propagation
+ * \param bodyMap List of body objects
+ * \param orbitingBody Body for which state function is to be created
+ * \param centralBody Central body w.r.t. which state function is to be created
+ * \return Required state function
+ */
+std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
+        const NamedBodyMap& bodyMap,
+        const std::string orbitingBody,
+        const std::string centralBody );
 
 //! Function to create a rotation model.
 /*!

@@ -202,6 +202,8 @@ const std::string Keys::Body::RotationModel::initialOrientation = "initialOrient
 const std::string Keys::Body::RotationModel::initialTime = "initialTime";
 const std::string Keys::Body::RotationModel::rotationRate = "rotationRate";
 const std::string Keys::Body::RotationModel::precessionNutationTheory = "precessionNutationTheory";
+const std::string Keys::Body::RotationModel::centralBodyName = "centralBodyName";
+
 
 // //  Body::ShapeModel
 const std::string Keys::Body::shapeModel = "shapeModel";

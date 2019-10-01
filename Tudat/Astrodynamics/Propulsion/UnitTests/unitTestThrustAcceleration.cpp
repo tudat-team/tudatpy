@@ -2050,7 +2050,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap, accelerationModelMap );
+            createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
 
     // Create simulation object and propagate dynamics.
     SingleArcVariationalEquationsSolver< > dynamicsSimulator(

@@ -27,7 +27,8 @@ static std::map< RotationModelType, std::string > rotationModelTypes =
 {
     { simple_rotation_model, "simple" },
     { spice_rotation_model, "spice" },
-    { gcrs_to_itrs_rotation_model, "gcrsToItrs" }
+    { gcrs_to_itrs_rotation_model, "gcrsToItrs" },
+    { synchronous_rotation_model, "synchronous" }
 };
 
 //! `RotationModelType`s not supported by `json_interface`.

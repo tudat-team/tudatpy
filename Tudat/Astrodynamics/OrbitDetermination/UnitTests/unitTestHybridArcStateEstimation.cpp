@@ -51,8 +51,6 @@ using namespace tudat::unit_conversions;
 template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
 Eigen::VectorXd  executeParameterEstimation(
         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
-        const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 2 ),
-        const bool propagateVariationalEquations = 1,
         const bool patchMultiArcs = 0,
         const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > forcedMultiArcInitialStates =
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
@@ -248,21 +246,21 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Define links and observables in simulation.
     std::vector< LinkEnds > linkEnds2;
-    linkEnds2.resize( 4 );
+    linkEnds2.resize( 2 );
     linkEnds2[ 0 ][ transmitter ] = grazStation;
     linkEnds2[ 0 ][ receiver ] = std::make_pair( "Orbiter", "" );
 
     linkEnds2[ 1 ][ receiver ] = grazStation;
     linkEnds2[ 1 ][ transmitter ] = std::make_pair( "Orbiter", "" );
 
-    linkEnds2[ 2 ][ transmitter ] = grazStation;
-    linkEnds2[ 2 ][ receiver ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 2 ][ transmitter ] = grazStation;
+//    linkEnds2[ 2 ][ receiver ] = std::make_pair( "Mars", "" );
 
-    linkEnds2[ 3 ][ receiver ] = grazStation;
-    linkEnds2[ 3 ][ transmitter ] = std::make_pair( "Mars", "" );
+//    linkEnds2[ 3 ][ receiver ] = grazStation;
+//    linkEnds2[ 3 ][ transmitter ] = std::make_pair( "Mars", "" );
 
     observation_models::ObservationSettingsMap observationSettingsMap;
-    for( unsigned int i = 0; i  < 4; i++ )
+    for( unsigned int i = 0; i  < linkEnds2.size( ); i++ )
     {
         observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationSettings >(
                                                            one_way_range ) ) );
@@ -299,7 +297,7 @@ Eigen::VectorXd  executeParameterEstimation(
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
-    for( unsigned int i = 0; i < 4; i++ )
+    for( unsigned int i = 0; i < linkEnds2.size( ); i++ )
     {
         measurementSimulationInput[ one_way_range ][ linkEnds2[ i ] ] = std::make_pair( initialObservationTimes, receiver );
         measurementSimulationInput[ angular_position ][ linkEnds2[ i ] ] = std::make_pair( initialObservationTimes, receiver );
@@ -351,7 +349,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Estimate parameters and return postfit error
     std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput );
+                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
 //    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
 //    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
@@ -368,6 +366,7 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( );
     int numberOfEstimatedArcs = ( parameterError.rows( ) - 8 ) / 6;
 
+    std::cout<<std::endl<<std::endl<<"Final error: "<<parameterError.transpose( )<<std::endl;
     // Test error range: 2 m in-plane position and 1 micron/s in-plane velocity for Mars
     for( unsigned int j = 0; j < 2; j++ )
     {

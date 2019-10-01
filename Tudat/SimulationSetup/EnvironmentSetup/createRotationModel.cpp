@@ -214,40 +214,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         break;
     }
 #endif
-<<<<<<< HEAD
-    case synchronous_rotation_model:
-    {
-        std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings =
-                std::dynamic_pointer_cast< SynchronousRotationModelSettings >( rotationModelSettings );
-        if( synchronousRotationSettings == NULL )
-        {
-            throw std::runtime_error( "Error, expected synchronous rotation model settings for " + body );
-        }
-        else
-        {
-            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
-            {
-                if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
-                        synchronousRotationSettings->getOriginalFrame( ) )
-                {
-                    throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
-                                              bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
-                                              " frame when making synchronous rotation model, expected " +
-                                              synchronousRotationSettings->getOriginalFrame( ) + " frame." );
-                }
-            }
-            std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationalEphemeris = std::make_shared< SynchronousRotationalEphemeris >(
-                        createRelativeStateFunction( bodyMap, body, synchronousRotationSettings->getCentralBodyName( ) ),
-                        synchronousRotationSettings->getCentralBodyName( ),
-                        synchronousRotationSettings->getOriginalFrame( ),
-                        synchronousRotationSettings->getTargetFrame( ) );
-
-            rotationalEphemeris = synchronousRotationalEphemeris;
-        }
-        break;
-    }
-=======
-
     case planetary_rotation_model:
     {
         std::shared_ptr< PlanetaryRotationModelSettings > planetaryRotationModelSettings =
@@ -301,8 +267,37 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
         break;
     }
+    case synchronous_rotation_model:
+    {
+        std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings =
+                std::dynamic_pointer_cast< SynchronousRotationModelSettings >( rotationModelSettings );
+        if( synchronousRotationSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected synchronous rotation model settings for " + body );
+        }
+        else
+        {
+            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
+            {
+                if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
+                        synchronousRotationSettings->getOriginalFrame( ) )
+                {
+                    throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
+                                              bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
+                                              " frame when making synchronous rotation model, expected " +
+                                              synchronousRotationSettings->getOriginalFrame( ) + " frame." );
+                }
+            }
+            std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationalEphemeris = std::make_shared< SynchronousRotationalEphemeris >(
+                        createRelativeStateFunction( bodyMap, body, synchronousRotationSettings->getCentralBodyName( ) ),
+                        synchronousRotationSettings->getCentralBodyName( ),
+                        synchronousRotationSettings->getOriginalFrame( ),
+                        synchronousRotationSettings->getTargetFrame( ) );
 
->>>>>>> marie-origin/fullPlanetaryRotationalModel
+            rotationalEphemeris = synchronousRotationalEphemeris;
+        }
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, did not recognize rotation model settings type " +

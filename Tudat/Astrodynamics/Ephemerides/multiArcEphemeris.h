@@ -72,6 +72,7 @@ public:
     Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch )
     {
+
         return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
                 getCartesianState( double( secondsSinceEpoch ) );
     }

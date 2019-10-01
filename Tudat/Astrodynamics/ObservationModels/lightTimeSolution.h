@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <boost/make_shared.hpp>
+#include <boost/lexical_cast.hpp>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -358,7 +359,7 @@ public:
                     isToleranceReached = true;
                     std::string errorMessage  =
                             "Warning, light time unconverged at level " +
-                            std::to_string(
+                            boost::lexical_cast< std::string >(
                                 std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                             "; current light-time corrections are: "  +
                             std::to_string( currentCorrection_ ) + " and input time was " +
