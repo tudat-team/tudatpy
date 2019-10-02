@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                               1.0E10, 1.0E10, 1.0E10, 5.0E4, 5.0E4, 10.0E4,
                               10.0, 10.0, 10.0, 0.1, 0.1, 0.1 ).finished( );
 
-    for( unsigned int patchArcs = 0; patchArcs < 2; patchArcs++ )
+    for( unsigned int patchArcs = 0; patchArcs < 1; patchArcs++ )
     {
         // Test for all requested propagator types.
         for( unsigned int k = 0; k < 1; k++ )

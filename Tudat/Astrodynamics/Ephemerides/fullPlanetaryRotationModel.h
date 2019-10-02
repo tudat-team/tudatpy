@@ -23,16 +23,16 @@
 
 namespace tudat
 {
-    
+
     namespace ephemerides
     {
-        
+
         class PlanetaryOrientationAngleCalculator
         {
         public:
             PlanetaryOrientationAngleCalculator( )
             { }
-            
+
             PlanetaryOrientationAngleCalculator(
                     const double anglePsiAtEpoch, const double anglePsiRateAtEpoch, const double angleIAtEpoch,
                     const double angleIRateAtEpoch, const double anglePhiAtEpoch, const double anglePhiRateAtEpoch,
@@ -74,7 +74,7 @@ namespace tudat
                 rotationRateCorrections_( rotationRateCorrections ),
                 xPolarMotionCoefficients_( xPolarMotionCoefficients ),
                 yPolarMotionCoefficients_( yPolarMotionCoefficients ){ }
-            
+
             Eigen::Vector3d updateAndGetRotationAngles( const double ephemerisTime )
             {
                 //if( std::fabs( currentEphemerisTime_ - ephemerisTime ) > 1.0E-8 )
@@ -83,29 +83,29 @@ namespace tudat
                 }
                 return ( Eigen::Vector3d( ) << currentAnglePsi_, currentAngleI_, currentAnglePhi_ ).finished( );
             }
-            
+
             Eigen::Quaterniond getRotationMatrixFromMeanOfDateEquatorToInertialPlanetCenteredAtEpoch( const double ephemerisTime )
             {
                 return Eigen::Quaterniond(
                             Eigen::AngleAxisd( anglePsiAtEpoch_ + ephemerisTime * anglePsiRateAtEpoch_, Eigen::Vector3d::UnitZ( ) )  *
                             Eigen::AngleAxisd( angleIAtEpoch_ + ephemerisTime * angleIRateAtEpoch_, Eigen::Vector3d::UnitX( ) ) );
             }
-            
+
             double getCurrentAnglePsi( )
             {
                 return currentAnglePsi_;
             }
-            
+
             double getCurrentAngleI( )
             {
                 return currentAngleI_;
             }
-            
+
             double getCurrentAnglePhi( )
             {
                 return currentAnglePhi_;
             }
-            
+
             double getMeanPhiAngleDerivative( )
             {
                 return anglePhiRateAtEpoch_;
@@ -120,17 +120,17 @@ namespace tudat
             {
                 return freeCoreNutationRate_;
             }
-            
+
             std::string getBaseFrame( )
             {
                 return baseFrame_;
             }
-            
+
             double getAnglePsiRateAtEpoch( )
             {
                 return anglePsiRateAtEpoch_;
             }
-            
+
             void setAnglePsiRateAtEpoch( const double anglePsiRateAtEpoch )
             {
                 anglePsiRateAtEpoch_ = anglePsiRateAtEpoch;
@@ -139,7 +139,7 @@ namespace tudat
 
             Eigen::Vector2d getPolarMotion( const double ephemerisTime )
             {
-                    calculatePolarMotion( ephemerisTime );                  
+                    calculatePolarMotion( ephemerisTime );
                     return ( Eigen::Vector2d( ) << currentXPolarMotion_ , currentYPolarMotion_ ).finished( );
             }
 
@@ -217,27 +217,27 @@ namespace tudat
 
 
         private:
-            
+
             void updateCorrections( const double ephemerisTime );
             void calculatePolarMotion ( const double ephemerisTime );
             void calculateCurrentMeanPhiAngleDerivative( const double ephemerisTime );
-            
+
             double currentEphemerisTime_;
-            
+
             double bodyMeanAnomalyAtEpoch_;
             double bodyMeanMotion_;
-            
+
             double currentAnglePsiCorrection_;
             double currentAngleICorrection_;
             double currentAnglePhiCorrection_;
-            
+
             double currentAnglePsi_;
             double currentAngleI_;
             double currentAnglePhi_;
             double currentXPolarMotion_;
             double currentYPolarMotion_;
             double currentMeanPhiAngleDerivative_;
-            
+
             double anglePsiAtEpoch_;
             double anglePsiRateAtEpoch_;
             double angleIAtEpoch_;
@@ -246,15 +246,15 @@ namespace tudat
             double anglePhiRateAtEpoch_;
             double coreFactor_;
             double freeCoreNutationRate_;
-            
+
             std::string baseFrame_;
-            
+
             std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections_;
-            
+
             std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections_;
-            
+
             std::vector< std::function< double( const double ) > > phaseAngleCorrectionFunctions_;
-            
+
             std::map< double, std::pair< double, double > > rotationRateCorrections_;
 
             std::map< double, std::pair< double, double > > xPolarMotionCoefficients_;
@@ -262,13 +262,13 @@ namespace tudat
             std::map< double, std::pair< double, double > > yPolarMotionCoefficients_;
 
         };
-        
+
         std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > >
         createInterpolatorForPlanetaryRotationAngles( double intervalStart,
                                                      double intervalEnd,
                                                      double timeStep,
                                                      std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator );
-        
+
         class PlanetaryRotationModel: public RotationalEphemeris
         {
         public:
@@ -286,26 +286,26 @@ namespace tudat
                 Eigen::AngleAxisd( angleN, Eigen::Vector3d::UnitZ( ) ) *
                 Eigen::AngleAxisd( angleJ, Eigen::Vector3d::UnitX( ) );
             }
-            
+
             Eigen::Quaterniond getPolarMotionRotation( const double ephemerisTime );
 
             Eigen::Quaterniond getRotationFromBodyFixedToIntermediateInertialFrame( const double ephemerisTime );
-            
+
             Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime );
-            
+
             Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime )
             {
                 return getRotationToBaseFrame( ephemerisTime ).inverse( );
             }
-            
+
             Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime );
-            
+
             Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
             {
                 return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ).
                 transpose( );
             }
-            
+
             Eigen::Quaterniond getRotationFromMeanOrbitToIcrf( )
             {
                 return rotationFromMeanOrbitToIcrf_;
@@ -317,15 +317,15 @@ namespace tudat
             }
 
         private:
-            
+
             std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationAnglesCalculator_;
-            
+
             Eigen::Quaterniond rotationFromMeanOrbitToIcrf_;
-                        
+
         };
-        
+
     }
-    
+
 }
 
 #endif // FULLPLANETARYROTATIONMODEL_H

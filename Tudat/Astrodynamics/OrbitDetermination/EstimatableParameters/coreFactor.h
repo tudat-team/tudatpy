@@ -56,7 +56,7 @@ public:
      */
     double getParameterValue( )
     {
-        return rotationModel_->getPlanetaryOrientationAngleCalculator()->getCorefactor();
+        return rotationModel_->getPlanetaryOrientationAngleCalculator( )->getCorefactor( );
     }
 
 
@@ -67,7 +67,7 @@ public:
      */
     void setParameterValue( const double parameterValue )
     {
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetCoreFactor( parameterValue );
+        rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetCoreFactor( parameterValue );
     }
 
 
