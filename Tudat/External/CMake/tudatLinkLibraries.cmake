@@ -46,10 +46,10 @@ endif()
   list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
  endif()
 
- # Find PaGMO library on local system.
- if( USE_PAGMO )
-   list(APPEND TUDAT_EXTERNAL_LIBRARIES pthread)
- endif( )
+# # Find PaGMO library on local system.
+# if( USE_PAGMO )
+#   list(APPEND TUDAT_EXTERNAL_LIBRARIES pthread)
+# endif( )
 
  list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_propagation_setup tudat_trajectory_design tudat_environment_setup tudat_ground_stations tudat_propagators
      tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments

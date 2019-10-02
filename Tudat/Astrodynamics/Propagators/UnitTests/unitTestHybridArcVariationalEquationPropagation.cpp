@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         singleArcAccelerationMap[ singleArcBodiesToPropagate.at( i ) ][ "Jupiter" ].push_back(
                     std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 
-        for( int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
+        for( unsigned int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
         {
             if( i != j )
             {
@@ -678,7 +678,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
                         multiArcBodiesToPropagate.at( 0 ), multiArcPerBodyPropagationSettings->getInitialStates( ),
                         arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ), singleArcBodiesToPropagate.at( i ) ) );
 
-        for( int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
+        for( unsigned int j = 0; j < singleArcBodiesToPropagate.size( ); j++ )
         {
             parameterNamesPerBody.push_back(
                         std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
@@ -702,9 +702,9 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         std::vector< std::map< double, Eigen::VectorXd > > perBodyMultiArcStateSolution =
                 perCentralBodyVariationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-        for( int j = 0; j < perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).size( ); j++ )
+        for( unsigned int j = 0; j < perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).size( ); j++ )
         {
-            for( int k = 0; k < 2; k++ )
+            for( unsigned int k = 0; k < 2; k++ )
             {
                 std::map< double, Eigen::MatrixXd > fullMultiArcMatrixHistory = fullMultiArcVariationalSolution.at(
                             perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).at( j ) ).at( k );
