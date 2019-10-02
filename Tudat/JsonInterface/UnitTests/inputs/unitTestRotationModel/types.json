@@ -1,5 +1,6 @@
 [
   "simple",
   "spice",
-  "gcrsToItrs"
+  "gcrsToItrs",
+  "synchronous"
 ]

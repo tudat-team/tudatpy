@@ -267,20 +267,33 @@ void from_json( const nlohmann::json& jsonObject,
                     bodyName,
                     getValue< Eigen::Matrix< double, 6, 1 > >(
                         jsonObject, K::initialStateValue, Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN ) ),
-                        getValue< std::string >( jsonObject, K::centralBody ),
-                        getValue< std::string >( jsonObject, K::frameOrientation ) );
+                    getValue< std::string >( jsonObject, K::centralBody ),
+                    getValue< std::string >( jsonObject, K::frameOrientation ) );
 
-                return;
+        return;
     }
     case arc_wise_initial_body_state:
     {
-        parameterSettings =
-                std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                    bodyName,
-                    getValue< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( jsonObject, K::initialStateValue ),
-                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
-                    getValue< std::string >( jsonObject, K::centralBody ),
-                    getValue< std::string >( jsonObject, K::frameOrientation ) );
+        try
+        {
+            parameterSettings =
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+                        bodyName,
+                        getValue< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( jsonObject, K::initialStateValue ),
+                        getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+                        getValue< std::string >( jsonObject, K::centralBody ),
+                        getValue< std::string >( jsonObject, K::frameOrientation ) );
+        }
+        catch( std::runtime_error )
+        {
+            parameterSettings =
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+                        bodyName,
+                        getValue< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( jsonObject, K::initialStateValue ),
+                        getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+                        getValue< std::vector< std::string > >( jsonObject, K::centralBody ),
+                        getValue< std::string >( jsonObject, K::frameOrientation ) );
+        }
         return;
     }
     case direct_dissipation_tidal_time_lag:
