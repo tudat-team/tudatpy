@@ -1,7 +1,7 @@
 #ifndef TUDAT_OBLATESPHEROIDBODYSHAPEMODEL_H
 #define TUDAT_OBLATESPHEROIDBODYSHAPEMODEL_H
 
-/*    Copyright (c) 2010-2018, Delft University of Technology
+/*    Copyright (c) 2010-2019, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
