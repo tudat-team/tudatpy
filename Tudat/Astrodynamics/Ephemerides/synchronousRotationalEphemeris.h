@@ -61,7 +61,7 @@ public:
     /*!
      * Function that calculates the rotation quaternion from target frame to base
      * frame at specified time.
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
     Eigen::Quaterniond getRotationToBaseFrame( const double currentTime );
@@ -69,7 +69,7 @@ public:
     //! Calculate rotation quaternion from base frame to target frame.
     /*!
      * Returns the rotation quaternion from base frame to target frame at specified time.
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
     Eigen::Quaterniond getRotationToTargetFrame(
@@ -82,7 +82,7 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to base
      *  frame at specified time.
-     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     *  \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from target to base frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double currentTime );
@@ -91,7 +91,7 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from base frame to target
      *  frame at specified time.
-     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     *  \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from base to target frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(

@@ -214,6 +214,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
  *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
  *  \param partialsMatrix Partials of spherical harmonic acceleration w.r.t. to requested set of cosine coefficients
  *  (returned by reference).
+ *  \param maximumAccelerationDegree Maximum degree of acceleration for which partial is to be computed
+ *  \param maximumAccelerationOrder Maximum degree of acceleration for which partial is to be computed
  */
 void calculateSphericalHarmonicGravityWrtCCoefficients(
         const Eigen::Vector3d& sphericalPosition,
@@ -242,6 +244,8 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
  *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
  *  \param partialsMatrix Partials of spherical harmonic acceleration w.r.t. to requested set of sine coefficients
  *  (returned by reference).
+ *  \param maximumAccelerationDegree Maximum degree of acceleration for which partial is to be computed
+ *  \param maximumAccelerationOrder Maximum degree of acceleration for which partial is to be computed
  */
 void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Vector3d& sphericalPosition,

@@ -20,6 +20,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState(
         const double ephemerisTime)
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( ephemerisTime );
 }
 
@@ -28,6 +32,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongState(
         const double secondsSinceEpoch )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
 }
 
@@ -36,6 +44,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time.getSeconds< double >( ) );
 }
 
@@ -44,6 +56,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
 }
 
@@ -56,6 +72,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianState(
         const double ephemerisTime )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( ephemerisTime ).cast< double >( );
 }
 
@@ -64,6 +84,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongState(
         const double secondsSinceEpoch )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( secondsSinceEpoch );
 }
 
@@ -72,6 +96,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< double >( );
 }
 
@@ -80,6 +108,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time.getSeconds< double >( ) );
 }
 
@@ -89,6 +121,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState(
         const double ephemerisTime )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( Time( ephemerisTime ) );
 }
 
@@ -97,6 +133,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongState(
         const double secondsSinceEpoch )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
 }
 
@@ -105,6 +145,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time );
 }
 
@@ -113,6 +157,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time ).cast< long double >( );
 }
 
@@ -123,6 +171,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianState(
         const double ephemerisTime )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( Time( ephemerisTime ) ).cast< double >( );
 }
 
@@ -131,6 +183,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongState(
         const double secondsSinceEpoch )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( Time( secondsSinceEpoch ) );
 }
 
@@ -139,6 +195,10 @@ template< >
 Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time ).cast< double >( );
 }
 
@@ -147,6 +207,10 @@ template< >
 Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongStateFromExtendedTime(
         const Time& time )
 {
+    if( interpolator_ == nullptr )
+    {
+        throw std::runtime_error( "Erorr when calling TabulatedCartesianEphemeris, no state interpolator defined" );
+    }
     return interpolator_->interpolate( time );
 }
 

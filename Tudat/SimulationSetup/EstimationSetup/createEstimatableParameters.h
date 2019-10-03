@@ -679,7 +679,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             else
             {
                 doubleParameterToEstimate = std::make_shared< CoreFactor >
-                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ),
+                          currentBodyName );
 
             }
             break;

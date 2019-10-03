@@ -100,9 +100,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! the periodic spin variations.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double currentMeanAnomaly = planetaryOrientationCalculator->getBodyMeanAnomalyAtEpoch( ) +
@@ -120,21 +120,21 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     {
         rotationMatrixPartials.push_back(
                     std::cos( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
                       std::cos( currentPhiAngle ), -std::sin( currentPhiAngle ), 0.0, 0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix() );
+                    polarMotionRotation.toRotationMatrix() );
 
         rotationMatrixPartials.push_back(
                     std::sin( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
                       std::cos( currentPhiAngle ), -std::sin( currentPhiAngle ), 0.0, 0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix() );
+                    polarMotionRotation.toRotationMatrix() );
     }
 
     return rotationMatrixPartials;
@@ -143,9 +143,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! the periodic spin variations.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double meanMotion = planetaryOrientationCalculator->getBodyMeanMotion( );
@@ -166,7 +166,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
          correctionIterator != rotationrateCorrections.end( ); correctionIterator++ )
     {
         partialsOfRotationMatrix.push_back(
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) <<
@@ -185,11 +185,11 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
                       std::cos( currentPhiAngle ) * meanPhiAngleDerivative,
                       0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix() );
+                    polarMotionRotation.toRotationMatrix() );
 
 
         partialsOfRotationMatrix.push_back(
-                    RotationFromMeanOrbitToIcrf .toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf .toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) <<
@@ -208,7 +208,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
                       std::sin( correctionIterator->first * currentMeanAnomaly ) * meanPhiAngleDerivative,
                       0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix() );
+                    polarMotionRotation.toRotationMatrix() );
     }
 
     return partialsOfRotationMatrix;
@@ -218,9 +218,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! polar motion amplitude.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond RotationFromBodyFixedToIntermediateInertialFrame,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromBodyFixedToIntermediateInertialFrame,
         const double ephemerisTime )
 {
     double currentMeanAnomaly = planetaryOrientationCalculator->getBodyMeanAnomalyAtEpoch( )
@@ -250,8 +250,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     {
         rotationMatrixPartials.push_back(
                     -std::cos( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
-                    RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( -PolarMotion.x( ) ), 0.0, std::cos( -PolarMotion.x( ) ),
                       0.0, 0.0, 0.0,
                       -std::cos( -PolarMotion.x( ) ), 0.0, -std::sin( -PolarMotion.x( ) ) ).finished( ) *
@@ -259,8 +259,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
         rotationMatrixPartials.push_back(
                     -std::sin( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
-                    RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( -PolarMotion.x( ) ), 0.0, std::cos( -PolarMotion.x( ) ),
                       0.0, 0.0, 0.0,
                       -std::cos( -PolarMotion.x( ) ), 0.0, -std::sin( -PolarMotion.x( ) ) ).finished( ) *
@@ -268,8 +268,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
         rotationMatrixPartials.push_back(
                     -std::cos( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
-                    RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     Eigen::AngleAxisd( -PolarMotion.x( ), Eigen::Vector3d::UnitY( ) ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( -PolarMotion.y( ) ), -std::cos( -PolarMotion.y( ) ),
@@ -277,8 +277,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
         rotationMatrixPartials.push_back(
                     -std::sin( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
-                    RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     Eigen::AngleAxisd( -PolarMotion.x( ), Eigen::Vector3d::UnitY( ) ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( -PolarMotion.y( ) ), -std::cos( -PolarMotion.y( ) ),
@@ -291,8 +291,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! polar motion amplitude.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
         const double ephemerisTime )
 {
     double currentMeanAnomaly = planetaryOrientationCalculator->getBodyMeanAnomalyAtEpoch( )
@@ -316,7 +316,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
         partialsOfRotationMatrix.push_back(
                     -meanPhiAngleDerivative *
                     std::cos( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
@@ -329,7 +329,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
         partialsOfRotationMatrix.push_back(
                     -meanPhiAngleDerivative *
                     std::sin( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
@@ -342,7 +342,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
         partialsOfRotationMatrix.push_back(
                     -meanPhiAngleDerivative *
                     std::cos( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
@@ -355,7 +355,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
         partialsOfRotationMatrix.push_back(
                     -meanPhiAngleDerivative *
                     std::sin( correctionIterator->first * currentMeanAnomaly) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
@@ -373,9 +373,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! core factor.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double meanMotion = planetaryOrientationCalculator->getBodyMeanMotion( );
@@ -416,26 +416,26 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
                 a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                 ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                   correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                   std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 std::cos(correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) ) *
                 a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                 ( a_m * correctionIterator->second.first + freeCoreNutationRate *
                   correctionIterator->second.second * std::sin( angleIAtEpoch ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                   0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
                   0.0, std::cos( currentAngleCorrections.y( ) ), -std::sin( currentAngleCorrections.y( ) ) ).finished( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 ( Psi_m * std::sin( correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) ) *
@@ -449,13 +449,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
                   ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                     correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
                   std::cos( currentAngleCorrections.y( ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
     }
 
     double currentPhaseAngleCorrection;
@@ -480,13 +480,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
                     a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                     ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                       correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                       std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     std::cos( correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) +
@@ -494,13 +494,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
                     a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                     ( a_m * correctionIterator->second.first + freeCoreNutationRate *
                       correctionIterator->second.second * std::sin( angleIAtEpoch ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
                       0.0, std::cos( currentAngleCorrections.y( ) ), -std::sin( currentAngleCorrections.y( ) ) ).finished( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     ( Psi_m * std::sin( correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) +
@@ -517,13 +517,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
                       ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                         correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
                       std::cos( currentAngleCorrections.y( ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
         }
     }
 
@@ -534,9 +534,9 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! core factor.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double meanMotion = planetaryOrientationCalculator->getBodyMeanMotion( );
@@ -580,7 +580,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                 a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                 ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                   correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                   std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
@@ -588,7 +588,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 currentMeanPhiAngleDerivative *
@@ -596,7 +596,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                 a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                 ( a_m * correctionIterator->second.first + freeCoreNutationRate *
                   correctionIterator->second.second * std::sin( angleIAtEpoch ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                   0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
@@ -604,7 +604,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 currentMeanPhiAngleDerivative *
@@ -619,13 +619,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                   ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                     correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
                   std::cos( currentAngleCorrections.y( ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::cos( currentAngleCorrections.z( ) ), std::sin( currentAngleCorrections.z( ) ), 0.0,
                   -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
     }
 
     double currentPhaseAngleCorrection;
@@ -651,7 +651,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                     a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                     ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                       correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                       std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
@@ -659,7 +659,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     currentMeanPhiAngleDerivative *
@@ -668,7 +668,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                     a_m / ( a_m * a_m - freeCoreNutationRate * freeCoreNutationRate ) *
                     ( a_m * correctionIterator->second.first + freeCoreNutationRate *
                       correctionIterator->second.second * std::sin( angleIAtEpoch ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
@@ -676,7 +676,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     currentMeanPhiAngleDerivative *
@@ -694,13 +694,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
                       ( a_m * correctionIterator->second.second + freeCoreNutationRate *
                         correctionIterator->second.first / std::sin( angleIAtEpoch ) ) *
                       std::cos( currentAngleCorrections.y( ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::cos( currentAngleCorrections.z( ) ), std::sin( currentAngleCorrections.z( ) ), 0.0,
                       -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
         }
     }
 
@@ -711,9 +711,9 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! free core nutation rate.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double meanMotion = planetaryOrientationCalculator->getBodyMeanMotion( );
@@ -755,13 +755,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                   std::sin( angleIAtEpoch ) + 2 * freeCoreNutationRate * a_m * correctionIterator->second.second  ) /
                  ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                    ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                   std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 std::cos(correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) ) *
@@ -769,13 +769,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                   std::sin( angleIAtEpoch ) * ( a_m * a_m + freeCoreNutationRate * freeCoreNutationRate ) *
                   correctionIterator->second.second ) / ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                   ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                   0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
                   0.0, std::cos( currentAngleCorrections.y( ) ), -std::sin( currentAngleCorrections.y( ) ) ).finished( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 ( Psi_m * std::sin( correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) ) *
@@ -791,13 +791,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                    ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                      ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
                   std::cos( currentAngleCorrections.y( ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
     }
 
     double currentPhaseAngleCorrection;
@@ -824,13 +824,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                       std::sin( angleIAtEpoch ) + 2 * freeCoreNutationRate * a_m * correctionIterator->second.second  ) /
                      ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                        ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                       std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     std::cos(correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) +
@@ -839,13 +839,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                       std::sin( angleIAtEpoch ) * ( a_m * a_m + freeCoreNutationRate * freeCoreNutationRate ) *
                       correctionIterator->second.second ) / ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                       ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
                       0.0, std::cos( currentAngleCorrections.y( ) ), -std::sin( currentAngleCorrections.y( ) ) ).finished( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     ( Psi_m * std::sin( correctionIterator->first * ( meanMotion * ephemerisTime + bodyMeanAnomalyAtEpoch ) +
@@ -864,13 +864,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
                        ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                          ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
                       std::cos( currentAngleCorrections.y( ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
         }
     }
 
@@ -881,9 +881,9 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! free core nutation rate.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime )
 {
     double meanMotion = planetaryOrientationCalculator->getBodyMeanMotion( );
@@ -928,7 +928,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                   std::sin( angleIAtEpoch ) + 2 * freeCoreNutationRate * a_m * correctionIterator->second.second  ) /
                  ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                    ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                   std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
@@ -936,7 +936,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 currentMeanPhiAngleDerivative *
@@ -945,7 +945,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                   std::sin( angleIAtEpoch ) * ( a_m * a_m + freeCoreNutationRate * freeCoreNutationRate ) *
                   correctionIterator->second.second ) / ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                   ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                   0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
@@ -953,7 +953,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                 ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
         partialsOfRotationMatrix +=
                 currentMeanPhiAngleDerivative *
@@ -970,13 +970,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                    ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                      ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
                   std::cos( currentAngleCorrections.y( ) ) ) *
-                RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                 ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                   Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                 ( Eigen::Matrix3d( ) << -std::cos( currentAngleCorrections.z( ) ), std::sin( currentAngleCorrections.z( ) ), 0.0,
                   -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                   0.0, 0.0, 0.0 ).finished( ) *
-                PolarMotionRotation.toRotationMatrix( );
+                polarMotionRotation.toRotationMatrix( );
 
 
     }
@@ -1005,7 +1005,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                       std::sin( angleIAtEpoch ) + 2 * freeCoreNutationRate * a_m * correctionIterator->second.second  ) /
                      ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                        ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.x( ) ), -std::cos( currentAngleCorrections.x( ) ), 0.0,
                       std::cos( currentAngleCorrections.x( ) ), -std::sin( currentAngleCorrections.x( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
@@ -1013,7 +1013,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     currentMeanPhiAngleDerivative *
@@ -1023,7 +1023,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                       std::sin( angleIAtEpoch ) * ( a_m * a_m + freeCoreNutationRate * freeCoreNutationRate ) *
                       correctionIterator->second.second ) / ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                       ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
                       0.0, -std::sin( currentAngleCorrections.y( ) ), -std::cos( currentAngleCorrections.y( ) ),
@@ -1031,7 +1031,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                     ( Eigen::Matrix3d( ) << -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       std::cos( currentAngleCorrections.z( ) ), -std::sin( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
             partialsOfRotationMatrix +=
                     currentMeanPhiAngleDerivative *
@@ -1051,13 +1051,13 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
                        ( ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) *
                          ( freeCoreNutationRate * freeCoreNutationRate - a_m * a_m ) ) ) *
                       std::cos( currentAngleCorrections.y( ) ) ) *
-                    RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
+                    rotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                       Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::cos( currentAngleCorrections.z( ) ), std::sin( currentAngleCorrections.z( ) ), 0.0,
                       -std::sin( currentAngleCorrections.z( ) ), -std::cos( currentAngleCorrections.z( ) ), 0.0,
                       0.0, 0.0, 0.0 ).finished( ) *
-                    PolarMotionRotation.toRotationMatrix( );
+                    polarMotionRotation.toRotationMatrix( );
 
         }
     }

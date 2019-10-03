@@ -261,9 +261,9 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
  *  sorted as in the normalizationFactors: first by observable type, then by link ends
  *  \param normalizationFactors Values by which the parameters (and partials) have been normalized, in order to stabilize
  *  the solution of the normal equations
- *  \param outputTimeStep Time step with which the covariance is to be computed for the output map
+ *  \param outputTimes Times at which the covariance is to be computed for the output map
  *  \param diagonalOfWeightMatrix Vector containing the diagonal of the weights matrix used in the estimation
- *  \param normalizedInverseAPrioriCovariance Inverse a priori covariance matrix, with parameters normalized by
+ *  \param unnormalizedInverseAPrioriCovariance Inverse a priori covariance matrix, with parameters not normalized by
  *  normalizationFactors
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
@@ -420,7 +420,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
  *  Function to create a map of the estimation covariance as a function of time
  *  \param podInputData Data structure containing all input to the orbit determination process.
  *  \param podOutputData Data structure containing all output of the orbit determination process.
- *  \param outputTimeStep Time step with which the covariance is to be computed for the output map.
+ *  \param outputTimes Times at which the covariance is to be computed for the output map.
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,

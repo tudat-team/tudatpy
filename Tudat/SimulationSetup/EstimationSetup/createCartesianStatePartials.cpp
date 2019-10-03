@@ -337,7 +337,8 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     case estimatable_parameters::core_factor:
 
         if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
-                    currentBody->getRotationalEphemeris() ) == nullptr ){
+                    currentBody->getRotationalEphemeris() ) == nullptr )
+        {
             std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
                                        "position w.r.t. core factor partial";
             throw std::runtime_error( errorMessage );
@@ -345,7 +346,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 
         // Create rotation matrix partial object
         rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtCoreFactor >(
-                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) );
 
         break;
 

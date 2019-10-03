@@ -634,7 +634,7 @@ void castDynamicToFixedSizeEigenVectorMap(
 
 //! Function to return the sign (+1 or -1) of a variable of type T
 /*!
- *  \param Variable for which sign is to be determined
+ *  \param val Variable for which sign is to be determined
  *  \return Sign of variable
  */
 template < typename T > int sgn( const T& val )

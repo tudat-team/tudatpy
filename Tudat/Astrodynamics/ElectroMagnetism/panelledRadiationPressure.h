@@ -38,6 +38,7 @@ namespace electro_magnetism
  *  \param panelSurfaceNormal Panel surface normal vector, in the same frame as the normalizedVectorToSource vector
  *  \param panelArea Area of panel that is considered
  *  \param panelEmissivitty Emissivity of panel that is considered
+ *  \param panelDiffuseReflectionCoefficient Diffuse reflection coefficient of panel that is considered
  *  \return The radiation pressure force on a single partially reflecting panel
  */
 Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
@@ -61,6 +62,8 @@ public:
      *  radiation originates)
      *  \param acceleratedBodyPositionFunction Function providing current position for the body on which the force is acting
      *  \param panelEmissivittyFunctions Vector of functions returning emissivities for all panels
+     *  \param panelDiffuseReflectionCoefficientFunctions  Vector of functions returning diffuse reflection coefficients
+     *  for all panels
      *  \param panelSurfaceNormalFunctions Vector of functions returning panel surface normal function, in the same frame as the
      *  position functions of the accelerated and radiating bodies.
      *  \param panelAreaFunctions Vector of functions returning areas for all panels
@@ -156,7 +159,7 @@ public:
     //! Returns the function returning the current mass of the body being accelerated.
     /*!
      *  Returns the function returning the current mass of the body being accelerated.
-     *  \param Function returning the current mass of the body being accelerated.
+     *  \return Function returning the current mass of the body being accelerated.
      */
     std::function< double( ) > getMassFunction( )
     {

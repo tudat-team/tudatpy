@@ -326,7 +326,7 @@ public:
     //! Resets the function returning the current sail cone angle.
     /*!
      *  Resets the function returning the current sail cone angle.
-     *  \param Function returning the current sail cone angle (in rad).
+     *  \param coneAngle Function returning the current sail cone angle (in rad).
      */
     void setConeAngle( std::function< double( const double ) > coneAngle ){ coneAngleFunction_ = coneAngle; }
 
@@ -340,7 +340,7 @@ public:
     //! Resets the function returning the current sail clock angle.
     /*!
      *  Resets the function returning the current sail clock angle.
-     *  \param Function returning the current clock angle (in rad).
+     *  \param clockAngle Function returning the current clock angle (in rad).
      */
     void setClockAngle( std::function< double( const double ) > clockAngle ){ clockAngleFunction_ = clockAngle; }
 
@@ -354,7 +354,7 @@ public:
     //! Resets front emissivity coefficient.
     /*!
      *  Resets front emissivity coefficient.
-     *  \param Front emissivity coefficient [-].
+     *  \param frontEmissivityCoefficient Front emissivity coefficient [-].
      */
     void setFrontEmissivityCoefficient( double frontEmissivityCoefficient ){ frontEmissivityCoefficient_ = frontEmissivityCoefficient; }
 
@@ -368,7 +368,7 @@ public:
     //! Resets back emissivity coefficient.
     /*!
      *  Resets back emissivity coefficient.
-     *  \param Back emissivity coefficient [-].
+     *  \param backEmissivityCoefficient Back emissivity coefficient [-].
      */
     void setBackEmissivityCoefficient( double backEmissivityCoefficient ){ backEmissivityCoefficient_ = backEmissivityCoefficient; }
 
@@ -382,7 +382,7 @@ public:
     //! Resets front Lambertian coefficient.
     /*!
      *  Resets front Lambertian coefficient.
-     *  \param Front Lambertian coefficient [-].
+     *  \param frontLambertianCoefficient Front Lambertian coefficient [-].
      */
     void setFrontLambertianCoefficient( double frontLambertianCoefficient ){ frontLambertianCoefficient_ = frontLambertianCoefficient; }
 
@@ -396,7 +396,7 @@ public:
     //! Resets back Lambertian coefficient.
     /*!
      *  Resets back Lambertian coefficient.
-     *  \param Back Lambertian coefficient [-].
+     *  \param backLambertianCoefficient Back Lambertian coefficient [-].
      */
     void setBackLambertianCoefficient( double backLambertianCoefficient ){ backLambertianCoefficient_ = backLambertianCoefficient; }
 
@@ -410,7 +410,7 @@ public:
     //! Resets reflectivity coefficient.
     /*!
      *  Resets reflectivity coefficient.
-     *  \param Reflectivity coefficient [-].
+     *  \param reflectivityCoefficient Reflectivity coefficient [-].
      */
     void setReflectivityCoefficient( double reflectivityCoefficient ){ reflectivityCoefficient_ = reflectivityCoefficient; }
 
@@ -424,7 +424,7 @@ public:
     //! Resets specular reflection coefficient.
     /*!
      *  Resets specular reflection coefficient.
-     *  \param Specular reflection coefficient [-].
+     *  \param specularReflectionCoefficient Specular reflection coefficient [-].
      */
     void setSpecularReflectionCoefficient( double specularReflectionCoefficient ){ specularReflectionCoefficient_ = specularReflectionCoefficient; }
 

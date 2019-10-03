@@ -88,8 +88,8 @@ struct ArcLimitedObservationSimulationTimeSettings: public ObservationSimulation
 {
     //! Constructor
     /*!
-     * \Constructor
-     * \param simulationTimes List of times at which to perform the observation simulation
+     * Constructor
+     * \param linkEndType Reference link end type
      * \param startTime Time at which to start simulating observations
      * \param endTime Time at which to end simulating observations
      * \param observationInterval Time between two subsequent observations (e.g. integration time)

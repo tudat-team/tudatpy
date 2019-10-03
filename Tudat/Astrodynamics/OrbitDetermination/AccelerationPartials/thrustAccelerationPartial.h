@@ -129,7 +129,7 @@ protected:
     //! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
     /*!
      * Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
-     * \param partial Partial derivative w.r.t. deltaV values of the momentum desaturation maneuvers
+     * \param accelerationPartial Partial derivative w.r.t. deltaV values of the momentum desaturation maneuvers
      */
     void wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial );
 
