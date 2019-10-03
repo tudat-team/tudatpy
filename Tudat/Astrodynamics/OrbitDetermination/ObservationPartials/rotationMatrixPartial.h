@@ -91,16 +91,16 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 /*!
  * Function to calculate a partial of rotation matrix from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. the periodic spin variations.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. Phi_cj (entry 0), Phi_sj (entry 1) with j=1,...,4 .
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -108,16 +108,16 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 /*!
  * Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. the periodic spin variations.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. Phi_cj (entry 0), Phi_sj (entry 1) with j=1,...,4 .
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -128,16 +128,16 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 /*!
  * Function to calculate a partial of rotation matrix from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. polar motion amplitudes.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation From Body Fixed To Intermediate Inertial Frame (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param rotationFromBodyFixedToIntermediateInertialFrame Rotation From Body Fixed To Intermediate Inertial Frame (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. Phi_cj (entry 0), Phi_sj (entry 1) with j=1,...,4 .
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond RotationFromBodyFixedToIntermediateInertialFrame,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromBodyFixedToIntermediateInertialFrame,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -145,14 +145,14 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 /*!
  * Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. polar motion amplitudes.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. Phi_cj (entry 0), Phi_sj (entry 1) with j=1,...,4 .
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator ,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator ,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
         const double ephemerisTime);
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
@@ -160,16 +160,16 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
 /*!
  * Function to calculate a partial of rotation matrix from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. core factor.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. core factor .
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -177,16 +177,16 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
 /*!
  * Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. core factor.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. core factor.
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
@@ -194,16 +194,16 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
 /*!
  * Function to calculate a partial of rotation matrix from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. free core nutation.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. free core nutation.
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
@@ -211,16 +211,16 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
 /*!
  * Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame, as computed by the
  * PlanetaryRotationModel class,  w.r.t. free core nutation.
- * \param pointer to PlanetaryOrientationAngleCalculator,
- * \param Rotation From Mean Orbit To Icrf (Quaternion),
- * \param Rotation due to Polar Motion at ephemeris time (Quaternion),
- * \param ephemeris time.
+ * \param planetaryOrientationCalculator pointer to PlanetaryOrientationAngleCalculator,
+ * \param rotationFromMeanOrbitToIcrf Rotation From Mean Orbit To Icrf (Quaternion),
+ * \param polarMotionRotation Rotation due to Polar Motion at ephemeris time (Quaternion),
+ * \param ephemerisTime Time at which partial is to be evaluated.
  * \return Partial derivatives of rotation matrix w.r.t. core factor.
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(
-        std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        Eigen::Quaterniond RotationFromMeanOrbitToIcrf,
-        Eigen::Quaterniond PolarMotionRotation,
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
 //! Base class for partial derivatives of rotation matrix from body fixed to inertial frame w.r.t. a parameter.

@@ -55,6 +55,7 @@ public:
      * \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and
      * values.
      * \param stateTypeStartIndices Start index (value) in vector of propagated state for each type of state (key)
+     * \param currentArcIndex Index of current arc (-1 if not multi-arc)
      */
     template< typename ParameterType >
     VariationalEquations(
@@ -426,6 +427,7 @@ private:
      *  the state of body A is estimated w.r.t. body B, and body B is itself estimated w.r.t. to some third body (or inertial
      *  point) C.
      *  \param parametersToEstimate Total list of parameters to estimate.
+     *  \param currentArcIndex Index of current arc (-1 if not multi-arc)
      */
     template< typename ParameterType >
     void setTranslationalStatePartialFrameScalingFunctions(

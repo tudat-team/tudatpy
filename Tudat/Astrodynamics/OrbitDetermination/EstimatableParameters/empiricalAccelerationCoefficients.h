@@ -37,6 +37,7 @@ public:
      *  Constructor
      *  \param empiricalAcceleration Class defining properties of empirical acceleration used in propagation.
      *  \param associatedBody Body for which empirical accelerations are estimated
+     *  \param centralBody Central body used for empirical accelerations
      *  \param componentsToEstimate List of empirical acceleration components that are to be estimated. Map key is functional
      *  shape of acceleration, value is list of components.
      */
@@ -246,6 +247,7 @@ public:
      *  Constructor
      *  \param empiricalAcceleration Class defining properties of empirical acceleration used in propagation.
      *  \param associatedBody Body for which empirical accelerations are estimated
+     *  \param centralBody Central body used for empirical accelerations
      *  \param componentsToEstimate List of empirical acceleration components that are to be estimated. Map key is functional
      *  shape of acceleration, value is list of components.
      *  \param arcStartTimeList List of times at which the arcs over which empirical accelerations are constant are to be

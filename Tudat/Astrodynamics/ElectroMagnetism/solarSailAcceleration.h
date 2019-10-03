@@ -39,12 +39,12 @@ namespace electro_magnetism
  * Compute solar sail acceleration with a non-ideal reflective model. The acceleration is computed from the force derived from
  * the solar sailing radiation pressure model, which is itself a function of the source power and geometry, as well as of the
  * solar sailing model.
- * \param frontEmissivity Emissivity coefficient of the front of the sail.                               [-]
- * \param backEmissivity Emissivity coefficient of the back of the sail.                                 [-]
+ * \param frontEmissivityCoefficient Emissivity coefficient of the front of the sail.                    [-]
+ * \param backEmissivityCoefficient Emissivity coefficient of the back of the sail.                      [-]
  * \param frontLambertianCoefficient Lambertian coefficient of the front of the sail.                    [-]
  * \param backLambertianCoefficient Lambertian coefficient of the back of the sail.                      [-]
  * \param reflectivityCoefficient Reflectivity coefficient of the sail.                                  [-]
- * \param specularReflection Specular reflection coefficient of the sail.                                [-]
+ * \param specularReflectionCoefficient Specular reflection coefficient of the sail.                     [-]
  * \param normalisedVectorToSource Normalised vector pointing from target to source.
  *          N.B: this must be a unit vector!
  *          To compute the unit vector based on a given position vector, you can use the
@@ -114,21 +114,21 @@ public:
      * \param massFunction Function returning current mass of body undergoing acceleration.
      */
     SolarSailAcceleration(
-            Vector3dReturningFunction sourcePositionFunction,
-            Vector3dReturningFunction acceleratedBodyPositionFunction,
-            Vector3dReturningFunction acceleratedBodyVelocityFunction,
-            Vector3dReturningFunction centralBodyVelocityFunction,
-            DoubleReturningFunction radiationPressureFunction,
-            DoubleReturningFunction coneAngleFunction,
-            DoubleReturningFunction clockAngleFunction,
-            DoubleReturningFunction frontEmissivityCoefficientFunction,
-            DoubleReturningFunction backEmissivityCoefficientFunction,
-            DoubleReturningFunction frontLambertianCoefficientFunction,
-            DoubleReturningFunction backLambertianCoefficientFunction,
-            DoubleReturningFunction reflectivityCoefficientFunction,
-            DoubleReturningFunction specularReflectionCoefficientFunction,
-            DoubleReturningFunction areaFunction,
-            DoubleReturningFunction massFunction )
+            const Vector3dReturningFunction sourcePositionFunction,
+            const Vector3dReturningFunction acceleratedBodyPositionFunction,
+            const Vector3dReturningFunction acceleratedBodyVelocityFunction,
+            const Vector3dReturningFunction centralBodyVelocityFunction,
+            const DoubleReturningFunction radiationPressureFunction,
+            const DoubleReturningFunction coneAngleFunction,
+            const DoubleReturningFunction clockAngleFunction,
+            const DoubleReturningFunction frontEmissivityCoefficientFunction,
+            const DoubleReturningFunction backEmissivityCoefficientFunction,
+            const DoubleReturningFunction frontLambertianCoefficientFunction,
+            const DoubleReturningFunction backLambertianCoefficientFunction,
+            const DoubleReturningFunction reflectivityCoefficientFunction,
+            const DoubleReturningFunction specularReflectionCoefficientFunction,
+            const DoubleReturningFunction areaFunction,
+            const DoubleReturningFunction massFunction )
         : sourcePositionFunction_( sourcePositionFunction ),
           acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
           acceleratedBodyVelocityFunction_( acceleratedBodyVelocityFunction ),
@@ -164,18 +164,18 @@ public:
      * \param frontLambertianCoefficient Constant front Lambertian coefficient.
      * \param backLambertianCoefficient Constant back Lambertian coefficient.
      * \param reflectivityCoefficient Constant reflectivity coefficient.
-     * \param coefficientSpecularReflection Constant specular reflection coefficient
+     * \param specularReflectionCoefficient Constant specular reflection coefficient
      * \param area Constant area assumed to undergo radiation pressure.
      * \param mass Constant mass of body undergoing acceleration.
      */
     SolarSailAcceleration(
-            Vector3dReturningFunction sourcePositionFunction,
-            Vector3dReturningFunction acceleratedBodyPositionFunction,
-            Vector3dReturningFunction acceleratedBodyVelocityFunction,
-            Vector3dReturningFunction centralBodyVelocityFunction,
-            DoubleReturningFunction radiationPressureFunction,
-            DoubleReturningFunction coneAngleFunction,
-            DoubleReturningFunction clockAngleFunction,
+            const Vector3dReturningFunction sourcePositionFunction,
+            const Vector3dReturningFunction acceleratedBodyPositionFunction,
+            const Vector3dReturningFunction acceleratedBodyVelocityFunction,
+            const Vector3dReturningFunction centralBodyVelocityFunction,
+            const DoubleReturningFunction radiationPressureFunction,
+            const DoubleReturningFunction coneAngleFunction,
+            const DoubleReturningFunction clockAngleFunction,
             const double frontEmissivityCoefficient,
             const double backEmissivityCoefficient,
             const double frontLambertianCoefficient,

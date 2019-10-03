@@ -206,7 +206,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfB
 * Function to get the states of  single body, w.r.t. some central body, at a set of requested times, concatanated into one vector.
 * This function creates frameManager from input data to perform all required conversions.
 * \param bodyToIntegrate Body for which to retrieve state
-* \param centralBody Origin w.r.t. which to retrieve state of bodyToIntegrate.
+* \param centralBodies Origins w.r.t. which to retrieve state of bodyToIntegrate (per arc).
 * \param bodyMap List of bodies to use in simulations.
 * \param arcStartTimes List of times at which to retrieve states.
 * \return Initial state vectosr of bodyToIntegrate at requested times.

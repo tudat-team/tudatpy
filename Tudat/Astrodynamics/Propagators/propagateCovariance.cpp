@@ -7,12 +7,13 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to retrueve full state transition and sensitivity matrices at epochs
 void getFullVariationalEquationsSolutionHistory(
         std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory,
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
 {
-    for( int i = 0; i < evaluationTimes.size( ); i++ )
+    for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         fullVariationalEquationsSolutionHistory[ evaluationTimes.at( i ) ] =
                 stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i )  );

@@ -22,12 +22,12 @@ namespace electro_magnetism
 //! Compute solar sail force using a non-ideal reflective model.
 /*!
  * Computes solar sail force using a non-ideal reflective model.
- * \param frontEmissivity Emissivity coefficient of the front of the sail.                                   [-]
- * \param backEmissivity Emissivity coefficient of the back of the sail.                                     [-]
+ * \param frontEmissivityCoefficient Emissivity coefficient of the front of the sail.                        [-]
+ * \param backEmissivityCoefficient Emissivity coefficient of the back of the sail.                          [-]
  * \param frontLambertianCoefficient Lambertian coefficient of the front of the sail.                        [-]
  * \param backLambertianCoefficient Lambertian coefficient of the back of the sail.                          [-]
  * \param reflectivityCoefficient Reflectivity coefficient of the sail.                                      [-]
- * \param specularReflection Specular reflection coefficient.                                                [-]
+ * \param specularReflectionCoefficient Specular reflection coefficient.                                     [-]
  * \param normalisedVectorToSource Normalised vector pointing from target to source.
  *          N.B: this must be a unit vector! To compute the unit vector based on a given position vector,
  *          you can use the .normalize() or .normalized() member functions of an Eigen::Vector3d object.     [-]

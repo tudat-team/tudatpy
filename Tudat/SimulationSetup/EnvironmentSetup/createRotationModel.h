@@ -380,10 +380,10 @@ private:
 /*!
  *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.
  *  \param currentTime Time at which state function is to be evaluated
- *  \param useFirstFunctionFirst Boolena defining whether stateFunction1 or stateFunction2 is used
+ *  \param useFirstFunction Boolean defining whether stateFunction1 or stateFunction2 is used
  *  \param stateFunction1 First function returning state as function of time
  *  \param stateFunction2 Second function returning state as function of time
- *  \return
+ *  \return Selected function, evaluated at given time
  */
 Eigen::Vector6d getStateFromSelectedStateFunction(
         const double currentTime,
@@ -627,6 +627,7 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  *  \param rotationModelSettings Settings for the rotation model that is to be created, defined
  *  a pointer to an object of class (derived from) RotationSettings.
  *  \param body Name of the body for which the rotation model is to be created.
+ * \param bodyMap List of body objects
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(

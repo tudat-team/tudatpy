@@ -119,7 +119,7 @@ public:
      * \param associatedBody Body for which initial state is to be estimated.
      * \param arcStartTimes Start times for separate arcs
      * \param initialTranslationalState List of initial arc states
-     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param centralBodies List of central bodies w.r.t. which the initial state is to be estimated (per arc).
      * \param frameOrientation Orientation of the frame in which the state is defined.
      */
     ArcWiseInitialTranslationalStateParameter(
@@ -156,7 +156,7 @@ public:
      * \param associatedBody Body for which initial state is to be estimated.
      * \param arcStartTimes Start times for separate arcs
      * \param initialTranslationalStates Current value of initial arc states (concatenated in same order as arcs)
-     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param centralBodies List of central bodies w.r.t. which the initial state is to be estimated (per arc).
      * \param frameOrientation Orientation of the frame in which the state is defined.
      */
     ArcWiseInitialTranslationalStateParameter(
