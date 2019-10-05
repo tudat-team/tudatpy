@@ -23,8 +23,6 @@
 #include "Tudat/Mathematics/NumericalIntegrators/adamsBashforthMoultonIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 
-#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-
 namespace tudat
 {
 
