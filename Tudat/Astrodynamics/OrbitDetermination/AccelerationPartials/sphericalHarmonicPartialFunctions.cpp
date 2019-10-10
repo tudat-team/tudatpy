@@ -43,15 +43,13 @@ void computePotentialSphericalHessian(
         const double legendrePolynomialSecondDerivative,
         Eigen::Matrix3d& sphericalHessian )
 {
-    sphericalHessian.setZero( );
-
-    sphericalHessian( 0, 0 ) += static_cast< double >( degree + 1 ) * static_cast< double >( degree + 2 ) /
+    sphericalHessian( 0, 0 ) = static_cast< double >( ( degree + 1 ) * ( degree + 2 ) )/
             ( distance * distance ) * legendrePolynomial *
             (  cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude );
-    sphericalHessian( 1, 0 ) += -static_cast< double >( degree + 1 ) / distance * cosineOfLatitude *
+    sphericalHessian( 1, 0 ) = -static_cast< double >( degree + 1 ) / distance * cosineOfLatitude *
             legendrePolynomialDerivative *
             (  cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude );
-    sphericalHessian( 2, 0 ) += -static_cast< double >( order ) * static_cast< double >( degree + 1 ) / distance *
+    sphericalHessian( 2, 0 ) = -static_cast< double >( order * ( degree + 1 ) ) / distance *
             legendrePolynomial *
             ( -cosineHarmonicCoefficient * sineOfOrderLongitude + sineHarmonicCoefficient * cosineOfOrderLongitude );
 
@@ -64,7 +62,7 @@ void computePotentialSphericalHessian(
 
     sphericalHessian( 0, 2 ) = sphericalHessian( 2, 0 );
     sphericalHessian( 1, 2 ) = sphericalHessian( 2, 1 );
-    sphericalHessian( 2, 2 ) += static_cast< double >( order ) * static_cast< double >( order ) * legendrePolynomial *
+    sphericalHessian( 2, 2 ) = static_cast< double >( order * order ) * legendrePolynomial *
             (  -cosineHarmonicCoefficient * cosineOfOrderLongitude - sineHarmonicCoefficient * sineOfOrderLongitude );
 
 
