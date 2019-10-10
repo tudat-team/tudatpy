@@ -205,7 +205,7 @@ public:
             if( areInputStateLocal )
             {
                 localInternalState_.segment( 6 * updateOrder_.at( i ), 6 ) +=
-                        referenceFrameOriginStates.at( updateOrder_.at( i ) );
+                        std::move( referenceFrameOriginStates.at( updateOrder_.at( i ) ) );
             }
         }
     }
