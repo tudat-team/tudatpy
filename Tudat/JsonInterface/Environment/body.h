@@ -67,7 +67,7 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
  * \throws std::runtime_error If any body is configured to be created using default settings and either
  * \p spiceSettings is `nullptr` or \p integratorSettings is `nullptr` and Spice is configured to preload kernels.
  */
-template< typename TimeType >
+template< typename TimeType = double >
 void updateBodiesFromJSON(
         const nlohmann::json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
@@ -75,7 +75,7 @@ void updateBodiesFromJSON(
         const std::string globalFrameOrigin,
         const std::string globalFrameOrientation,
         const std::shared_ptr< SpiceSettings >& spiceSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings = nullptr )
 {
     using namespace simulation_setup;
 

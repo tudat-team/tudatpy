@@ -380,7 +380,7 @@ public:
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
      *  immediately at the end of the contructor or not (default true).
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides (default false).
+     *  of this class, after propagation and resetting ephemerides (default false).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides (default false).
      *  \param printNumberOfFunctionEvaluations Boolean denoting whether the number of function evaluations should be printed
@@ -557,7 +557,7 @@ public:
      * Function to return the map of state history of numerically integrated bodies.
      * \return Map of state history of numerically integrated bodies.
      */
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolution( )
+    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionNumericalSolution( )
     {
         return equationsOfMotionNumericalSolution_;
     }
@@ -567,7 +567,7 @@ public:
      * Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
      * \return Map of state history of numerically integrated bodies, in propagation coordinates.
      */
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionRaw( )
+    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionNumericalSolutionRaw( )
     {
         return equationsOfMotionNumericalSolutionRaw_;
     }
@@ -577,7 +577,7 @@ public:
      * Function to return the map of dependent variable history that was saved during numerical propagation.
      * \return Map of dependent variable history that was saved during numerical propagation.
      */
-    std::map< TimeType, Eigen::VectorXd > getDependentVariableHistory( )
+    const std::map< TimeType, Eigen::VectorXd >& getDependentVariableHistory( )
     {
         return dependentVariableHistory_;
     }
