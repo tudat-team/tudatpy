@@ -84,12 +84,6 @@ struct HybridMethodProblem
         return 0u;
     }
 
-//    //! Serialization function for Pagmo compatibility
-//    template <typename Archive>
-//    void serialize(Archive &ar)
-//    {
-//        ar(problemBounds_);
-//    }
 
 protected:
 

@@ -17,12 +17,8 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-//#include "pagmo/algorithm.hpp"
-
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/optimisationSettings.h"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
 
 namespace tudat
 {
@@ -47,45 +43,28 @@ public:
             const std::string bodyToPropagate,
             const std::string centralBody,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-//            pagmo::algorithm optimisationAlgorithm,
-//            const int numberOfGenerations,
-//            const int numberOfIndividualsPerPopulation,
-            std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings ) : //,
-//            const double relativeToleranceConstraints = 1.0e-6,
-//            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
+            std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings ) :
         LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
-//        stateAtDeparture_( stateAtDeparture ),
-//        stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
-//        timeOfFlight_( timeOfFlight ),
-//        bodyMap_( bodyMap ),
-//        bodyToPropagate_( bodyToPropagate ),
-//        centralBody_( centralBody ),
         integratorSettings_( integratorSettings ),
-//        optimisationAlgorithm_( optimisationAlgorithm ),
-//        numberOfGenerations_( numberOfGenerations ),
-//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        optimisationSettings_( optimisationSettings ) //,
-//        relativeToleranceConstraints_( relativeToleranceConstraints ) //,
-//        initialGuessThrustModel_( initialGuessThrustModel )
+        optimisationSettings_( optimisationSettings )
     {
 
         // Store initial spacecraft mass.
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the hybrid method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first /*initialGuessThrustModel.first*/ != nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first != nullptr )
         {
-            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( optimisationSettings_->initialGuessThrustModel_.first /*initialGuessThrustModel.first*/ );
+            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( optimisationSettings_->initialGuessThrustModel_.first );
         }
         else
         {
             Eigen::VectorXd emptyVector;
-            initialGuessThrustModel_.first = emptyVector; //Eigen::VectorXd::Zero( 10 ); // emptyVector;
+            initialGuessThrustModel_.first = emptyVector; // emptyVector;
         }
-        initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second; // initialGuessThrustModel.second;
-
+        initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second;
         // Perform optimisation
         std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
         championFitness_ = bestIndividual.first;
@@ -130,7 +109,7 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( )
     {
-        return championFitness_[ 0 ];
+        return hybridMethodLeg_->getTotalDeltaV( );
     }
 
     //! Compute current cartesian state.
@@ -143,13 +122,6 @@ public:
     {
         propagatedTrajectory = hybridMethodLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
-
-//    //! Return mass profile.
-//    void getMassProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& massProfile,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 
     Eigen::Vector3d computeCurrentThrust( double time,
@@ -179,33 +151,6 @@ public:
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-//    //! Return thrust acceleration profile.
-//    void getThrustAccelerationProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Compute current thrust vector.
-//    Eigen::Vector3d computeCurrentThrustAcceleration( double time );
-
-//    //! Return thrust acceleration profile.
-//    void getThrustAccelerationProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
-
-//    //! Compute current thrust vector.
-//    Eigen::Vector3d computeCurrentThrust(
-//            double time,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Return thrust profile.
-//    void getThrustProfile( std::vector< double >& epochsVector,
-//           std::map< double, Eigen::VectorXd >& thrustProfile,
-//           std::function< double ( const double ) > specificImpulseFunction,
-//           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
 
     //! Return best individual.
     std::vector< double > getBestIndividual( )
@@ -219,18 +164,17 @@ public:
         return championFitness_;
     }
 
+    //! Return best hybrid method leg after optimisation.
+    std::shared_ptr< HybridMethodLeg > getOptimalHybridMethodLeg( )
+    {
+        return hybridMethodLeg_;
+    }
+
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    void computeHybridMethodTrajectoryAndFullPropagation(
-//         std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-//            std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-//         std::map< double, Eigen::VectorXd >& fullPropagationResults,
-//         std::map< double, Eigen::Vector6d >& hybridMethodResults,
-//         std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
 
     //! Define appropriate translational state propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
@@ -239,23 +183,7 @@ public:
             std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
-protected:
-
-//    //! Compute current mass of the spacecraft between two epochs.
-//    double computeCurrentMass(
-//            const double timeInitialEpoch,
-//            const double timeFinalEpoch,
-//            const double massInitialEpoch,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
 private:
-
-//    //! State vector of the vehicle at the leg departure.
-//    Eigen::Vector6d stateAtDeparture_;
-
-//    //! State vector of the vehicle at the leg arrival.
-//    Eigen::Vector6d stateAtArrival_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -263,35 +191,11 @@ private:
     //! Specific impulse.
     double specificImpulse_;
 
-//    //! Time of flight for the leg.
-//    double timeOfFlight_;
-
-//    //! Body map object.
-//    simulation_setup::NamedBodyMap bodyMap_;
-
-//    //! Name of the body to be propagated.
-//    std::string bodyToPropagate_;
-
-//    //! Name of the central body.
-//    std::string centralBody_;
-
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
-//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-//    pagmo::algorithm optimisationAlgorithm_;
-
-//    //! Number of generations for the optimisation algorithm.
-//    int numberOfGenerations_;
-
-//    //! Number of individuals per population for the optimisation algorithm.
-//    int numberOfIndividualsPerPopulation_;
-
     //! Optimisation settings.
     std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings_;
-
-//    //! Relative tolerance for optimisation constraints.
-//    double relativeToleranceConstraints_;
 
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.

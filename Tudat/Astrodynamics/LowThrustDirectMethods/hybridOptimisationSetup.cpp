@@ -10,7 +10,6 @@
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
-//#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 
 using namespace tudat;
 
@@ -140,15 +139,7 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                                                                                                         integratorSettings_ );
 
     // Propagate until time of flight is reached.
-    Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( /*integratorSettings_*/ );
-
-    // Convert final propagated state to keplerian elements.
-    Eigen::Vector6d finalPropagatedKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
-                finalPropagatedState, bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
-
-    // Convert targeted final state to keplerian elements.
-    Eigen::Vector6d finalTargetedKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
-                stateAtArrival_, bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
+    Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( );
 
     // Convert final propagated state to MEE.
     Eigen::Vector6d finalPropagatedMEEstate = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
@@ -165,35 +156,9 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
     // Equality constraints (must be ... = 0 )
     std::vector< double > equalityConstraints;
 
-//    // Spacecraft position and velocity must be continuous at the match point.
-//    for ( int i = 0 ; i < 3 ; i++ )
-//    {
-//        // Differences in cartesian elements.
-//        equalityConstraints.push_back( std::fabs( finalPropagatedState[ i ] - stateAtArrival_[ i ] ) ); /*/
-//                                       physical_constants::ASTRONOMICAL_UNIT );*/
-//        equalityConstraints.push_back( std::fabs( finalPropagatedState[ i + 3 ] - stateAtArrival_[ i + 3 ] ) ); /*/
-//                                       stateAtDeparture_.segment(3 ,3 ).norm() );*/
-//    }
-
-//    // Differences in keplerian elements.
-//    equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ]
-//                                   - finalTargetedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ] ) /
-//                                   finalTargetedKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ]
-//              * mathematical_constants::PI );
-//    equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::eccentricityIndex ]
-//                                   - finalTargetedKeplerianElements[ orbital_element_conversions::eccentricityIndex ] )
-//            / finalTargetedKeplerianElements[ orbital_element_conversions::eccentricityIndex ] * mathematical_constants::PI );
-//    equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::inclinationIndex ]
-//                                   - finalTargetedKeplerianElements[ orbital_element_conversions::inclinationIndex ] ) );
-//    equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::longitudeOfAscendingNodeIndex ]
-//                                   - finalTargetedKeplerianElements[ orbital_element_conversions::longitudeOfAscendingNodeIndex ] ) );
-//    equalityConstraints.push_back( std::fabs( finalPropagatedKeplerianElements[ orbital_element_conversions::argumentOfPeriapsisIndex ]
-//                                   - finalTargetedKeplerianElements[ orbital_element_conversions::argumentOfPeriapsisIndex ] ) );
-
-    // Differences in MEE.
+    // Differences in MEE at arrival.
     equalityConstraints.push_back( std::fabs( finalPropagatedMEEstate[ orbital_element_conversions::semiParameterIndex ]
-                                   - finalTargetedMEEstate[ orbital_element_conversions::semiParameterIndex ] ) /*/
-                                   finalTargetedMEEstate[ orbital_element_conversions::semiParameterIndex ]*/ );
+                                   - finalTargetedMEEstate[ orbital_element_conversions::semiParameterIndex ] ) );
     equalityConstraints.push_back( std::fabs( finalPropagatedMEEstate[ orbital_element_conversions::fElementIndex ]
                                    - finalTargetedMEEstate[ orbital_element_conversions::fElementIndex ] ) );
     equalityConstraints.push_back( std::fabs( finalPropagatedMEEstate[ orbital_element_conversions::gElementIndex ]
@@ -202,9 +167,6 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                                    - finalTargetedMEEstate[ orbital_element_conversions::hElementIndex ] ) );
     equalityConstraints.push_back( std::fabs( finalPropagatedMEEstate[ orbital_element_conversions::kElementIndex ]
                                    - finalTargetedMEEstate[ orbital_element_conversions::kElementIndex ] ) );
-
-//    std::cout << "targeted keplerian elements: " << finalTargetedMEEstate.transpose() << "\n\n"; // [ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
-//    std::cout << "propagated keplerian elements: " << finalPropagatedMEEstate.transpose() << "\n\n"; //[ orbital_element_conversions::semiMajorAxisIndex ] << "\n\n";
 
     // Compute auxiliary variables.
     Eigen::Vector6d c;
@@ -217,33 +179,12 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
         epsilon[ i ] = equalityConstraints[ i ] * c[ i ] + r[ i ];
     }
 
-//    double weightTimeOfFlight = 1.0;
     double weightDeltaV = 1.0;
-    double weightConstraints = 1.0;
-    double optimisationObjective =/* equalityConstraints[ 0 ] + equalityConstraints[ 1 ] + equalityConstraints[ 2 ]
-            + equalityConstraints[ 3 ] + equalityConstraints[ 4 ];*/
-//            weightMass * ( 1.0 - currentLeg.getMassAtTimeOfFlight( ) / initialSpacecraftMass_ )
-            weightDeltaV * deltaV
-            + weightConstraints * ( epsilon.norm( ) * epsilon.norm( ) );
-
-//    for ( int i = 0 ; i < 6 ; i++ )
-//    {
-//        std::cout << "difference in extended state at match point: " << equalityConstraints[ i ] << "\n\n";
-//    }
+    double weightConstraints = 10.0;
+    double optimisationObjective =  weightDeltaV * deltaV + weightConstraints * ( epsilon.norm( ) * epsilon.norm( ) );
 
 
-    // Output of the fitness function.
-
-//    // Optimisation objectives
-//    fitness.push_back( deltaV );
-
-//    // Return equality constraints
-//    for ( unsigned int i = 0 ; i < equalityConstraints.size() ; i++ )
-//    {
-//        fitness.push_back( equalityConstraints[ i ] );
-//    }
-
-    // Output of the fitness function.
+    // Output of the fitness function..
     fitness.push_back( optimisationObjective );
 
 
