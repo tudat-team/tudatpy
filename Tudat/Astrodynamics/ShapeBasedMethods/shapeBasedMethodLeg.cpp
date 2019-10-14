@@ -18,12 +18,13 @@ namespace shape_based_methods
 
 
 basic_astrodynamics::AccelerationMap ShapeBasedMethodLeg::retrieveLowThrustAccelerationMap(
-        std::function< double ( const double ) > specificImpulseFunction )
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( specificImpulseFunction );
+            getLowThrustAccelerationModel( specificImpulseFunction, integratorSettings );
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
@@ -60,6 +61,51 @@ void ShapeBasedMethodLeg::getTrajectory(
 
         double currentIndependentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
         propagatedTrajectory[ epochsVector[ i ] ] = computeCurrentStateVector( currentIndependentVariable );
+    }
+}
+
+
+//! Compute current thrust vector.
+Eigen::Vector3d ShapeBasedMethodLeg::computeCurrentThrust( double time,
+                                                    std::function< double ( const double ) > specificImpulseFunction,
+                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    double independentVariable = convertTimeToIndependentVariable( time );
+
+    Eigen::Vector3d currentThrustVector = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
+
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass_ );
+    return currentThrustVector;
+}
+
+
+//! Return thrust profile.
+void ShapeBasedMethodLeg::getThrustProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    thrustProfile.clear( );
+    std::map< double, Eigen::VectorXd > massProfile;
+
+    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        double independentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
+
+        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
+        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+                * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
     }
 }
 

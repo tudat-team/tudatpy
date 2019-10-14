@@ -511,7 +511,9 @@ Eigen::Vector3d HodographicShaping::computeThrustAccelerationInCylindricalCoordi
 }
 
 
-double HodographicShaping::computeCurrentThrustAccelerationMagnitude( const double currentTime ){
+double HodographicShaping::computeCurrentThrustAccelerationMagnitude(
+        const double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings ){
 
 //    // Compute radial distance from the central body.
 //    double radialDistance = radialVelocityFunction_->evaluateCompositeFunctionIntegralCurrentTime( currentTime )
@@ -571,7 +573,9 @@ Eigen::Vector3d HodographicShaping::computeCurrentThrustAccelerationVector( doub
 }
 
 //! Compute direction cartesian acceleration.
-Eigen::Vector3d HodographicShaping::computeCurrentThrustAccelerationDirection( double currentTime )
+Eigen::Vector3d HodographicShaping::computeCurrentThrustAccelerationDirection(
+        double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     return computeCurrentThrustAccelerationVector( currentTime ).normalized();
 }
@@ -585,8 +589,14 @@ double HodographicShaping::computeDeltaV( )
     std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativeFunctionDeltaV = [ = ]
             ( const double currentTime, const Eigen::Vector1d& currentState ){
 
+        std::function< double( const double ) > specificImpulseFunction = [ = ]( double time )
+        {
+            return 0.0;
+        };
+
         Eigen::Vector1d thrustAcceleration;
-        thrustAcceleration[ 0 ] = computeCurrentThrustAccelerationMagnitude( currentTime );
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings;
+        thrustAcceleration[ 0 ] = computeCurrentThrustAccelerationMagnitude( currentTime, specificImpulseFunction, integratorSettings );
         return thrustAcceleration;
 
     } ;

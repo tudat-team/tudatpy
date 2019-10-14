@@ -203,6 +203,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
 
     // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
     double deltaV = currentLeg.getTotalDeltaV( );
+//    std::cout << "deltaV: " << deltaV << "\n\n";
 
     // Equality constraints (must be ... = 0 )
     std::vector< double > equalityConstraints;

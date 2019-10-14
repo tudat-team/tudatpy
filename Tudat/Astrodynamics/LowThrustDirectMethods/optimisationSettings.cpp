@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLegSettings.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLegSettings.h"
 
 namespace tudat
 {

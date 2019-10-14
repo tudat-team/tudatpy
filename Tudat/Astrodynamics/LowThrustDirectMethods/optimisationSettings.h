@@ -23,23 +23,24 @@
 #include <boost/bind.hpp>
 #include <functional>
 
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/hodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/sphericalShaping.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/hodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/sphericalShaping.h"
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 
 #include "pagmo/algorithm.hpp"
+
 
 
 namespace tudat
@@ -66,7 +67,7 @@ public:
             const int numberOfGenerations,
             const int numberOfIndividualsPerPopulation,
             const double relativeToleranceConstraints = 1.0e-6,
-            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ):
+            const std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ):
         optimisationAlgorithm_( optimisationAlgorithm ),
         numberOfGenerations_( numberOfGenerations ),
         numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),

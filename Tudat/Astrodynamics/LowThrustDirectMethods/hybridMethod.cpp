@@ -14,11 +14,13 @@
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 //#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
 
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
 #include "pagmo/problems/unconstrain.hpp"
 #include "pagmo/algorithms/compass_search.hpp"
+#include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
+#include "Tudat/Astrodynamics/Propulsion/costateBasedThrustGuidance.h"
 
 
 namespace tudat
@@ -39,14 +41,15 @@ Eigen::Matrix< double, 10, 1 > convertToHybridMethodThrustModel( std::function< 
 //! Perform optimisation.
 std::pair< std::vector< double >, std::vector< double > > HybridMethod::performOptimisation( )
 {
-    using namespace tudat_pagmo_applications;
+//    using namespace tudat_pagmo_applications;
 
     //Set seed for reproducible results
     pagmo::random_device::set_seed( 456 );
 
     // Create object to compute the problem fitness
     problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_,
-                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, relativeToleranceConstraints_ )};
+                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, optimisationSettings_->relativeToleranceConstraints_
+                                       /*relativeToleranceConstraints_*/ )};
 
     std::vector< double > constraintsTolerance;
     for ( unsigned int i = 0 ; i < ( prob.get_nec() + prob.get_nic() ) ; i++ )
@@ -59,16 +62,16 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 //    unconstrain unconstrainedProb{ prob, "ignore_o" };
 //    population pop{ unconstrainedProb, 10 };
 
-    algorithm algo = optimisationAlgorithm_;
+    algorithm algo = optimisationSettings_->optimisationAlgorithm_; // optimisationAlgorithm_;
 //    algoUnconstrained.set_verbosity( 10 );
 //    algoUnconstrained.evolve( pop );
 
-    unsigned long long populationSize = numberOfIndividualsPerPopulation_;
+    unsigned long long populationSize = optimisationSettings_->numberOfIndividualsPerPopulation_; // numberOfIndividualsPerPopulation_;
 
     island island{ algo, prob, populationSize };
 
     // Evolve for 10 generations
-    for( int i = 0 ; i < numberOfGenerations_ ; i++ )
+    for( int i = 0 ; i < optimisationSettings_->numberOfGenerations_ /*numberOfGenerations_*/ ; i++ )
     {
         island.evolve( );
         while( island.status( ) != pagmo::evolve_status::idle &&
@@ -78,9 +81,9 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
         }
         island.wait_check( ); // Raises errors
 
-        // Write current iteration results to file
-        printPopulationToFile( island.get_population( ).get_x( ), "testHybridMethod_generation_" + std::to_string( i ) , false );
-        printPopulationToFile( island.get_population( ).get_f( ), "testHybridMethod_generation_" + std::to_string( i ) , true );
+//        // Write current iteration results to file
+//        printPopulationToFile( island.get_population( ).get_x( ), "testHybridMethod_generation_" + std::to_string( i ) , false );
+//        printPopulationToFile( island.get_population( ).get_f( ), "testHybridMethod_generation_" + std::to_string( i ) , true );
 
         std::vector< double > championFitness = island.get_population().champion_f();
         for ( int i = 0 ; i < championFitness.size() ; i++ )
@@ -219,60 +222,213 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 //}
 
 
-//! Compute magnitude thrust acceleration.
-double HybridMethod::computeCurrentThrustAccelerationMagnitude( double currentTime )
+//! Compute current thrust vector.
+Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
+                                                    std::function< double ( const double ) > specificImpulseFunction,
+                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
-            hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
 
-    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+
+   std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodLeg_->getMEEcostatesBasedThrustMagnitudeSettings( );
+
+   std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
+           thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+
+   std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
+   {
+     return computeCurrentStateVector( time );
+   };
+
+   std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
+   {
+     return Eigen::Vector6d::Zero( );
+   };
+
+   std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
+   {
+        return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+   };
+
+   std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+
+
+   propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
+           thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+           hybridMethodLeg_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+
+   propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
+               thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+               hybridMethodLeg_->getCostatesFunction_( ), bodyFixedThrustDirection );
+
+   thrustGuidance.updateCalculator( time );
+   thrustMagnitudeWrapper.update( time );
+
+   return thrustMagnitudeWrapper.getCurrentThrustMagnitude( ) * thrustGuidance.getCurrentForceDirectionInPropagationFrame( );
+}
+
+
+
+//! Return thrust profile.
+void HybridMethod::getThrustProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    thrustProfile.clear( );
+//    std::map< double, Eigen::VectorXd > massProfile;
+
+//    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+
+    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodLeg_->getMEEcostatesBasedThrustMagnitudeSettings( );
+
+    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
+            thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    getTrajectory( epochsVector, trajectory );
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
     {
-        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
-                                  "the body Vehicle on Vehicle" );
-    }
-    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
-    Eigen::Vector3d thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
-    double thrustAccelerationMagnitude = thrustAcceleration.norm( );
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a shape-based trajectories, "
+                                      "epochs are not provided in increasing order." );
+        }
 
-    return thrustAccelerationMagnitude;
+//        double independentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
+
+//        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
+//        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+//                * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
+
+
+        Eigen::Vector6d currentStateVector = trajectory[ epochsVector[ i ] ];
+
+
+        std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
+        {
+            return currentStateVector;
+        };
+
+        std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
+        {
+          return Eigen::Vector6d::Zero( );
+        };
+
+        std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
+        {
+             return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+        };
+
+        std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+
+
+        propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
+                thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+                hybridMethodLeg_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+
+        propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
+                    thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+                    hybridMethodLeg_->getCostatesFunction_( ), bodyFixedThrustDirection );
+
+        thrustGuidance.updateCalculator( epochsVector[ i ] );
+        thrustMagnitudeWrapper.update( epochsVector[ i ] );
+
+        thrustProfile[ epochsVector[ i ] ] = thrustMagnitudeWrapper.getCurrentThrustMagnitude( ) * thrustGuidance.getCurrentForceDirectionInPropagationFrame( );
+
+    }
+}
+
+//! Compute magnitude thrust acceleration.
+double HybridMethod::computeCurrentThrustAccelerationMagnitude(
+        double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+
+//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+//    {
+//        return specificImpulse_;
+//    };
+
+    double currentMass = computeCurrentMass( currentTime, specificImpulseFunction, integratorSettings );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings_ );
+
+    return currentThrustVector.norm( ) / currentMass;
+
 }
 
 
 //! Compute direction thrust acceleration in cartesian coordinates.
-Eigen::Vector3d HybridMethod::computeCurrentThrustAccelerationDirection( double currentTime )
+Eigen::Vector3d HybridMethod::computeCurrentThrustAccelerationDirection(
+        double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    Eigen::Vector3d thrustAcceleration;
 
-    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
-            hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
+//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+//    {
+//        return specificImpulse_;
+//    };
 
-    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
-    {
-        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
-                                  "the body Vehicle on Vehicle" );
-    }
-    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
-    thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
 
-    return thrustAcceleration;
+    Eigen::Vector3d thrustAcceleration = currentThrustVector.normalized( );
+
+    return thrustAcceleration.normalized( );
 }
+
+
+
+//! Return thrust acceleration profile.
+void HybridMethod::getThrustAccelerationProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    thrustAccelerationProfile.clear();
+
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+
+    std::map< double, Eigen::VectorXd > massProfile;
+    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        Eigen::Vector3d currentThrustVector = thrustProfile[ epochsVector[ i ] ];
+        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
+
+        Eigen::Vector3d currentThrustAccelerationVector = currentThrustVector / currentMass;
+
+        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+
+    }
+}
+
 
 //! Compute current cartesian state.
 Eigen::Vector6d HybridMethod::computeCurrentStateVector( const double currentTime )
 {
+    Eigen::Vector6d stateVector;
+    if ( currentTime == 0.0 )
+    {
+        stateVector = stateAtDeparture_;
+    }
+    else
+    {
+        stateVector = hybridMethodLeg_->propagateTrajectory( 0.0, currentTime, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
+    }
 
-    return hybridMethodLeg_->propagateTrajectory( 0.0, currentTime, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
+    return stateVector;
 
-//    std::vector< double > epochsVector;
-////    epochsVector.push_back( 0.0 );
-//    epochsVector.push_back( currentTime );
-
-//    std::map< double, Eigen::Vector6d > propagatedTrajectory;
-//    getTrajectory( epochsVector, propagatedTrajectory );
-
-//    std::cout << "size propagated trajectory: " << propagatedTrajectory.size(  ) << "\n\n";
-
-//    return propagatedTrajectory.rbegin( )->second;
 }
 
 
@@ -354,7 +510,8 @@ Eigen::Vector6d HybridMethod::computeCurrentStateVector( const double currentTim
 
 //! Retrieve acceleration map (thrust and central gravity accelerations).
 basic_astrodynamics::AccelerationMap HybridMethod::retrieveLowThrustAccelerationMap(
-        std::function< double ( const double ) > specificImpulseFunction )
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     basic_astrodynamics::AccelerationMap hybridMethodAccelerationMap = hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
     return hybridMethodAccelerationMap;

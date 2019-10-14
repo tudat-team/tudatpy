@@ -68,6 +68,16 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
+    Eigen::Vector3d computeCurrentThrust( double time,
+                                          std::function< double ( const double ) > specificImpulseFunction,
+                                          std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Return thrust profile.
+    void getThrustProfile( std::vector< double >& epochsVector,
+                           std::map< double, Eigen::VectorXd >& thrustProfile,
+                           std::function< double ( const double ) > specificImpulseFunction,
+                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
 //    //! Compute current mass of the spacecraft.
 //    double computeCurrentMass( const double independentVariable,
 //                               std::function< double ( const double ) > specificImpulseFunction,
@@ -102,7 +112,9 @@ public:
 
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
-    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
+    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Define appropriate translational state propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,

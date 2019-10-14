@@ -12,17 +12,102 @@
 
 using namespace tudat;
 
+
+//! Function to create the object determining the direction of the thrust acceleration.
+std::shared_ptr< transfer_trajectories::LowThrustLeg  > createLowThrustLeg(
+        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+        const Eigen::Vector6d& stateAtDeparture,
+        const Eigen::Vector6d& stateAtArrival,
+        const double& timeOfFlight,
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody )
+{
+    // Declare LowThrustLeg object.
+    std::shared_ptr< LowThrustLeg > lowThrustLeg;
+
+    switch( lowThrustLegSettings->lowThrustLegType_ )
+    {
+    case hodographic_shaping_leg:
+    {
+        std::shared_ptr< HodographicShapingLegSettings > hodographicShapingSettings =
+                std::dynamic_pointer_cast< HodographicShapingLegSettings >( lowThrustLegSettings );
+
+        lowThrustLeg = std::make_shared< shape_based_methods::HodographicShaping >(
+                    stateAtDeparture, stateAtArrival, timeOfFlight, hodographicShapingSettings->numberOfRevolutions_,
+                    bodyMap, bodyToPropagate, centralBody, hodographicShapingSettings->radialVelocityFunctionComponents_,
+                    hodographicShapingSettings->normalVelocityFunctionComponents_, hodographicShapingSettings->axialVelocityFunctionComponents_,
+                    hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_, hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_,
+                    hodographicShapingSettings->freeCoefficientsAxialVelocityFunction_ );
+        break;
+    }
+    case spherical_shaping_leg:
+    {
+        std::shared_ptr< SphericalShapingLegSettings > sphericalShapingSettings =
+                std::dynamic_pointer_cast< SphericalShapingLegSettings >( lowThrustLegSettings );
+
+        lowThrustLeg = std::make_shared< shape_based_methods::SphericalShaping >(
+                    stateAtDeparture, stateAtArrival, timeOfFlight, sphericalShapingSettings->numberOfRevolutions_,
+                    bodyMap, bodyToPropagate, centralBody, sphericalShapingSettings->initialValueFreeCoefficient_,
+                    sphericalShapingSettings->rootFinderSettings_, sphericalShapingSettings->boundsFreeCoefficient_.first,
+                    sphericalShapingSettings->boundsFreeCoefficient_.second );
+        break;
+    }
+    case sims_flanagan_leg:
+    {
+        std::shared_ptr< SimsFlanaganLegSettings > SimsFlanaganSettings =
+                std::dynamic_pointer_cast< SimsFlanaganLegSettings >( lowThrustLegSettings );
+
+        lowThrustLeg = std::make_shared< low_thrust_direct_methods::SimsFlanagan >(
+                    stateAtDeparture, stateAtArrival, SimsFlanaganSettings->maximumThrust_, SimsFlanaganSettings->specificImpulseFunction_,
+                    SimsFlanaganSettings->numberSegments_, timeOfFlight, bodyMap, bodyToPropagate, centralBody,
+                    /*SimsFlanaganSettings->optimisationAlgorithm_, SimsFlanaganSettings->numberOfGenerations_,
+                    SimsFlanaganSettings->numberOfIndividualsPerPopulation_,*/ SimsFlanaganSettings->optimisationSettings_/*,
+                    SimsFlanaganSettings->relativeToleranceConstraints_,
+                    SimsFlanaganSettings->initialGuessThrustModel_*/ );
+
+        break;
+    }
+    case hybrid_method_leg:
+    {
+        std::shared_ptr< HybridMethodLegSettings > hybridMethodSettings =
+                std::dynamic_pointer_cast< HybridMethodLegSettings >( lowThrustLegSettings );
+
+        lowThrustLeg = std::make_shared< low_thrust_direct_methods::HybridMethod >(
+                    stateAtDeparture, stateAtArrival, hybridMethodSettings->maximumThrust_, hybridMethodSettings->specificImpulse_,
+                    timeOfFlight, bodyMap, bodyToPropagate, centralBody, hybridMethodSettings->integratorSettings_,
+                    /*hybridMethodSettings->optimisationAlgorithm_, hybridMethodSettings->numberOfGenerations_,
+                    hybridMethodSettings->numberOfIndividualsPerPopulation_,*/ hybridMethodSettings->optimisationSettings_/*, hybridMethodSettings->relativeToleranceConstraints_,
+                    hybridMethodSettings->initialGuessThrustModel_*/ );
+
+        break;
+    }
+    }
+
+    // Return low-thrust leg.
+    return lowThrustLeg;
+}
+
 TrajectoryOptimisationProblem::TrajectoryOptimisationProblem(
         simulation_setup::NamedBodyMap bodyMap,
         const std::string bodyToPropagate,
         const std::string centralBody,
+        std::function< Eigen::Vector6d( const double ) > departureStateFunction,
+        std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
+        std::pair< double, double > departureTimeBounds,
+        std::pair< double, double > timeOfFlightBounds,
         const std::shared_ptr< transfer_trajectories::LowThrustLegSettings >& lowThrustLegSettings ) :
     bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ),
     centralBody_( centralBody ),
+    departureStateFunction_( departureStateFunction ),
+    arrivalStateFunction_( arrivalStateFunction ),
+    departureTimeBounds_( departureTimeBounds ),
+    timeOfFlightBounds_( timeOfFlightBounds ),
     lowThrustLegSettings_( lowThrustLegSettings )
 {
     initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+
 }
 
 
@@ -36,201 +121,37 @@ std::pair< std::vector< double >, std::vector< double > > TrajectoryOptimisation
 
     // Define lower bounds.
     std::vector< double > lowerBounds;
+    lowerBounds.push_back( departureTimeBounds_.first );
+    lowerBounds.push_back( timeOfFlightBounds_.first );
+
+    // Define upper bounds.
     std::vector< double > upperBounds;
-//    for ( int i = 0 ; i < numberSegments_ ; i++ )
-//    {
-//        bool isInitialGuessUsedForLowerBounds = false;
-//        bool isInitialGuessUsedForUpperBounds = false;
-
-//        // Lower bound for the 3 components of the thrust vector.
-//        if ( ( initialGuessThrottles_.size( ) != 0 ) )
-//        {
-//            Eigen::Vector3d lowerBoundsFromInitialGuess;
-//            Eigen::Vector3d upperBoundsFromInitialGuess;
-
-//            for ( int k = 0 ; k < 3 ; k++ )
-//            {
-//                if ( initialGuessThrottles_[ i ][ k ] >= 0 )
-//                {
-//                    lowerBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-//                    upperBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-//                }
-//                else
-//                {
-//                    lowerBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-//                    upperBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-//                }
-//            }
-
-//            if ( ( std::fabs( lowerBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( lowerBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-//                 && ( std::fabs( lowerBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-//            {
-//                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 0 ] );
-//                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
-//                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
-//                isInitialGuessUsedForLowerBounds = true;
-//            }
-
-//            if ( ( std::fabs( upperBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( upperBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-//                 && ( std::fabs( upperBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-//            {
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-//                isInitialGuessUsedForUpperBounds = true;
-//            }
-
-//        }
-
-//        if ( !isInitialGuessUsedForLowerBounds )
-//        {
-//            lowerBounds.push_back( - 1.0 );
-//            lowerBounds.push_back( - 1.0 );
-//            lowerBounds.push_back( - 1.0 );
-//        }
-
-//        if ( !isInitialGuessUsedForUpperBounds )
-//        {
-//            upperBounds.push_back( 1.0 );
-//            upperBounds.push_back( 1.0 );
-//            upperBounds.push_back( 1.0 );
-//        }
-
-//    }
-
-////    // Define upper bounds.
-
-////    for ( int i = 0 ; i < numberSegments_ ; i++ )
-////    {
-//////        bool isInitialGuessUsedForUpperBounds = false;
-
-////        // Upper bound for the 3 components of the thrust vector.
-////        if ( ( initialGuessThrottles_.size( ) != 0 ) )
-////        {
-////            Eigen::Vector3d upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ];
-
-////            if ( ( upperBoundsFromInitialGuess[ 0 ] <= 1.0 ) && ( upperBoundsFromInitialGuess[ 1 ] <= 1.0 )
-////                 && ( upperBoundsFromInitialGuess[ 2 ] <= 1.0 ) )
-////            {
-////                upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
-////                upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-////                upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-////                isInitialGuessUsedForUpperBounds = true;
-////            }
-////        }
-
-////        if ( !isInitialGuessUsedForUpperBounds )
-////        {
-////            upperBounds.push_back( 1.0 );
-////            upperBounds.push_back( 1.0 );
-////            upperBounds.push_back( 1.0 );
-////        }
-////    }
+    upperBounds.push_back( departureTimeBounds_.second );
+    upperBounds.push_back( timeOfFlightBounds_.second );
 
     return { lowerBounds, upperBounds };
 }
 
+
 //! Fitness function.
 std::vector< double > TrajectoryOptimisationProblem::fitness( const std::vector< double > &designVariables ) const{
 
-//    // Re-initialise mass of the spacecraft.
-//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-
-//    // Transform vector of design variables into 3D vector of throttles.
-//    std::vector< Eigen::Vector3d > throttles;
-
-//    // Check consistency of the size of the design variables vector.
-//    if ( designVariables.size( ) != 3 * numberSegments_ )
-//    {
-//        throw std::runtime_error( "Error, size of the design variables vector unconsistent with number of segments." );
-//    }
-
-//    for ( unsigned int i = 0 ; i < numberSegments_ ; i++ )
-//    {
-//        throttles.push_back( ( Eigen::Vector3d( ) << designVariables[ i * 3 ],
-//                             designVariables[ i * 3 + 1 ], designVariables[ i * 3 + 2 ] ).finished( ) );
-//    }
-
-
     std::vector< double > fitness;
 
-//    // Create Sims Flanagan trajectory leg.
-//    low_thrust_direct_methods::SimsFlanaganLeg currentLeg = low_thrust_direct_methods::SimsFlanaganLeg( stateAtDeparture_,
-//                                                                                                        stateAtArrival_,
-//                                                                                                        maximumThrust_,
-//                                                                                                        specificImpulseFunction_,
-//                                                                                                        timeOfFlight_,
-//                                                                                                        bodyMap_,
-//                                                                                                        throttles,
-//                                                                                                        bodyToPropagate_,
-//                                                                                                        centralBody_ );
+    double departureTime = designVariables[ 0 ];
+    double timeOfFlight = designVariables[ 1 ];
 
-//    // Forward propagation from departure to match point.
-//    currentLeg.propagateForwardFromDepartureToMatchPoint();
+//    std::function< Eigen::Vector6d( const double ) > departureStateFunction;
+//    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction;
 
-//    // Backward propagation from arrival to match point.
-//    currentLeg.propagateBackwardFromArrivalToMatchPoint();
+    Eigen::Vector6d stateAtDeparture = departureStateFunction_( departureTime );
+    Eigen::Vector6d stateAtArrival = arrivalStateFunction_( departureTime + timeOfFlight );
+
+    std::shared_ptr< LowThrustLeg > lowThrustLeg = createLowThrustLeg( lowThrustLegSettings_, stateAtDeparture, stateAtArrival,
+                                                                       timeOfFlight, bodyMap_, bodyToPropagate_, centralBody_ );
 
 
-//    // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
-//    double deltaV = currentLeg.getTotalDeltaV( );
-
-//    // Equality constraints (must be ... = 0 )
-//    std::vector< double > equalityConstraints;
-
-//    // Spacecraft position and velocity must be continuous at the match point.
-//    for ( int i = 0 ; i < 3 ; i++ )
-//    {
-//        equalityConstraints.push_back( std::fabs( currentLeg.getStateAtMatchPointForwardPropagation( )[ i ]
-//                                       - currentLeg.getStateAtMatchPointBackwardPropagation( )[ i ] ) /
-//                                       physical_constants::ASTRONOMICAL_UNIT );
-//        equalityConstraints.push_back( std::fabs( currentLeg.getStateAtMatchPointForwardPropagation( )[ i + 3 ]
-//                                       - currentLeg.getStateAtMatchPointBackwardPropagation( )[ i + 3 ] ) /
-//                                       stateAtDeparture_.segment(3 ,3 ).norm() );
-//    }
-
-//    // Inequality constraints.
-//    std::vector< double > inequalityConstraints;
-//    // Magnitude of the normalised thrust vector must be inferior or equal to 1 )
-//    for ( unsigned int currentThrottle = 0 ; currentThrottle < throttles.size() ; currentThrottle++ )
-//    {
-//        if ( throttles[ currentThrottle ].norm( ) > 1.0 )
-//        {
-//            inequalityConstraints.push_back( throttles[ currentThrottle ][ 0 ] * throttles[ currentThrottle ][ 0 ]
-//                    + throttles[ currentThrottle ][ 1 ] * throttles[ currentThrottle ][ 1 ]
-//                    + throttles[ currentThrottle ][ 2 ] * throttles[ currentThrottle ][ 2 ] - 1.0 );
-//        }
-//        else
-//        {
-//            inequalityConstraints.push_back( 0.0 );
-//        }
-//    }
-
-//    // Compute auxiliary variables.
-//    Eigen::VectorXd c; c.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
-//    Eigen::VectorXd r; r.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
-//    Eigen::VectorXd epsilon; epsilon.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
-//    for ( int i = 0 ; i < equalityConstraints.size( ) ; i++ )
-//    {
-//        c[ i ] = 1.0 / relativeToleranceConstraints_;
-//        r[ i ] = 1.0 - relativeToleranceConstraints_ * c[ i ];
-//        epsilon[ i ] = equalityConstraints[ i ] * c[ i ] + r[ i ];
-//    }
-//    for ( int i = 0 ; i < inequalityConstraints.size( ) ; i++ )
-//    {
-//        c[ equalityConstraints.size( ) + i ] = 1.0 / relativeToleranceConstraints_;
-//        r[ equalityConstraints.size( ) + i ] = 1.0 - relativeToleranceConstraints_ * c[ equalityConstraints.size( ) + i ];
-//        epsilon[ equalityConstraints.size( ) + i ] = inequalityConstraints[ i ] * c[ equalityConstraints.size( ) + i ] + r[ equalityConstraints.size( ) + i ];
-//    }
-
-//    double weightDeltaV = 1.0;
-//    double weightConstraints = 10.0;
-//    double optimisationObjective = weightDeltaV * deltaV + weightConstraints * ( epsilon.norm( ) * epsilon.norm( ) );
-
-
-//    // Optimisation objectives
-//    fitness.push_back( optimisationObjective );
-
+    fitness.push_back( lowThrustLeg->computeDeltaV( ) );
 
     return fitness;
 }
