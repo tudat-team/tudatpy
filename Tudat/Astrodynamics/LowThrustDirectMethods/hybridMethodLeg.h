@@ -22,17 +22,6 @@ namespace tudat
 namespace low_thrust_direct_methods
 {
 
-//Eigen::Vector5d computeOptimalThrustComponents(
-//        Eigen::Vector6d& currentState,
-//        Eigen::Vector6d& currentCoStates,
-//        double mass,
-//        const double maximumThrustMagnitude );
-
-//Eigen::Vector6d computeCurrentCoStates(
-//        const Eigen::Vector6d& initialCoStates,
-//        const Eigen::Vector6d& finalCoStates,
-//        const double currentTime );
-
 class HybridMethodLeg
 {
 public:
@@ -63,9 +52,6 @@ public:
         // Retrieve initial mass of the spacecraft.
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
-        // Initialise mass at time of flight (before propagation).
-        massAtTimeOfFlight_ = initialSpacecraftMass_;
-
         // Define function returning the current MEE costates.
         costatesFunction_ = [ = ]( const double currentTime )
         {
@@ -80,6 +66,10 @@ public:
             return currentCostates;
         };
 
+        // Initialise mass at time of flight (before propagation).
+       Eigen::Vector6d propagatedStateAtTimeOfFlight = propagateTrajectory( );
+//        massAtTimeOfFlight_ = initialSpacecraftMass_;
+
     }
 
 
@@ -87,32 +77,23 @@ public:
     ~HybridMethodLeg( ) { }
 
     //! Retrieve MEE costates-based thrust acceleration.
-//    std::shared_ptr< propulsion::ThrustAcceleration > getMEEcostatesBasedThrustAccelerationModel( );
     std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );
+
+    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > getMEEcostatesBasedThrustMagnitudeSettings( );
+    std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > getMEEcostatesBasedThrustDirectionSettings( );
 
     //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
     basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
 
     //! Propagate the spacecraft trajectory to time of flight.
-    Eigen::Vector6d propagateTrajectory(
-            /*std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
+    Eigen::Vector6d propagateTrajectory( );
 
     //! Propagate the spacecraft trajectory to a given time.
-    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass/*,
-                                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
+    Eigen::Vector6d  propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass );
 
     //! Propagate the trajectory to set of epochs.
     std::map< double, Eigen::Vector6d > propagateTrajectory(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory/*, Eigen::Vector6d initialState, double initialMass,
-            double initialTime*//*, std::shared_ptr<  numerical_integrators::IntegratorSettings< double > > integratorSettings*/ );
-
-    //! Compute dynamics matrix.
-    Eigen::Matrix< double, 6, 3 > computeDynamicsMatrix( Eigen::Vector6d modifiedEquinoctialElements );
-
-    //! Compute averaged state derivative.
-    Eigen::Vector7d computeAveragedStateDerivative(
-            std::map< double, Eigen::VectorXd > stateHistory,
-            std::map< double, Eigen::VectorXd > dependentVariableHistory );
+            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
     //! Return the deltaV associated with the thrust profile of the trajectory.
     double computeDeltaV( );
@@ -150,7 +131,13 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( )
     {
-        return totalDeltaV_;
+        return computeDeltaV( );//totalDeltaV_;
+    }
+
+    //! Return the current MEE co-states.
+    std::function< Eigen::VectorXd( const double ) > getCostatesFunction_( )
+    {
+        return costatesFunction_;
     }
 
 protected:

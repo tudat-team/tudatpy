@@ -24,23 +24,23 @@
 #include <functional>
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/hodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/sphericalShaping.h"
 
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLegSettings.h"
 
-#include "pagmo/algorithm.hpp"
+//#include "pagmo/algorithm.hpp"
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
@@ -73,6 +73,10 @@ struct TrajectoryOptimisationProblem
             simulation_setup::NamedBodyMap bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
+            std::function< Eigen::Vector6d( const double ) > departureStateFunction,
+            std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
+            std::pair< double, double > departureTimeBounds,
+            std::pair< double, double > timeOfFlightBounds,
             const std::shared_ptr< transfer_trajectories::LowThrustLegSettings >& lowThrustLegSettings );
 
     //! Calculate the fitness as a function of the parameter vector x
@@ -138,8 +142,20 @@ private:
     //! Name of the central body.
     const std::string centralBody_;
 
+    //! Function returning the state at departure as a function of the departure time.
+    std::function< Eigen::Vector6d( const double ) > departureStateFunction_;
+
+    //! Function returning the state at arrival as a function of the arrival time.
+    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction_;
+
     //! Initial spacecraft mass.
     double initialSpacecraftMass_;
+
+    //! Bounds for departure time.
+    std::pair< double, double > departureTimeBounds_;
+
+    //! Bounds for time of flight.
+    std::pair< double, double > timeOfFlightBounds_;
 
     //! Pointer to settings for low-thrust trajectory leg.
     std::shared_ptr< transfer_trajectories::LowThrustLegSettings > lowThrustLegSettings_;

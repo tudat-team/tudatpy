@@ -114,6 +114,12 @@ public:
         return timeOfFlight_;
     }
 
+    //! Return vector of throttles.
+    std::vector< Eigen::Vector3d > getThrottles( )
+    {
+        return throttles_;
+    }
+
     //! Return state vector at match point from forward propagation.
     Eigen::Vector6d getStateAtMatchPointForwardPropagation( )
     {
@@ -141,6 +147,32 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( )
     {
+        totalDeltaV_ = 0.0;
+//        propagateForwardFromDepartureToMatchPoint( );
+//        propagateBackwardFromArrivalToMatchPoint( );
+
+        double currentMass = initialSpacecraftMass_;
+
+        for ( int currentSegment = 0 ; currentSegment < numberSegments_ ; currentSegment++ )
+        {
+            double segmentDuration;
+            if ( currentSegment < numberSegmentsForwardPropagation_ )
+            {
+                segmentDuration = segmentDurationForwardPropagation_;
+            }
+            else
+            {
+                segmentDuration = segmentDurationBackwardPropagation_;
+            }
+
+            Eigen::Vector3d deltaVvector = maximumThrust_ / currentMass
+                                * segmentDuration * throttles_[ currentSegment ];
+
+            currentMass = propagateMassToSegment( currentSegment );
+
+            totalDeltaV_ += deltaVvector.norm( );
+        }
+
         return totalDeltaV_;
     }
 
@@ -173,6 +205,11 @@ public:
     //! Propagate the mass from departure to a given segment.
     double propagateMassToSegment( int indexSegment );
 
+    int convertTimeToLegSegment( double currentTime );
+
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg( );
+
+
 
 protected:
 
@@ -180,11 +217,6 @@ protected:
             unsigned int indexSegment );
 
     basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( unsigned int indexSegment );
-
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg( );
-
-    int convertTimeToLegSegment( double currentTime );
-
 
 private:
 
