@@ -219,7 +219,7 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
 
 //    double weightTimeOfFlight = 1.0;
     double weightDeltaV = 1.0;
-    double weightConstraints = 10.0;
+    double weightConstraints = 1.0;
     double optimisationObjective =/* equalityConstraints[ 0 ] + equalityConstraints[ 1 ] + equalityConstraints[ 2 ]
             + equalityConstraints[ 3 ] + equalityConstraints[ 4 ];*/
 //            weightMass * ( 1.0 - currentLeg.getMassAtTimeOfFlight( ) / initialSpacecraftMass_ )

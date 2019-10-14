@@ -1411,7 +1411,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 //    // Compute halved time of flight.
 //    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
-    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = VelocityShapingMethod.retrieveLowThrustAccelerationMap( specificImpulseFunction );
+    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = VelocityShapingMethod.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
@@ -1713,6 +1713,50 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
 
         BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
 
+    }
+
+
+    // Test trajectory function.
+    std::vector< double > epochsVector;
+    epochsVector.push_back( 0.0 );
+    epochsVector.push_back( timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight / 2.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    VelocityShapingMethod.getTrajectory( epochsVector, trajectory );
+    VelocityShapingMethod.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    VelocityShapingMethod.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    VelocityShapingMethod.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < 3 ; i ++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] ), 1.0e-3 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i + 3 ] - cartesianStateDepartureBody[ i + 3 ] ), 1.0e-10 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] ), 1.0e-3 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i + 3 ] - cartesianStateArrivalBody[ i + 3 ] ), 1.0e-10 );
+    }
+
+    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+    {
+        Eigen::Vector6d stateVector = VelocityShapingMethod.computeCurrentStateVector( itr->first );
+        Eigen::Vector3d thrustAccelerationVector = VelocityShapingMethod.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d thrustVector = VelocityShapingMethod.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
+        double mass = VelocityShapingMethod.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
+        }
+        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-12 );
     }
 
 }

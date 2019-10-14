@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
 
-    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = sphericalShaping.retrieveLowThrustAccelerationMap( specificImpulseFunction );
+    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = sphericalShaping.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
@@ -636,12 +636,12 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
         return 3000.0;
     };
 
+    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     // Compute shaped trajectory.
     shape_based_methods::SphericalShaping sphericalShaping = shape_based_methods::SphericalShaping(
-                pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
-                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY ),
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                stateAtDeparture, stateAtArrival, timeOfFlight * tudat::physical_constants::JULIAN_DAY,
                 numberOfRevolutions, bodyMap, "Vehicle", "Sun", 0.000703,
                 rootFinderSettings, 1.0e-6, 1.0e-1, integratorSettings );
 
@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
-    sphericalShaping.computeSemiAnalyticalAndFullPropagation( /*specificImpulseFunction,*/ integratorSettings, propagatorSettings,
+    sphericalShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
                                                               fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 
@@ -717,6 +717,55 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
                 ( specificImpulseFunction( itr->first ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
         BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
 
+    }
+
+
+    // Test trajectory function.
+    std::vector< double > epochsVector;
+    epochsVector.push_back( 0.0 );
+    epochsVector.push_back( timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight / 2.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    sphericalShaping.getTrajectory( epochsVector, trajectory );
+    sphericalShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    sphericalShaping.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    sphericalShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < 3 ; i ++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.begin( )->second[ i ] - stateAtDeparture[ i ] ) /
+                                      physical_constants::ASTRONOMICAL_UNIT ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.begin( )->second[ i + 3 ] - stateAtDeparture[ i + 3 ] ) /
+                ( physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR ) ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.rbegin( )->second[ i ] - stateAtArrival[ i ] ) /
+                                      physical_constants::ASTRONOMICAL_UNIT ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.rbegin( )->second[ i + 3 ] - stateAtArrival[ i + 3 ] ) /
+                ( physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR ) ), 1.0e-6 );
+    }
+
+    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+    {
+        double independentVariable = sphericalShaping.convertTimeToIndependentVariable( itr->first );
+        Eigen::Vector6d stateVector = sphericalShaping.computeCurrentStateVector( independentVariable );
+        Eigen::Vector3d thrustAccelerationVector = sphericalShaping.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d thrustVector = sphericalShaping.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
+        double mass = sphericalShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
+        }
+        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-10 );
     }
 
 }

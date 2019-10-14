@@ -103,6 +103,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getAccelerationModelPerSeg
 
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg::getThrustAccelerationSettingsFullLeg( )
 {
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
     // Define thrust magnitude function.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
@@ -140,6 +141,8 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
 
 basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getLowThrustTrajectoryAccelerationMap( )
 {
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+
     // Define acceleration settings.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationsSettings;
 
@@ -194,6 +197,11 @@ double SimsFlanaganLeg::propagateMassToSegment( int indexSegment )
         // Update mass of the spacecraft.
         currentMass *= std::exp( - currentDeltaV.norm() /
                           ( specificImpulseFunction_( currentTime ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
+
+//        currentMass -= maximumThrust_ * throttles_[ currentSegment ].norm( ) / ( specificImpulseFunction_( currentTime ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION )
+//                * segmentDuration;
+
+//        std::cout << "current segment: " << std::to_string( currentSegment ) << " current mass: " << currentMass << "\n\n";
     }
 
     // Return mass of the spacecraft at half of the required segment.
@@ -215,7 +223,8 @@ void SimsFlanaganLeg::propagateForwardFromDepartureToMatchPoint( )
     // Set mass of the spacecraft at match point after the forward propagation.
     massAtMatchPointFromForwardPropagation_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
 
-
+    // Re-initialise spacecraft mass.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 }
 
 //! Propagate the spacecraft trajectory from arrival to match point (backward propagation).
@@ -235,6 +244,8 @@ void SimsFlanaganLeg::propagateBackwardFromArrivalToMatchPoint( )
     // Set mass of the spacecraft at match point after the backward propagation.
     massAtMatchPointFromBackwardPropagation_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
 
+    // Re-initialise spacecraft mass.
+    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 }
 
 
@@ -305,6 +316,9 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
         // Update mass of the vehicle.
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( propagateMassToSegment( currentSegment + 1 ) );
 
+//        // Update deltaV of the trajectory.
+//        totalDeltaV_ += deltaVvector.norm( );
+
     }
 
     return propagatedState;
@@ -373,7 +387,8 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
                         centralBodyGravitationalParameter_ );
         }
 
-
+//        // Update deltaV of the trajectory.
+//        totalDeltaV_ += deltaVvector.norm( );
 
     }
 
@@ -600,6 +615,9 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
 
         }
 
+        // Re-initialise spacecraft mass.
+        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+
         return propagatedTrajectory;
 }
 
@@ -659,6 +677,8 @@ void SimsFlanaganLeg::propagateTrajectory(
 //   double massAtTimeOfFlight = propagateMassToSegment( numberSegments_ );
    propagatedTrajectory = propagateTrajectoryBackward( epochsVectorBackwardPropagation, propagatedTrajectory, segmentDurationBackwardPropagation_ );
 
+   // Re-initialise spacecraft mass.
+   bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 }
 
 

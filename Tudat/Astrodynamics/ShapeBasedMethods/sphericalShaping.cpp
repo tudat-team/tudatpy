@@ -674,14 +674,18 @@ Eigen::Vector3d SphericalShaping::computeNormalizedThrustAccelerationVector( con
 }
 
 //! Compute magnitude cartesian acceleration.
-double  SphericalShaping::computeCurrentThrustAccelerationMagnitude( double currentAzimuthAngle )
+double  SphericalShaping::computeCurrentThrustAccelerationMagnitude(
+        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     return computeNormalizedThrustAccelerationVector( currentAzimuthAngle ).norm() * physical_constants::ASTRONOMICAL_UNIT
             / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
 }
 
 //! Compute direction thrust acceleration in cartesian coordinates.
-Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection( double currentAzimuthAngle )
+Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection(
+        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     return computeNormalizedThrustAccelerationVector( currentAzimuthAngle ).normalized();
 }

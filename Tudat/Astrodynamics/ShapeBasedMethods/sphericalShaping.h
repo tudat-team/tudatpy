@@ -216,10 +216,14 @@ protected:
     Eigen::Vector3d computeThrustAccelerationInSphericalCoordinates( const double currentAzimuthAngle );
 
     //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude( double currentTime );
+    double computeCurrentThrustAccelerationMagnitude(
+            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
+            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute current thrust acceleration in normalized cartesian coordinates.
     Eigen::Vector3d computeNormalizedThrustAccelerationVector( const double currentAzimuthAngle );

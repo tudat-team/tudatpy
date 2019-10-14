@@ -14,11 +14,15 @@
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
 //#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
 
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
-#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
 #include "pagmo/problems/unconstrain.hpp"
 #include "pagmo/algorithms/compass_search.hpp"
+
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
+//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
 
 
 namespace tudat
@@ -53,14 +57,14 @@ std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< 
 //! Perform optimisation.
 std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performOptimisation( )
 {
-    using namespace tudat_pagmo_applications;
+//    using namespace tudat_pagmo_applications;
 
     //Set seed for reproducible results
     pagmo::random_device::set_seed( 456 );
 
     // Create object to compute the problem fitness
     problem prob{ SimsFlanaganProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, numberSegments_,
-                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, initialGuessThrustModel_ )};
+                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, initialGuessThrustModel_, optimisationSettings_->relativeToleranceConstraints_ ) };
 
 
 
@@ -72,14 +76,14 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
     prob.set_c_tol( constraintsTolerance );
 
 
-    algorithm algo{ optimisationAlgorithm_ };
+    algorithm algo{ optimisationSettings_->optimisationAlgorithm_ /*optimisationAlgorithm_*/ };
 
-    unsigned long long populationSize = numberOfIndividualsPerPopulation_;
+    unsigned long long populationSize = optimisationSettings_->numberOfIndividualsPerPopulation_; // numberOfIndividualsPerPopulation_;
 
     island islUnconstrained{ algo, prob, populationSize };
 
     // Evolve for a given number of generations.
-    for( int i = 0 ; i < numberOfGenerations_ ; i++ )
+    for( int i = 0 ; i < optimisationSettings_->numberOfGenerations_ /*numberOfGenerations_*/ ; i++ )
     {
         islUnconstrained.evolve( );
         while( islUnconstrained.status( ) != pagmo::evolve_status::idle &&
@@ -89,9 +93,9 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
         }
         islUnconstrained.wait_check( ); // Raises errors
 
-        // Write current iteration results to file
-        printPopulationToFile( islUnconstrained.get_population( ).get_x( ), "testSimsFlanagan_generation_" + std::to_string( i ) , false );
-        printPopulationToFile( islUnconstrained.get_population( ).get_f( ), "testSimsFlanagan_generation_" + std::to_string( i ) , true );
+//        // Write current iteration results to file
+//        printPopulationToFile( islUnconstrained.get_population( ).get_x( ), "testSimsFlanagan_generation_" + std::to_string( i ) , false );
+//        printPopulationToFile( islUnconstrained.get_population( ).get_f( ), "testSimsFlanagan_generation_" + std::to_string( i ) , true );
 
         std::vector< double > championFitness = islUnconstrained.get_population().champion_f();
     }
@@ -114,41 +118,164 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
 
 
 //! Compute direction thrust acceleration in cartesian coordinates.
-Eigen::Vector3d SimsFlanagan::computeCurrentThrustAccelerationDirection( double currentTime )
+Eigen::Vector3d SimsFlanagan::computeCurrentThrustAccelerationDirection(
+        double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    Eigen::Vector3d thrustAcceleration;
+//    Eigen::Vector3d thrustAcceleration;
 
-    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
-            simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
+//    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
+//            simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
 
-    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
-    {
-        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
-                                  "the body Vehicle on Vehicle" );
-    }
-    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
-    thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
+//    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+//    {
+//        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
+//                                  "the body Vehicle on Vehicle" );
+//    }
+//    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
+//    thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
 
-    return thrustAcceleration;
+//    return thrustAcceleration;
+
+    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
+
+    Eigen::Vector3d thrustAcceleration = currentThrustVector.normalized( );
+
+    return thrustAcceleration.normalized( );
 }
 
 
 //! Compute magnitude thrust acceleration.
-double SimsFlanagan::computeCurrentThrustAccelerationMagnitude( double currentTime )
+double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
+        double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
-            simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
+//    basic_astrodynamics::SingleBodyAccelerationMap vehicleAccelerationMap =
+//            simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( )[ bodyToPropagate_ ];
 
-    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+//    if ( vehicleAccelerationMap[ bodyToPropagate_ ].size( ) != 1 )
+//    {
+//        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
+//                                  "the body Vehicle on Vehicle" );
+//    }
+//    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
+//    Eigen::Vector3d thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
+//    double thrustAccelerationMagnitude = thrustAcceleration.norm( );
+
+    double currentMass = computeCurrentMass( currentTime, specificImpulseFunction, integratorSettings );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
+
+    return currentThrustVector.norm( ) / currentMass;
+
+//    return thrustAccelerationMagnitude;
+}
+
+
+//! Compute current thrust vector.
+Eigen::Vector3d SimsFlanagan::computeCurrentThrust( double time,
+                                                    std::function< double ( const double ) > specificImpulseFunction,
+                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+//    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = simsFlanaganLeg_->getMEEcostatesBasedThrustMagnitudeSettings( );
+
+
+
+   std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
+           simsFlanaganLeg_->getThrustAccelerationSettingsFullLeg( );
+
+
+//   std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
+//   {
+//     return computeCurrentStateVector( time );
+//   };
+
+//   std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
+//   {
+//     return Eigen::Vector6d::Zero( );
+//   };
+
+//   std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
+//   {
+//        return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+//   };
+
+//   std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+
+   // Define (constant) thrust magnitude function.
+   std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
+   {
+       int indexSegment = convertTimeToLegSegment( currentTime );
+       return maximumThrust_ * simsFlanaganLeg_->getThrottles( )[ indexSegment ].norm();
+   };
+
+   std::shared_ptr< propulsion::CustomThrustMagnitudeWrapper > thrustMagnitudeWrapper =
+           std::make_shared< propulsion::CustomThrustMagnitudeWrapper >( thrustMagnitudeFunction, specificImpulseFunction );
+
+   std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
+               thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap_, bodyToPropagate_ );
+
+   // Define thrust direction function.
+   std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
+   {
+       int indexSegment = convertTimeToLegSegment( currentTime );
+       return simsFlanaganLeg_->getThrottles( )[ indexSegment ].normalized();
+   };
+
+   std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance > thrustDirectionGuidance =
+           std::make_shared< propulsion::DirectionBasedForceGuidance >( thrustDirectionFunction, "", bodyFixedThrustDirection );
+
+//   propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
+//           thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+//           hybridMethodLeg_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+
+//   propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
+//               thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+//               hybridMethodLeg_->getCostatesFunction_( ), bodyFixedThrustDirection );
+
+   thrustDirectionGuidance->updateCalculator( time );
+   thrustMagnitudeWrapper->update( time );
+
+   return thrustMagnitudeWrapper->getCurrentThrustMagnitude( ) * thrustDirectionGuidance->getCurrentForceDirectionInPropagationFrame( );
+
+//    double independentVariable = convertTimeToIndependentVariable( time );
+//    return computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
+//            * computeCurrentThrustAccelerationMagnitude( independentVariable )
+//            * computeCurrentThrustAccelerationDirection( independentVariable );
+}
+
+
+
+//! Return thrust acceleration profile.
+void SimsFlanagan::getThrustAccelerationProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    thrustAccelerationProfile.clear();
+
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+
+    std::map< double, Eigen::VectorXd > massProfile;
+    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
     {
-        throw std::runtime_error( "Error when retrieving the thrust acceleration for hybrid method, more than one acceleration exerted by"
-                                  "the body Vehicle on Vehicle" );
-    }
-    vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->updateMembers( currentTime );
-    Eigen::Vector3d thrustAcceleration = vehicleAccelerationMap[ bodyToPropagate_ ][ 0 ]->getAcceleration( );
-    double thrustAccelerationMagnitude = thrustAcceleration.norm( );
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
+                                      "epochs are not provided in increasing order." );
+        }
 
-    return thrustAccelerationMagnitude;
+        Eigen::Vector3d currentThrustVector = thrustProfile[ epochsVector[ i ] ];
+        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
+
+        Eigen::Vector3d currentThrustAccelerationVector = currentThrustVector / currentMass;
+
+        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+
+    }
 }
 
 
@@ -168,7 +295,8 @@ Eigen::Vector6d SimsFlanagan::computeCurrentStateVector( const double currentTim
 
 //! Retrieve acceleration map (thrust and central gravity accelerations).
 basic_astrodynamics::AccelerationMap SimsFlanagan::retrieveLowThrustAccelerationMap(
-        std::function< double ( const double ) > specificImpulseFunction )
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     basic_astrodynamics::AccelerationMap SimsFlanaganAccelerationMap = simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( );
     return SimsFlanaganAccelerationMap;

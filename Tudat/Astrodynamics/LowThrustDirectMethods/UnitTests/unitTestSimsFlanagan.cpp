@@ -277,8 +277,11 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220() };
 
+    std::shared_ptr< OptimisationSettings > optimisationSettings = std::make_shared< OptimisationSettings >( optimisationAlgorithm, 1, 10 );
+
     SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm, 1, 10 );
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, /*optimisationAlgorithm,
+                                              1, 10,*/ optimisationSettings );
 
     std::vector< double > fitnessVector = simsFlanagan.getBestIndividualFitness( );
     std::vector< double > bestIndividual = simsFlanagan.getBestIndividual( );
@@ -299,7 +302,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction );
+    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -500,7 +503,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     double maximumThrust = 0.8;
     double specificImpulse = 3000.0;
     double mass = 1800.0;
-    int numberSegments = 10;
+    int numberSegments = 200;
     int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
     int numberSegmentsBackwardPropagation = numberSegments / 2;
 
@@ -563,17 +566,19 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
 
     // Define integrator settings.
-    double stepSize = ( timeOfFlight ) / 500.0;
+    double stepSize = ( timeOfFlight ) / 1000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 10.0 );
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 30.0 );
 
 
 
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220() };
 
+    std::shared_ptr< OptimisationSettings > optimisationSettings = std::make_shared< OptimisationSettings >( optimisationAlgorithm, 1, 10 );
+
     SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm, 1, 10 );
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, /*optimisationAlgorithm, 1, 10,*/ optimisationSettings );
 
     std::vector< double > fitnessVector = simsFlanagan.getBestIndividualFitness( );
     std::vector< double > bestIndividual = simsFlanagan.getBestIndividual( );
@@ -596,7 +601,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction );
+    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -662,6 +667,157 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
                                           "," );
 
     std::cout << "time of flight: " << timeOfFlight << "\n\n";
+
+
+    //! TEST PROFILE
+
+    std::vector< double > epochsVector;
+    epochsVector.push_back( 0.0 );
+    epochsVector.push_back( timeOfFlight / 4.0 );
+    epochsVector.push_back( timeOfFlight / 2.0 - 10.0 );
+    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 );
+    epochsVector.push_back( timeOfFlight );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    simsFlanagan.getTrajectory( epochsVector, trajectory );
+    simsFlanagan.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    simsFlanagan.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    simsFlanagan.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+
+    // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
+    basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
+
+    // Create mass rate models
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+                                                       bodyMap, lowThrustTrajectoryAccelerations );
+
+    // Define list of dependent variables to save.
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                    propagators::total_mass_rate_dependent_variables, bodyToPropagate ) );
+
+    // Create object with list of dependent variables
+    dependentVariablesToSave = std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+
+
+    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+    {
+        double currentEpoch = itr->first;
+
+        // Create termination conditions settings.
+        std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings =
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( currentEpoch, true );
+
+        // Define translational state propagation settings
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalStatePropagatorSettings =
+                std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+                            ( std::vector< std::string >{ centralBody }, lowThrustTrajectoryAccelerations,
+                              std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
+                              terminationSettings, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
+
+        // Create settings for propagating the mass of the vehicle.
+        std::shared_ptr< propagators::MassPropagatorSettings< double > > massPropagatorSettings =
+                std::make_shared< propagators::MassPropagatorSettings< double > >(
+                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << mass ).finished( ),
+                    terminationSettings );
+
+        integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
+        integratorSettings->initialTime_ = 0.0;
+
+        // Create list of propagation settings.
+        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
+
+        // Backward propagator settings vector.
+        propagatorSettingsVector.push_back( translationalStatePropagatorSettings );
+        propagatorSettingsVector.push_back( massPropagatorSettings );
+
+        // Define propagator settings.
+        std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
+                    propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
+
+        bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+        // Perform the backward propagation.
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+        std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+
+        Eigen::Vector6d currentExpectedState = stateHistory.rbegin( )->second.segment( 0, 6 );
+        double currentExpectedMass = stateHistory.rbegin( )->second[ 6 ];
+        Eigen::Vector3d currentExpectedThrustAcceleration =  dependentVariableHistory.rbegin( )->second.segment( 0, 3 );
+        Eigen::Vector3d currentExpectedThrust = currentExpectedThrustAcceleration * currentExpectedMass;
+
+        Eigen::Vector6d calculatedState = simsFlanagan.computeCurrentStateVector( currentEpoch );
+        double calculatedMass = simsFlanagan.computeCurrentMass( currentEpoch, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d calculatedThrust = simsFlanagan.computeCurrentThrust( currentEpoch, specificImpulseFunction, integratorSettings ).transpose( );
+        Eigen::Vector3d calculatedThrustAcceleration = simsFlanagan.computeCurrentThrustAcceleration( currentEpoch, specificImpulseFunction, integratorSettings );
+
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( ( std::fabs( trajectory[ itr->first ][ i ] - calculatedState[ i ] ) / currentExpectedState.segment( 0, 3 ).norm( ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( ( std::fabs( trajectory[ itr->first ][ i + 3 ] - calculatedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( ( std::fabs( thrustProfile[ itr->first ][ i ] - currentExpectedThrust[ i ] ) ), 1.0e-8 );
+            BOOST_CHECK_SMALL( ( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - currentExpectedThrustAcceleration[ i ] ) ), 5.0e-9 );
+
+//            BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i ] - currentExpectedState[ i ] ) / currentExpectedState.segment( 0, 3 ).norm( ) ), 1.0e-6 );
+//            BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i + 3 ] - currentExpectedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( ( std::fabs( calculatedThrust[ i ] - currentExpectedThrust[ i ] ) ), 1.0e-8 );
+            BOOST_CHECK_SMALL( ( std::fabs( calculatedThrustAcceleration[ i ] - currentExpectedThrustAcceleration[ i ] ) ), 1.0e-10 );
+        }
+        std::cout << "calculated mass: " << massProfile[ itr->first ][ 0 ] << "\n\n";
+        std::cout << "expected mass: " << currentExpectedMass << "\n\n";
+        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - currentExpectedMass ) / currentExpectedMass, 1.0e-3 );
+        BOOST_CHECK_SMALL( std::fabs( calculatedMass - currentExpectedMass ), 1.0e-15 );
+
+        double manuallyCalculatedMass = mass;
+        double previousEpoch;
+        for ( std::map< double, Eigen::VectorXd >::iterator itrDependentVariables = dependentVariableHistory.begin( ) ;
+              itrDependentVariables != dependentVariableHistory.end( ) ; itrDependentVariables++ )
+        {
+
+            if ( itrDependentVariables == dependentVariableHistory.begin( ) )
+            {
+                previousEpoch = itrDependentVariables->first;
+            }
+            else
+            {
+                double currentEpoch = itrDependentVariables->first;
+                int previousSegment = simsFlanagan.getOptimalSimsFlanaganLeg( )->convertTimeToLegSegment( previousEpoch );
+                int currentSegment = simsFlanagan.getOptimalSimsFlanaganLeg( )->convertTimeToLegSegment( currentEpoch );
+
+                double massRate;
+                Eigen::Vector3d currentAcceleration = itrDependentVariables->second.segment( 0, 3 );
+                Eigen::Vector3d currentThrust;
+//                if ( currentAcceleration.norm( ) > 0.0 )
+//                {
+                    currentThrust = maximumThrust * simsFlanagan.getOptimalSimsFlanaganLeg( )->getThrottles( )[ currentSegment ]
+/*                            * currentAcceleration.normalized( )*/;
+                    massRate = - currentThrust.norm( ) / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+//                }
+//                else
+//                {
+//                    currentThrust = Eigen::Vector3d::Zero( );
+//                    massRate = 0.0;
+//                }
+
+                manuallyCalculatedMass += massRate * ( currentEpoch - previousEpoch  );
+
+//                std::cout << "manually calculated mass: " << manuallyCalculatedMass << "\n\n";
+//                std::cout << "mass after propagation: " << stateHistory[ itrDependentVariables->first ][ 6 ] << "\n\n";
+//                BOOST_CHECK_SMALL( std::fabs( manuallyCalculatedMass - stateHistory[ itrDependentVariables->first ][ 6 ] ), 1.0e-15 );
+
+                previousEpoch = currentEpoch;
+
+            }
+
+        }
+
+    }
 
 
 }
@@ -825,20 +981,29 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     int numberOfSteps = 10000;
     double stepSize = timeOfFlight / static_cast< double >( numberOfSteps );
-    double peakAcceleration = 0.0;
+//    double peakAcceleration = 0.0;
 
-    for ( int currentStep = 0 ; currentStep <= numberOfSteps ; currentStep++ ){
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double time )
+    {
+        return specificImpulse;
+    };
 
-        double currentTime = currentStep * stepSize;
+    // Define integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
 
-        double currentAccelerationMagnitude = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+//    for ( int currentStep = 0 ; currentStep <= numberOfSteps ; currentStep++ ){
 
-        if ( currentAccelerationMagnitude > peakAcceleration )
-        {
-            peakAcceleration = currentAccelerationMagnitude;
-        }
+//        double currentTime = currentStep * stepSize;
 
-    }
+//        double currentAccelerationMagnitude = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+
+//        if ( currentAccelerationMagnitude > peakAcceleration )
+//        {
+//            peakAcceleration = currentAccelerationMagnitude;
+//        }
+
+//    }
 
 
     // Calculate number of segments for both the forward propagation (from departure to match point)
@@ -956,21 +1121,21 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
         return currentThrustVector;
     };
 
-    // Define (constant) specific impulse function.
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return specificImpulse;
-    };
+//    // Define (constant) specific impulse function.
+//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
+//    {
+//        return specificImpulse;
+//    };
 
 
     // Define state at departure and arrival.
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
 
-    // Define integrator settings.
-//    double stepSize = ( timeOfFlight ) / static_cast< double >( 50 );
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
+//    // Define integrator settings.
+////    double stepSize = ( timeOfFlight ) / static_cast< double >( 50 );
+//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+//            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
 
 
     // Define optimisation algorithm.
@@ -978,9 +1143,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
 
+    std::shared_ptr< OptimisationSettings > optimisationSettings = std::make_shared< OptimisationSettings >(
+                optimisationAlgorithm, 1, 10, 1.0e-6, std::make_pair( functionInitialGuess, 0.1 ) );
+
     SimsFlanagan simsFlanagan = SimsFlanagan( cartesianStateDepartureBody, cartesianStateArrivalBody, maximumThrust, specificImpulseFunction, numberSegments,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationAlgorithm, 20, 1000,
-                                              1.0e-6, std::make_pair( functionInitialGuess, 0.1 ) );
+                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, /*optimisationAlgorithm, 20, 1000,*/ optimisationSettings/*,
+                                              1.0e-6, std::make_pair( functionInitialGuess, 0.1 )*/ );
 
     std::vector< double > fitnessVector = simsFlanagan.getBestIndividualFitness( );
     std::vector< double > bestIndividual = simsFlanagan.getBestIndividual( );
