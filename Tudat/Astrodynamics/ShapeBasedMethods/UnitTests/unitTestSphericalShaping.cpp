@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
                 std::make_shared< root_finders::RootFinderSettings >( root_finders::bisection_root_finder, 1.0e-6, 30 );
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
-    std::map< double, Eigen::VectorXd > shapingMethodResults;
+    std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
     spice_interface::loadStandardSpiceKernels( );
@@ -491,60 +491,17 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Compute halved time of flight.
-    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
-    // Compute state at half of the time of flight.
-    double azimuthAngleAtHalfTimeOfFlight = sphericalShaping.convertTimeToIndependentVariable( halfOfTimeOfFlight );
-    Eigen::Vector6d initialStateAtHalvedTimeOfFlight = sphericalShaping.computeCurrentStateVector( azimuthAngleAtHalfTimeOfFlight );
-
-    // Create low thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            sphericalShaping.getLowThrustAccelerationModel( specificImpulseFunction );
-
-    accelerationModelMap[ "Vehicle" ][ "Vehicle" ].push_back( lowThrustAccelerationModel );
-
+    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = sphericalShaping.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
-
-
-    // Define translational state propagation settings
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
-
-    // Define backward translational state propagation settings.
-    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalvedTimeOfFlight, terminationConditions.first,
-                          propagators::cowell, dependentVariablesToSave );
-
-    // Define forward translational state propagation settings.
-    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate,
-                          initialStateAtHalvedTimeOfFlight, terminationConditions.second,
-                          propagators::cowell, dependentVariablesToSave );
-
-    // Create list of propagation settings.
-    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
-            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
-
-    // Backward propagator settings vector.
-    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
-
-    // Forward propagator settings vector.
-    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
-
-    // Backward hybrid propagation settings.
-    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                terminationConditions.first, dependentVariablesToSave );
-
-    // Forward hybrid propagation settings.
-    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                terminationConditions.second, dependentVariablesToSave );
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings =
+            sphericalShaping.createLowThrustTranslationalStatePropagatorSettings(
+                 lowThrustAccelerationsMap, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
-    sphericalShaping.computeSemiAnalyticalAndFullPropagation( specificImpulseFunction, integratorSettings, propagatorSettings,
+    sphericalShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
                                                               fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 
@@ -607,7 +564,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
 
 
     std::map< double, Eigen::VectorXd > fullPropagationResults;
-    std::map< double, Eigen::VectorXd > shapingMethodResults;
+    std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
     spice_interface::loadStandardSpiceKernels( );
@@ -679,12 +636,12 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
         return 3000.0;
     };
 
+    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY );
 
     // Compute shaped trajectory.
     shape_based_methods::SphericalShaping sphericalShaping = shape_based_methods::SphericalShaping(
-                pointerToDepartureBodyEphemeris->getCartesianState( julianDate ),
-                pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY ),
-                timeOfFlight * tudat::physical_constants::JULIAN_DAY,
+                stateAtDeparture, stateAtArrival, timeOfFlight * tudat::physical_constants::JULIAN_DAY,
                 numberOfRevolutions, bodyMap, "Vehicle", "Sun", 0.000703,
                 rootFinderSettings, 1.0e-6, 1.0e-1, integratorSettings );
 
@@ -705,84 +662,16 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
 
-    // Compute halved time of flight.
-    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
-    // Compute state at half of the time of flight.
-    double azimuthAngleAtHalfTimeOfFlight = sphericalShaping.convertTimeToIndependentVariable( halfOfTimeOfFlight );
-    Eigen::Vector6d initialStateAtHalfOfTimeOfFlight = sphericalShaping.computeCurrentStateVector( azimuthAngleAtHalfTimeOfFlight );
-
-    // Create low thrust acceleration model.
-    std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            sphericalShaping.getLowThrustAccelerationModel( specificImpulseFunction );
-
-    accelerationModelMap[ "Vehicle" ][ "Vehicle" ].push_back( lowThrustAccelerationModel );
-
+    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings;
-
-
-
-    // Define translational state propagation settings
-    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > translationalStatePropagatorSettings;
-
-    // Define backward translational state propagation settings.
-    translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalfOfTimeOfFlight, terminationConditions.first,
-                          propagators::cowell, dependentVariablesToSave );
-
-    // Define forward translational state propagation settings.
-    translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( centralBodies, accelerationModelMap, bodiesToPropagate, initialStateAtHalfOfTimeOfFlight, terminationConditions.second,
-                          propagators::cowell, dependentVariablesToSave );
-
-    // Create mass rate models
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle" ] = simulation_setup::createMassRateModel( "Vehicle", std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap, accelerationModelMap );
-
-    double massHalfOfTimeOfFlight = sphericalShaping.computeCurrentMass( halfOfTimeOfFlight, specificImpulseFunction, integratorSettings );
-
-    // Create settings for propagating the mass of the vehicle.
-    std::pair< std::shared_ptr< propagators::MassPropagatorSettings< double > >,
-            std::shared_ptr< propagators::MassPropagatorSettings< double > > > massPropagatorSettings;
-
-    // Define backward mass propagation settings.
-    massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
-                terminationConditions.first );
-
-    // Define forward mass propagation settings.
-    massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                bodiesToPropagate, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
-                terminationConditions.second );
-
-    // Create list of propagation settings.
-    std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,
-            std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > > propagatorSettingsVector;
-
-    // Backward propagator settings vector.
-    propagatorSettingsVector.first.push_back( translationalStatePropagatorSettings.first );
-    propagatorSettingsVector.first.push_back( massPropagatorSettings.first );
-
-    // Forward propagator settings vector.
-    propagatorSettingsVector.second.push_back( translationalStatePropagatorSettings.second );
-    propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
-
-    // Backward hybrid propagation settings.
-    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                terminationConditions.first, dependentVariablesToSave );
-
-    // Forward hybrid propagation settings.
-    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                terminationConditions.second, dependentVariablesToSave );
-
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = sphericalShaping.createLowThrustPropagatorSettings(
+                specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
-    sphericalShaping.computeSemiAnalyticalAndFullPropagation( specificImpulseFunction, integratorSettings, propagatorSettings,
+    sphericalShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
                                                               fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 
@@ -828,6 +717,55 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
                 ( specificImpulseFunction( itr->first ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
         BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
 
+    }
+
+
+    // Test trajectory function.
+    std::vector< double > epochsVector;
+    epochsVector.push_back( 0.0 );
+    epochsVector.push_back( timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight / 2.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    sphericalShaping.getTrajectory( epochsVector, trajectory );
+    sphericalShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    sphericalShaping.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    sphericalShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < 3 ; i ++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.begin( )->second[ i ] - stateAtDeparture[ i ] ) /
+                                      physical_constants::ASTRONOMICAL_UNIT ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.begin( )->second[ i + 3 ] - stateAtDeparture[ i + 3 ] ) /
+                ( physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR ) ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.rbegin( )->second[ i ] - stateAtArrival[ i ] ) /
+                                      physical_constants::ASTRONOMICAL_UNIT ), 1.0e-6 );
+        BOOST_CHECK_SMALL( std::fabs( ( trajectory.rbegin( )->second[ i + 3 ] - stateAtArrival[ i + 3 ] ) /
+                ( physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR ) ), 1.0e-6 );
+    }
+
+    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+    {
+        double independentVariable = sphericalShaping.convertTimeToIndependentVariable( itr->first );
+        Eigen::Vector6d stateVector = sphericalShaping.computeCurrentStateVector( independentVariable );
+        Eigen::Vector3d thrustAccelerationVector = sphericalShaping.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d thrustVector = sphericalShaping.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
+        double mass = sphericalShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
+        }
+        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-10 );
     }
 
 }

@@ -24,22 +24,22 @@
 #include <functional>
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanagan.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
-#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
+//#include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/hodographicShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
+//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Astrodynamics/ShapeBasedMethods/sphericalShaping.h"
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 
-#include "pagmo/algorithm.hpp"
+//#include "pagmo/algorithm.hpp"
 
 
 namespace tudat
@@ -224,21 +224,23 @@ public:
             std::function< double( const double ) > specificImpulseFunction,
             const int numberOfSegments,
             const std::string centralBody,
-            pagmo::algorithm optimisationAlgorithm,
-            const int numberOfGenerations,
-            const int numberOfIndividualsPerPopulation,
+//            pagmo::algorithm optimisationAlgorithm,
+//            const int numberOfGenerations,
+//            const int numberOfIndividualsPerPopulation,
+            std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings/*,
             const double relativeToleranceConstraints = 1.0e-6,
-            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ):
+            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 )*/ ):
         LowThrustLegSettings( sims_flanagan_leg ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberOfSegments ),
         centralBody_( centralBody ),
-        optimisationAlgorithm_( optimisationAlgorithm ),
-        numberOfGenerations_( numberOfGenerations ),
-        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
+//        optimisationAlgorithm_( optimisationAlgorithm ),
+//        numberOfGenerations_( numberOfGenerations ),
+//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
+        optimisationSettings_( optimisationSettings )/*,
         relativeToleranceConstraints_( relativeToleranceConstraints ),
-        initialGuessThrustModel_( initialGuessThrustModel ){ }
+        initialGuessThrustModel_( initialGuessThrustModel )*/{ }
 
     //! Destructor
     ~SimsFlanaganLegSettings( ){ }
@@ -255,22 +257,25 @@ public:
     //! Name of the central body.
     std::string centralBody_;
 
-    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-    pagmo::algorithm optimisationAlgorithm_;
+//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
+//    pagmo::algorithm optimisationAlgorithm_;
 
-    //! Number of generations for the optimisation algorithm.
-    int numberOfGenerations_;
+//    //! Number of generations for the optimisation algorithm.
+//    int numberOfGenerations_;
 
-    //! Number of individuals per population for the optimisation algorithm.
-    int numberOfIndividualsPerPopulation_;
+//    //! Number of individuals per population for the optimisation algorithm.
+//    int numberOfIndividualsPerPopulation_;
 
-    //! Relative tolerance for optimisation constraints.
-    double relativeToleranceConstraints_;
+    //! Optimisation settings.
+    std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings_;
 
-    //! Initial guess for the optimisation.
-    //! The first element contains the function returning the thrust as a function of time.
-    //! The second element defines the bounds around the initial time (in percentage).
-    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
+//    //! Relative tolerance for optimisation constraints.
+//    double relativeToleranceConstraints_;
+
+//    //! Initial guess for the optimisation.
+//    //! The first element contains the function returning the thrust as a function of time.
+//    //! The second element defines the bounds around the initial time (in percentage).
+//    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
 
 };
 
@@ -297,21 +302,23 @@ public:
             const double specificImpulse,
             const std::string centralBody,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            pagmo::algorithm optimisationAlgorithm,
-            const int numberOfGenerations,
-            const int numberOfIndividualsPerPopulation,
-            const double relativeToleranceConstraints = 1.0e-6,
-            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ):
+//            pagmo::algorithm optimisationAlgorithm,
+//            const int numberOfGenerations,
+//            const int numberOfIndividualsPerPopulation,
+            std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings //,
+   /*         const double relativeToleranceConstraints = 1.0e-6,
+            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 )*/ ):
         LowThrustLegSettings( hybrid_method_leg ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
         centralBody_( centralBody ),
         integratorSettings_( integratorSettings ),
-        optimisationAlgorithm_( optimisationAlgorithm ),
-        numberOfGenerations_( numberOfGenerations ),
-        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        relativeToleranceConstraints_( relativeToleranceConstraints ),
-        initialGuessThrustModel_( initialGuessThrustModel ){ }
+//        optimisationAlgorithm_( optimisationAlgorithm ),
+//        numberOfGenerations_( numberOfGenerations ),
+//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
+        optimisationSettings_( optimisationSettings ) //,
+/*        relativeToleranceConstraints_( relativeToleranceConstraints ),
+        initialGuessThrustModel_( initialGuessThrustModel )*/{ }
 
     //! Destructor
     ~HybridMethodLegSettings( ){ }
@@ -328,44 +335,47 @@ public:
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
-    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-    pagmo::algorithm optimisationAlgorithm_;
+//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
+//    pagmo::algorithm optimisationAlgorithm_;
 
-    //! Number of generations for the optimisation algorithm.
-    int numberOfGenerations_;
+//    //! Number of generations for the optimisation algorithm.
+//    int numberOfGenerations_;
 
-    //! Number of individuals per population for the optimisation algorithm.
-    int numberOfIndividualsPerPopulation_;
+//    //! Number of individuals per population for the optimisation algorithm.
+//    int numberOfIndividualsPerPopulation_;
 
-    //! Relative tolerance for optimisation constraints.
-    double relativeToleranceConstraints_;
+    //! Optimisation settings.
+    std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings_;
 
-    //! Initial guess for the optimisation.
-    //! The first element contains the function returning the thrust as a function of time.
-    //! The second element defines the bounds around the initial time (in percentage).
-    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
+//    //! Relative tolerance for optimisation constraints.
+//    double relativeToleranceConstraints_;
+
+//    //! Initial guess for the optimisation.
+//    //! The first element contains the function returning the thrust as a function of time.
+//    //! The second element defines the bounds around the initial time (in percentage).
+//    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
 
 };
 
 
-//! Function to create the object determining the direction of the thrust acceleration.
-/*!
- * Function to create the object determining the direction of the thrust acceleration.
- * \param lowThrustLegSettings Settings for low-thrust leg.
- * \param stateAtDeparture Cartesian state at departure.
- * \param stateAtArrival Cartesian state at arrival.
- * \param timeOfFlight Time of flight.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
- * \param bodyToPropagate Name of the body to be propagated.
- */
-std::shared_ptr< transfer_trajectories::LowThrustLeg  > createLowThrustLeg(
-        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
-        const Eigen::Vector6d& stateAtDeparture,
-        const Eigen::Vector6d& stateAtArrival,
-        const double& timeOfFlight,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody );
+////! Function to create the object determining the direction of the thrust acceleration.
+///*!
+// * Function to create the object determining the direction of the thrust acceleration.
+// * \param lowThrustLegSettings Settings for low-thrust leg.
+// * \param stateAtDeparture Cartesian state at departure.
+// * \param stateAtArrival Cartesian state at arrival.
+// * \param timeOfFlight Time of flight.
+// * \param bodyMap List of pointers to body objects defining the full simulation environment.
+// * \param bodyToPropagate Name of the body to be propagated.
+// */
+//std::shared_ptr< transfer_trajectories::LowThrustLeg  > createLowThrustLeg(
+//        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+//        const Eigen::Vector6d& stateAtDeparture,
+//        const Eigen::Vector6d& stateAtArrival,
+//        const double& timeOfFlight,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const std::string& bodyToPropagate,
+//        const std::string& centralBody );
 
 } // namespace simulation_setup
 

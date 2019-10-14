@@ -60,13 +60,23 @@ public:
 //    //! Compute deltaV.
 //    double computeDeltaV( );
 
-    //! Compute current cartesian state.
-    virtual Eigen::Vector6d computeCurrentStateVector( const double independentVariable ) = 0;
+//    //! Compute current cartesian state.
+//    virtual Eigen::Vector6d computeCurrentStateVector( const double independentVariable ) = 0;
 
     //! Returns state history.
     void getTrajectory(
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
+
+    Eigen::Vector3d computeCurrentThrust( double time,
+                                          std::function< double ( const double ) > specificImpulseFunction,
+                                          std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Return thrust profile.
+    void getThrustProfile( std::vector< double >& epochsVector,
+                           std::map< double, Eigen::VectorXd >& thrustProfile,
+                           std::function< double ( const double ) > specificImpulseFunction,
+                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 //    //! Compute current mass of the spacecraft.
 //    double computeCurrentMass( const double independentVariable,
@@ -102,17 +112,15 @@ public:
 
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
-    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap( std::function< double ( const double ) > specificImpulseFunction );
-
-    //! Full propagation.
-    void computeSemiAnalyticalAndFullPropagation(
+    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
             std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-            std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-                    std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
-            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-            std::map< double, Eigen::VectorXd >& semiAnalyticalResults,
-            std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    //! Define appropriate translational state propagator settings for the full propagation.
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
+            basic_astrodynamics::AccelerationMap accelerationModelMap,
+            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
 protected:

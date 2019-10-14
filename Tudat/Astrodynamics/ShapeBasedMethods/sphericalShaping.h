@@ -122,17 +122,17 @@ public:
 //            std::function< double( const double ) > specificImpulseFunction,
 //            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
 
-    //! Function to compute the shaped trajectory and the propagation fo the full problem.
-    void computeShapedTrajectoryAndFullPropagation(
-//            simulation_setup::NamedBodyMap& bodyMap,
-            std::function< double ( const double ) > specificImpulseFunction,
-            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-                    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-            std::map< double, Eigen::VectorXd >& shapingMethodResults,
-            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
-            const bool isMassPropagated );
+//    //! Function to compute the shaped trajectory and the propagation fo the full problem.
+//    void computeShapedTrajectoryAndFullPropagation(
+////            simulation_setup::NamedBodyMap& bodyMap,
+//            std::function< double ( const double ) > specificImpulseFunction,
+//            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
+//            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//                    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+//            std::map< double, Eigen::VectorXd >& fullPropagationResults,
+//            std::map< double, Eigen::VectorXd >& shapingMethodResults,
+//            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
+//            const bool isMassPropagated );
 
 
 
@@ -216,10 +216,14 @@ protected:
     Eigen::Vector3d computeThrustAccelerationInSphericalCoordinates( const double currentAzimuthAngle );
 
     //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude( double currentTime );
+    double computeCurrentThrustAccelerationMagnitude(
+            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
+            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute current thrust acceleration in normalized cartesian coordinates.
     Eigen::Vector3d computeNormalizedThrustAccelerationVector( const double currentAzimuthAngle );
