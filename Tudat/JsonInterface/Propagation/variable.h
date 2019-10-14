@@ -90,6 +90,7 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
     { keplerian_state_dependent_variable, "keplerElements" },
     { modified_equinocial_state_dependent_variable, "modifiedEquinoctialElements" },
     { spherical_harmonic_acceleration_terms_dependent_variable, "sphericalHarmonicsAccelerationTerms" },
+    { spherical_harmonic_acceleration_norm_terms_dependent_variable, "sphericalHarmonicsAccelerationTermNorms" },
     { body_fixed_relative_cartesian_position, "bodyFixedRelativeCartesianPosition" },
     { body_fixed_relative_spherical_position, "bodyFixedRelativeSphericalPosition" },
     { total_gravity_field_variation_acceleration, "totalGravityFieldVariationAcceleration" },

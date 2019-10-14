@@ -136,10 +136,10 @@ void to_json( nlohmann::json& jsonObject,
                     dependentVariableSettings );
         assertNonnullptrPointer( accelerationVariableSettings );
         jsonObject[ K::accelerationType ] = accelerationVariableSettings->accelerationModelType_;
-
         jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         return;
     }
+    case spherical_harmonic_acceleration_norm_terms_dependent_variable:
     case spherical_harmonic_acceleration_terms_dependent_variable:
     {
         std::shared_ptr< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings > sphericalHarmonicsSettings =
@@ -148,7 +148,6 @@ void to_json( nlohmann::json& jsonObject,
         assertNonnullptrPointer( sphericalHarmonicsSettings );
         jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         jsonObject[ K::componentIndices ] = sphericalHarmonicsSettings->componentIndices_;
-        jsonObject[ K::componentIndex ] = dependentVariableSettings->componentIndex_;
         return;
     }
     case single_torque_norm_dependent_variable:
@@ -252,13 +251,15 @@ void from_json( const nlohmann::json& jsonObject,
                     componentIndex );
         return;
     }
+    case spherical_harmonic_acceleration_norm_terms_dependent_variable:
     case spherical_harmonic_acceleration_terms_dependent_variable:
     {
         dependentVariableSettings = std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                     getValue< std::string >( jsonObject, K::body ),
                     getValue< std::string >( jsonObject, K::bodyExertingAcceleration ),
                     getValue< std::vector< std::pair< int, int > > >( jsonObject, K::componentIndices ),
-                    componentIndex );
+                    componentIndex,
+                    dependentVariableType == spherical_harmonic_acceleration_norm_terms_dependent_variable );
         return;
     }
     case single_torque_norm_dependent_variable:

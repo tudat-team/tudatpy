@@ -170,6 +170,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case modified_equinocial_state_dependent_variable:
         variableName = "Modified equinoctial elements ";
         break;
+    case spherical_harmonic_acceleration_norm_terms_dependent_variable:
+        variableName = "Spherical harmonic acceleration term norms ";
+        break;
     case spherical_harmonic_acceleration_terms_dependent_variable:
         variableName = "Spherical harmonic acceleration terms ";
         break;
@@ -279,7 +282,8 @@ std::string getDependentVariableId(
 
     if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) ||
-            ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_terms_dependent_variable ) )
+            ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_terms_dependent_variable ) ||
+            ( dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ) )
     {
         variableId += ", acting on " + dependentVariableSettings->associatedBody_;
         if( dependentVariableSettings->secondaryBody_ != dependentVariableSettings->associatedBody_ )

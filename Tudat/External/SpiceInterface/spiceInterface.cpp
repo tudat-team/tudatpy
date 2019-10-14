@@ -289,7 +289,7 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
 
     if( alternativeEphemerisKernels.size( ) == 0  )
     {
-        loadSpiceKernelInTudat( kernelPath + "de430_small.bsp" );
+        loadSpiceKernelInTudat( kernelPath + "de438_mar097_jup310_sat425_1950_2050.bsp" );
     }
     else
     {

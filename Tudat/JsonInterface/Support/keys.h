@@ -251,6 +251,7 @@ struct Keys
         static const std::string relativeToBody;
         static const std::string componentIndex;
         static const std::string componentIndices;
+        static const std::string useAccelerationNorm;
         static const std::string accelerationType;
 //        static const std::string bodyUndergoingAcceleration;
         static const std::string bodyExertingAcceleration;
