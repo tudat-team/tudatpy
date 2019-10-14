@@ -529,6 +529,21 @@ public:
         return returnVector;
     }
 
+    Eigen::VectorXd getConcatenatedAccelerationComponentNorms( const std::vector< std::pair< int, int > >& coefficientIndices )
+    {
+        if( !saveSphericalHarmonicTermsSeparately_ )
+        {
+            throw std::runtime_error( "Error when retrieving component accelerations from spherial harmonic acceleration, components not saved" );
+        }
+
+        Eigen::VectorXd returnVector = Eigen::VectorXd( coefficientIndices.size( ) );
+        for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
+        {
+            returnVector( i ) = accelerationPerTerm_.at( coefficientIndices.at( i ) ).norm( );
+        }
+        return returnVector;
+    }
+
     //! Function to retrieve maximum degree of gravity field expansion
     /*!
      * Function to retrieve maximum degree of gravity field expansion

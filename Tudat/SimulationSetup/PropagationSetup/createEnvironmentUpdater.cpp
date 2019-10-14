@@ -753,6 +753,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case spherical_harmonic_acceleration_terms_dependent_variable:
         break;
+    case spherical_harmonic_acceleration_norm_terms_dependent_variable:
+        break;
     case body_fixed_relative_cartesian_position:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );

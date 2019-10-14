@@ -238,6 +238,7 @@ const std::string Keys::Variable::dependentVariableType = "dependentVariableType
 const std::string Keys::Variable::body = "body";
 const std::string Keys::Variable::componentIndex = "componentIndex";
 const std::string Keys::Variable::componentIndices = "componentIndices";
+const std::string Keys::Variable::useAccelerationNorm = "useAccelerationNorm";
 const std::string Keys::Variable::relativeToBody = "relativeToBody";
 const std::string Keys::Variable::accelerationType = "accelerationType";
 //const std::string Keys::Variable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
