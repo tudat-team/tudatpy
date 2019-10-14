@@ -22,7 +22,6 @@
 #include <iostream>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
-//#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethodLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/hybridMethod.h"
@@ -48,13 +47,12 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     double specificImpulse = 3000.0;
     double mass = 1800.0;
 
-//    // Define (constant) specific impulse function.
-//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-//    {
-//        return specificImpulse;
-//    };
+    std::function< double( const double ) > specificImpulseFunction = [ = ] ( const double currentTime )
+    {
+        return specificImpulse;
+    };
 
-    double julianDate = 1000.0 * physical_constants::JULIAN_DAY; //2458849.5;
+    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
     double timeOfFlight = 100.0 * physical_constants::JULIAN_DAY;
 
     // Define body settings for simulation.
@@ -72,9 +70,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     }
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
     bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
@@ -89,19 +84,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     // Set vehicle mass.
     bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
 
-
-//    // Ephemeris departure body.
-//    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-//    // Ephemeris arrival body.
-//    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
-
-//    // Define state at departure and arrival.
-//    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
-//    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
-
     // Initial and final states in keplerian elements.
     Eigen::Vector6d initialKeplerianElements = ( Eigen::Vector6d( ) << 24505.9e3, 0.725, 7.0 * mathematical_constants::PI / 180.0,
                                                  0.0, 0.0, 0.0 ).finished( );
@@ -115,123 +97,29 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
                 finalKeplerianElements, bodyMap[ "Earth" ]->getGravityFieldModel()->getGravitationalParameter() );
 
     // Define integrator settings.
-    double stepSize = ( timeOfFlight ) / static_cast< double >( 200 );
+    double stepSize = ( timeOfFlight ) / static_cast< double >( 40000 );
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             std::make_shared< numerical_integrators::IntegratorSettings< double > >
-            ( numerical_integrators::rungeKutta4, 0.0, stepSize / 200.0 );
-
-
-
-    Eigen::VectorXd initialCostates; initialCostates.resize( 5 );
-    Eigen::VectorXd finalCostates; finalCostates.resize( 5 );
-
-    for ( int i = 0 ; i < 5 ; i++ )
-    {
-        initialCostates[ i ] = 0.0;
-        finalCostates[ i ] = 1.0;
-    }
-
-    HybridMethodLeg hybridMethodLeg = HybridMethodLeg( stateAtDeparture, stateAtArrival, initialCostates, finalCostates,
-                                                       maximumThrust, specificImpulse, timeOfFlight, bodyMap,
-                                                       bodyToPropagate, centralBody, integratorSettings );
-
-    std::cout.precision( 20 );
-    std::cout << "deltaV: " << hybridMethodLeg.getTotalDeltaV( ) << "\n\n";
-
-    Eigen::Vector6d finalState = hybridMethodLeg.propagateTrajectory( );
-
-    std::cout << "final state after propagation: " << finalState << "\n\n";
-
-    Eigen::Vector6d finalStateTest = hybridMethodLeg.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass/*, integratorSettings*/ );
-    std::cout << "final state after propagation test: " << finalStateTest << "\n\n";
-
-    std::cout << "deltaV after propagation: " << hybridMethodLeg.getTotalDeltaV() << "\n\n";
-    std::cout << "confirmation computation deltaV: " << hybridMethodLeg.computeDeltaV() << "\n\n";
-
-
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-//    Eigen::Matrix< double, 10, 1 > initialGuess = Eigen::MatrixXd::Zero( 10, 1 );
-
-//    HybridMethodProblem problem = HybridMethodProblem( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulse,
-//                                                       timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
-//                                                       std::make_pair( initialGuess, TUDAT_NAN ), 1.0e-6 );
+            ( numerical_integrators::rungeKutta4, 0.0, stepSize );
 
 
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220() };
 
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
     std::shared_ptr< OptimisationSettings > optimisationSettings = std::make_shared< OptimisationSettings >( optimisationAlgorithm, 1, 10, 1.0e-3 );
 
+    // Create hybrid method trajectory.
     HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulse,
                                               timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
-                                               /*optimisationAlgorithm, 1, 10,*/ optimisationSettings/*, 1.0e-3*/ );
+                                              optimisationSettings );
 
-    std::pair< std::vector< double >, std::vector< double > > champion = hybridMethod.performOptimisation();
 
+    // Retrieve optimisation output.
     std::vector< double > fitnessVector =  hybridMethod.getBestIndividualFitness( );
-    std::vector< double > bestIndividual = hybridMethod.getBestIndividual( );
-
-    std::vector< double > bestDesignVariables = bestIndividual;
-//    std::vector< double > bestOutput = problem.fitness( bestDesignVariables );
-
-//    std::cout << "size output vector: " << bestOutput.size() << "\n\n";
-//    for ( int i = 0 ; i < bestOutput.size() ; i++ )
-//    {
-//        std::cout << "output: " << bestOutput[ i ] << "\n\n";
-//    }
+    std::vector< double > bestDesignVariables = hybridMethod.getBestIndividual( );
 
 
-    // Test full propagation.
-
-    // Define pair of propagatorSettings for backward and forward propagation.
-
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-    std::function< double( const double ) > specificImpulseFunction = [ = ] ( const double currentTime )
-    {
-        return specificImpulse;
-    };
-
-
-    // Define list of dependent variables to save.
-    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
-    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
-                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-
-    // Create object with list of dependent variables
-    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
-            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
-
-    // Create termination conditions settings.
-    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
-
-    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
-    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
-
-    // Define empty maps to store the propagation results.
-    std::map< double, Eigen::VectorXd > fullPropagationResults;
-    std::map< double, Eigen::Vector6d > hybridMethodResults;
-    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
-
-    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
-
-    // Create complete propagation settings (backward and forward propagations).
-    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = hybridMethod.createLowThrustPropagatorSettings(
-                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
-
-    // Compute full propagation.
-    hybridMethod.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings, fullPropagationResults,
-                                                                  hybridMethodResults, dependentVariablesHistory );
-
-
-
-
-
+    // Define MEE costates function.
     Eigen::VectorXd bestInitialMEEcostates; bestInitialMEEcostates.resize( 5 );
     Eigen::VectorXd bestFinalMEEcostates; bestFinalMEEcostates.resize( 5 );
     for ( int i = 0 ; i < 5 ; i++ )
@@ -239,90 +127,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         bestInitialMEEcostates[ i ] = hybridMethod.getBestIndividual( )[ i ];
         bestFinalMEEcostates[ i ] = hybridMethod.getBestIndividual( )[ i + 5 ];
     }
-
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-    HybridMethodLeg hybridMethodLegTest = HybridMethodLeg( stateAtDeparture, stateAtArrival, bestInitialMEEcostates, bestFinalMEEcostates,
-                                                       maximumThrust, specificImpulse, timeOfFlight, bodyMap,
-                                                       bodyToPropagate, centralBody, integratorSettings );
-
-    std::cout.precision( 20 );
-
-
-    Eigen::Vector6d finalStateTestFullPropagation = hybridMethodLegTest.propagateTrajectory( 0.0, timeOfFlight, stateAtDeparture, mass );
-    std::cout << "final state after propagation test: " << finalStateTestFullPropagation << "\n\n";
-
-    std::cout << "state at departure hybrid method: " << hybridMethodResults.begin()->second << "\n\n";
-    std::cout << "state at departure full propagation: " << fullPropagationResults.begin()->second << "\n\n";
-    std::cout << "state at arrival hybrid method: " << hybridMethodResults.rbegin()->second << "\n\n";
-    std::cout << "state at arrival full propagation: " << fullPropagationResults.rbegin()->second << "\n\n";
-
-    for ( int i = 0 ; i < 3 ; i++ )
-    {
-        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.begin()->second[ i ] - fullPropagationResults.begin()->second[ i ] ) / stateAtDeparture.segment( 0, 3 ).norm( ) ), 2.0e-6 );
-        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.begin()->second[ i + 3 ] - fullPropagationResults.begin()->second[ i + 3 ] ) / stateAtDeparture.segment( 3, 3 ).norm( ) ), 2.0e-6 );
-
-        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.rbegin()->second[ i ] - fullPropagationResults.rbegin()->second[ i ] ) / stateAtArrival.segment( 0, 3 ).norm( ) ), 2.0e-6 );
-        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.rbegin()->second[ i + 3 ] - fullPropagationResults.rbegin()->second[ i + 3 ] ) / stateAtArrival.segment( 3, 3 ).norm( ) ), 2.0e-6 );
-
-//        BOOST_CHECK_SMALL( ( std::fabs( trajectory[ itr->first ][ i + 3 ] - currentExpectedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-6 );
-//        BOOST_CHECK_SMALL( ( std::fabs( thrustProfile[ itr->first ][ i ] - currentExpectedThrust[ i ] ) ), 1.0e-8 );
-//        BOOST_CHECK_SMALL( ( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - currentExpectedThrustAcceleration[ i ] ) ), 1.0e-10 );
-
-//        BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i ] - currentExpectedState[ i ] ) / currentExpectedState.segment( 0, 3 ).norm( ) ), 1.0e-6 );
-//        BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i + 3 ] - currentExpectedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-6 );
-//        BOOST_CHECK_SMALL( ( std::fabs( calculatedThrust[ i ] - currentExpectedThrust[ i ] ) ), 1.0e-8 );
-//        BOOST_CHECK_SMALL( ( std::fabs( calculatedThrustAcceleration[ i ] - currentExpectedThrustAcceleration[ i ] ) ), 1.0e-10 );
-    }
-
-    std::cout << "state at departure: " << stateAtDeparture << "\n\n";
-
-
-    input_output::writeDataMapToTextFile( hybridMethodResults,
-                                          "hybridMethodResults.dat",
-                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-    input_output::writeDataMapToTextFile( fullPropagationResults,
-                                          "fullPropagationHybridMethodResults.dat",
-                                          "C:/Users/chamb/Documents/Master_2/SOCIS/",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
-
-
-    //! TEST PROFILES
-
-    int numberSteps = 10;
-    std::vector< double > epochsVector;
-//    for ( std::map< double, Eigen::Vector6d >::iterator itr = hybridMethodResults.begin( ) ; itr != hybridMethodResults.end( ) ; itr++ )
-//    {
-//        epochsVector.push_back( itr->first );
-//    }
-    for ( int i = 1 ; i <= numberSteps ; i++ )
-    {
-        epochsVector.push_back( timeOfFlight / numberSteps * i );
-    }
-//    epochsVector.push_back( 0.0 );
-//    epochsVector.push_back( timeOfFlight / 4.0 );
-//    epochsVector.push_back( timeOfFlight / 2.0 );
-//    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 );
-//    epochsVector.push_back( timeOfFlight );
-
-    std::map< double, Eigen::Vector6d > trajectory;
-    std::map< double, Eigen::VectorXd > massProfile;
-    std::map< double, Eigen::VectorXd > thrustProfile;
-    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
-
-    hybridMethod.getTrajectory( epochsVector, trajectory );
-    hybridMethod.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-    hybridMethod.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
-    hybridMethod.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
-
 
     std::function< Eigen::VectorXd( const double ) > costatesFunction = [ = ]( const double currentTime )
     {
@@ -337,14 +141,32 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         return currentCostates;
     };
 
+
+
+    // Retrieve trajectory, mass, thrust, and thrust acceleration for a given set of epochs.
+    int numberSteps = 10;
+    std::vector< double > epochsVector;
+    for ( int i = 1 ; i <= numberSteps ; i++ )
+    {
+        epochsVector.push_back( timeOfFlight / numberSteps * i );
+    }
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    hybridMethod.getTrajectory( epochsVector, trajectory );
+    hybridMethod.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    hybridMethod.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    hybridMethod.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+
+    /// PROPAGATE THE TRAJECTORY NUMERICALLY (SHOULD BE EQUIVALENT TO HYBRID METHOD)
+
     // Define thrust direction settings from the MEE costates.
     std::shared_ptr< simulation_setup::MeeCostateBasedThrustDirectionSettings > thrustDirectionSettings =
             std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >( bodyToPropagate, centralBody, costatesFunction );
-
-//    std::function< double ( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-//    {
-//      return specificImpulse_;
-//    };
 
     // Define bang-bang thrust magnitude settings based on MEE co-states.
     std::shared_ptr< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings > thrustMagnitudeSettings
@@ -356,10 +178,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
             std::make_shared< simulation_setup::ThrustAccelerationSettings >( thrustDirectionSettings, thrustMagnitudeSettings );
 
 
-
-
-
-    // Acceleration from the central body.
+    // Define acceleration map.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                     basic_astrodynamics::central_gravity ) );
@@ -374,15 +193,19 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
-
-
-//    // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
-//    basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations = hybridMethod.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
-
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
                                                        bodyMap, accelerationModelMap );
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
 
     // Define list of dependent variables to save.
     dependentVariablesList.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
@@ -432,7 +255,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
         bodyMap[ bodyToPropagate ]->setConstantBodyMass( currentMass );
 
-        // Perform the backward propagation.
+        // Perform propagation.
         propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
@@ -442,69 +265,64 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         Eigen::Vector3d currentExpectedThrustAcceleration =  dependentVariableHistory.rbegin( )->second.segment( 0, 3 );
         Eigen::Vector3d currentExpectedThrust = currentExpectedThrustAcceleration * currentExpectedMass;
 
-//        Eigen::Vector6d calculatedState = hybridMethod.computeCurrentStateVector( currentEpoch );
-//        double calculatedMass = hybridMethod.computeCurrentMass( currentEpoch, specificImpulseFunction, integratorSettings );
-//        Eigen::Vector3d calculatedThrust = hybridMethod.computeCurrentThrust( currentEpoch, specificImpulseFunction, integratorSettings ).transpose( );
-//        Eigen::Vector3d calculatedThrustAcceleration = hybridMethod.computeCurrentThrustAcceleration( currentEpoch, specificImpulseFunction, integratorSettings );
-
+        // Check consistency between hybrid method and numerical propagation results.
         for ( int i = 0 ; i < 3 ; i++ )
         {
             BOOST_CHECK_SMALL( ( std::fabs( trajectory[ itr->first ][ i ] - currentExpectedState[ i ] ) / currentExpectedState.segment( 0, 3 ).norm( ) ), 1.0e-12 );
             BOOST_CHECK_SMALL( ( std::fabs( trajectory[ itr->first ][ i + 3 ] - currentExpectedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-12 );
             BOOST_CHECK_SMALL( ( std::fabs( thrustProfile[ itr->first ][ i ] - currentExpectedThrust[ i ] ) ), 1.0e-8 );
             BOOST_CHECK_SMALL( ( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - currentExpectedThrustAcceleration[ i ] ) ), 1.0e-10 );
-
-//            BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i ] - currentExpectedState[ i ] ) / currentExpectedState.segment( 0, 3 ).norm( ) ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( ( std::fabs( calculatedState[ i + 3 ] - currentExpectedState[ i + 3 ] ) / currentExpectedState.segment( 3, 3 ).norm( ) ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( ( std::fabs( calculatedThrust[ i ] - currentExpectedThrust[ i ] ) ), 1.0e-7 );
-//            BOOST_CHECK_SMALL( ( std::fabs( calculatedThrustAcceleration[ i ] - currentExpectedThrustAcceleration[ i ] ) ), 1.0e-10 );
         }
         BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - currentExpectedMass ), 1.0e-15 );
-//        BOOST_CHECK_SMALL( std::fabs( calculatedMass - currentExpectedMass ), 1.0e-11 );
-
-//        double manuallyCalculatedMass = mass;
-//        double previousEpoch;
-//        for ( std::map< double, Eigen::VectorXd >::iterator itrDependentVariables = dependentVariableHistory.begin( ) ;
-//              itrDependentVariables != dependentVariableHistory.end( ) ; itrDependentVariables++ )
-//        {
-
-//            if ( itrDependentVariables == dependentVariableHistory.begin( ) )
-//            {
-//                previousEpoch = itrDependentVariables->first;
-//            }
-//            else
-//            {
-
-//                double massRate;
-//                Eigen::Vector3d currentAcceleration = itrDependentVariables->second.segment( 0, 3 );
-//                Eigen::Vector3d currentThrust;
-//                if ( currentAcceleration.norm( ) > 0.0 )
-//                {
-//                    currentThrust = maximumThrust * currentAcceleration.normalized( );
-//                    massRate = - maximumThrust / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
-//                }
-//                else
-//                {
-//                    currentThrust = Eigen::Vector3d::Zero( );
-//                    massRate = 0.0;
-//                }
-
-//                double currentEpoch = itrDependentVariables->first;
-//                manuallyCalculatedMass += massRate * ( currentEpoch - previousEpoch  );
-
-//                BOOST_CHECK_SMALL( std::fabs( manuallyCalculatedMass - stateHistory[ itrDependentVariables->first ][ 6 ] ), 1.0e-12 );
-
-//                previousEpoch = currentEpoch;
-
-//            }
-
-//        }
 
         initialTime = currentEpoch;
         currentMass = currentExpectedMass;
         currentState = currentExpectedState;
 
     }
+
+
+
+    /// Test the computeSemiAnalyticalAndFullPropagation function
+    /// (the difference between hybrid method and full propagation results should be integration errors only)
+
+    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+
+    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
+    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
+
+    // Define empty maps to store the propagation results.
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::Vector6d > hybridMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+
+    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = hybridMethod.createLowThrustPropagatorSettings(
+                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
+
+    // Compute full propagation.
+    hybridMethod.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings, fullPropagationResults,
+                                                                  hybridMethodResults, dependentVariablesHistory );
+
+
+
+    for ( int i = 0 ; i < 3 ; i++ )
+    {
+        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.begin()->second[ i ] - fullPropagationResults.begin()->second[ i ] ) / stateAtDeparture.segment( 0, 3 ).norm( ) ), 2.0e-6 );
+        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.begin()->second[ i + 3 ] - fullPropagationResults.begin()->second[ i + 3 ] ) / stateAtDeparture.segment( 3, 3 ).norm( ) ), 2.0e-6 );
+
+        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.rbegin()->second[ i ] - fullPropagationResults.rbegin()->second[ i ] ) / stateAtArrival.segment( 0, 3 ).norm( ) ), 2.0e-6 );
+        BOOST_CHECK_SMALL( ( std::fabs(  hybridMethodResults.rbegin()->second[ i + 3 ] - fullPropagationResults.rbegin()->second[ i + 3 ] ) / stateAtArrival.segment( 3, 3 ).norm( ) ), 2.0e-6 );
+
+    }
+
 
 }
 
