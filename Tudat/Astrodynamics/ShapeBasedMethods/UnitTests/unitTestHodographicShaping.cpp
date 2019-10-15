@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    HodographicShaping VelocityShapingMethod = HodographicShaping(
+    HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
         double currentTime = currentStep * stepSize;
 
-        double currentAccelerationMagnitude = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAccelerationMagnitude = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
 
         if ( currentAccelerationMagnitude > peakAcceleration )
         {
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     double expectedPeakAcceleration = 2.64e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
 
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody,
                 cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     expectedPeakAcceleration = 1.46e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
 
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
 //                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     expectedPeakAcceleration = 2.46e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
 
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     expectedPeakAcceleration = 1.58e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
 
@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -623,7 +623,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     expectedPeakAcceleration = 1.51e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 1.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 1.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-6 );
 
@@ -778,7 +778,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
+    shape_based_methods::HodographicShaping hodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -793,7 +793,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     double expectedPeakAcceleration = 64.1e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
 
@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -885,7 +885,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -900,7 +900,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     expectedPeakAcceleration = 63.5e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
 
@@ -962,7 +962,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -977,7 +977,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -992,7 +992,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     expectedPeakAcceleration = 56.0e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
 
@@ -1052,7 +1052,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -1067,7 +1067,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -1082,7 +1082,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     expectedPeakAcceleration = 56.0e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
 
@@ -1142,7 +1142,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    VelocityShapingMethod = shape_based_methods::HodographicShaping(
+    hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
@@ -1157,7 +1157,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = VelocityShapingMethod.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -1172,7 +1172,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     expectedPeakAcceleration = 50.3e-4;
 
     // DeltaV provided with a precision of 1 m/s
-    BOOST_CHECK_SMALL( std::fabs(  VelocityShapingMethod.computeDeltaV() - expectedDeltaV ), 100.0 );
+    BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV() - expectedDeltaV ), 100.0 );
     // Peak acceleration provided with a precision 1.0e-6 m/s^2
     BOOST_CHECK_SMALL( std::fabs(  peakAcceleration - expectedPeakAcceleration ), 1e-5 );
 
@@ -1384,7 +1384,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     };
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
+    shape_based_methods::HodographicShaping hodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
                 bodyMap, "Vehicle", "Sun",
@@ -1411,16 +1411,16 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 //    // Compute halved time of flight.
 //    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
-    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = VelocityShapingMethod.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
+    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = hodographicShaping.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
             std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings =
-            VelocityShapingMethod.createLowThrustTranslationalStatePropagatorSettings(
+            hodographicShaping.createLowThrustTranslationalStatePropagatorSettings(
                  lowThrustAccelerationsMap, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
+    hodographicShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
                                                                    fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 
@@ -1645,7 +1645,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
     };
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-    shape_based_methods::HodographicShaping VelocityShapingMethod(
+    shape_based_methods::HodographicShaping hodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
                 bodyMap, "Vehicle", "Sun",
@@ -1677,11 +1677,11 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
 
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = VelocityShapingMethod.createLowThrustPropagatorSettings(
+            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = hodographicShaping.createLowThrustPropagatorSettings(
                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
-    VelocityShapingMethod.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
+    hodographicShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
                                                                    fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
     // Check that boundary conditions are still fulfilled when free parameters are added.
@@ -1729,10 +1729,10 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
     std::map< double, Eigen::VectorXd > thrustProfile;
     std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
 
-    VelocityShapingMethod.getTrajectory( epochsVector, trajectory );
-    VelocityShapingMethod.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-    VelocityShapingMethod.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
-    VelocityShapingMethod.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+    hodographicShaping.getTrajectory( epochsVector, trajectory );
+    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    hodographicShaping.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
 
     for ( int i = 0 ; i < 3 ; i ++ )
     {
@@ -1744,10 +1744,10 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
 
     for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
     {
-        Eigen::Vector6d stateVector = VelocityShapingMethod.computeCurrentStateVector( itr->first );
-        Eigen::Vector3d thrustAccelerationVector = VelocityShapingMethod.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
-        Eigen::Vector3d thrustVector = VelocityShapingMethod.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
-        double mass = VelocityShapingMethod.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
+        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
+        double mass = hodographicShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
 
         for ( int i = 0 ; i < 3 ; i++ )
         {

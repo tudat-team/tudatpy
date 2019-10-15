@@ -76,20 +76,14 @@ struct SimsFlanaganProblem
 
     vector_double::size_type get_nic() const
     {
-        return 0u; //numberSegments_;
+        return 0u;
     }
 
     vector_double::size_type get_nec() const
     {
-        return 0u; //6u;
+        return 0u;
     }
 
-//    //! Serialization function for Pagmo compatibility
-//    template <typename Archive>
-//    void serialize(Archive &ar)
-//    {
-//        ar(problemBounds_);
-//    }
 
 protected:
 

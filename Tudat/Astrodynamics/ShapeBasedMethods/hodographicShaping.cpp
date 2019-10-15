@@ -62,7 +62,7 @@ HodographicShaping::HodographicShaping(
     radialVelocityCoefficients.segment( 0, 3 ) = Eigen::Vector3d::Zero();
     radialVelocityCoefficients.segment( 3, freeCoefficientsRadialVelocityFunction_.size() ) = freeCoefficientsRadialVelocityFunction_;
 
-    radialVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunction >( radialVelocityFunctionComponents, radialVelocityCoefficients );
+    radialVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunctionHodographicShaping >( radialVelocityFunctionComponents, radialVelocityCoefficients );
 
     // Define composite function in normal direction.
     Eigen::VectorXd normalVelocityCoefficients;
@@ -70,7 +70,7 @@ HodographicShaping::HodographicShaping(
     normalVelocityCoefficients.segment( 0, 3 ) = Eigen::Vector3d::Zero();
     normalVelocityCoefficients.segment( 3, freeCoefficientsNormalVelocityFunction_.size() ) = freeCoefficientsNormalVelocityFunction_;
 
-    normalVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunction >( normalVelocityFunctionComponents, normalVelocityCoefficients );
+    normalVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunctionHodographicShaping >( normalVelocityFunctionComponents, normalVelocityCoefficients );
 
     // Define composite function in axial direction.
     Eigen::VectorXd axialVelocityCoefficients;
@@ -78,7 +78,7 @@ HodographicShaping::HodographicShaping(
     axialVelocityCoefficients.segment( 0, 3 ) = Eigen::Vector3d::Zero();
     axialVelocityCoefficients.segment( 3, freeCoefficientsAxialVelocityFunction_.size() ) = freeCoefficientsAxialVelocityFunction_;
 
-    axialVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunction >( axialVelocityFunctionComponents, axialVelocityCoefficients );
+    axialVelocityFunction_ = std::make_shared< shape_based_methods::CompositeFunctionHodographicShaping >( axialVelocityFunctionComponents, axialVelocityCoefficients );
 
 
     // Compute initial cylindrical state.
@@ -137,7 +137,7 @@ HodographicShaping::HodographicShaping(
 
 
 //! Compute inverse of matrix filled with boundary conditions in radial or axial direction.
-Eigen::Matrix3d HodographicShaping::computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunction > velocityFunction )
+Eigen::Matrix3d HodographicShaping::computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction )
 {
     Eigen::Matrix3d matrixBoundaryValues, inverseMatrixBoundaryValues;
     matrixBoundaryValues <<
@@ -162,7 +162,7 @@ Eigen::Matrix3d HodographicShaping::computeInverseMatrixRadialOrAxialBoundaries(
 }
 
 //! Compute inverse of matrix filled with boundary conditions in normal direction.
-Eigen::Matrix2d HodographicShaping::computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunction > velocityFunction )
+Eigen::Matrix2d HodographicShaping::computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction )
 {
     Eigen::Matrix2d matrixBoundaryValues, inverseMatrixBoundaryValues;
 

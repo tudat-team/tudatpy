@@ -22,12 +22,12 @@ namespace tudat
 namespace shape_based_methods
 {
 
-class CompositeFunction
+class CompositeFunctionHodographicShaping
 {
 public:
 
     //! Constructor.
-    CompositeFunction( std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >& compositeFunctionComponents,
+    CompositeFunctionHodographicShaping( std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >& compositeFunctionComponents,
                        Eigen::VectorXd& compositeFunctionCoefficients ){
 
         compositeFunctionComponents_ = compositeFunctionComponents;
@@ -40,7 +40,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~CompositeFunction( ) { /*for( unsigned int i = 0; i < compositeFunctionComponents.size(); i++)
+    ~CompositeFunctionHodographicShaping( ) { /*for( unsigned int i = 0; i < compositeFunctionComponents.size(); i++)
                             delete compositeFunctionComponents.at( i );*/
                           }
 

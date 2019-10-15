@@ -10,7 +10,6 @@
 
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
-//#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 
 using namespace tudat;
 
@@ -127,35 +126,6 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
 
     }
 
-//    // Define upper bounds.
-
-//    for ( int i = 0 ; i < numberSegments_ ; i++ )
-//    {
-////        bool isInitialGuessUsedForUpperBounds = false;
-
-//        // Upper bound for the 3 components of the thrust vector.
-//        if ( ( initialGuessThrottles_.size( ) != 0 ) )
-//        {
-//            Eigen::Vector3d upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ];
-
-//            if ( ( upperBoundsFromInitialGuess[ 0 ] <= 1.0 ) && ( upperBoundsFromInitialGuess[ 1 ] <= 1.0 )
-//                 && ( upperBoundsFromInitialGuess[ 2 ] <= 1.0 ) )
-//            {
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-//                upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-//                isInitialGuessUsedForUpperBounds = true;
-//            }
-//        }
-
-//        if ( !isInitialGuessUsedForUpperBounds )
-//        {
-//            upperBounds.push_back( 1.0 );
-//            upperBounds.push_back( 1.0 );
-//            upperBounds.push_back( 1.0 );
-//        }
-//    }
-
     return { lowerBounds, upperBounds };
 }
 
@@ -203,7 +173,6 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
 
     // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
     double deltaV = currentLeg.getTotalDeltaV( );
-//    std::cout << "deltaV: " << deltaV << "\n\n";
 
     // Equality constraints (must be ... = 0 )
     std::vector< double > equalityConstraints;
