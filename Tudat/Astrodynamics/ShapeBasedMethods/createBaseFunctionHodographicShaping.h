@@ -27,14 +27,10 @@ class BaseFunctionHodographicShapingSettings
 public:
 
     //! Default, empty constructor.
-    BaseFunctionHodographicShapingSettings( /*const basic_astrodynamics::AvailableAcceleration accelerationType ):
-        accelerationType_( accelerationType*/ ){ }
+    BaseFunctionHodographicShapingSettings( ){ }
 
     //! Destructor.
     virtual ~BaseFunctionHodographicShapingSettings( ){ }
-
-    //! Type of acceleration from AvailableAcceleration enum.
-//    basic_astrodynamics::AvailableAcceleration accelerationType_;
 
 };
 

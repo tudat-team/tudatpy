@@ -181,7 +181,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction, integratorSettings );
@@ -195,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
 
         double currentTime = currentStep * stepSize;
 
-        double currentAccelerationMagnitude = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAccelerationMagnitude = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
 
         if ( currentAccelerationMagnitude > peakAcceleration )
         {
@@ -289,7 +288,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
                 cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction, integratorSettings );
@@ -300,7 +298,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -395,7 +393,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     hodographicShaping = shape_based_methods::HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 bodyMap, "Vehicle", "Sun",
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
@@ -407,7 +404,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -503,7 +500,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -515,7 +511,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -612,7 +608,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -623,7 +618,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -782,7 +777,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -793,7 +787,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -874,7 +868,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -885,7 +878,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -966,7 +959,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -977,7 +969,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -1056,7 +1048,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -1067,7 +1058,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -1146,7 +1137,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, numberOfRevolutions,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -1157,7 +1147,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
     for ( int currentStep = 0 ; currentStep <= 500 ; currentStep++ ){
         double currentTime = currentStep * stepSize;
 
-        double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationVector( currentTime ).norm();
+        double currentAcceleration = hodographicShaping.computeThrustAccelerationVector( currentTime ).norm();
         if ( currentAcceleration > peakAcceleration )
         {
             peakAcceleration = currentAcceleration;
@@ -1374,7 +1364,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
         return 2000.0 - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
     };
     bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 2000.0 );
 
 
     // Define specific impulse function.
@@ -1388,7 +1377,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
@@ -1407,9 +1395,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0 );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
-
-//    // Compute halved time of flight.
-//    double halfOfTimeOfFlight = timeOfFlight * tudat::physical_constants::JULIAN_DAY / 2.0;
 
     basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap = hodographicShaping.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
@@ -1649,7 +1634,6 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * tudat::physical_constants::JULIAN_DAY, 1,
                 bodyMap, "Vehicle", "Sun",
-//                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
                 integratorSettings );
