@@ -68,7 +68,6 @@ public:
 
         // Initialise mass at time of flight (before propagation).
        Eigen::Vector6d propagatedStateAtTimeOfFlight = propagateTrajectory( );
-//        massAtTimeOfFlight_ = initialSpacecraftMass_;
 
     }
 

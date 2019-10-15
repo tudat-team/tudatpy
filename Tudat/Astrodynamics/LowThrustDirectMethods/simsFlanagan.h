@@ -17,25 +17,30 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-//#include "pagmo/algorithm.hpp"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/simsFlanaganLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustDirectMethods/lowThrustLeg.h"
 #include "Tudat/Astrodynamics/LowThrustDirectMethods/optimisationSettings.h"
-
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/applicationOutput.h"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/getAlgorithm.h"
-//#include "tudatExampleApplications/libraryExamples/PaGMOEx/Problems/saveOptimizationResults.h"
+#include "Tudat/Astrodynamics/ShapeBasedMethods/shapeBasedMethodLeg.h"
 
 namespace tudat
 {
 namespace low_thrust_direct_methods
 {
 
+
 //! Transform thrust model as a function of time into Sims Flanagan thrust model.
 std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
                                                                  const double maximumThrust,
                                                                  const double timeOfFlight, const int numberSegmentsForwardPropagation,
                                                                  const int numberSegmentsBackwardPropagation );
+
+//! Convert a shape-based thrust profile into a possible initial guess for Sims-Flanagan.
+std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShaping(
+        std::shared_ptr< shape_based_methods::ShapeBasedMethodLeg > shapeBasedLeg,
+        const int numberSegmentsSimsFlanagan,
+        const double timeOfFlight,
+        std::function< double( const double ) > specificImpulseFunction,
+        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
 
 
 class SimsFlanagan : public transfer_trajectories::LowThrustLeg
@@ -53,28 +58,12 @@ public:
             simulation_setup::NamedBodyMap bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
-//            pagmo::algorithm optimisationAlgorithm,
-//            const int numberOfGenerations,
-//            const int numberOfIndividualsPerPopulation,
             std::shared_ptr< transfer_trajectories::OptimisationSettings > optimisationSettings ) :
-//            const double relativeToleranceConstraints = 1.0e-6,
-//            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ) :
         LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
-//        stateAtDeparture_( stateAtDeparture ),
-//        stateAtArrival_( stateAtArrival ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberSegments ),
-//        timeOfFlight_( timeOfFlight ),
-//        bodyMap_( bodyMap ),
-//        bodyToPropagate_( bodyToPropagate ),
-//        centralBody_( centralBody ),
-//        optimisationAlgorithm_( optimisationAlgorithm ),
-//        numberOfGenerations_( numberOfGenerations ),
-//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-//        relativeToleranceConstraints_( relativeToleranceConstraints ),
-        optimisationSettings_( optimisationSettings )//,
-//        initialGuessThrustModel_( initialGuessThrustModel )
+        optimisationSettings_( optimisationSettings )
     {
 
         // Store initial spacecraft mass.
@@ -86,17 +75,17 @@ public:
         numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first /*initialGuessThrustModel.first*/ != nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first != nullptr )
         {
-            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( optimisationSettings_->initialGuessThrustModel_.first /* initialGuessThrustModel.first*/,
-                                                                               maximumThrust_, timeOfFlight_,
-                                                                               numberSegmentsForwardPropagation_, numberSegmentsBackwardPropagation_ );
+            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( optimisationSettings_->initialGuessThrustModel_.first ,
+                                                                               maximumThrust_, timeOfFlight_, numberSegmentsForwardPropagation_,
+                                                                               numberSegmentsBackwardPropagation_ );
         }
         else
         {
             initialGuessThrustModel_.first = std::vector< Eigen::Vector3d >( );
         }
-        initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second; // initialGuessThrustModel.second;
+        initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second;
 
         // Perform optimisation
         std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
@@ -140,7 +129,7 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( )
     {
-        return simsFlanaganLeg_->getTotalDeltaV( ); // deltaV_; //championFitness_[ 0 ];
+        return simsFlanaganLeg_->getTotalDeltaV( );
     }
 
     //! Compute current cartesian state.
@@ -175,29 +164,6 @@ public:
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-//    //! Return mass profile.
-//    void getMassProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& massProfile,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Return thrust profile.
-//    void getThrustProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& thrustProfile,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-//    {
-
-//    }
-
-//    //! Return thrust acceleration profile.
-//    void getThrustAccelerationProfile(
-//            std::vector< double >& epochsVector,
-//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile );
-
-
     //! Return best individual.
     std::vector< double > getBestIndividual( )
     {
@@ -231,6 +197,7 @@ public:
             std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
+
 protected:
 
     int convertTimeToLegSegment( double currentTime )
@@ -240,12 +207,6 @@ protected:
 
 private:
 
-//    //! State vector of the vehicle at the leg departure.
-//    Eigen::Vector6d stateAtDeparture_;
-
-//    //! State vector of the vehicle at the leg arrival.
-//    Eigen::Vector6d stateAtArrival_;
-
     //! Maximum allowed thrust.
     double maximumThrust_;
 
@@ -254,30 +215,6 @@ private:
 
     //! Number of segments into which the leg is subdivided.
     int numberSegments_;
-
-//    //! Time of flight for the leg.
-//    double timeOfFlight_;
-
-//    //! Body map object.
-//    simulation_setup::NamedBodyMap bodyMap_;
-
-//    //! Name of the body to be propagated.
-//    std::string bodyToPropagate_;
-
-//    //! Name of the central body.
-//    std::string centralBody_;
-
-//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-//    pagmo::algorithm optimisationAlgorithm_;
-
-//    //! Number of generations for the optimisation algorithm.
-//    int numberOfGenerations_;
-
-//    //! Number of individuals per population for the optimisation algorithm.
-//    int numberOfIndividualsPerPopulation_;
-
-//    //! Relative tolerance for optimisation constraints.
-//    double relativeToleranceConstraints_;
 
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.

@@ -119,9 +119,9 @@ public:
 
 protected:
 
-    Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunction > velocityFunction );
+    Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
-    Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunction > velocityFunction );
+    Eigen::Matrix3d computeInverseMatrixRadialOrAxialBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
     //! Satisfy boundary conditions in radial direction.
     void satisfyRadialBoundaryConditions( Eigen::VectorXd freeCoefficients );
@@ -180,13 +180,13 @@ private:
     double centralBodyGravitationalParameter_;
 
     //! Radial velocity function.
-    std::shared_ptr< CompositeFunction > radialVelocityFunction_;
+    std::shared_ptr< CompositeFunctionHodographicShaping > radialVelocityFunction_;
 
     //! Normal velocity function.
-    std::shared_ptr< CompositeFunction > normalVelocityFunction_;
+    std::shared_ptr< CompositeFunctionHodographicShaping > normalVelocityFunction_;
 
     //! Axial velocity function.
-    std::shared_ptr< CompositeFunction > axialVelocityFunction_;
+    std::shared_ptr< CompositeFunctionHodographicShaping > axialVelocityFunction_;
 
     //! Vector containing the coefficients of the radial function.
     Eigen::VectorXd freeCoefficientsRadialVelocityFunction_;
