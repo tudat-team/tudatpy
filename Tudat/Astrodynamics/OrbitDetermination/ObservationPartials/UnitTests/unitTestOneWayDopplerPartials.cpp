@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             }
             BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
-                                          numericalProjectedVelocityDerivative ), 1.0E-22 );
+                                          numericalProjectedVelocityDerivative ), 1.0E-21 );
         }
 
 
