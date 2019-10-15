@@ -93,9 +93,6 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
-//    Eigen::VectorXd radialFunctionCoefficients = ( Eigen::Vector7d() << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished();
-//    Eigen::Vector4d elevationFunctionCoefficients = ( Eigen::Vector4d() << 1.0, 1.0, 1.0, 1.0 ).finished();
-
     Eigen::Vector6d initialState = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d finalState = pointerToArrivalBodyEphemeris->getCartesianState(
                 julianDate + timeOfFlight * tudat::physical_constants::JULIAN_DAY );
@@ -111,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
                 rootFinderSettings, 1.0e-6, 1.0e-1, integratorSettings );
 
     // Compute step size.
-    double stepSize = ( sphericalShaping.getFinalAzimuthAngle() - sphericalShaping.getInitialAzimuthAngle() ) / 5000.0;
+    double stepSize = ( sphericalShaping.getFinalValueInpendentVariable() - sphericalShaping.getInitialValueInpendentVariable() ) / 5000.0;
 
     // Initialise peak acceleration.
     double peakThrustAcceleration = 0.0;
@@ -119,11 +116,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     // Check that the trajectory is feasible, ie curved toward the central body.
     for ( int i = 0 ; i <= 5000 ; i++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialAzimuthAngle() + i * stepSize;
+        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
 
-        if ( sphericalShaping.computeCurrentThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        if ( sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAccelerationVector( currentThetaAngle ).norm();
+            peakThrustAcceleration = sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm();
         }
     }
 
@@ -216,7 +213,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
 
     // Compute step size.
     double numberOfSteps = 5000.0;
-    double stepSize = ( sphericalShaping.getFinalAzimuthAngle() - sphericalShaping.getInitialAzimuthAngle() ) / numberOfSteps;
+    double stepSize = ( sphericalShaping.getFinalValueInpendentVariable() - sphericalShaping.getInitialValueInpendentVariable() ) / numberOfSteps;
 
     // Initialise peak acceleration.
     double peakThrustAcceleration = 0.0;
@@ -224,11 +221,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     // Compute peak acceleration.
     for ( int i = 0 ; i <= numberOfSteps ; i++ )
     {
-        double currentThetaAngle = sphericalShaping.getInitialAzimuthAngle() + i * stepSize;
+        double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
 
-        if ( sphericalShaping.computeCurrentThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        if ( sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAccelerationVector( currentThetaAngle ).norm();
+            peakThrustAcceleration = sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm();
         }
     }
 
@@ -328,8 +325,8 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
                     freeParameterUpperBoundVector[ currentTestCase ], integratorSettings );
 
         // Check consistency of final azimuth angle value with required number of revolutions.
-        double initialAzimuthAngle = sphericalShaping.getInitialAzimuthAngle();
-        double finalAzimuthAngle = sphericalShaping.getFinalAzimuthAngle();
+        double initialAzimuthAngle = sphericalShaping.getInitialValueInpendentVariable( );
+        double finalAzimuthAngle = sphericalShaping.getFinalValueInpendentVariable( );
 
         double expectedInitialAzimuthAngle = coordinate_conversions::convertCartesianToSphericalState( initialState )[ 1 ];
         if ( expectedInitialAzimuthAngle < 0.0 )

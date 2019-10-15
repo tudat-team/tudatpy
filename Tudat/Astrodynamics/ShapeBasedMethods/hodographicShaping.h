@@ -42,7 +42,6 @@ public:
             simulation_setup::NamedBodyMap& bodyMap,
             const std::string bodyToPropagate,
             const std::string centralBody,
-//            const double centralBodyGravitationalParameter,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
             std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
@@ -92,28 +91,10 @@ public:
     Eigen::Vector6d computeCurrentStateVector( const double currentTime );
 
     //! Compute thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationVector( double currentTime );
+    Eigen::Vector3d computeThrustAccelerationVector( double currentTime );
 
     //! Compute DeltaV.
     double computeDeltaV( );
-
-//    //! Get low-thrust acceleration model from shaping method.
-//    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
-//            simulation_setup::NamedBodyMap& bodyMap,
-//            const std::string& bodyToPropagate,
-//            std::function< double( const double ) > specificImpulseFunction );
-
-//    //! Function to compute the shaped trajectory and the propagation fo the full problem.
-//    void computeShapedTrajectoryAndFullPropagation(
-//            simulation_setup::NamedBodyMap& bodyMap,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-//           std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//                   std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-//            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-//            std::map< double, Eigen::VectorXd >& shapingMethodResults,
-//            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
-//            const bool isMassPropagated );
 
 
 
@@ -160,18 +141,6 @@ protected:
 
 
 private:
-
-    //! Initial state in cartesian coordinates.
-    Eigen::Vector6d initialState_;
-
-    //! Final state in cartesian coordinates.
-    Eigen::Vector6d finalState_;
-
-    //! Initial time.
-    double initialTime_;
-
-    //! Time of flight.
-    double timeOfFlight_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
@@ -229,9 +198,6 @@ private:
      *  function which are used to satisfy the normal boundary conditions.
      */
     Eigen::MatrixXd inverseAxialMatrixBoundaryValues_;
-
-//    //! Numerical quadrature settings (required to compute the final deltaV and polar angle values).
-//    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
 };
 

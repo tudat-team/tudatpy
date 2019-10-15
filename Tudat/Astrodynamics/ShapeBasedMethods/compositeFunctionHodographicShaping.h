@@ -40,9 +40,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~CompositeFunctionHodographicShaping( ) { /*for( unsigned int i = 0; i < compositeFunctionComponents.size(); i++)
-                            delete compositeFunctionComponents.at( i );*/
-                          }
+    ~CompositeFunctionHodographicShaping( ) { }
 
     //! Return coefficients.
     /*!

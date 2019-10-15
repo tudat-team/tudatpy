@@ -29,7 +29,7 @@ namespace shape_based_methods
 {
 
 
-class SphericalShaping : public ShapeBasedMethodLeg  /*: public ShapeBasedMethod*/
+class SphericalShaping : public ShapeBasedMethodLeg
 {
 public:
 
@@ -41,7 +41,6 @@ public:
                      simulation_setup::NamedBodyMap& bodyMap,
                      const std::string bodyToPropagate,
                      const std::string centralBody,
-//                     double centralBodyGravitationalParameter,
                      double initialValueFreeCoefficient,
                      std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
                      const double lowerBoundFreeCoefficient = TUDAT_NAN,
@@ -70,34 +69,10 @@ public:
         return finalAzimuthAngle_;
     }
 
-    //! Return the coefficients of the radial distance composite function.
-    Eigen::VectorXd getRadialDistanceFunctionCoefficients( )
-    {
-        return coefficientsRadialDistanceFunction_;
-    }
-
-    //! Return the coefficients of the elevation angle composite function.
-    Eigen::VectorXd getElevationAngleFunctionCoefficients( )
-    {
-        return coefficientsElevationAngleFunction_;
-    }
-
-    //! Return initial azimuth angle.
-    double getInitialAzimuthAngle( )
-    {
-        return initialAzimuthAngle_;
-    }
-
-    //! Return final azimuth angle.
-    double getFinalAzimuthAngle( )
-    {
-        return finalAzimuthAngle_;
-    }
-
     //! Compute time of flight.
     double computeTimeOfFlight()
     {
-        return computeNormalizedTimeOfFlight() * physical_constants::JULIAN_YEAR;
+        return computeNormalizedTimeOfFlight( ) * physical_constants::JULIAN_YEAR;
     }
 
 
@@ -106,34 +81,10 @@ public:
 
 
     //! Compute current thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationVector( const double currentAzimuthAngle )
-    {
-        return computeNormalizedThrustAccelerationVector( currentAzimuthAngle ) * physical_constants::ASTRONOMICAL_UNIT
-                / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
-    }
+    Eigen::Vector3d computeThrustAccelerationVector( const double currentAzimuthAngle );
 
     //! Compute deltaV.
     double computeDeltaV( );
-
-//    //! Get low-thrust acceleration model from shaping method.
-//    std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
-////            simulation_setup::NamedBodyMap& bodyMap,
-////            const std::string& bodyToPropagate,
-//            std::function< double( const double ) > specificImpulseFunction,
-//            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolatorPolarAngleFromTime );
-
-//    //! Function to compute the shaped trajectory and the propagation fo the full problem.
-//    void computeShapedTrajectoryAndFullPropagation(
-////            simulation_setup::NamedBodyMap& bodyMap,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-//            std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//                    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-//            std::map< double, Eigen::VectorXd >& fullPropagationResults,
-//            std::map< double, Eigen::VectorXd >& shapingMethodResults,
-//            std::map< double, Eigen::VectorXd>& dependentVariablesHistory,
-//            const bool isMassPropagated );
-
 
 
 protected:
@@ -193,27 +144,18 @@ protected:
     //! Compute second derivative of the azimuth angle w.r.t. time.
     double computeSecondDerivativeAzimuthAngleWrtTime( const double currentAzimuthAngle );
 
-    //! Compute current spherical position.
-    Eigen::Vector3d computePositionVectorInSphericalCoordinates( const double currentAzimuthAngle );
-
-    //! Compute current velocity in spherical coordinates.
-    Eigen::Vector3d computeVelocityVectorInSphericalCoordinates( const double currentAzimuthAngle );
-
     //! Compute current velocity in spherical coordinates parametrized by azimuth angle theta.
-    Eigen::Vector3d computeCurrentVelocityParametrizedByAzimuthAngle( const double currentAzimuthAngle );
+    Eigen::Vector3d computeVelocityVectorParametrizedByAzimuthAngle( const double currentAzimuthAngle );
 
     //! Compute state vector in spherical coordinates.
     Eigen::Vector6d computeStateVectorInSphericalCoordinates( const double currentAzimuthAngle );
 
-    //! Compute current normalized cartesian state.
-    Eigen::Vector6d computeNormalizedStateVector( const double currentAzimuthAngle );
-
     //! Compute current acceleration in spherical coordinates parametrized by azimuth angle theta.
-    Eigen::Vector3d computeCurrentAccelerationParametrizedByAzimuthAngle( const double currentAzimuthAngle );
+    Eigen::Vector3d computeThrustAccelerationVectorParametrizedByAzimuthAngle( const double currentAzimuthAngle );
 
 
     //! Compute thrust acceleration vector in spherical coordinates.
-    Eigen::Vector3d computeThrustAccelerationInSphericalCoordinates( const double currentAzimuthAngle );
+    Eigen::Vector3d computeThrustAccelerationVectorInSphericalCoordinates( const double currentAzimuthAngle );
 
     //! Compute magnitude thrust acceleration.
     double computeCurrentThrustAccelerationMagnitude(
@@ -225,8 +167,6 @@ protected:
             double currentTime, std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-    //! Compute current thrust acceleration in normalized cartesian coordinates.
-    Eigen::Vector3d computeNormalizedThrustAccelerationVector( const double currentAzimuthAngle );
 
 
     //! Time of flight function for the root-finder.
@@ -293,26 +233,11 @@ protected:
 
 private:
 
-    //! Initial state in cartesian coordinates.
-    Eigen::Vector6d initialState_;
-
-    //! Final state in cartesian coordinates.
-    Eigen::Vector6d finalState_;
-
     //! Targeted value for the time of flight.
     double requiredTimeOfFlight_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
-
-    //! Body map object.
-    simulation_setup::NamedBodyMap bodyMap_;
-
-    //! Name of the body to be propagated.
-    std::string bodyToPropagate_;
-
-    //! Name of the central body.
-    std::string centralBody_;
 
     //! Central body gravitational parameter.
     double centralBodyGravitationalParameter_;
@@ -361,9 +286,6 @@ private:
 
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
-
-//    //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
-//    std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
     //! Inverse of matrix containing the boundary conditions
     Eigen::MatrixXd inverseMatrixBoundaryConditions_;
