@@ -148,8 +148,6 @@ public:
     double getTotalDeltaV( )
     {
         totalDeltaV_ = 0.0;
-//        propagateForwardFromDepartureToMatchPoint( );
-//        propagateBackwardFromArrivalToMatchPoint( );
 
         double currentMass = initialSpacecraftMass_;
 
