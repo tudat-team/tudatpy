@@ -20,7 +20,7 @@ namespace shape_based_methods
 {
 
 
-void CompositeFunction::resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients )
+void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
     if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
@@ -36,7 +36,7 @@ void CompositeFunction::resetCompositeFunctionCoefficients( Eigen::VectorXd comp
 }
 
 
-double CompositeFunction::evaluateCompositeFunctionCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentTime( const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -47,7 +47,7 @@ double CompositeFunction::evaluateCompositeFunctionCurrentTime( const double ind
 }
 
 
-double CompositeFunction::evaluateCompositeFunctionDerivativeCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeCurrentTime( const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -58,7 +58,7 @@ double CompositeFunction::evaluateCompositeFunctionDerivativeCurrentTime( const 
 }
 
 
-double CompositeFunction::evaluateCompositeFunctionIntegralCurrentTime( const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentTime( const double independentVariable )
 {
     double functionValue = 0.0;
     for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
@@ -69,19 +69,19 @@ double CompositeFunction::evaluateCompositeFunctionIntegralCurrentTime( const do
 }
 
 
-double CompositeFunction::getComponentFunctionDerivativeCurrentTime( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentTime( int componentIndex, double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative( currentTime );
 }
 
 
-double CompositeFunction::getComponentFunctionCurrentValue( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue( int componentIndex, double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( currentTime );
 }
 
 
-double CompositeFunction::getComponentFunctionIntegralCurrentTime( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentTime( int componentIndex, double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral( currentTime );
 }
