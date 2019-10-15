@@ -273,13 +273,13 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 }
                 else
                 {
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-1 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-1 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-1 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 2.0E-1 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 2.0E-1 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 2.0E-1 );
 
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 2.0E-7 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 2.0E-7 );
-                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-7 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 5.0E-7 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 5.0E-7 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 5.0E-7 );
                 }
             }
         }
@@ -320,13 +320,13 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
             }
             else
             {
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-1 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-1 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 2.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 2.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 2.0E-1 );
 
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 2.0E-7 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 2.0E-7 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 5.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 5.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 5.0E-7 );
             }
         }
 
