@@ -141,7 +141,7 @@ void LowThrustLeg::getMassProfile(
 
     double currentMass = initialMass_;
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
@@ -172,7 +172,7 @@ void LowThrustLeg::getThrustProfile(
 {
     thrustProfile.clear( );
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
@@ -196,7 +196,7 @@ void LowThrustLeg::getThrustAccelerationProfile(
 {
     thrustAccelerationProfile.clear();
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {

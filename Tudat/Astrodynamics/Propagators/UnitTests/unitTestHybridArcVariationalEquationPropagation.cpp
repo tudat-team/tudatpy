@@ -499,7 +499,6 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
-    tudat::spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
 
     // Create list of bodies to create.
     std::vector< std::string > bodyNames;

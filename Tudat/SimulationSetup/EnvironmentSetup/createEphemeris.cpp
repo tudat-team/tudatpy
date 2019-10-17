@@ -69,16 +69,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
-                std::string inputName;
-                inputName = bodyName;
-                if( bodyName == "Mars" ||
-                        bodyName == "Jupiter"  || bodyName == "Saturn" ||
-                        bodyName == "Uranus" || bodyName == "Neptune" )
-                {
-                    inputName += " Barycenter";
-//                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
-//                              << "planetary system." << std::endl;
-                }
+                std::string inputName = bodyName;
 
                 // Create corresponding ephemeris object.
                 ephemeris = std::make_shared< SpiceEphemeris >(
@@ -106,16 +97,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             {
                 // Since only the barycenters of planetary systems are included in the standard DE
                 // ephemerides, append 'Barycenter' to body name.
-                std::string inputName;
-                inputName = bodyName;
-                if( bodyName == "Mars" ||
-                        bodyName == "Jupiter"  || bodyName == "Saturn" ||
-                        bodyName == "Uranus" || bodyName == "Neptune" )
-                {
-                    inputName += " Barycenter";
-//                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
-//                              << "planetary system." << std::endl;
-                }
+                std::string inputName = bodyName;
 
                 // Create corresponding ephemeris object.
                 if( !interpolatedEphemerisSettings->getUseLongDoubleStates( ) )
