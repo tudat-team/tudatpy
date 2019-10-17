@@ -135,7 +135,7 @@ void HybridMethod::getThrustProfile(
     std::map< double, Eigen::Vector6d > trajectory;
     getTrajectory( epochsVector, trajectory );
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
@@ -223,7 +223,7 @@ void HybridMethod::getThrustAccelerationProfile(
     std::map< double, Eigen::VectorXd > massProfile;
     getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
