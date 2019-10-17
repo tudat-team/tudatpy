@@ -24,15 +24,6 @@ namespace low_thrust_trajectories
 {
 
 
-//! Transform thrust model as a function of time into hybrid method thrust model.
-Eigen::Matrix< double, 10, 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime )
-{
-    Eigen::Matrix< double, 10, 1 > meeInitialAndFinalCostates;
-
-    return meeInitialAndFinalCostates;
-}
-
-
 //! Perform optimisation.
 std::pair< std::vector< double >, std::vector< double > > HybridMethod::performOptimisation( )
 {
@@ -88,9 +79,7 @@ Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
                                                     std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
 
-//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-
-   std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodLeg_->getMEEcostatesBasedThrustMagnitudeSettings( );
+   std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
            thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
@@ -115,11 +104,11 @@ Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
 
    propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
            thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-           hybridMethodLeg_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+           hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
 
    propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
                thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-               hybridMethodLeg_->getCostatesFunction_( ), bodyFixedThrustDirection );
+               hybridMethodModel_->getCostatesFunction_( ), bodyFixedThrustDirection );
 
    thrustGuidance.updateCalculator( time );
    thrustMagnitudeWrapper.update( time );
@@ -138,7 +127,7 @@ void HybridMethod::getThrustProfile(
 {
     thrustProfile.clear( );
 
-    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodLeg_->getMEEcostatesBasedThrustMagnitudeSettings( );
+    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
             thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
@@ -176,11 +165,11 @@ void HybridMethod::getThrustProfile(
 
         propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
                 thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-                hybridMethodLeg_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+                hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
 
         propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
                     thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-                    hybridMethodLeg_->getCostatesFunction_( ), bodyFixedThrustDirection );
+                    hybridMethodModel_->getCostatesFunction_( ), bodyFixedThrustDirection );
 
         thrustGuidance.updateCalculator( epochsVector[ i ] );
         thrustMagnitudeWrapper.update( epochsVector[ i ] );
@@ -263,7 +252,7 @@ Eigen::Vector6d HybridMethod::computeCurrentStateVector( const double currentTim
     }
     else
     {
-        stateVector = hybridMethodLeg_->propagateTrajectory( 0.0, currentTime, stateAtDeparture_, initialSpacecraftMass_/*, integratorSettings_*/ );
+        stateVector = hybridMethodModel_->propagateTrajectory( 0.0, currentTime, stateAtDeparture_, initialSpacecraftMass_ );
     }
 
     return stateVector;
@@ -276,7 +265,7 @@ basic_astrodynamics::AccelerationMap HybridMethod::retrieveLowThrustAcceleration
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    basic_astrodynamics::AccelerationMap hybridMethodAccelerationMap = hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
+    basic_astrodynamics::AccelerationMap hybridMethodAccelerationMap = hybridMethodModel_->getLowThrustTrajectoryAccelerationMap( );
     return hybridMethodAccelerationMap;
 }
 
@@ -296,7 +285,6 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
 
     // Compute state vector at half of the time of flight.
-//    double independentVariableAtHalfTimeOfFlight = convertTimeToIndependentVariable( timeOfFlight_ / 2.0 );
     Eigen::Vector6d stateAtHalfOfTimeOfFlight = computeCurrentStateVector( timeOfFlight_ / 2.0 );
 
     // Define translational state propagator settings.

@@ -24,23 +24,11 @@
 #include <functional>
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/sphericalShaping.h"
-
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/lowThrustLeg.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/lowThrustLegSettings.h"
-
-//#include "pagmo/algorithm.hpp"
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/serialization.hpp"
@@ -58,7 +46,6 @@ namespace low_thrust_trajectories
  */
 
 using namespace pagmo;
-//using namespace tudat;
 
 //! Definition optimisation problem to minimise the total deltaV required by the trajectory.
 struct TrajectoryOptimisationProblem
@@ -97,42 +84,17 @@ struct TrajectoryOptimisationProblem
 
     vector_double::size_type get_nic() const
     {
-        return 0u; //numberSegments_;
+        return 0u;
     }
 
     vector_double::size_type get_nec() const
     {
-        return 0u; //6u;
+        return 0u;
     }
-
-//    //! Serialization function for Pagmo compatibility
-//    template <typename Archive>
-//    void serialize(Archive &ar)
-//    {
-//        ar(problemBounds_);
-//    }
 
 protected:
 
 private:
-
-//    //! State vector of the vehicle at the leg departure.
-//    Eigen::Vector6d stateAtDeparture_;
-
-//    //! State vector of the vehicle at the leg arrival.
-//    Eigen::Vector6d stateAtArrival_;
-
-//    //! Maximum allowed thrust.
-//    double maximumThrust_;
-
-//    //! Specific impulse function.
-//    std::function< double ( const double ) > specificImpulseFunction_;
-
-//    //! Number of segments into which the leg is subdivided.
-//    int numberSegments_;
-
-//    //! Time of flight for the leg.
-//    double timeOfFlight_;
 
     //! Body map.
     mutable simulation_setup::NamedBodyMap bodyMap_;
@@ -160,20 +122,6 @@ private:
 
     //! Pointer to settings for low-thrust trajectory leg.
     std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings > lowThrustLegSettings_;
-
-//    //! Initial guess for the optimisation.
-//    //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
-//    //! The second element defines the bounds around the initial time (in percentage).
-//    std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel_;
-
-//    //! Thrust throttles for the thrust model initial guess.
-//    std::vector< Eigen::Vector3d > initialGuessThrottles_;
-
-//    //! Relative margin w.r.t. initial guess.
-//    double relativeMarginWrtInitialGuess_;
-
-//    //! Relative tolerance for optimisation constraints.
-//    double relativeToleranceConstraints_;
 
 
 };

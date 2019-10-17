@@ -11,7 +11,7 @@
 
 
 #include <iostream>
-#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganModel.h"
 #include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 
 namespace tudat
@@ -19,7 +19,7 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-int SimsFlanaganLeg::convertTimeToLegSegment( double currentTime )
+int SimsFlanaganModel::convertTimeToLegSegment( double currentTime )
 {
     int indexSegment;
 
@@ -42,7 +42,7 @@ int SimsFlanaganLeg::convertTimeToLegSegment( double currentTime )
     return indexSegment;
 }
 
-std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg::getConstantThrustAccelerationSettingsPerSegment(
+std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganModel::getConstantThrustAccelerationSettingsPerSegment(
         unsigned int indexSegment )
 {
     // Define (constant) thrust magnitude function.
@@ -75,7 +75,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
     return thrustAccelerationSettings;
 }
 
-basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getAccelerationModelPerSegment( unsigned int indexSegment )
+basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerSegment( unsigned int indexSegment )
 {
 
     // Define acceleration settings.
@@ -101,7 +101,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getAccelerationModelPerSeg
 }
 
 
-std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg::getThrustAccelerationSettingsFullLeg( )
+std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganModel::getThrustAccelerationSettingsFullLeg( )
 {
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
@@ -139,7 +139,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganLeg:
     return thrustAccelerationSettings;
 }
 
-basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getLowThrustTrajectoryAccelerationMap( )
+basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAccelerationMap( )
 {
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
@@ -164,8 +164,38 @@ basic_astrodynamics::AccelerationMap SimsFlanaganLeg::getLowThrustTrajectoryAcce
     return accelerationModelMap;
 }
 
+//! Return total deltaV required by the trajectory.
+double SimsFlanaganModel::getTotalDeltaV( )
+{
+    totalDeltaV_ = 0.0;
+
+    double currentMass = initialSpacecraftMass_;
+
+    for ( int currentSegment = 0 ; currentSegment < numberSegments_ ; currentSegment++ )
+    {
+        double segmentDuration;
+        if ( currentSegment < numberSegmentsForwardPropagation_ )
+        {
+            segmentDuration = segmentDurationForwardPropagation_;
+        }
+        else
+        {
+            segmentDuration = segmentDurationBackwardPropagation_;
+        }
+
+        Eigen::Vector3d deltaVvector = maximumThrust_ / currentMass
+                            * segmentDuration * throttles_[ currentSegment ];
+
+        currentMass = propagateMassToSegment( currentSegment );
+
+        totalDeltaV_ += deltaVvector.norm( );
+    }
+
+    return totalDeltaV_;
+}
+
 //! Propagate the mass from departure to a given segment.
-double SimsFlanaganLeg::propagateMassToSegment( int indexSegment )
+double SimsFlanaganModel::propagateMassToSegment( int indexSegment )
 {
     double currentMass = initialSpacecraftMass_;
 
@@ -206,7 +236,7 @@ double SimsFlanaganLeg::propagateMassToSegment( int indexSegment )
 
 
 //! Propagate the spacecraft trajectory from departure to match point (forward propagation).
-void SimsFlanaganLeg::propagateForwardFromDepartureToMatchPoint( )
+void SimsFlanaganModel::propagateForwardFromDepartureToMatchPoint( )
 {
     // Initialise current state at the leg departure.
     Eigen::Vector6d currentState = stateAtDeparture_;
@@ -224,7 +254,7 @@ void SimsFlanaganLeg::propagateForwardFromDepartureToMatchPoint( )
 }
 
 //! Propagate the spacecraft trajectory from arrival to match point (backward propagation).
-void SimsFlanaganLeg::propagateBackwardFromArrivalToMatchPoint( )
+void SimsFlanaganModel::propagateBackwardFromArrivalToMatchPoint( )
 {
     // Initialise current state at the leg arrival.
     Eigen::Vector6d currentState = stateAtArrival_;
@@ -246,7 +276,7 @@ void SimsFlanaganLeg::propagateBackwardFromArrivalToMatchPoint( )
 
 
 //! Propagate the trajectory inside one segment.
-Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
+Eigen::Vector6d SimsFlanaganModel::propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
 {
 
     // Compute time elapsed since start of the current leg segment.
@@ -319,7 +349,7 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideForwardSegment( double initialTi
 
 
 //! Propagate the trajectory inside one segment.
-Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
+Eigen::Vector6d SimsFlanaganModel::propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
 {
     // Compute time elapsed since start of the current leg segment.
     double timeElapsedCurrentSegment = finalTime - initialTime;
@@ -387,7 +417,7 @@ Eigen::Vector6d SimsFlanaganLeg::propagateInsideBackwardSegment( double initialT
 
 
 //! Propagate the trajectory forward to given time.
-Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration )
+Eigen::Vector6d SimsFlanaganModel::propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration )
 {
     // Compute index of leg segment which corresponds to the propagation initial time.
     int initialSegment = convertTimeToLegSegment( initialTime );
@@ -445,7 +475,7 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryForward( double initialTime,
 
 
 //! Propagate the trajectory backward to given time.
-Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration )
+Eigen::Vector6d SimsFlanaganModel::propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration )
 {
     // Compute index of leg segment which corresponds to the propagation initial time.
     int initialSegment = convertTimeToLegSegment( initialTime );
@@ -503,7 +533,7 @@ Eigen::Vector6d SimsFlanaganLeg::propagateTrajectoryBackward( double initialTime
 
 
 //! Propagate the trajectory to set of epochs.
-std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
+std::map< double, Eigen::Vector6d > SimsFlanaganModel::propagateTrajectoryForward(
         std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration )
 {
         // Initialise propagated state.
@@ -556,7 +586,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryForward(
 
 
 //! Propagate the trajectory to set of epochs.
-std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward(
+std::map< double, Eigen::Vector6d > SimsFlanaganModel::propagateTrajectoryBackward(
         std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration )
 {
 
@@ -611,7 +641,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganLeg::propagateTrajectoryBackward
 
 
 //! Propagate the trajectory to set of epochs.
-void SimsFlanaganLeg::propagateTrajectory(
+void SimsFlanaganModel::propagateTrajectory(
         std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory )
 {
 

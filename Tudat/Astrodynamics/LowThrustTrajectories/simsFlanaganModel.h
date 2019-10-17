@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDAT_SIMS_FLANAGAN_LEG_H
-#define TUDAT_SIMS_FLANAGAN_LEG_H
+#ifndef TUDAT_SIMS_FLANAGAN_MODEL_H
+#define TUDAT_SIMS_FLANAGAN_MODEL_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include <math.h>
@@ -22,12 +22,12 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-class SimsFlanaganLeg
+class SimsFlanaganModel
 {
 public:
 
     //! Constructor.
-    SimsFlanaganLeg( const Eigen::Vector6d& stateAtDeparture,
+    SimsFlanaganModel( const Eigen::Vector6d& stateAtDeparture,
                      const Eigen::Vector6d& stateAtArrival,
                      const double maximumThrust,
                      const std::function< double ( const double ) > specificImpulseFunction,
@@ -76,7 +76,7 @@ public:
 
 
     //! Default destructor.
-    ~SimsFlanaganLeg( ) { }
+    ~SimsFlanaganModel( ) { }
 
     //! Propagate the spacecraft trajectory from departure to match point (forward propagation).
     void propagateForwardFromDepartureToMatchPoint( );
@@ -145,34 +145,7 @@ public:
     }
 
     //! Return total deltaV required by the trajectory.
-    double getTotalDeltaV( )
-    {
-        totalDeltaV_ = 0.0;
-
-        double currentMass = initialSpacecraftMass_;
-
-        for ( int currentSegment = 0 ; currentSegment < numberSegments_ ; currentSegment++ )
-        {
-            double segmentDuration;
-            if ( currentSegment < numberSegmentsForwardPropagation_ )
-            {
-                segmentDuration = segmentDurationForwardPropagation_;
-            }
-            else
-            {
-                segmentDuration = segmentDurationBackwardPropagation_;
-            }
-
-            Eigen::Vector3d deltaVvector = maximumThrust_ / currentMass
-                                * segmentDuration * throttles_[ currentSegment ];
-
-            currentMass = propagateMassToSegment( currentSegment );
-
-            totalDeltaV_ += deltaVvector.norm( );
-        }
-
-        return totalDeltaV_;
-    }
+    double getTotalDeltaV( );
 
     basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
 
@@ -293,4 +266,4 @@ private:
 } // namespace low_thrust_trajectories
 } // namespace tudat
 
-#endif // TUDAT_SIMS_FLANAGAN_LEG_H
+#endif // TUDAT_SIMS_FLANAGAN_MODEL_H

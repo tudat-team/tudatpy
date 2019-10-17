@@ -23,23 +23,14 @@
 #include <boost/bind.hpp>
 #include <functional>
 
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
+#if( USE_PAGMO )
+    #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
+    #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
+#endif
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-//#include "Tudat/Astrodynamics/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/sphericalShaping.h"
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/lowThrustLeg.h"
-
-//#include "pagmo/algorithm.hpp"
 
 
 namespace tudat
@@ -52,9 +43,11 @@ namespace low_thrust_trajectories
 enum LowThrustLegTypes
 {
     hodographic_shaping_leg,
-    spherical_shaping_leg,
-    sims_flanagan_leg,
+    spherical_shaping_leg
+#if( USE_PAGMO )
+    ,sims_flanagan_leg,
     hybrid_method_leg
+#endif
 };
 
 
@@ -199,6 +192,7 @@ public:
 };
 
 
+#if( USE_PAGMO )
 //! Low-thrust leg settings for Sims-Flanagan method.
 class SimsFlanaganLegSettings: public LowThrustLegSettings
 {
@@ -212,35 +206,19 @@ public:
     * \param numberOfSegments Number of segments into which the trajectory is divided.
     * \param centralBody Central body of the trajectory.
     * \param optimisationAlgorithm Optimisation algorithm to be used.
-    * \param numberOfGenerations Number of generations to be used for the optimisation.
-    * \param numberOfIndividualsPerPopulation Size of the population to be used for the optimisation.
-    * \param relativeToleranceConstraints Relative constraints for the optimisation constraints.
-    * \param initialGuessThrustModel First guess to initialise the optimisation algorithm (first element is the
-    * initial guess for the thrust function (as a function of time), second element is the relative tolerance (in percentage) w.r.t. this
-    * initial guess which defines the search space of the optmisation).
     */
     SimsFlanaganLegSettings(
             const double maximumThrust,
             std::function< double( const double ) > specificImpulseFunction,
             const int numberOfSegments,
             const std::string centralBody,
-//            pagmo::algorithm optimisationAlgorithm,
-//            const int numberOfGenerations,
-//            const int numberOfIndividualsPerPopulation,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings/*,
-            const double relativeToleranceConstraints = 1.0e-6,
-            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 )*/ ):
+            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ):
         LowThrustLegSettings( sims_flanagan_leg ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberOfSegments ),
         centralBody_( centralBody ),
-//        optimisationAlgorithm_( optimisationAlgorithm ),
-//        numberOfGenerations_( numberOfGenerations ),
-//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        optimisationSettings_( optimisationSettings )/*,
-        relativeToleranceConstraints_( relativeToleranceConstraints ),
-        initialGuessThrustModel_( initialGuessThrustModel )*/{ }
+        optimisationSettings_( optimisationSettings ){ }
 
     //! Destructor
     ~SimsFlanaganLegSettings( ){ }
@@ -257,25 +235,8 @@ public:
     //! Name of the central body.
     std::string centralBody_;
 
-//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-//    pagmo::algorithm optimisationAlgorithm_;
-
-//    //! Number of generations for the optimisation algorithm.
-//    int numberOfGenerations_;
-
-//    //! Number of individuals per population for the optimisation algorithm.
-//    int numberOfIndividualsPerPopulation_;
-
     //! Optimisation settings.
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings_;
-
-//    //! Relative tolerance for optimisation constraints.
-//    double relativeToleranceConstraints_;
-
-//    //! Initial guess for the optimisation.
-//    //! The first element contains the function returning the thrust as a function of time.
-//    //! The second element defines the bounds around the initial time (in percentage).
-//    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
 
 };
 
@@ -286,39 +247,19 @@ class HybridMethodLegSettings: public LowThrustLegSettings
 public:
 
     //! Constructor
-    /*!
-    * Constructor
-    * \param numberOfRevolutions Number of revolutions of the shape-based trajectory.
-    * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
-    * \param radialVelocityFunctionComponents Base components of the radial velocity function.
-    * \param normalVelocityFunctionComponents Base components of the normal velocity function.
-    * \param axialVelocityFunctionComponents Base components of the axial velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the radial velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the normal velocity function.
-    * \param radialVelocityFunctionComponents Coefficients vector for the components of the axial velocity function.
-    */
     HybridMethodLegSettings(
             const double maximumThrust,
             const double specificImpulse,
             const std::string centralBody,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-//            pagmo::algorithm optimisationAlgorithm,
-//            const int numberOfGenerations,
-//            const int numberOfIndividualsPerPopulation,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings //,
-   /*         const double relativeToleranceConstraints = 1.0e-6,
-            std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 )*/ ):
+            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings,
+            const std::pair< double, double > initialAndFinalMEEcostatesBounds ):
         LowThrustLegSettings( hybrid_method_leg ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
         centralBody_( centralBody ),
         integratorSettings_( integratorSettings ),
-//        optimisationAlgorithm_( optimisationAlgorithm ),
-//        numberOfGenerations_( numberOfGenerations ),
-//        numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
-        optimisationSettings_( optimisationSettings ) //,
-/*        relativeToleranceConstraints_( relativeToleranceConstraints ),
-        initialGuessThrustModel_( initialGuessThrustModel )*/{ }
+        optimisationSettings_( optimisationSettings ){ }
 
     //! Destructor
     ~HybridMethodLegSettings( ){ }
@@ -335,27 +276,14 @@ public:
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
-//    //! Optimisation algorithm to be used to solve the Sims-Flanagan problem.
-//    pagmo::algorithm optimisationAlgorithm_;
-
-//    //! Number of generations for the optimisation algorithm.
-//    int numberOfGenerations_;
-
-//    //! Number of individuals per population for the optimisation algorithm.
-//    int numberOfIndividualsPerPopulation_;
-
     //! Optimisation settings.
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings_;
 
-//    //! Relative tolerance for optimisation constraints.
-//    double relativeToleranceConstraints_;
-
-//    //! Initial guess for the optimisation.
-//    //! The first element contains the function returning the thrust as a function of time.
-//    //! The second element defines the bounds around the initial time (in percentage).
-//    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
+    //! Lower and upper bounds for the initial and final MEE costates.
+    std::pair< double, double > initialAndFinalMEEcostatesBounds_;
 
 };
+#endif
 
 
 std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(

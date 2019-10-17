@@ -21,9 +21,6 @@
 
 #include <Eigen/Core>
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
-//#include "Tudat/Astrodynamics/LowThrustTrajectories/lowThrustLegSettings.h"
-
-//#include "Tudat/Astrodynamics/TrajectoryDesign/missionLeg.h"
 
 namespace tudat
 {
@@ -31,10 +28,7 @@ namespace low_thrust_trajectories
 {
 
 //! Low-thrust leg base class.
-/*!
- * A base class for calculating a low-thrust trajectory leg.
- */
-class LowThrustLeg /*: public MissionLeg*/
+class LowThrustLeg
 {
 public:
     //! Constructor with immediate definition of parameters.
@@ -52,33 +46,21 @@ public:
                   const double timeOfFlight,
                   simulation_setup::NamedBodyMap& bodyMap,
                   const std::string bodyToPropagate,
-                  const std::string centralBody
-/*              const Eigen::Vector3d& arrivalBodyPosition,
-              const double timeOfFlight,
-              const Eigen::Vector3d& departureBodyVelocity,
-              const double centralBodyGravitationalParameter*/ ):
+                  const std::string centralBody ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight ),
         bodyMap_( bodyMap ), bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
     {
         // Retrieve initial mass of the spacecraft.
         initialMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
     }
-//        MissionLeg( departureBodyPosition, timeOfFlight, departureBodyVelocity, centralBodyGravitationalParameter),
-//        arrivalBodyPosition_( arrivalBodyPosition ){ }
 
     virtual ~LowThrustLeg( ){ }
 
     //! Convert time to independent variable.
     virtual double convertTimeToIndependentVariable( const double time ) = 0;
-//    {
-//        return time;
-//    }
 
     //! Convert independent variable to time.
     virtual double convertIndependentVariableToTime( const double independentVariable ) = 0;
-//    {
-//        return independentVariable;
-//    }
 
     //! Compute direction thrust acceleration in cartesian coordinates.
     virtual Eigen::Vector3d computeCurrentThrustAccelerationDirection(
@@ -90,29 +72,13 @@ public:
             double currentTime, std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings ) = 0;
 
-//    //! Propagate state to a given time.
-//    Eigen::Vector6d propagateTrajectory(
-//            const Eigen::Vector6d initialState,
-//            const double initialMass,
-//            const double initialTime,
-//            const double finalTime );
-
     //! Compute current cartesian state.
     virtual Eigen::Vector6d computeCurrentStateVector( const double currentTime ) = 0;
 
     //! Compute state history.
     virtual void getTrajectory(
             std::vector< double >& epochsVector,
-            std::map< double, Eigen::Vector6d >& propagatedTrajectory/*,
-            const Eigen::Vector6d initialState,
-            const double initialMass,
-            const double initialTime*/ ) = 0;
-
-//    //! Propagate mass to a given time.
-//    double propagateMass(
-//            const double initialMass,
-//            const double initialTime,
-//            const double finalTime );
+            std::map< double, Eigen::Vector6d >& propagatedTrajectory ) = 0;
 
     //! Compute current mass of the spacecraft.
     double computeCurrentMass( const double independentVariable,
@@ -129,9 +95,7 @@ public:
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
             std::function< double( const double ) > specificImpulseFunction,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings /*,
-            std::function< Eigen::Vector3d( const double ) > thrustAccelerationDirectionFunction,
-            std::function< double ( const double ) > thrustAccelerationMagnitudeFunction*/ );
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     virtual basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
@@ -174,7 +138,6 @@ public:
 
     //! Full propagation.
     void computeSemiAnalyticalAndFullPropagation(
-//            std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
             std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
                     std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
@@ -196,23 +159,6 @@ public:
             basic_astrodynamics::AccelerationMap accelerationModelMap,
             std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ) = 0;
 
-
-////    //! Update the ephemeris.
-////    /*!
-////     * Sets the positions and the velocities to the newly specified values. Required for re-using
-////     * the class, without re-initializing it.
-////     *  \param departureBodyPosition sets the new departure body position.
-////     *  \param arrivalBodyPosition sets the new arrival body position.
-////     *  \param departureBodyVelocity sets the new departure body velocity.
-////     */
-////    void updateEphemeris( const Eigen::Vector3d& departureBodyPosition,
-////                          const Eigen::Vector3d& arrivalBodyPosition,
-////                          const Eigen::Vector3d& departureBodyVelocity )
-////    {
-////        departureBodyPosition_ = departureBodyPosition;
-////        departureBodyVelocity_ = departureBodyVelocity;
-////        arrivalBodyPosition_ = arrivalBodyPosition;
-////    }
 
 protected:
 
@@ -237,12 +183,6 @@ protected:
     //! Initial mass of the spacecraft.
     double initialMass_;
 
-//    //! The arrival body position.
-//    /*!
-//     * The position of the arrival body at the arrival time.
-//     */
-//    Eigen::Vector3d arrivalBodyPosition_;
-
     //! Compute current mass of the spacecraft between two epochs.
     double computeCurrentMass(
             const double timeInitialEpoch,
@@ -250,22 +190,6 @@ protected:
             const double massInitialEpoch,
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Compute thrust of the spacecraft between two epochs.
-//    Eigen::Vector3d computeCurrentThrust(
-//            const double timeInitialEpoch,
-//            const double timeFinalEpoch,
-//            const double massInitialEpoch,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Compute thrust acceleration of the spacecraft between two epochs.
-//    Eigen::Vector3d computeCurrentThrustAcceleration(
-//            const double timeInitialEpoch,
-//            const double timeFinalEpoch,
-//            const double massInitialEpoch,
-//            std::function< double ( const double ) > specificImpulseFunction,
-//            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 private:
 

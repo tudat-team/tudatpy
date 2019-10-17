@@ -31,7 +31,6 @@ namespace low_thrust_trajectories
 {
 
 using namespace pagmo;
-//using namespace tudat;
 
 struct SimsFlanaganProblem
 {

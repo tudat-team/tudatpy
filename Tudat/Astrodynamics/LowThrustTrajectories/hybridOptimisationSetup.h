@@ -24,17 +24,6 @@
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 
-
-/*!
- *  The class defined in this file is to be used in a Pagmo optimization. It defines the objective function for a Sims-Flanagan direct method.
- *  The independent variables are:
- *
- *  1) Throttles for each segment
- *  2) ?
- *
- *  The problem minimized the Delta V (ADD CHOICE?)
- */
-
 using namespace pagmo;
 
 namespace tudat
@@ -135,11 +124,13 @@ private:
     //! Relative margin w.r.t. initial guess.
     double relativeMarginWrtInitialGuess_;
 
+    //! Lower and upper bounds for the initial and final MEE costates.
+    std::pair< double, double > initialAndFinalMEEcostatesBounds_;
+
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;
 
-    //! Lower and upper bounds for the initial and final MEE costates.
-    std::pair< double, double > initialAndFinalMEEcostatesBounds_;
+
 
 
 

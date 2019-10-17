@@ -15,9 +15,7 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::basic_mathematics;
 using namespace tudat::input_output;
-using namespace tudat::low_thrust_trajectories; //NEED TO CHANGE THIS TO: transfer_trajectories
-//using namespace tudat::shape_based_methods;
-//using namespace tudat;
+using namespace tudat::low_thrust_trajectories;
 using namespace pagmo;
 
 namespace tudat

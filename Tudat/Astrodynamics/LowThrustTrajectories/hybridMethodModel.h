@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDAT_HYBRID_METHOD_LEG_H
-#define TUDAT_HYBRID_METHOD_LEG_H
+#ifndef TUDAT_HYBRID_METHOD_MODEL_H
+#define TUDAT_HYBRID_METHOD_MODEL_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include <math.h>
@@ -22,12 +22,12 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-class HybridMethodLeg
+class HybridMethodModel
 {
 public:
 
     //! Constructor.
-    HybridMethodLeg( const Eigen::Vector6d& stateAtDeparture,
+    HybridMethodModel( const Eigen::Vector6d& stateAtDeparture,
                      const Eigen::Vector6d& stateAtArrival,
                      const Eigen::VectorXd& initialCoStates,
                      const Eigen::VectorXd& finalCoStates,
@@ -73,7 +73,7 @@ public:
 
 
     //! Default destructor.
-    ~HybridMethodLeg( ) { }
+    ~HybridMethodModel( ) { }
 
     //! Retrieve MEE costates-based thrust acceleration.
     std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );
@@ -130,7 +130,7 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( )
     {
-        return computeDeltaV( );//totalDeltaV_;
+        return computeDeltaV( );
     }
 
     //! Return the current MEE co-states.
@@ -199,4 +199,4 @@ private:
 } // namespace low_thrust_trajectories
 } // namespace tudat
 
-#endif // TUDAT_HYBRID_METHOD_LEG_H
+#endif // TUDAT_HYBRID_METHOD_MODEL_H

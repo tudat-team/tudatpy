@@ -42,7 +42,7 @@ HodographicShaping::HodographicShaping(
         const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
         const Eigen::VectorXd freeCoefficientsAxialVelocityFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) :
-    ShapeBasedMethodLeg( initialState, finalState, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
+    ShapeBasedMethod( initialState, finalState, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
     numberOfRevolutions_( numberOfRevolutions ),
     freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),
     freeCoefficientsNormalVelocityFunction_( freeCoefficientsNormalVelocityFunction ),
@@ -432,7 +432,7 @@ double HodographicShaping::computeCurrentPolarAngle( double currentTime )
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
             numerical_quadrature::createQuadrature( derivativeFunctionPolarAngle, quadratureSettings_, currentTime );
 
-    return quadrature->getQuadrature( ) + coordinate_conversions::convertCartesianToCylindricalState( stateAtDeparture_ /*initialState_*/ )[ 1 ];
+    return quadrature->getQuadrature( ) + coordinate_conversions::convertCartesianToCylindricalState( stateAtDeparture_ )[ 1 ];
 
 }
 
