@@ -289,7 +289,7 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
 
     if( alternativeEphemerisKernels.size( ) == 0  )
     {
-        loadSpiceKernelInTudat( kernelPath + "tudat_merged_kernel.bsp" );
+        loadSpiceKernelInTudat( kernelPath + "tudat_merged_spk_kernel.bsp" );
     }
     else
     {
