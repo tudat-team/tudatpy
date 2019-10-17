@@ -57,17 +57,6 @@ else( )
     )
 endif( )
 
-# Find PaGMO library on local system.
-if( USE_PAGMO )
-  find_package(PaGMO2)
-
-  # Include PaGMO directories.
-  if(NOT APPLE OR APPLE_INCLUDE_FORCE)
-    include_directories(SYSTEM AFTER "${PAGMO_INCLUDE_DIR}")
-  else( )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${PAGMO_INCLUDE_DIR}\"")
-  endif( )
-endif( )
 
 # Add static libraries.
 add_library(tudat_low_thrust_trajectories STATIC ${LOWTHRUSTTRAJECTORIES_SOURCES} ${LOWTHRUSTTRAJECTORIES_HEADERS})
@@ -79,9 +68,9 @@ include(tudatLinkLibraries)
 if( USE_PAGMO )
     add_executable(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestSimsFlanagan.cpp")
     setup_custom_test_program(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
-    target_link_libraries(test_SimsFlanagan tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+    target_link_libraries(test_SimsFlanagan tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature pagmo ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 
     add_executable(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestHybridMethod.cpp")
     setup_custom_test_program(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
-    target_link_libraries(test_HybridMethod tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+    target_link_libraries(test_HybridMethod tudat_low_thrust_trajectories tudat_numerical_quadrature pagmo ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 endif( )

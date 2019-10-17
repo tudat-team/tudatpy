@@ -231,12 +231,12 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
             for( int j= 0; j< 3; j++ )
             {
-                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 );
+                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.05 );
             }
 
             for( int j = 6; j < 9; j++ )
             {
-                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 );
+                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.05 );
             }
 
             for( int j = 12; j < 15; j++ )

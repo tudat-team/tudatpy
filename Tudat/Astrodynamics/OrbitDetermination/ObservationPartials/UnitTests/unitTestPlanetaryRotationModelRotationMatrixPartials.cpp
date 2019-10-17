@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelEphemerisPartials )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-10 );
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-9 );
                     }
                 }
 
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelEphemerisPartials )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-14 );
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-13 );
                     }
                 }
 
