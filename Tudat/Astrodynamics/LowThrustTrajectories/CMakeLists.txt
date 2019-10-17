@@ -18,32 +18,44 @@
  get_target_property(SHAPEBASEDMETHOSDSOURCES tudat_shape_based_methods SOURCES)
 
 # Set the source files.
-set(LOWTHRUSTTRAJECTORIES_SOURCES
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganLeg.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodLeg.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.cpp"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.cpp"
-#  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/optimisationSettings.cpp"
-)
+if(USE_PAGMO)
+    set(LOWTHRUSTTRAJECTORIES_SOURCES
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.cpp"
+    )
+else()
+    set(LOWTHRUSTTRAJECTORIES_SOURCES
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.cpp"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.cpp"
+    )
+endif( )
 
 # Set the header files.
-set(LOWTHRUSTTRAJECTORIES_HEADERS
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganLeg.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodLeg.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.h"
-  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.h"
-#  "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/optimisationSettings.h"
-)
+if( USE_PAGMO )
+    set(LOWTHRUSTTRAJECTORIES_HEADERS
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.h"
+    )
+else( )
+    set(LOWTHRUSTTRAJECTORIES_HEADERS
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.h"
+    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.h"
+    )
+endif( )
 
 # Find PaGMO library on local system.
 if( USE_PAGMO )
@@ -64,10 +76,12 @@ setup_tudat_library_target(tudat_low_thrust_trajectories "${SRCROOT}${LOWTHRUSTT
 include(tudatLinkLibraries)
 
 ## Add unit tests.
-add_executable(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestSimsFlanagan.cpp")
-setup_custom_test_program(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
-target_link_libraries(test_SimsFlanagan tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+if( USE_PAGMO )
+    add_executable(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestSimsFlanagan.cpp")
+    setup_custom_test_program(test_SimsFlanagan "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
+    target_link_libraries(test_SimsFlanagan tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
 
-add_executable(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestHybridMethod.cpp")
-setup_custom_test_program(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
-target_link_libraries(test_HybridMethod tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+    add_executable(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/UnitTests/unitTestHybridMethod.cpp")
+    setup_custom_test_program(test_HybridMethod "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}")
+    target_link_libraries(test_HybridMethod tudat_low_thrust_trajectories tudat_numerical_quadrature ${TUDAT_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+endif( )

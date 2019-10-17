@@ -12,7 +12,7 @@
 #ifndef TUDAT_HODOGRAPHIC_SHAPING_H
 #define TUDAT_HODOGRAPHIC_SHAPING_H
 
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -29,7 +29,7 @@ namespace shape_based_methods
 {
 
 
-class HodographicShaping : public ShapeBasedMethodLeg
+class HodographicShaping : public ShapeBasedMethod
 {
 public:
 

@@ -9,9 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
-
-//using namespace tudat;
+#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodModel.h"
 
 namespace tudat
 {
@@ -86,32 +84,14 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
         {
             for ( int i = 0 ; i < 10 ; i++ )
             {
-//                bool isInitialGuessUsedForLowerBounds = false;
-
-        //        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
-        //        {
-                    double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-                    lowerBounds.push_back( lowerBoundsFromInitialGuess );
-//                    isInitialGuessUsedForLowerBounds = true;
-//                }
-
-//                lowerBounds.push_back( - 10.0 );
+                double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+                lowerBounds.push_back( lowerBoundsFromInitialGuess );
             }
 
             for ( int i = 0 ; i < 10 ; i++ )
             {
-//                bool isInitialGuessUsedForUpperBounds = false;
-
-//                if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
-//                {
-                    double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-                    upperBounds.push_back( upperBoundsFromInitialGuess );
-//                    isInitialGuessUsedForUpperBounds = true;
-//                }
-
-//                upperBounds.push_back( 10.0 );
+                double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+                upperBounds.push_back( upperBoundsFromInitialGuess );
             }
         }
     }
@@ -123,38 +103,6 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
             upperBounds.push_back( initialAndFinalMEEcostatesBounds_.second );
         }
     }
-//    for ( int i = 0 ; i < 10 ; i++ )
-//    {
-//        bool isInitialGuessUsedForLowerBounds = false;
-
-////        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
-////        {
-//            double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-//            lowerBounds.push_back( lowerBoundsFromInitialGuess );
-//            isInitialGuessUsedForLowerBounds = true;
-//        }
-
-//        lowerBounds.push_back( - 10.0 );
-//    }
-
-
-//    // Define upper bounds.
-//    std::vector< double > upperBounds;
-//    for ( int i = 0 ; i < 10 ; i++ )
-//    {
-//        bool isInitialGuessUsedForUpperBounds = false;
-
-//        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
-//        {
-//            double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-//            upperBounds.push_back( upperBoundsFromInitialGuess );
-//            isInitialGuessUsedForUpperBounds = true;
-//        }
-
-//        upperBounds.push_back( 10.0 );
-//    }
 
     return { lowerBounds, upperBounds };
 }
@@ -185,17 +133,9 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
     std::vector< double > fitness;
 
     // Create hybrid method leg.
-    low_thrust_trajectories::HybridMethodLeg currentLeg = low_thrust_trajectories::HybridMethodLeg( stateAtDeparture_,
-                                                                                                        stateAtArrival_,
-                                                                                                        initialCostates,
-                                                                                                        finalCostates,
-                                                                                                        maximumThrust_,
-                                                                                                        specificImpulse_,
-                                                                                                        timeOfFlight_,
-                                                                                                        bodyMap_,
-                                                                                                        bodyToPropagate_,
-                                                                                                        centralBody_,
-                                                                                                        integratorSettings_ );
+    low_thrust_trajectories::HybridMethodModel currentLeg = low_thrust_trajectories::HybridMethodModel(
+                stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_,
+                specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings_ );
 
     // Propagate until time of flight is reached.
     Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( );
@@ -209,7 +149,7 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
                 stateAtArrival_, bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
 
 
-    // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
+    // Fitness
     double deltaV = currentLeg.getTotalDeltaV( );
 
     // Equality constraints (must be ... = 0 )

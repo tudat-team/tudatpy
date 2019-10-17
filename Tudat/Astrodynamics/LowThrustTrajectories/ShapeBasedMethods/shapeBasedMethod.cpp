@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
 
 namespace tudat
 {
@@ -17,7 +17,7 @@ namespace shape_based_methods
 {
 
 
-basic_astrodynamics::AccelerationMap ShapeBasedMethodLeg::retrieveLowThrustAccelerationMap(
+basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelerationMap(
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
@@ -45,7 +45,7 @@ basic_astrodynamics::AccelerationMap ShapeBasedMethodLeg::retrieveLowThrustAccel
 
 
 //! Returns state history.
-void ShapeBasedMethodLeg::getTrajectory(
+void ShapeBasedMethod::getTrajectory(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::Vector6d >& propagatedTrajectory )
 {
@@ -66,7 +66,7 @@ void ShapeBasedMethodLeg::getTrajectory(
 
 
 //! Compute current thrust vector.
-Eigen::Vector3d ShapeBasedMethodLeg::computeCurrentThrust( double time,
+Eigen::Vector3d ShapeBasedMethod::computeCurrentThrust( double time,
                                                     std::function< double ( const double ) > specificImpulseFunction,
                                                     std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
@@ -82,7 +82,7 @@ Eigen::Vector3d ShapeBasedMethodLeg::computeCurrentThrust( double time,
 
 
 //! Return thrust profile.
-void ShapeBasedMethodLeg::getThrustProfile(
+void ShapeBasedMethod::getThrustProfile(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& thrustProfile,
         std::function< double ( const double ) > specificImpulseFunction,
@@ -112,7 +112,7 @@ void ShapeBasedMethodLeg::getThrustProfile(
 
 //! Define appropriate translational state propagator settings for the full propagation.
 std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > ShapeBasedMethodLeg::createLowThrustTranslationalStatePropagatorSettings(
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > ShapeBasedMethod::createLowThrustTranslationalStatePropagatorSettings(
         basic_astrodynamics::AccelerationMap accelerationModelMap,
         std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
 {

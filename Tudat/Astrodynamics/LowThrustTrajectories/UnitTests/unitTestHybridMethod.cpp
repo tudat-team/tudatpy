@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodModel.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
 #include "pagmo/algorithms/de1220.hpp"
@@ -39,7 +39,6 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_method )
 BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 {
     using namespace low_thrust_trajectories;
-//    using namespace transfer_trajectories;
 
     spice_interface::loadStandardSpiceKernels( );
 

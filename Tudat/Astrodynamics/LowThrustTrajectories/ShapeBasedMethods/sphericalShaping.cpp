@@ -34,7 +34,7 @@ SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
                                     const double lowerBoundFreeCoefficient,
                                     const double upperBoundFreeCoefficient,
                                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ):
-    ShapeBasedMethodLeg( initialState, finalState, requiredTimeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
+    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     rootFinderSettings_( rootFinderSettings ),

@@ -54,7 +54,8 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
         double currentIndependentVariable = convertTimeToIndependentVariable( currentTime );
 
         // Compute current direction of the acceleration vector.
-        Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection( currentIndependentVariable, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection(
+                    currentIndependentVariable, specificImpulseFunction, integratorSettings );
 
         // Return direction of the low-thrust acceleration.
         return currentAccelerationDirection;
@@ -89,7 +90,7 @@ double LowThrustLeg::computeCurrentMass(
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massInitialEpoch );
 
     // Retrieve acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMap = retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings ); // hybridMethodLeg_->getLowThrustTrajectoryAccelerationMap( );
+    basic_astrodynamics::AccelerationMap accelerationMap = retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -162,16 +163,6 @@ void LowThrustLeg::getMassProfile(
 
 }
 
-////! Compute current thrust vector.
-//Eigen::Vector3d LowThrustLeg::computeCurrentThrust( double time,
-//                                                    std::function< double ( const double ) > specificImpulseFunction,
-//                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-//{
-//    double independentVariable = convertTimeToIndependentVariable( time );
-//    return computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
-//            * computeCurrentThrustAccelerationMagnitude( independentVariable ) * computeCurrentThrustAccelerationDirection( independentVariable );
-//}
-
 //! Return thrust profile.
 void LowThrustLeg::getThrustProfile(
         std::vector< double >& epochsVector,
@@ -181,19 +172,6 @@ void LowThrustLeg::getThrustProfile(
 {
     thrustProfile.clear( );
 
-//    // Retrieve corresponding mass profile.
-//    std::map< double, Eigen::VectorXd > massProfile;
-//    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-//    std::vector< double > massProfileVector;
-//    for ( std::map< double, Eigen::VectorXd >::iterator itr = massProfile.begin( ) ; itr != massProfile.end( ) ; itr++ )
-//    {
-//        massProfileVector.push_back( itr->second[ 0 ] );
-//    }
-
-//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass_ );
-
-    double currentMass = initialMass_;
-
     for ( int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
@@ -202,41 +180,11 @@ void LowThrustLeg::getThrustProfile(
                                       "epochs are not provided in increasing order." );
         }
 
-//        if ( i == 0 )
-//        {
-//            Eigen::Vector3d currentThrustVector = computeCurrentThrust( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings ); // computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
-//            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-//            thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
-//        }
-//        else
-//        {
-//            Eigen::Vector3d currentThrustVector = computeCurrentThrust( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings ); // computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
-//            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-//            thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
-//        }
-
-        Eigen::Vector3d currentThrustVector = computeCurrentThrust( epochsVector[ i ], specificImpulseFunction, integratorSettings ); // computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
+        Eigen::Vector3d currentThrustVector = computeCurrentThrust( epochsVector[ i ], specificImpulseFunction, integratorSettings );
         thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
 
     }
 }
-
-
-////! Compute thrust of the spacecraft between two epochs.
-//Eigen::Vector3d LowThrustLeg::computeCurrentThrust(
-//        const double timeInitialEpoch,
-//        const double timeFinalEpoch,
-//        const double massInitialEpoch,
-//        std::function< double ( const double ) > specificImpulseFunction,
-//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-//{
-
-//    Eigen::Vector3d currentThrustVector = computeCurrentThrust( timeFinalEpoch, specificImpulseFunction,
-//                                                                integratorSettings );
-
-//    return currentThrustVector;
-
-//}
 
 
 //! Return thrust acceleration profile.
@@ -248,8 +196,6 @@ void LowThrustLeg::getThrustAccelerationProfile(
 {
     thrustAccelerationProfile.clear();
 
-    double currentMass = initialMass_;
-
     for ( int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
@@ -257,21 +203,6 @@ void LowThrustLeg::getThrustAccelerationProfile(
             throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
                                       "epochs are not provided in increasing order." );
         }
-
-//        if ( i == 0 )
-//        {
-//            Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( 0.0, epochsVector[ i ], currentMass,
-//                                                                                                specificImpulseFunction, integratorSettings ); // computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
-//            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-//            thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
-//        }
-//        else
-//        {
-//            Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( epochsVector[ i - 1 ], epochsVector[ i ],
-//                    currentMass, specificImpulseFunction, integratorSettings ); // computeCurrentThrustAcceleration( epochsVector[ i ] ) * massProfileVector[ i ];
-//            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-//            thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
-//        }
 
         Eigen::Vector3d currentThrustAccelerationVector = computeCurrentThrustAcceleration( epochsVector[ i ], specificImpulseFunction, integratorSettings );
         thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
@@ -281,23 +212,7 @@ void LowThrustLeg::getThrustAccelerationProfile(
 }
 
 
-////! Compute thrust acceleration of the spacecraft between two epochs.
-//Eigen::Vector3d LowThrustLeg::computeCurrentThrustAcceleration(
-//        const double timeInitialEpoch,
-//        const double timeFinalEpoch,
-//        const double massInitialEpoch,
-//        std::function< double ( const double ) > specificImpulseFunction,
-//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-//{
-//    Eigen::Vector3d currentThrustAccelerationVector =
-//            computeCurrentThrustAcceleration( timeFinalEpoch, specificImpulseFunction, integratorSettings );
-
-//    return currentThrustAccelerationVector;
-//}
-
-
 void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
-//        std::function< double( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
                 std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
@@ -309,14 +224,9 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
     semiAnalyticalResults.clear();
     dependentVariablesHistory.clear();
 
-//    double massAtHalvedTimeOfFlight = computeCurrentMass( timeOfFlight_ / 2.0, specificImpulseFunction, integratorSettings );
-
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ );
     integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
-
-//    // Initialise spacecraft mass to mass at half of time of flight.
-//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
 
     // Perform the backward propagation.
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMap_, integratorSettings, propagatorSettings.first );
@@ -338,9 +248,6 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
     // Define forward propagator settings variables.
     integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
     integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
-
-//    // Initialise spacecraft mass to mass at half of time of flight.
-//    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtHalvedTimeOfFlight );
 
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards( bodyMap_, integratorSettings, propagatorSettings.second );
@@ -367,7 +274,6 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
 //! Define appropriate propagator settings for the full propagation.
 std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
 std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::createLowThrustPropagatorSettings(
-//        LowThrustLegTypes lowThrustLegType,
         std::function< double( const double ) > specificImpulseFunction,
         basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -387,9 +293,6 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
 
     // Re-initialise spacecraft mass in body map.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass_ );
-
-//    // Compute state at half of the time of flight.
-//    Eigen::Vector6d stateHalfOfTimeOfFlight = computeCurrentStateVector( timeOfFlight_ / 2.0 );
 
     // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
     basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations = retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
@@ -413,18 +316,18 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ bodyToPropagate_ ] = simulation_setup::createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap_, accelerationModelMap );
+    massRateModels[ bodyToPropagate_ ] = simulation_setup::createMassRateModel(
+                bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodyMap_, accelerationModelMap );
 
     // Define backward mass propagation settings.
     massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate_ }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
-                terminationConditions.first );
+                std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ), terminationConditions.first );
 
     // Define forward mass propagation settings.
     massPropagatorSettings.second = std::make_shared< propagators::MassPropagatorSettings< double > >(
-                std::vector< std::string >{ bodyToPropagate_ }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ),
-                terminationConditions.second );
+                std::vector< std::string >{ bodyToPropagate_ }, massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << massHalfOfTimeOfFlight ).finished( ), terminationConditions.second );
 
     // Create list of propagation settings.
     std::pair< std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > >,

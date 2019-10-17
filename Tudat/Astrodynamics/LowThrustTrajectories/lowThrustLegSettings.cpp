@@ -55,6 +55,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                     sphericalShapingSettings->boundsFreeCoefficient_.second );
         break;
     }
+#if( USE_PAGMO )
     case sims_flanagan_leg:
     {
         std::shared_ptr< SimsFlanaganLegSettings > SimsFlanaganSettings =
@@ -63,10 +64,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
         lowThrustLeg = std::make_shared< low_thrust_trajectories::SimsFlanagan >(
                     stateAtDeparture, stateAtArrival, SimsFlanaganSettings->maximumThrust_, SimsFlanaganSettings->specificImpulseFunction_,
                     SimsFlanaganSettings->numberSegments_, timeOfFlight, bodyMap, bodyToPropagate, centralBody,
-                    /*SimsFlanaganSettings->optimisationAlgorithm_, SimsFlanaganSettings->numberOfGenerations_,
-                    SimsFlanaganSettings->numberOfIndividualsPerPopulation_,*/ SimsFlanaganSettings->optimisationSettings_/*,
-                    SimsFlanaganSettings->relativeToleranceConstraints_,
-                    SimsFlanaganSettings->initialGuessThrustModel_*/ );
+                    SimsFlanaganSettings->optimisationSettings_ );
 
         break;
     }
@@ -78,12 +76,11 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
         lowThrustLeg = std::make_shared< low_thrust_trajectories::HybridMethod >(
                     stateAtDeparture, stateAtArrival, hybridMethodSettings->maximumThrust_, hybridMethodSettings->specificImpulse_,
                     timeOfFlight, bodyMap, bodyToPropagate, centralBody, hybridMethodSettings->integratorSettings_,
-                    /*hybridMethodSettings->optimisationAlgorithm_, hybridMethodSettings->numberOfGenerations_,
-                    hybridMethodSettings->numberOfIndividualsPerPopulation_,*/ hybridMethodSettings->optimisationSettings_/*, hybridMethodSettings->relativeToleranceConstraints_,
-                    hybridMethodSettings->initialGuessThrustModel_*/ );
+                    hybridMethodSettings->optimisationSettings_, hybridMethodSettings->initialAndFinalMEEcostatesBounds_ );
 
         break;
     }
+#endif
     }
 
     // Return low-thrust leg.

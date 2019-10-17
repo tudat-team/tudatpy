@@ -11,7 +11,6 @@
 #ifndef TUDAT_HODOGRAPHIC_SHAPING_OPTIMISATION_SETUP_H
 #define TUDAT_HODOGRAPHIC_SHAPING_OPTIMISATION_SETUP_H
 
-
 #include <vector>
 #include <utility>
 #include <limits>
@@ -27,7 +26,6 @@
 #include <Tudat/InputOutput/basicInputOutput.h>
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-//#include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 #include <random>
 
 #include "pagmo/island.hpp"
@@ -43,9 +41,6 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::basic_mathematics;
 using namespace tudat::input_output;
-//using namespace tudat::transfer_trajectories;
-//using namespace tudat::shape_based_methods;
-//using namespace tudat;
 using namespace pagmo;
 
 namespace tudat
@@ -58,7 +53,7 @@ namespace shape_based_methods
 struct HodographicShapingOptimisationProblem
 {
 
-    HodographicShapingOptimisationProblem( ) /*: timeOfFlight_( physical_constants::JULIAN_DAY ), numberOfRevolutions_( 0 )*/{ }
+    HodographicShapingOptimisationProblem( ){ }
 
     HodographicShapingOptimisationProblem(
             Eigen::Vector6d initialState,
@@ -87,53 +82,11 @@ struct HodographicShapingOptimisationProblem
 
     // Calculates the fitness
     std::vector< double > fitness( const std::vector< double > &x ) const;
-//    {
-
-//        int numberFreeCoefficientsRadialFunction = radialVelocityFunctionComponents_.size( ) - 3;
-//        int numberFreeCoefficientsNormalFunction = normalVelocityFunctionComponents_.size( ) - 3;
-//        int numberFreeCoefficientsAxialFunction = axialVelocityFunctionComponents_.size( ) - 3;
-
-//        if ( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction != x.size( ) )
-//        {
-//            throw std::runtime_error( "Error, size of design variables vector unconsistent with number of base function components"
-//                                      "when making a hodographic shaping optimisation problem." );
-//        }
-
-//        Eigen::VectorXd freeCoefficientsRadialVelocityFunction( numberFreeCoefficientsRadialFunction );
-//        Eigen::VectorXd freeCoefficientsNormalVelocityFunction( numberFreeCoefficientsNormalFunction );
-//        Eigen::VectorXd freeCoefficientsAxialVelocityFunction( numberFreeCoefficientsAxialFunction );
-
-//        for ( int i = 0 ; i < numberFreeCoefficientsRadialFunction ; i++ )
-//        {
-//            freeCoefficientsRadialVelocityFunction[ i ] = x[ i ];
-//        }
-//        for( int i = 0 ; i < numberFreeCoefficientsNormalFunction ; i++ )
-//        {
-//            freeCoefficientsNormalVelocityFunction[ i ] = x[ i + numberFreeCoefficientsRadialFunction ];
-//        }
-//        for ( int i = 0 ; i < numberFreeCoefficientsAxialFunction ; i++ )
-//        {
-//            freeCoefficientsAxialVelocityFunction[ i ] = x[ i + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
-//        }
-
-//        HodographicShaping hodographicShaping = HodographicShaping( initialState_, finalState_, timeOfFlight_, numberOfRevolutions_,
-//                                                                    bodyMap_, bodyToPropagate_, centralBody_, radialVelocityFunctionComponents_,
-//                                                                    normalVelocityFunctionComponents_, axialVelocityFunctionComponents_,
-//                                                                    freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
-//                                                                    freeCoefficientsAxialVelocityFunction );
-
-//        std::vector< double > fitnessVector;
-//        fitnessVector.push_back( hodographicShaping.computeDeltaV( ) );
-
-//        return fitnessVector;
-//    }
 
     std::pair< std::vector< double >, std::vector< double > > get_bounds() const
     {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
-
-//    std::string get_name( ) const;
 
     template <typename Archive>
     void serialize(Archive &ar)
@@ -147,8 +100,6 @@ struct HodographicShapingOptimisationProblem
     }
 
 protected:
-
-//    mutable simulation_setup::NamedBodyMap bodyMap_;
 
 private:
 

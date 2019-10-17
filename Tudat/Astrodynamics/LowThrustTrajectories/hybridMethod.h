@@ -17,16 +17,13 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
-#include "Tudat/SimulationSetup/optimisationSettings.h" //LowThrustTrajectories/optimisationSettings.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodModel.h"
+#include "Tudat/SimulationSetup/optimisationSettings.h"
 
 namespace tudat
 {
 namespace low_thrust_trajectories
 {
-
-//! Transform thrust model as a function of time into hybrid method thrust model.
-Eigen::Matrix< double, 10 , 1 > convertToHybridMethodThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime );
 
 class HybridMethod : public low_thrust_trajectories::LowThrustLeg
 {
@@ -57,7 +54,7 @@ public:
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the hybrid method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 ) // != nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
             if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 10 )
             {
@@ -68,20 +65,14 @@ public:
             {
                 Eigen::VectorXd initialGuessMEEinitialAndFinalCostates( 10 );
                 initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
-//                for ( int i = 0 ; i < 10 ; i++ )
-//                {
-//                    initialGuessMEEinitialAndFinalCostates[ i ] = initialGuessThrustModel_.first[ i ];
-//                }
-//                initialGuessThrustModel_.first = initialGuessMEEinitialAndFinalCostates;
             }
-//            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( optimisationSettings_->initialGuessThrustModel_.first );
         }
         else
         {
-//            Eigen::VectorXd emptyVector;
-            initialGuessThrustModel_.first = std::vector< double>( ); //emptyVector; // emptyVector;
+            initialGuessThrustModel_.first = std::vector< double>( );
         }
         initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second;
+
         // Perform optimisation
         std::pair< std::vector< double >, std::vector< double > > bestIndividual = performOptimisation( );
         championFitness_ = bestIndividual.first;
@@ -100,8 +91,9 @@ public:
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
         // Create Sims-Flanagan leg from the best optimisation individual.
-        hybridMethodLeg_ = std::make_shared< HybridMethodLeg >( stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_,
-                                                                specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings );
+        hybridMethodModel_ = std::make_shared< HybridMethodModel >(
+                    stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_, specificImpulse_, timeOfFlight_,
+                    bodyMap_, bodyToPropagate_, centralBody_, integratorSettings );
 
     }
 
@@ -126,7 +118,7 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( )
     {
-        return hybridMethodLeg_->getTotalDeltaV( );
+        return hybridMethodModel_->getTotalDeltaV( );
     }
 
     //! Compute current cartesian state.
@@ -137,7 +129,7 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory )
     {
-        propagatedTrajectory = hybridMethodLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
+        propagatedTrajectory = hybridMethodModel_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
 
@@ -182,9 +174,9 @@ public:
     }
 
     //! Return best hybrid method leg after optimisation.
-    std::shared_ptr< HybridMethodLeg > getOptimalHybridMethodLeg( )
+    std::shared_ptr< HybridMethodModel > getOptimalHybridMethodModel( )
     {
-        return hybridMethodLeg_;
+        return hybridMethodModel_;
     }
 
 
@@ -229,7 +221,7 @@ private:
     double initialSpacecraftMass_;
 
     //! Hybrid method leg corresponding to the best optimisation output.
-    std::shared_ptr< HybridMethodLeg > hybridMethodLeg_;
+    std::shared_ptr< HybridMethodModel > hybridMethodModel_;
 
     //! Lower and upper bounds for the initial and final MEE costates.
     std::pair< double, double > initialAndFinalMEEcostatesBounds_;

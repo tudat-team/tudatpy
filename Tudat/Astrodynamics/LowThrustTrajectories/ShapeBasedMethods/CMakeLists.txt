@@ -9,32 +9,58 @@
  #
 
 # Set the source files.
-set(SHAPEBASEDMETHODS_SOURCES
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethodLeg.cpp"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.cpp"
-)
+if( USE_PAGMO )
+    set(SHAPEBASEDMETHODS_SOURCES
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.cpp"
+    )
+else( )
+    set(SHAPEBASEDMETHODS_SOURCES
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.cpp"
+    )
+endif( )
 
 # Set the header files.
-set(SHAPEBASEDMETHODS_HEADERS
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethodLeg.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.h"
-  "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.cpp"
-)
+if( USE_PAGMO )
+    set(SHAPEBASEDMETHODS_HEADERS
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.h"
+    )
+else( )
+    set(SHAPEBASEDMETHODS_HEADERS
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/createBaseFunctionHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.h"
+    )
+endif( )
 
 # Find PaGMO library on local system.
 if( USE_PAGMO )

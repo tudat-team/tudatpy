@@ -11,7 +11,7 @@
 
 
 #include <iostream>
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethodModel.h"
 #include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 
@@ -23,7 +23,7 @@ namespace low_thrust_trajectories
 using namespace orbital_element_conversions;
 
 //! Retrieve MEE costates-based thrust acceleration.
-std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodLeg::getMEEcostatesBasedThrustAccelerationSettings( )
+std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodModel::getMEEcostatesBasedThrustAccelerationSettings( )
 {
     // Define thrust direction settings from the MEE costates.
     std::shared_ptr< simulation_setup::MeeCostateBasedThrustDirectionSettings > thrustDirectionSettings =
@@ -50,7 +50,7 @@ std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodLeg::getME
 }
 
 
-std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > HybridMethodLeg::getMEEcostatesBasedThrustMagnitudeSettings( )
+std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > HybridMethodModel::getMEEcostatesBasedThrustMagnitudeSettings( )
 {
     std::function< double ( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
     {
@@ -62,7 +62,7 @@ std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > HybridMethodLeg::ge
                 maximumThrust_, specificImpulseFunction, costatesFunction_, bodyToPropagate_, centralBody_ );
 }
 
-std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > HybridMethodLeg::getMEEcostatesBasedThrustDirectionSettings( )
+std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > HybridMethodModel::getMEEcostatesBasedThrustDirectionSettings( )
 {
     // Return thrust direction settings from the MEE costates.
     return std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >( bodyToPropagate_, centralBody_, costatesFunction_ );
@@ -70,7 +70,7 @@ std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > HybridMetho
 
 
 //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
-basic_astrodynamics::AccelerationMap HybridMethodLeg::getLowThrustTrajectoryAccelerationMap( )
+basic_astrodynamics::AccelerationMap HybridMethodModel::getLowThrustTrajectoryAccelerationMap( )
 {
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
@@ -90,7 +90,7 @@ basic_astrodynamics::AccelerationMap HybridMethodLeg::getLowThrustTrajectoryAcce
 
 
 //! Propagate the spacecraft trajectory to time-of-flight.
-Eigen::Vector6d HybridMethodLeg::propagateTrajectory( )
+Eigen::Vector6d HybridMethodModel::propagateTrajectory( )
 {
     Eigen::Vector6d propagatedState = propagateTrajectory( 0.0, timeOfFlight_, stateAtDeparture_, initialSpacecraftMass_ );
     return propagatedState;
@@ -99,7 +99,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( )
 
 
 //! Propagate the spacecraft trajectory to a given time.
-Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass )
+Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass )
 {
     // Re-initialise integrator settings.
     integratorSettings_->initialTime_ = initialTime;
@@ -172,7 +172,7 @@ Eigen::Vector6d HybridMethodLeg::propagateTrajectory( double initialTime, double
 
 
 //! Propagate the trajectory to set of epochs.
-std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
+std::map< double, Eigen::Vector6d > HybridMethodModel::propagateTrajectory(
         std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory )
 {
     // Initialise propagated state.
@@ -226,7 +226,7 @@ std::map< double, Eigen::Vector6d > HybridMethodLeg::propagateTrajectory(
 
 
 //! Return the deltaV associated with the thrust profile of the trajectory.
-double HybridMethodLeg::computeDeltaV( )
+double HybridMethodModel::computeDeltaV( )
 {
 
     // Compute (constant) mass rate.

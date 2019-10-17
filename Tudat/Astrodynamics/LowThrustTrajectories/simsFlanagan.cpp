@@ -54,7 +54,7 @@ std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Ve
 
 
 std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShaping(
-        std::shared_ptr< shape_based_methods::ShapeBasedMethodLeg > shapeBasedLeg,
+        std::shared_ptr< shape_based_methods::ShapeBasedMethod > shapeBasedLeg,
         const int numberSegmentsSimsFlanagan,
         const double timeOfFlight,
         std::function< double( const double ) > specificImpulseFunction,
@@ -123,14 +123,13 @@ std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShap
 //! Perform optimisation.
 std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performOptimisation( )
 {
-//    using namespace tudat_pagmo_applications;
-
     //Set seed for reproducible results
     pagmo::random_device::set_seed( 456 );
 
     // Create object to compute the problem fitness
     problem prob{ SimsFlanaganProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, numberSegments_,
-                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, initialGuessThrustModel_, optimisationSettings_->relativeToleranceConstraints_ ) };
+                                       timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, initialGuessThrustModel_,
+                                       optimisationSettings_->relativeToleranceConstraints_ ) };
 
 
 
@@ -201,8 +200,6 @@ double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
     Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
 
     return currentThrustVector.norm( ) / currentMass;
-
-//    return thrustAccelerationMagnitude;
 }
 
 
@@ -213,13 +210,13 @@ Eigen::Vector3d SimsFlanagan::computeCurrentThrust( double time,
 {
 
    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-           simsFlanaganLeg_->getThrustAccelerationSettingsFullLeg( );
+           simsFlanaganModel_->getThrustAccelerationSettingsFullLeg( );
 
    // Define (constant) thrust magnitude function.
    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
    {
        int indexSegment = convertTimeToLegSegment( currentTime );
-       return maximumThrust_ * simsFlanaganLeg_->getThrottles( )[ indexSegment ].norm();
+       return maximumThrust_ * simsFlanaganModel_->getThrottles( )[ indexSegment ].norm();
    };
 
    std::shared_ptr< propulsion::CustomThrustMagnitudeWrapper > thrustMagnitudeWrapper =
@@ -232,7 +229,7 @@ Eigen::Vector3d SimsFlanagan::computeCurrentThrust( double time,
    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
    {
        int indexSegment = convertTimeToLegSegment( currentTime );
-       return simsFlanaganLeg_->getThrottles( )[ indexSegment ].normalized();
+       return simsFlanaganModel_->getThrottles( )[ indexSegment ].normalized();
    };
 
    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance > thrustDirectionGuidance =
@@ -300,7 +297,7 @@ basic_astrodynamics::AccelerationMap SimsFlanagan::retrieveLowThrustAcceleration
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    basic_astrodynamics::AccelerationMap SimsFlanaganAccelerationMap = simsFlanaganLeg_->getLowThrustTrajectoryAccelerationMap( );
+    basic_astrodynamics::AccelerationMap SimsFlanaganAccelerationMap = simsFlanaganModel_->getLowThrustTrajectoryAccelerationMap( );
     return SimsFlanaganAccelerationMap;
 }
 
@@ -322,12 +319,12 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
 
     // Compute state at half of the time of flight after forward propagation.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanaganLeg_->propagateTrajectoryForward(
+    Eigen::Vector6d stateHalfOfTimeOfFlightForwardPropagation = simsFlanaganModel_->propagateTrajectoryForward(
                 0.0, timeOfFlight_ / 2.0, stateAtDeparture_, timeOfFlight_ / ( 2.0 * numberSegmentsForwardPropagation_ ) );
 
     // Compute state at half of the time of flight after backward propagation.
     bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanaganLeg_->propagateTrajectoryBackward(
+    Eigen::Vector6d stateHalfOfTimeOfFlightBackwardPropagation =  simsFlanaganModel_->propagateTrajectoryBackward(
                 timeOfFlight_, timeOfFlight_ / 2.0, stateAtArrival_, timeOfFlight_ / ( 2.0 * numberSegmentsBackwardPropagation_ ) );
 
 

@@ -23,7 +23,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganModel.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
@@ -129,19 +129,19 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_limit_case )
     bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
     double centralBodyGravitationalParameter = bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter();
 
-    SimsFlanaganLeg simsFlanaganLeg = SimsFlanaganLeg( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
+    SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
                                                        timeOfFlight, bodyMap, throttles, bodyToPropagate, centralBody );
 
-    simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
+    simsFlanaganModel.propagateForwardFromDepartureToMatchPoint( );
 
-    Eigen::Vector6d simsFlanaganForwardPropagation = simsFlanaganLeg.getStateAtMatchPointForwardPropagation( );
+    Eigen::Vector6d simsFlanaganForwardPropagation = simsFlanaganModel.getStateAtMatchPointForwardPropagation( );
     Eigen::Vector6d keplerianForwardPropagation = orbital_element_conversions::convertKeplerianToCartesianElements(
                 orbital_element_conversions::propagateKeplerOrbit(
                orbital_element_conversions::convertCartesianToKeplerianElements( stateAtDeparture, centralBodyGravitationalParameter),
                 timeOfFlight / 2.0, centralBodyGravitationalParameter ), centralBodyGravitationalParameter );
 
-    simsFlanaganLeg.propagateBackwardFromArrivalToMatchPoint( );
-    Eigen::Vector6d simsFlanaganBackwardPropagation = simsFlanaganLeg.getStateAtMatchPointBackwardPropagation( );
+    simsFlanaganModel.propagateBackwardFromArrivalToMatchPoint( );
+    Eigen::Vector6d simsFlanaganBackwardPropagation = simsFlanaganModel.getStateAtMatchPointBackwardPropagation( );
     Eigen::Vector6d keplerianBackwardPropagation =  orbital_element_conversions::convertKeplerianToCartesianElements(
                 orbital_element_conversions::propagateKeplerOrbit(
                orbital_element_conversions::convertCartesianToKeplerianElements( stateAtArrival, centralBodyGravitationalParameter),
@@ -242,11 +242,11 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     }
 
     maximumThrust = 0.8;
-    SimsFlanaganLeg simsFlanaganLeg = SimsFlanaganLeg( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
+    SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
                                                        timeOfFlight, bodyMap, throttles, bodyToPropagate, centralBody );
 
-    simsFlanaganLeg.propagateForwardFromDepartureToMatchPoint( );
-    simsFlanaganLeg.propagateBackwardFromArrivalToMatchPoint( );
+    simsFlanaganModel.propagateForwardFromDepartureToMatchPoint( );
+    simsFlanaganModel.propagateBackwardFromArrivalToMatchPoint( );
 
     int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
     int numberSegmentsBackwardPropagation = numberSegments / 2;
@@ -261,14 +261,14 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     }
     for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
     {
-        currentState = simsFlanaganLeg.propagateInsideForwardSegment( timesAtNodes[ i ], timesAtNodes[ i + 1 ], segmentDurationForwardPropagation,
+        currentState = simsFlanaganModel.propagateInsideForwardSegment( timesAtNodes[ i ], timesAtNodes[ i + 1 ], segmentDurationForwardPropagation,
                 currentState );
     }
 
     // Check consistency between Sims-Flanagan forward propagation to matching point directly, and forward propagation segment by segment.
     for ( int i = 0 ; i < 3 ; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( currentState[ i ] - simsFlanaganLeg.getStateAtMatchPointForwardPropagation( )[ i ] ), 1.0e-15 );
+        BOOST_CHECK_SMALL( std::fabs( currentState[ i ] - simsFlanaganModel.getStateAtMatchPointForwardPropagation( )[ i ] ), 1.0e-15 );
     }
 
     currentState = stateAtArrival;
@@ -281,14 +281,14 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 
     for ( int i = timesAtNodes.size( ) - 1 ; i > 0 ; i-- )
     {
-        currentState = simsFlanaganLeg.propagateInsideBackwardSegment( timesAtNodes[ i ], timesAtNodes[ i - 1 ], segmentDurationBackwardPropagation,
+        currentState = simsFlanaganModel.propagateInsideBackwardSegment( timesAtNodes[ i ], timesAtNodes[ i - 1 ], segmentDurationBackwardPropagation,
                 currentState );
     }
 
     // Check consistency between Sims-Flanagan backward propagation to matching point directly, and backward propagation segment by segment.
     for ( int i = 0 ; i < 3 ; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( currentState[ i ] - simsFlanaganLeg.getStateAtMatchPointBackwardPropagation( )[ i ] ), 1.0e-15 );
+        BOOST_CHECK_SMALL( std::fabs( currentState[ i ] - simsFlanaganModel.getStateAtMatchPointBackwardPropagation( )[ i ] ), 1.0e-15 );
     }
 
 }
@@ -447,10 +447,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
         ( Eigen::Vector3d( ) << 21828.356239730165, 14767.931720355062, - 370.40551754476553 ).finished( ) };
 
 
-//    // Re-initialise mass of the spacecraft in the body map.
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-    SimsFlanaganLeg simsFlanaganLeg = SimsFlanaganLeg( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
+    SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction,
                                                        timeOfFlight, bodyMap, throttles, bodyToPropagate, centralBody );
 
     // Compute time at each of the trajectory nodes.
@@ -466,7 +463,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 
     std::map< double, Eigen::Vector6d > SimsFlanaganTrajectory;
-    simsFlanaganLeg.propagateTrajectory( timesAtNodes, SimsFlanaganTrajectory );
+    simsFlanaganModel.propagateTrajectory( timesAtNodes, SimsFlanaganTrajectory );
 
 
     // Check consistency w.r.t. pykep for forward propagation.
@@ -483,7 +480,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
             BOOST_CHECK_SMALL( std::fabs( calculatedPosition[ i ] - expectedPosition[ i ] ) / expectedPosition.norm( ), 1.0e-10 );
             BOOST_CHECK_SMALL( std::fabs( calculatedVelocity[ i ] - expectedVelocity[ i ] ) / expectedVelocity.norm( ), 1.0e-10 );
         }
-        BOOST_CHECK_SMALL( std::fabs( std::fabs( simsFlanaganLeg.propagateMassToSegment( i + 1 ) - expectedMassesAtNodes[ i ] ) ), 1.0e-15 );
+        BOOST_CHECK_SMALL( std::fabs( std::fabs( simsFlanaganModel.propagateMassToSegment( i + 1 ) - expectedMassesAtNodes[ i ] ) ), 1.0e-15 );
     }
 
     // Check consistency w.r.t. pykep for backward propagation.
@@ -499,7 +496,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
             BOOST_CHECK_SMALL( std::fabs( calculatedPosition[ i ] - expectedPosition[ i ] ) / expectedPosition.norm( ), 1.0e-10 );
             BOOST_CHECK_SMALL( std::fabs( calculatedVelocity[ i ] - expectedVelocity[ i ] ) / expectedVelocity.norm( ), 1.0e-10 );
         }
-        BOOST_CHECK_SMALL( std::fabs( simsFlanaganLeg.propagateMassToSegment( i + numberSegmentsForwardPropagation ) -
+        BOOST_CHECK_SMALL( std::fabs( simsFlanaganModel.propagateMassToSegment( i + numberSegmentsForwardPropagation ) -
                                       expectedMassesAtNodes[ i - 1 + numberSegmentsForwardPropagation ] ), 1.0e-15 );
     }
 
@@ -609,11 +606,11 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
 
     // Compute state at half of the time of flight.
-    simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateBackwardFromArrivalToMatchPoint( );
-    Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation = simsFlanagan.getOptimalSimsFlanaganLeg( )->getStateAtMatchPointBackwardPropagation( );
+    simsFlanagan.getOptimalSimsFlanaganModel( )->propagateBackwardFromArrivalToMatchPoint( );
+    Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation = simsFlanagan.getOptimalSimsFlanaganModel( )->getStateAtMatchPointBackwardPropagation( );
 
     // Compute mass at half of the time of flight.
-    double massAtTimeOfFlight = simsFlanagan.getOptimalSimsFlanaganLeg( )->propagateMassToSegment( numberSegments );
+    double massAtTimeOfFlight = simsFlanagan.getOptimalSimsFlanaganModel( )->propagateMassToSegment( numberSegments );
 
     // Compute segment duration for the forward and backward propagations.
     int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
@@ -679,7 +676,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
     }
 
 
-    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations; //.clear();
+    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
     bodyToPropagateAccelerations[ bodyToPropagate ].push_back( std::make_shared< simulation_setup::MomentumWheelDesaturationAccelerationSettings >(
@@ -1237,7 +1234,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
 
-    std::shared_ptr< ShapeBasedMethodLeg > shapeBasedLeg = std::dynamic_pointer_cast< ShapeBasedMethodLeg >( hodographicShaping );
+    std::shared_ptr< ShapeBasedMethod > shapeBasedLeg = std::dynamic_pointer_cast< ShapeBasedMethod >( hodographicShaping );
 
     std::function< Eigen::Vector3d( const double ) > initialGuessThrustFromShaping =
             getInitialGuessFunctionFromShaping( shapeBasedLeg, numberSegments, timeOfFlight, specificImpulseFunction, integratorSettings );

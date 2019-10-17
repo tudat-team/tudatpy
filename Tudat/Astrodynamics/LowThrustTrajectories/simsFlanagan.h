@@ -17,9 +17,9 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
-#include "Tudat/SimulationSetup/optimisationSettings.h" //LowThrustDirectMethods/optimisationSettings.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethodLeg.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganModel.h"
+#include "Tudat/SimulationSetup/optimisationSettings.h"
+#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
 
 namespace tudat
 {
@@ -35,7 +35,7 @@ std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Ve
 
 //! Convert a shape-based thrust profile into a possible initial guess for Sims-Flanagan.
 std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShaping(
-        std::shared_ptr< shape_based_methods::ShapeBasedMethodLeg > shapeBasedLeg,
+        std::shared_ptr< shape_based_methods::ShapeBasedMethod > shapeBasedLeg,
         const int numberSegmentsSimsFlanagan,
         const double timeOfFlight,
         std::function< double( const double ) > specificImpulseFunction,
@@ -75,7 +75,7 @@ public:
         numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 ) //nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
             if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 3 * numberSegments )
             {
@@ -86,18 +86,8 @@ public:
             {
                 std::vector< double > initialGuessFromOptimisationSettings = optimisationSettings_->initialGuessThrustModel_.first;
                 initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
-//                for ( int i = 0 ; i < numberSegments ; i++ )
-//                {
-//                    initialGuessThrustModel_.first = initialGuessFromOptimisationSettings;
-//                    initialGuessThrustModel_.first.push_back( ( Eigen::Vector3d( ) << initialGuessFromOptimisationSettings[ i * 3 ],
-//                            initialGuessFromOptimisationSettings[ i * 3 + 1 ],
-//                            initialGuessFromOptimisationSettings[ i * 3 + 2 ] ).finished( ) );
-//                }
             }
 
-//            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( optimisationSettings_->initialGuessThrustModel_.first ,
-//                                                                               maximumThrust_, timeOfFlight_, numberSegmentsForwardPropagation_,
-//                                                                               numberSegmentsBackwardPropagation_ );
         }
         else
         {
@@ -121,7 +111,7 @@ public:
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
         // Create Sims-Flanagan leg from the best optimisation individual.
-        simsFlanaganLeg_ = std::make_shared< SimsFlanaganLeg >( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
+        simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
                                             timeOfFlight_, bodyMap_, throttles, bodyToPropagate_, centralBody_ );
 
     }
@@ -147,7 +137,7 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( )
     {
-        return simsFlanaganLeg_->getTotalDeltaV( );
+        return simsFlanaganModel_->getTotalDeltaV( );
     }
 
     //! Compute current cartesian state.
@@ -158,7 +148,7 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory )
     {
-        simsFlanaganLeg_->propagateTrajectory( epochsVector, propagatedTrajectory );
+        simsFlanaganModel_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
     Eigen::Vector3d computeCurrentThrust( double time,
@@ -196,9 +186,9 @@ public:
 
 
     //! Return best Sims-Flanagan leg after optimisation.
-    std::shared_ptr< SimsFlanaganLeg > getOptimalSimsFlanaganLeg( )
+    std::shared_ptr< SimsFlanaganModel > getOptimalSimsFlanaganModel( )
     {
-        return simsFlanaganLeg_;
+        return simsFlanaganModel_;
     }
 
 
@@ -220,7 +210,7 @@ protected:
 
     int convertTimeToLegSegment( double currentTime )
     {
-        return simsFlanaganLeg_->convertTimeToLegSegment( currentTime );
+        return simsFlanaganModel_->convertTimeToLegSegment( currentTime );
     }
 
 private:
@@ -261,7 +251,7 @@ private:
     double deltaV_;
 
     //! Sims-Flanagan leg corresponding to the best optimisation output.
-    std::shared_ptr< SimsFlanaganLeg > simsFlanaganLeg_;
+    std::shared_ptr< SimsFlanaganModel > simsFlanaganModel_;
 
 };
 

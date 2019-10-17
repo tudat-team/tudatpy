@@ -29,12 +29,12 @@ namespace shape_based_methods
 
 
 // Base class for shape based methods.
-class ShapeBasedMethodLeg : public LowThrustLeg
+class ShapeBasedMethod : public LowThrustLeg
 {
 public:
 
     //! Empty constructor.
-    ShapeBasedMethodLeg( const Eigen::Vector6d& stateAtDeparture,
+    ShapeBasedMethod( const Eigen::Vector6d& stateAtDeparture,
                       const Eigen::Vector6d& stateAtArrival,
                       const double timeOfFlight,
                       simulation_setup::NamedBodyMap& bodyMap,
@@ -46,7 +46,7 @@ public:
     integratorSettings_( integratorSettings ){ }
 
     //! Default destructor.
-    virtual ~ShapeBasedMethodLeg( ) { }
+    virtual ~ShapeBasedMethod( ) { }
 
     //! Returns initial value of the independent variable.
     virtual double getInitialValueInpendentVariable( ) = 0;

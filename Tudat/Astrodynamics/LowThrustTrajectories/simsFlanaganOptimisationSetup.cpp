@@ -9,9 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganLeg.h"
-
-//using namespace tudat;
+#include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganModel.h"
 
 namespace tudat
 {
@@ -82,15 +80,6 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
         {
             for ( int i = 0 ; i < numberSegments_ ; i++ )
             {
-//                bool isInitialGuessUsedForLowerBounds = false;
-//                bool isInitialGuessUsedForUpperBounds = false;
-
-//                // Lower bound for the 3 components of the thrust vector.
-//                if ( ( initialGuessThrottles_.size( ) != 0 ) )
-//                {
-//                Eigen::Vector3d lowerBoundsFromInitialGuess;
-//                Eigen::Vector3d upperBoundsFromInitialGuess;
-
                 for ( int k = 0 ; k < 3 ; k++ )
                 {
                     double lowerBoundFromInitialGuess;
@@ -99,23 +88,16 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
                     {
                         lowerBoundFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
                         upperBoundFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
-//                        lowerBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
-//                        upperBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
                     }
                     else
                     {
                         lowerBoundFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
                         upperBoundFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
-//                        lowerBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
-//                        upperBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
                     }
 
                     if ( std::fabs( lowerBoundFromInitialGuess <= 1.0 ) )
                     {
                         lowerBounds.push_back( lowerBoundFromInitialGuess );
-//                        lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
-//                        lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
-//                        isInitialGuessUsedForLowerBounds = true;
                     }
                     else
                     {
@@ -125,59 +107,12 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
                     if ( std::fabs( upperBoundFromInitialGuess <= 1.0 ) )
                     {
                         upperBounds.push_back( upperBoundFromInitialGuess );
-//                        upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-//                        upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-//                        isInitialGuessUsedForUpperBounds = true;
                     }
                     else
                     {
                         upperBounds.push_back( 1.0 );
                     }
-
                 }
-
-//                if ( ( std::fabs( lowerBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( lowerBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-//                     && ( std::fabs( lowerBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-//                {
-//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 0 ] );
-//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
-//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
-//                    isInitialGuessUsedForLowerBounds = true;
-//                }
-
-//                if ( ( std::fabs( upperBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( upperBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-//                     && ( std::fabs( upperBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-//                {
-//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
-//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-//                    isInitialGuessUsedForUpperBounds = true;
-//                }
-
-//                }
-
-//                if ( !isInitialGuessUsedForLowerBounds )
-//                {
-//                    for ( int j = 0 ; j < 3 ; j++ )
-//                    {
-//                        lowerBounds.push_back( - 1.0 );
-//                    }
-////                    lowerBounds.push_back( - 1.0 );
-////                    lowerBounds.push_back( - 1.0 );
-////                    lowerBounds.push_back( - 1.0 );
-//                }
-
-//                if ( !isInitialGuessUsedForUpperBounds )
-//                {
-//                    for ( int j = 0 ; j < 3 ; j++ )
-//                    {
-//                        upperBounds.push_back( 1.0 );
-//                    }
-////                    upperBounds.push_back( 1.0 );
-////                    upperBounds.push_back( 1.0 );
-////                    upperBounds.push_back( 1.0 );
-//                }
-
             }
         }
     }
@@ -218,7 +153,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     std::vector< double > fitness;
 
     // Create Sims Flanagan trajectory leg.
-    low_thrust_trajectories::SimsFlanaganLeg currentLeg = low_thrust_trajectories::SimsFlanaganLeg( stateAtDeparture_,
+    low_thrust_trajectories::SimsFlanaganModel currentLeg = low_thrust_trajectories::SimsFlanaganModel( stateAtDeparture_,
                                                                                                         stateAtArrival_,
                                                                                                         maximumThrust_,
                                                                                                         specificImpulseFunction_,
@@ -235,7 +170,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     currentLeg.propagateBackwardFromArrivalToMatchPoint();
 
 
-    // Fitness -> here total deltaV (can be updated -> choice left to the user (deltaV, mass, TOF,... ?) )
+    // Fitness
     double deltaV = currentLeg.getTotalDeltaV( );
 
     // Equality constraints (must be ... = 0 )
