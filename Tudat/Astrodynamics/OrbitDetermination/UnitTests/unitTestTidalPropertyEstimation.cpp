@@ -46,7 +46,7 @@ using namespace tudat::basic_astrodynamics;
 BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
 {
     //Load spice kernels
-    spice_interface::loadStandardSpiceKernels( { std::string( input_output::getSpiceKernelPath( ) + "de430_jup310_small.bsp" ) } );
+    spice_interface::loadStandardSpiceKernels( );
 
     //Define list of bodies
     std::vector< std::string > bodyNames;

@@ -259,7 +259,7 @@ void SimsFlanagan::getThrustAccelerationProfile(
     std::map< double, Eigen::VectorXd > massProfile;
     getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
 
-    for ( unsigned  int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
