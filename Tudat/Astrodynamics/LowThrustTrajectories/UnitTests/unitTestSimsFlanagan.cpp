@@ -1242,6 +1242,9 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     std::function< Eigen::Vector3d( const double ) > initialGuessThrustFromShaping =
             getInitialGuessFunctionFromShaping( shapeBasedLeg, numberSegments, timeOfFlight, specificImpulseFunction, integratorSettings );
 
+    std::vector< double > initialGuessVector = convertToSimsFlanaganThrustModel(
+                initialGuessThrustFromShaping, maximumThrust, timeOfFlight, numberSegmentsForwardPropagation, numberSegmentsBackwardPropagation );
+
 
     // Define optimisation algorithm (here we ensure the Sims-Flanagan solution stays close to the hodographic shaping initial guess).
     algorithm optimisationAlgorithm{ pagmo::de1220() };
@@ -1250,7 +1253,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings =
             std::make_shared< simulation_setup::OptimisationSettings >(
-                optimisationAlgorithm, 1, 10, 1.0e-6, std::make_pair( initialGuessThrustFromShaping, 0.002 ) );
+                optimisationAlgorithm, 1, 10, 1.0e-6, std::make_pair( initialGuessVector, 0.002 ) );
 
     // Create Sims-Flanagan trajectory.
     SimsFlanagan simsFlanagan = SimsFlanagan( cartesianStateDepartureBody, cartesianStateArrivalBody, maximumThrust, specificImpulseFunction, numberSegments,

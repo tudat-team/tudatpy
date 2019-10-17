@@ -28,7 +28,8 @@ HybridMethodProblem::HybridMethodProblem(
         const std::string bodyToPropagate,
         const std::string centralBody,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const std::pair< Eigen::VectorXd, double > initialGuessThrustModel,
+        const std::pair< std::vector< double >, double > initialGuessThrustModel,
+        const std::pair< double, double > initialAndFinalMEEcostatesBounds,
         const double relativeToleranceConstraints ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
@@ -40,6 +41,7 @@ HybridMethodProblem::HybridMethodProblem(
     centralBody_( centralBody ),
     integratorSettings_( integratorSettings ),
     initialGuessThrustModel_( initialGuessThrustModel ),
+    initialAndFinalMEEcostatesBounds_( initialAndFinalMEEcostatesBounds ),
     relativeToleranceConstraints_( relativeToleranceConstraints )
 {
     initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
@@ -69,38 +71,90 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
 
     // Define lower bounds.
     std::vector< double > lowerBounds;
-    for ( int i = 0 ; i < 10 ; i++ )
-    {
-        bool isInitialGuessUsedForLowerBounds = false;
-
-        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
-        {
-            double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-            lowerBounds.push_back( lowerBoundsFromInitialGuess );
-            isInitialGuessUsedForLowerBounds = true;
-        }
-
-        lowerBounds.push_back( - 10.0 );
-    }
-
 
     // Define upper bounds.
     std::vector< double > upperBounds;
-    for ( int i = 0 ; i < 10 ; i++ )
+
+    if ( guessInitialAndFinalCostates_.size( ) != 0 )
     {
-        bool isInitialGuessUsedForUpperBounds = false;
-
-        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
+        if ( guessInitialAndFinalCostates_.size() != 10 )
         {
-            double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
-
-            upperBounds.push_back( upperBoundsFromInitialGuess );
-            isInitialGuessUsedForUpperBounds = true;
+            throw std::runtime_error( "Error when providing an initial guess for hybrid method, size of the vector unconsistent"
+                                      "with the expected 5 initial and 5 final MEE costate values." );
         }
+        else
+        {
+            for ( int i = 0 ; i < 10 ; i++ )
+            {
+//                bool isInitialGuessUsedForLowerBounds = false;
 
-        upperBounds.push_back( 10.0 );
+        //        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
+        //        {
+                    double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+
+                    lowerBounds.push_back( lowerBoundsFromInitialGuess );
+//                    isInitialGuessUsedForLowerBounds = true;
+//                }
+
+//                lowerBounds.push_back( - 10.0 );
+            }
+
+            for ( int i = 0 ; i < 10 ; i++ )
+            {
+//                bool isInitialGuessUsedForUpperBounds = false;
+
+//                if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
+//                {
+                    double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+
+                    upperBounds.push_back( upperBoundsFromInitialGuess );
+//                    isInitialGuessUsedForUpperBounds = true;
+//                }
+
+//                upperBounds.push_back( 10.0 );
+            }
+        }
     }
+    else
+    {
+        for ( int i = 0 ; i < 10 ; i ++ )
+        {
+            lowerBounds.push_back( initialAndFinalMEEcostatesBounds_.first );
+            upperBounds.push_back( initialAndFinalMEEcostatesBounds_.second );
+        }
+    }
+//    for ( int i = 0 ; i < 10 ; i++ )
+//    {
+//        bool isInitialGuessUsedForLowerBounds = false;
+
+////        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
+////        {
+//            double lowerBoundsFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+
+//            lowerBounds.push_back( lowerBoundsFromInitialGuess );
+//            isInitialGuessUsedForLowerBounds = true;
+//        }
+
+//        lowerBounds.push_back( - 10.0 );
+//    }
+
+
+//    // Define upper bounds.
+//    std::vector< double > upperBounds;
+//    for ( int i = 0 ; i < 10 ; i++ )
+//    {
+//        bool isInitialGuessUsedForUpperBounds = false;
+
+//        if ( ( guessInitialAndFinalCostates_.size( ) != 0 ) )
+//        {
+//            double upperBoundsFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * guessInitialAndFinalCostates_[ i ];
+
+//            upperBounds.push_back( upperBoundsFromInitialGuess );
+//            isInitialGuessUsedForUpperBounds = true;
+//        }
+
+//        upperBounds.push_back( 10.0 );
+//    }
 
     return { lowerBounds, upperBounds };
 }

@@ -22,23 +22,31 @@ namespace low_thrust_trajectories
 {
 
 //! Transform thrust model as a function of time into Sims Flanagan thrust model.
-std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
-                                                                 const double maximumThrust,
-                                                                 const double timeOfFlight, const int numberSegmentsForwardPropagation,
-                                                                 const int numberSegmentsBackwardPropagation )
+std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
+                                                        const double maximumThrust,
+                                                        const double timeOfFlight, const int numberSegmentsForwardPropagation,
+                                                        const int numberSegmentsBackwardPropagation )
 {
     double segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
     double segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
 
-    std::vector< Eigen::Vector3d > SimsFlanaganThrustModel;
+    std::vector< double > SimsFlanaganThrustModel;
     for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
     {
-        SimsFlanaganThrustModel.push_back( ( thrustModelWrtTime( segmentDurationForwardPropagation * ( i + 1.0 / 2.0 ) ) ) / maximumThrust );
+        Eigen::Vector3d currentThrustVector = thrustModelWrtTime( segmentDurationForwardPropagation * ( i + 1.0 / 2.0 ) ) / maximumThrust;
+        for ( int j = 0 ; j < 3 ; j++ )
+        {
+            SimsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
+        }
     }
     for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
     {
-        SimsFlanaganThrustModel.push_back( ( thrustModelWrtTime( timeOfFlight / 2.0 + segmentDurationBackwardPropagation * ( i + 1.0 / 2.0 ) ) )
-                                           / maximumThrust );
+        Eigen::Vector3d currentThrustVector = thrustModelWrtTime( timeOfFlight / 2.0
+                                                                  + segmentDurationBackwardPropagation * ( i + 1.0 / 2.0 ) ) / maximumThrust;
+        for ( int j = 0 ; j < 3 ; j++ )
+        {
+            SimsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
+        }
     }
 
     return SimsFlanaganThrustModel;

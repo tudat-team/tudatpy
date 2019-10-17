@@ -28,7 +28,7 @@ namespace low_thrust_trajectories
 
 
 //! Transform thrust model as a function of time into Sims Flanagan thrust model.
-std::vector< Eigen::Vector3d > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
+std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
                                                                  const double maximumThrust,
                                                                  const double timeOfFlight, const int numberSegmentsForwardPropagation,
                                                                  const int numberSegmentsBackwardPropagation );
@@ -75,15 +75,33 @@ public:
         numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first != nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 ) //nullptr )
         {
-            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( optimisationSettings_->initialGuessThrustModel_.first ,
-                                                                               maximumThrust_, timeOfFlight_, numberSegmentsForwardPropagation_,
-                                                                               numberSegmentsBackwardPropagation_ );
+            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 3 * numberSegments )
+            {
+                throw std::runtime_error( "Error when providing an initial guess for Sims-Flanagan, size of the thrust"
+                                          "model initial guess unconsistent with number of segments" );
+            }
+            else
+            {
+                std::vector< double > initialGuessFromOptimisationSettings = optimisationSettings_->initialGuessThrustModel_.first;
+                initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
+//                for ( int i = 0 ; i < numberSegments ; i++ )
+//                {
+//                    initialGuessThrustModel_.first = initialGuessFromOptimisationSettings;
+//                    initialGuessThrustModel_.first.push_back( ( Eigen::Vector3d( ) << initialGuessFromOptimisationSettings[ i * 3 ],
+//                            initialGuessFromOptimisationSettings[ i * 3 + 1 ],
+//                            initialGuessFromOptimisationSettings[ i * 3 + 2 ] ).finished( ) );
+//                }
+            }
+
+//            initialGuessThrustModel_.first = convertToSimsFlanaganThrustModel( optimisationSettings_->initialGuessThrustModel_.first ,
+//                                                                               maximumThrust_, timeOfFlight_, numberSegmentsForwardPropagation_,
+//                                                                               numberSegmentsBackwardPropagation_ );
         }
         else
         {
-            initialGuessThrustModel_.first = std::vector< Eigen::Vector3d >( );
+            initialGuessThrustModel_.first = std::vector< double >( );
         }
         initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second;
 
@@ -219,7 +237,7 @@ private:
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
     //! The second element defines the bounds around the initial time (in percentage).
-    std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel_;
+    std::pair< std::vector< double >, double > initialGuessThrustModel_;
 
     //! Optimisation settings.
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings_;

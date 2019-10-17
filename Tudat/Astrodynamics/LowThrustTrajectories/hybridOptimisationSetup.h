@@ -60,7 +60,8 @@ struct HybridMethodProblem
                          const std::string bodyToPropagate,
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-                         const std::pair< Eigen::VectorXd, double > initialGuessThrustModel,
+                         const std::pair< std::vector< double >, double > initialGuessThrustModel,
+                         const std::pair< double, double > initialAndFinalMEEcostatesBounds = std::make_pair( - 10.0, 10.0 ),
                          const double relativeToleranceConstraints = 1.0e-6 );
 
     //! Calculate the fitness as a function of the parameter vector x
@@ -126,16 +127,19 @@ private:
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
     //! The second element defines the bounds around the initial time (in percentage).
-    std::pair< Eigen::VectorXd, double > initialGuessThrustModel_;
+    std::pair< std::vector< double >, double > initialGuessThrustModel_;
 
     //! Initial and final MEE costates for the thrust model initial guess.
-    Eigen::VectorXd guessInitialAndFinalCostates_;
+    std::vector< double > guessInitialAndFinalCostates_;
 
     //! Relative margin w.r.t. initial guess.
     double relativeMarginWrtInitialGuess_;
 
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;
+
+    //! Lower and upper bounds for the initial and final MEE costates.
+    std::pair< double, double > initialAndFinalMEEcostatesBounds_;
 
 
 

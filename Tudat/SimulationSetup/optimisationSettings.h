@@ -50,7 +50,7 @@ public:
             const int numberOfGenerations,
             const int numberOfIndividualsPerPopulation,
             const double relativeToleranceConstraints = 1.0e-6,
-            const std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel = std::make_pair( nullptr, 0.0 ) ):
+            const std::pair< std::vector< double >, double > initialGuessThrustModel = std::make_pair( std::vector< double >( ), 0.0 ) ):
         optimisationAlgorithm_( optimisationAlgorithm ),
         numberOfGenerations_( numberOfGenerations ),
         numberOfIndividualsPerPopulation_( numberOfIndividualsPerPopulation ),
@@ -73,7 +73,7 @@ public:
     double relativeToleranceConstraints_;
 
     //! Initial guess for the optimisation.
-    std::pair< std::function< Eigen::Vector3d( const double ) >, double > initialGuessThrustModel_;
+    std::pair< std::vector< double >, double > initialGuessThrustModel_;
 
 };
 
