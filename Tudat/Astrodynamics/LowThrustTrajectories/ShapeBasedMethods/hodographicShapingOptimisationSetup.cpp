@@ -31,7 +31,8 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
     int numberFreeCoefficientsNormalFunction = normalVelocityFunctionComponents_.size( ) - 3;
     int numberFreeCoefficientsAxialFunction = axialVelocityFunctionComponents_.size( ) - 3;
 
-    if ( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction != x.size( ) )
+    if( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction !=
+            static_cast< int >( x.size( ) ) )
     {
         throw std::runtime_error( "Error, size of design variables vector unconsistent with number of base function components"
                                   "when making a hodographic shaping optimisation problem." );

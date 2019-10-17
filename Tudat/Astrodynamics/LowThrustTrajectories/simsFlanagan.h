@@ -77,7 +77,7 @@ public:
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
         if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
-            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 3 * numberSegments )
+            if ( static_cast< int >( optimisationSettings_->initialGuessThrustModel_.first.size( ) ) != 3 * numberSegments )
             {
                 throw std::runtime_error( "Error when providing an initial guess for Sims-Flanagan, size of the thrust"
                                           "model initial guess unconsistent with number of segments" );
@@ -246,9 +246,6 @@ private:
 
     //! Number of segments for the backward propagation from arrival to match point.
     int numberSegmentsBackwardPropagation_;
-
-    //! DeltaV corresponding to best trajectory.
-    double deltaV_;
 
     //! Sims-Flanagan leg corresponding to the best optimisation output.
     std::shared_ptr< SimsFlanaganModel > simsFlanaganModel_;
