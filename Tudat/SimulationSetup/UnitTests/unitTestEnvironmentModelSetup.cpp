@@ -771,11 +771,8 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
 
     // Load Spice kernels
     spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
-
 
     // Create settings for synchronous rotation model.
-
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Europa" );
     bodiesToCreate.push_back( "Jupiter" );

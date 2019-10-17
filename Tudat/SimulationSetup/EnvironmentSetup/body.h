@@ -784,7 +784,7 @@ public:
                             std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator_ ) );
             }
-            else
+            else if( !suppressDependentOrientationCalculatorWarning_ )
             {
                 std::cerr << "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" << std::endl;
             }
@@ -1277,6 +1277,11 @@ public:
      */
     void setIsBodyInPropagation( const bool isBodyInPropagation );
 
+    void setSuppressDependentOrientationCalculatorWarning( const bool suppressDependentOrientationCalculatorWarning )
+    {
+        suppressDependentOrientationCalculatorWarning_ = suppressDependentOrientationCalculatorWarning;
+    }
+
 protected:
 
 private:
@@ -1374,6 +1379,8 @@ private:
 
     //!  Boolean defining whether the body is currently being propagated, or not
     bool isBodyInPropagation_ = false;
+
+    bool suppressDependentOrientationCalculatorWarning_ = false;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

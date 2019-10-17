@@ -1,0 +1,19 @@
+LEAPSECONDS_KERNEL   = naif0012.tls
+
+SPK_KERNEL           = tudat_merged_kernel.bsp
+ BEGIN_TIME          = 1950 JAN 01
+ END_TIME            = 2050 JAN 01
+ SOURCE_SPK_KERNEL   = de438.bsp
+ SOURCE_SPK_KERNEL   = mar097.bsp
+   BODIES          = 499, 401, 402
+ SOURCE_SPK_KERNEL   = jup310.bsp
+   BODIES          = 599, 501, 502, 503, 504
+ SOURCE_SPK_KERNEL   = sat425.bsp
+   BODIES          = 699
+ SOURCE_SPK_KERNEL   = ura112.bsp
+   BODIES          = 799
+ SOURCE_SPK_KERNEL   = nep086.bsp
+   BODIES          = 899
+ SOURCE_SPK_KERNEL   = juice_mat_crema_4_0_20220601_20330626_v01.bsp
+
+

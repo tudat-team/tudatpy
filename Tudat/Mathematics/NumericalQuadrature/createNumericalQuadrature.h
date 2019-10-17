@@ -182,7 +182,7 @@ std::shared_ptr< numerical_quadrature::NumericalQuadrature< IndependentVariableT
 
         // Evaluate derivative function at each of the independent variable values.
         std::vector< DependentVariableType > dependentVariables;
-        for ( int currentIndependentValue = 0 ; currentIndependentValue < independentVariables.size() ; currentIndependentValue++ )
+        for ( unsigned int currentIndependentValue = 0 ; currentIndependentValue < independentVariables.size() ; currentIndependentValue++ )
         {
             dependentVariables.push_back( derivativeFunction( currentIndependentValue ) );
         }
