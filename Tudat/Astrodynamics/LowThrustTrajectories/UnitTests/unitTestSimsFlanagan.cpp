@@ -558,6 +558,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
     bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+    bodyMap.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
 
 
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
@@ -648,8 +649,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
 
     // Compute deltaVs.
-    double totalManeuverTime = 90.0;
-    double maneuverRiseTime = 15.0;
+    double totalManeuverTime = 900.0;
+    double maneuverRiseTime = 150.0;
     double currentMass = mass;
     std::vector< Eigen::Vector3d > deltaVs;
 
@@ -704,7 +705,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
                 std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
                 stateAtDeparture, terminationSettings, propagators::cowell );
 
-    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ / 50000.0 );
+    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ / 5000.0 );
     integratorSettings->initialTime_ = 0.0;
 
     Eigen::Vector6d currentState = stateAtDeparture;
@@ -836,6 +837,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+    bodyMap.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
+
 
 
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
@@ -1114,6 +1117,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
     bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+    bodyMap.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
 
 
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );

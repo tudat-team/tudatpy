@@ -199,7 +199,7 @@ double SimsFlanaganModel::propagateMassToSegment( int indexSegment )
 {
     double currentMass = initialSpacecraftMass_;
 
-    for ( int currentSegment = 0 ; currentSegment < indexSegment ; currentSegment++ )
+    for ( unsigned int currentSegment = 0 ; currentSegment < indexSegment ; currentSegment++ )
     {
 
         // Compute time at half of the current segment.
@@ -543,7 +543,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganModel::propagateTrajectoryForwar
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
 
-        for ( unsigned int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
+        for ( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
         {
             double currentTime = epochs[ epochIndex ];
             if ( epochIndex > 0 )
@@ -599,7 +599,7 @@ std::map< double, Eigen::Vector6d > SimsFlanaganModel::propagateTrajectoryBackwa
         // Initialise mass of the spacecraft at departure.
         bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( massAtTimeOfFlight );
 
-        for ( unsigned int epochIndex = 0 ; epochIndex < epochs.size() ; epochIndex++ )
+        for ( int epochIndex = 0 ; epochIndex < epochs.size() ; epochIndex++ )
         {
             double currentTime = epochs[ epochIndex ];
             if ( epochIndex > 0 )
@@ -648,7 +648,7 @@ void SimsFlanaganModel::propagateTrajectory(
     // Index of the last epoch in the forward propagation leg.
     int index = epochs.size( ) - 1;
 
-    for ( unsigned int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
+    for ( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
     {
         double currentTime = epochs[ epochIndex ];
         if ( ( epochIndex != 0 ) && ( epochs[ epochIndex - 1 ] > epochs[ epochIndex ] ) )
