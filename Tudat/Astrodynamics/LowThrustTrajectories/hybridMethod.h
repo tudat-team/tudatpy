@@ -43,26 +43,43 @@ public:
             const std::string bodyToPropagate,
             const std::string centralBody,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ) :
+            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings,
+            const std::pair< double, double > initialAndFinalMEEcostatesBounds = std::make_pair( - 10.0, 10.0 ) ):
         LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
         integratorSettings_( integratorSettings ),
-        optimisationSettings_( optimisationSettings )
+        optimisationSettings_( optimisationSettings ),
+        initialAndFinalMEEcostatesBounds_( initialAndFinalMEEcostatesBounds )
     {
 
         // Store initial spacecraft mass.
         initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the hybrid method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first != nullptr )
+        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 ) // != nullptr )
         {
-            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( optimisationSettings_->initialGuessThrustModel_.first );
+            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 10 )
+            {
+                throw std::runtime_error( "Error when providing an initial guess for hybrid method, vector size"
+                                          "unconsistent with the 5 initial and 5 final MEE costate values which are required." );
+            }
+            else
+            {
+                Eigen::VectorXd initialGuessMEEinitialAndFinalCostates( 10 );
+                initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
+//                for ( int i = 0 ; i < 10 ; i++ )
+//                {
+//                    initialGuessMEEinitialAndFinalCostates[ i ] = initialGuessThrustModel_.first[ i ];
+//                }
+//                initialGuessThrustModel_.first = initialGuessMEEinitialAndFinalCostates;
+            }
+//            initialGuessThrustModel_.first = convertToHybridMethodThrustModel( optimisationSettings_->initialGuessThrustModel_.first );
         }
         else
         {
-            Eigen::VectorXd emptyVector;
-            initialGuessThrustModel_.first = emptyVector; // emptyVector;
+//            Eigen::VectorXd emptyVector;
+            initialGuessThrustModel_.first = std::vector< double>( ); //emptyVector; // emptyVector;
         }
         initialGuessThrustModel_.second = optimisationSettings_->initialGuessThrustModel_.second;
         // Perform optimisation
@@ -200,7 +217,7 @@ private:
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
     //! The second element defines the bounds around the initial time (in percentage).
-    std::pair< Eigen::VectorXd, double > initialGuessThrustModel_;
+    std::pair< std::vector< double >, double > initialGuessThrustModel_;
 
     //! Fitness vector of the optimisation best individual.
     std::vector< double > championFitness_;
@@ -213,6 +230,9 @@ private:
 
     //! Hybrid method leg corresponding to the best optimisation output.
     std::shared_ptr< HybridMethodLeg > hybridMethodLeg_;
+
+    //! Lower and upper bounds for the initial and final MEE costates.
+    std::pair< double, double > initialAndFinalMEEcostatesBounds_;
 
 };
 

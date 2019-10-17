@@ -28,7 +28,7 @@ SimsFlanaganProblem::SimsFlanaganProblem(
         simulation_setup::NamedBodyMap bodyMap,
         const std::string bodyToPropagate,
         const std::string centralBody,
-        const std::pair< std::vector< Eigen::Vector3d >, double > initialGuessThrustModel,
+        const std::pair< std::vector< double >, double > initialGuessThrustModel,
         const double relativeToleranceConstraints ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
@@ -70,65 +70,124 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
     // Define lower bounds.
     std::vector< double > lowerBounds;
     std::vector< double > upperBounds;
-    for ( int i = 0 ; i < numberSegments_ ; i++ )
+
+    if ( initialGuessThrottles_.size( ) != 0 )
     {
-        bool isInitialGuessUsedForLowerBounds = false;
-        bool isInitialGuessUsedForUpperBounds = false;
-
-        // Lower bound for the 3 components of the thrust vector.
-        if ( ( initialGuessThrottles_.size( ) != 0 ) )
+        if ( initialGuessThrottles_.size( ) != 3 * numberSegments_ )
         {
-            Eigen::Vector3d lowerBoundsFromInitialGuess;
-            Eigen::Vector3d upperBoundsFromInitialGuess;
-
-            for ( int k = 0 ; k < 3 ; k++ )
+            throw std::runtime_error( "Error when providing an initial guess for Sims-Flanagan, vector size unconsistent with"
+                                      " number of segments into which the trajectory is subdivided." );
+        }
+        else
+        {
+            for ( int i = 0 ; i < numberSegments_ ; i++ )
             {
-                if ( initialGuessThrottles_[ i ][ k ] >= 0 )
+//                bool isInitialGuessUsedForLowerBounds = false;
+//                bool isInitialGuessUsedForUpperBounds = false;
+
+//                // Lower bound for the 3 components of the thrust vector.
+//                if ( ( initialGuessThrottles_.size( ) != 0 ) )
+//                {
+//                Eigen::Vector3d lowerBoundsFromInitialGuess;
+//                Eigen::Vector3d upperBoundsFromInitialGuess;
+
+                for ( int k = 0 ; k < 3 ; k++ )
                 {
-                    lowerBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-                    upperBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
+                    double lowerBoundFromInitialGuess;
+                    double upperBoundFromInitialGuess;
+                    if ( initialGuessThrottles_[ i * 3 + k ] >= 0 )
+                    {
+                        lowerBoundFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+                        upperBoundFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+//                        lowerBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+//                        upperBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+                    }
+                    else
+                    {
+                        lowerBoundFromInitialGuess = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+                        upperBoundFromInitialGuess = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+//                        lowerBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+//                        upperBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i * 3 + k ];
+                    }
+
+                    if ( std::fabs( lowerBoundFromInitialGuess <= 1.0 ) )
+                    {
+                        lowerBounds.push_back( lowerBoundFromInitialGuess );
+//                        lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
+//                        lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
+//                        isInitialGuessUsedForLowerBounds = true;
+                    }
+                    else
+                    {
+                        lowerBounds.push_back( - 1.0 );
+                    }
+
+                    if ( std::fabs( upperBoundFromInitialGuess <= 1.0 ) )
+                    {
+                        upperBounds.push_back( upperBoundFromInitialGuess );
+//                        upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
+//                        upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
+//                        isInitialGuessUsedForUpperBounds = true;
+                    }
+                    else
+                    {
+                        upperBounds.push_back( 1.0 );
+                    }
+
                 }
-                else
-                {
-                    lowerBoundsFromInitialGuess[ k ] = ( 1.0 + relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-                    upperBoundsFromInitialGuess[ k ] = ( 1.0 - relativeMarginWrtInitialGuess_ ) * initialGuessThrottles_[ i ][ k ];
-                }
-            }
 
-            if ( ( std::fabs( lowerBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( lowerBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-                 && ( std::fabs( lowerBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-            {
-                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 0 ] );
-                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
-                lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
-                isInitialGuessUsedForLowerBounds = true;
-            }
+//                if ( ( std::fabs( lowerBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( lowerBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
+//                     && ( std::fabs( lowerBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
+//                {
+//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 0 ] );
+//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 1 ] );
+//                    lowerBounds.push_back( lowerBoundsFromInitialGuess[ 2 ] );
+//                    isInitialGuessUsedForLowerBounds = true;
+//                }
 
-            if ( ( std::fabs( upperBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( upperBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
-                 && ( std::fabs( upperBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
-            {
-                upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
-                upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
-                upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
-                isInitialGuessUsedForUpperBounds = true;
-            }
+//                if ( ( std::fabs( upperBoundsFromInitialGuess[ 0 ] ) <= 1.0 ) && ( std::fabs( upperBoundsFromInitialGuess[ 1 ] ) <= 1.0 )
+//                     && ( std::fabs( upperBoundsFromInitialGuess[ 2 ] ) <= 1.0 ) )
+//                {
+//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 0 ] );
+//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 1 ] );
+//                    upperBounds.push_back( upperBoundsFromInitialGuess[ 2 ] );
+//                    isInitialGuessUsedForUpperBounds = true;
+//                }
 
+//                }
+
+//                if ( !isInitialGuessUsedForLowerBounds )
+//                {
+//                    for ( int j = 0 ; j < 3 ; j++ )
+//                    {
+//                        lowerBounds.push_back( - 1.0 );
+//                    }
+////                    lowerBounds.push_back( - 1.0 );
+////                    lowerBounds.push_back( - 1.0 );
+////                    lowerBounds.push_back( - 1.0 );
+//                }
+
+//                if ( !isInitialGuessUsedForUpperBounds )
+//                {
+//                    for ( int j = 0 ; j < 3 ; j++ )
+//                    {
+//                        upperBounds.push_back( 1.0 );
+//                    }
+////                    upperBounds.push_back( 1.0 );
+////                    upperBounds.push_back( 1.0 );
+////                    upperBounds.push_back( 1.0 );
+//                }
+
+            }
         }
-
-        if ( !isInitialGuessUsedForLowerBounds )
+    }
+    else
+    {
+        for ( int i = 0 ; i < 3 * numberSegments_ ; i++ )
         {
             lowerBounds.push_back( - 1.0 );
-            lowerBounds.push_back( - 1.0 );
-            lowerBounds.push_back( - 1.0 );
-        }
-
-        if ( !isInitialGuessUsedForUpperBounds )
-        {
-            upperBounds.push_back( 1.0 );
-            upperBounds.push_back( 1.0 );
             upperBounds.push_back( 1.0 );
         }
-
     }
 
     return { lowerBounds, upperBounds };

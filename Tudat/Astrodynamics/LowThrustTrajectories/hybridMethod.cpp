@@ -41,7 +41,8 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 
     // Create object to compute the problem fitness
     problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_,
-                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, optimisationSettings_->relativeToleranceConstraints_ )};
+                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, initialAndFinalMEEcostatesBounds_,
+                                       optimisationSettings_->relativeToleranceConstraints_ )};
 
     std::vector< double > constraintsTolerance;
     for ( unsigned int i = 0 ; i < ( prob.get_nec() + prob.get_nic() ) ; i++ )
