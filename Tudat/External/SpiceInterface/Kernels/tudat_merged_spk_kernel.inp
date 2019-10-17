@@ -1,6 +1,6 @@
 LEAPSECONDS_KERNEL   = naif0012.tls
 
-SPK_KERNEL           = tudat_merged_kernel.bsp
+SPK_KERNEL           = tudat_merged_spk_kernel.bsp
  BEGIN_TIME          = 1995 JAN 01
  END_TIME            = 2040 JAN 01
  SOURCE_SPK_KERNEL   = de438.bsp
