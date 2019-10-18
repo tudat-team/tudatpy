@@ -56,24 +56,20 @@ struct HodographicShapingOptimisationProblem
     HodographicShapingOptimisationProblem( ){ }
 
     HodographicShapingOptimisationProblem(
-            Eigen::Vector6d initialState,
-            Eigen::Vector6d finalState,
+            const Eigen::Vector6d& initialState,
+            const Eigen::Vector6d& finalState,
             const double timeOfFlight,
+            const double centralBodyGravitationalParameter,
             const int numberOfRevolutions,
-            simulation_setup::NamedBodyMap& bodyMap,
-            const std::string bodyToPropagate,
-            const std::string centralBody,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
-            std::vector< std::vector< double > >& freeCoefficientsBounds ):
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+            const std::vector< std::vector< double > >& freeCoefficientsBounds ):
         initialState_( initialState ),
         finalState_( finalState ),
         timeOfFlight_( timeOfFlight ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
         numberOfRevolutions_( numberOfRevolutions ),
-        bodyMap_( bodyMap ),
-        bodyToPropagate_( bodyToPropagate ),
-        centralBody_( centralBody ),
         radialVelocityFunctionComponents_( radialVelocityFunctionComponents ),
         normalVelocityFunctionComponents_( normalVelocityFunctionComponents ),
         axialVelocityFunctionComponents_( axialVelocityFunctionComponents ),
@@ -104,15 +100,20 @@ protected:
 private:
 
     Eigen::Vector6d initialState_;
+
     Eigen::Vector6d finalState_;
+
     double timeOfFlight_;
+
+    double centralBodyGravitationalParameter_;
+
     int numberOfRevolutions_;
-    mutable simulation_setup::NamedBodyMap bodyMap_;
-    std::string bodyToPropagate_;
-    std::string centralBody_;
-    mutable std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
-    mutable std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
-    mutable std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
+
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
+
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
+
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
 
     const std::vector< std::vector< double > > problemBounds_;
 

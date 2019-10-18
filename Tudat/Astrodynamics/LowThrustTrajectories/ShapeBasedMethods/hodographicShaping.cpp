@@ -28,29 +28,24 @@ namespace shape_based_methods
 
 //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
 HodographicShaping::HodographicShaping(
-        const Eigen::Vector6d initialState,
-        const Eigen::Vector6d finalState,
+        const Eigen::Vector6d& initialState,
+        const Eigen::Vector6d& finalState,
         const double timeOfFlight,
+        const double centralBodyGravitationalParameter,
         const int numberOfRevolutions,
-        simulation_setup::NamedBodyMap& bodyMap,
-        const std::string bodyToPropagate,
-        const std::string centralBody,
-        std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
-        std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
-        std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
-        const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
-        const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
-        const Eigen::VectorXd freeCoefficientsAxialVelocityFunction,
-        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) :
-    ShapeBasedMethod( initialState, finalState, timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+        const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction ) :
+    ShapeBasedMethod( initialState, finalState, timeOfFlight ),
+    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),
     freeCoefficientsNormalVelocityFunction_( freeCoefficientsNormalVelocityFunction ),
     freeCoefficientsAxialVelocityFunction_( freeCoefficientsAxialVelocityFunction )
 {
-    // Retrieve gravitational parameter of the central body.
-    centralBodyGravitationalParameter_ = bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter( );
-
     // Define composite function in radial direction.
     Eigen::VectorXd radialVelocityCoefficients;
     radialVelocityCoefficients.resize( 3 + freeCoefficientsRadialVelocityFunction_.size() );

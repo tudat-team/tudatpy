@@ -31,8 +31,8 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
     pagmo::random_device::set_seed( 456 );
 
     // Create object to compute the problem fitness
-    problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulse_, timeOfFlight_, bodyMap_,
-                                       bodyToPropagate_, centralBody_, integratorSettings_, initialGuessThrustModel_, initialAndFinalMEEcostatesBounds_,
+    problem prob{ HybridMethodProblem( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulse_, timeOfFlight_,
+                                       initialGuessThrustModel_, initialAndFinalMEEcostatesBounds_,
                                        optimisationSettings_->relativeToleranceConstraints_ )};
 
     std::vector< double > constraintsTolerance;
@@ -74,46 +74,47 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 
 
 //! Compute current thrust vector.
-Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
-                                                    std::function< double ( const double ) > specificImpulseFunction,
-                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+Eigen::Vector3d HybridMethod::computeCurrentThrust(
+        double time,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
 
-   std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
+    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
-   std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
-           thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
+                thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
 
-   std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
-   {
-     return computeCurrentStateVector( time );
-   };
+    std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
+    {
+        return computeCurrentStateVector( time );
+    };
 
-   std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
-   {
-     return Eigen::Vector6d::Zero( );
-   };
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
+    {
+        return Eigen::Vector6d::Zero( );
+    };
 
-   std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
-   {
+    std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
+    {
         return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
-   };
+    };
 
-   std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+    std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
 
 
-   propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
-           thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-           hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+    propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
+                thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+                hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
 
-   propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
-               thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-               hybridMethodModel_->getCostatesFunction_( ), bodyFixedThrustDirection );
+    propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
+                thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+                hybridMethodModel_->getCostatesFunction_( ), bodyFixedThrustDirection );
 
-   thrustGuidance.updateCalculator( time );
-   thrustMagnitudeWrapper.update( time );
+    thrustGuidance.updateCalculator( time );
+    thrustMagnitudeWrapper.update( time );
 
-   return thrustMagnitudeWrapper.getCurrentThrustMagnitude( ) * thrustGuidance.getCurrentForceDirectionInPropagationFrame( );
+    return thrustMagnitudeWrapper.getCurrentThrustMagnitude( ) * thrustGuidance.getCurrentForceDirectionInPropagationFrame( );
 }
 
 
@@ -122,15 +123,14 @@ Eigen::Vector3d HybridMethod::computeCurrentThrust( double time,
 void HybridMethod::getThrustProfile(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& thrustProfile,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        std::function< double ( const double ) > specificImpulseFunction )
 {
     thrustProfile.clear( );
 
     std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
-            thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+                thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
 
     std::map< double, Eigen::Vector6d > trajectory;
     getTrajectory( epochsVector, trajectory );
@@ -152,20 +152,20 @@ void HybridMethod::getThrustProfile(
 
         std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ] ( )
         {
-          return Eigen::Vector6d::Zero( );
+            return Eigen::Vector6d::Zero( );
         };
 
         std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
         {
-             return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+            return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
         };
 
         std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
 
 
         propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
-                thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
-                hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
+                    thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
+                    hybridMethodModel_->getCostatesFunction_( ), maximumThrust_, specificImpulseFunction, thrustingBodyMassFunction);
 
         propulsion::MeeCostateBasedThrustGuidance thrustGuidance = propulsion::MeeCostateBasedThrustGuidance(
                     thrustingBodyStateFunction, centralBodyStateFunction, centralBodyGravitationalParameterFunction,
@@ -293,15 +293,15 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
 
     // Define backward translational state propagation settings.
     translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
-                          terminationConditions.first, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
+            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+              std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
+              terminationConditions.first, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
 
     // Define forward translational state propagation settings.
     translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-                        ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
-                          std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
-                          terminationConditions.second, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
+            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap,
+              std::vector< std::string >{ bodyToPropagate_ }, stateAtHalfOfTimeOfFlight,
+              terminationConditions.second, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
 
     return translationalStatePropagatorSettings;
 }

@@ -18,6 +18,7 @@ namespace shape_based_methods
 
 
 basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelerationMap(
+        const simulation_setup::NamedBodyMap& bodyMapTest,
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
@@ -35,7 +36,7 @@ basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelera
     accelerationMap[ bodyToPropagate_ ] = accelerationSettingsMap;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
 
     accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( lowThrustAccelerationModel );
 

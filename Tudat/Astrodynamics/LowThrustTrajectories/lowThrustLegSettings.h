@@ -290,10 +290,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
         const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
         const Eigen::Vector6d& stateAtDeparture,
         const Eigen::Vector6d& stateAtArrival,
-        const double& timeOfFlight,
-        simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody );
+        const double& timeOfFlight );
 
 } // namespace low_thrust_trajectories
 

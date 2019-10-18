@@ -19,7 +19,8 @@ namespace tudat
 namespace shape_based_methods
 {
 
-void CompositeRadialFunctionSphericalShaping::resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients )
+void CompositeRadialFunctionSphericalShaping::resetCompositeFunctionCoefficients(
+        const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
     if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
@@ -109,29 +110,34 @@ double CompositeRadialFunctionSphericalShaping::evaluateCompositeFunctionThirdDe
             * evaluateCompositeFunctionSecondDerivative( independentVariable );
 }
 
-double CompositeRadialFunctionSphericalShaping::getComponentFunctionCurrentValue( int componentIndex, double currentTime )
+double CompositeRadialFunctionSphericalShaping::getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( currentTime );
 }
 
 
-double CompositeRadialFunctionSphericalShaping::getComponentFunctionFirstDerivative( int componentIndex, double currentTime )
+double CompositeRadialFunctionSphericalShaping::getComponentFunctionFirstDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFirstDerivative( currentTime );
 }
 
-double CompositeRadialFunctionSphericalShaping::getComponentFunctionSecondDerivative( int componentIndex, double currentTime )
+double CompositeRadialFunctionSphericalShaping::getComponentFunctionSecondDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateSecondDerivative( currentTime );
 }
 
-double CompositeRadialFunctionSphericalShaping::getComponentFunctionThirdDerivative( int componentIndex, double currentTime )
+double CompositeRadialFunctionSphericalShaping::getComponentFunctionThirdDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateThirdDerivative( currentTime );
 }
 
 
-void CompositeElevationFunctionSphericalShaping::resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients )
+void CompositeElevationFunctionSphericalShaping::resetCompositeFunctionCoefficients(
+        const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
     if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
@@ -189,23 +195,27 @@ double CompositeElevationFunctionSphericalShaping::evaluateCompositeFunctionThir
     return functionValue;
 }
 
-double CompositeElevationFunctionSphericalShaping::getComponentFunctionCurrentValue( int componentIndex, double currentTime )
+double CompositeElevationFunctionSphericalShaping::getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( currentTime );
 }
 
 
-double CompositeElevationFunctionSphericalShaping::getComponentFunctionFirstDerivative( int componentIndex, double currentTime )
+double CompositeElevationFunctionSphericalShaping::getComponentFunctionFirstDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFirstDerivative( currentTime );
 }
 
-double CompositeElevationFunctionSphericalShaping::getComponentFunctionSecondDerivative( int componentIndex, double currentTime )
+double CompositeElevationFunctionSphericalShaping::getComponentFunctionSecondDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateSecondDerivative( currentTime );
 }
 
-double CompositeElevationFunctionSphericalShaping::getComponentFunctionThirdDerivative( int componentIndex, double currentTime )
+double CompositeElevationFunctionSphericalShaping::getComponentFunctionThirdDerivative(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateThirdDerivative( currentTime );
 }

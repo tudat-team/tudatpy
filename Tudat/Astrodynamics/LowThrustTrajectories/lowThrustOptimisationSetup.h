@@ -57,9 +57,6 @@ struct TrajectoryOptimisationProblem
 
     //! Constructor.
     TrajectoryOptimisationProblem(
-            simulation_setup::NamedBodyMap bodyMap,
-            const std::string bodyToPropagate,
-            const std::string centralBody,
             std::function< Eigen::Vector6d( const double ) > departureStateFunction,
             std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
             std::pair< double, double > departureTimeBounds,
@@ -94,15 +91,6 @@ struct TrajectoryOptimisationProblem
 protected:
 
 private:
-
-    //! Body map.
-    mutable simulation_setup::NamedBodyMap bodyMap_;
-
-    //! Name of the body to be propagated.
-    const std::string bodyToPropagate_;
-
-    //! Name of the central body.
-    const std::string centralBody_;
 
     //! Function returning the state at departure as a function of the departure time.
     std::function< Eigen::Vector6d( const double ) > departureStateFunction_;

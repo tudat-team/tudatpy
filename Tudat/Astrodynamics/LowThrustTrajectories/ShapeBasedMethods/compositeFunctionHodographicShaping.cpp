@@ -20,7 +20,8 @@ namespace shape_based_methods
 {
 
 
-void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients )
+void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients(
+        const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
     if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
@@ -69,19 +70,22 @@ double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCur
 }
 
 
-double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentTime( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentTime(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative( currentTime );
 }
 
 
-double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( currentTime );
 }
 
 
-double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentTime( int componentIndex, double currentTime )
+double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentTime(
+        const int componentIndex, const double currentTime )
 {
     return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral( currentTime );
 }

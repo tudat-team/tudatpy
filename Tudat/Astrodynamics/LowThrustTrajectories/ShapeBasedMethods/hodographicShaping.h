@@ -35,21 +35,17 @@ public:
 
     //! Constructor which sets radial, normal and axial velocity functions and boundary conditions.
     HodographicShaping(
-            const Eigen::Vector6d initialState,
-            const Eigen::Vector6d finalState,
+            const Eigen::Vector6d& initialState,
+            const Eigen::Vector6d& finalState,
             const double timeOfFlight,
+            const double centralBodyGravitationalParameter,
             const int numberOfRevolutions,
-            simulation_setup::NamedBodyMap& bodyMap,
-            const std::string bodyToPropagate,
-            const std::string centralBody,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
-            std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
-            const Eigen::VectorXd freeCoefficientsRadialVelocityFunction,
-            const Eigen::VectorXd freeCoefficientsNormalVelocityFunction,
-            const Eigen::VectorXd freeCoefficientsAxialVelocityFunction,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-                std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) );
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+            const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+            const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
+            const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
+            const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction );
 
     //! Default destructor.
     ~HodographicShaping( ) { }

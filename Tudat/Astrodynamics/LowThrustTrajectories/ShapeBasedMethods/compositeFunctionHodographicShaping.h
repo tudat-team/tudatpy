@@ -27,13 +27,11 @@ class CompositeFunctionHodographicShaping
 public:
 
     //! Constructor.
-    CompositeFunctionHodographicShaping( std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >& compositeFunctionComponents,
-                       Eigen::VectorXd& compositeFunctionCoefficients ){
-
-        compositeFunctionComponents_ = compositeFunctionComponents;
-        compositeFunctionCoefficients_ = compositeFunctionCoefficients;
-
-    }
+    CompositeFunctionHodographicShaping(
+            const std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >& compositeFunctionComponents,
+            const Eigen::VectorXd& compositeFunctionCoefficients ):
+        compositeFunctionComponents_( compositeFunctionComponents ),
+        compositeFunctionCoefficients_( compositeFunctionCoefficients ){ }
 
 
     //! Default destructor.
@@ -55,15 +53,15 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients );
 
     //! Returns number of composite function components.
     /*!
      * Returns number of composite function components.
      */
-    int getNumberOfCompositeFunctionComponents(){
-
-        return compositeFunctionComponents_.size();
+    int getNumberOfCompositeFunctionComponents( )
+    {
+        return compositeFunctionComponents_.size( );
     }
 
     double evaluateCompositeFunctionCurrentTime( const double independentVariable );
@@ -72,11 +70,14 @@ public:
 
     double evaluateCompositeFunctionIntegralCurrentTime( const double independentVariable );
 
-    double getComponentFunctionCurrentValue( int componentIndex, double currentTime );
+    double getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionDerivativeCurrentTime( int componentIndex, double currentTime );
+    double getComponentFunctionDerivativeCurrentTime(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionIntegralCurrentTime( int componentIndex, double currentTime );
+    double getComponentFunctionIntegralCurrentTime(
+        const int componentIndex, const double currentTime );
 
 
 protected:

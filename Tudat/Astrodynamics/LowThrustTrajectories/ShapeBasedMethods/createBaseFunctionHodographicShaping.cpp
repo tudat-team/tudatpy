@@ -22,7 +22,7 @@ namespace shape_based_methods
 //! Function to create a base function for hodographic shaping.
 std::shared_ptr< BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
         const baseFunctionHodographicShapingType baseFunctionType,
-        std::shared_ptr< BaseFunctionHodographicShapingSettings > baseFunctionSettings )
+        const std::shared_ptr< BaseFunctionHodographicShapingSettings > baseFunctionSettings )
 {
 
     // Declare return object.
