@@ -55,11 +55,12 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
         freeCoefficientsAxialVelocityFunction[ i ] = x[ i + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
     }
 
-    HodographicShaping hodographicShaping = HodographicShaping( initialState_, finalState_, timeOfFlight_, numberOfRevolutions_,
-                                                                bodyMap_, bodyToPropagate_, centralBody_, radialVelocityFunctionComponents_,
-                                                                normalVelocityFunctionComponents_, axialVelocityFunctionComponents_,
-                                                                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
-                                                                freeCoefficientsAxialVelocityFunction );
+    HodographicShaping hodographicShaping = HodographicShaping(
+                initialState_, finalState_, timeOfFlight_, centralBodyGravitationalParameter_,
+                 numberOfRevolutions_, radialVelocityFunctionComponents_,
+                normalVelocityFunctionComponents_, axialVelocityFunctionComponents_,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
+                freeCoefficientsAxialVelocityFunction );
 
     std::vector< double > fitnessVector;
     fitnessVector.push_back( hodographicShaping.computeDeltaV( ) );

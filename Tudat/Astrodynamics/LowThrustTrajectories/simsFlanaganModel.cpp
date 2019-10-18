@@ -75,7 +75,9 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
     return thrustAccelerationSettings;
 }
 
-basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerSegment( unsigned int indexSegment )
+basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerSegment(
+        unsigned int indexSegment,
+        const simulation_setup::NamedBodyMap& bodyMapTest )
 {
 
     // Define acceleration settings.
@@ -94,7 +96,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerS
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
 
     return accelerationModelMap;
 
@@ -276,7 +278,8 @@ void SimsFlanaganModel::propagateBackwardFromArrivalToMatchPoint( )
 
 
 //! Propagate the trajectory inside one segment.
-Eigen::Vector6d SimsFlanaganModel::propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
+Eigen::Vector6d SimsFlanaganModel::propagateInsideForwardSegment(
+        double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState )
 {
 
     // Compute time elapsed since start of the current leg segment.

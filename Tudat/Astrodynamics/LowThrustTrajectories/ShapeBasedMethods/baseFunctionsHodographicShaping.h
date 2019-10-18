@@ -56,11 +56,11 @@ public:
      */
     virtual ~BaseFunctionHodographicShaping( ) { }
 
-    virtual double evaluateFunction( double independentVariable ) = 0;
+    virtual double evaluateFunction( const double independentVariable ) = 0;
 
-    virtual double evaluateDerivative( double independentVariable ) = 0;
+    virtual double evaluateDerivative( const double independentVariable ) = 0;
 
-    virtual double evaluateIntegral( double independentVariable ) = 0;
+    virtual double evaluateIntegral( const double independentVariable ) = 0;
 
 protected:
 
@@ -80,17 +80,17 @@ public:
     //! Default destructor.
     ~ConstantFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return 1.0;
     }
 
-    double evaluateDerivative( double independentVariable )
+    double evaluateDerivative( const double independentVariable )
     {
         return 0.0;
     }
 
-    double evaluateIntegral( double independentVariable )
+    double evaluateIntegral( const double independentVariable )
     {
         return independentVariable;
     }
@@ -117,11 +117,11 @@ public:
     ~SineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -146,11 +146,11 @@ public:
     ~CosineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -174,11 +174,11 @@ public:
     //! Default destructor.
     ~ExponentialFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -203,11 +203,11 @@ public:
     //! Default destructor.
     ~ScaledExponentialFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -233,11 +233,11 @@ public:
     ~ExponentialSineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -263,11 +263,11 @@ public:
     //! Default destructor.
     ~ScaledExponentialSineFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -294,11 +294,11 @@ public:
     ~ExponentialCosineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -325,11 +325,11 @@ public:
     //! Default destructor.
     ~ScaledExponentialCosineFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -356,11 +356,11 @@ public:
     ~PowerFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -386,11 +386,11 @@ public:
     //! Default destructor.
     ~ScaledPowerFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -417,11 +417,11 @@ public:
     ~PowerSineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -446,11 +446,11 @@ public:
     //! Default destructor.
     ~ScaledPowerSineFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -478,11 +478,11 @@ public:
     ~PowerCosineFunctionHodographicShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:
@@ -507,11 +507,11 @@ public:
     //! Default destructor.
     ~ScaledPowerCosineFunctionHodographicShaping( ) { }
 
-    double evaluateFunction( double independentVariable );
+    double evaluateFunction( const double independentVariable );
 
-    double evaluateDerivative( double independentVariable );
+    double evaluateDerivative( const double independentVariable );
 
-    double evaluateIntegral( double independentVariable );
+    double evaluateIntegral( const double independentVariable );
 
 
 protected:

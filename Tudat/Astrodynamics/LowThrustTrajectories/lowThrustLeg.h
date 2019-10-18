@@ -43,12 +43,8 @@ public:
      */
     LowThrustLeg( const Eigen::Vector6d& stateAtDeparture,
                   const Eigen::Vector6d& stateAtArrival,
-                  const double timeOfFlight,
-                  simulation_setup::NamedBodyMap& bodyMap,
-                  const std::string bodyToPropagate,
-                  const std::string centralBody ):
-        stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight ),
-        bodyMap_( bodyMap ), bodyToPropagate_( bodyToPropagate ), centralBody_( centralBody )
+                  const double timeOfFlight ):
+        stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight )
     {
         // Retrieve initial mass of the spacecraft.
         initialMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
@@ -170,15 +166,6 @@ protected:
 
     //! Time of flight of the trajectory leg.
     double timeOfFlight_;
-
-    //! Body map object.
-    simulation_setup::NamedBodyMap bodyMap_;
-
-    //! Name of the body to be propagated.
-    std::string bodyToPropagate_;
-
-    //! Name of the central body.
-    std::string centralBody_;
 
     //! Initial mass of the spacecraft.
     double initialMass_;

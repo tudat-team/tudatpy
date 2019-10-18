@@ -36,13 +36,9 @@ public:
             const double maximumThrust,
             const double specificImpulse,
             const double timeOfFlight,
-            simulation_setup::NamedBodyMap& bodyMap,
-            const std::string bodyToPropagate,
-            const std::string centralBody,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings,
             const std::pair< double, double > initialAndFinalMEEcostatesBounds = std::make_pair( - 10.0, 10.0 ) ):
-        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight ),
         maximumThrust_( maximumThrust ),
         specificImpulse_( specificImpulse ),
         integratorSettings_( integratorSettings ),
@@ -92,8 +88,7 @@ public:
 
         // Create Sims-Flanagan leg from the best optimisation individual.
         hybridMethodModel_ = std::make_shared< HybridMethodModel >(
-                    stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_, specificImpulse_, timeOfFlight_,
-                    bodyMap_, bodyToPropagate_, centralBody_, integratorSettings );
+                    stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_, specificImpulse_, timeOfFlight_ );
 
     }
 
@@ -199,9 +194,6 @@ private:
 
     //! Specific impulse.
     double specificImpulse_;
-
-    //! Integrator settings.
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
     //! Optimisation settings.
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings_;

@@ -20,10 +20,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
         const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
         const Eigen::Vector6d& stateAtDeparture,
         const Eigen::Vector6d& stateAtArrival,
-        const double& timeOfFlight,
-        simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody )
+        const double& timeOfFlight )
 {
     // Declare LowThrustLeg object.
     std::shared_ptr< LowThrustLeg > lowThrustLeg;
@@ -37,7 +34,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 
         lowThrustLeg = std::make_shared< shape_based_methods::HodographicShaping >(
                     stateAtDeparture, stateAtArrival, timeOfFlight, hodographicShapingSettings->numberOfRevolutions_,
-                    bodyMap, bodyToPropagate, centralBody, hodographicShapingSettings->radialVelocityFunctionComponents_,
+                    hodographicShapingSettings->radialVelocityFunctionComponents_,
                     hodographicShapingSettings->normalVelocityFunctionComponents_, hodographicShapingSettings->axialVelocityFunctionComponents_,
                     hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_, hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_,
                     hodographicShapingSettings->freeCoefficientsAxialVelocityFunction_ );
@@ -50,7 +47,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 
         lowThrustLeg = std::make_shared< shape_based_methods::SphericalShaping >(
                     stateAtDeparture, stateAtArrival, timeOfFlight, sphericalShapingSettings->numberOfRevolutions_,
-                    bodyMap, bodyToPropagate, centralBody, sphericalShapingSettings->initialValueFreeCoefficient_,
+                    sphericalShapingSettings->initialValueFreeCoefficient_,
                     sphericalShapingSettings->rootFinderSettings_, sphericalShapingSettings->boundsFreeCoefficient_.first,
                     sphericalShapingSettings->boundsFreeCoefficient_.second );
         break;
@@ -63,7 +60,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 
         lowThrustLeg = std::make_shared< low_thrust_trajectories::SimsFlanagan >(
                     stateAtDeparture, stateAtArrival, SimsFlanaganSettings->maximumThrust_, SimsFlanaganSettings->specificImpulseFunction_,
-                    SimsFlanaganSettings->numberSegments_, timeOfFlight, bodyMap, bodyToPropagate, centralBody,
+                    SimsFlanaganSettings->numberSegments_, timeOfFlight,
                     SimsFlanaganSettings->optimisationSettings_ );
 
         break;
@@ -75,7 +72,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 
         lowThrustLeg = std::make_shared< low_thrust_trajectories::HybridMethod >(
                     stateAtDeparture, stateAtArrival, hybridMethodSettings->maximumThrust_, hybridMethodSettings->specificImpulse_,
-                    timeOfFlight, bodyMap, bodyToPropagate, centralBody, hybridMethodSettings->integratorSettings_,
+                    timeOfFlight,
                     hybridMethodSettings->optimisationSettings_, hybridMethodSettings->initialAndFinalMEEcostatesBounds_ );
 
         break;

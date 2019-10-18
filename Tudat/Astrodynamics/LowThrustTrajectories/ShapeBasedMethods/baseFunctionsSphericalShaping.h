@@ -48,13 +48,13 @@ public:
      */
     virtual ~BaseFunctionSphericalShaping( ) { }
 
-    virtual double evaluateFunction( double independentVariable ) = 0;
+    virtual double evaluateFunction( const double independentVariable ) = 0;
 
-    virtual double evaluateFirstDerivative( double independentVariable ) = 0;
+    virtual double evaluateFirstDerivative( const double independentVariable ) = 0;
 
-    virtual double evaluateSecondDerivative( double independentVariable ) = 0;
+    virtual double evaluateSecondDerivative( const double independentVariable ) = 0;
 
-    virtual double evaluateThirdDerivative( double independentVariable ) = 0;
+    virtual double evaluateThirdDerivative( const double independentVariable ) = 0;
 
 protected:
 
@@ -79,22 +79,22 @@ public:
      */
     ~ConstantFunctionSphericalShaping( ) { }
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return 1.0;
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return 0.0;
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return 0.0;
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return 0.0;
     }
@@ -123,22 +123,22 @@ public:
     ~LinearFunctionSphericalShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return independentVariable;
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return 1.0;
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return 0.0;
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return 0.0;
     }
@@ -167,20 +167,20 @@ public:
      */
     ~SquaredFunctionSphericalShaping( ) { }
 
-    double evaluateFunction( double independentVariable ){
+    double evaluateFunction( const double independentVariable ){
         return std::pow( independentVariable, 2.0 );
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return 2.0 * independentVariable;
     }
 
-    double evaluateSecondDerivative( double independentVariable ){
+    double evaluateSecondDerivative( const double independentVariable ){
         return 2.0;
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return 0.0;
     }
@@ -210,22 +210,22 @@ public:
     ~CosineFunctionSphericalShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return std::cos( independentVariable );
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return - std::sin( independentVariable );
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return - std::cos( independentVariable );
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return std::sin( independentVariable );
     }
@@ -254,21 +254,21 @@ public:
     ~PowerCosineFunctionSphericalShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable ){
+    double evaluateFunction( const double independentVariable ){
         return independentVariable * std::cos( independentVariable );
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return std::cos( independentVariable ) - independentVariable * std::sin( independentVariable );
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return - 2.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return - 3.0 * std::cos( independentVariable ) + independentVariable * std::sin( independentVariable );
     }
@@ -297,22 +297,22 @@ public:
     ~SineFunctionSphericalShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return std::sin( independentVariable );
     }
 
-    double evaluateFirstDerivative( double independentVariable )
+    double evaluateFirstDerivative( const double independentVariable )
     {
         return std::cos( independentVariable );
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return - std::sin( independentVariable );
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return - std::cos( independentVariable );
     }
@@ -341,21 +341,21 @@ public:
     ~PowerSineFunctionSphericalShaping( ) { }
 
 
-    double evaluateFunction( double independentVariable )
+    double evaluateFunction( const double independentVariable )
     {
         return independentVariable * std::sin( independentVariable );
     }
 
-    double evaluateFirstDerivative( double independentVariable ){
+    double evaluateFirstDerivative( const double independentVariable ){
         return std::sin( independentVariable ) + independentVariable * std::cos( independentVariable );
     }
 
-    double evaluateSecondDerivative( double independentVariable )
+    double evaluateSecondDerivative( const double independentVariable )
     {
         return 2.0 * std::cos( independentVariable ) - independentVariable * std::sin( independentVariable );
     }
 
-    double evaluateThirdDerivative( double independentVariable )
+    double evaluateThirdDerivative( const double independentVariable )
     {
         return - 3.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
     }

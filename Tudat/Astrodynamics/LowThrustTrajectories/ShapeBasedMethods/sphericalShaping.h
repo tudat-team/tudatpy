@@ -34,19 +34,15 @@ class SphericalShaping : public ShapeBasedMethod
 public:
 
     //! Constructor for spherical shaping.
-    SphericalShaping(Eigen::Vector6d initialState,
-                     Eigen::Vector6d finalState,
-                     double requiredTimeOfFlight,
-                     int numberOfRevolutions,
-                     simulation_setup::NamedBodyMap& bodyMap,
-                     const std::string bodyToPropagate,
-                     const std::string centralBody,
-                     double initialValueFreeCoefficient,
-                     std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
-                     const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                     const double upperBoundFreeCoefficient = TUDAT_NAN,
-                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings
-                        = std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) );
+    SphericalShaping( const Eigen::Vector6d& initialState,
+                      const Eigen::Vector6d& finalState,
+                      const double requiredTimeOfFlight,
+                      const double centralBodyGravitationalParameter,
+                      const int numberOfRevolutions,
+                      const double initialValueFreeCoefficient,
+                      const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+                      const double lowerBoundFreeCoefficient = TUDAT_NAN,
+                      const double upperBoundFreeCoefficient = TUDAT_NAN );
 
     //! Default destructor.
     ~SphericalShaping( ) { }
@@ -223,6 +219,8 @@ protected:
     protected:
 
     private:
+        double centralBodyGravitationalParameter_;
+
         std::function< void ( const double ) > resetFreeCoefficientFunction_;
         std::function< void ( ) > satisfyBoundaryConditionsFunction_;
         std::function< double ( ) >  computeTimeOfFlightFunction_;

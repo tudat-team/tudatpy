@@ -59,7 +59,7 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients );
 
 
 
@@ -71,13 +71,17 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue( int componentIndex, double currentTime );
+    double getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionFirstDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionSecondDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionThirdDerivative(
+        const int componentIndex, const double currentTime );
 
 
 protected:
@@ -135,7 +139,8 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients(
+            const Eigen::VectorXd& compositeFunctionCoefficients );
 
     double evaluateCompositeFunction( const double independentVariable );
 
@@ -145,13 +150,17 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue( int componentIndex, double currentTime );
+    double getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionFirstDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionSecondDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionThirdDerivative(
+        const int componentIndex, const double currentTime );
 
 
 protected:
@@ -207,7 +216,8 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients( Eigen::VectorXd compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients(
+            const Eigen::VectorXd& compositeFunctionCoefficients );
 
     double evaluateCompositeFunction( const double independentVariable );
 
@@ -217,13 +227,17 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue( int componentIndex, double currentTime );
+    double getComponentFunctionCurrentValue(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionFirstDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionSecondDerivative(
+        const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative( int componentIndex, double currentTime );
+    double getComponentFunctionThirdDerivative(
+        const int componentIndex, const double currentTime );
 
 
 protected:

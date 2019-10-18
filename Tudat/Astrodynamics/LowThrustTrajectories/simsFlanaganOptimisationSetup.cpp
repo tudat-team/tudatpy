@@ -23,7 +23,6 @@ SimsFlanaganProblem::SimsFlanaganProblem(
         const std::function< double ( const double ) > specificImpulseFunction,
         const int numberSegments,
         const double timeOfFlight,
-        simulation_setup::NamedBodyMap bodyMap,
         const std::string bodyToPropagate,
         const std::string centralBody,
         const std::pair< std::vector< double >, double > initialGuessThrustModel,
@@ -34,13 +33,12 @@ SimsFlanaganProblem::SimsFlanaganProblem(
     specificImpulseFunction_( specificImpulseFunction ),
     numberSegments_( numberSegments ),
     timeOfFlight_( timeOfFlight ),
-    bodyMap_( bodyMap ),
     bodyToPropagate_( bodyToPropagate ),
     centralBody_( centralBody ),
     initialGuessThrustModel_( initialGuessThrustModel ),
     relativeToleranceConstraints_( relativeToleranceConstraints )
 {
-    initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+    initialSpacecraftMass_ =
 
     // Retrieve initial guess.
     initialGuessThrottles_ = initialGuessThrustModel_.first;
@@ -129,10 +127,9 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
 }
 
 //! Fitness function.
-std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > &designVariables ) const{
+std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > &designVariables ) const
+{
 
-    // Re-initialise mass of the spacecraft.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
     // Transform vector of design variables into 3D vector of throttles.
     std::vector< Eigen::Vector3d > throttles;
@@ -153,15 +150,8 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     std::vector< double > fitness;
 
     // Create Sims Flanagan trajectory leg.
-    low_thrust_trajectories::SimsFlanaganModel currentLeg = low_thrust_trajectories::SimsFlanaganModel( stateAtDeparture_,
-                                                                                                        stateAtArrival_,
-                                                                                                        maximumThrust_,
-                                                                                                        specificImpulseFunction_,
-                                                                                                        timeOfFlight_,
-                                                                                                        bodyMap_,
-                                                                                                        throttles,
-                                                                                                        bodyToPropagate_,
-                                                                                                        centralBody_ );
+    low_thrust_trajectories::SimsFlanaganModel currentLeg = low_thrust_trajectories::SimsFlanaganModel(
+                stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, timeOfFlight_, throttles );
 
     // Forward propagation from departure to match point.
     currentLeg.propagateForwardFromDepartureToMatchPoint();

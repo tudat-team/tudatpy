@@ -158,7 +158,7 @@ public:
 //! Function to create a base function for hodographic shaping.
 std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
         const shape_based_methods::baseFunctionHodographicShapingType baseFunctionType,
-        std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > baseFunctionSettings );
+        const std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > baseFunctionSettings );
 
 
 } // namespace shape_based_methods

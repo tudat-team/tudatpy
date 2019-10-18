@@ -22,19 +22,17 @@ namespace shape_based_methods
 
 
 //! Constructur for spherical shaping.
-SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
-                                    Eigen::Vector6d finalState,
-                                    double requiredTimeOfFlight,
-                                    int numberOfRevolutions,
-                                    simulation_setup::NamedBodyMap& bodyMap,
-                                    const std::string bodyToPropagate,
-                                    const std::string centralBody,
-                                    double initialValueFreeCoefficient,
-                                    std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
+SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
+                                    const Eigen::Vector6d& finalState,
+                                    const double requiredTimeOfFlight,
+                                    const double centralBodyGravitationalParameter,
+                                    const int numberOfRevolutions,
+                                    const double initialValueFreeCoefficient,
+                                    const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient,
-                                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ):
-    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings ),
+                                    const double upperBoundFreeCoefficient ):
+    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight ),
+    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     rootFinderSettings_( rootFinderSettings ),
@@ -42,9 +40,6 @@ SphericalShaping::SphericalShaping( Eigen::Vector6d initialState,
     upperBoundFreeCoefficient_( upperBoundFreeCoefficient ),
     integratorSettings_( integratorSettings )
 {
-    // Retrieve gravitational parameter of the central body.
-    double centralBodyGravitationalParameter = bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter( );
-
     // Normalize the initial state.
     stateAtDeparture_.segment( 0, 3 ) = initialState.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
     stateAtDeparture_.segment( 3, 3 ) = initialState.segment( 3, 3 ) * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;

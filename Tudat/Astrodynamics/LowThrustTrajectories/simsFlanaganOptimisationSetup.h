@@ -46,10 +46,7 @@ struct SimsFlanaganProblem
                          const std::function< double ( const double ) > specificImpulseFunction,
                          const int numberSegments,
                          const double timeOfFlight,
-                         simulation_setup::NamedBodyMap bodyMap,
-                         const std::string bodyToPropagate,
-                         const std::string centralBody,
-                         const std::pair< std::vector< double>, double > initialGuessThrustModel,
+                         const std::pair< std::vector< double >, double > initialGuessThrustModel,
                          const double relativeToleranceConstraints = 1.0e-6 );
 
     //! Calculate the fitness as a function of the parameter vector x
@@ -99,15 +96,6 @@ private:
 
     //! Time of flight for the leg.
     double timeOfFlight_;
-
-    //! Body map.
-    mutable simulation_setup::NamedBodyMap bodyMap_;
-
-    //! Name of the body to be propagated.
-    const std::string bodyToPropagate_;
-
-    //! Name of the central body.
-    const std::string centralBody_;
 
     //! Initial spacecraft mass.
     double initialSpacecraftMass_;

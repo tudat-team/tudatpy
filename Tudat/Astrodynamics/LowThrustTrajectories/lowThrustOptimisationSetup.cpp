@@ -16,17 +16,11 @@ namespace low_thrust_trajectories
 {
 
 TrajectoryOptimisationProblem::TrajectoryOptimisationProblem(
-        simulation_setup::NamedBodyMap bodyMap,
-        const std::string bodyToPropagate,
-        const std::string centralBody,
         std::function< Eigen::Vector6d( const double ) > departureStateFunction,
         std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
         std::pair< double, double > departureTimeBounds,
         std::pair< double, double > timeOfFlightBounds,
         const std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings >& lowThrustLegSettings ) :
-    bodyMap_( bodyMap ),
-    bodyToPropagate_( bodyToPropagate ),
-    centralBody_( centralBody ),
     departureStateFunction_( departureStateFunction ),
     arrivalStateFunction_( arrivalStateFunction ),
     departureTimeBounds_( departureTimeBounds ),
@@ -71,9 +65,8 @@ std::vector< double > TrajectoryOptimisationProblem::fitness( const std::vector<
     Eigen::Vector6d stateAtDeparture = departureStateFunction_( departureTime );
     Eigen::Vector6d stateAtArrival = arrivalStateFunction_( departureTime + timeOfFlight );
 
-    std::shared_ptr< LowThrustLeg > lowThrustLeg = createLowThrustLeg( lowThrustLegSettings_, stateAtDeparture, stateAtArrival,
-                                                                       timeOfFlight, bodyMap_, bodyToPropagate_, centralBody_ );
-
+    std::shared_ptr< LowThrustLeg > lowThrustLeg = createLowThrustLeg(
+                lowThrustLegSettings_, stateAtDeparture, stateAtArrival, timeOfFlight );
 
     fitness.push_back( lowThrustLeg->computeDeltaV( ) );
 

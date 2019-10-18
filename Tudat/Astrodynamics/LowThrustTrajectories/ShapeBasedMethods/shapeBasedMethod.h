@@ -37,12 +37,9 @@ public:
     ShapeBasedMethod( const Eigen::Vector6d& stateAtDeparture,
                       const Eigen::Vector6d& stateAtArrival,
                       const double timeOfFlight,
-                      simulation_setup::NamedBodyMap& bodyMap,
-                      const std::string bodyToPropagate,
-                      const std::string centralBody,
                       std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings
                          = std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) ) :
-    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
+    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight ),
     integratorSettings_( integratorSettings ){ }
 
     //! Default destructor.
@@ -72,6 +69,7 @@ public:
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
+            const simulation_setup::NamedBodyMap& bodyMapTest,
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
