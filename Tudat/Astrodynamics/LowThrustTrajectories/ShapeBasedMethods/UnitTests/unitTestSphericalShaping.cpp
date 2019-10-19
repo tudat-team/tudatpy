@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
 
     int numberOfRevolutions = 1;
     double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
-    double  timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
+    double timeOfFlight = 580.0 * physical_constants::JULIAN_DAY;
 
     // Ephemeris departure body.
     EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
