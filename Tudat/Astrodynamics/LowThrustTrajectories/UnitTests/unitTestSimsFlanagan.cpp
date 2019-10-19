@@ -25,10 +25,6 @@
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganModel.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
-#include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "pagmo/algorithms/de1220.hpp"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 
@@ -40,82 +36,37 @@ namespace unit_tests
 //! Test Sims Flanagan implementation.
 BOOST_AUTO_TEST_SUITE( test_Sims_Flanagan )
 
+using namespace low_thrust_trajectories;
+using namespace simulation_setup;
+using namespace numerical_integrators;
+using namespace propagators;
 
 //! Limit case: if the maximum thrust is set to 0, the Sims Flanagan trajectory should be a keplerian one.
 BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_limit_case )
 {
-    using namespace low_thrust_trajectories;
+
 
     spice_interface::loadStandardSpiceKernels( );
 
     double maximumThrust = 0.0;
     double specificImpulse = 3000.0;
+    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
+    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
     double mass = 1800.0;
     int numberSegments = 10;
 
     // Define (constant) specific impulse function.
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return specificImpulse;
-    };
-
-    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
-    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
-
-    std::string bodyToPropagate = "Vehicle";
-    std::string centralBody = "Sun";
-
-    // Create central, departure and arrival bodies.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Sun" );
-
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "ECLIPJ2000";
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ){ return specificImpulse; };
 
 
-    // Define central body ephemeris settings.
-    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-    // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-
-    // Ephemeris departure body.
-    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-    // Ephemeris arrival body.
-    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
     // Define state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
-
-    // Define integrator settings.
-    double stepSize = timeOfFlight / 500.0;
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
-
 
     // Define thrust throttles.
     std::vector< Eigen::Vector3d > throttles;
@@ -124,11 +75,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_limit_case )
         throttles.push_back( ( Eigen::Vector3d( ) << 0.3, 0.3, 0.3 ).finished( ) );
     }
 
-
-    // Re-initialise mass of the spacecraft in the body map.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-    double centralBodyGravitationalParameter = bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter();
-
+    // Create Sims Flanagan object
+    double centralBodyGravitationalParameter = spice_interface::getBodyGravitationalParameter( "Sun" );
     SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel(
                 stateAtDeparture, stateAtArrival, spice_interface::getBodyGravitationalParameter( "Sun" ),
                 mass, maximumThrust, specificImpulseFunction, timeOfFlight, throttles );
@@ -138,15 +86,16 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_limit_case )
     Eigen::Vector6d simsFlanaganForwardPropagation = simsFlanaganModel.getStateAtMatchPointForwardPropagation( );
     Eigen::Vector6d keplerianForwardPropagation = orbital_element_conversions::convertKeplerianToCartesianElements(
                 orbital_element_conversions::propagateKeplerOrbit(
-               orbital_element_conversions::convertCartesianToKeplerianElements( stateAtDeparture, centralBodyGravitationalParameter),
-                timeOfFlight / 2.0, centralBodyGravitationalParameter ), centralBodyGravitationalParameter );
+                    orbital_element_conversions::convertCartesianToKeplerianElements( stateAtDeparture, centralBodyGravitationalParameter),
+                    timeOfFlight / 2.0, centralBodyGravitationalParameter ), centralBodyGravitationalParameter );
 
     simsFlanaganModel.propagateBackwardFromArrivalToMatchPoint( );
+
     Eigen::Vector6d simsFlanaganBackwardPropagation = simsFlanaganModel.getStateAtMatchPointBackwardPropagation( );
     Eigen::Vector6d keplerianBackwardPropagation =  orbital_element_conversions::convertKeplerianToCartesianElements(
                 orbital_element_conversions::propagateKeplerOrbit(
-               orbital_element_conversions::convertCartesianToKeplerianElements( stateAtArrival, centralBodyGravitationalParameter),
-                - timeOfFlight / 2.0, centralBodyGravitationalParameter ), centralBodyGravitationalParameter );
+                    orbital_element_conversions::convertCartesianToKeplerianElements( stateAtArrival, centralBodyGravitationalParameter),
+                    - timeOfFlight / 2.0, centralBodyGravitationalParameter ), centralBodyGravitationalParameter );
 
     // Check consistency between Sims-Flanagan and keplerian propagation when the thrust is set to 0, as a limit case.
     for ( int i = 0 ; i < 3 ; i++ )
@@ -162,78 +111,27 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_limit_case )
 //! Test if the propagation per segment is equivalent to the total Sims-Flanagan propagation.
 BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 {
-    using namespace low_thrust_trajectories;
+
 
     spice_interface::loadStandardSpiceKernels( );
 
-    double maximumThrust = 0.0;
+    double maximumThrust = 0.8;
     double specificImpulse = 3000.0;
+    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
+    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
     double mass = 1800.0;
     int numberSegments = 10;
 
     // Define (constant) specific impulse function.
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return specificImpulse;
-    };
-
-    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
-    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
-
-    std::string bodyToPropagate = "Vehicle";
-    std::string centralBody = "Sun";
-
-    // Create central, departure and arrival bodies.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Sun" );
-
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "ECLIPJ2000";
-
-
-    // Define central body ephemeris settings.
-    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-    // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-
-    // Ephemeris departure body.
-    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-    // Ephemeris arrival body.
-    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ){ return specificImpulse; };
 
     // Define state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
-
-    // Define integrator settings.
-    double stepSize = timeOfFlight / 500.0;
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
-
 
     // Define thrust throttles.
     std::vector< Eigen::Vector3d > throttles;
@@ -242,12 +140,11 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
         throttles.push_back( ( Eigen::Vector3d( ) << 0.3, 0.3, 0.3 ).finished( ) );
     }
 
-    maximumThrust = 0.8;
+    // Create Sims Flanagan object
+    double centralBodyGravitationalParameter = spice_interface::getBodyGravitationalParameter( "Sun" );
     SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel(
-                stateAtDeparture, stateAtArrival, spice_interface::getBodyGravitationalParameter( "Sun" ),
+                stateAtDeparture, stateAtArrival, centralBodyGravitationalParameter,
                 mass, maximumThrust, specificImpulseFunction, timeOfFlight, throttles );
-
-
     simsFlanaganModel.propagateForwardFromDepartureToMatchPoint( );
     simsFlanaganModel.propagateBackwardFromArrivalToMatchPoint( );
 
@@ -293,7 +190,6 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
     {
         BOOST_CHECK_SMALL( std::fabs( currentState[ i ] - simsFlanaganModel.getStateAtMatchPointBackwardPropagation( )[ i ] ), 1.0e-15 );
     }
-
 }
 
 
@@ -301,17 +197,16 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_implementation )
 //! Validation of the Sims-Flanagan implementation w.r.t. Pykep.
 BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 {
-    using namespace low_thrust_trajectories;
+
 
     spice_interface::loadStandardSpiceKernels( );
 
     double maximumThrust = 5.0;
     double specificImpulse = 3000.0;
-    double mass = 2800.0;
-    int numberSegments = 20;
-
     double julianDate = 9264.5 * physical_constants::JULIAN_DAY;
     double timeOfFlight = 1000.0 * physical_constants::JULIAN_DAY;
+    double mass = 2800.0;
+    int numberSegments = 20;
 
     int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
     int numberSegmentsBackwardPropagation = numberSegments / 2;
@@ -319,58 +214,13 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
     double segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
 
     // Define (constant) specific impulse function.
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-    {
-        return specificImpulse;
-    };
-
-
-    std::string bodyToPropagate = "Vehicle";
-    std::string centralBody = "Sun";
-
-    // Create central, departure and arrival bodies.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Sun" );
-
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "ECLIPJ2000";
-
-
-    // Define central body ephemeris settings.
-    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-    // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-
-    // Ephemeris departure body.
-    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-    // Ephemeris arrival body.
-    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ){  return specificImpulse;  };
 
     // Define state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
     Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
 
@@ -398,12 +248,33 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
     throttles.push_back( ( Eigen::Vector3d( ) << - 0.00919225262002618, 0.0193918543593832, 0.000488305970394490 ).finished( ) );
     throttles.push_back( ( Eigen::Vector3d( ) << - 0.0132219818258071, 0.00882700237255760, 0.00460039760472474 ).finished( ) );
 
+    // Create sims flanagan object
+    double centralBodyGravitionalParameter = spice_interface::getBodyGravitationalParameter( "Sun" );
+    SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel(
+                stateAtDeparture, stateAtArrival, centralBodyGravitionalParameter, mass,
+                maximumThrust, specificImpulseFunction, timeOfFlight, throttles );
+
+    // Compute time at each of the trajectory nodes.
+    std::vector< double > timesAtNodes;
+    for ( int i = 1 ; i <= numberSegmentsForwardPropagation ; i++ )
+    {
+        timesAtNodes.push_back( i * segmentDurationForwardPropagation );
+    }
+    for ( int i = 1 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        timesAtNodes.push_back( timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
+    }
+
+    // Retrieve trajectory history
+    std::map< double, Eigen::Vector6d > simsFlanaganTrajectory;
+    simsFlanaganModel.propagateTrajectory( timesAtNodes, simsFlanaganTrajectory );
 
     // Expected value for the spacecraft mass at the Sims-Flanagan nodes (from Pykep).
-    std::vector< double > expectedMassesAtNodes = { 2776.2969549424233, 2745.1123152911364, 2678.420656242383, 2557.4910155457815, 2379.739411828715,
-                                                    2156.689164020016, 1909.379054895334, 1661.2975125972175, 1431.9008589844336, 1233.184537707585,
-                                                    1069.592792583044, 939.9855510907765, 840.1487300900216, 764.8194149185431, 708.840224065782,
-                                                    667.6603951232578, 637.615332355369, 615.9793835860186, 600.4192020709157 };
+    std::vector< double > expectedMassesAtNodes =
+    { 2776.2969549424233, 2745.1123152911364, 2678.420656242383, 2557.4910155457815, 2379.739411828715,
+      2156.689164020016, 1909.379054895334, 1661.2975125972175, 1431.9008589844336, 1233.184537707585,
+      1069.592792583044, 939.9855510907765, 840.1487300900216, 764.8194149185431, 708.840224065782,
+      667.6603951232578, 637.615332355369, 615.9793835860186, 600.4192020709157 };
 
     // Expected position vector at the Sims-Flanagan nodes (from Pykep).
     std::vector< Eigen::Vector3d > expectedPositionsAtNodes = {
@@ -450,31 +321,11 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
         ( Eigen::Vector3d( ) << 21828.356239730165, 14767.931720355062, - 370.40551754476553 ).finished( ) };
 
 
-    SimsFlanaganModel simsFlanaganModel = SimsFlanaganModel(
-                stateAtDeparture, stateAtArrival, spice_interface::getBodyGravitationalParameter( "Sun" ), mass,
-                maximumThrust, specificImpulseFunction, timeOfFlight, throttles );
-
-    // Compute time at each of the trajectory nodes.
-    std::vector< double > timesAtNodes;
-    for ( int i = 1 ; i <= numberSegmentsForwardPropagation ; i++ )
-    {
-        timesAtNodes.push_back( i * segmentDurationForwardPropagation );
-    }
-    for ( int i = 1 ; i < numberSegmentsBackwardPropagation ; i++ )
-    {
-        timesAtNodes.push_back( timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
-    }
-
-
-    std::map< double, Eigen::Vector6d > SimsFlanaganTrajectory;
-    simsFlanaganModel.propagateTrajectory( timesAtNodes, SimsFlanaganTrajectory );
-
-
     // Check consistency w.r.t. pykep for forward propagation.
     for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
     {
-        Eigen::Vector3d calculatedPosition = SimsFlanaganTrajectory[ timesAtNodes[ i ] ].segment( 0, 3 );
-        Eigen::Vector3d calculatedVelocity = SimsFlanaganTrajectory[ timesAtNodes[ i ] ].segment( 3, 3 );
+        Eigen::Vector3d calculatedPosition = simsFlanaganTrajectory[ timesAtNodes[ i ] ].segment( 0, 3 );
+        Eigen::Vector3d calculatedVelocity = simsFlanaganTrajectory[ timesAtNodes[ i ] ].segment( 3, 3 );
         Eigen::Vector3d expectedPosition = expectedPositionsAtNodes[ i ];
         Eigen::Vector3d expectedVelocity = expectedVelocitiesAtNodes[ i ];
 
@@ -490,8 +341,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
     // Check consistency w.r.t. pykep for backward propagation.
     for ( int i = 1 ; i < numberSegmentsBackwardPropagation ; i++ )
     {
-        Eigen::Vector3d calculatedPosition = SimsFlanaganTrajectory[ timesAtNodes[ i - 1 + numberSegmentsForwardPropagation ] ].segment( 0, 3 );
-        Eigen::Vector3d calculatedVelocity = SimsFlanaganTrajectory[ timesAtNodes[ i - 1 + numberSegmentsForwardPropagation ] ].segment( 3, 3 );
+        Eigen::Vector3d calculatedPosition = simsFlanaganTrajectory[ timesAtNodes[ i - 1 + numberSegmentsForwardPropagation ] ].segment( 0, 3 );
+        Eigen::Vector3d calculatedVelocity = simsFlanaganTrajectory[ timesAtNodes[ i - 1 + numberSegmentsForwardPropagation ] ].segment( 3, 3 );
         Eigen::Vector3d expectedPosition = expectedPositionsAtNodes[ i + numberSegmentsForwardPropagation - 1 ];
         Eigen::Vector3d expectedVelocity = expectedVelocitiesAtNodes[ i + numberSegmentsForwardPropagation - 1 ];
 
@@ -506,301 +357,292 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 }
 
-
-
-////! Test Sims-Flanagan implementation by comparing it with trajectory obtained with successive impulsive shots applied at times corresponding to
-////! half of each of the Sims-Flanagan segments.
-//BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
-//{
-//    using namespace low_thrust_trajectories;
-
-//    spice_interface::loadStandardSpiceKernels( );
-
-//    double maximumThrust = 0.8;
-//    double specificImpulse = 3000.0;
-//    double mass = 1800.0;
-//    int numberSegments = 10;
-//    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
-//    int numberSegmentsBackwardPropagation = numberSegments / 2;
-
-//    // Define (constant) specific impulse function.
-//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-//    {
-//        return specificImpulse;
-//    };
-
-//    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
-//    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
-
-//    std::string bodyToPropagate = "Vehicle";
-//    std::string centralBody = "Sun";
-
-
-//    // Create central, departure and arrival bodies.
-//    std::vector< std::string > bodiesToCreate;
-//    bodiesToCreate.push_back( "Sun" );
-
-//    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-//            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
-//    std::string frameOrigin = "SSB";
-//    std::string frameOrientation = "ECLIPJ2000";
-
-
-//    // Define central body ephemeris settings.
-//    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-//                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-//    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-//    bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-//    // Create body map.
-//    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-//    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-//    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-//                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-//                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-//    bodyMap.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
-
-
-//    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-//    // Set vehicle mass.
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-
-//    // Ephemeris departure body.
-//    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-//    // Ephemeris arrival body.
-//    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
-
-//    // Define state at departure and arrival.
-//    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
-//    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
-
-//    // Define integrator settings.
-//    double stepSize = ( timeOfFlight ) / static_cast< double >( 500 );
-//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-//            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
-
-
-
-//    // Define optimisation algorithm.
-//    algorithm optimisationAlgorithm{ pagmo::de1220() };
-
-//    std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings =
-//            std::make_shared< simulation_setup::OptimisationSettings >( optimisationAlgorithm, 1, 10 );
-
-//    SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
-//                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationSettings );
-
-//    std::vector< double > fitnessVector = simsFlanagan.getBestIndividualFitness( );
-//    std::vector< double > bestIndividual = simsFlanagan.getBestIndividual( );
-
-//    std::vector< Eigen::Vector3d > bestThrottles;
-//    for ( int i = 0 ; i < numberSegments ; i++ )
-//    {
-//        bestThrottles.push_back( ( Eigen::Vector3d( ) << bestIndividual[ i * 3 ], bestIndividual[ i * 3 + 1 ],
-//                bestIndividual[ i * 3 + 2 ] ).finished( ) );
-//    }
-
-
-//    // Compute state at half of the time of flight.
-//    simsFlanagan.getOptimalSimsFlanaganModel( )->propagateBackwardFromArrivalToMatchPoint( );
-//    Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation = simsFlanagan.getOptimalSimsFlanaganModel( )->getStateAtMatchPointBackwardPropagation( );
-
-//    // Compute mass at half of the time of flight.
-//    double massAtTimeOfFlight = simsFlanagan.getOptimalSimsFlanaganModel( )->getMassAtSegment( numberSegments );
-
-//    // Compute segment duration for the forward and backward propagations.
-//    int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
-//    int segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
-
-//    // Compute time at each node of the Sims-Flanagan trajectory.
-//    std::vector< double > timesAtNodes;
-//    for ( int i = 1 ; i <= numberSegmentsForwardPropagation ; i++ )
-//    {
-//        timesAtNodes.push_back( i * segmentDurationForwardPropagation );
-//    }
-//    for ( int i = 1 ; i <= numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        timesAtNodes.push_back( timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
-//    }
-
-
-//    // Retrieve the spacecraft trajectory at the Sims-Flanagan nodes.
-//    std::map< double, Eigen::Vector6d > SimsFlanaganTrajectory;
-//    simsFlanagan.getTrajectory( timesAtNodes, SimsFlanaganTrajectory );
-
-
-//    //! Propagate the trajectory using pseudo impulsive-shots.
-
-//    // Compute times at half of each segment.
-//    std::vector< double > thrustMidTimes;
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        thrustMidTimes.push_back( segmentDurationForwardPropagation / 2.0 + i * segmentDurationForwardPropagation );
-//    }
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        thrustMidTimes.push_back( segmentDurationBackwardPropagation / 2.0 + timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
-//    }
-
-
-//    // Compute deltaVs.
-//    double totalManeuverTime = 900.0;
-//    double maneuverRiseTime = 150.0;
-//    double currentMass = mass;
-//    std::vector< Eigen::Vector3d > deltaVs;
-
-//    // Compute deltaVs for the forward propagation subleg.
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i ] * segmentDurationForwardPropagation / currentMass;
-//        deltaVs.push_back( currentDeltaVvector );
-
-//        // Update mass.
-//        currentMass *= std::exp( - currentDeltaVvector.norm() /
-//                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
-//    }
-//    // Compute deltaVs for the backward propagation subleg.
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i + numberSegmentsForwardPropagation ] *
-//                segmentDurationBackwardPropagation / currentMass;
-//        deltaVs.push_back( currentDeltaVvector );
-
-//        // Update mass.
-//        currentMass *= std::exp( - currentDeltaVvector.norm() /
-//                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
-//    }
-
-
-//    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-//    bodyToPropagateAccelerations[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-//                                                                basic_astrodynamics::central_gravity ) );
-//    bodyToPropagateAccelerations[ bodyToPropagate ].push_back( std::make_shared< simulation_setup::MomentumWheelDesaturationAccelerationSettings >(
-//                                                                   thrustMidTimes, deltaVs, totalManeuverTime, maneuverRiseTime ) );
-
-//    simulation_setup::SelectedAccelerationMap accelerationMap;
-//    accelerationMap[ bodyToPropagate ] = bodyToPropagateAccelerations;
-
-//    // Create the acceleration map.
-//    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate },
-//                std::vector< std::string >{ centralBody } );
-
-
-//    // FORWARD PROPAGATION.
-
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
-
-//    // Create termination conditions settings.
-//    std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings
-//            = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight / 2.0, true );
-
-//    //  Create propagator settings.
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsImpulsiveDeltaV =
-//            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-//                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
-//                stateAtDeparture, terminationSettings, propagators::cowell );
-
-//    integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ / 5000.0 );
-//    integratorSettings->initialTime_ = 0.0;
-
-//    Eigen::Vector6d currentState = stateAtDeparture;
-
-//    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
-//    {
-//        integratorSettings->initialTime_ = i * segmentDurationForwardPropagation;
-//        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >(
-//                    ( i + 1 ) * segmentDurationForwardPropagation, true );
-//        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
-//        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
-
-//        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
-
-//        currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().rbegin( )->second;
-
-
-//        Eigen::Vector6d currentStateSimsFlanagan = SimsFlanaganTrajectory[ ( i + 1 ) * segmentDurationForwardPropagation ];
-//        Eigen::Vector6d currentStateImpulsiveShots = currentState;
-
-//        // Check consistency between Sims-Flanagan trajectory and pseudo-impulsive shots trajectory.
-//        for ( int i = 0 ; i < 3 ; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i ] - currentStateImpulsiveShots[ i ] ) / currentStateImpulsiveShots.segment( 0,3 ).norm( ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i + 3 ] - currentStateImpulsiveShots[ i + 3 ] ) / currentStateImpulsiveShots.segment( 3,3 ).norm( ), 1.0e-6 );
-//        }
-
-//    }
-
-
-//    // BACKWARD PROPAGATION.
-
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtTimeOfFlight );
-
-//    // Create termination conditions settings.
-//    terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight / 2.0, true );
-
-//    //  Create propagator settings.
-//    propagatorSettingsImpulsiveDeltaV = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-//                std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
-//                stateAtArrival, terminationSettings, propagators::cowell );
-
-//    integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ );
-//    integratorSettings->initialTime_ = timeOfFlight;
-
-//    currentState = stateAtArrival;
-
-//    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
-//    {
-//        integratorSettings->initialTime_ = timeOfFlight - i * segmentDurationBackwardPropagation;
-//        terminationSettings = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight - ( i + 1 ) * segmentDurationBackwardPropagation, true );
-//        propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
-//        propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
-
-//        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
-
-//        currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().begin()->second;
-
-
-
-//        Eigen::Vector6d currentStateImpulsiveShots = dynamicsSimulator.getEquationsOfMotionNumericalSolution().begin()->second;
-//        Eigen::Vector6d currentStateSimsFlanagan;
-//        if ( i < numberSegmentsBackwardPropagation - 1 )
-//        {
-//            currentStateSimsFlanagan = SimsFlanaganTrajectory[ timeOfFlight - ( i + 1 ) * segmentDurationBackwardPropagation ];
-//        }
-//        else
-//        {
-//            currentStateSimsFlanagan = stateAtHalfTimeOfFlightBackwardPropagation;
-//        }
-
-//        // Check consistency between Sims-Flanagan trajectory and pseudo-impulsive shots trajectory.
-//        for ( int i = 0 ; i < 3 ; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i ] - currentStateImpulsiveShots[ i ] ) / currentStateImpulsiveShots.segment( 0,3 ).norm( ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i + 3 ] - currentStateImpulsiveShots[ i + 3 ] ) / currentStateImpulsiveShots.segment( 3,3 ).norm( ), 1.0e-6 );
-//        }
-//    }
-
-//}
+NamedBodyMap getTestBodyMap( )
+{
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                               std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                               < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+    bodyMap.at( "Vehicle" )->setSuppressDependentOrientationCalculatorWarning( true );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+    return bodyMap;
+}
+
+//! Test Sims-Flanagan implementation by comparing it with trajectory obtained with successive impulsive shots applied at times corresponding to
+//! half of each of the Sims-Flanagan segments.
+BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    double maximumThrust = 0.8;
+    double specificImpulse = 3000.0;
+    double julianDate = 1000.0 * physical_constants::JULIAN_DAY;
+    double timeOfFlight = 700.0 * physical_constants::JULIAN_DAY;
+    double vehicleInitialMass = 1800.0;
+    int numberSegments = 10;
+    int numberSegmentsForwardPropagation = ( numberSegments + 1 ) / 2;
+    int numberSegmentsBackwardPropagation = numberSegments / 2;
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ){ return specificImpulse; };
+
+    // Compute segment duration for the forward and backward propagations.
+    int segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
+    int segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
+
+    // Define state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight );
+
+    //! Create Sims-Flanagan trajectory
+    std::map< double, Eigen::Vector6d > simsFlanaganTrajectory;
+    std::vector< Eigen::Vector3d > bestThrottles;
+    double massAtTimeOfFlight;
+    Eigen::Vector6d stateAtHalfTimeOfFlightBackwardPropagation;
+    {
+        // Define optimisation algorithm.
+        algorithm optimisationAlgorithm{ pagmo::de1220() };
+        std::shared_ptr< OptimisationSettings > optimisationSettings =
+                std::make_shared< OptimisationSettings >( optimisationAlgorithm, 1, 10 );
+
+        // Create sims-flanagan object
+        double centralBodyGravitionalParameter = spice_interface::getBodyGravitationalParameter( "Sun" );
+        SimsFlanagan simsFlanagan = SimsFlanagan(
+                    stateAtDeparture, stateAtArrival, centralBodyGravitionalParameter, vehicleInitialMass, maximumThrust,
+                    specificImpulseFunction, numberSegments, timeOfFlight, optimisationSettings );
+
+        // Retrieve trajectory matched at mid-point
+        std::vector< double > fitnessVector = simsFlanagan.getBestIndividualFitness( );
+        std::vector< double > bestIndividual = simsFlanagan.getBestIndividual( );
+        for ( int i = 0 ; i < numberSegments ; i++ )
+        {
+            bestThrottles.push_back( ( Eigen::Vector3d( ) << bestIndividual[ i * 3 ], bestIndividual[ i * 3 + 1 ],
+                    bestIndividual[ i * 3 + 2 ] ).finished( ) );
+        }
+
+        // Compute state and mass at half of the time of flight.
+        simsFlanagan.getOptimalSimsFlanaganModel( )->propagateBackwardFromArrivalToMatchPoint( );
+        stateAtHalfTimeOfFlightBackwardPropagation =
+                simsFlanagan.getOptimalSimsFlanaganModel( )->getStateAtMatchPointBackwardPropagation( );
+        massAtTimeOfFlight = simsFlanagan.getOptimalSimsFlanaganModel( )->getMassAtSegment( numberSegments );
+
+
+        // Compute time at each node of the Sims-Flanagan trajectory.
+        std::vector< double > timesAtNodes;
+        for ( int i = 1 ; i <= numberSegmentsForwardPropagation ; i++ )
+        {
+            timesAtNodes.push_back( i * segmentDurationForwardPropagation );
+        }
+        for ( int i = 1 ; i <= numberSegmentsBackwardPropagation ; i++ )
+        {
+            timesAtNodes.push_back( timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
+        }
+
+        // Retrieve the spacecraft trajectory at the Sims-Flanagan nodes.
+        simsFlanagan.getTrajectory( timesAtNodes, simsFlanaganTrajectory );
+    }
+
+
+    //! DEFINE SETTINGS FOR FULL PROPAGATION
+
+    // Compute times at half of each segment.
+    std::vector< double > thrustMidTimes;
+    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+    {
+        thrustMidTimes.push_back( segmentDurationForwardPropagation / 2.0 + i * segmentDurationForwardPropagation );
+    }
+    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        thrustMidTimes.push_back( segmentDurationBackwardPropagation / 2.0 + timeOfFlight / 2.0 + i * segmentDurationBackwardPropagation );
+    }
+
+    // Set manuever properties
+    double totalManeuverTime = 9000.0;
+    double maneuverRiseTime = 1500.0;
+    double currentMass = vehicleInitialMass;
+    std::vector< Eigen::Vector3d > deltaVs;
+
+    // Compute maneuver deltaVs for the forward propagation subleg.
+    for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+    {
+        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i ] * segmentDurationForwardPropagation / currentMass;
+        deltaVs.push_back( 0.5 * currentDeltaVvector );
+        std::cout<<currentDeltaVvector.norm( )<<std::endl;
+        currentMass *= std::exp( - currentDeltaVvector.norm() /
+                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
+    }
+    // Compute maneuver deltaVs for the backward propagation subleg.
+    for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+    {
+        Eigen::Vector3d currentDeltaVvector = maximumThrust * bestThrottles[ i + numberSegmentsForwardPropagation ] *
+                segmentDurationBackwardPropagation / currentMass;
+        deltaVs.push_back( currentDeltaVvector );
+        std::cout<<currentDeltaVvector.norm( )<<std::endl;
+        currentMass *= std::exp( - currentDeltaVvector.norm() /
+                                 ( specificImpulseFunction( 0.0 ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION ) );
+    }
+
+    // Create list of bodies
+    NamedBodyMap bodyMap = getTestBodyMap( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleInitialMass );
+
+    // Defined acceleration settings
+    std::string bodyToPropagate = "Vehicle";
+    std::string centralBody = "Sun";
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > bodyToPropagateAccelerations;
+    bodyToPropagateAccelerations[ centralBody ].push_back(
+                std::make_shared< AccelerationSettings >(
+                    basic_astrodynamics::central_gravity ) );
+    bodyToPropagateAccelerations[ bodyToPropagate ].push_back(
+                std::make_shared< MomentumWheelDesaturationAccelerationSettings >(
+                    thrustMidTimes, deltaVs, totalManeuverTime, maneuverRiseTime ) );
+    SelectedAccelerationMap accelerationMap;
+    accelerationMap[ bodyToPropagate ] = bodyToPropagateAccelerations;
+
+
+    // Create the acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodyMap, accelerationMap,
+                                         std::vector< std::string >{ bodyToPropagate },
+                                         std::vector< std::string >{ centralBody } );
+
+    // Propagate orbit forward and backward
+    {
+        // Define integrator settings.
+        double stepSize = ( timeOfFlight ) / static_cast< double >( 250000 );
+        std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+                std::make_shared< IntegratorSettings< double > > ( rungeKutta4, 0.0, stepSize );
+
+        // Create termination conditions settings.
+        std::shared_ptr< PropagationTerminationSettings > terminationSettings
+                = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight / 2.0, true );
+
+        //  Create propagator settings.
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettingsImpulsiveDeltaV =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
+                    stateAtDeparture, terminationSettings, cowell );
+
+
+        Eigen::Vector6d currentState = stateAtDeparture;
+        for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
+        {
+            // Define settings for current leg
+            integratorSettings->initialTime_ = i * segmentDurationForwardPropagation;
+            terminationSettings = std::make_shared< PropagationTimeTerminationSettings >(
+                        ( i + 1 ) * segmentDurationForwardPropagation, true );
+            propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
+            propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
+
+            // Propagate current leg
+            SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().rbegin( )->second;
+
+            // Retrieve Sims-Flanagan and numerical states
+            Eigen::Vector6d currentStateSimsFlanagan = simsFlanaganTrajectory[ ( i + 1 ) * segmentDurationForwardPropagation ];
+            Eigen::Vector6d currentStateImpulsiveShots = currentState;
+
+            // Check consistency between Sims-Flanagan trajectory and pseudo-impulsive shots trajectory.
+            for ( int i = 0 ; i < 3 ; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i ] - currentStateImpulsiveShots[ i ] ) /
+                                   currentStateImpulsiveShots.segment( 0,3 ).norm( ), 1.0e-6 );
+                BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i + 3 ] - currentStateImpulsiveShots[ i + 3 ] ) /
+                        currentStateImpulsiveShots.segment( 3,3 ).norm( ), 1.0e-6 );
+            }
+
+        }
+
+        // Reset integrator settings for backwards propagation
+        integratorSettings->initialTimeStep_ = - std::fabs( integratorSettings->initialTimeStep_ );
+        integratorSettings->initialTime_ = timeOfFlight;
+
+        // Reset termination conditions settings for backwards propagation.
+        terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight / 2.0, true );
+
+        // Reset propagator settings for backwards propagation
+        propagatorSettingsImpulsiveDeltaV = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
+                    stateAtArrival, terminationSettings, cowell );
+
+        // Reset body mass for backwards propagatiom
+        bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtTimeOfFlight );
+
+        currentState = stateAtArrival;
+        for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
+        {
+            // Define settings for current leg
+            integratorSettings->initialTime_ = timeOfFlight - i * segmentDurationBackwardPropagation;
+            terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight - ( i + 1 ) * segmentDurationBackwardPropagation, true );
+            propagatorSettingsImpulsiveDeltaV->resetTerminationSettings( terminationSettings );
+            propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
+
+            // Propagate current leg
+            SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().begin()->second;
+
+            // Retrieve Sims-Flanagan and numerical states
+            Eigen::Vector6d currentStateImpulsiveShots = dynamicsSimulator.getEquationsOfMotionNumericalSolution().begin()->second;
+            Eigen::Vector6d currentStateSimsFlanagan;
+            if ( i < numberSegmentsBackwardPropagation - 1 )
+            {
+                currentStateSimsFlanagan = simsFlanaganTrajectory[ timeOfFlight - ( i + 1 ) * segmentDurationBackwardPropagation ];
+            }
+            else
+            {
+                currentStateSimsFlanagan = stateAtHalfTimeOfFlightBackwardPropagation;
+            }
+
+            // Check consistency between Sims-Flanagan trajectory and pseudo-impulsive shots trajectory.
+            for ( int i = 0 ; i < 3 ; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i ] - currentStateImpulsiveShots[ i ] )
+                                   / currentStateImpulsiveShots.segment( 0,3 ).norm( ), 1.0e-6 );
+                BOOST_CHECK_SMALL( std::fabs( currentStateSimsFlanagan[ i + 3 ] - currentStateImpulsiveShots[ i + 3 ] )
+                        / currentStateImpulsiveShots.segment( 3,3 ).norm( ), 1.0e-6 );
+            }
+        }
+    }
+
+}
 
 ////! Test full propagation for Sims Flanagan (assuming constant thrust over each segment).
 //BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
 //{
-//    using namespace low_thrust_trajectories;
+//
 
 //    spice_interface::loadStandardSpiceKernels( );
 
 //    double maximumThrust = 0.8;
 //    double specificImpulse = 3000.0;
-//    double mass = 1800.0;
+//    double vehicleInitialMass = 1800.0;
 //    int numberSegments = 500;
 
 //    // Define (constant) specific impulse function.
@@ -819,15 +661,15 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    std::vector< std::string > bodiesToCreate;
 //    bodiesToCreate.push_back( "Sun" );
 
-//    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-//            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+//            getDefaultBodySettings( bodiesToCreate );
 
 //    std::string frameOrigin = "SSB";
 //    std::string frameOrientation = "ECLIPJ2000";
 
 
 //    // Define central body ephemeris settings.
-//    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+//    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
 //                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
 //    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
@@ -835,9 +677,9 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 
 //    // Create body map.
-//    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+//    NamedBodyMap bodyMap = createBodies( bodySettings );
 
-//    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+//    bodyMap[ bodyToPropagate ] = std::make_shared< Body >( );
 //    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
 //                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
 //                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -848,7 +690,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
 //    // Set vehicle mass.
-//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+//    bodyMap[ bodyToPropagate ]->setConstantBodyMass( vehicleInitialMass );
 
 
 //    // Ephemeris departure body.
@@ -865,16 +707,16 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 //    // Define integrator settings.
 //    double stepSize = ( timeOfFlight ) / 30000.0;
-//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-//            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
+//    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+//            std::make_shared< IntegratorSettings< double > > ( rungeKutta4, 0.0, stepSize );
 
 
 
 //    // Define optimisation algorithm.
 //    algorithm optimisationAlgorithm{ pagmo::de1220() };
 
-//    std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings =
-//            std::make_shared< simulation_setup::OptimisationSettings >( optimisationAlgorithm, 1, 10 );
+//    std::shared_ptr< OptimisationSettings > optimisationSettings =
+//            std::make_shared< OptimisationSettings >( optimisationAlgorithm, 1, 10 );
 
 //    SimsFlanagan simsFlanagan = SimsFlanagan( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulseFunction, numberSegments,
 //                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationSettings );
@@ -894,30 +736,30 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    ///! Set-up Sims-Flanagan full propagation.
 
 //    // Acceleration from the central body.
-//    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+//    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > bodyToPropagateAccelerations;
 
-//    simulation_setup::SelectedAccelerationMap accelerationMap;
+//    SelectedAccelerationMap accelerationMap;
 //    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
 
 //    // Create the acceleration map.
 //    basic_astrodynamics::AccelerationMap accelerationModelMap = simsFlanagan.retrieveLowThrustAccelerationMap( specificImpulseFunction, integratorSettings );
 
 //    // Create termination conditions settings.
-//    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-//            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationConditions;
+//    std::pair< std::shared_ptr< PropagationTerminationSettings >,
+//            std::shared_ptr< PropagationTerminationSettings > > terminationConditions;
 
-//    terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
-//    terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight, true );
+//    terminationConditions.first = std::make_shared< PropagationTimeTerminationSettings >( 0.0, true );
+//    terminationConditions.second = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight, true );
 
 
 //    // Define list of dependent variables to save.
-//    std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
-//    dependentVariablesList.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+//    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+//    dependentVariablesList.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
 //                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
 
 //    // Create object with list of dependent variables
-//    std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave =
-//            std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+//    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+//            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
 //    // Define empty maps to store the propagation results.
 //    std::map< double, Eigen::VectorXd > fullPropagationResults;
@@ -927,8 +769,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
 
 //    // Create complete propagation settings (backward and forward propagations).
-//    std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-//            std::shared_ptr< propagators::PropagatorSettings< double > > > propagatorSettings = simsFlanagan.createLowThrustPropagatorSettings(
+//    std::pair< std::shared_ptr< PropagatorSettings< double > >,
+//            std::shared_ptr< PropagatorSettings< double > > > propagatorSettings = simsFlanagan.createLowThrustPropagatorSettings(
 //                 specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
 
 //    // Compute full propagation.
@@ -974,15 +816,15 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 //    // Create mass rate models
 //    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-//    massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
+//    massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< FromThrustMassModelSettings >( 1 ),
 //                                                       bodyMap, lowThrustTrajectoryAccelerations );
 
 //    // Define list of dependent variables to save.
-//    dependentVariablesList.push_back( std::make_shared< propagators::SingleDependentVariableSaveSettings >(
-//                    propagators::total_mass_rate_dependent_variables, bodyToPropagate ) );
+//    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+//                    total_mass_rate_dependent_variables, bodyToPropagate ) );
 
 //    // Create object with list of dependent variables
-//    dependentVariablesToSave = std::make_shared< propagators::DependentVariableSaveSettings >( dependentVariablesList );
+//    dependentVariablesToSave = std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
 
 //    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
@@ -990,40 +832,40 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //        double currentEpoch = itr->first;
 
 //        // Create termination conditions settings.
-//        std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings =
-//                std::make_shared< propagators::PropagationTimeTerminationSettings >( currentEpoch, true );
+//        std::shared_ptr< PropagationTerminationSettings > terminationSettings =
+//                std::make_shared< PropagationTimeTerminationSettings >( currentEpoch, true );
 
 //        // Define translational state propagation settings
-//        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalStatePropagatorSettings =
-//                std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
+//        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalStatePropagatorSettings =
+//                std::make_shared< TranslationalStatePropagatorSettings< double > >
 //                            ( std::vector< std::string >{ centralBody }, lowThrustTrajectoryAccelerations,
 //                              std::vector< std::string >{ bodyToPropagate }, stateAtDeparture,
-//                              terminationSettings, propagators::gauss_modified_equinoctial, dependentVariablesToSave );
+//                              terminationSettings, gauss_modified_equinoctial, dependentVariablesToSave );
 
 //        // Create settings for propagating the mass of the vehicle.
-//        std::shared_ptr< propagators::MassPropagatorSettings< double > > massPropagatorSettings =
-//                std::make_shared< propagators::MassPropagatorSettings< double > >(
-//                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << mass ).finished( ),
+//        std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
+//                std::make_shared< MassPropagatorSettings< double > >(
+//                    std::vector< std::string >{ bodyToPropagate }, massRateModels, ( Eigen::Matrix< double, 1, 1 >( ) << vehicleInitialMass ).finished( ),
 //                    terminationSettings );
 
 //        integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
 //        integratorSettings->initialTime_ = 0.0;
 
 //        // Create list of propagation settings.
-//        std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
+//        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
 
 //        // Backward propagator settings vector.
 //        propagatorSettingsVector.push_back( translationalStatePropagatorSettings );
 //        propagatorSettingsVector.push_back( massPropagatorSettings );
 
 //        // Define propagator settings.
-//        std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
+//        std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
 //                    propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
-//        bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+//        bodyMap[ bodyToPropagate ]->setConstantBodyMass( vehicleInitialMass );
 
 //        // Perform the backward propagation.
-//        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+//        SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
 //        std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 //        std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -1070,8 +912,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 ////! half of each of the Sims-Flanagan segments.
 //BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_Shape_Based )
 //{
-//    using namespace low_thrust_trajectories;
-//    using namespace shape_based_methods;
+//
 
 
 //    spice_interface::loadStandardSpiceKernels( );
@@ -1099,15 +940,15 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    std::vector< std::string > bodiesToCreate;
 //    bodiesToCreate.push_back( "Sun" );
 
-//    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-//            simulation_setup::getDefaultBodySettings( bodiesToCreate );
+//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+//            getDefaultBodySettings( bodiesToCreate );
 
 //    std::string frameOrigin = "SSB";
 //    std::string frameOrientation = "ECLIPJ2000";
 
 
 //    // Define central body ephemeris settings.
-//    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+//    bodySettings[ centralBody ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
 //                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
 //    bodySettings[ centralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
@@ -1115,9 +956,9 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 
 //    // Create body map.
-//    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+//    NamedBodyMap bodyMap = createBodies( bodySettings );
 
-//    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+//    bodyMap[ bodyToPropagate ] = std::make_shared< Body >( );
 //    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
 //                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
 //                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -1225,8 +1066,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //    double stepSize = timeOfFlight / static_cast< double >( numberOfSteps );
 
 //    // Define integrator settings.
-//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-//            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize );
+//    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+//            std::make_shared< IntegratorSettings< double > > ( rungeKutta4, 0.0, stepSize );
 
 
 //    // Calculate number of segments for both the forward propagation (from departure to match point)
@@ -1256,8 +1097,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 //    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
 
-//    std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings =
-//            std::make_shared< simulation_setup::OptimisationSettings >(
+//    std::shared_ptr< OptimisationSettings > optimisationSettings =
+//            std::make_shared< OptimisationSettings >(
 //                optimisationAlgorithm, 1, 10, 1.0e-6, std::make_pair( initialGuessVector, 0.002 ) );
 
 //    // Create Sims-Flanagan trajectory.
@@ -1272,20 +1113,20 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 //        epochsVector.push_back( timeOfFlight / numberSteps * i );
 //    }
 
-//    std::map< double, Eigen::Vector6d > SimsFlanaganTrajectory;
-//    simsFlanagan.getTrajectory( epochsVector, SimsFlanaganTrajectory );
+//    std::map< double, Eigen::Vector6d > simsFlanaganTrajectory;
+//    simsFlanagan.getTrajectory( epochsVector, simsFlanaganTrajectory );
 
 //    std::map< double, Eigen::Vector6d > hodographicShapingTrajectory;
 //    hodographicShaping->getTrajectory( epochsVector, hodographicShapingTrajectory );
 
 //    // Check consistency between shaping method and Sims-Flanagan.
-//    for ( std::map< double, Eigen::Vector6d >::iterator itr = SimsFlanaganTrajectory.begin( ) ; itr != SimsFlanaganTrajectory.end( ) ; itr++ )
+//    for ( std::map< double, Eigen::Vector6d >::iterator itr = simsFlanaganTrajectory.begin( ) ; itr != simsFlanaganTrajectory.end( ) ; itr++ )
 //    {
 //        for ( int i = 0 ; i < 3 ; i++ )
 //        {
-//            BOOST_CHECK_SMALL( ( std::fabs( SimsFlanaganTrajectory[ itr->first ][ i ] - hodographicShapingTrajectory[ itr->first ][ i ] )
+//            BOOST_CHECK_SMALL( ( std::fabs( simsFlanaganTrajectory[ itr->first ][ i ] - hodographicShapingTrajectory[ itr->first ][ i ] )
 //                    / hodographicShapingTrajectory[ itr->first ].segment( 0, 3 ).norm( ) ), 5.0e-2 );
-//            BOOST_CHECK_SMALL( ( std::fabs( SimsFlanaganTrajectory[ itr->first ][ i + 3 ] - hodographicShapingTrajectory[ itr->first ][ i + 3 ] )
+//            BOOST_CHECK_SMALL( ( std::fabs( simsFlanaganTrajectory[ itr->first ][ i + 3 ] - hodographicShapingTrajectory[ itr->first ][ i + 3 ] )
 //                    / hodographicShapingTrajectory[ itr->first ].segment( 3, 3 ).norm( ) ), 1.0e-1 );
 //        }
 //    }

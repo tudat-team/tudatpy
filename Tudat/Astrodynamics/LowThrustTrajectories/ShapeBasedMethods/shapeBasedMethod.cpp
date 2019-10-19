@@ -32,7 +32,7 @@ basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelera
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
     accelerationSettingsMap[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
-                                                                basic_astrodynamics::central_gravity ) );
+                                                          basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ bodyToPropagate ] = accelerationSettingsMap;
@@ -70,15 +70,15 @@ void ShapeBasedMethod::getTrajectory(
 
 //! Compute current thrust vector.
 Eigen::Vector3d ShapeBasedMethod::computeCurrentThrust( double time,
-                                                    std::function< double ( const double ) > specificImpulseFunction,
-                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+                                                        std::function< double ( const double ) > specificImpulseFunction,
+                                                        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     double independentVariable = convertTimeToIndependentVariable( time );
 
     throw std::runtime_error( "computeCurrentMass error 1" );
     Eigen::Vector3d currentThrustVector;/* = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
-            * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
-            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );*/
+            * computeCurrentThrustAccelerationMagnitude( independentVariable )
+            * computeCurrentThrustAccelerationDirection( independentVariable );*/
 
     return currentThrustVector;
 }
@@ -90,6 +90,7 @@ void ShapeBasedMethod::getThrustProfile(
         std::map< double, Eigen::VectorXd >& thrustProfile,
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+
 {
     thrustProfile.clear( );
     std::map< double, Eigen::VectorXd > massProfile;
