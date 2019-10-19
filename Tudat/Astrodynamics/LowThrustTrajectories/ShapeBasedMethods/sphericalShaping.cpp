@@ -646,8 +646,8 @@ Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection(
 double SphericalShaping::computeDeltaV( )
 {
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of the azimuth angle.
-    std::function< double( const double ) > derivativeFunctionDeltaV = [ = ] ( const double currentAzimuthAngle ){
-
+    std::function< double( const double ) > derivativeFunctionDeltaV = [ = ] ( const double currentAzimuthAngle )
+    {
         double thrustAcceleration = computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle ).norm()
                 * std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle )
                              * std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
