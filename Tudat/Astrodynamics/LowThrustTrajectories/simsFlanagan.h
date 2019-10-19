@@ -29,9 +29,9 @@ namespace low_thrust_trajectories
 
 //! Transform thrust model as a function of time into Sims Flanagan thrust model.
 std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
-                                                                 const double maximumThrust,
-                                                                 const double timeOfFlight, const int numberSegmentsForwardPropagation,
-                                                                 const int numberSegmentsBackwardPropagation );
+                                                        const double maximumThrust,
+                                                        const double timeOfFlight, const int numberSegmentsForwardPropagation,
+                                                        const int numberSegmentsBackwardPropagation );
 
 //! Convert a shape-based thrust profile into a possible initial guess for Sims-Flanagan.
 std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShaping(
@@ -51,24 +51,21 @@ public:
     SimsFlanagan(
             const Eigen::Vector6d& stateAtDeparture,
             const Eigen::Vector6d& stateAtArrival,
+            const double centralBodyGravitationalParameter,
+            const double initialSpacecraftMass,
             const double maximumThrust,
             const std::function< double ( const double ) > specificImpulseFunction,
             const int numberSegments,
             const double timeOfFlight,
-            simulation_setup::NamedBodyMap bodyMap,
-            const std::string bodyToPropagate,
-            const std::string centralBody,
             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ) :
-        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, bodyMap, bodyToPropagate, centralBody ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        initialSpacecraftMass_( initialSpacecraftMass ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberSegments ),
         optimisationSettings_( optimisationSettings )
     {
-
-        // Store initial spacecraft mass.
-        initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
-
         // Calculate number of segments for both the forward propagation (from departure to match point)
         // and the backward propagation (from arrival to match point).
         numberSegmentsForwardPropagation_ = ( numberSegments_ + 1 ) / 2;
@@ -77,14 +74,14 @@ public:
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
         if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
-            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 3 * numberSegments )
+            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) !=
+                 static_cast< int >( 3 * numberSegments ) )
             {
-                throw std::runtime_error( "Error when providing an initial guess for Sims-Flanagan, size of the thrust"
-                                          "model initial guess unconsistent with number of segments" );
+                throw std::runtime_error(
+                            "Error when providing an initial guess for Sims-Flanagan, size of the thrust model initial guess unconsistent with number of segments" );
             }
             else
             {
-                std::vector< double > initialGuessFromOptimisationSettings = optimisationSettings_->initialGuessThrustModel_.first;
                 initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
             }
 
@@ -108,11 +105,11 @@ public:
                     championDesignVariables_[ i * 3 + 2 ] ).finished( ) );
         }
 
-        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
-
         // Create Sims-Flanagan leg from the best optimisation individual.
-        simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >( stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_,
-                                            timeOfFlight_, bodyMap_, throttles, bodyToPropagate_, centralBody_ );
+        simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >(
+                    stateAtDeparture_, stateAtArrival_,
+                    centralBodyGravitationalParameter_, initialSpacecraftMass_, maximumThrust_, specificImpulseFunction_,
+                    timeOfFlight_, throttles );
 
     }
 
@@ -204,9 +201,10 @@ public:
     //! Define appropriate translational state propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-            basic_astrodynamics::AccelerationMap accelerationModelMap,
-            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
-
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
 protected:
@@ -218,10 +216,14 @@ protected:
 
 private:
 
+    double centralBodyGravitationalParameter_;
+
+    //! Initial mass of the spacecraft.
+    double initialSpacecraftMass_;
+
     //! Maximum allowed thrust.
     double maximumThrust_;
 
-    //! Specific impulse function.
     std::function< double ( const double ) > specificImpulseFunction_;
 
     //! Number of segments into which the leg is subdivided.
@@ -240,9 +242,6 @@ private:
 
     //! Design variables vector corresponding to the optimisation best individual.
     std::vector< double > championDesignVariables_;
-
-    //! Initial mass of the spacecraft.
-    double initialSpacecraftMass_;
 
     //! Number of segments for the forward propagation from departure to match point.
     int numberSegmentsForwardPropagation_;

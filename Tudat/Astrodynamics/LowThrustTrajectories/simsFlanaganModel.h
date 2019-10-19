@@ -30,12 +30,15 @@ public:
     SimsFlanaganModel( const Eigen::Vector6d& stateAtDeparture,
                        const Eigen::Vector6d& stateAtArrival,
                        const double centralBodyGravitationalParameter,
+                       const double initialSpacecraftMass,
                        const double maximumThrust,
                        const std::function< double ( const double ) > specificImpulseFunction,
                        const double timeOfFlight,
                        std::vector< Eigen::Vector3d >& throttles ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), maximumThrust_( maximumThrust ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        initialSpacecraftMass_( initialSpacecraftMass ),
+        maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ),
         throttles_( throttles )
     {
@@ -62,6 +65,8 @@ public:
         {
             timesAtNodes_.push_back( timeAtMatchPoint_ + i * segmentDurationBackwardPropagation_ );
         }
+
+        propagateMassToSegments( );
 
         // Initialise value of the total deltaV.
         totalDeltaV_ = 0.0;
@@ -125,18 +130,6 @@ public:
         return stateAtMatchPointFromBackwardPropagation_;
     }
 
-    //! Return spacecraft mass at match point from forward propagation.
-    double getMassAtMatchPointForwardPropagation( )
-    {
-        return massAtMatchPointFromForwardPropagation_;
-    }
-
-    //! Return spacecraft mass at match point from backward propagation.
-    double getMassAtMatchPointBackwardPropagation( )
-    {
-        return massAtMatchPointFromBackwardPropagation_;
-    }
-
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( );
 
@@ -146,7 +139,8 @@ public:
             const std::string& centralBody );
 
     //! Propagate the trajectory to given time.
-    Eigen::Vector6d propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
+    Eigen::Vector6d propagateTrajectoryForward(
+            double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
 
     //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
@@ -169,14 +163,17 @@ public:
     //! Propagate the trajectory inside one segment.
     Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
 
-    //! Propagate the mass from departure to a given segment.
-    double propagateMassToSegment( int indexSegment );
+    void propagateMassToSegments( );
 
     int convertTimeToLegSegment( double currentTime );
 
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg( );
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg(
+            const simulation_setup::NamedBodyMap& bodyMapTest );
 
-
+    double getMassAtSegment( const int segment )
+    {
+        return segmentMasses_.at( segment );
+    }
 
 protected:
 
@@ -197,6 +194,11 @@ private:
     //! State vector of the vehicle at the leg arrival.
     Eigen::Vector6d stateAtArrival_;
 
+    //! Gravitational parameter of the central body of the 2-body problem.
+    double centralBodyGravitationalParameter_;
+
+    double initialSpacecraftMass_;
+
     //! Maximum allowed thrust.
     double maximumThrust_;
 
@@ -212,8 +214,8 @@ private:
     //! Vector of throttles for each segment of the leg.
     std::vector< Eigen::Vector3d > throttles_;
 
-    //! Gravitational parameter of the central body of the 2-body problem.
-    double centralBodyGravitationalParameter_;
+    std::vector< double > segmentMasses_;
+
 
     //! Number of segments for the forward propagation from departure to match point.
     int numberSegmentsForwardPropagation_;
@@ -235,12 +237,6 @@ private:
 
     //! State at match point from backward propagation.
     Eigen::Vector6d stateAtMatchPointFromBackwardPropagation_;
-
-    //! Mass of the body to be propagated at match point from forward propagation.
-    double massAtMatchPointFromForwardPropagation_;
-
-    //! Mass of the body to be propagated at match point from backward propagation.
-    double massAtMatchPointFromBackwardPropagation_;
 
     //! Total deltaV.
     double totalDeltaV_;

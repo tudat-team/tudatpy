@@ -107,7 +107,8 @@ void ShapeBasedMethod::getThrustProfile(
         double independentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
 
         double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
-        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+        thrustProfile[ epochsVector[ i ] ] = currentMass * computeCurrentThrustAccelerationMagnitude(
+                    independentVariable, specificImpulseFunction, integratorSettings )
                 * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
     }
 }
