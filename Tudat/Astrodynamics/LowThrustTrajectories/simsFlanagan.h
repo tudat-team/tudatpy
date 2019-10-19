@@ -58,7 +58,7 @@ public:
             const int numberSegments,
             const double timeOfFlight,
             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ) :
-        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialSpacecraftMass ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialSpacecraftMass, true ),
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
@@ -74,7 +74,7 @@ public:
         if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
             if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) !=
-                 static_cast< int >( 3 * numberSegments ) )
+                 static_cast< unsigned int >( 3 * numberSegments ) )
             {
                 throw std::runtime_error(
                             "Error when providing an initial guess for Sims-Flanagan, size of the thrust model initial guess unconsistent with number of segments" );

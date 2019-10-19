@@ -44,9 +44,10 @@ public:
     LowThrustLeg( const Eigen::Vector6d& stateAtDeparture,
                   const Eigen::Vector6d& stateAtArrival,
                   const double timeOfFlight,
-                  const double initialMass ):
+                  const double initialMass,
+                  const bool legModelIsForceBased ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight ),
-        initialMass_( initialMass ){ }
+        initialMass_( initialMass ), legModelIsForceBased_( legModelIsForceBased ){ }
 
     virtual ~LowThrustLeg( ){ }
 
@@ -81,10 +82,10 @@ public:
 
     //! Return mass profile.
     void getMassProfile(
-            std::vector< double >& epochsVector,
+            const std::vector< double >& epochsVector,
             std::map< double, Eigen::VectorXd >& massProfile,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
@@ -116,12 +117,7 @@ public:
     //! Compute current thrust vector.
     Eigen::Vector3d computeCurrentThrustAcceleration(
             double time, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
-    {
-        double independentVariable = convertTimeToIndependentVariable( time );
-        return computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
-                * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
-    }
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Return thrust acceleration profile.
     virtual void getThrustAccelerationProfile(
@@ -177,6 +173,8 @@ protected:
     double timeOfFlight_;
 
     double initialMass_;
+
+    bool legModelIsForceBased_;
 
     //! Compute current mass of the spacecraft between two epochs.
     double computeCurrentMass(

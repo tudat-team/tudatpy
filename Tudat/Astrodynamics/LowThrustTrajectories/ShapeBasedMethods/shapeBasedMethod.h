@@ -38,7 +38,7 @@ public:
                       const Eigen::Vector6d& stateAtArrival,
                       const double timeOfFlight,
                       const double initialBodyMass = TUDAT_NAN ) :
-    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialBodyMass ){ }
+    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialBodyMass, false ){ }
 
     //! Default destructor.
     virtual ~ShapeBasedMethod( ) { }
