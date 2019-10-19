@@ -38,8 +38,9 @@ HodographicShaping::HodographicShaping(
         const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
         const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
         const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
-        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction ) :
-    ShapeBasedMethod( initialState, finalState, timeOfFlight ),
+        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
+        const double initialBodyMass ) :
+    ShapeBasedMethod( initialState, finalState, timeOfFlight, initialBodyMass ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     freeCoefficientsRadialVelocityFunction_( freeCoefficientsRadialVelocityFunction ),

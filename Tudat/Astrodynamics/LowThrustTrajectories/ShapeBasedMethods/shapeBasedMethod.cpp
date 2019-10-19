@@ -69,7 +69,7 @@ void ShapeBasedMethod::getTrajectory(
 
 
 //! Compute current thrust vector.
-Eigen::Vector3d ShapeBasedMethod::computeCurrentThrust( double time,
+Eigen::Vector3d ShapeBasedMethod::computeCurrentThrustForce( double time,
                                                         std::function< double ( const double ) > specificImpulseFunction,
                                                         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
@@ -85,7 +85,7 @@ Eigen::Vector3d ShapeBasedMethod::computeCurrentThrust( double time,
 
 
 //! Return thrust profile.
-void ShapeBasedMethod::getThrustProfile(
+void ShapeBasedMethod::getThrustForceProfile(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& thrustProfile,
         std::function< double ( const double ) > specificImpulseFunction,

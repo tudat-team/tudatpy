@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 
 //    sphericalShaping.getTrajectory( epochsVector, trajectory );
 //    sphericalShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-//    sphericalShaping.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+//    sphericalShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
 //    sphericalShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
 
 //    for ( int i = 0 ; i < 3 ; i ++ )

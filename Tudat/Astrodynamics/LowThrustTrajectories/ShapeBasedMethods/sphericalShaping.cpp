@@ -30,8 +30,9 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
                                     const double initialValueFreeCoefficient,
                                     const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient ):
-    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight ),
+                                    const double upperBoundFreeCoefficient,
+                                    const double initialBodyMass ):
+    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight, initialBodyMass ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),

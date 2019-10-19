@@ -74,7 +74,7 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethod::performO
 
 
 //! Compute current thrust vector.
-Eigen::Vector3d HybridMethod::computeCurrentThrust(
+Eigen::Vector3d HybridMethod::computeCurrentThrustForce(
         double time,
         std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
@@ -120,7 +120,7 @@ Eigen::Vector3d HybridMethod::computeCurrentThrust(
 
 
 //! Return thrust profile.
-void HybridMethod::getThrustProfile(
+void HybridMethod::getThrustForceProfile(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& thrustProfile,
         std::function< double ( const double ) > specificImpulseFunction )
@@ -186,7 +186,7 @@ double HybridMethod::computeCurrentThrustAccelerationMagnitude(
 {
 
     double currentMass = computeCurrentMass( currentTime, specificImpulseFunction, integratorSettings );
-    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings_ );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings_ );
 
     return currentThrustVector.norm( ) / currentMass;
 
@@ -199,7 +199,7 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustAccelerationDirection(
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
 
-    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
 
     Eigen::Vector3d thrustAcceleration = currentThrustVector.normalized( );
 
@@ -218,7 +218,7 @@ void HybridMethod::getThrustAccelerationProfile(
     thrustAccelerationProfile.clear();
 
     std::map< double, Eigen::VectorXd > thrustProfile;
-    getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
 
     std::map< double, Eigen::VectorXd > massProfile;
     getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );

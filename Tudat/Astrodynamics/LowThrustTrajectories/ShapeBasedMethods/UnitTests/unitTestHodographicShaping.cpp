@@ -1534,7 +1534,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
 //    hodographicShaping.getTrajectory( epochsVector, trajectory );
 //    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-//    hodographicShaping.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+//    hodographicShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
 //    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
 
 //    for ( int i = 0 ; i < 3 ; i ++ )

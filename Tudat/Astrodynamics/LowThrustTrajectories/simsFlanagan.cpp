@@ -30,13 +30,13 @@ std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Ve
     double segmentDurationForwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsForwardPropagation );
     double segmentDurationBackwardPropagation = timeOfFlight / ( 2.0 * numberSegmentsBackwardPropagation );
 
-    std::vector< double > SimsFlanaganThrustModel;
+    std::vector< double > simsFlanaganThrustModel;
     for ( int i = 0 ; i < numberSegmentsForwardPropagation ; i++ )
     {
         Eigen::Vector3d currentThrustVector = thrustModelWrtTime( segmentDurationForwardPropagation * ( i + 1.0 / 2.0 ) ) / maximumThrust;
         for ( int j = 0 ; j < 3 ; j++ )
         {
-            SimsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
+            simsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
         }
     }
     for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
@@ -45,11 +45,11 @@ std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Ve
                                                                   + segmentDurationBackwardPropagation * ( i + 1.0 / 2.0 ) ) / maximumThrust;
         for ( int j = 0 ; j < 3 ; j++ )
         {
-            SimsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
+            simsFlanaganThrustModel.push_back( currentThrustVector[ j ] );
         }
     }
 
-    return SimsFlanaganThrustModel;
+    return simsFlanaganThrustModel;
 }
 
 
@@ -80,7 +80,7 @@ std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShap
 
     // Retrieve thrust profile from shaping method.
     std::map< double, Eigen::VectorXd > thrustProfileShapedTrajectory;
-    shapeBasedLeg->getThrustProfile( timesAtNodes, thrustProfileShapedTrajectory, specificImpulseFunction, integratorSettings );
+    shapeBasedLeg->getThrustForceProfile( timesAtNodes, thrustProfileShapedTrajectory, specificImpulseFunction, integratorSettings );
 
     // Compute averaged thrust vector per segment.
     std::vector< Eigen::Vector3d > thrustVectorPerSegment;
@@ -128,7 +128,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanagan::performO
 
     // Create object to compute the problem fitness
     problem prob{ SimsFlanaganProblem(
-                    stateAtDeparture_, stateAtArrival_, centralBodyGravitationalParameter_, initialSpacecraftMass_, maximumThrust_,
+                    stateAtDeparture_, stateAtArrival_, centralBodyGravitationalParameter_, initialMass_, maximumThrust_,
                     specificImpulseFunction_, numberSegments_, timeOfFlight_, initialGuessThrustModel_,
                     optimisationSettings_->relativeToleranceConstraints_ ) };
 
@@ -179,7 +179,7 @@ Eigen::Vector3d SimsFlanagan::computeCurrentThrustAccelerationDirection(
         double currentTime, std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
 
     Eigen::Vector3d thrustAcceleration = currentThrustVector.normalized( );
 
@@ -193,14 +193,14 @@ double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     double currentMass = computeCurrentMass( currentTime, specificImpulseFunction, integratorSettings );
-    Eigen::Vector3d currentThrustVector = computeCurrentThrust( currentTime, specificImpulseFunction, integratorSettings );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
 
     return currentThrustVector.norm( ) / currentMass;
 }
 
 
 //! Compute current thrust vector.
-Eigen::Vector3d SimsFlanagan::computeCurrentThrust(
+Eigen::Vector3d SimsFlanagan::computeCurrentThrustForce(
         double currentTime,
                                                     std::function< double ( const double ) > specificImpulseFunction,
                                                     std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
@@ -221,7 +221,7 @@ void SimsFlanagan::getThrustAccelerationProfile(
     thrustAccelerationProfile.clear();
 
     std::map< double, Eigen::VectorXd > thrustProfile;
-    getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
 
     std::map< double, Eigen::VectorXd > massProfile;
     getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );

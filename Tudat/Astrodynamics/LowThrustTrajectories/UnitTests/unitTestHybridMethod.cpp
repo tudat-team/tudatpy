@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     hybridMethod.getTrajectory( epochsVector, trajectory );
     hybridMethod.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-    hybridMethod.getThrustProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    hybridMethod.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
     hybridMethod.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
 
 

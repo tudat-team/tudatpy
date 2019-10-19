@@ -16,7 +16,7 @@
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 #include <math.h>
 #include <vector>
@@ -45,7 +45,8 @@ public:
             const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
             const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
             const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
-            const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction );
+            const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
+            const double initialBodyMass = TUDAT_NAN );
 
     //! Default destructor.
     ~HodographicShaping( ) { }

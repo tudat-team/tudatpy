@@ -126,12 +126,12 @@ public:
     }
 
 
-    Eigen::Vector3d computeCurrentThrust( double time,
+    Eigen::Vector3d computeCurrentThrustForce( double time,
                                           std::function< double ( const double ) > specificImpulseFunction,
                                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Return thrust profile.
-    void getThrustProfile( std::vector< double >& epochsVector,
+    void getThrustForceProfile( std::vector< double >& epochsVector,
                            std::map< double, Eigen::VectorXd >& thrustProfile,
                            std::function< double ( const double ) > specificImpulseFunction,
                            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
