@@ -248,10 +248,12 @@ endif()
 option(USE_PAGMO "build Tudat with NRLMSISE-00 enabled" ON)
 if(NOT USE_PAGMO)
  message(STATUS "PAGMO disabled!")
+ add_definitions(-DUSE_PAGMO=0)
 else()
  message(STATUS "PAGMO enabled!")
  # Find USE_PAGMO library on local system.
  find_package(PaGMO2)
+ add_definitions(-DUSE_PAGMO=1)
 
  # Include Pagmo directories.
  if(NOT APPLE OR APPLE_INCLUDE_FORCE)

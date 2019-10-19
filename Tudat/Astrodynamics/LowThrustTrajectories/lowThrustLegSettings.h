@@ -24,7 +24,7 @@
 #include <functional>
 
 #if( USE_PAGMO )
-    #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
+//    #include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
     #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
 #endif
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
@@ -209,12 +209,17 @@ public:
     */
     SimsFlanaganLegSettings(
             const double maximumThrust,
+            const double centralBodyGravitationalParameter,
+            const double vehicleInitialMass,
             std::function< double( const double ) > specificImpulseFunction,
             const int numberOfSegments,
             const std::string centralBody,
             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ):
         LowThrustLegSettings( sims_flanagan_leg ),
         maximumThrust_( maximumThrust ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        vehicleInitialMass_( vehicleInitialMass ),
+
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberOfSegments ),
         centralBody_( centralBody ),
@@ -225,6 +230,10 @@ public:
 
     //! Maximum allowed thrust.
     double maximumThrust_;
+
+    double centralBodyGravitationalParameter_;
+
+    double vehicleInitialMass_;
 
     //! Specific impulse function.
     std::function< double ( const double ) > specificImpulseFunction_;
