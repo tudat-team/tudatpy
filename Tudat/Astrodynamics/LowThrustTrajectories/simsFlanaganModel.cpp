@@ -198,8 +198,6 @@ void SimsFlanaganModel::propagateMassToSegments( )
     segmentMasses_[ 0 ] = currentMass;
     for( int currentSegment = 0 ; currentSegment < numberSegments_ ; currentSegment++ )
     {
-        std::cout<<"Mass "<<currentSegment<<" "<<segmentMasses_[ currentSegment ]<<std::endl;
-
         // Compute time at half of the current segment.
         double currentTime = timesAtNodes_[ currentSegment ] +
                 ( timesAtNodes_[ currentSegment + 1 ] - timesAtNodes_[ currentSegment ] ) / 2.0;

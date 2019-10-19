@@ -192,10 +192,11 @@ double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
         double currentTime, std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    double currentMass = simsFlanaganModel_->getMassAtSegment( simsFlanaganModel_->convertTimeToLegSegment( currentTime ) );
+    std::map< double, Eigen::VectorXd > massProfile;
+    getMassProfile( std::vector< double >( { currentTime } ), massProfile, specificImpulseFunction, integratorSettings );
+    double currentMass = massProfile.begin( )->second( 0 );
 
     Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
-
     return currentThrustVector.norm( ) / currentMass;
 }
 
@@ -235,12 +236,8 @@ void SimsFlanagan::getThrustAccelerationProfile(
                                       "epochs are not provided in increasing order." );
         }
 
-        Eigen::Vector3d currentThrustVector = thrustProfile[ epochsVector[ i ] ];
-        double currentMass = massProfile[ epochsVector[ i ] ][ 0 ];
-
-        Eigen::Vector3d currentThrustAccelerationVector = currentThrustVector / currentMass;
-
-        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+        thrustAccelerationProfile[ epochsVector[ i ] ] =
+                thrustProfile[ epochsVector[ i ] ] / massProfile[ epochsVector[ i ] ][ 0 ];
 
     }
 }

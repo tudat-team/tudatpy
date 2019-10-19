@@ -32,15 +32,24 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
         // Compute current independent variable.
         double currentIndependentVariable = convertTimeToIndependentVariable( currentTime );
 
-        // Compute current acceleration.
-        double currentAcceleration = computeCurrentThrustAccelerationMagnitude(
-                    currentIndependentVariable, specificImpulseFunction, integratorSettings );
+        if( legModelIsForceBased_ )
+        {
+            // Compute current acceleration.
+            return computeCurrentThrustForce(
+                        currentIndependentVariable, specificImpulseFunction, integratorSettings ).norm( );
+        }
+        else
+        {
+            // Compute current acceleration.
+            double currentAcceleration = computeCurrentThrustAccelerationMagnitude(
+                        currentIndependentVariable, specificImpulseFunction, integratorSettings );
 
-        // Compute current mass of the vehicle.
-        double currentMass = vehicle->getBodyMass();
+            // Compute current mass of the vehicle.
+            double currentMass = vehicle->getBodyMass();
 
-        // Compute and return magnitude of the low-thrust force.
-        return currentAcceleration * currentMass;
+            // Compute and return magnitude of the low-thrust force.
+            return currentAcceleration * currentMass;
+        }
     };
 
     // Define thrust magnitude settings from thrust magnitude function.
@@ -98,7 +107,7 @@ double LowThrustLeg::computeCurrentMass(
     // Retrieve acceleration map.
     basic_astrodynamics::AccelerationMap accelerationMap;
     accelerationMap[ bodyToPropagate ][ bodyToPropagate ].push_back( getLowThrustAccelerationModel(
-                bodyMapTest, bodyToPropagate,  specificImpulseFunction, integratorSettings ) );
+                                                                         bodyMapTest, bodyToPropagate,  specificImpulseFunction, integratorSettings ) );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -136,10 +145,10 @@ double LowThrustLeg::computeCurrentMass( const double independentVariable,
 
 //! Return mass profile.
 void LowThrustLeg::getMassProfile(
-        std::vector< double >& epochsVector,
+        const std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& massProfile,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        const std::function< double ( const double ) > specificImpulseFunction,
+        const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     massProfile.clear( );
 
@@ -151,7 +160,7 @@ void LowThrustLeg::getMassProfile(
 
     for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        if ( ( i > 0 ) && ( epochsVector.at( i ) < epochsVector.at( i - 1 ) ) )
         {
             throw std::runtime_error( "Error when retrieving the mass profile of a low-thrust trajectory, "
                                       "epochs are not provided in increasing order." );
@@ -159,13 +168,13 @@ void LowThrustLeg::getMassProfile(
 
         if ( i == 0 )
         {
-            currentMass = computeCurrentMass( 0.0, epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
+            currentMass = computeCurrentMass( 0.0, epochsVector.at( i ), currentMass, specificImpulseFunction, integratorSettings );
+            massProfile[ epochsVector.at( i ) ] = ( Eigen::Vector1d( ) << currentMass ).finished( );
         }
         else
         {
-            currentMass = computeCurrentMass( epochsVector[ i - 1 ], epochsVector[ i ], currentMass, specificImpulseFunction, integratorSettings );
-            massProfile[ epochsVector[ i ] ] = ( Eigen::Vector1d( ) << currentMass ).finished();
+            currentMass = computeCurrentMass( epochsVector.at( i - 1 ), epochsVector.at( i ), currentMass, specificImpulseFunction, integratorSettings );
+            massProfile[ epochsVector.at( i ) ] = ( Eigen::Vector1d( ) << currentMass ).finished();
         }
     }
 
@@ -182,18 +191,27 @@ void LowThrustLeg::getThrustForceProfile(
 
     for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        if ( ( i > 0 ) && ( epochsVector.at( i ) < epochsVector.at( i - 1 ) ) )
         {
             throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
                                       "epochs are not provided in increasing order." );
         }
 
-        Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( epochsVector[ i ], specificImpulseFunction, integratorSettings );
-        thrustProfile[ epochsVector[ i ] ] = currentThrustVector;
+        Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( epochsVector.at( i ), specificImpulseFunction, integratorSettings );
+        thrustProfile[ epochsVector.at( i ) ] = currentThrustVector;
 
     }
 }
 
+//! Compute current thrust vector.
+Eigen::Vector3d LowThrustLeg::computeCurrentThrustAcceleration(
+        double time, std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    double independentVariable = convertTimeToIndependentVariable( time );
+    return computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
+}
 
 //! Return thrust acceleration profile.
 void LowThrustLeg::getThrustAccelerationProfile(
@@ -206,15 +224,15 @@ void LowThrustLeg::getThrustAccelerationProfile(
 
     for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        if ( ( i > 0 ) && ( epochsVector.at( i ) < epochsVector.at( i - 1 ) ) )
         {
             throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
                                       "epochs are not provided in increasing order." );
         }
 
         Eigen::Vector3d currentThrustAccelerationVector =
-                computeCurrentThrustAcceleration( epochsVector[ i ], specificImpulseFunction, integratorSettings );
-        thrustAccelerationProfile[ epochsVector[ i ] ] = currentThrustAccelerationVector;
+                computeCurrentThrustAcceleration( epochsVector.at( i ), specificImpulseFunction, integratorSettings );
+        thrustAccelerationProfile[ epochsVector.at( i ) ] = currentThrustAccelerationVector;
 
     }
 
