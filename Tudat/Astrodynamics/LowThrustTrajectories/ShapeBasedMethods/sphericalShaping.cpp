@@ -37,8 +37,7 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     rootFinderSettings_( rootFinderSettings ),
     lowerBoundFreeCoefficient_( lowerBoundFreeCoefficient ),
-    upperBoundFreeCoefficient_( upperBoundFreeCoefficient ),
-    integratorSettings_( integratorSettings )
+    upperBoundFreeCoefficient_( upperBoundFreeCoefficient )
 {
     // Normalize the initial state.
     stateAtDeparture_.segment( 0, 3 ) = initialState.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
@@ -47,9 +46,6 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
     // Normalize the final state.
     stateAtArrival_.segment( 0, 3 ) = finalState.segment( 0, 3 ) / physical_constants::ASTRONOMICAL_UNIT;
     stateAtArrival_.segment( 3, 3 ) = finalState.segment( 3, 3 ) * physical_constants::JULIAN_YEAR / physical_constants::ASTRONOMICAL_UNIT;
-
-    // Normalize the required time of flight.
-    requiredTimeOfFlight_ = requiredTimeOfFlight / physical_constants::JULIAN_YEAR;
 
     // Normalize the gravitational parameter of the central body.
     centralBodyGravitationalParameter_ = centralBodyGravitationalParameter * std::pow( physical_constants::JULIAN_YEAR, 2.0 )
@@ -134,7 +130,9 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
 
 
     // Retrieve initial step size.
-    double initialStepSize = integratorSettings->initialTimeStep_;
+    double initialStepSize = 86400.0;//integratorSettings->initialTimeStep_;
+
+    std::cerr<<"Warning, initialStepSize set to arbitrary value"<<std::endl;
 
     // Vector of azimuth angles at which the time should be computed.
     Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =

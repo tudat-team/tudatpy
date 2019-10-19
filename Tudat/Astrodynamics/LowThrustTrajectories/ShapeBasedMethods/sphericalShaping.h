@@ -118,7 +118,7 @@ protected:
     //! Return the required value for the time of flight (normalized w.r.t. julian year).
     double getNormalizedRequiredTimeOfFlight( )
     {
-        return requiredTimeOfFlight_;
+        return timeOfFlight_ / physical_constants::JULIAN_YEAR;
     }
 
     //! Compute normalized time of flight.
@@ -219,7 +219,6 @@ protected:
     protected:
 
     private:
-        double centralBodyGravitationalParameter_;
 
         std::function< void ( const double ) > resetFreeCoefficientFunction_;
         std::function< void ( ) > satisfyBoundaryConditionsFunction_;
@@ -231,14 +230,11 @@ protected:
 
 private:
 
-    //! Targeted value for the time of flight.
-    double requiredTimeOfFlight_;
+    //! Central body gravitational parameter.
+    double centralBodyGravitationalParameter_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
-
-    //! Central body gravitational parameter.
-    double centralBodyGravitationalParameter_;
 
     //! Initial state in spherical coordinates.
     Eigen::Vector6d initialStateSphericalCoordinates_;
@@ -281,9 +277,6 @@ private:
 
     //! Upper bound for the free coefficient, to be used when trying to match the required time of flight.
     const double upperBoundFreeCoefficient_;
-
-    //! Integrator settings.
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
 
     //! Inverse of matrix containing the boundary conditions
     Eigen::MatrixXd inverseMatrixBoundaryConditions_;

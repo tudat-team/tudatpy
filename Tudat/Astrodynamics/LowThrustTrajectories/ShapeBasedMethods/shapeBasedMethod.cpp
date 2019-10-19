@@ -19,26 +19,28 @@ namespace shape_based_methods
 
 basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelerationMap(
         const simulation_setup::NamedBodyMap& bodyMapTest,
-        std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::function< double ( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings)
 {
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( specificImpulseFunction, integratorSettings );
+            getLowThrustAccelerationModel( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings );
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
-    accelerationSettingsMap[ centralBody_ ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
+    accelerationSettingsMap[ centralBody ].push_back( std::make_shared< simulation_setup::AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
-    accelerationMap[ bodyToPropagate_ ] = accelerationSettingsMap;
+    accelerationMap[ bodyToPropagate ] = accelerationSettingsMap;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
-    accelerationModelMap[ bodyToPropagate_ ][ bodyToPropagate_ ].push_back( lowThrustAccelerationModel );
+    accelerationModelMap[ bodyToPropagate ][ bodyToPropagate ].push_back( lowThrustAccelerationModel );
 
     return accelerationModelMap;
 
@@ -52,7 +54,7 @@ void ShapeBasedMethod::getTrajectory(
 {
     propagatedTrajectory.clear( );
 
-    for ( int i = 0 ; i < epochsVector.size() ; i++ )
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
     {
         if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
@@ -73,11 +75,11 @@ Eigen::Vector3d ShapeBasedMethod::computeCurrentThrust( double time,
 {
     double independentVariable = convertTimeToIndependentVariable( time );
 
-    Eigen::Vector3d currentThrustVector = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
+    throw std::runtime_error( "computeCurrentMass error 1" );
+    Eigen::Vector3d currentThrustVector;/* = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
             * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
-            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
+            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );*/
 
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass_ );
     return currentThrustVector;
 }
 
@@ -113,9 +115,12 @@ void ShapeBasedMethod::getThrustProfile(
 
 //! Define appropriate translational state propagator settings for the full propagation.
 std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > ShapeBasedMethod::createLowThrustTranslationalStatePropagatorSettings(
-        basic_astrodynamics::AccelerationMap accelerationModelMap,
-        std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > ShapeBasedMethod::
+createLowThrustTranslationalStatePropagatorSettings(
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+        const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave )
 {
 
     // Create termination conditions settings.
@@ -135,12 +140,12 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
 
     // Define backward translational state propagation settings.
     translationalStatePropagatorSettings.first = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+            ( std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
               stateAtHalfOfTimeOfFlight, terminationConditions.first, propagators::cowell, dependentVariablesToSave );
 
     // Define forward translational state propagation settings.
     translationalStatePropagatorSettings.second = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-            ( std::vector< std::string >{ centralBody_ }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate_ },
+            ( std::vector< std::string >{ centralBody }, accelerationModelMap, std::vector< std::string >{ bodyToPropagate },
               stateAtHalfOfTimeOfFlight, terminationConditions.second, propagators::cowell, dependentVariablesToSave );
 
     return translationalStatePropagatorSettings;

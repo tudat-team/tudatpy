@@ -194,8 +194,11 @@ public:
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 
     //! Define appropriate translational state propagator settings for the full propagation.
