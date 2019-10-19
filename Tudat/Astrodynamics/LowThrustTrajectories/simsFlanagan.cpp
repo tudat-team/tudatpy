@@ -192,7 +192,8 @@ double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
         double currentTime, std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    double currentMass = computeCurrentMass( currentTime, specificImpulseFunction, integratorSettings );
+    double currentMass = simsFlanaganModel_->getMassAtSegment( simsFlanaganModel_->convertTimeToLegSegment( currentTime ) );
+
     Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
 
     return currentThrustVector.norm( ) / currentMass;
@@ -202,8 +203,8 @@ double SimsFlanagan::computeCurrentThrustAccelerationMagnitude(
 //! Compute current thrust vector.
 Eigen::Vector3d SimsFlanagan::computeCurrentThrustForce(
         double currentTime,
-                                                    std::function< double ( const double ) > specificImpulseFunction,
-                                                    std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     int indexSegment = convertTimeToLegSegment( currentTime );
     return maximumThrust_ * simsFlanaganModel_->getThrottles( ).at( indexSegment );

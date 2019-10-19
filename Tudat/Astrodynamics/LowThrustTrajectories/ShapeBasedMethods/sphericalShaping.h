@@ -285,6 +285,8 @@ private:
 
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
+
+    std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 };
 
 

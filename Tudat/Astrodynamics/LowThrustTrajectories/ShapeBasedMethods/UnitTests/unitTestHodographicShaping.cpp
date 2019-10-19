@@ -1249,320 +1249,252 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 }
 
 
-////! Test full propagation while propagating the spacecraft mass too.
-//BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation )
-//{
-//    using namespace shape_based_methods;
-
-//    double numberOfRevolutions = 1.0;
-
-//    double julianDate = 2458849.5;
-
-//    double timeOfFlight = 500.0;
-
-//    // Ephemeris departure body.
-//    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-
-//    // Ephemeris arrival body.
-//    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-//                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
-
-//    // Retrieve cartesian state at departure and arrival.
-//    Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
-//    Eigen::Vector6d cartesianStateArrivalBody =
-//            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
-
-
-//    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
-
-//    double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
-
-//    // Create base function settings for the components of the radial velocity composite function.
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
-//            std::make_shared< BaseFunctionHodographicShapingSettings >( );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthRadialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthRadialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
-
-//    // Create components of the radial velocity composite function.
-//    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
-//    radialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
-//    radialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
-//    radialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
-//    radialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerSine, fourthRadialVelocityBaseFunctionSettings ) );
-//    radialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthRadialVelocityBaseFunctionSettings ) );
-
-//    // Create base function settings for the components of the normal velocity composite function.
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
-//            std::make_shared< BaseFunctionHodographicShapingSettings >( );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
-//            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
-//            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthNormalVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthNormalVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
-
-//    // Create components of the normal velocity composite function.
-//    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
-//    normalVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
-//    normalVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
-//    normalVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
-//    normalVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerSine, fourthNormalVelocityBaseFunctionSettings ) );
-//    normalVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthNormalVelocityBaseFunctionSettings ) );
-
-//    // Create base function settings for the components of the axial velocity composite function.
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
-//            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
-//            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
-//                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthAxialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
-//                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
-//    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthAxialVelocityBaseFunctionSettings =
-//            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
-//                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
-
-//    // Set components for the axial velocity function.
-//    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
-//    axialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
-//    axialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
-//    axialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
-//    axialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerCosine, fourthAxialVelocityBaseFunctionSettings ) );
-//    axialVelocityFunctionComponents.push_back(
-//                createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
-
-//    // Initialize free coefficients vector for radial velocity function.
-//    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 2 );
-//    freeCoefficientsRadialVelocityFunction[ 0 ] = 500.0;
-//    freeCoefficientsRadialVelocityFunction[ 1 ] = 500.0;
-
-//    // Initialize free coefficients vector for normal velocity function.
-//    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 2 );
-//    freeCoefficientsNormalVelocityFunction[ 0 ] = 500.0;
-//    freeCoefficientsNormalVelocityFunction[ 1 ] = - 200.0;
-
-//    // Initialize free coefficients vector for axial velocity function.
-//    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 2 );
-//    freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
-//    freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
-
-
-
-//    std::map< double, Eigen::VectorXd > fullPropagationResults;
-//    std::map< double, Eigen::Vector6d > shapingMethodResults;
-//    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
-
-//    spice_interface::loadStandardSpiceKernels( );
-
-//    // Create central, departure and arrival bodies.
-//    std::vector< std::string > bodiesToCreate;
-//    bodiesToCreate.push_back( "Sun" );
-//    bodiesToCreate.push_back( "Earth" );
-//    bodiesToCreate.push_back( "Mars" );
-//    bodiesToCreate.push_back( "Jupiter" );
-
-//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-//            getDefaultBodySettings( bodiesToCreate );
-
-//    std::string frameOrigin = "SSB";
-//    std::string frameOrientation = "ECLIPJ2000";
-
-
-//    // Define central body ephemeris settings.
-//    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-//                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-//    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-//    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-//    // Create body map.
-//    NamedBodyMap bodyMap = createBodies( bodySettings );
-
-//    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-//    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-//                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
-//                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-//    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-
-//    // Define body to propagate and central body.
-//    std::vector< std::string > bodiesToPropagate;
-//    bodiesToPropagate.push_back( "Vehicle" );
-//    std::vector< std::string > centralBodies;
-//    centralBodies.push_back( "Sun" );
-
-//    // Acceleration from the central body.
-//    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > bodyToPropagateAccelerations;
-//    bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-//                                                                basic_astrodynamics::central_gravity ) );
-
-//    SelectedAccelerationMap accelerationMap;
-//    accelerationMap[ "Vehicle" ] = bodyToPropagateAccelerations;
-
-//    // Create the acceleration map.
-//    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-//                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
-
-//    // Define integrator settings.
-//    double stepSize = ( timeOfFlight * physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );
-//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-//            std::make_shared< numerical_integrators::IntegratorSettings< double > > ( numerical_integrators::rungeKutta4, 0.0, stepSize / 400.0 );
-
-//    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 2000.0 );
-
-
-//    // Define specific impulse function.
-//    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime )
-//    {
-//        return 3000.0;
-//    };
-
-//    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
-//    HodographicShaping hodographicShaping(
-//                cartesianStateDepartureBody, cartesianStateArrivalBody,
-//                timeOfFlight * physical_constants::JULIAN_DAY, 1,
-//                bodyMap, "Vehicle", "Sun",
-//                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
-//                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
-//                integratorSettings );
-
-
-//    // Define list of dependent variables to save.
-//    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-//    dependentVariablesList.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-//                        basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-//    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-//                    total_mass_rate_dependent_variables, "Vehicle" ) );
-
-//    // Create object with list of dependent variables
-//    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-//            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
-
-//    // Create termination conditions settings.
-//    std::pair< std::shared_ptr< PropagationTerminationSettings >, std::shared_ptr< PropagationTerminationSettings > > terminationConditions;
-
-//    terminationConditions.first = std::make_shared< PropagationTimeTerminationSettings >( 0.0 );
-//    terminationConditions.second = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
-
-
-//    basic_astrodynamics::AccelerationMap perturbingAccelerationsMap;
-
-//    // Create complete propagation settings (backward and forward propagations).
-//    std::pair< std::shared_ptr< PropagatorSettings< double > >,
-//            std::shared_ptr< PropagatorSettings< double > > > propagatorSettings = hodographicShaping.createLowThrustPropagatorSettings(
-//                specificImpulseFunction, perturbingAccelerationsMap, integratorSettings, dependentVariablesToSave );
-
-//    // Compute shaped trajectory and propagated trajectory.
-//    hodographicShaping.computeSemiAnalyticalAndFullPropagation( integratorSettings, propagatorSettings,
-//                                                                   fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
-
-//    // Check that boundary conditions are still fulfilled when free parameters are added.
-//    for ( int i = 0 ; i < 6 ; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] )
-//                           / shapingMethodResults.begin( )->second[ i ], 1.0e-8 );
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] )
-//                           / shapingMethodResults.rbegin( )->second[ i ], 1.0e-8 );
-//    }
-
-//    // Check results consistency between full propagation and shaped trajectory at departure and arrival.
-//    for ( int i = 0 ; i < 6 ; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin( )->second[ i ] - fullPropagationResults.begin( )->second[ i ] )
-//                           / shapingMethodResults.begin( )->second[ i ], 2.0e-7 );
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin( )->second[ i ] - fullPropagationResults.rbegin( )->second[ i ] )
-//                           / shapingMethodResults.rbegin( )->second[ i ], 2.0e-7 );
-//    }
-
-//    // Check consistency between current and expected mass rates.
-//    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariablesHistory.begin( ) ; itr != dependentVariablesHistory.end( ) ; itr++ )
-//    {
-//        Eigen::Vector3d currentThrustVector = itr->second.segment( 0, 3 );
-//        double currentMass = fullPropagationResults.at( itr->first )( 6 );
-//        double currentMassRate = - itr->second( 3 );
-//        double expectedMassRate = currentThrustVector.norm( ) * currentMass /
-//                ( specificImpulseFunction( itr->first ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
-
-//        BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
-
-//    }
-
-
-//    // Test trajectory function.
-//    std::vector< double > epochsVector;
-//    epochsVector.push_back( 0.0 );
-//    epochsVector.push_back( timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
-//    epochsVector.push_back( timeOfFlight / 2.0 * physical_constants::JULIAN_DAY );
-//    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
-//    epochsVector.push_back( timeOfFlight * physical_constants::JULIAN_DAY );
-
-//    std::map< double, Eigen::Vector6d > trajectory;
-//    std::map< double, Eigen::VectorXd > massProfile;
-//    std::map< double, Eigen::VectorXd > thrustProfile;
-//    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
-
-//    hodographicShaping.getTrajectory( epochsVector, trajectory );
-//    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-//    hodographicShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
-//    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
-
-//    for ( int i = 0 ; i < 3 ; i ++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] ), 1.0e-3 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i + 3 ] - cartesianStateDepartureBody[ i + 3 ] ), 1.0e-10 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] ), 1.0e-3 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i + 3 ] - cartesianStateArrivalBody[ i + 3 ] ), 1.0e-10 );
-//    }
-
-//    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
-//    {
-//        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
-//        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration( itr->first, specificImpulseFunction, integratorSettings );
-//        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrust( itr->first, specificImpulseFunction, integratorSettings );
-//        double mass = hodographicShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
-
-//        for ( int i = 0 ; i < 3 ; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
-//            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
-//        }
-//        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-12 );
-//    }
-
-//}
+//! Test full propagation while propagating the spacecraft mass too.
+BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation )
+{
+    double numberOfRevolutions = 1.0;
+    double julianDate = 2458849.5;
+    double timeOfFlight = 500.0;
+    double initialBodyMass = 2000.0;
+    double frequency = 2.0 * mathematical_constants::PI / ( timeOfFlight * physical_constants::JULIAN_DAY );
+    double scaleFactor = 1.0 / ( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double )
+    { return 3000.0; };
+
+    // Retrieve cartesian state at departure and arrival.
+    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    Eigen::Vector6d cartesianStateDepartureBody =
+            pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d cartesianStateArrivalBody =
+            pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
+
+    // Create base function settings for the components of the radial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstRadialVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthRadialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+
+    // Create components of the radial velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > radialVelocityFunctionComponents;
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthRadialVelocityBaseFunctionSettings ) );
+    radialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthRadialVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the normal velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
+            std::make_shared< BaseFunctionHodographicShapingSettings >( );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 1.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerFunctionHodographicShapingSettings >( 2.0, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthNormalVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >( 1.0, 0.5 * frequency, scaleFactor );
+
+    // Create components of the normal velocity composite function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > normalVelocityFunctionComponents;
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( constant, firstNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fourthNormalVelocityBaseFunctionSettings ) );
+    normalVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fifthNormalVelocityBaseFunctionSettings ) );
+
+    // Create base function settings for the components of the axial velocity composite function.
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
+            std::make_shared< TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >
+            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fourthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+    std::shared_ptr< BaseFunctionHodographicShapingSettings > fifthAxialVelocityBaseFunctionSettings =
+            std::make_shared< PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                4.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+
+    // Set components for the axial velocity function.
+    std::vector< std::shared_ptr< BaseFunctionHodographicShaping > > axialVelocityFunctionComponents;
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( cosine, firstAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerCosine, fourthAxialVelocityBaseFunctionSettings ) );
+    axialVelocityFunctionComponents.push_back(
+                createBaseFunctionHodographicShaping( scaledPowerSine, fifthAxialVelocityBaseFunctionSettings ) );
+
+    // Initialize free coefficients vector for radial velocity function.
+    Eigen::VectorXd freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsRadialVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsRadialVelocityFunction[ 1 ] = 500.0;
+
+    // Initialize free coefficients vector for normal velocity function.
+    Eigen::VectorXd freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsNormalVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsNormalVelocityFunction[ 1 ] = - 200.0;
+
+    // Initialize free coefficients vector for axial velocity function.
+    Eigen::VectorXd freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 2 );
+    freeCoefficientsAxialVelocityFunction[ 0 ] = 500.0;
+    freeCoefficientsAxialVelocityFunction[ 1 ] = 2000.0;
+
+
+    // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShaping hodographicShaping(
+                cartesianStateDepartureBody, cartesianStateArrivalBody,
+                timeOfFlight * physical_constants::JULIAN_DAY,
+                spice_interface::getBodyGravitationalParameter( "Sun" ), 1,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
+                initialBodyMass );
+
+    // Create environment
+    NamedBodyMap bodyMap = getTestBodyMap( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( initialBodyMass );
+
+    // Define integrator settings.
+    double stepSize = ( timeOfFlight * physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > >(
+                numerical_integrators::rungeKutta4, 0.0, stepSize / 400.0 );
+
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                                          basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                                          total_mass_rate_dependent_variables, "Vehicle" ) );
+
+    // Create object with list of dependent variables
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList, false );
+
+    // Create termination conditions settings.
+    std::pair< std::shared_ptr< PropagationTerminationSettings >, std::shared_ptr< PropagationTerminationSettings > > terminationConditions;
+    terminationConditions.first = std::make_shared< PropagationTimeTerminationSettings >( 0.0 );
+    terminationConditions.second = std::make_shared< PropagationTimeTerminationSettings >( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    // Create complete propagation settings (backward and forward propagations).
+    std::pair< std::shared_ptr< PropagatorSettings< double > >,
+            std::shared_ptr< PropagatorSettings< double > > > propagatorSettings = hodographicShaping.createLowThrustPropagatorSettings(
+                bodyMap, "Vehicle", "Sun", specificImpulseFunction, basic_astrodynamics::AccelerationMap( ), integratorSettings,
+                dependentVariablesToSave );
+
+    // Compute shaped trajectory and propagated trajectory.
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::Vector6d > shapingMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+    hodographicShaping.computeSemiAnalyticalAndFullPropagation(
+                bodyMap, integratorSettings, propagatorSettings,
+                fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
+
+    // Check that boundary conditions are still fulfilled when free parameters are added.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] )
+                           / shapingMethodResults.begin( )->second[ i ], 1.0e-8 );
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] )
+                           / shapingMethodResults.rbegin( )->second[ i ], 1.0e-8 );
+    }
+
+    // Check results consistency between full propagation and shaped trajectory at departure and arrival.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.begin( )->second[ i ] - fullPropagationResults.begin( )->second[ i ] )
+                           / shapingMethodResults.begin( )->second[ i ], 2.0e-7 );
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults.rbegin( )->second[ i ] - fullPropagationResults.rbegin( )->second[ i ] )
+                           / shapingMethodResults.rbegin( )->second[ i ], 2.0e-7 );
+    }
+
+    // Check consistency between current and expected mass rates.
+    for ( std::map< double, Eigen::VectorXd >::iterator itr = dependentVariablesHistory.begin( ) ; itr != dependentVariablesHistory.end( ) ; itr++ )
+    {
+        Eigen::Vector3d currentThrustVector = itr->second.segment( 0, 3 );
+        double currentMass = fullPropagationResults.at( itr->first )( 6 );
+        double currentMassRate = - itr->second( 3 );
+        double expectedMassRate = currentThrustVector.norm( ) * currentMass /
+                ( specificImpulseFunction( itr->first ) * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+
+        BOOST_CHECK_SMALL( std::fabs( currentMassRate - expectedMassRate ), 1.0e-15 );
+
+    }
+
+
+    // Test trajectory function.
+    std::vector< double > epochsVector;
+    epochsVector.push_back( 0.0 );
+    epochsVector.push_back( timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight / 2.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( 3.0 * timeOfFlight / 4.0 * physical_constants::JULIAN_DAY );
+    epochsVector.push_back( timeOfFlight * physical_constants::JULIAN_DAY );
+
+    std::map< double, Eigen::Vector6d > trajectory;
+    std::map< double, Eigen::VectorXd > massProfile;
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
+
+    hodographicShaping.getTrajectory( epochsVector, trajectory );
+    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+    hodographicShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+
+    for ( int i = 0 ; i < 3 ; i ++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] ), 1.0e-3 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i + 3 ] - cartesianStateDepartureBody[ i + 3 ] ), 1.0e-10 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] ), 1.0e-3 );
+        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i + 3 ] - cartesianStateArrivalBody[ i + 3 ] ), 1.0e-10 );
+    }
+
+    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+    {
+        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
+        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration(
+                    itr->first, specificImpulseFunction, integratorSettings );
+        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrustForce(
+                    itr->first, specificImpulseFunction, integratorSettings );
+        double mass = hodographicShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
+            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
+        }
+        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-12 );
+    }
+
+}
 
 
 BOOST_AUTO_TEST_SUITE_END( )

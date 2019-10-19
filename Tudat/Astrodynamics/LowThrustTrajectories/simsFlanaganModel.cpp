@@ -48,7 +48,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
     // Define (constant) thrust magnitude function.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
     {
-        return maximumThrust_ * throttles_[ indexSegment ].norm();
+        return maximumThrust_ * throttles_[ indexSegment ].norm( );
     };
 
     // Define thrust magnitude settings from thrust magnitude function.
@@ -59,7 +59,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
     // Define thrust direction function (constant over one leg segment).
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
     {
-        return throttles_[ indexSegment ].normalized();
+        return throttles_[ indexSegment ].normalized( );
     };
 
 
@@ -198,6 +198,8 @@ void SimsFlanaganModel::propagateMassToSegments( )
     segmentMasses_[ 0 ] = currentMass;
     for( int currentSegment = 0 ; currentSegment < numberSegments_ ; currentSegment++ )
     {
+        std::cout<<"Mass "<<currentSegment<<" "<<segmentMasses_[ currentSegment ]<<std::endl;
+
         // Compute time at half of the current segment.
         double currentTime = timesAtNodes_[ currentSegment ] +
                 ( timesAtNodes_[ currentSegment + 1 ] - timesAtNodes_[ currentSegment ] ) / 2.0;
