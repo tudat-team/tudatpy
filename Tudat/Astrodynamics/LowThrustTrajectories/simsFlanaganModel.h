@@ -65,9 +65,6 @@ public:
 
         // Initialise value of the total deltaV.
         totalDeltaV_ = 0.0;
-
-        // Retrieve initial mass of the spacecraft.
-        initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
     }
 
 
@@ -143,7 +140,10 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( );
 
-    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
+    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap(
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody );
 
     //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryForward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
@@ -183,7 +183,11 @@ protected:
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
             unsigned int indexSegment );
 
-    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( unsigned int indexSegment );
+    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment(
+            const unsigned int indexSegment,
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody );
 
 private:
 
@@ -244,8 +248,6 @@ private:
     //! Vector containing the time associated to each node of the leg.
     std::vector< double > timesAtNodes_;
 
-    //! Initial mass of the spacecraft.
-    double initialSpacecraftMass_;
 
 };
 

@@ -138,11 +138,11 @@ protected:
 
 private:
 
-    //! Number of revolutions.
-    int numberOfRevolutions_;
-
     //! Central body gravitational parameter.
     double centralBodyGravitationalParameter_;
+
+    //! Number of revolutions.
+    int numberOfRevolutions_;
 
     //! Radial velocity function.
     std::shared_ptr< CompositeFunctionHodographicShaping > radialVelocityFunction_;

@@ -45,10 +45,7 @@ public:
                   const Eigen::Vector6d& stateAtArrival,
                   const double timeOfFlight ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight )
-    {
-        // Retrieve initial mass of the spacecraft.
-        initialMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
-    }
+    { std::cerr<< "Error, initialMass_ not yet set." <<std::endl; }
 
     virtual ~LowThrustLeg( ){ }
 
@@ -90,13 +87,18 @@ public:
 
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
-            std::function< double( const double ) > specificImpulseFunction,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     virtual basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) = 0;
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) = 0;
 
     //! Compute current thrust vector.
    virtual Eigen::Vector3d computeCurrentThrust(
@@ -134,26 +136,32 @@ public:
 
     //! Full propagation.
     void computeSemiAnalyticalAndFullPropagation(
-            std::shared_ptr<numerical_integrators::IntegratorSettings<double> > integratorSettings,
-            std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
                     std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
             std::map< double, Eigen::VectorXd >& fullPropagationResults,
             std::map< double, Eigen::Vector6d >& semiAnalyticalResults,
-            std::map< double, Eigen::VectorXd>& dependentVariablesHistory );
+            std::map< double, Eigen::VectorXd >& dependentVariablesHistory );
 
     //! Define appropriate propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
     std::shared_ptr< propagators::PropagatorSettings< double > > > createLowThrustPropagatorSettings(
-            std::function< double( const double ) > specificImpulseFunction,
-            basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+            const std::shared_ptr< propagators::DependentVariableSaveSettings >& dependentVariablesToSave );
 
     //! Define appropriate propagator settings for the full propagation.
     virtual std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-            basic_astrodynamics::AccelerationMap accelerationModelMap,
-            std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ) = 0;
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave ) = 0;
 
 
 protected:
@@ -167,7 +175,6 @@ protected:
     //! Time of flight of the trajectory leg.
     double timeOfFlight_;
 
-    //! Initial mass of the spacecraft.
     double initialMass_;
 
     //! Compute current mass of the spacecraft between two epochs.
@@ -175,8 +182,11 @@ protected:
             const double timeInitialEpoch,
             const double timeFinalEpoch,
             const double massInitialEpoch,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::string& centralBody,
+            const std::function< double ( const double ) > specificImpulseFunction,
+            const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
 private:
 

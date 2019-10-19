@@ -548,25 +548,9 @@ double HodographicShaping::computeDeltaV( )
 {
 
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
-    std::function< Eigen::Vector1d( const double, const Eigen::Vector1d& ) > derivativeFunctionDeltaV = [ = ]
-            ( const double currentTime, const Eigen::Vector1d& currentState ){
-
-        std::function< double( const double ) > specificImpulseFunction = [ = ]( double time )
-        {
-            return 0.0;
-        };
-
-        Eigen::Vector1d thrustAcceleration;
-        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings;
-        thrustAcceleration[ 0 ] = computeCurrentThrustAccelerationMagnitude( currentTime, specificImpulseFunction, integratorSettings );
-        return thrustAcceleration;
-
-    } ;
-
-    // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
     std::function< double( const double ) > derivativeFunctionDeltaVtest = [ = ] ( const double currentTime ){
 
-        return computeThrustAccelerationInCylindricalCoordinates( currentTime ).norm();
+        return computeThrustAccelerationInCylindricalCoordinates( currentTime ).norm( );
 
     } ;
 

@@ -22,13 +22,13 @@ if(USE_PAGMO)
     set(LOWTHRUSTTRAJECTORIES_SOURCES
     "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.cpp"
     "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.cpp"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.cpp"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.cpp"
     )
 else()
     set(LOWTHRUSTTRAJECTORIES_SOURCES
@@ -42,13 +42,13 @@ if( USE_PAGMO )
     set(LOWTHRUSTTRAJECTORIES_HEADERS
     "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLegSettings.h"
     "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustLeg.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.h"
-    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganModel.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanagan.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/simsFlanaganOptimisationSetup.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethodModel.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridOptimisationSetup.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/hybridMethod.h"
+#    "${SRCROOT}${LOWTHRUSTTRAJECTORIESDIR}/lowThrustOptimisationSetup.h"
     )
 else( )
     set(LOWTHRUSTTRAJECTORIES_HEADERS

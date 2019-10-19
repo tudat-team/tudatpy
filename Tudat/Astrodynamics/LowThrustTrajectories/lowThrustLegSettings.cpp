@@ -33,7 +33,9 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                 std::dynamic_pointer_cast< HodographicShapingLegSettings >( lowThrustLegSettings );
 
         lowThrustLeg = std::make_shared< shape_based_methods::HodographicShaping >(
-                    stateAtDeparture, stateAtArrival, timeOfFlight, hodographicShapingSettings->numberOfRevolutions_,
+                    stateAtDeparture, stateAtArrival, timeOfFlight,
+                    hodographicShapingSettings->centralBodyGravitationalParameter_,
+                    hodographicShapingSettings->numberOfRevolutions_,
                     hodographicShapingSettings->radialVelocityFunctionComponents_,
                     hodographicShapingSettings->normalVelocityFunctionComponents_, hodographicShapingSettings->axialVelocityFunctionComponents_,
                     hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_, hodographicShapingSettings->freeCoefficientsNormalVelocityFunction_,
@@ -46,7 +48,9 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                 std::dynamic_pointer_cast< SphericalShapingLegSettings >( lowThrustLegSettings );
 
         lowThrustLeg = std::make_shared< shape_based_methods::SphericalShaping >(
-                    stateAtDeparture, stateAtArrival, timeOfFlight, sphericalShapingSettings->numberOfRevolutions_,
+                    stateAtDeparture, stateAtArrival, timeOfFlight,
+                    sphericalShapingSettings->centralBodyGravitationalParameter_,
+                    sphericalShapingSettings->numberOfRevolutions_,
                     sphericalShapingSettings->initialValueFreeCoefficient_,
                     sphericalShapingSettings->rootFinderSettings_, sphericalShapingSettings->boundsFreeCoefficient_.first,
                     sphericalShapingSettings->boundsFreeCoefficient_.second );
