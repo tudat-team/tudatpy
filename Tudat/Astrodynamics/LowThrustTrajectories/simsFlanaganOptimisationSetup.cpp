@@ -19,27 +19,25 @@ namespace low_thrust_trajectories
 SimsFlanaganProblem::SimsFlanaganProblem(
         const Eigen::Vector6d &stateAtDeparture,
         const Eigen::Vector6d &stateAtArrival,
+        const double centralBodyGravitationalParameter,
+        const double initialSpacecraftMass,
         const double maximumThrust,
         const std::function< double ( const double ) > specificImpulseFunction,
         const int numberSegments,
         const double timeOfFlight,
-        const std::string bodyToPropagate,
-        const std::string centralBody,
         const std::pair< std::vector< double >, double > initialGuessThrustModel,
         const double relativeToleranceConstraints ) :
     stateAtDeparture_( stateAtDeparture ),
     stateAtArrival_( stateAtArrival ),
+    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+    initialSpacecraftMass_( initialSpacecraftMass ),
     maximumThrust_( maximumThrust ),
     specificImpulseFunction_( specificImpulseFunction ),
     numberSegments_( numberSegments ),
     timeOfFlight_( timeOfFlight ),
-    bodyToPropagate_( bodyToPropagate ),
-    centralBody_( centralBody ),
     initialGuessThrustModel_( initialGuessThrustModel ),
     relativeToleranceConstraints_( relativeToleranceConstraints )
 {
-    initialSpacecraftMass_ =
-
     // Retrieve initial guess.
     initialGuessThrottles_ = initialGuessThrustModel_.first;
     relativeMarginWrtInitialGuess_ = initialGuessThrustModel_.second;
@@ -129,8 +127,6 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
 //! Fitness function.
 std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > &designVariables ) const
 {
-
-
     // Transform vector of design variables into 3D vector of throttles.
     std::vector< Eigen::Vector3d > throttles;
 
@@ -146,19 +142,18 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
                              designVariables[ i * 3 + 1 ], designVariables[ i * 3 + 2 ] ).finished( ) );
     }
 
-
     std::vector< double > fitness;
 
     // Create Sims Flanagan trajectory leg.
     low_thrust_trajectories::SimsFlanaganModel currentLeg = low_thrust_trajectories::SimsFlanaganModel(
-                stateAtDeparture_, stateAtArrival_, maximumThrust_, specificImpulseFunction_, timeOfFlight_, throttles );
+                stateAtDeparture_, stateAtArrival_, centralBodyGravitationalParameter_, initialSpacecraftMass_,
+                maximumThrust_, specificImpulseFunction_, timeOfFlight_, throttles );
 
     // Forward propagation from departure to match point.
     currentLeg.propagateForwardFromDepartureToMatchPoint();
 
     // Backward propagation from arrival to match point.
     currentLeg.propagateBackwardFromArrivalToMatchPoint();
-
 
     // Fitness
     double deltaV = currentLeg.getTotalDeltaV( );
@@ -179,6 +174,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
 
     // Inequality constraints.
     std::vector< double > inequalityConstraints;
+
     // Magnitude of the normalised thrust vector must be inferior or equal to 1 )
     for ( unsigned int currentThrottle = 0 ; currentThrottle < throttles.size() ; currentThrottle++ )
     {

@@ -42,6 +42,8 @@ struct SimsFlanaganProblem
     //! Constructor.
     SimsFlanaganProblem( const Eigen::Vector6d& stateAtDeparture,
                          const Eigen::Vector6d& stateAtArrival,
+                         const double centralBodyGravitationalParameter,
+                         const double initialSpacecraftMass,
                          const double maximumThrust,
                          const std::function< double ( const double ) > specificImpulseFunction,
                          const int numberSegments,
@@ -85,6 +87,10 @@ private:
     //! State vector of the vehicle at the leg arrival.
     Eigen::Vector6d stateAtArrival_;
 
+    double centralBodyGravitationalParameter_;
+
+    double initialSpacecraftMass_;
+
     //! Maximum allowed thrust.
     double maximumThrust_;
 
@@ -96,9 +102,6 @@ private:
 
     //! Time of flight for the leg.
     double timeOfFlight_;
-
-    //! Initial spacecraft mass.
-    double initialSpacecraftMass_;
 
     //! Initial guess for the optimisation.
     //! The first element contains the thrust throttles corresponding to the initial guess for the thrust model.
