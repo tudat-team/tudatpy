@@ -43,9 +43,10 @@ public:
      */
     LowThrustLeg( const Eigen::Vector6d& stateAtDeparture,
                   const Eigen::Vector6d& stateAtArrival,
-                  const double timeOfFlight ):
-        stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight )
-    { std::cerr<< "Error, initialMass_ not yet set." <<std::endl; }
+                  const double timeOfFlight,
+                  const double initialMass ):
+        stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), timeOfFlight_( timeOfFlight ),
+        initialMass_( initialMass ){ }
 
     virtual ~LowThrustLeg( ){ }
 
@@ -101,13 +102,13 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings ) = 0;
 
     //! Compute current thrust vector.
-   virtual Eigen::Vector3d computeCurrentThrust(
+   virtual Eigen::Vector3d computeCurrentThrustForce(
             double time,
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings ) = 0;
 
     //! Return thrust profile.
-    void getThrustProfile( std::vector< double >& epochsVector,
+    virtual void getThrustForceProfile( std::vector< double >& epochsVector,
                            std::map< double, Eigen::VectorXd >& thrustProfile,
                            std::function< double ( const double ) > specificImpulseFunction,
                            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
@@ -123,7 +124,7 @@ public:
     }
 
     //! Return thrust acceleration profile.
-    void getThrustAccelerationProfile(
+    virtual void getThrustAccelerationProfile(
             std::vector< double >& epochsVector,
             std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
             std::function< double ( const double ) > specificImpulseFunction,
@@ -182,9 +183,6 @@ protected:
             const double timeInitialEpoch,
             const double timeFinalEpoch,
             const double massInitialEpoch,
-            const simulation_setup::NamedBodyMap& bodyMapTest,
-            const std::string& bodyToPropagate,
-            const std::string& centralBody,
             const std::function< double ( const double ) > specificImpulseFunction,
             const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 

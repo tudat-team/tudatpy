@@ -37,10 +37,8 @@ public:
     ShapeBasedMethod( const Eigen::Vector6d& stateAtDeparture,
                       const Eigen::Vector6d& stateAtArrival,
                       const double timeOfFlight,
-                      std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings
-                         = std::shared_ptr< numerical_integrators::IntegratorSettings< > >( ) ) :
-    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight ),
-    integratorSettings_( integratorSettings ){ }
+                      const double initialBodyMass = TUDAT_NAN ) :
+    LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialBodyMass ){ }
 
     //! Default destructor.
     virtual ~ShapeBasedMethod( ) { }
@@ -56,12 +54,12 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
-    Eigen::Vector3d computeCurrentThrust( double time,
+    Eigen::Vector3d computeCurrentThrustForce( double time,
                                           std::function< double ( const double ) > specificImpulseFunction,
                                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Return thrust profile.
-    void getThrustProfile( std::vector< double >& epochsVector,
+    void getThrustForceProfile( std::vector< double >& epochsVector,
                            std::map< double, Eigen::VectorXd >& thrustProfile,
                            std::function< double ( const double ) > specificImpulseFunction,
                            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
@@ -88,12 +86,6 @@ protected:
 
     //! Numerical quadrature settings, required to compute the time of flight and total deltaV.
     std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
-
-private:
-
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings_;
-
-
 
 
 };

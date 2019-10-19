@@ -42,7 +42,8 @@ public:
                       const double initialValueFreeCoefficient,
                       const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                       const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                      const double upperBoundFreeCoefficient = TUDAT_NAN );
+                      const double upperBoundFreeCoefficient = TUDAT_NAN,
+                      const double initialBodyMass = TUDAT_NAN );
 
     //! Default destructor.
     ~SphericalShaping( ) { }

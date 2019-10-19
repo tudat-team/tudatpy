@@ -58,9 +58,8 @@ public:
             const int numberSegments,
             const double timeOfFlight,
             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ) :
-        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight ),
+        LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialSpacecraftMass ),
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        initialSpacecraftMass_( initialSpacecraftMass ),
         maximumThrust_( maximumThrust ),
         specificImpulseFunction_( specificImpulseFunction ),
         numberSegments_( numberSegments ),
@@ -108,7 +107,7 @@ public:
         // Create Sims-Flanagan leg from the best optimisation individual.
         simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >(
                     stateAtDeparture_, stateAtArrival_,
-                    centralBodyGravitationalParameter_, initialSpacecraftMass_, maximumThrust_, specificImpulseFunction_,
+                    centralBodyGravitationalParameter_, initialMass_, maximumThrust_, specificImpulseFunction_,
                     timeOfFlight_, throttles );
 
     }
@@ -148,7 +147,7 @@ public:
         simsFlanaganModel_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
-    Eigen::Vector3d computeCurrentThrust( double time,
+    Eigen::Vector3d computeCurrentThrustForce( double time,
                                           std::function< double ( const double ) > specificImpulseFunction,
                                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
@@ -217,9 +216,6 @@ protected:
 private:
 
     double centralBodyGravitationalParameter_;
-
-    //! Initial mass of the spacecraft.
-    double initialSpacecraftMass_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;
