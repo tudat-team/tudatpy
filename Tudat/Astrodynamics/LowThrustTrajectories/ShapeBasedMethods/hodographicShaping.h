@@ -196,6 +196,8 @@ private:
      */
     Eigen::MatrixXd inverseAxialMatrixBoundaryValues_;
 
+    std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
+
 };
 
 

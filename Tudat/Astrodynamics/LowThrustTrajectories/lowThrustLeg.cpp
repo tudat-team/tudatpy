@@ -33,7 +33,8 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
         double currentIndependentVariable = convertTimeToIndependentVariable( currentTime );
 
         // Compute current acceleration.
-        double currentAcceleration = computeCurrentThrustAccelerationMagnitude( currentIndependentVariable, specificImpulseFunction, integratorSettings );
+        double currentAcceleration = computeCurrentThrustAccelerationMagnitude(
+                    currentIndependentVariable, specificImpulseFunction, integratorSettings );
 
         // Compute current mass of the vehicle.
         double currentMass = vehicle->getBodyMass();
@@ -130,9 +131,7 @@ double LowThrustLeg::computeCurrentMass( const double independentVariable,
                                          std::function< double ( const double ) > specificImpulseFunction,
                                          std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    throw std::runtime_error( "computeCurrentMass error 2" );
-
-    return 0.0;//computeCurrentMass( 0.0, independentVariable, initialMass_, specificImpulseFunction, integratorSettings );
+    return computeCurrentMass( 0.0, independentVariable, initialMass_, specificImpulseFunction, integratorSettings );
 }
 
 //! Return mass profile.
@@ -318,9 +317,9 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
 
     // Add perturbing accelerations given as input.
     basic_astrodynamics::AccelerationMap accelerationModelMap = perturbingAccelerationsMap;
-    accelerationModelMap.at( bodyToPropagate ).at( bodyToPropagate ).push_back(
+    accelerationModelMap[ bodyToPropagate ][ bodyToPropagate ].push_back(
                 lowThrustTrajectoryAccelerations.at( bodyToPropagate ).at( bodyToPropagate ).at( 0 ) );
-    accelerationModelMap.at( bodyToPropagate ).at( centralBody ).push_back(
+    accelerationModelMap[ bodyToPropagate ][ centralBody ].push_back(
                 lowThrustTrajectoryAccelerations.at( bodyToPropagate ).at( centralBody ).at( 0 ) );
 
 
@@ -338,7 +337,7 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels.at( bodyToPropagate ) = simulation_setup::createMassRateModel(
+    massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel(
                 bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodyMapTest, accelerationModelMap );
 
     // Define backward mass propagation settings.
@@ -364,12 +363,12 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
     propagatorSettingsVector.second.push_back( massPropagatorSettings.second );
 
     // Backward hybrid propagation settings.
-    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.first,
-                                                                                                       terminationConditions.first, dependentVariablesToSave );
+    propagatorSettings.first = std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
+                propagatorSettingsVector.first, terminationConditions.first, dependentVariablesToSave );
 
     // Forward hybrid propagation settings.
-    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector.second,
-                                                                                                        terminationConditions.second, dependentVariablesToSave );
+    propagatorSettings.second = std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
+                propagatorSettingsVector.second, terminationConditions.second, dependentVariablesToSave );
 
 
     return propagatorSettings;

@@ -309,9 +309,9 @@ void SphericalShaping::satisfyBoundaryConditions( )
     vectorSecondComponentContribution[ 2 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, initialAzimuthAngle_ );
     vectorSecondComponentContribution[ 3 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, finalAzimuthAngle_ );
     vectorSecondComponentContribution[ 4 ] = - std::pow( initialStateParametrizedByAzimuthAngle_[ 0 ], 2 )
-              * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, initialAzimuthAngle_ );
+            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, initialAzimuthAngle_ );
     vectorSecondComponentContribution[ 5 ] = - std::pow( finalStateParametrizedByAzimuthAngle_[ 0 ], 2 )
-              * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, finalAzimuthAngle_ );
+            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, finalAzimuthAngle_ );
     vectorSecondComponentContribution[ 6 ] = 0.0;
     vectorSecondComponentContribution[ 7 ] = 0.0;
     vectorSecondComponentContribution[ 8 ] = 0.0;
@@ -607,15 +607,23 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVectorInSphericalCoor
 //! Compute current thrust acceleration in cartesian coordinates.
 Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double currentAzimuthAngle )
 {
-    Eigen::Vector6d sphericalStateToBeConverted;
-    sphericalStateToBeConverted.segment( 0, 3 ) = ( Eigen::Vector3d() << radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ),
-                                                    currentAzimuthAngle, elevationAngleCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ) ).finished();
-    sphericalStateToBeConverted.segment( 3, 3 ) = computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle );
+    if( thrustAccelerationVectorCache_.count( currentAzimuthAngle ) == 0 )
+    {
+        Eigen::Vector6d sphericalStateToBeConverted;
+        sphericalStateToBeConverted.segment( 0, 3 ) =
+                ( Eigen::Vector3d() << radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ),
+                  currentAzimuthAngle, elevationAngleCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ) ).finished();
+        sphericalStateToBeConverted.segment( 3, 3 ) = computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle );
 
-    Eigen::Vector3d normalizedThrustAccelerationVector = coordinate_conversions::convertSphericalToCartesianState( sphericalStateToBeConverted ).segment( 3, 3 );
+        Eigen::Vector3d normalizedThrustAccelerationVector =
+                coordinate_conversions::convertSphericalToCartesianState( sphericalStateToBeConverted ).segment( 3, 3 );
 
-    return normalizedThrustAccelerationVector * physical_constants::ASTRONOMICAL_UNIT
-            / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
+        thrustAccelerationVectorCache_[ currentAzimuthAngle ] = normalizedThrustAccelerationVector * physical_constants::ASTRONOMICAL_UNIT
+                / std::pow( physical_constants::JULIAN_YEAR, 2.0 );
+    }
+
+    return thrustAccelerationVectorCache_.at( currentAzimuthAngle );
+
 }
 
 //! Compute magnitude cartesian acceleration.

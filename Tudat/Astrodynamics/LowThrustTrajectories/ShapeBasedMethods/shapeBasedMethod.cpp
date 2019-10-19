@@ -75,10 +75,9 @@ Eigen::Vector3d ShapeBasedMethod::computeCurrentThrustForce( double time,
 {
     double independentVariable = convertTimeToIndependentVariable( time );
 
-    throw std::runtime_error( "computeCurrentMass error 1" );
-    Eigen::Vector3d currentThrustVector;/* = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
-            * computeCurrentThrustAccelerationMagnitude( independentVariable )
-            * computeCurrentThrustAccelerationDirection( independentVariable );*/
+    Eigen::Vector3d currentThrustVector = computeCurrentMass( 0.0, time, initialMass_, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationMagnitude( independentVariable, specificImpulseFunction, integratorSettings )
+            * computeCurrentThrustAccelerationDirection( independentVariable, specificImpulseFunction, integratorSettings );
 
     return currentThrustVector;
 }
