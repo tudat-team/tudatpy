@@ -576,7 +576,6 @@ double HodographicShaping::computeDeltaV( )
             numerical_quadrature::createQuadrature( derivativeFunctionDeltaVtest, quadratureSettings_, timeOfFlight_ );
 
     return quadrature->getQuadrature( );
-
 }
 
 

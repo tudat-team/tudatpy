@@ -93,7 +93,25 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( );
 
+    //! Return thrust acceleration profile.
+    void getCylindricalThrustAccelerationProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+    {
+        thrustAccelerationProfile.clear();
 
+        for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
+        {
+            thrustAccelerationProfile[ epochsVector.at( i ) ] = computeThrustAccelerationInCylindricalCoordinates( epochsVector.at( i ) );
+        }
+
+    }
+
+    //! Compute magnitude thrust acceleration.
+    double computeCurrentThrustAccelerationMagnitude(
+            const double currentTime, std::function< double ( const double ) > specificImpulseFunction =
+            [ ]( const double ){ return TUDAT_NAN; },
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings = nullptr );
 
 protected:
 
@@ -126,10 +144,6 @@ protected:
     //! Compute thrust acceleration vector in cylindrical coordinates.
     Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double currentTime );
 
-    //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude(
-            const double currentTime, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
     Eigen::Vector3d computeCurrentThrustAccelerationDirection(

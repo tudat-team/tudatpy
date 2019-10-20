@@ -178,7 +178,8 @@ Eigen::Vector3d SimsFlanagan::computeCurrentThrustAccelerationDirection(
         double currentTime, std::function< double ( const double ) > specificImpulseFunction,
         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    return computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings ).normalized( );
+    Eigen::Vector3d currentThrustVector = computeCurrentThrustForce( currentTime, specificImpulseFunction, integratorSettings );
+    return currentThrustVector.normalized( );
 }
 
 
@@ -207,6 +208,37 @@ Eigen::Vector3d SimsFlanagan::computeCurrentThrustForce(
 }
 
 
+
+//! Return thrust acceleration profile.
+void SimsFlanagan::getThrustAccelerationProfile(
+        std::vector< double >& epochsVector,
+        std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
+        std::function< double ( const double ) > specificImpulseFunction,
+        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+    thrustAccelerationProfile.clear();
+
+    std::map< double, Eigen::VectorXd > thrustProfile;
+    getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+
+    std::map< double, Eigen::VectorXd > massProfile;
+    getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+
+    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
+    {
+        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        {
+            throw std::runtime_error( "Error when retrieving the thrust profile of a low-thrust trajectory, "
+                                      "epochs are not provided in increasing order." );
+        }
+
+        thrustAccelerationProfile[ epochsVector[ i ] ] =
+                thrustProfile[ epochsVector[ i ] ] / massProfile[ epochsVector[ i ] ][ 0 ];
+
+    }
+}
+
+
 //! Compute current cartesian state.
 Eigen::Vector6d SimsFlanagan::computeCurrentStateVector( const double currentTime )
 {
@@ -229,8 +261,9 @@ basic_astrodynamics::AccelerationMap SimsFlanagan::retrieveLowThrustAcceleration
         const std::function< double ( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    return simsFlanaganModel_->getLowThrustTrajectoryAccelerationMap(
+    basic_astrodynamics::AccelerationMap SimsFlanaganAccelerationMap = simsFlanaganModel_->getLowThrustTrajectoryAccelerationMap(
                 bodyMapTest, bodyToPropagate, centralBody );
+    return SimsFlanaganAccelerationMap;
 }
 
 

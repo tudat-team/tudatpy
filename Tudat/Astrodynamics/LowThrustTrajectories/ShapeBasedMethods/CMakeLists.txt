@@ -19,6 +19,7 @@ if( USE_PAGMO )
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.h"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.cpp"
     )
 else( )
@@ -30,6 +31,7 @@ else( )
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/baseFunctionsSphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.cpp"
     )
 endif( )
