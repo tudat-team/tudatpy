@@ -10,9 +10,10 @@
  */
 
 
-#include "baseFunctionsHodographicShaping.h"
-#include <math.h>
+#include <cmath>
+#include <iostream>
 
+#include "baseFunctionsHodographicShaping.h"
 
 namespace tudat
 {

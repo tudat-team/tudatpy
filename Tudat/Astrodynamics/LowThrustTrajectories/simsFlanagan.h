@@ -161,6 +161,13 @@ public:
             double currentTime, std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
+    //! Return thrust acceleration profile.
+    void getThrustAccelerationProfile(
+            std::vector< double >& epochsVector,
+            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
     //! Return best individual.
     std::vector< double > getBestIndividual( )
     {

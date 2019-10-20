@@ -23,7 +23,6 @@
 #include <boost/bind.hpp>
 #include <functional>
 
-#include "Tudat/Astrodynamics/LowThrustTrajectories/hybridMethod.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/simsFlanagan.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"

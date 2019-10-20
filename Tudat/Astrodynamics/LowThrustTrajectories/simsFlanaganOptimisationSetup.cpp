@@ -172,6 +172,7 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
                                        stateAtDeparture_.segment(3 ,3 ).norm() );
     }
 
+
     // Inequality constraints.
     std::vector< double > inequalityConstraints;
 
