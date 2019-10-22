@@ -306,7 +306,7 @@ extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::Vector
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,

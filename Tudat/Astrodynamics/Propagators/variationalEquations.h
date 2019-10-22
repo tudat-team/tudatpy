@@ -609,7 +609,7 @@ extern template void VariationalEquations::getBodyInitialStatePartialMatrix< dou
         const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
-//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
         const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );

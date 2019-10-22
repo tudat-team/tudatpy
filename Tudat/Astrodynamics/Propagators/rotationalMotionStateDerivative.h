@@ -359,7 +359,7 @@ protected:
 
 extern template class RotationalMotionStateDerivative< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class RotationalMotionStateDerivative< long double, double >;
 extern template class RotationalMotionStateDerivative< double, Time >;
 extern template class RotationalMotionStateDerivative< long double, Time >;

@@ -279,7 +279,7 @@ extern template class ObservationModel< 2, double, double >;
 extern template class ObservationModel< 3, double, double >;
 extern template class ObservationModel< 6, double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class ObservationModel< 1, double, Time >;
 extern template class ObservationModel< 1, long double, double >;
 extern template class ObservationModel< 1, long double, Time >;

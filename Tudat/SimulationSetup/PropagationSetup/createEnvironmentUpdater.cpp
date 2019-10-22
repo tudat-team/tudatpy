@@ -959,7 +959,7 @@ template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::str
         const simulation_setup::NamedBodyMap& bodyMap,
         const bool isPartOfMultiTypePropagation );
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap );

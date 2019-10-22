@@ -11,7 +11,7 @@ template class ObservationModel< 2, double, double >;
 template class ObservationModel< 3, double, double >;
 template class ObservationModel< 6, double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class ObservationModel< 1, double, Time >;
 template class ObservationModel< 1, long double, double >;
 template class ObservationModel< 1, long double, Time >;

@@ -79,7 +79,6 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     // Initialise peak acceleration.
     double peakThrustAcceleration = 0.0;
 
-    // Check that the trajectory is feasible, ie curved toward the central body.
     double stepSize = ( sphericalShaping.getFinalValueInpendentVariable( ) -
                         sphericalShaping.getInitialValueInpendentVariable( ) ) / 5000.0;
     for ( int i = 0 ; i <= 5000 ; i++ )

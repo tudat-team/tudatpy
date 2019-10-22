@@ -85,7 +85,7 @@ extern template class Interpolator< double, Eigen::VectorXd >;
 extern template class Interpolator< double, Eigen::Vector6d >;
 extern template class Interpolator< double, Eigen::MatrixXd >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class Interpolator< Time, Eigen::VectorXd >;
 extern template class Interpolator< Time, Eigen::Vector6d >;
 extern template class Interpolator< Time, Eigen::MatrixXd >;

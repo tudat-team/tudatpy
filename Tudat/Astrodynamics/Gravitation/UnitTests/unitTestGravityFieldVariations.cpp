@@ -304,9 +304,9 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         for( unsigned int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL( directCosineCorrections( 2, i )
-                               - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
+                               - tidalCorrectionsFromObject.first( 0, i ), 1.0E-19 );
             BOOST_CHECK_SMALL( directSineCorrections( 2, i )
-                               - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
+                               - tidalCorrectionsFromObject.second( 0, i ), 1.0E-19 );
         }
     }
 }
