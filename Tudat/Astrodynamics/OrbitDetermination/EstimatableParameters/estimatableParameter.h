@@ -269,7 +269,7 @@ bool isDynamicalParameterSingleArc(
 //extern template class EstimatableParameter< double >;
 //extern template class EstimatableParameter< Eigen::VectorXd >;
 
-//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
 //#endif
 

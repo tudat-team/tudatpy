@@ -426,7 +426,7 @@ extern template class ObservationManager< 2, double, double >;
 extern template class ObservationManager< 3, double, double >;
 extern template class ObservationManager< 6, double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class ObservationManagerBase< double, Time >;
 extern template class ObservationManagerBase< long double, double >;
 extern template class ObservationManagerBase< long double, Time >;

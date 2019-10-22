@@ -77,7 +77,7 @@ Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQua
 
 template class RotationalMotionQuaternionsStateDerivative< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class RotationalMotionQuaternionsStateDerivative< long double, double >;
 template class RotationalMotionQuaternionsStateDerivative< double, Time >;
 template class RotationalMotionQuaternionsStateDerivative< long double, Time >;

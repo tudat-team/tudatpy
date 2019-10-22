@@ -263,7 +263,7 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
 
 extern template class TabulatedRotationalEphemeris< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class TabulatedRotationalEphemeris< long double, double >;
 extern template class TabulatedRotationalEphemeris< double, Time >;
 extern template class TabulatedRotationalEphemeris< long double, Time >;

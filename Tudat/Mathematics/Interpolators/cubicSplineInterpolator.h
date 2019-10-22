@@ -414,7 +414,7 @@ extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
 extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
 extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class CubicSplineInterpolator< Time, Eigen::VectorXd, long double >;
 extern template class CubicSplineInterpolator< Time, Eigen::Vector6d, long double >;
 extern template class CubicSplineInterpolator< Time, Eigen::MatrixXd, long double >;

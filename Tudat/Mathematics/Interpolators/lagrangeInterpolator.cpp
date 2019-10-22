@@ -10,7 +10,7 @@ template class LagrangeInterpolator< double, Eigen::VectorXd >;
 template class LagrangeInterpolator< double, Eigen::Vector6d >;
 template class LagrangeInterpolator< double, Eigen::MatrixXd >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
 template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
 template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;

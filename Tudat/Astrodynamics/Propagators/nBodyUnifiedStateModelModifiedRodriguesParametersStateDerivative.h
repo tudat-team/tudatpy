@@ -305,7 +305,7 @@ private:
 
 extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, double >;
 extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, Time >;
 extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, Time >;

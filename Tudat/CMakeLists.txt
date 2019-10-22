@@ -13,6 +13,14 @@ cmake_minimum_required( VERSION 2.6 )
 # Specific Tudat project name.
 project( Tudat )
 
+
+
+# Tudat-specific options
+option(BUILD_WITH_SOCIS_2019 "Build Tudat with 2019 SOCIS functionality." OFF)
+option(BUILD_WITH_KALMAN_FILERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
+option(BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Build Tudat with high-precision (>16 digits) capabilities. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." OFF)
+option(BUILD_WITH_PROPAGATION_TESTS "Build Tudat with unit tests involving long (> 30 s) propagations. Total unit test run time may be >10 minutes." ON)
+
 # Load UserSettings.txt
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
  set(BUILD_STYLE "standalone")
@@ -143,7 +151,6 @@ endif()
 # is "OFF". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
 # included, to ensure that that the correct indiciation is given for whether SPICE should be
 # included or not has been selected.
-option(USE_CSPICE "build Tudat with CSPICE enabled" ON) # OFF is the default
 if(NOT USE_CSPICE)
  message(STATUS "SPICE disabled!")
  add_definitions(-DUSE_CSPICE=0)
@@ -167,7 +174,6 @@ endif()
 # JSON
 #
 # Set whether to use the JSON library.
-option(USE_JSON "build Tudat with JSON enabled" ON)
 if(NOT USE_JSON)
  message(STATUS "JSON disabled!")
  add_definitions(-DUSE_JSON=0)
@@ -195,7 +201,6 @@ endif()
 # is "OFF". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
 # included, to ensure that that the correct indiciation is given for whether SOFA should be
 # included or not has been selected.
-option(USE_SOFA "build Tudat with Sofa enabled" ON) # OFF is the default
 if(NOT USE_SOFA)
  message(STATUS "SOFA disabled!")
  add_definitions(-DUSE_SOFA=0)
@@ -220,7 +225,6 @@ endif()
 # Set whether to use the NRLMSISE-00 library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
 # is "ON").
-option(USE_NRLMSISE00 "build Tudat with NRLMSISE-00 enabled" ON)
 if(NOT USE_NRLMSISE00)
  message(STATUS "NRLMSISE-00 disabled!")
  add_definitions(-DUSE_NRLMSISE00=0)
@@ -245,15 +249,14 @@ endif()
 # Set whether to use the Pagmo library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
 # is "ON").
-option(USE_PAGMO "build Tudat with NRLMSISE-00 enabled" ON)
 if(NOT USE_PAGMO)
- message(STATUS "PAGMO disabled!")
- add_definitions(-DUSE_PAGMO=0)
+  message(STATUS "PAGMO disabled!")
+  add_definitions(-DUSE_PAGMO=0)
 else()
- message(STATUS "PAGMO enabled!")
- # Find USE_PAGMO library on local system.
- find_package(PaGMO2)
- add_definitions(-DUSE_PAGMO=1)
+  message(STATUS "PAGMO enabled!")
+  # Find USE_PAGMO library on local system.
+  find_package(PaGMO2)
+  add_definitions(-DUSE_PAGMO=1)
 
  # Include Pagmo directories.
  if(NOT APPLE OR APPLE_INCLUDE_FORCE)
@@ -269,7 +272,6 @@ endif()
 # Set whether to use the GSL library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
 # is "OFF").
-option(USE_GSL "build Tudat with GSL enabled" OFF)
 if(NOT USE_GSL)
  message(STATUS "GSL disabled!")
  add_definitions(-DUSE_GSL=0)
@@ -287,16 +289,13 @@ else()
  endif( )
 endif()
 
-option(BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." OFF)
-if(NOT BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS)
+if(NOT BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
  message(STATUS "Extended precision propagation disabled!")
- add_definitions(-DBUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
+ add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
 else()
     message(STATUS "Extended precision propagation enabled!")
- add_definitions(-DBUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
+ add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif()
-
-option(BUILD_PROPAGATION_TESTS "Compiling unit tests involving long (> 30 s) propagations. Total unit test run time may be > 5-10 minutes." ON)
 
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(tudatLinkLibraries)

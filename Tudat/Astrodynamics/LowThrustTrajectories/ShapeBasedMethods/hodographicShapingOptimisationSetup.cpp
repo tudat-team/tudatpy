@@ -85,7 +85,7 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
     int numberFreeCoefficientsNormalFunction = normalVelocityFunctionComponents.size( ) - 3;
     int numberFreeCoefficientsAxialFunction = axialVelocityFunctionComponents.size( ) - 3;
 
-    if( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 2 !=
+    if( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 5 !=
             static_cast< int >( x.size( ) ) )
     {
         throw std::runtime_error( "Error, size of design variables vector unconsistent with number of base function components"
@@ -109,8 +109,13 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
         freeCoefficientsAxialVelocityFunction[ i ] = x[ i + 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
     }
 
+    Eigen::Vector6d departureState = initialStateFunction_( departureTime );
+    departureState( 3 ) += x.at( 7 );
+    departureState( 4 ) += x.at( 8 );
+    departureState( 5 ) += x.at( 9 );
+
     HodographicShaping hodographicShaping = HodographicShaping(
-                initialStateFunction_( departureTime ), finalStateFunction_( arrivalTime ),
+                departureState, finalStateFunction_( arrivalTime ),
                 timeOfFlight, centralBodyGravitationalParameter_,
                 numberOfRevolutions_, radialVelocityFunctionComponents,
                 normalVelocityFunctionComponents, axialVelocityFunctionComponents,

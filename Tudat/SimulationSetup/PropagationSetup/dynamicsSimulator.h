@@ -1741,7 +1741,7 @@ extern template class SingleArcDynamicsSimulator< double, double >;
 extern template class MultiArcDynamicsSimulator< double, double >;
 extern template class HybridArcDynamicsSimulator< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class DynamicsSimulator< long double, double >;
 extern template class DynamicsSimulator< double, Time >;
 extern template class DynamicsSimulator< long double, Time >;

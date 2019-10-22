@@ -15,7 +15,7 @@ template class MassPropagatorSettings< double >;
 template class CustomStatePropagatorSettings< double >;
 template class MultiTypePropagatorSettings< double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class PropagatorSettings< long double >;
 template class SingleArcPropagatorSettings< long double >;
 template class MultiArcPropagatorSettings< long double >;

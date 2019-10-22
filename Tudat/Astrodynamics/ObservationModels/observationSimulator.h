@@ -431,7 +431,7 @@ extern template class ObservationSimulator< 2, double, double >;
 extern template class ObservationSimulator< 3, double, double >;
 extern template class ObservationSimulator< 6, double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class ObservationSimulatorBase< double, Time >;
 extern template class ObservationSimulatorBase< long double, double >;
 extern template class ObservationSimulatorBase< long double, Time >;

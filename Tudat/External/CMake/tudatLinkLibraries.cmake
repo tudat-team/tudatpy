@@ -54,7 +54,7 @@ endif()
  list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_propagation_setup tudat_trajectory_design tudat_environment_setup tudat_ground_stations tudat_propagators
      tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
      tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
+     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders
      tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
 if( BUILD_WITH_ESTIMATION_TOOLS )
@@ -63,7 +63,7 @@ if( BUILD_WITH_ESTIMATION_TOOLS )
     tudat_torque_partials  tudat_observation_partials tudat_orbit_determination tudat_estimatable_parameters tudat_propagators
      tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
      tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
+     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders
      tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
 else( )

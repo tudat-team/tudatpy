@@ -8,7 +8,7 @@ namespace ephemerides
 
 template class TabulatedRotationalEphemeris< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class TabulatedRotationalEphemeris< long double, double >;
 template class TabulatedRotationalEphemeris< double, Time >;
 template class TabulatedRotationalEphemeris< long double, Time >;

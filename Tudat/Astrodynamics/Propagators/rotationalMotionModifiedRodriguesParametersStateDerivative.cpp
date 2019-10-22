@@ -42,7 +42,7 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
 
 template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, double >;
 template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, Time >;
 template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, Time >;
