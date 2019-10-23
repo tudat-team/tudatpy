@@ -17,7 +17,7 @@ project( Tudat )
 
 # Tudat-specific options
 option(BUILD_WITH_SOCIS_2019 "Build Tudat with 2019 SOCIS functionality." OFF)
-option(BUILD_WITH_KALMAN_FILERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
+option(BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
 option(BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Build Tudat with high-precision (>16 digits) capabilities. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." OFF)
 option(BUILD_WITH_PROPAGATION_TESTS "Build Tudat with unit tests involving long (> 30 s) propagations. Total unit test run time may be >10 minutes." ON)
 
