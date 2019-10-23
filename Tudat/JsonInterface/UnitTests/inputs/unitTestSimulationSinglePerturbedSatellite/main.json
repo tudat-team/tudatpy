@@ -111,6 +111,18 @@
                     "body": "asterix",
                     "dependentVariableType": "keplerElements",
                     "relativeToBody": "Earth"
+                },
+                {
+                    "body": "asterix",
+                    "dependentVariableType": "accelerationNorm",
+                    "accelerationType": "pointMassGravity",
+                    "bodyExertingAcceleration": "Sun"
+                },
+                {
+                    "body": "asterix",
+                    "dependentVariableType": "sphericalHarmonicsAccelerationTermNorms",
+                    "bodyExertingAcceleration": "Earth",
+                    "componentIndices": [ [ 0, 0 ], [ 2, 0 ], [ 2, 1 ], [ 2, 2 ] ]
                 }
             ]
         },
