@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <stdexcept>
+
 #include "Tudat/Astrodynamics/LowThrustTrajectories/lowThrustLegSettings.h"
 
 namespace tudat
@@ -71,8 +73,9 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 
         break;
     }
-//    case hybrid_method_leg:
-//    {
+    case hybrid_method_leg:
+    {
+        throw std::runtime_error( "Hybrid low-thrust leg disabled" );
 //        std::shared_ptr< HybridMethodLegSettings > hybridMethodSettings =
 //                std::dynamic_pointer_cast< HybridMethodLegSettings >( lowThrustLegSettings );
 
@@ -81,8 +84,8 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
 //                    timeOfFlight,
 //                    hybridMethodSettings->optimisationSettings_, hybridMethodSettings->initialAndFinalMEEcostatesBounds_ );
 
-//        break;
-//    }
+        break;
+    }
 #endif
     }
 

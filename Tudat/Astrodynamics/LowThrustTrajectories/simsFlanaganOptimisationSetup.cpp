@@ -67,7 +67,7 @@ std::pair< std::vector< double >, std::vector< double > > SimsFlanaganProblem::g
 
     if ( initialGuessThrottles_.size( ) != 0 )
     {
-        if ( initialGuessThrottles_.size( ) != 3 * numberSegments_ )
+        if ( initialGuessThrottles_.size( ) != static_cast< unsigned int >( 3 * numberSegments_ ) )
         {
             throw std::runtime_error( "Error when providing an initial guess for Sims-Flanagan, vector size unconsistent with"
                                       " number of segments into which the trajectory is subdivided." );
@@ -131,12 +131,12 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     std::vector< Eigen::Vector3d > throttles;
 
     // Check consistency of the size of the design variables vector.
-    if ( designVariables.size( ) != 3 * numberSegments_ )
+    if ( designVariables.size( ) != static_cast< unsigned int >( 3 * numberSegments_ ) )
     {
         throw std::runtime_error( "Error, size of the design variables vector unconsistent with number of segments." );
     }
 
-    for ( unsigned int i = 0 ; i < numberSegments_ ; i++ )
+    for ( int i = 0 ; i < numberSegments_ ; i++ )
     {
         throttles.push_back( ( Eigen::Vector3d( ) << designVariables[ i * 3 ],
                              designVariables[ i * 3 + 1 ], designVariables[ i * 3 + 2 ] ).finished( ) );
@@ -195,13 +195,13 @@ std::vector< double > SimsFlanaganProblem::fitness( const std::vector< double > 
     Eigen::VectorXd c; c.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
     Eigen::VectorXd r; r.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
     Eigen::VectorXd epsilon; epsilon.resize( equalityConstraints.size( ) + inequalityConstraints.size( ) );
-    for ( int i = 0 ; i < equalityConstraints.size( ) ; i++ )
+    for ( unsigned int i = 0 ; i < equalityConstraints.size( ) ; i++ )
     {
         c[ i ] = 1.0 / relativeToleranceConstraints_;
         r[ i ] = 1.0 - relativeToleranceConstraints_ * c[ i ];
         epsilon[ i ] = equalityConstraints[ i ] * c[ i ] + r[ i ];
     }
-    for ( int i = 0 ; i < inequalityConstraints.size( ) ; i++ )
+    for ( unsigned int i = 0 ; i < inequalityConstraints.size( ) ; i++ )
     {
         c[ equalityConstraints.size( ) + i ] = 1.0 / relativeToleranceConstraints_;
         r[ equalityConstraints.size( ) + i ] = 1.0 - relativeToleranceConstraints_ * c[ equalityConstraints.size( ) + i ];

@@ -547,7 +547,14 @@ protected:
         }
 
         // Update dependent variables to save
-        resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_ );
+        bool printOutputVariables = false;
+        try
+        {
+            printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
+        }
+        catch( std::runtime_error ){ }
+
+        resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
         if ( profiling )
         {

@@ -607,7 +607,7 @@ void SimsFlanaganModel::propagateTrajectory(
     // Index of the last epoch in the forward propagation leg.
     int index = epochs.size( ) - 1;
 
-    for( int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
+    for( unsigned int epochIndex = 0 ; epochIndex < epochs.size( ) ; epochIndex++ )
     {
         double currentTime = epochs[ epochIndex ];
         if ( ( epochIndex != 0 ) && ( epochs[ epochIndex - 1 ] > epochs[ epochIndex ] ) )

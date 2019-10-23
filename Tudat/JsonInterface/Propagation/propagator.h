@@ -188,7 +188,8 @@ void determineInitialStates(
 template< typename StateScalarType >
 void resetDependentVariableSaveSettings(
         std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
-        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector )
+        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector,
+        const bool printOutputVariables = false )
 {
     using namespace propagators;
 
@@ -214,7 +215,7 @@ void resetDependentVariableSaveSettings(
     }
 
     propagatorSettings->resetDependentVariablesToSave(
-                std::make_shared< DependentVariableSaveSettings >( dependentVariables, false ) );
+                std::make_shared< DependentVariableSaveSettings >( dependentVariables, printOutputVariables ) );
 }
 
 //! Get end epoch for propagator. Returns `TUDAT_NAN` if there is no time termination condition.

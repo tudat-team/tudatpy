@@ -135,8 +135,7 @@ struct HodographicShapingOptimisationProblem
             const std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction,
             const std::vector< std::vector< double > >& freeCoefficientsBounds,
             const bool minimizeMaximumThrust = false,
-            const double initialMass = TUDAT_NAN,
-            const double specificImpulse = TUDAT_NAN ):
+            const double initialMass = TUDAT_NAN ):
         initialStateFunction_( initialStateFunction ),
         finalStateFunction_( finalStateFunction ),
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
@@ -144,8 +143,7 @@ struct HodographicShapingOptimisationProblem
         basisFunctionsFunction_( basisFunctionsFunction ),
         problemBounds_( freeCoefficientsBounds ),
         minimizeMaximumThrust_( minimizeMaximumThrust ),
-        initialMass_( initialMass ),
-        specificImpulse_( specificImpulse )
+        initialMass_( initialMass )
     {  }
 
     // Calculates the fitness
@@ -186,8 +184,6 @@ private:
     bool minimizeMaximumThrust_;
 
     double initialMass_;
-
-    double specificImpulse_;
 
 };
 

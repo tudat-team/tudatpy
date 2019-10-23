@@ -245,9 +245,6 @@ private:
     //! Number of segments for the backward propagation from arrival to match point.
     int numberSegmentsBackwardPropagation_;
 
-    //! DeltaV corresponding to best trajectory.
-    double deltaV_;
-
     //! Sims-Flanagan leg corresponding to the best optimisation output.
     std::shared_ptr< SimsFlanaganModel > simsFlanaganModel_;
 
