@@ -86,12 +86,6 @@ private:
 
     std::vector<  std::shared_ptr< BaseFunctionHodographicShaping > > compositeFunctionComponents_;
 
-    double frequency_;
-    double scaleFactor_;
-
-    int numberOfIntegrationSteps_;
-    int numberOfComponents_;
-
     //! Vector of coefficients.
     /*!
      * VectorXd containing coefficients corresponding to components of the composite function.

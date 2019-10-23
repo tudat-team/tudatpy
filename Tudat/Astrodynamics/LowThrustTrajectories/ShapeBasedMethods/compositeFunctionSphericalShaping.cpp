@@ -23,7 +23,7 @@ void CompositeRadialFunctionSphericalShaping::resetCompositeFunctionCoefficients
         const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
-    if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
+    if( compositeFunctionCoefficients.size() == static_cast< int >( compositeFunctionComponents_.size( ) ) )
     {
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
     }
@@ -140,7 +140,7 @@ void CompositeElevationFunctionSphericalShaping::resetCompositeFunctionCoefficie
         const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
-    if( compositeFunctionCoefficients.size() == compositeFunctionComponents_.size() )
+    if( compositeFunctionCoefficients.size() == static_cast< int >( compositeFunctionComponents_.size( ) ) )
     {
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
     }
