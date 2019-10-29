@@ -1265,7 +1265,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             else
             {
                 currentArcInitialStates.segment( 0, singleArcSize ) =
-                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Constant( 6, TUDAT_NAN );
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Constant( singleArcSize, TUDAT_NAN );
             }
 
             // Get existing multi-arc initial states
