@@ -185,7 +185,7 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
                 stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
         fullCombinedStateTransitionMatrix.block(
                     0, numberOfStateArcs_ * stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
-                combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ );
+                combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, sensitivityMatrixSize_ );
     }
     return fullCombinedStateTransitionMatrix;
 }
