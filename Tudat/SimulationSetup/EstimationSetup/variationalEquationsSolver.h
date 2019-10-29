@@ -849,7 +849,7 @@ public:
         //        propagatorSettings_->resetInitialStates(
         //                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
 
-        dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
+        dynamicsStateDerivative_->updateStateDerivativeModelSettings(
                     propagatorSettings_->getInitialStates( ) );
 
         // Check if re-integration of variational equations is requested
@@ -1279,7 +1279,7 @@ public:
 
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
-                        template updateStateDerivativeModelSettings( currentArcInitialState );
+                        updateStateDerivativeModelSettings( currentArcInitialState );
 
                 // Create initial state for combined variational/equations of motion.
                 MatrixType initialVariationalState = this->createInitialConditions(
@@ -1356,7 +1356,7 @@ public:
 
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
-                        template updateStateDerivativeModelSettings( arcInitialStates.at( i ) );
+                        updateStateDerivativeModelSettings( arcInitialStates.at( i ) );
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 0 );
             }
