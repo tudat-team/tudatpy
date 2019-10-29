@@ -21,7 +21,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticLightTimeCorrectionPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
 
 namespace tudat

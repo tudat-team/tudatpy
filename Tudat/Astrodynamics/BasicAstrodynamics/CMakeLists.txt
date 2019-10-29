@@ -155,13 +155,13 @@ add_executable(test_UnifiedStateModelQuaternionElementConversions "${SRCROOT}${B
 setup_custom_test_program(test_UnifiedStateModelQuaternionElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_UnifiedStateModelQuaternionElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
-add_executable(test_UnifiedStateModelModifiedRodriguesParameterElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelModifiedRodriguesParameterElementConversions.cpp")
-setup_custom_test_program(test_UnifiedStateModelModifiedRodriguesParameterElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_UnifiedStateModelModifiedRodriguesParameterElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+add_executable(test_UnifiedStateModelMRPElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelMRPElementConversions.cpp")
+setup_custom_test_program(test_UnifiedStateModelMRPElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_UnifiedStateModelMRPElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
-add_executable(test_UnifiedStateModelExponentialMapElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelExponentialMapElementConversions.cpp")
-setup_custom_test_program(test_UnifiedStateModelExponentialMapElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_UnifiedStateModelExponentialMapElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+add_executable(test_UnifiedStateModelEMElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelEMElementConversions.cpp")
+setup_custom_test_program(test_UnifiedStateModelEMElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_UnifiedStateModelEMElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestEmpiricalAcceleration.cpp")
 setup_custom_test_program(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}")

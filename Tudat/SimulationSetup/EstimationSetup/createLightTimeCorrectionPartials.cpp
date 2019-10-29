@@ -9,8 +9,8 @@
  */
 
 
-#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticLightTimeCorrectionPartial.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticCorrection.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 
 

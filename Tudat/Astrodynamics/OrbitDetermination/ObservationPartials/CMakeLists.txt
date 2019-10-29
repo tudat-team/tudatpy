@@ -19,7 +19,7 @@ set(OBSERVATION_PARTIALS_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.cpp"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.cpp"
+  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticPartial.cpp"
 )
 
 # Set the header files.
@@ -35,7 +35,7 @@ set(OBSERVATION_PARTIALS_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/eulerAngleObservablePartials.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
+  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticPartial.h"
 )
 
 # Set the header files.
@@ -92,9 +92,9 @@ add_executable(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/
 setup_custom_test_program(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_RotationMatrixPartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_PlanetaryRotationModelRotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestPlanetaryRotationModelRotationMatrixPartials.cpp")
-setup_custom_test_program(test_PlanetaryRotationModelRotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
-target_link_libraries(test_PlanetaryRotationModelRotationMatrixPartials ${TUDAT_PROPAGATION_LIBRARIES} ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_FullRotationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestFullRotationPartials.cpp")
+setup_custom_test_program(test_FullRotationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
+target_link_libraries(test_FullRotationPartials ${TUDAT_PROPAGATION_LIBRARIES} ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/UnitTests/unitTestLightTimeCorrectionPartials.cpp")
 setup_custom_test_program(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}")

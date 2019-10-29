@@ -11,7 +11,7 @@
 #ifndef TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
 #define TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
 
-#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticCorrection.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
 
 namespace tudat
