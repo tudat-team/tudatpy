@@ -915,14 +915,18 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 //                                              ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )<<std::endl<<std::endl;
             if( test == 0 )
             {
+                Eigen::VectorXd testMatrix =
+                        ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp ).segment( 0, 6 ) ),
+                            ( testMatrix.segment( 0, 6 ) ),
                             ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
             }
             else
             {
+                Eigen::VectorXd testMatrix =
+                        ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp ).segment( 6, 7 ) ),
+                            ( testMatrix.segment( 6, 7 ) ),
                             ( stateDifferenceUp.segment( 6, 7 ) ), 1.0E-5 );
             }
         }

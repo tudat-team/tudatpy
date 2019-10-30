@@ -305,40 +305,43 @@ void from_json( const nlohmann::json& jsonObject,
         return;
     }
     case constant_additive_observation_bias:
-    {
-        parameterSettings = std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
-                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), true );
+//    {
+//        parameterSettings = std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+//                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+//                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), true );
 
-        return;
-    }
+//        return;
+//    }
     case constant_relative_observation_bias:
-    {
-        parameterSettings = std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
-                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), false );
+//    {
+//        parameterSettings = std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+//                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+//                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), false );
 
-        return;
-    }
+//        return;
+//    }
     case arcwise_constant_additive_observation_bias:
-    {
-        parameterSettings = std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
-                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
-                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
-                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), true );
+//    {
+//        parameterSettings = std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+//                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+//                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
+//                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+//                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), true );
 
-        return;
-    }
+//        return;
+//    }
     case arcwise_constant_relative_observation_bias:
-    {
-        parameterSettings = std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
-                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
-                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
-                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), false );
+//    {
+//        parameterSettings = std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+//                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+//                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
+//                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+//                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), false );
 
-        return;
+//        return;
+//    }
+    {
+        throw std::runtime_error( "Error, reading bias parameters from JSON files disabled." );
     }
     case spherical_harmonics_cosine_coefficient_block:
     {
