@@ -96,6 +96,6 @@ add_executable(test_FullRotationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/Un
 setup_custom_test_program(test_FullRotationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_FullRotationPartials ${TUDAT_PROPAGATION_LIBRARIES} ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/UnitTests/unitTestLightTimeCorrectionPartials.cpp")
-setup_custom_test_program(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}")
-target_link_libraries(test_LightTimeCorrectionPartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_LightTimePartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/UnitTests/unitTestLightTimePartials.cpp")
+setup_custom_test_program(test_LightTimePartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}")
+target_link_libraries(test_LightTimePartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
