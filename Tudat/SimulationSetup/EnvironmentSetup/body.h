@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
@@ -783,6 +784,13 @@ public:
                             dependentOrientationCalculator,
                             std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator_ ) );
+            }
+            else if( ( std::dynamic_pointer_cast< propulsion::BodyFixedForceDirectionGuidance >(
+                           dependentOrientationCalculator_ ) != nullptr ) &&
+                     ( std::dynamic_pointer_cast< propulsion::BodyFixedForceDirectionGuidance >(
+                           dependentOrientationCalculator ) != nullptr ) )
+            {
+                dependentOrientationCalculator_ = dependentOrientationCalculator;
             }
             else if( !suppressDependentOrientationCalculatorWarning_ )
             {
