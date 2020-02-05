@@ -17,7 +17,7 @@ namespace low_thrust_trajectories
 {
 
 //! Retrieve acceleration model (thrust).
-std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAccelerationModel(
+std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::getLowThrustAccelerationSettings(
         const simulation_setup::NamedBodyMap& bodyMapTest,
         const std::string& bodyToPropagate,
         const std::function< double( const double ) > specificImpulseFunction,
@@ -81,9 +81,21 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
             std::make_shared< simulation_setup::ThrustAccelerationSettings >(
                 thrustDirectionSettings, thrustMagnitudeSettings );
 
+    return thrustAccelerationSettings;
+}
+
+std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAccelerationModel(
+        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const std::string& bodyToPropagate,
+        const std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+{
+
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            createThrustAcceleratioModel( thrustAccelerationSettings, bodyMapTest, bodyToPropagate );
+            createThrustAcceleratioModel(
+                getLowThrustAccelerationSettings( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings ),
+                bodyMapTest, bodyToPropagate );
 
     return lowThrustAccelerationModel;
 

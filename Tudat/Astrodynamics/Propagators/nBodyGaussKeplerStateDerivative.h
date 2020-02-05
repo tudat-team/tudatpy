@@ -101,8 +101,8 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyGaussKeplerStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                               const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-                               const std::vector< std::string >& bodiesToIntegrate ):
+                                     const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                                     const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, gauss_keplerian, bodiesToIntegrate )
     {
@@ -150,10 +150,10 @@ public:
                         currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
-                stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
-                            ( Eigen::Vector6d( ) << stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
-                              currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
-                            centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
+                        ( Eigen::Vector6d( ) << stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
+                          currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
+                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
     }
 
@@ -216,11 +216,23 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 );
-            StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                        currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-            StateScalarType currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                        currentEccentricAnomaly, currentKeplerianState( 1 ) );
-            currentKeplerianState( 5 ) = currentTrueAnomaly;
+            StateScalarType currentTrueAnomaly;
+            if( currentKeplerianState( 1 ) < 1.0 )
+            {
+                StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
+                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+                            currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                currentKeplerianState( 5 ) = currentTrueAnomaly;
+            }
+            else
+            {
+                StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                currentTrueAnomaly = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                            currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                currentKeplerianState( 5 ) = currentTrueAnomaly;
+            }
 
             currentTrueAnomalies_[ i ] = currentTrueAnomaly;
             currentCartesianLocalSolution.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
