@@ -109,10 +109,11 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
         freeCoefficientsAxialVelocityFunction[ i ] = x[ i + 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
     }
 
+
     Eigen::Vector6d departureState = initialStateFunction_( departureTime );
-    departureState( 3 ) += x.at( 7 );
-    departureState( 4 ) += x.at( 8 );
-    departureState( 5 ) += x.at( 9 );
+    departureState( 3 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction );
+    departureState( 4 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 1 );
+    departureState( 5 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 2 );
 
     HodographicShaping hodographicShaping = HodographicShaping(
                 departureState, finalStateFunction_( arrivalTime ),

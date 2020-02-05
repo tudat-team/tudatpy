@@ -87,6 +87,12 @@ public:
             const std::function< double ( const double ) > specificImpulseFunction,
             const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustAccelerationSettings(
+            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const std::string& bodyToPropagate,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
             const simulation_setup::NamedBodyMap& bodyMapTest,
