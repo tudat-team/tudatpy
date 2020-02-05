@@ -91,14 +91,16 @@ public:
             const simulation_setup::NamedBodyMap& bodyMapTest,
             const std::string& bodyToPropagate,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const double timeOffset = 0.0 );
 
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
             const simulation_setup::NamedBodyMap& bodyMapTest,
             const std::string& bodyToPropagate,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const double timeOffset = 0.0 );
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     virtual basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
