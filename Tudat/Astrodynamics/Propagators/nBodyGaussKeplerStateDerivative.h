@@ -215,28 +215,36 @@ public:
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 );
-            StateScalarType currentTrueAnomaly;
-            if( currentKeplerianState( 1 ) < 1.0 )
+            try
             {
-                StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-                currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                            currentEccentricAnomaly, currentKeplerianState( 1 ) );
-                currentKeplerianState( 5 ) = currentTrueAnomaly;
-            }
-            else
-            {
-                StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-                currentTrueAnomaly = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                            currentEccentricAnomaly, currentKeplerianState( 1 ) );
-                currentKeplerianState( 5 ) = currentTrueAnomaly;
-            }
+                currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 );
+                StateScalarType currentTrueAnomaly;
+                if( currentKeplerianState( 1 ) < 1.0 )
+                {
+                    StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
+                                currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                    currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+                                currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                    currentKeplerianState( 5 ) = currentTrueAnomaly;
+                }
+                else
+                {
+                    StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                                currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                    currentTrueAnomaly = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                                currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                    currentKeplerianState( 5 ) = currentTrueAnomaly;
+                }
 
-            currentTrueAnomalies_[ i ] = currentTrueAnomaly;
-            currentCartesianLocalSolution.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
-                        currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
+                currentTrueAnomalies_[ i ] = currentTrueAnomaly;
+                currentCartesianLocalSolution.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
+                            currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
+            }
+            catch( std::runtime_error )
+            {
+                currentTrueAnomalies_[ i ] = TUDAT_NAN;
+                currentCartesianLocalSolution.segment( i * 6, 6 ) = Eigen::Matrix< StateScalarType, 6, 1 >::Constant( TUDAT_NAN );
+            }
 
         }
 

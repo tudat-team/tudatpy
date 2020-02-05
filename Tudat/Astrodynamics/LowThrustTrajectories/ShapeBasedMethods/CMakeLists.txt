@@ -19,7 +19,7 @@ if( USE_PAGMO )
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/compositeFunctionSphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/sphericalShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/shapeBasedMethod.cpp"
-      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.h"
+      "${SRCROOT}${SHAPEBASEDMETHODSDIR}/getRecommendedBaseFunctionsHodographicShaping.cpp"
       "${SRCROOT}${SHAPEBASEDMETHODSDIR}/hodographicShapingOptimisationSetup.cpp"
     )
 else( )

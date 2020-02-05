@@ -21,7 +21,8 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
         const simulation_setup::NamedBodyMap& bodyMapTest,
         const std::string& bodyToPropagate,
         const std::function< double( const double ) > specificImpulseFunction,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double timeOffset )
 {
 
     std::shared_ptr< simulation_setup::Body > vehicle = bodyMapTest.at( bodyToPropagate );
@@ -30,7 +31,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
     {
         // Compute current independent variable.
-        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime );
+        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset );
 
         if( legModelIsForceBased_ )
         {
@@ -62,7 +63,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
     std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
     {
         // Compute current independent variable.
-        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime );
+        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset  );
 
         // Compute current direction of the acceleration vector.
         Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection(
@@ -88,13 +89,14 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
         const simulation_setup::NamedBodyMap& bodyMapTest,
         const std::string& bodyToPropagate,
         const std::function< double( const double ) > specificImpulseFunction,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double timeOffset )
 {
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
             createThrustAcceleratioModel(
-                getLowThrustAccelerationSettings( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings ),
+                getLowThrustAccelerationSettings( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings, timeOffset ),
                 bodyMapTest, bodyToPropagate );
 
     return lowThrustAccelerationModel;
@@ -226,7 +228,8 @@ Eigen::Vector3d LowThrustLeg::computeCurrentThrustAcceleration(
 }
 
 //! Return thrust acceleration profile.
-void LowThrustLeg::getThrustAccelerationProfile(
+void LowThrustLeg::
+getThrustAccelerationProfile(
         std::vector< double >& epochsVector,
         std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
         std::function< double ( const double ) > specificImpulseFunction,
