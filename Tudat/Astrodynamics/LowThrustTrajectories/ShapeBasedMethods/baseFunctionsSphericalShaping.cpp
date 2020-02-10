@@ -11,7 +11,7 @@
 
 
 #include "baseFunctionsSphericalShaping.h"
-#include <math.h>
+#include <cmath>
 
 
 namespace tudat

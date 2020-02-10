@@ -12,7 +12,7 @@
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/solarSailForce.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 namespace tudat

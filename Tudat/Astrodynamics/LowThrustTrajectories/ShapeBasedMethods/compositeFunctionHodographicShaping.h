@@ -13,7 +13,7 @@
 #define TUDAT_COMPOSITE_FUNCTION_HODOGRAPHIC_SHAPING_H
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 

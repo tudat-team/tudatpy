@@ -13,7 +13,7 @@
 #define TUDAT_SHAPE_BASED_METHOD_H
 
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 #include <map>

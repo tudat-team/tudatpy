@@ -11,7 +11,7 @@
 
 
 #include "hodographicShaping.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"

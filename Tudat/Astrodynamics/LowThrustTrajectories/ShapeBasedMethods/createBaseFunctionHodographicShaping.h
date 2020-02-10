@@ -12,7 +12,7 @@
 #ifndef TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H
 #define TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H
 
-#include <math.h>
+#include <cmath>
 #include <boost/make_shared.hpp>
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 

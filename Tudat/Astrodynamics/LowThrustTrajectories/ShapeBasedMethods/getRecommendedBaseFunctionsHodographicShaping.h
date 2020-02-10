@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
-#include <math.h>
+#include <cmath>
 #include <boost/filesystem.hpp>
 
 #include "Tudat/Astrodynamics/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
