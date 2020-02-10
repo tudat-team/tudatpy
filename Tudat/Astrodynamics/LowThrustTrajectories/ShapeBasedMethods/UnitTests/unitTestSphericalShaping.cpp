@@ -18,7 +18,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

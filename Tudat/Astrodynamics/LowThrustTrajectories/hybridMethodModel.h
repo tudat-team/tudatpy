@@ -13,7 +13,7 @@
 #define TUDAT_HYBRID_METHOD_MODEL_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 

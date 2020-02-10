@@ -12,7 +12,7 @@
 #ifndef TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H
 #define TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H
 
-#include <math.h>
+#include <cmath>
 #include <boost/make_shared.hpp>
 
 namespace tudat

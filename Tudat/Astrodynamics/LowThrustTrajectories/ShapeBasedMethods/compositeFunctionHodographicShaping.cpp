@@ -11,7 +11,7 @@
 
 
 #include "compositeFunctionHodographicShaping.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 namespace tudat

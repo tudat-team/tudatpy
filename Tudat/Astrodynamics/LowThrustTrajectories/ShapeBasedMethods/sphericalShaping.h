@@ -18,7 +18,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalQuadrature/createNumericalQuadrature.h"
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
