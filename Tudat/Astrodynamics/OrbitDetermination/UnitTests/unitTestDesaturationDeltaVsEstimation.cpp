@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         // Momentum wheel desaturation deltaV values.
         for ( unsigned int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-19 );
         }
 
         // Gravity field coefficients.
