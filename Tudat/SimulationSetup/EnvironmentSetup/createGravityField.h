@@ -169,6 +169,10 @@ public:
      */
     Eigen::MatrixXd getSineCoefficients( ){ return sineCoefficients_; }
 
+    void resetCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients ){ cosineCoefficients_ = cosineCoefficients; }
+
+    void resetSineCoefficients( const Eigen::MatrixXd& sineCoefficients ){ sineCoefficients_ = sineCoefficients; }
+
     //! Function to return identifier for body-fixed reference frame.
     /*!
      *  Function to return identifier for body-fixed reference frame to which the coefficients

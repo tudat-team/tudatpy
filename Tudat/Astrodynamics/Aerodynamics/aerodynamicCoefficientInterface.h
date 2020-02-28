@@ -92,6 +92,8 @@ public:
      */
     double getReferenceArea( ) { return referenceArea_; }
 
+    void resetReferenceArea( const double referenceArea ) { referenceArea_ = referenceArea; }
+
     //! Get reference length.
     /*!
      * Returns reference length used to non-dimensionalize aerodynamic moments.
