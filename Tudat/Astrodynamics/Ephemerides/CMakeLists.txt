@@ -26,6 +26,7 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/synchronousRotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.cpp"
+	"${SRCROOT}${EPHEMERIDESDIR}/tleEphemeris.cpp"
 )
 
 # Set the header files.
@@ -52,7 +53,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.h"
   "${SRCROOT}${EPHEMERIDESDIR}/synchronousRotationalEphemeris.h"
-)
+	"${SRCROOT}${EPHEMERIDESDIR}/tleEphemeris.h")
 
 # Add static libraries.
 add_library(tudat_ephemerides STATIC ${EPHEMERIDES_SOURCES} ${EPHEMERIDES_HEADERS})
