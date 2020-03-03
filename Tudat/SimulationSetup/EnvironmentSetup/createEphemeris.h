@@ -24,6 +24,7 @@
 
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include <Tudat/Astrodynamics/Ephemerides/tleEphemeris.h>
 #endif
 
 namespace tudat
@@ -45,7 +46,9 @@ enum EphemerisType
     interpolated_spice,
     constant_ephemeris,
     kepler_ephemeris,
-    custom_ephemeris
+    custom_ephemeris,
+    direct_tle_ephemeris,
+    interpolated_tle_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -628,6 +631,89 @@ private:
     bool useLongDoubleStates_;
 };
 
+class DirectTleEphemerisSettings: public EphemerisSettings
+{
+public:
+
+	DirectTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle, const std::string frameOrigin = "SSB",
+			const std::string frameOrientation = "ECLIPJ2000" ):
+		EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ){ }
+
+	const std::shared_ptr<ephemerides::Tle> getTle( ) const
+	{
+		return tle_;
+	}
+
+private:
+
+	std::shared_ptr< ephemerides::Tle > tle_;
+
+};
+
+class InterpolatedTleEphemerisSettings : public EphemerisSettings
+{
+public:
+
+	InterpolatedTleEphemerisSettings( const double initialTime, const double finalTime,
+			const double timeStep, std::shared_ptr< ephemerides::Tle > tle,
+			std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+					std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ),
+			const bool useLongDoubleStates = false,
+			const std::string& frameOrigin = "SSB", const std::string& frameOrientation = "ECLIPJ2000") :
+		EphemerisSettings( interpolated_tle_ephemeris, frameOrigin, frameOrientation ),
+		initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
+		interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( useLongDoubleStates ),
+		tle_( tle ){ }
+
+	double getInitialTime( ) const
+	{
+		return initialTime_;
+	}
+
+	double getFinalTime( ) const
+	{
+		return finalTime_;
+	}
+
+	double getTimeStep( ) const
+	{
+		return timeStep_;
+	}
+
+	const std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+	{
+		return interpolatorSettings_;
+	}
+
+	bool isUseLongDoubleStates( ) const
+	{
+		return useLongDoubleStates_;
+	}
+
+	const std::shared_ptr<ephemerides::Tle> getTle( ) const
+	{
+		return tle_;
+	}
+
+private:
+
+	//! Initial time from which interpolated data from TLE should be created.
+	double initialTime_;
+
+	//! Final time until which interpolated data from TLE should be created.
+	double finalTime_;
+
+	//! Time step with which interpolated data from TLE should be created.
+	double timeStep_;
+
+	//! Settings to be used for the state interpolation.
+	std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+
+	bool useLongDoubleStates_;
+
+	std::shared_ptr< ephemerides::Tle > tle_;
+};
+
 #if USE_CSPICE
 
 //! Function to create a tabulated ephemeris using data from Spice.
@@ -680,6 +766,40 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
     // Create ephemeris and return.
     return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 interpolator, observerName, referenceFrameName );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromTLE(
+		const std::string& body,
+		const TimeType initialTime,
+		const TimeType endTime,
+		const TimeType timeStep,
+		const std::string& observerName,
+		const std::string& referenceFrameName,
+		std::shared_ptr< ephemerides::Tle > tle,
+		std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+		std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+	using namespace interpolators;
+
+	std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > timeHistoryOfState;
+
+	// Calculate state from spice at given time intervals and store in timeHistoryOfState.
+	TimeType currentTime = initialTime;
+	while( currentTime < endTime )
+	{
+		timeHistoryOfState[ currentTime ] = spice_interface::getCartesianStateFromTleAtEpoch( static_cast< double >( currentTime ), tle );
+		currentTime += timeStep;
+	}
+
+	// Create interpolator.
+	std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
+			interpolators::createOneDimensionalInterpolator(
+					timeHistoryOfState, interpolatorSettings );
+
+	// Create ephemeris and return.
+	return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+			interpolator, observerName, referenceFrameName );
 }
 #endif
 
