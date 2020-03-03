@@ -97,6 +97,42 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
                 cartesianPositionVector );
 }
 
+//! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
+Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< Tle > tle )
+{
+	// Physical constants used by CSpice's implementation of SGP4.
+	double physicalConstants[ 8 ] = { 1.082616E-3, -2.53881E-6, -1.65597E-6, 7.43669161e-2, 120.0, 78.0, 6378.135, 1.0 };
+
+	// Declare variable that will hold the state as returned by Spice.
+	double stateAtEpoch[ 6 ];
+
+	// TODO: convert elements to units required by CSpice (?)
+	double elements[ 10 ];
+	elements[ 0 ] = 0.0; // This element is mandatory as input to ev2lin_ but not used internally (used to be accessed in SGP).
+	elements[ 1 ] = 0.0; // Idem dito.
+	elements[ 2 ] = tle->getBStar( );
+	elements[ 3 ] = tle->getInclination( );
+	elements[ 4 ] = tle->getRightAscension( );
+	elements[ 5 ] = tle->getEccentricity( );
+	elements[ 6 ] = tle->getArgOfPerigee( );
+	elements[ 7 ] = tle->getMeanAnomaly( );
+	elements[ 8 ] = tle->getMeanMotion( );
+	elements[ 9 ] = tle->getEpoch( );
+
+	// Call Spice function. Return value is always 0, so no need to save it.
+	ev2lin_( &epoch, physicalConstants, elements, stateAtEpoch );
+
+	// Put result in Eigen Vector.
+	Vector6d cartesianStateVector;
+	for ( unsigned int i = 0; i < 6 ; i++ )
+	{
+		cartesianStateVector( i ) = stateAtEpoch[ i ];
+	}
+
+	// Convert from km to m.
+	return unit_conversions::convertKilometersToMeters< Vector6d >( cartesianStateVector );
+}
+
 //! Compute quaternion of rotation between two frames.
 Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& originalFrame,
                                                            const std::string& newFrame,
