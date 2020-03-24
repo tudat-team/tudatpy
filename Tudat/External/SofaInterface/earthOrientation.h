@@ -73,6 +73,24 @@ double calculateGreenwichMeanSiderealTime(
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
         const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b );
 
+//! Function to calculate the equation of equinoxes at the given epoch according to requested IAU conventions
+/*!
+ * Function to calculate the equation of equinoxes at the given epoch according to requested IAU conventions
+ * using a SOFA implementation. This equation gives the angular difference between the mean and true equinox
+ * of date. This can in turn be used to e.g. convert GMST to GAST (and vice versa) or convert a state in the
+ * TEME frame to the TOD frame.
+ * @param terrestrialTime Time in TT in seconds since reference julian day
+ * @param referenceJulianDay Julian day wrt which input times are referenced (default = J2000)
+ * @param iauConvention IAU conventions that are to be used for calculation (i.e. determining which Sofa function to call)
+ * @return Equation of equinoxes (in radians)
+ */
+double calculateEquationOfEquinoxes(
+		const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
+		const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b );
+
+Eigen::Matrix3d getPrecessionNutationMatrix(
+		const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
 //! Function to calculate ERA (earth rotation angle)
 /*!
  *  Function to calculate ERA (earth rotation angle) from current UT1.
