@@ -12,6 +12,8 @@
 #include "Tudat/Astrodynamics/Ephemerides/tleEphemeris.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/External/SofaInterface/earthOrientation.h"
+#include "Tudat/External/SofaInterface/sofaTimeConversions.h"
 #include "boost/algorithm/string.hpp"
 
 namespace tudat
@@ -33,10 +35,48 @@ namespace ephemerides
 
 	Eigen::Vector6d TleEphemeris::getCartesianState( const double secondsSinceEpoch )
 	{
-		const Eigen::Vector6d cartesianStateAtEpoch =
+		// Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
+		// Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
+		// therefore needs to be converted to an intermediate standard reference frame.
+		const Eigen::Vector6d cartesianStateAtEpochTEME =
 				spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 
-		return cartesianStateAtEpoch;
+		// First, rotate to TOD frame. For this, we need the time in UT1 and the equation of equinoxes.
+		double timeUTC = secondsSinceEpoch;
+		// TODO: Convert UTC since J2000 to UT1 since J2000
+		double timeUT1 = sofa_interface::convertUTCtoUT1( timeUTC );
+
+		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( timeUTC );
+
+		// Rotate around pole (z-axis)
+		// TODO: verify sign of rotation angle
+		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( -1.0 * equationOfEquinoxes, Eigen::Vector3d::UnitZ() );
+		Eigen::Vector6d stateTOD = rotationObject.toRotationMatrix( ) * cartesianStateAtEpochTEME;
+
+		// Obtain combined precession + nutation matrix from Sofa (according to the 1976/1980 model)
+		Eigen::Matrix3d precessionNutationMatrix = sofa_interface::getPrecessionNutationMatrix( timeUTC );
+		// Multiply by inverted matrix to get to J2000
+		Eigen::Vector6d  stateJ2000 = precessionNutationMatrix.inverse( ) * stateTOD;
+
+		// Get hour angle (theta GMST) to rotate to PEF
+		// double thetaGmst = sofa_interface::calculateGreenwichMeanSiderealTime( timeUTC, timeUT1,
+		// 		tle_->getEpoch(), basic_astrodynamics::iau_2000_b );
+
+		// TODO: convert state from TEME frame to frame set by the ephemeris settings
+		if( referenceFrameOrientation_ == "J2000" )
+		{
+			return stateJ2000;
+		}
+		else if( referenceFrameOrientation_ == "ECLIPJ2000" )
+		{
+			// Rotate to ECLIPJ2000 frame
+		}
+		else
+		{
+			throw std::runtime_error( "TLE state conversion to target frame " + referenceFrameOrientation_ + " is currently unsupported." );
+		}
+
+		return cartesianStateAtEpochTEME;
 	}
 
 	Tle::Tle( const std::string& lines )

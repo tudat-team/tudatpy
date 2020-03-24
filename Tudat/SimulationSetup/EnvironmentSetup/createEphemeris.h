@@ -635,8 +635,8 @@ class DirectTleEphemerisSettings: public EphemerisSettings
 {
 public:
 
-	DirectTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle, const std::string frameOrigin = "SSB",
-			const std::string frameOrientation = "ECLIPJ2000" ):
+	DirectTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle, const std::string frameOrigin = "Earth",
+			const std::string frameOrientation = "J2000" ):
 		EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ){ }
 
 	const std::shared_ptr<ephemerides::Tle> getTle( ) const
@@ -659,7 +659,7 @@ public:
 			std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
 					std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ),
 			const bool useLongDoubleStates = false,
-			const std::string& frameOrigin = "SSB", const std::string& frameOrientation = "ECLIPJ2000") :
+			const std::string& frameOrigin = "Earth", const std::string& frameOrientation = "J2000") :
 		EphemerisSettings( interpolated_tle_ephemeris, frameOrigin, frameOrientation ),
 		initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
 		interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( useLongDoubleStates ),
