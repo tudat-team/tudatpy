@@ -21,6 +21,8 @@ option(BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter functional
 option(BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Build Tudat with high-precision (>16 digits) capabilities. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." OFF)
 option(BUILD_WITH_PROPAGATION_TESTS "Build Tudat with unit tests involving long (> 30 s) propagations. Total unit test run time may be >10 minutes." ON)
 
+option(TUDAT_DISABLE_TESTS "Whether to build Tudat's tests. Useful when including Tudat as a library inside other projects." OFF)
+
 # Load UserSettings.txt
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
  set(BUILD_STYLE "standalone")
@@ -62,7 +64,9 @@ set(LIBROOT "${CODEROOT}/lib")
 set(BINROOT "${CODEROOT}/bin")
 
 # Set testing options based on platform.
-enable_testing( )
+if (NOT TUDAT_DISABLE_TESTS)
+ enable_testing( )
+endif()
 
 # Set the global macros for setting up targets.
 macro(setup_tudat_library_target target_name CUSTOM_OUTPUT_PATH)
@@ -71,9 +75,11 @@ macro(setup_tudat_library_target target_name CUSTOM_OUTPUT_PATH)
 endmacro(setup_tudat_library_target)
 
 macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
- set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
- get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
- add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
+ if (NOT TUDAT_DISABLE_TESTS)
+  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
+  get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
+  add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
+ endif()
 endmacro(setup_custom_test_program)
 
 # Set the main sub-directories.
