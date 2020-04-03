@@ -21,9 +21,11 @@ macro(setup_library_target target_name CUSTOM_OUTPUT_PATH)
 endmacro(setup_library_target)
 
 macro(setup_unit_test_executable_target target_name CUSTOM_OUTPUT_PATH)
-  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
-  get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
-  add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
+  if (NOT TUDAT_DISABLE_TESTS)
+    set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
+    get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
+    add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
+  endif()	
 endmacro(setup_unit_test_executable_target)
 
 # Set the source files.
