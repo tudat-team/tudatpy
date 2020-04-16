@@ -82,7 +82,7 @@ double calculateGreenwichMeanSiderealTime(
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
     default:
-        throw std::runtime_error( "Warning, iau convention for GMST calculation not recongnized" );
+        throw std::runtime_error( "Warning, IAU convention for GMST calculation not recognized" );
 
     }
 
@@ -118,11 +118,18 @@ Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const
 {
 	double pnm[3][3];
 
+	std::cout << "Ref JD: " << referenceJulianDay << "\nTT in Julian days: " << terrestrialTime / physical_constants::JULIAN_DAY << std::endl;
+
 	iauPnm80( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, pnm );
 
 	return ( Eigen::Matrix3d( ) << pnm[ 0 ][ 0 ], pnm[ 0 ][ 1 ], pnm[ 0 ][ 2 ],
 			pnm[ 1 ][ 0 ], pnm[ 1 ][ 1 ], pnm[ 1 ][ 2 ],
 			pnm[ 2 ][ 0 ], pnm[ 2 ][ 1 ], pnm[ 2 ][ 2 ] ).finished( );
+}
+
+void getPrecessionAngles( double &zeta, double &z, double &theta, const double terrestrialTime, const double referenceJulianDay )
+{
+	iauPb06( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, &zeta, &z, &theta);
 }
 
 //! Function to calculate ERA (earth rotation angle)

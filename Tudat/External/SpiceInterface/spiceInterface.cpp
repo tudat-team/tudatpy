@@ -117,7 +117,7 @@ Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< Tle > t
 	elements[ 6 ] = tle->getArgOfPerigee( );
 	elements[ 7 ] = tle->getMeanAnomaly( );
 	elements[ 8 ] = tle->getMeanMotion( );
-	elements[ 9 ] = tle->getEpoch( );
+	elements[ 9 ] = tle->getEpoch( ); // TLE ephemeris epoch in seconds since J2000
 
 	// Call Spice function. Return value is always 0, so no need to save it.
 	ev2lin_( &epoch, physicalConstants, elements, stateAtEpoch );
