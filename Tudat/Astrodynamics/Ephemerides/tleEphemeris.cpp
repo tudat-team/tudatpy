@@ -33,7 +33,7 @@ namespace ephemerides
 
 	}
 
-	Eigen::Vector6d TleEphemeris::getCartesianState( const double secondsSinceEpoch )
+	Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
 	{
 		// Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
 		// Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
@@ -41,22 +41,35 @@ namespace ephemerides
 		const Eigen::Vector6d cartesianStateAtEpochTEME =
 				spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 
-		// First, rotate to TOD frame. For this, we need the time in UT1 and the equation of equinoxes.
-		double timeUTC = secondsSinceEpoch;
-		// TODO: Convert UTC since J2000 to UT1 since J2000
-		double timeUT1 = sofa_interface::convertUTCtoUT1( timeUTC );
+		std::cout << "State at TLE epoch: " << spice_interface::getCartesianStateFromTleAtEpoch( tle_->getEpoch( ), tle_ ) << std::endl;
 
-		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( timeUTC );
+		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
+		std::cout << "Position in TEME:\n" << positionTEME << std::endl;
+		Eigen::Vector3d velocityTEME = cartesianStateAtEpochTEME.tail( 3 );
+
+		// First, rotate to the True Of Date (TOD) frame.
+		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch );
+		std::cout << "Eq of the equinoxes: " << equationOfEquinoxes << std::endl;
 
 		// Rotate around pole (z-axis)
-		// TODO: verify sign of rotation angle
-		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( -1.0 * equationOfEquinoxes, Eigen::Vector3d::UnitZ() );
-		Eigen::Vector6d stateTOD = rotationObject.toRotationMatrix( ) * cartesianStateAtEpochTEME;
+		// TODO: verify sign of rotation angle --> should be positive!
+		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
+		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
+		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
 
-		// Obtain combined precession + nutation matrix from Sofa (according to the 1976/1980 model)
-		Eigen::Matrix3d precessionNutationMatrix = sofa_interface::getPrecessionNutationMatrix( timeUTC );
+		std::cout << "Position in TOD:\n" << positionTOD << std::endl;
+		std::cout << "Velocity in TOD:\n" << velocityTOD << std::endl;
+
+		double zeta, z, theta;
+		sofa_interface::getPrecessionAngles(zeta, z, theta, secondsSinceEpoch );
+		std::cout << "Zeta: " << zeta << " , z: " << z << " , theta: " << theta << std::endl;
+
+		// Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
+		// (according to the 1976/1980 model)
+		Eigen::Matrix3d precessionNutationMatrix = sofa_interface::getPrecessionNutationMatrix( secondsSinceEpoch );
 		// Multiply by inverted matrix to get to J2000
-		Eigen::Vector6d  stateJ2000 = precessionNutationMatrix.inverse( ) * stateTOD;
+		Eigen::Vector3d  positionJ2000 = precessionNutationMatrix.transpose( ) * positionTOD;
+		Eigen::Vector3d  velocityJ2000 = precessionNutationMatrix.transpose( ) * velocityTOD;
 
 		// Get hour angle (theta GMST) to rotate to PEF
 		// double thetaGmst = sofa_interface::calculateGreenwichMeanSiderealTime( timeUTC, timeUT1,
@@ -65,11 +78,19 @@ namespace ephemerides
 		// TODO: convert state from TEME frame to frame set by the ephemeris settings
 		if( referenceFrameOrientation_ == "J2000" )
 		{
+			Eigen::Vector6d stateJ2000;
+			stateJ2000 << positionJ2000, velocityJ2000;
 			return stateJ2000;
 		}
 		else if( referenceFrameOrientation_ == "ECLIPJ2000" )
 		{
-			// Rotate to ECLIPJ2000 frame
+			Eigen::Quaterniond itrsToEclipticQuaternion = spice_interface::computeRotationQuaternionBetweenFrames(
+					"J2000", "ECLIPJ2000", secondsSinceEpoch );
+			Eigen::Vector3d positionEclipJ2000 = itrsToEclipticQuaternion * positionJ2000;
+			Eigen::Vector3d velocityEclipJ2000 = itrsToEclipticQuaternion * velocityJ2000;
+			Eigen::Vector6d stateEclipJ2000;
+			stateEclipJ2000 << positionEclipJ2000, velocityEclipJ2000;
+			return stateEclipJ2000;
 		}
 		else
 		{
@@ -134,13 +155,25 @@ namespace ephemerides
 		std::string line1 = tleLines.at( 0 );
 		std::string line2 = tleLines.at( 1 );
 
-		double epochYear = std::stod( line1.substr( 18, 2 ) );
+		int epochYear = std::stoi( line1.substr( 18, 2 ) );
 		double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
 		std::cout << "Epoch year: " << epochYear << "\nDay fraction: " << epochDayFraction << std::endl;
 
 		// Convert to seconds since J2000
 		// TLE day number starts with a 1, so a day fraction of 1.0 would mean Jan 1st, 0:00. Hence, we have to subtract 1.5 days
 		// in seconds to obtain number of seconds since Jan 1st, noon (as dictated by J2000).
+		// TODO: fix calculation (does not account for leap days!)
+		if( epochYear < 57 )
+		{
+			epochYear += 2000;
+		}
+		else
+		{
+			epochYear += 1900;
+		}
+		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
+		boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
+		auto jdSinceJ2000 = basic_astrodynamics::calculateJulianDaySinceEpoch< double >( date, epochDayFraction );
 		epoch_ = epochYear * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );

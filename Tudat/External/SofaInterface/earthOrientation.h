@@ -91,6 +91,9 @@ double calculateEquationOfEquinoxes(
 Eigen::Matrix3d getPrecessionNutationMatrix(
 		const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+void getPrecessionAngles(double &zeta, double &z, double &theta, const double terrestrialTime,
+						 const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000);
+
 //! Function to calculate ERA (earth rotation angle)
 /*!
  *  Function to calculate ERA (earth rotation angle) from current UT1.
