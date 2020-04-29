@@ -1,31 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(tudatpy)
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
 
-# Add FindNumpy.cmake in boost_numpy_eigen.
-list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_CURRENT_SOURCE_DIR}/external/boost_numpy_eigen/cmake")
+#CMP0048 is set to NEW
+project(tudatpy VERSION 0.1.0 LANGUAGES CXX C)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
 
-set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined" )
-
-# TudatPy Versioning.
-set(tudatpy_VERSION_MAJOR 0)
-set(tudatpy_VERSION_MINOR 0)
-set(tudatpy_VERSION_PATCH 1)
+message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Set the main sub-directories.
-set(CONSTANTSDIR "/constants")
-set(SIMULATIONDIR "/simulation")
-set(SPICEDIR "/spice")
-set(ENVIRONMENTDIR "/simulation/environment")
-
-# Set library directories.
-set(BOOST_EIGEN_NUMPY_SRCDIR "${CMAKE_CURRENT_SOURCE_DIR}/external/boost_numpy_eigen/src")
 
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -42,6 +32,7 @@ else ()
     set(RELATIVE_PROJECT_PATH "${RELATIVE_PROJECT_PATH}" CACHE STRING "Relative path wrt to project for function")
     # message(STATUS "Relative path (wrt to project): ${RELATIVE_PROJECT_PATH}")
 endif ()
+
 
 # Set CMake build-type. If it not supplied by the user (either directly as an argument of through
 # the "UserSettings.txt" file, the default built type is "Release".
@@ -82,23 +73,6 @@ macro(setup_tudatpy_library_target target_name CUSTOM_OUTPUT_PATH)
     set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${LIBROOT}")
     set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${LIBROOT}")
 endmacro(setup_tudatpy_library_target)
-
-## Set the global macros for setting up targets.
-#macro(setup_executable_target target_name CUSTOM_OUTPUT_PATH)
-#    set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/applications")
-#    install(TARGETS ${target_name} RUNTIME DESTINATION "${BINROOT}/applications")
-#endmacro(setup_executable_target)
-#
-#macro(setup_library_target target_name CUSTOM_OUTPUT_PATH)
-#    set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${LIBROOT}")
-#    set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${LIBROOT}")
-#endmacro(setup_library_target)
-#
-#macro(setup_unit_test_target target_name CUSTOM_OUTPUT_PATH)
-#    set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
-#    get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
-#    add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
-#endmacro(setup_unit_test_target)
 
 # Include the top-level directories.
 include_directories(AFTER
@@ -180,89 +154,23 @@ endif ()
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(tudatLinkLibraries)
 
-# TODO: Allow for choice between python 3.6 and python 2.7 for compilation.
-FIND_PACKAGE(PythonInterp 3 REQUIRED)
-
-if (PYTHONINTERP_FOUND)
-    if (UNIX AND NOT APPLE)
-        if (PYTHON_VERSION_MAJOR EQUAL 3)
-            # NOTE: As far as is known, building boost.python3 provides the lib files
-            # in the form of python3 and not python3.6 as is suggested by original
-            # code.
-            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR})
-            FIND_PACKAGE(PythonInterp 3)
-            FIND_PACKAGE(PythonLibs 3 REQUIRED)
-        else ()
-            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python)
-            FIND_PACKAGE(PythonInterp)
-            FIND_PACKAGE(PythonLibs REQUIRED)
-        endif ()
-    else ()
-        if (PYTHON_VERSION_MAJOR EQUAL 3)
-            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-            FIND_PACKAGE(PythonInterp 3)
-            FIND_PACKAGE(PythonLibs 3 REQUIRED)
-        else ()
-            FIND_PACKAGE(Boost 1.61 COMPONENTS filesystem system regex date_time unit_test_framework thread python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-            FIND_PACKAGE(PythonInterp)
-            FIND_PACKAGE(PythonLibs REQUIRED)
-        endif ()
-    endif ()
-else ()
-    message("Python not found")
-endif ()
-
-# Add boost_numpy_eigen submodule.
 set(POSITION_INDEPENDENT_CODE True)
 
-# Find NumPy
-find_package(NumPy ${BOOST_PYTHON_NUMPY_EIGEN_PYTHON_VERSION} REQUIRED)
-
 enable_testing()
-include_directories(
-        ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${PYTHON_INCLUDE_DIRS}
-        ${BOOST_NUMPY_EIGEN_SOURCE}
-        ${PYTHON_INCLUDE_DIRS}
-        ${Boost_INCLUDE_DIRS}
-        ${EIGEN3_INCLUDE_DIR}
-        ${NUMPY_INCLUDE_DIRS}
-        )
 
-setup_tudatpy_library_target(boost_numpy_eigen "${BOOST_EIGEN_NUMPY_SRCDIR}")
+# python.
+include(YACMAPythonSetup)
 
-target_link_libraries(boost_numpy_eigen ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+# python version check.
+if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+    message(FATAL_ERROR "Minimum supported python version is 3.4.")
+endif ()
 
-target_compile_options(boost_numpy_eigen PUBLIC PRIVATE
-        -Wignored-attributes
-        -Wdeprecated-declarations
-        -Wold-style-cast)
+# pybind11.
+find_package(pybind11 REQUIRED)
 
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions
-#        -Wignored-attributes
-#        -Wdeprecated-declarations
-#        -Wold-style-cast")
+# Configure the sphinx config file.
+#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
 
-message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
-message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
-#message(STATUS "boost_numpy_eigen = ${boost_numpy_eigen}")
-message(STATUS "NUMPY_INCLUDE_DIRS = ${NUMPY_INCLUDE_DIRS}")
-message(STATUS "TUDAT_PROPAGATION_LIBRARIES = ${TUDAT_PROPAGATION_LIBRARIES}")
-message(STATUS "tudat_environment_setup = ${tudat_environment_setup}")
-
-# TODO: Setup the CMakelist.txt such that tudatPy is installed to the detected dist-packages of python library.
-
-## Simulation setup tests.
-add_test(NAME to_python_conversion COMMAND ${PYTHON_EXECUTABLE} -m unittest -v test/test_to_python_conversion.py)
-#add_test(NAME from_python_conversion COMMAND ${PYTHON_EXECUTABLE} -m unittest -v test/test_from_python_conversion.py)
-add_test(NAME constants COMMAND ${PYTHON_EXECUTABLE} -m unittest -v test/test_constants.py)
-add_test(NAME environment_setup COMMAND ${PYTHON_EXECUTABLE} -m unittest -v test/test_environment_setup.py)
-
-add_subdirectory(test)
-add_subdirectory(tudatpy/${CONSTANTSDIR})
-add_subdirectory(tudatpy/${SIMULATIONDIR})
-add_subdirectory(tudatpy/${SPICEDIR})
-
+# Add the module directory.
+add_subdirectory(tudatpy)
