@@ -1,0 +1,6 @@
+[submodule "external/boost_numpy_eigen"]
+	path = external/boost_numpy_eigen
+	url = https://github.com/personalrobotics/boost_numpy_eigen.git
+[submodule "external/Py2Cpp"]
+	path = external/Py2Cpp
+	url = https://github.com/dubzzz/Py2Cpp.git
