@@ -230,10 +230,6 @@ include_directories(
         ${NUMPY_INCLUDE_DIRS}
         )
 
-
-add_library(boost_numpy_eigen SHARED
-        include/eigen_numpy.cc
-        include/eigen_numpy.h)
 setup_tudatpy_library_target(boost_numpy_eigen "${BOOST_EIGEN_NUMPY_SRCDIR}")
 
 target_link_libraries(boost_numpy_eigen ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
@@ -247,16 +243,6 @@ target_compile_options(boost_numpy_eigen PUBLIC PRIVATE
 #        -Wignored-attributes
 #        -Wdeprecated-declarations
 #        -Wold-style-cast")
-
-message("${boost_numpy_eigen}")
-link_libraries(
-        ${Boost_LIBRARIES}
-        ${Boost_SYSTEM_LIBRARY}
-        ${PYTHON_LIBRARIES}
-        ${tudat_basic_mathematics}
-        ${TUDAT_PROPAGATION_LIBRARIES}
-        ${tudat_environment_setup}
-        ${LIBROOT}/libboost_numpy_eigen.so) # Deprecated but so convenient!
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
