@@ -10,14 +10,31 @@ from .core import _simulation_setup
 import sys
 
 sys.modules["tudatpy.constants"] = _constants
+sys.modules["constants"] = _constants
+
 sys.modules["tudatpy.interpolators"] = _interpolators
+sys.modules["interpolators"] = _interpolators
+
 sys.modules["tudatpy.spice_interface"] = _spice_interface
+sys.modules["spice_interface"] = _spice_interface
+
 sys.modules["tudatpy.basic_astrodynamics"] = _basic_astrodynamics
+sys.modules["basic_astrodynamics"] = _basic_astrodynamics
+
 sys.modules["tudatpy.gravitation"] = _gravitation
+sys.modules["gravitation"] = _gravitation
+
 sys.modules["tudatpy.numerical_integrators"] = _numerical_integrators
+sys.modules["numerical_integrators"] = _numerical_integrators
+
 sys.modules["tudatpy.propagators"] = _propagators
+sys.modules["propagators"] = _propagators
+
 sys.modules["tudatpy.orbital_element_conversions"] = _orbital_element_conversions
+sys.modules["orbital_element_conversions"] = _orbital_element_conversions
+
 sys.modules["tudatpy.simulation_setup"] = _simulation_setup
+sys.modules["simulation_setup"] = _simulation_setup
 
 __all__ = [
     'constants',

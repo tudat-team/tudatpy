@@ -11,7 +11,7 @@ namespace tudatpy {
     void expose_basic_astrodynamics(py::module &m){
 
         // #include Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h
-        py::enum_<tba::AvailableAcceleration>(m, "AvailabileAcceleration")
+        py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
                 .value("undefined_acceleration",
                        tba::AvailableAcceleration::undefined_acceleration)
                 .value("point_mass_gravity",

@@ -7,21 +7,30 @@ spice_interface.load_standard_spice_kernels()
 
 # 1.1. Set Up the Environment
 from tudatpy.simulation_setup import get_default_body_settings
+from tudatpy.simulation_setup import set_global_frame_body_ephemerides
 from tudatpy.simulation_setup import create_bodies
+from tudatpy.simulation_setup import ConstantAerodynamicCoefficientSettings
+from tudatpy.simulation_setup import CannonBallRadiationPressureInterfaceSettings
+from tudatpy.simulation_setup import create_aerodynamic_coefficient_interface
+from tudatpy.simulation_setup import create_radiation_pressure_interface
+from tudatpy.constants import JULIAN_DAY
+simulation_end_epoch = JULIAN_DAY
 
 bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
 # Create body objects.
 simulation_start_epoch = 0.0
-simulation_end_epoch = tpy.constants.JULIAN_DAY
+time_step = 10.0
+
 
 body_settings = get_default_body_settings(bodies_to_create,
                                           simulation_start_epoch - 300.0,
-                                          simulation_end_epoch + 300.0)
+                                          simulation_end_epoch + 300.0, time_step)
 
+# TODO: Simplify
 for body in bodies_to_create:
-    body_settings[body].ephemeris_settings.reset_frame_orientation("J200")
-    body_settings[body].rotation_model_settings.reset_original_frame("J200")
+    body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
+    body_settings[body].rotation_model_settings.reset_original_frame("J2000")
 
 body_dict = create_bodies(body_settings)
 
@@ -30,6 +39,7 @@ from tudatpy.simulation_setup import Body
 
 body_dict["Asterix"] = Body()
 body_dict["Asterix"].set_constant_body_mass(400.0)
+set_global_frame_body_ephemerides(body_dict, "SSB", "J2000")
 
 # Create aerodynamic coefficient interface settings
 reference_area = 4.0
@@ -50,7 +60,7 @@ reference_area_radiation = 4.0
 radiation_pressure_coefficient = 1.2
 
 occulting_bodies = ["Earth"]
-asterix_radiation_pressure_settings = RadiationPressureInterfaceSettings(
+asterix_radiation_pressure_settings = CannonBallRadiationPressureInterfaceSettings(
     "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
 
 # Create and set radiation pressure settings
@@ -58,9 +68,12 @@ body_dict["Asterix"].set_radiation_pressure_interface(
     "Sun", create_radiation_pressure_interface(
         asterix_radiation_pressure_settings, "Asterix", body_dict))
 
+# TODO: Simplify (post 1.0.0 work)
+
 # 2.3. Set Up the Acceleration Models
-from tudatpy.basic_astrodynamics import AvailabileAcceleration
+from tudatpy.basic_astrodynamics import AvailableAcceleration
 from tudatpy.simulation_setup import AccelerationSettings
+from tudatpy.simulation_setup import SphericalHarmonicAccelerationSettings
 from tudatpy.simulation_setup import create_acceleration_models_dict
 from tudatpy.orbital_element_conversions import KeplerianElementIndices
 from tudatpy.orbital_element_conversions import convert_keplerian_to_cartesian_elements
@@ -70,17 +83,17 @@ from tudatpy.propagators import TranslationalStatePropagatorSettings
 accelerations_of_asterix = dict(
     Sun=
     [
-        AccelerationSettings(AvailabileAcceleration.cannon_ball_radiation_pressure)
+        AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure)
     ],
     Earth=
     [
-        SphericalHarmonicAcceleration(5, 5),
-        AccelerationSettings(AvailabileAcceleration.aerodynamic)
+        SphericalHarmonicAccelerationSettings(5, 5),
+        AccelerationSettings(AvailableAcceleration.aerodynamic)
     ])
 
 for other in set(bodies_to_create).difference({"Sun", "Earth"}):
     accelerations_of_asterix[other] = [
-        AccelerationSettings(AvailabileAcceleration.central_gravity)]
+        AccelerationSettings(AvailableAcceleration.central_gravity)]
 
 acceleration_dict = dict(Asterix=accelerations_of_asterix)
 
@@ -125,10 +138,27 @@ from tudatpy.numerical_integrators import IntegratorSettings, AvailableIntegrato
 simulation_start_epoch = 0.0
 fixed_step_size = 10.0
 integrator_settings = IntegratorSettings(AvailableIntegrators.rungeKutta4,
-                                         simulation_start_epoch, fixed_step_size);
+                                         simulation_start_epoch, fixed_step_size)
 
 # 1.5. Perform the Orbit Propagation
 from tudatpy.propagators import SingleArcDynamicsSimulator
 
 dynamics_simulator = SingleArcDynamicsSimulator(body_dict, integrator_settings, propagator_settings)
 integration_result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+
+
+import pandas as pd
+
+df = pd.DataFrame(index=integration_result.keys(),
+                  data=np.vstack(list(integration_result.values())),
+                  columns="x y z Vx Vy Vz".split(" "))
+
+df.index.name = "time"
+df.to_csv("results_2.dat")
+
+pd.set_option('display.max_rows', 30)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+print(df)

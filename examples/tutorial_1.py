@@ -24,7 +24,7 @@ set_global_frame_body_ephemerides(body_dict, "SSB", "ECLIPJ2000")
 print(body_dict)
 
 # 1.3. Set Up the Acceleration models
-from tudatpy.basic_astrodynamics import AvailabileAcceleration
+from tudatpy.basic_astrodynamics import AvailableAcceleration
 from tudatpy.simulation_setup import AccelerationSettings
 from tudatpy.simulation_setup import create_acceleration_models_dict
 from tudatpy.orbital_element_conversions import KeplerianElementIndices
@@ -35,7 +35,7 @@ bodies_to_propagate = ["Asterix"]
 central_bodies = ["Earth"]
 accelerations_of_asterix = {
     "Earth": [
-        AccelerationSettings(AvailabileAcceleration.point_mass_gravity)
+        AccelerationSettings(AvailableAcceleration.point_mass_gravity)
     ]}
 acceleration_dict = {"Asterix": accelerations_of_asterix}
 
@@ -86,18 +86,15 @@ integration_result = dynamics_simulator.get_equations_of_motion_numerical_soluti
 import pandas as pd
 
 df = pd.DataFrame(index=integration_result.keys(),
-                  data=np.vstack(integration_result.values()),
+                  data=np.vstack(list(integration_result.values())),
                   columns="x y z Vx Vy Vz".split(" "))
 
 df.index.name = "time"
+df.to_csv("results_1.dat")
 
 pd.set_option('display.max_rows', 30)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
 
 print(df)
-# NOTE: In original tutorial, julian day is not defined. The code snippets
-# should be self contained in nature.
-
-# print(system_initial_state)
