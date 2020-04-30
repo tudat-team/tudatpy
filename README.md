@@ -11,7 +11,7 @@ quality education in the field of astrodynamics. See the [documentation](https:/
 
 1. Follow my [forked tudatBundle installation](https://github.com/ggarrett13/tudatBundle) replacing the first step with
 
-        git clone https://github.com/tudat/tudatBundle.git
+        git clone https://github.com/ggarrett13/tudatBundle.git
         
 2. After successfully building the bundle, enter the build directory for tudatpy after step 6 (build/tudatpy)
 
