@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>General &mdash; tudatpy 0.1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="tudatpy 0.1.0 documentation" href="../index.html"/>
+        <link rel="next" title="Documentation" href="documentation.html"/>
+        <link rel="prev" title="Python Ecosystem" href="../_src_tutorials/python_ecosystem.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exposing_cpp.html">Exposing C++ in Python</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>General</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_src_dev/general.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="general">
+<h1>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h1>
+<p>The primary aim of TudatPy is the expose the C++ libraries of <a class="reference external" href="https://tudat.tudelft.nl/">Tudat</a>. As such, the current design pattern of TudatPy
+for release 1.0 is to implement the namespaces within the libraries as self contained modules within the TudatPy package.
+This means that the <a class="reference external" href="http://doxygen.tudat.tudelft.nl/">Tudat Doxygen</a> page is <em>the current</em> primary resource in the design of the 1.0 release. The
+<a class="reference external" href="http://doxygen.tudat.tudelft.nl/namespaces.html">Tudat namespace list</a> is indicative of the final submodule list for 1.0, save for exampels such as the
+<code class="docutils literal notranslate"><span class="pre">tudat::input_output</span></code> namespace which is replaced by submodules of popular packages such as <a class="reference external" href="https://pandas.pydata.org/">pandas</a> and <a class="reference external" href="https://numpy.org/">NumPy</a>
+which are native to the Python ecosystem. For example uses of these popular Python packages in TudatPy applications,
+see the <a class="reference internal" href="../_src_tutorials/python_ecosystem.html#python-ecosystem-link"><span class="std std-ref">Python Ecosystem</span></a>.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n">Next →</a>
+      
+      
+        <a href="../_src_tutorials/python_ecosystem.html" class="btn btn-neutral" title="Python Ecosystem" accesskey="p">← Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
