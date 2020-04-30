@@ -13,7 +13,7 @@ else()
 endif()
 
 # Find Python interpreter.
-find_package(PythonInterp 3.7 EXACT REQUIRED)
+find_package(PythonInterp REQUIRED)
 
 if(_YACMA_PYTHON_MODULE_NEED_LINK)
     # NOTE: this will give us both the Python lib and the Python include dir.

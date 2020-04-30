@@ -93,11 +93,11 @@ In many cases, default properties of (celestial) bodies may be used by calling t
 
 Parameters
 ----------
-- **Ephemeris:** Tabulated ephemeris created from Spice (valid in the interval that is specified by the input time-arguments to getDefaultBodySettings).
-- **Gravity field models:** Point mass gravity field models, with gravitational parameter from Spice (if available). Exceptions are the Earth and Moon, for which the EGM96 and GGLP spherical harmonic gravity fields are loaded, respectively.
-- **Rotation model:** For a given body (if available) the Spice rotation model, with ECLIPJ2000 as base frame, and for a body AAA frame IAU_AAA as target frame (the standard body-fixed frame for each body in Spice).
-- **Atmosphere model:** 1976 US Standard Atmosphere for Earth (using pregenerated tables). For other bodies, no default shape model is given.
-- **Shape model:** Spherical model with mean radius obtained from Spice (if avaiable).
+- Ephemeris: Tabulated ephemeris created from Spice (valid in the interval that is specified by the input time-arguments to getDefaultBodySettings).
+- Gravity field models: Point mass gravity field models, with gravitational parameter from Spice (if available). Exceptions are the Earth and Moon, for which the EGM96 and GGLP spherical harmonic gravity fields are loaded, respectively.
+- Rotation model: For a given body (if available) the Spice rotation model, with ECLIPJ2000 as base frame, and for a body AAA frame IAU_AAA as target frame (the standard body-fixed frame for each body in Spice).
+- Atmosphere model: 1976 US Standard Atmosphere for Earth (using pregenerated tables). For other bodies, no default shape model is given.
+- Shape model: Spherical model with mean radius obtained from Spice (if avaiable).
         )mydelimiter";
     };
 }
