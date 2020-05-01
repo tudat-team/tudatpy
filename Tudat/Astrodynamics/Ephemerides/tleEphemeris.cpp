@@ -52,7 +52,6 @@ namespace ephemerides
 		std::cout << "Eq of the equinoxes: " << equationOfEquinoxes << std::endl;
 
 		// Rotate around pole (z-axis)
-		// TODO: verify sign of rotation angle --> should be positive!
 		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
 		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
 		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
@@ -174,7 +173,7 @@ namespace ephemerides
 		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
 		boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
 		auto jdSinceJ2000 = basic_astrodynamics::calculateJulianDaySinceEpoch< double >( date, epochDayFraction );
-		epoch_ = epochYear * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
+		epoch_ = (epochYear - 2000) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );
 		double bStarExp = std::stod( line1.substr( 59, 2 ) );
