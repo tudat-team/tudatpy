@@ -143,7 +143,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
  * SGP or SDP models (near-Earth resp. deep space) with the given two-line elements (TLE).
  * This function serves as a wrapper for the ev2lin_ function in CSpice.
  * @param epoch Time in seconds since J2000 at which the state is to be retrieved.
- * @param elements
+ * @param tle Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
  * @return Cartesian state vector (x, y, z, position + velocity).
  */
 Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< Tle > tle );
