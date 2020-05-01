@@ -14,6 +14,7 @@ from tudatpy.simulation_setup import CannonBallRadiationPressureInterfaceSetting
 from tudatpy.simulation_setup import create_aerodynamic_coefficient_interface
 from tudatpy.simulation_setup import create_radiation_pressure_interface
 from tudatpy.constants import JULIAN_DAY
+
 simulation_end_epoch = JULIAN_DAY
 
 bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
@@ -21,7 +22,6 @@ bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 # Create body objects.
 simulation_start_epoch = 0.0
 time_step = 10.0
-
 
 body_settings = get_default_body_settings(bodies_to_create,
                                           simulation_start_epoch - 300.0,
@@ -73,6 +73,7 @@ body_dict["Asterix"].set_radiation_pressure_interface(
 # 2.3. Set Up the Acceleration Models
 from tudatpy.basic_astrodynamics import AvailableAcceleration
 from tudatpy.simulation_setup import AccelerationSettings
+from tudatpy.simulation_setup import AccelerationTypes
 from tudatpy.simulation_setup import SphericalHarmonicAccelerationSettings
 from tudatpy.simulation_setup import create_acceleration_models_dict
 from tudatpy.orbital_element_conversions import KeplerianElementIndices
@@ -83,17 +84,20 @@ from tudatpy.propagators import TranslationalStatePropagatorSettings
 accelerations_of_asterix = dict(
     Sun=
     [
-        AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure)
+        Acceleration.cannon_ball_radiation_pressure()
+        # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure)
     ],
     Earth=
     [
-        SphericalHarmonicAccelerationSettings(5, 5),
-        AccelerationSettings(AvailableAcceleration.aerodynamic)
+        Acceleration.spherical_harmonic_gravity(5, 5),
+        # SphericalHarmonicAccelerationSettings(5, 5),
+
+        Acceleration.aerodynamic()
+        # AccelerationSettings(AvailableAcceleration.aerodynamic)
     ])
 
 for other in set(bodies_to_create).difference({"Sun", "Earth"}):
-    accelerations_of_asterix[other] = [
-        AccelerationSettings(AvailableAcceleration.central_gravity)]
+    accelerations_of_asterix[other] = [Acceleration.point_mass_gravity()]
 
 acceleration_dict = dict(Asterix=accelerations_of_asterix)
 
@@ -109,22 +113,20 @@ acceleration_model_dict = create_acceleration_models_dict(
 # 1.4. Set Up the Propagation Settings
 from tudatpy.constants import JULIAN_DAY as simulation_end_epoch
 
-KEI = KeplerianElementIndices
-asterix_initial_state_in_keplerian_elements = np.zeros(6)
-kep_state = asterix_initial_state_in_keplerian_elements
-kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-kep_state[int(KEI.eccentricity_index)] = 0.1
-kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+# KEI = KeplerianElementIndices
+# asterix_initial_state_in_keplerian_elements = np.zeros(6)
+# kep_state = asterix_initial_state_in_keplerian_elements
+# kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
+# kep_state[int(KEI.eccentricity_index)] = 0.1
+# kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
+# kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
+# kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
+# kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
 
 earth_gravitational_parameter = body_dict[
     "Earth"].gravity_field_model.get_gravitational_parameter()
 system_initial_state = convert_keplerian_to_cartesian_elements(
     kep_state, earth_gravitational_parameter)
-
-
 
 propagator_settings = TranslationalStatePropagatorSettings(
     central_bodies, acceleration_model_dict, bodies_to_propagate,
@@ -145,7 +147,6 @@ from tudatpy.propagators import SingleArcDynamicsSimulator
 
 dynamics_simulator = SingleArcDynamicsSimulator(body_dict, integrator_settings, propagator_settings)
 integration_result = dynamics_simulator.get_equations_of_motion_numerical_solution()
-
 
 import pandas as pd
 

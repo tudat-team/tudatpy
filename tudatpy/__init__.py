@@ -7,6 +7,7 @@ from .core import _numerical_integrators
 from .core import _propagators
 from .core import _orbital_element_conversions
 from .core import _simulation_setup
+from ._layer_simulation_setup import modify_simulation_setup
 import sys
 
 sys.modules["tudatpy.constants"] = _constants
@@ -33,6 +34,7 @@ sys.modules["propagators"] = _propagators
 sys.modules["tudatpy.orbital_element_conversions"] = _orbital_element_conversions
 sys.modules["orbital_element_conversions"] = _orbital_element_conversions
 
+modify_simulation_setup(_simulation_setup)
 sys.modules["tudatpy.simulation_setup"] = _simulation_setup
 sys.modules["simulation_setup"] = _simulation_setup
 
@@ -47,3 +49,15 @@ __all__ = [
     'orbital_element_conversions'
     'simulation_setup'
 ]
+
+# Clean up namespace
+del modify_simulation_setup
+del _constants
+del _interpolators
+del _spice_interface
+del _basic_astrodynamics
+del _gravitation
+del _numerical_integrators
+del _propagators
+del _orbital_element_conversions
+del _simulation_setup
