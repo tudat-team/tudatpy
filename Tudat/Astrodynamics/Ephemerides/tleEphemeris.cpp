@@ -26,6 +26,14 @@ namespace ephemerides
 							   const std::shared_ptr< Tle > tle_ptr, const bool useSDP ) :
 							   Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
 	{
+		if( referenceFrameOrigin != "Earth" )
+		{
+			throw std::runtime_error( "Error: TleEphemeris only supports an Earth-centered reference frame." );
+		}
+		if( useSDP )
+		{
+			throw std::runtime_error( "TLE SDP propagator requested, which is not yet implemented." );
+		}
 		useSDP_ = useSDP;
 		tle_ = tle_ptr;
 		// Create table with ephemeris data
@@ -41,27 +49,24 @@ namespace ephemerides
 		const Eigen::Vector6d cartesianStateAtEpochTEME =
 				spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 
-		std::cout << "State at TLE epoch: " << spice_interface::getCartesianStateFromTleAtEpoch( tle_->getEpoch( ), tle_ ) << std::endl;
-
 		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
-		std::cout << "Position in TEME:\n" << positionTEME << std::endl;
 		Eigen::Vector3d velocityTEME = cartesianStateAtEpochTEME.tail( 3 );
 
 		// First, rotate to the True Of Date (TOD) frame.
 		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch );
-		std::cout << "Eq of the equinoxes: " << equationOfEquinoxes << std::endl;
 
 		// Rotate around pole (z-axis)
 		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
 		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
 		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
 
-		std::cout << "Position in TOD:\n" << positionTOD << std::endl;
-		std::cout << "Velocity in TOD:\n" << velocityTOD << std::endl;
-
-		double zeta, z, theta;
-		sofa_interface::getPrecessionAngles(zeta, z, theta, secondsSinceEpoch );
-		std::cout << "Zeta: " << zeta << " , z: " << z << " , theta: " << theta << std::endl;
+		// These angles (zeta, z, and theta) do not really have descriptive names. For a description of the precession geometry and these angles,
+		// see pages 226-228 and figure 3-31 in Vallado (2013).
+		double precessionAngleModToGcrfZeta;
+		double precessionAngleModToGcrfZ;
+		double precessionAngleModToGcrfTheta;
+		sofa_interface::getPrecessionAngles(precessionAngleModToGcrfZeta, precessionAngleModToGcrfZ, precessionAngleModToGcrfTheta,
+				secondsSinceEpoch );
 
 		// Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
 		// (according to the 1976/1980 model)
@@ -70,11 +75,6 @@ namespace ephemerides
 		Eigen::Vector3d  positionJ2000 = precessionNutationMatrix.transpose( ) * positionTOD;
 		Eigen::Vector3d  velocityJ2000 = precessionNutationMatrix.transpose( ) * velocityTOD;
 
-		// Get hour angle (theta GMST) to rotate to PEF
-		// double thetaGmst = sofa_interface::calculateGreenwichMeanSiderealTime( timeUTC, timeUT1,
-		// 		tle_->getEpoch(), basic_astrodynamics::iau_2000_b );
-
-		// TODO: convert state from TEME frame to frame set by the ephemeris settings
 		if( referenceFrameOrientation_ == "J2000" )
 		{
 			Eigen::Vector6d stateJ2000;
@@ -196,7 +196,7 @@ namespace ephemerides
 
 	Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 )
 	{
-
+		throw std::runtime_error( "Error constructing TLE object: two string initialization not yet implemented." );
 	}
 
     Tle::Tle( const double *spiceElements )
