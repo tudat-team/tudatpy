@@ -16,7 +16,7 @@ CLASSIFIERS = [
     #   3 - Alpha
     #   4 - Beta
     #   5 - Production/Stable
-'Development Status :: 3 - Production/Stable',
+'Development Status :: 3 - Alpha',
 
     'Operating System :: OS Independent',
 
@@ -28,7 +28,7 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3'
 ]
 KEYWORDS = 'science math physics optimization ai evolutionary-computing parallel-computing metaheuristics'
-INSTALL_REQUIRES = ['numpy']
+INSTALL_REQUIRES = ['numpy', 'pandas', 'jupyterlab', 'tabulate']
 PLATFORMS = ['Unix', 'Windows', 'OSX']
 
 
