@@ -129,7 +129,7 @@ Eigen::Matrix3d getPrecessionNutationMatrix( const double terrestrialTime, const
 
 void getPrecessionAngles( double &zeta, double &z, double &theta, const double terrestrialTime, const double referenceJulianDay )
 {
-	iauPb06( referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY, &zeta, &z, &theta);
+	iauPrec76( referenceJulianDay, terrestrialTime, referenceJulianDay, 0, &zeta, &z, &theta );
 }
 
 //! Function to calculate ERA (earth rotation angle)
