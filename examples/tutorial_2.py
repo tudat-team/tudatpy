@@ -71,10 +71,10 @@ body_dict["Asterix"].set_radiation_pressure_interface(
 # TODO: Simplify (post 1.0.0 work)
 
 # 2.3. Set Up the Acceleration Models
-from tudatpy.basic_astrodynamics import AvailableAcceleration
-from tudatpy.simulation_setup import AccelerationSettings
-from tudatpy.simulation_setup import AccelerationTypes
-from tudatpy.simulation_setup import SphericalHarmonicAccelerationSettings
+# from tudatpy.basic_astrodynamics import AvailableAcceleration
+# from tudatpy.simulation_setup import AccelerationSettings
+from tudatpy.simulation_setup import Acceleration
+# from tudatpy.simulation_setup import SphericalHarmonicAccelerationSettings
 from tudatpy.simulation_setup import create_acceleration_models_dict
 from tudatpy.orbital_element_conversions import KeplerianElementIndices
 from tudatpy.orbital_element_conversions import convert_keplerian_to_cartesian_elements
@@ -84,7 +84,7 @@ from tudatpy.propagators import TranslationalStatePropagatorSettings
 accelerations_of_asterix = dict(
     Sun=
     [
-        Acceleration.cannon_ball_radiation_pressure()
+        Acceleration.canon_ball_radiation_pressure()
         # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure)
     ],
     Earth=
@@ -113,15 +113,15 @@ acceleration_model_dict = create_acceleration_models_dict(
 # 1.4. Set Up the Propagation Settings
 from tudatpy.constants import JULIAN_DAY as simulation_end_epoch
 
-# KEI = KeplerianElementIndices
-# asterix_initial_state_in_keplerian_elements = np.zeros(6)
-# kep_state = asterix_initial_state_in_keplerian_elements
-# kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-# kep_state[int(KEI.eccentricity_index)] = 0.1
-# kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-# kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-# kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-# kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+KEI = KeplerianElementIndices
+asterix_initial_state_in_keplerian_elements = np.zeros(6)
+kep_state = asterix_initial_state_in_keplerian_elements
+kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
+kep_state[int(KEI.eccentricity_index)] = 0.1
+kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
+kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
+kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
+kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
 
 earth_gravitational_parameter = body_dict[
     "Earth"].gravity_field_model.get_gravitational_parameter()
