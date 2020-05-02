@@ -6,6 +6,7 @@ from .core._simulation_setup import SphericalHarmonicAccelerationSettings
 def modify_simulation_setup(simulation_setup):
     class Acceleration:
         """
+        AccelerationSettings manager class.
 
         """
 
