@@ -1,0 +1,861 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tudatpy.simulation_setup &mdash; tudatpy 0.3.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
+        <link rel="next" title="Tudat Tutorials" href="../_src_tutorials/tudat_tutorials.html"/>
+        <link rel="prev" title="tudatpy.propagators" href="propagators.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>tudatpy.simulation_setup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_src_modules/simulation_setup.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-tudatpy.core._simulation_setup">
+<span id="tudatpy-simulation-setup"></span><h1>tudatpy.simulation_setup<a class="headerlink" href="#module-tudatpy.core._simulation_setup" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.AccelerationSettings">
+<em class="property">class </em><code class="sig-name descname">AccelerationSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.AccelerationSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.AerodynamicCoefficientSettings">
+<em class="property">class </em><code class="sig-name descname">AerodynamicCoefficientSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.AerodynamicCoefficientSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no doc&gt;</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings">
+<em class="property">class </em><code class="sig-name descname">ApproximatePlanetPositionSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings.get_body_identifier">
+<code class="sig-name descname">get_body_identifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings.get_body_identifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings.get_use_circular_coplanar_approximation">
+<code class="sig-name descname">get_use_circular_coplanar_approximation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ApproximatePlanetPositionSettings.get_use_circular_coplanar_approximation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.Body">
+<em class="property">class </em><code class="sig-name descname">Body</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.aerodynamic_coefficient_interface">
+<em class="property">property </em><code class="sig-name descname">aerodynamic_coefficient_interface</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.aerodynamic_coefficient_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.body_mass">
+<em class="property">property </em><code class="sig-name descname">body_mass</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.body_mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.ephemeris">
+<em class="property">property </em><code class="sig-name descname">ephemeris</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.ephemeris_frame_to_base_frame">
+<em class="property">property </em><code class="sig-name descname">ephemeris_frame_to_base_frame</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.ephemeris_frame_to_base_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_aerodynamic_coefficient_interface">
+<code class="sig-name descname">get_aerodynamic_coefficient_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_aerodynamic_coefficient_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_body_mass">
+<code class="sig-name descname">get_body_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_body_mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_ephemeris">
+<code class="sig-name descname">get_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_ephemeris_frame_to_base_frame">
+<code class="sig-name descname">get_ephemeris_frame_to_base_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_ephemeris_frame_to_base_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_flight_conditions">
+<code class="sig-name descname">get_flight_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_flight_conditions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_gravity_field_model">
+<code class="sig-name descname">get_gravity_field_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_gravity_field_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_radiation_pressure_interfaces">
+<code class="sig-name descname">get_radiation_pressure_interfaces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_radiation_pressure_interfaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_rotational_ephemeris">
+<code class="sig-name descname">get_rotational_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_rotational_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.get_state">
+<code class="sig-name descname">get_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.get_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.gravity_field_model">
+<em class="property">property </em><code class="sig-name descname">gravity_field_model</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.gravity_field_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_aerodynamic_coefficient_interface">
+<code class="sig-name descname">set_aerodynamic_coefficient_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_aerodynamic_coefficient_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_constant_body_mass">
+<code class="sig-name descname">set_constant_body_mass</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_constant_body_mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_ephemeris">
+<code class="sig-name descname">set_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_ephemeris_frame_to_base_frame">
+<code class="sig-name descname">set_ephemeris_frame_to_base_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_ephemeris_frame_to_base_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_flight_conditions">
+<code class="sig-name descname">set_flight_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_flight_conditions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_gravity_field_model">
+<code class="sig-name descname">set_gravity_field_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_gravity_field_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_radiation_pressure_interface">
+<code class="sig-name descname">set_radiation_pressure_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_rotational_ephemeris">
+<code class="sig-name descname">set_rotational_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_rotational_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.set_state">
+<code class="sig-name descname">set_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.set_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Body.state">
+<em class="property">property </em><code class="sig-name descname">state</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Body.state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.BodySettings">
+<em class="property">class </em><code class="sig-name descname">BodySettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class in which the general properties of each environment model can be set (see above for the list of the available types of environment models). We note that for <a class="reference internal" href="#tudatpy.core._simulation_setup.Body" title="tudatpy.core._simulation_setup.Body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Body</span></code></a> objects that represent vehicles, the manual creation is typically used, as the vehicle conditions may depend on the celestial bodies, but not vice versa.</p>
+<p>In many cases, default properties of (celestial) bodies may be used by calling the <code class="docutils literal notranslate"><span class="pre">getDefaultBodySettings</span></code> function, so that the user does not need to define all required properties line-by-line. At present, the following default settings are used (none if not in list):</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Ephemeris</strong> (<em>-</em>) – </p></li>
+<li><p><strong>Gravity field models</strong> (<em>-</em>) – </p></li>
+<li><p><strong>Rotation model</strong> (<em>-</em>) – </p></li>
+<li><p><strong>Atmosphere model</strong> (<em>-</em>) – </p></li>
+<li><p><strong>Shape model</strong> (<em>-</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.aerodynamic_coefficient_settings">
+<em class="property">property </em><code class="sig-name descname">aerodynamic_coefficient_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.aerodynamic_coefficient_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.atmosphere_settings">
+<em class="property">property </em><code class="sig-name descname">atmosphere_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.atmosphere_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.constant_mass">
+<em class="property">property </em><code class="sig-name descname">constant_mass</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.constant_mass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.ephemeris_settings">
+<em class="property">property </em><code class="sig-name descname">ephemeris_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.ephemeris_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.gravity_field_settings">
+<em class="property">property </em><code class="sig-name descname">gravity_field_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.gravity_field_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.gravity_field_variation_settings">
+<em class="property">property </em><code class="sig-name descname">gravity_field_variation_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.gravity_field_variation_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.ground_station_settings">
+<em class="property">property </em><code class="sig-name descname">ground_station_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.ground_station_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.radiation_pressure_settings">
+<em class="property">property </em><code class="sig-name descname">radiation_pressure_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.radiation_pressure_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.rotation_model_settings">
+<em class="property">property </em><code class="sig-name descname">rotation_model_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.rotation_model_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.BodySettings.shape_model_settings">
+<em class="property">property </em><code class="sig-name descname">shape_model_settings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.BodySettings.shape_model_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.CannonBallRadiationPressureInterfaceSettings">
+<em class="property">class </em><code class="sig-name descname">CannonBallRadiationPressureInterfaceSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.CannonBallRadiationPressureInterfaceSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no_doc&gt;</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.ConstantAerodynamicCoefficientSettings">
+<em class="property">class </em><code class="sig-name descname">ConstantAerodynamicCoefficientSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantAerodynamicCoefficientSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no doc&gt;</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris">
+<em class="property">class </em><code class="sig-name descname">ConstantEphemeris</code><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_long_state">
+<code class="sig-name descname">get_cartesian_long_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_long_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_long_state_from_extended_time">
+<code class="sig-name descname">get_cartesian_long_state_from_extended_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_long_state_from_extended_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_position">
+<code class="sig-name descname">get_cartesian_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_state">
+<code class="sig-name descname">get_cartesian_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_state_from_extended_time">
+<code class="sig-name descname">get_cartesian_state_from_extended_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_state_from_extended_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_velocity">
+<code class="sig-name descname">get_cartesian_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.get_cartesian_velocity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemeris.update_constant_state">
+<code class="sig-name descname">update_constant_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemeris.update_constant_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.ConstantEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">ConstantEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.ConstantEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.CustomEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">CustomEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.CustomEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.CustomEphemerisSettings.get_custom_state_function">
+<code class="sig-name descname">get_custom_state_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.CustomEphemerisSettings.get_custom_state_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">DirectSpiceEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings.get_converge_light_time_aberration">
+<code class="sig-name descname">get_converge_light_time_aberration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings.get_converge_light_time_aberration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings.get_correct_for_steller_aberration">
+<code class="sig-name descname">get_correct_for_steller_aberration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.DirectSpiceEphemerisSettings.get_correct_for_steller_aberration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.Ephemeris">
+<em class="property">class </em><code class="sig-name descname">Ephemeris</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType">
+<em class="property">class </em><code class="sig-name descname">EphemerisType</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Members:</p>
+<p>approximate_planet_positions</p>
+<p>direct_spice_ephemeris</p>
+<p>interpolated_spice</p>
+<p>constant_ephemeris</p>
+<p>kepler_ephemeris</p>
+<p>custom_ephemeris</p>
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.approximate_planet_positions">
+<code class="sig-name descname">approximate_planet_positions</code><em class="property"> = EphemerisType.approximate_planet_positions</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.approximate_planet_positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.constant_ephemeris">
+<code class="sig-name descname">constant_ephemeris</code><em class="property"> = EphemerisType.constant_ephemeris</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.constant_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.custom_ephemeris">
+<code class="sig-name descname">custom_ephemeris</code><em class="property"> = EphemerisType.custom_ephemeris</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.custom_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.direct_spice_ephemeris">
+<code class="sig-name descname">direct_spice_ephemeris</code><em class="property"> = EphemerisType.direct_spice_ephemeris</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.direct_spice_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.interpolated_spice">
+<code class="sig-name descname">interpolated_spice</code><em class="property"> = EphemerisType.interpolated_spice</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.interpolated_spice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.kepler_ephemeris">
+<code class="sig-name descname">kepler_ephemeris</code><em class="property"> = EphemerisType.kepler_ephemeris</em><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.kepler_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.Ephemeris.EphemerisType.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._simulation_setup.Ephemeris.EphemerisType.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">EphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.get_ephemeris_type">
+<code class="sig-name descname">get_ephemeris_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.get_ephemeris_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.get_frame_orientation">
+<code class="sig-name descname">get_frame_orientation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.get_frame_orientation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.get_frame_origin">
+<code class="sig-name descname">get_frame_origin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.get_frame_origin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.get_multi_arc_ephemeris">
+<code class="sig-name descname">get_multi_arc_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.get_multi_arc_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.reset_frame_orientation">
+<code class="sig-name descname">reset_frame_orientation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.reset_frame_orientation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.reset_frame_origin">
+<code class="sig-name descname">reset_frame_origin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.reset_frame_origin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.EphemerisSettings.reset_make_multi_arc_ephemeris">
+<code class="sig-name descname">reset_make_multi_arc_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.EphemerisSettings.reset_make_multi_arc_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.InterpolatedSpiceEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">InterpolatedSpiceEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.InterpolatedSpiceEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">KeplerEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_central_body_gravitational_parameter">
+<code class="sig-name descname">get_central_body_gravitational_parameter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_central_body_gravitational_parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_epoch_of_initial_state">
+<code class="sig-name descname">get_epoch_of_initial_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_epoch_of_initial_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_initial_state_in_keplerian_elements">
+<code class="sig-name descname">get_initial_state_in_keplerian_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_initial_state_in_keplerian_elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_root_finder_absolute_tolerance">
+<code class="sig-name descname">get_root_finder_absolute_tolerance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_root_finder_absolute_tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_root_finder_maximum_number_of_iterations">
+<code class="sig-name descname">get_root_finder_maximum_number_of_iterations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.KeplerEphemerisSettings.get_root_finder_maximum_number_of_iterations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureInterface">
+<em class="property">class </em><code class="sig-name descname">RadiationPressureInterface</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no_doc, only_dec&gt;</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureInterfaceSettings">
+<em class="property">class </em><code class="sig-name descname">RadiationPressureInterfaceSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureInterfaceSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no_doc&gt;</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureType">
+<em class="property">class </em><code class="sig-name descname">RadiationPressureType</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureType" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no_doc&gt;</p>
+<p>Members:</p>
+<blockquote>
+<div><p>cannon_ball_radiation_pressure_interface</p>
+<p>panelled_radiation_pressure_interface</p>
+<p>solar_sailing_radiation_pressure_interface</p>
+</div></blockquote>
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureType.cannon_ball_radiation_pressure_interface">
+<code class="sig-name descname">cannon_ball_radiation_pressure_interface</code><em class="property"> = RadiationPressureType.cannon_ball_radiation_pressure_interface</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureType.cannon_ball_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureType.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureType.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureType.panelled_radiation_pressure_interface">
+<code class="sig-name descname">panelled_radiation_pressure_interface</code><em class="property"> = RadiationPressureType.panelled_radiation_pressure_interface</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureType.panelled_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RadiationPressureType.solar_sailing_radiation_pressure_interface">
+<code class="sig-name descname">solar_sailing_radiation_pressure_interface</code><em class="property"> = RadiationPressureType.solar_sailing_radiation_pressure_interface</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RadiationPressureType.solar_sailing_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.RotationModelType">
+<em class="property">class </em><code class="sig-name descname">RotationModelType</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no doc&gt;</p>
+<p>Members:</p>
+<blockquote>
+<div><p>simple_rotational_model</p>
+<p>spice_rotation_model</p>
+<p>gcrs_to_itrs_rotation_model</p>
+<p>synchronous_rotation_model</p>
+<p>planetary_rotation_model</p>
+</div></blockquote>
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.gcrs_to_itrs_rotation_model">
+<code class="sig-name descname">gcrs_to_itrs_rotation_model</code><em class="property"> = RotationModelType.gcrs_to_itrs_rotation_model</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.gcrs_to_itrs_rotation_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.planetary_rotation_model">
+<code class="sig-name descname">planetary_rotation_model</code><em class="property"> = RotationModelType.planetary_rotation_model</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.planetary_rotation_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.simple_rotational_model">
+<code class="sig-name descname">simple_rotational_model</code><em class="property"> = RotationModelType.simple_rotational_model</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.simple_rotational_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.spice_rotation_model">
+<code class="sig-name descname">spice_rotation_model</code><em class="property"> = RotationModelType.spice_rotation_model</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.spice_rotation_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._simulation_setup.RotationModelType.synchronous_rotation_model">
+<code class="sig-name descname">synchronous_rotation_model</code><em class="property"> = RotationModelType.synchronous_rotation_model</em><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationModelType.synchronous_rotation_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.RotationalModelSettings">
+<em class="property">class </em><code class="sig-name descname">RotationalModelSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationalModelSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;no doc&gt;</p>
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RotationalModelSettings.get_original_frame">
+<code class="sig-name descname">get_original_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationalModelSettings.get_original_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RotationalModelSettings.get_rotation_type">
+<code class="sig-name descname">get_rotation_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationalModelSettings.get_rotation_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RotationalModelSettings.get_target_frame">
+<code class="sig-name descname">get_target_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationalModelSettings.get_target_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.RotationalModelSettings.reset_original_frame">
+<code class="sig-name descname">reset_original_frame</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.RotationalModelSettings.reset_original_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.SphericalHarmonicAccelerationSettings">
+<em class="property">class </em><code class="sig-name descname">SphericalHarmonicAccelerationSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.SphericalHarmonicAccelerationSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._simulation_setup.TabulatedEphemerisSettings">
+<em class="property">class </em><code class="sig-name descname">TabulatedEphemerisSettings</code><a class="headerlink" href="#tudatpy.core._simulation_setup.TabulatedEphemerisSettings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._simulation_setup.TabulatedEphemerisSettings.get_body_state_history">
+<code class="sig-name descname">get_body_state_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.TabulatedEphemerisSettings.get_body_state_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.TabulatedEphemerisSettings.get_use_long_double_states">
+<code class="sig-name descname">get_use_long_double_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.TabulatedEphemerisSettings.get_use_long_double_states" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._simulation_setup.TabulatedEphemerisSettings.set_use_long_double_states">
+<code class="sig-name descname">set_use_long_double_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.TabulatedEphemerisSettings.set_use_long_double_states" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_acceleration_models_dict">
+<code class="sig-name descname">create_acceleration_models_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_acceleration_models_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_aerodynamic_coefficient_interface">
+<code class="sig-name descname">create_aerodynamic_coefficient_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_aerodynamic_coefficient_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_bodies">
+<code class="sig-name descname">create_bodies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_bodies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_body_ephemeris">
+<code class="sig-name descname">create_body_ephemeris</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_body_ephemeris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_radiation_pressure_interface">
+<code class="sig-name descname">create_radiation_pressure_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.create_tabulated_ephemeris_from_spice">
+<code class="sig-name descname">create_tabulated_ephemeris_from_spice</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.create_tabulated_ephemeris_from_spice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.get_default_body_settings">
+<code class="sig-name descname">get_default_body_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.get_default_body_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.get_safe_interpolation_interval">
+<code class="sig-name descname">get_safe_interpolation_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.get_safe_interpolation_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._simulation_setup.set_global_frame_body_ephemerides">
+<code class="sig-name descname">set_global_frame_body_ephemerides</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._simulation_setup.set_global_frame_body_ephemerides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../_src_tutorials/tudat_tutorials.html" class="btn btn-neutral float-right" title="Tudat Tutorials" accesskey="n">Next →</a>
+      
+      
+        <a href="propagators.html" class="btn btn-neutral" title="tudatpy.propagators" accesskey="p">← Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.3.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

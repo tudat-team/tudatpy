@@ -69,7 +69,8 @@ __all__ = [
     'propagators',
     'orbital_element_conversions'
     'simulation_setup',
-    'unit_tests'
+    'unit_tests',
+    'prototype'
 ]
 
 # Clean up namespace

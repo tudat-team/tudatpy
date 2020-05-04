@@ -14,6 +14,7 @@ from tudatpy import basic_astrodynamics
 from tudatpy import propagators
 from tudatpy import aerodynamics
 from tudatpy import simulation_setup
+from tudatpy.prototype import Environment
 
 
 def main():
@@ -33,77 +34,63 @@ def main():
     # CREATE ENVIRONMENT ######################################################
     ###########################################################################
 
-    # Create body objects.
     bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
-    body_settings = simulation_setup.get_default_body_settings(
+    env = Environment(
         bodies_to_create,
-        simulation_start_epoch - 300.0,
-        simulation_end_epoch + 300.0,
-        fixed_step_size)
-
-    for body in bodies_to_create:
-        body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
-        body_settings[body].rotation_model_settings.reset_original_frame("J2000")
-
-    bodies = simulation_setup.create_bodies(body_settings)
+        user_defined_bodies=[],
+        frame_origin="SSB",
+        frame_orientation="ECLIPJ2000",
+        custom_body_settings=None,
+        alternative_kernels=None,
+        start_epoch=simulation_start_epoch,
+        end_epoch=simulation_end_epoch,
+        fixed_dt=fixed_step_size,
+        epoch_margin=300.0)
 
     ###########################################################################
     # CREATE VEHICLE ##########################################################
     ###########################################################################
 
-    # Create vehicle objects.
-    bodies["Delfi-C3"] = simulation_setup.Body()
-    bodies["Delfi-C3"].set_constant_body_mass(400.0)
+    env.vehicles = ["Delfi-C3"]
+
+    env.bodies["Delfi-C3"].set_constant_body_mass(400.0)
 
     ###########################################################################
     # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
     ###########################################################################
 
-    # Create aerodynamic coefficient interface settings
-    reference_area = 4.0
-    aerodynamic_coefficient = 1.2
-    aero_c_settings = simulation_setup.ConstantAerodynamicCoefficientSettings(
-        reference_area,
-        aerodynamic_coefficient * np.ones(3),
-        are_coefficients_in_aerodynmic_frame=True,
-        are_coefficients_in_negative_axis_direction=True
-    )
-    # Create and set aerodynamic coefficients object
-    bodies["Delfi-C3"].set_aerodynamic_coefficient_interface(
-        simulation_setup.create_aerodynamic_coefficient_interface(
-            aero_c_settings,
-            "Delfi-C3")
-    )
-    # TODO: Simplify (post 1.0.0 work)
+    # Create aerodynamic interface settings for Delfi-C3.
+    env.set_aerodynamic_coefficient_interface(
+        target_body_name="Delfi-C3",
+        reference_area=4.0,
+        coefficients=1.2 * np.ones(3),
+        coefficients_in_aerodynamic_frame=True,
+        coefficients_in_negative_axis_direction=True,
+        model="constant_coefficients")
 
-    # Create radiation pressure settings
-    reference_area_radiation = 4.0
-    radiation_pressure_coefficient = 1.2
-    occulting_bodies = ["Earth"]
-    rad_press_settings = simulation_setup.CannonBallRadiationPressureInterfaceSettings(
-        "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
-
-    # Create and set radiation pressure settings
-    bodies["Delfi-C3"].set_radiation_pressure_interface(
-        "Sun", simulation_setup.create_radiation_pressure_interface(
-            rad_press_settings, "Delfi-C3", bodies))
-
-    # TODO: Simplify (post 1.0.0 work)
+    # Create radiation pressure interface settings for Delfi-C3.
+    env.set_radiation_pressure_interface(
+        target_body_name="Delfi-C3",
+        reference_area=4.0,
+        coefficient=1.2,
+        occulting=["Earth"],
+        source="Sun",
+        model="cannon_ball")
 
     ###########################################################################
     # FINALIZE BODIES #########################################################
     ###########################################################################
 
     # Finalize body creation.
-    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
+    env.finalize_environment(frame_origin="SSB", frame_orientation="J2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
     ###########################################################################
 
     # Define bodies that are propagated.
-    bodies_to_propagate = ["Delfi-C3"]
+    bodies_to_propagate = env.vehicles
 
     # Define central bodies.
     central_bodies = ["Earth"]
@@ -130,11 +117,11 @@ def main():
             simulation_setup.Acceleration.point_mass_gravity()]
 
     # Create global accelerations dictionary.
-    acceleration_dict = dict(Asterix=accelerations_of_delfi_c3)
+    acceleration_dict = {"Delfi-C3": accelerations_of_delfi_c3}
 
     # Create acceleration models.
     acceleration_models = simulation_setup.create_acceleration_models_dict(
-        bodies,
+        env.bodies,
         acceleration_dict,
         bodies_to_propagate,
         central_bodies)
@@ -148,7 +135,7 @@ def main():
     # Keplerian elements and later on converted to Cartesian elements.
 
     # Set Keplerian elements for Delfi-C3
-    earth_gravitational_parameter = bodies[
+    earth_gravitational_parameter = env.bodies[
         "Earth"].gravity_field_model.get_gravitational_parameter()
 
     # LEGACY DESIGN.
@@ -195,7 +182,7 @@ def main():
 
     # Create simulation object and propagate dynamics.
     dynamics_simulator = propagators.SingleArcDynamicsSimulator(
-        bodies, integrator_settings, propagator_settings, True)
+        env.bodies, integrator_settings, propagator_settings, True)
     result = dynamics_simulator.get_equations_of_motion_numerical_solution()
 
     ###########################################################################
@@ -205,13 +192,13 @@ def main():
     print(
         f"""
 Single Earth-Orbiting Satellite Example.
-The initial position vector of Delfi-C3 is [km]: {
+The initial position vector of Delfi-C3 is [km]: \n{
         result[simulation_start_epoch][:3] / 1E3}
-The initial velocity vector of Delfi-C3 is [km]: {
+The initial velocity vector of Delfi-C3 is [km/s]: \n{
         result[simulation_start_epoch][3:] / 1E3}
-After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: {
+After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
         result[simulation_end_epoch][:3] / 1E3}
-And the velocity vector of Delfi-C3 is [km]: {
+And the velocity vector of Delfi-C3 is [km/s]: \n{
         result[simulation_start_epoch][3:] / 1E3}
         """
     )
@@ -223,7 +210,7 @@ And the velocity vector of Delfi-C3 is [km]: {
     io.save2txt(
         solution=result,
         filename="singlePerturbedSatellitePropagationHistory.dat",
-        directory="./tutorial_2",
+        directory="./tutorial_2_prototype",
     )
 
     # Final statement (not required, though good practice in a __main__).

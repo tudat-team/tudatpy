@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; tudatpy 0.3.0 documentation</title>
+  <title>Changelog &mdash; tudatpy 0.3.1 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="../index.html"/>
         <link rel="next" title="Frequently Asked Questions" href="FAQ.html"/>
         <link rel="prev" title="Exposing C++ in Python" href="exposing_cpp.html"/> 
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
             
           
@@ -92,6 +92,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/prototype.html">tudatpy.prototype</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_modules/elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_modules/constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
@@ -113,14 +114,15 @@
 <li class="toctree-l1"><a class="reference internal" href="pull_requests.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exposing_cpp.html">Exposing C++ in Python</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.3.0 (02-05-2020)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.2.1 (01-05-2020)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.2.0 (30-04-2020)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.3.1 (04-05-2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.3.0 (02-05-2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.2.1 (01-05-2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.2.0 (30-04-2020)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.1.0 (29-04-2020)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Added</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.1.0 (29-04-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
@@ -190,7 +192,19 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a class="reference external" href="http://keepachangelog.com/">Keep a Changelog</a> and this project adheres to <a class="reference external" href="http://semver.org/">Semantic Versioning</a>.</p>
 <div class="section" id="id1">
-<h2>0.3.0 (02-05-2020)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>0.3.1 (04-05-2020)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Implemented module <a class="reference internal" href="../_src_modules/prototype.html#module-tudatpy.prototype"><span class="std std-ref">tudatpy.prototype</span></a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Created class <code class="docutils literal notranslate"><span class="pre">Environment</span></code> to replace environment setup procedure.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.3.0 (02-05-2020)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Support for <a class="reference external" href="http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/unguidedCapsuleEntry.html">3. Un-guided Capsule Entry</a> added.</p></li>
 <li><p>Implemented module <span class="xref std std-ref">tudatpy.unittests</span></p>
@@ -229,15 +243,15 @@
 <li><p>Added class <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.propagators.PropagationDependentVariableTerminationSettings()</span></code>.</p></li>
 </ul>
 </div>
-<div class="section" id="id2">
-<h2>0.2.1 (01-05-2020)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>0.2.1 (01-05-2020)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Implemented shortened <code class="docutils literal notranslate"><span class="pre">AccelerationSettings</span></code> assignment for <code class="docutils literal notranslate"><span class="pre">aerodynamic</span></code>, <code class="docutils literal notranslate"><span class="pre">spherical_harmonic_gravity</span></code>
 and <code class="docutils literal notranslate"><span class="pre">cannonball_radiation_pressure</span></code> using methods calls of Python class <code class="docutils literal notranslate"><span class="pre">simulation_setup.Acceleration</span></code>.</p></li>
 </ul>
 </div>
-<div class="section" id="id3">
-<h2>0.2.0 (30-04-2020)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>0.2.0 (30-04-2020)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="added">
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
 <ul>
@@ -259,10 +273,10 @@ and <code class="docutils literal notranslate"><span class="pre">cannonball_radi
 </ul>
 </div>
 </div>
-<div class="section" id="id4">
-<h2>0.1.0 (29-04-2020)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<h2>0.1.0 (29-04-2020)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h3>Added<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Support for <a class="reference external" href="http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/unperturbedEarthOrbitingSatellite.html">1. Unperturbed Earth-orbiting Satellite</a> added. The Python version of the script included as
 <code class="docutils literal notranslate"><span class="pre">tutorial_1.py</span></code> under <code class="docutils literal notranslate"><span class="pre">examples</span></code>.</p></li>
@@ -402,7 +416,7 @@ and <code class="docutils literal notranslate"><span class="pre">mathematicalCon
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.3.0',
+            VERSION:'0.3.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

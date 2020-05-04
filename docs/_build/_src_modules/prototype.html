@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tudatpy.prototype &mdash; tudatpy 0.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="../index.html"/>
+        <link rel="next" title="tudatpy.elements" href="elements.html"/>
+        <link rel="prev" title="TudatPy" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tudatpy.prototype</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>tudatpy.prototype</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_src_modules/prototype.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-tudatpy.prototype">
+<span id="tudatpy-prototype"></span><h1>tudatpy.prototype<a class="headerlink" href="#module-tudatpy.prototype" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tudatpy.prototype.Environment">
+<em class="property">class </em><code class="sig-name descname">Environment</code><span class="sig-paren">(</span><em class="sig-param">available_bodies</em>, <em class="sig-param">user_defined_bodies=None</em>, <em class="sig-param">frame_origin='SSB'</em>, <em class="sig-param">frame_orientation='ECLIPJ2000'</em>, <em class="sig-param">custom_body_settings=None</em>, <em class="sig-param">alternative_kernels=None</em>, <em class="sig-param">start_epoch=None</em>, <em class="sig-param">end_epoch=None</em>, <em class="sig-param">fixed_dt=None</em>, <em class="sig-param">epoch_margin=300.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tudatpy/prototype.html#Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tudatpy.prototype.Environment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.prototype.Environment.bodies">
+<em class="property">property </em><code class="sig-name descname">bodies</code><a class="headerlink" href="#tudatpy.prototype.Environment.bodies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.prototype.Environment.finalize_environment">
+<code class="sig-name descname">finalize_environment</code><span class="sig-paren">(</span><em class="sig-param">frame_origin</em>, <em class="sig-param">frame_orientation</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tudatpy/prototype.html#Environment.finalize_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tudatpy.prototype.Environment.finalize_environment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.prototype.Environment.set_aerodynamic_coefficient_interface">
+<code class="sig-name descname">set_aerodynamic_coefficient_interface</code><span class="sig-paren">(</span><em class="sig-param">target_body_name</em>, <em class="sig-param">reference_area</em>, <em class="sig-param">coefficients</em>, <em class="sig-param">coefficients_in_aerodynamic_frame=True</em>, <em class="sig-param">coefficients_in_negative_axis_direction=True</em>, <em class="sig-param">model='constant_coefficients'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tudatpy/prototype.html#Environment.set_aerodynamic_coefficient_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tudatpy.prototype.Environment.set_aerodynamic_coefficient_interface" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_body_name</strong> – </p></li>
+<li><p><strong>reference_area</strong> – </p></li>
+<li><p><strong>coefficint_vector</strong> – </p></li>
+<li><p><strong>coefficients_in_aerodynmic_frame</strong> – </p></li>
+<li><p><strong>coefficients_in_negative_axis_direction</strong> – </p></li>
+<li><p><strong>model</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.prototype.Environment.set_radiation_pressure_interface">
+<code class="sig-name descname">set_radiation_pressure_interface</code><span class="sig-paren">(</span><em class="sig-param">target_body_name</em>, <em class="sig-param">reference_area</em>, <em class="sig-param">coefficient</em>, <em class="sig-param">occulting</em>, <em class="sig-param">source</em>, <em class="sig-param">model='cannon_ball'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tudatpy/prototype.html#Environment.set_radiation_pressure_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tudatpy.prototype.Environment.set_radiation_pressure_interface" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_body_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Body to be interfaced to the environment.</p></li>
+<li><p><strong>reference_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Radiation pressure reference area (m).</p></li>
+<li><p><strong>coefficient</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em> or </em><em>ndarray</em><em>[</em><em>ndim=3</em><em>]</em>) – Radiation pressure coefficient (m).</p></li>
+<li><p><strong>occulting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Occulting bodies between source and target_body.</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Body emitting the radiation pressure.</p></li>
+<li><p><strong>model</strong> (<em>{&quot;cannon_ball&quot;}</em>) – Radiation pressure model to be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.prototype.Environment.vehicles">
+<em class="property">property </em><code class="sig-name descname">vehicles</code><a class="headerlink" href="#tudatpy.prototype.Environment.vehicles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="elements.html" class="btn btn-neutral float-right" title="tudatpy.elements" accesskey="n">Next →</a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="TudatPy" accesskey="p">← Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

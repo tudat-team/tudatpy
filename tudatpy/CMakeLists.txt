@@ -33,6 +33,7 @@ set(TUDATPY_PYTHON_FILES
         test.py
         _layer_simulation_setup.py
         elements.py
+        prototype.py
         io.py
         )
 

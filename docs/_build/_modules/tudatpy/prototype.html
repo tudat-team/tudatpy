@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tudatpy.prototype &mdash; tudatpy 0.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/prototype.html">tudatpy.prototype</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_tutorials/machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>tudatpy.prototype</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tudatpy.prototype</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">_spice_interface</span> <span class="k">as</span> <span class="n">spice_interface</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">_simulation_setup</span> <span class="k">as</span> <span class="n">simulation_setup</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+
+<div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../_src_modules/prototype.html#tudatpy.prototype.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">available_bodies</span><span class="p">,</span>
+                 <span class="n">user_defined_bodies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">frame_origin</span><span class="o">=</span><span class="s2">&quot;SSB&quot;</span><span class="p">,</span>
+                 <span class="n">frame_orientation</span><span class="o">=</span><span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+                 <span class="n">custom_body_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">alternative_kernels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">start_epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">end_epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fixed_dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">epoch_margin</span><span class="o">=</span><span class="mf">300.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        available_bodies : list[str]</span>
+<span class="sd">            List of bodies to be added to the environment that are part</span>
+<span class="sd">            of the available bodies cataloged in the tudatBundle.</span>
+<span class="sd">        user_defined_bodies : list[str]</span>
+<span class="sd">            List of user-defined bodies to be added to the environment</span>
+<span class="sd">            which are not part of the available bodies in the tudatBundle.</span>
+<span class="sd">        frame_origin : str</span>
+<span class="sd">            Frame origin for simulation output results.</span>
+<span class="sd">        frame_orientation : str</span>
+<span class="sd">            Frame orientation for simulation output results.</span>
+<span class="sd">        custom_body_settings : dict, optional</span>
+<span class="sd">            Custom body settings which update in place of the default.</span>
+<span class="sd">        alternative_kernels : str, optional</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        available_bodies= [&quot;Sun&quot;, &quot;Earth&quot;, &quot;Moon&quot;, &quot;Mars&quot;, &quot;Venus&quot;]</span>
+<span class="sd">        user_defined_bodies = [&quot;Delfi-C3&quot;]</span>
+<span class="sd">        custom_body_settings = {&quot;Delfi-C3&quot;:dict(constant_mass=400.0)}</span>
+<span class="sd">        tutorial_2_environment = Environment(</span>
+<span class="sd">           available_bodies=available_bodies,</span>
+<span class="sd">           user_defined_bodies=user_defined_bodies,</span>
+<span class="sd">           custom_body_settings=custom_body_settings)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_available_bodies</span> <span class="o">=</span> <span class="n">available_bodies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_defined_bodies</span> <span class="o">=</span> <span class="n">user_defined_bodies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_origin</span> <span class="o">=</span> <span class="n">frame_origin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_orientation</span> <span class="o">=</span> <span class="n">frame_orientation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_custom_body_settings</span> <span class="o">=</span> <span class="n">custom_body_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_kernels</span> <span class="o">=</span> <span class="n">alternative_kernels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_epoch</span> <span class="o">=</span> <span class="n">start_epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_epoch</span> <span class="o">=</span> <span class="n">end_epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epoch_margin</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">epoch_margin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_dt</span> <span class="o">=</span> <span class="n">fixed_dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_kernels</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_bodies</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_vehicles</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_environment_finalized</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_check_initialize_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_kernels</span><span class="p">:</span>
+
+            <span class="c1"># Load standard spice kernels or alternative?</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_kernels</span><span class="p">:</span>
+                <span class="c1"># Alternative if defined.</span>
+                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_spice_kernels</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_kernels</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Standard if alternative is not defined (None).</span>
+                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_spice_kernels</span><span class="p">()</span>
+
+            <span class="c1"># If kernels are reset, bodies should be too.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_bodies</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_bodies</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fixed_dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">get_default_body_settings</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_available_bodies</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_start_epoch</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epoch_margin</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_end_epoch</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epoch_margin</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_dt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_dt</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;Ambiguous definition of simulation epoch parameters.&quot;</span>
+                        <span class="s2">&quot;Default body settings are being retrieved without&quot;</span>
+                        <span class="s2">&quot;definition of start_epoch, end_epoch and fixed_dt, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;  start_epoch = </span><span class="si">{self._start_epoch}</span><span class="s2">,&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;  end_epoch = </span><span class="si">{self._end_epoch}</span><span class="s2">,&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;  fixed_dt = </span><span class="si">{self._fixed_dt}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Get default body settings.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">get_default_body_settings</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_available_bodies</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_available_bodies</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span><span class="p">[</span><span class="n">body</span><span class="p">]</span><span class="o">.</span><span class="n">ephemeris_settings</span><span class="o">.</span><span class="n">reset_frame_orientation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_orientation</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span><span class="p">[</span><span class="n">body</span><span class="p">]</span><span class="o">.</span><span class="n">rotation_model_settings</span><span class="o">.</span><span class="n">reset_original_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_orientation</span><span class="p">)</span>
+
+            <span class="c1"># If custom body settings are to be used over the default.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_body_settings</span><span class="p">:</span>
+
+                <span class="c1"># Cycle through bodies in the custom settings.</span>
+                <span class="k">for</span> <span class="n">body_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_body_settings</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+                    <span class="c1"># Check if body is in the available bodies.</span>
+                    <span class="k">if</span> <span class="n">body_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_available_bodies</span><span class="p">:</span>
+
+                        <span class="n">custom_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_body_settings</span><span class="p">[</span><span class="n">body_str</span><span class="p">]</span>
+
+                        <span class="k">for</span> <span class="n">settings_str</span> <span class="ow">in</span> <span class="n">custom_settings</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="nb">setattr</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span><span class="p">[</span><span class="n">body_str</span><span class="p">],</span>
+                                    <span class="n">settings_str</span><span class="p">,</span>
+                                    <span class="n">custom_settings</span><span class="p">[</span><span class="n">settings_str</span><span class="p">])</span>
+                            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;The settings attribute of the BodySettings &quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;class does not exist. Available found at:&quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;https://ggarrett13.github.io/tudatpy/_build/_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.BodySettings&quot;</span>
+                                <span class="p">)</span>
+
+                    <span class="c1"># Not sure if this is correct for custom bodies,</span>
+                    <span class="c1"># tutorial examples suggest it may be.</span>
+                    <span class="k">elif</span> <span class="n">body_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_defined_bodies</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="c1"># Body settings provided doesn&#39;t correspond to any</span>
+                    <span class="c1"># defined in union[available, user_defined].</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;The body </span><span class="si">{body_str}</span><span class="s2"> contained in the custom body &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;settings does not exist in the available bodies. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{body_str}</span><span class="s2"> not in </span><span class="si">{self._available_bodies}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># If bodies are reset, vehicles must be re-added.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_vehicles</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bodies</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_bodies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_body_settings</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_vehicles</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">vehicle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_defined_bodies</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bodies</span><span class="p">[</span><span class="n">vehicle</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">Body</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_kernels</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_bodies</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_vehicles</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bodies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_initialize_environment</span><span class="p">()</span>
+        <span class="c1"># Finalize body creation.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_finalized</span><span class="p">:</span>
+            <span class="n">simulation_setup</span><span class="o">.</span><span class="n">set_global_frame_body_ephemerides</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bodies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_orientation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bodies</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vehicles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_defined_bodies</span>
+
+    <span class="nd">@vehicles</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">vehicles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_vehicles</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_environment_finalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_defined_bodies</span> <span class="o">=</span> <span class="n">x</span>
+
+<div class="viewcode-block" id="Environment.finalize_environment"><a class="viewcode-back" href="../../_src_modules/prototype.html#tudatpy.prototype.Environment.finalize_environment">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                             <span class="n">frame_origin</span><span class="p">,</span>
+                             <span class="n">frame_orientation</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_environment_finalized</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">simulation_setup</span><span class="o">.</span><span class="n">set_global_frame_body_ephemerides</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bodies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_orientation</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Environment.set_radiation_pressure_interface"><a class="viewcode-back" href="../../_src_modules/prototype.html#tudatpy.prototype.Environment.set_radiation_pressure_interface">[docs]</a>    <span class="k">def</span> <span class="nf">set_radiation_pressure_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                         <span class="n">target_body_name</span><span class="p">,</span>
+                                         <span class="n">reference_area</span><span class="p">,</span>
+                                         <span class="n">coefficient</span><span class="p">,</span>
+                                         <span class="n">occulting</span><span class="p">,</span>
+                                         <span class="n">source</span><span class="p">,</span>
+                                         <span class="n">model</span><span class="o">=</span><span class="s2">&quot;cannon_ball&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_body_name : str</span>
+<span class="sd">            Body to be interfaced to the environment.</span>
+<span class="sd">        reference_area : float</span>
+<span class="sd">            Radiation pressure reference area (m).</span>
+<span class="sd">        coefficient : float or ndarray[ndim=3]</span>
+<span class="sd">            Radiation pressure coefficient (m).</span>
+<span class="sd">        occulting : list[str]</span>
+<span class="sd">            Occulting bodies between source and target_body.</span>
+<span class="sd">        source : str</span>
+<span class="sd">            Body emitting the radiation pressure.</span>
+<span class="sd">        model : {&quot;cannon_ball&quot;}</span>
+<span class="sd">            Radiation pressure model to be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;cannon_ball&quot;</span><span class="p">:</span>
+            <span class="n">rad_press_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">CannonBallRadiationPressureInterfaceSettings</span><span class="p">(</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">reference_area</span><span class="p">,</span> <span class="n">coefficient</span><span class="p">,</span> <span class="n">occulting</span><span class="p">)</span>
+
+            <span class="c1"># Create and set radiation pressure settings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bodies</span><span class="p">[</span><span class="n">target_body_name</span><span class="p">]</span><span class="o">.</span><span class="n">set_radiation_pressure_interface</span><span class="p">(</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_radiation_pressure_interface</span><span class="p">(</span>
+                    <span class="n">rad_press_settings</span><span class="p">,</span> <span class="n">target_body_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bodies</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model </span><span class="si">{model}</span><span class="s2"> not implemented.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Environment.set_aerodynamic_coefficient_interface"><a class="viewcode-back" href="../../_src_modules/prototype.html#tudatpy.prototype.Environment.set_aerodynamic_coefficient_interface">[docs]</a>    <span class="k">def</span> <span class="nf">set_aerodynamic_coefficient_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                              <span class="n">target_body_name</span><span class="p">,</span>
+                                              <span class="n">reference_area</span><span class="p">,</span>
+                                              <span class="n">coefficients</span><span class="p">,</span>
+                                              <span class="n">coefficients_in_aerodynamic_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">coefficients_in_negative_axis_direction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">model</span><span class="o">=</span><span class="s2">&quot;constant_coefficients&quot;</span>
+                                              <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_body_name</span>
+<span class="sd">        reference_area</span>
+<span class="sd">        coefficint_vector</span>
+<span class="sd">        coefficients_in_aerodynmic_frame</span>
+<span class="sd">        coefficients_in_negative_axis_direction</span>
+<span class="sd">        model</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="s2">&quot;constant_coefficients&quot;</span><span class="p">:</span>
+            <span class="n">aero_c_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">ConstantAerodynamicCoefficientSettings</span><span class="p">(</span>
+                <span class="n">reference_area</span><span class="p">,</span>
+                <span class="n">coefficients</span><span class="p">,</span>
+                <span class="n">coefficients_in_aerodynamic_frame</span><span class="p">,</span>
+                <span class="n">coefficients_in_negative_axis_direction</span>
+            <span class="p">)</span>
+            <span class="c1"># Create and set aerodynamic coefficients object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bodies</span><span class="p">[</span><span class="n">target_body_name</span><span class="p">]</span><span class="o">.</span><span class="n">set_aerodynamic_coefficient_interface</span><span class="p">(</span>
+                <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_aerodynamic_coefficient_interface</span><span class="p">(</span>
+                    <span class="n">aero_c_settings</span><span class="p">,</span>
+                    <span class="n">target_body_name</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model </span><span class="si">{model}</span><span class="s2"> is not implemented.&quot;</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
