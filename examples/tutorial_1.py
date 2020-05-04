@@ -1,100 +1,177 @@
-# Initial imports and kernel setup
+###############################################################################
+# IMPORT STATEMENTS ###########################################################
+###############################################################################
 import numpy as np
+from tudatpy import constants
+from tudatpy import elements
+from tudatpy import io
+from tudatpy import ephemerides
+from tudatpy import interpolators
+from tudatpy import numerical_integrators
 from tudatpy import spice_interface
+from tudatpy import basic_astrodynamics
+# from tudatpy import orbital_element_conversions # LEGACY MODULE
+from tudatpy import propagators
+from tudatpy import aerodynamics
+from tudatpy import simulation_setup
 
-spice_interface.load_standard_spice_kernels()
 
-# 1.1. Set Up the Environment
-from tudatpy.simulation_setup import get_default_body_settings
-from tudatpy.simulation_setup import create_bodies
-from tudatpy.simulation_setup import ConstantEphemerisSettings
+def main():
+    # Load spice kernels.
+    spice_interface.load_standard_spice_kernels()
 
-bodies_to_create = ["Earth"]
-body_settings = get_default_body_settings(bodies_to_create)
-body_settings["Earth"].ephemeris_settings = ConstantEphemerisSettings(
-    np.zeros(6))
-body_dict = create_bodies(body_settings)
+    # Set simulation start epoch.
+    simulation_start_epoch = 0.0
 
-# 1.2. Create the Vehicle
-from tudatpy.simulation_setup import Body
-from tudatpy.simulation_setup import set_global_frame_body_ephemerides
+    # Set numerical integration fixed step size.
+    fixed_step_size = 1.0
 
-body_dict["Asterix"] = Body()
-set_global_frame_body_ephemerides(body_dict, "SSB", "ECLIPJ2000")
-print(body_dict)
+    # Set simulation end epoch.
+    simulation_end_epoch = constants.JULIAN_DAY
 
-# 1.3. Set Up the Acceleration models
-from tudatpy.basic_astrodynamics import AvailableAcceleration
-from tudatpy.simulation_setup import AccelerationSettings
-from tudatpy.simulation_setup import create_acceleration_models_dict
-from tudatpy.orbital_element_conversions import KeplerianElementIndices
-from tudatpy.orbital_element_conversions import convert_keplerian_to_cartesian_elements
-from tudatpy.propagators import TranslationalStatePropagatorSettings
+    ###########################################################################
+    # CREATE ENVIRONMENT ######################################################
+    ###########################################################################
 
-bodies_to_propagate = ["Asterix"]
-central_bodies = ["Earth"]
-accelerations_of_asterix = {
-    "Earth": [
-        AccelerationSettings(AvailableAcceleration.point_mass_gravity)
-    ]}
-acceleration_dict = {"Asterix": accelerations_of_asterix}
+    # Create body objects.
+    bodies_to_create = ["Earth"]
 
-acceleration_model_dict = create_acceleration_models_dict(
-    body_dict,
-    acceleration_dict,
-    bodies_to_propagate,
-    central_bodies)
+    body_settings = simulation_setup.get_default_body_settings(bodies_to_create)
 
-# 1.4. Set Up the Propagation Settings
-KEI = KeplerianElementIndices
-asterix_initial_state_in_keplerian_elements = np.zeros(6)
-kep_state = asterix_initial_state_in_keplerian_elements
-kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-kep_state[int(KEI.eccentricity_index)] = 0.1
-kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+    body_settings["Earth"].ephemeris_settings = simulation_setup.ConstantEphemerisSettings(
+        np.zeros(6))
 
-earth_gravitational_parameter = body_dict[
-    "Earth"].gravity_field_model.get_gravitational_parameter()
-system_initial_state = convert_keplerian_to_cartesian_elements(
-    kep_state, earth_gravitational_parameter)
+    body_settings["Earth"].rotation_model_settings.reset_original_frame("ECLIPJ2000")
 
-from tudatpy.constants import JULIAN_DAY as simulation_end_epoch
+    # Create Earth Object.
+    bodies = simulation_setup.create_bodies(body_settings)
 
-propagator_settings = TranslationalStatePropagatorSettings(
-    central_bodies, acceleration_model_dict, bodies_to_propagate,
-    system_initial_state,
-    simulation_end_epoch
-)
+    ###########################################################################
+    # CREATE VEHICLE ##########################################################
+    ###########################################################################
 
-# Create numerical integrator settings.
-from tudatpy.numerical_integrators import IntegratorSettings, AvailableIntegrators
+    # Create vehicle objects.
+    bodies["Delfi-C3"] = simulation_setup.Body()
 
-simulation_start_epoch = 0.0
-fixed_step_size = 10.0
-integrator_settings = IntegratorSettings(AvailableIntegrators.rungeKutta4,
-                                         simulation_start_epoch, fixed_step_size);
+    ###########################################################################
+    # FINALIZE BODIES #########################################################
+    ###########################################################################
 
-# 1.5. Perform the Orbit Propagation
-from tudatpy.propagators import SingleArcDynamicsSimulator
+    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB",
+                                                       "ECLIPJ2000")
 
-dynamics_simulator = SingleArcDynamicsSimulator(body_dict, integrator_settings, propagator_settings)
-integration_result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+    ###########################################################################
+    # CREATE ACCELERATIONS ####################################################
+    ###########################################################################
 
-import pandas as pd
+    # Define bodies that are propagated.
+    bodies_to_propagate = ["Delfi-C3"]
 
-df = pd.DataFrame(index=integration_result.keys(),
-                  data=np.vstack(list(integration_result.values())),
-                  columns="x y z Vx Vy Vz".split(" "))
+    # Define central bodies.
+    central_bodies = ["Earth"]
 
-df.index.name = "time"
-df.to_csv("results_1.dat")
+    # Define accelerations acting on Delfi-C3.
+    accelerations_of_delfi_c3 = dict(
+        Earth=[simulation_setup.Acceleration.point_mass_gravity()]
+    )
 
-pd.set_option('display.max_rows', 30)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', None)
+    # Create global accelerations dictionary.
+    accelerations = {"Delfi-C3": accelerations_of_delfi_c3}
 
-print(df)
+    # Create acceleration models.
+    acceleration_models = simulation_setup.create_acceleration_models_dict(
+        bodies, accelerations, bodies_to_propagate, central_bodies)
+
+    ###########################################################################
+    # CREATE PROPAGATION SETTINGS #############################################
+    ###########################################################################
+
+    # Set initial conditions for the Asterix satellite that will be
+    # propagated in this simulation. The initial conditions are given in
+    # Keplerian elements and later on converted to Cartesian elements.
+
+    # Set Keplerian elements for Delfi-C3
+    earth_gravitational_parameter = bodies[
+        "Earth"].gravity_field_model.get_gravitational_parameter()
+
+    # LEGACY DESIGN.
+    # KEI = orbital_element_conversions.KeplerianElementIndices
+    # asterix_initial_state_in_keplerian_elements = np.zeros(6)
+    # kep_state = asterix_initial_state_in_keplerian_elements
+    # kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
+    # kep_state[int(KEI.eccentricity_index)] = 0.1
+    # kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
+    # kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
+    # kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
+    # kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+    # system_initial_state = corbital_element_conversions.onvert_keplerian_to_cartesian_elements(
+    #     kep_state, earth_gravitational_parameter)
+
+    # REVISED CONTEMPORARY DESIGN.
+    system_initial_state = elements.keplerian2cartesian(
+        mu=earth_gravitational_parameter,
+        a=7500.0E3,
+        ecc=0.1,
+        inc=np.deg2rad(85.3),
+        raan=np.deg2rad(23.4),
+        argp=np.deg2rad(235.7),
+        nu=np.deg2rad(139.87))
+
+    # Create propagation settings.
+    propagator_settings = propagators.TranslationalStatePropagatorSettings(
+        central_bodies,
+        acceleration_models,
+        bodies_to_propagate,
+        system_initial_state,
+        simulation_end_epoch
+    )
+    # Create numerical integrator settings.
+    integrator_settings = numerical_integrators.IntegratorSettings(
+        numerical_integrators.AvailableIntegrators.rungeKutta4,
+        simulation_start_epoch,
+        fixed_step_size
+    )
+
+    ###########################################################################
+    # PROPAGATE ORBIT #########################################################
+    ###########################################################################
+
+    # Create simulation object and propagate dynamics.
+    dynamics_simulator = propagators.SingleArcDynamicsSimulator(
+        bodies, integrator_settings, propagator_settings, True)
+    result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+
+    ###########################################################################
+    # PRINT INITIAL AND FINAL STATES ##########################################
+    ###########################################################################
+
+    print(
+        f"""
+Single Earth-Orbiting Satellite Example.
+The initial position vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][:3] / 1E3}
+The initial velocity vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][3:] / 1E3}
+After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: {
+        result[simulation_end_epoch][:3] / 1E3}
+And the velocity vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][3:] / 1E3}
+        """
+    )
+
+    ###########################################################################
+    # SAVE RESULTS ############################################################
+    ###########################################################################
+
+    io.save2txt(
+        solution=result,
+        filename="singleSatellitePropagationHistory.dat",
+        directory="./tutorial_1",
+    )
+
+    # Final statement (not required, though good practice in a __main__).
+    return 0
+
+
+if __name__ == "__main__":
+    main()

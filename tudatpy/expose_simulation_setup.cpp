@@ -119,7 +119,13 @@ namespace tudatpy {
                 .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
                 .def_property("aerodynamic_coefficient_interface",
                               &tss::Body::getAerodynamicCoefficientInterface,
-                              &tss::Body::setAerodynamicCoefficientInterface);
+                              &tss::Body::setAerodynamicCoefficientInterface)
+                .def("get_flight_conditions", &tss::Body::getFlightConditions)
+                .def("set_flight_conditions", &tss::Body::setFlightConditions,
+                        py::arg("aerodynamic_flight_conditions"))
+                .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
+                .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris,
+                     py::arg("rotational_ephemeris"));
 
         // getDefaultBodySettings (overload 1)
         m.def("get_default_body_settings",
@@ -469,9 +475,9 @@ namespace tudatpy {
                      py::arg("are_coefficients_in_aerodynamic_frame") = true,
                      py::arg("are_coefficients_in_negative_axis_direction") = true);
 
-        py::class_<tss::AerodynamicCoefficientInterface,
-                std::shared_ptr<tss::AerodynamicCoefficientInterface>
-        > AerodynamicCoefficientInterface_(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
+//        py::class_<tss::AerodynamicCoefficientInterface,
+//                std::shared_ptr<tss::AerodynamicCoefficientInterface>
+//        > AerodynamicCoefficientInterface_(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
 
         py::class_<tudat::electro_magnetism::RadiationPressureInterface,
                 std::shared_ptr<tudat::electro_magnetism::RadiationPressureInterface>
@@ -526,6 +532,11 @@ namespace tudatpy {
               py::arg("body_name"),
               py::arg("body_dict")
         );
+
+//        m.def("set_global_frame_body_ephemerides",
+//                &tss::setGlobalFrameBodyEphemerides,
+//                py::arg("")
+//                "<no doc>");
 
         // Required for python conversion.
 //            TypeError: Unable to convert function return value to a Python type! The signature was

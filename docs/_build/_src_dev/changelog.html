@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Changelog &mdash; tudatpy 0.3.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
+        <link rel="next" title="Frequently Asked Questions" href="FAQ.html"/>
+        <link rel="prev" title="Exposing C++ in Python" href="exposing_cpp.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_modules/simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.3.0 (02-05-2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.2.1 (01-05-2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.2.0 (30-04-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.1.0 (29-04-2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Changelog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_src_dev/changelog.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a class="reference external" href="http://keepachangelog.com/">Keep a Changelog</a> and this project adheres to <a class="reference external" href="http://semver.org/">Semantic Versioning</a>.</p>
+<div class="section" id="id1">
+<h2>0.3.0 (02-05-2020)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p>Support for <a class="reference external" href="http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/unguidedCapsuleEntry.html">3. Un-guided Capsule Entry</a> added.</p></li>
+<li><p>Implemented module <span class="xref std std-ref">tudatpy.unittests</span></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">unittests.get_apollo_coefficient_interface()</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">Body.get_flight_conditions()</span></code></p></li>
+<li><p>Added module <span class="xref std std-ref">tudatpy.aerodynamics</span>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">FlightConditions()</span></code></p></li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">FlightConditions.get_aerodynamic_angle_calculator()</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Added module <span class="xref std std-ref">tudatpy.reference_frames</span>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">AerodynamicAngleCalculator</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Exposed function <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.orbital_element_conversions.convert_spherical_orbital_to_cartesian_state()</span></code></p></li>
+<li><p>Added module <span class="xref std std-ref">tudatpy.ephemerides</span>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Added function <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.ephemerides.transform_state_to_global_frame()</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Added class <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.propagators.SingleDependentVariableSaveSettings()</span></code>.</p></li>
+<li><p>Added enum <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.propagators.PropagationDependentVariables()</span></code>.</p></li>
+<li><p>Added class <code class="xref py py-meth docutils literal notranslate"><span class="pre">tudatpy.propagators.PropagationDependentVariableTerminationSettings()</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>0.2.1 (01-05-2020)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Implemented shortened <code class="docutils literal notranslate"><span class="pre">AccelerationSettings</span></code> assignment for <code class="docutils literal notranslate"><span class="pre">aerodynamic</span></code>, <code class="docutils literal notranslate"><span class="pre">spherical_harmonic_gravity</span></code>
+and <code class="docutils literal notranslate"><span class="pre">cannonball_radiation_pressure</span></code> using methods calls of Python class <code class="docutils literal notranslate"><span class="pre">simulation_setup.Acceleration</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>0.2.0 (30-04-2020)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Support for <a class="reference external" href="http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/perturbedEarthOrbitingSatellite.html">2. Perturbed Earth-orbiting Satellite</a> added.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">BodySettings::ephemerisSettings()</span></code></p></li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">BodySettings::rotationModelSettings()</span></code></p></li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">Body::setConstantBodyMass()</span></code></p></li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">Body::setAerodynamicCoefficientInterface()</span></code></p></li>
+<li><p>Exposed method <code class="docutils literal notranslate"><span class="pre">Body::setRadiationPressureInterface()</span></code></p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">ConstantAerodynamicCoefficientSettings()</span></code></p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">SphericalHarmonicAccelerationSettings()</span></code></p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">createAerodynamicCoefficientInterface()</span></code></p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">createRadiationPressureInterface()</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>0.1.0 (29-04-2020)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Support for <a class="reference external" href="http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/unperturbedEarthOrbitingSatellite.html">1. Unperturbed Earth-orbiting Satellite</a> added. The Python version of the script included as
+<code class="docutils literal notranslate"><span class="pre">tutorial_1.py</span></code> under <code class="docutils literal notranslate"><span class="pre">examples</span></code>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Added module <a class="reference internal" href="../_src_modules/constants.html#module-tudatpy.core._constants"><span class="std std-ref">tudatpy.constants</span></a>.</p>
+<ul>
+<li><p>Contains all constants as named in <code class="docutils literal notranslate"><span class="pre">celestialBodyConstants.h</span></code>, <code class="docutils literal notranslate"><span class="pre">physicalConstants.h</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">mathematicalConstants.h</span></code> in Tudat.</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/interpolators.html#tudatpy-interpolators"><span class="std std-ref">tudatpy.interpolators</span></a>.</p>
+<ul>
+<li><p>Currently only acts as a placeholder for the <code class="docutils literal notranslate"><span class="pre">LangrangeInterpolatorSettings</span></code> needed for the default argument of
+<code class="docutils literal notranslate"><span class="pre">InterpolatedSpiceEphemerisSettings</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/spice_interface.html#module-tudatpy.core._spice_interface"><span class="std std-ref">tudatpy.spice_interface</span></a>.</p>
+<ul>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">spice_interface.load_standard_spice_kernels()</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">spice_interface.clear_spice_kernels()</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/basic_astrodynamics.html#module-tudatpy.core._basic_astrodynamics"><span class="std std-ref">tudatpy.basic_astrodynamics</span></a>.</p>
+<ul>
+<li><p>Exposed enumeration <code class="docutils literal notranslate"><span class="pre">AvailableAcceleration</span></code>.</p></li>
+<li><p>Partial exposure of 3D specialised <code class="docutils literal notranslate"><span class="pre">AccelerationModel</span></code> (declaration only).</p></li>
+</ul>
+</li>
+<li><p>Added module <span class="xref std std-ref">tudatpy.gravitation</span>.</p>
+<ul>
+<li><p>Partially exposure of class <code class="docutils literal notranslate"><span class="pre">GravityFieldModel</span></code> for <code class="docutils literal notranslate"><span class="pre">gravitational_parameter</span></code> property.</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/numerical_integrators.html#module-tudatpy.core._numerical_integrators"><span class="std std-ref">tudatpy.numerical_integrators</span></a>.</p>
+<ul>
+<li><p>Exposed enumeration <code class="docutils literal notranslate"><span class="pre">AvailableIntegrators</span></code> for <code class="docutils literal notranslate"><span class="pre">IntegratorSettings</span></code> argument.</p></li>
+<li><p>Partial exposure of class <code class="docutils literal notranslate"><span class="pre">IntegratorSettings</span></code> (only constructor).</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/propagators.html#module-tudatpy.core._propagators"><span class="std std-ref">tudatpy.propagators</span></a>.</p>
+<ul>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">propagators.get_single_integration_size()</span></code></p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">propagators.get_single_integration_differential_equation_order()</span></code></p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">propagators.get_generalized_acceleration_size()</span></code></p></li>
+<li><p>Partial exposure of <code class="docutils literal notranslate"><span class="pre">SingleStateTypeDerivative</span></code> (only declaration).</p></li>
+<li><p>Partial exposure of <code class="docutils literal notranslate"><span class="pre">NBodyStateDerivative</span></code> (only declaration).</p></li>
+<li><p>Partial exposure of <code class="docutils literal notranslate"><span class="pre">NBodyCowellStateDerivative</span></code> (only constructor).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">SingleArcDynamicsSimulator</span></code> (complete).</p></li>
+<li><p>Exposed enumeration <code class="docutils literal notranslate"><span class="pre">TranslationalPropagatorType</span></code> (complete).</p></li>
+<li><p>Partial exposure of class <code class="docutils literal notranslate"><span class="pre">DependentVariableSaveSettings</span></code> (only constructor).</p></li>
+<li><p>Partial exposure of class <code class="docutils literal notranslate"><span class="pre">PropagatorSettings</span></code> (only declaration).</p></li>
+<li><p>Partial exposure of class <code class="docutils literal notranslate"><span class="pre">SingleArcPropagatorSettings</span></code> (only declaration).</p></li>
+<li><p>Partial exposure of class <code class="docutils literal notranslate"><span class="pre">TranslationalStatePropagatorSettings</span></code> (only all constructors).</p></li>
+</ul>
+</li>
+<li><p>Added module <span class="xref std std-ref">tudatpy.orbital_element_conversions</span>.</p>
+<ul>
+<li><p>Exposed enumeration <code class="docutils literal notranslate"><span class="pre">KeplerianElementIndices</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">tudatpy.convert_keplerian_to_cartesian_elements()</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Added module <a class="reference internal" href="../_src_modules/simulation_setup.html#module-tudatpy.core._simulation_setup"><span class="std std-ref">tudatpy.simulation_setup</span></a>.</p>
+<ul>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">BodySettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">Body</span></code> (complete).</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">tudatpy.get_default_body_settings()</span></code> (both overloads).</p></li>
+<li><p>Partially exposed class <code class="docutils literal notranslate"><span class="pre">Ephemeris</span></code> (only declaration).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">ConstantEphemeris</span></code> (complete).</p></li>
+<li><p>Exposed enumeration <code class="docutils literal notranslate"><span class="pre">EphemerisType</span></code>.</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">EphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">DirectSpiceEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">InterpolatedSpiceEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">ApproximatePlanetPositionSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">ConstantEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">CustomEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">KeplerEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed class <code class="docutils literal notranslate"><span class="pre">TabulatedEphemerisSettings</span></code> (complete).</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">create_body_ephemeris()</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">get_safe_interpolation_interval()</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">set_global_frame_body_ephemerides()</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">create_bodies()</span></code>.</p></li>
+<li><p>Exposed function <code class="docutils literal notranslate"><span class="pre">create_acceleration_models_dict()</span></code> (both overloads).</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed hard requirement for Python 3.7</p></li>
+<li><p>Modified installation procedure for <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code> requirment prior to compilation of the tudatBundle using the
+<code class="docutils literal notranslate"><span class="pre">USE_TUDATPY</span></code> option.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="FAQ.html" class="btn btn-neutral float-right" title="Frequently Asked Questions" accesskey="n">Next →</a>
+      
+      
+        <a href="exposing_cpp.html" class="btn btn-neutral" title="Exposing C++ in Python" accesskey="p">← Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.3.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

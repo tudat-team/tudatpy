@@ -2,7 +2,7 @@
 tudatpy.spice_interface
 =======================
 
-.. automodule:: tudatpy.spice_interface
+.. automodule:: tudatpy.core._spice_interface
    :members:
    :undoc-members:
 

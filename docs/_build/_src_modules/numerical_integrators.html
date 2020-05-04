@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tudatpy.numerical_integrators &mdash; tudatpy 0.2.0 documentation</title>
+  <title>tudatpy.numerical_integrators &mdash; tudatpy 0.3.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="tudatpy 0.2.0 documentation" href="../index.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
         <link rel="next" title="tudatpy.propagators" href="propagators.html"/>
         <link rel="prev" title="tudatpy.basic_astrodynamics" href="basic_astrodynamics.html"/> 
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.3.0
               </div>
             
           
@@ -92,6 +92,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spice_interface.html">tudatpy.spice_interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
@@ -103,6 +104,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developers</span></p>
 <ul>
@@ -110,6 +112,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/pull_requests.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
 </ul>
 
             
@@ -168,8 +172,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-tudatpy.numerical_integrators">
-<span id="tudatpy-numerical-integrators"></span><h1>tudatpy.numerical_integrators<a class="headerlink" href="#module-tudatpy.numerical_integrators" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-tudatpy.core._numerical_integrators">
+<span id="id1"></span><span id="tudatpy-numerical-integrators"></span><h1>tudatpy.numerical_integrators<a class="headerlink" href="#module-tudatpy.core._numerical_integrators" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators">
+<em class="property">class </em><code class="sig-name descname">AvailableIntegrators</code><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Members:</p>
+<p>euler</p>
+<p>rungeKutta4</p>
+<p>rungeKuttaVariableStepSize</p>
+<p>bulirschStoer</p>
+<p>adamsBashforthMoulton</p>
+<dl class="attribute">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.adamsBashforthMoulton">
+<code class="sig-name descname">adamsBashforthMoulton</code><em class="property"> = AvailableIntegrators.adamsBashforthMoulton</em><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.adamsBashforthMoulton" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.bulirschStoer">
+<code class="sig-name descname">bulirschStoer</code><em class="property"> = AvailableIntegrators.bulirschStoer</em><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.bulirschStoer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.euler">
+<code class="sig-name descname">euler</code><em class="property"> = AvailableIntegrators.euler</em><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.euler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.rungeKutta4">
+<code class="sig-name descname">rungeKutta4</code><em class="property"> = AvailableIntegrators.rungeKutta4</em><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.rungeKutta4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._numerical_integrators.AvailableIntegrators.rungeKuttaVariableStepSize">
+<code class="sig-name descname">rungeKuttaVariableStepSize</code><em class="property"> = AvailableIntegrators.rungeKuttaVariableStepSize</em><a class="headerlink" href="#tudatpy.core._numerical_integrators.AvailableIntegrators.rungeKuttaVariableStepSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._numerical_integrators.IntegratorSettings">
+<em class="property">class </em><code class="sig-name descname">IntegratorSettings</code><a class="headerlink" href="#tudatpy.core._numerical_integrators.IntegratorSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -213,7 +263,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.2.0',
+            VERSION:'0.3.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

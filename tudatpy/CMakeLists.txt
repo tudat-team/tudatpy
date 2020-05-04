@@ -32,6 +32,8 @@ set(TUDATPY_PYTHON_FILES
         __init__.py
         test.py
         _layer_simulation_setup.py
+        elements.py
+        io.py
         )
 
 
@@ -49,14 +51,19 @@ endforeach ()
 YACMA_PYTHON_MODULE(core
         core.cpp
         expose_constants.cpp
-        expose_spice_interface.cpp
+        expose_root_finders.cpp
         expose_interpolators.cpp
+        expose_spice_interface.cpp
+        expose_ephemerides.cpp
+        expose_reference_frames.cpp
+        expose_aerodynamics.cpp
         expose_basic_astrodynamics.cpp
         expose_gravitation.cpp
-        expose_orbital_element_conversions.cpp
-        expose_simulation_setup.cpp
         expose_numerical_integrators.cpp
+        expose_orbital_element_conversions.cpp
         expose_propagators.cpp
+        expose_simulation_setup.cpp
+        expose_unit_tests.cpp
         #        expose_mathematics.cpp
         #        trampoline_classes.cpp
         docstrings.cpp

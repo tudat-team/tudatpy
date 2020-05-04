@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tudatpy.propagators &mdash; tudatpy 0.2.0 documentation</title>
+  <title>tudatpy.propagators &mdash; tudatpy 0.3.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="tudatpy 0.2.0 documentation" href="../index.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
         <link rel="next" title="tudatpy.simulation_setup" href="simulation_setup.html"/>
         <link rel="prev" title="tudatpy.numerical_integrators" href="numerical_integrators.html"/> 
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.3.0
               </div>
             
           
@@ -92,6 +92,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spice_interface.html">tudatpy.spice_interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
@@ -103,6 +104,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developers</span></p>
 <ul>
@@ -110,6 +112,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/pull_requests.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
 </ul>
 
             
@@ -168,8 +172,301 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-tudatpy.propagators">
-<span id="tudatpy-propagators"></span><h1>tudatpy.propagators<a class="headerlink" href="#module-tudatpy.propagators" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-tudatpy.core._propagators">
+<span id="id1"></span><span id="tudatpy-propagators"></span><h1>tudatpy.propagators<a class="headerlink" href="#module-tudatpy.core._propagators" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tudatpy.core._propagators.DependentVariableSaveSettings">
+<em class="property">class </em><code class="sig-name descname">DependentVariableSaveSettings</code><a class="headerlink" href="#tudatpy.core._propagators.DependentVariableSaveSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.NBodyCowellStateDerivative">
+<em class="property">class </em><code class="sig-name descname">NBodyCowellStateDerivative</code><a class="headerlink" href="#tudatpy.core._propagators.NBodyCowellStateDerivative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.NBodyStateDerivative">
+<em class="property">class </em><code class="sig-name descname">NBodyStateDerivative</code><a class="headerlink" href="#tudatpy.core._propagators.NBodyStateDerivative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.PropagationDependentVariableTerminationSettings">
+<em class="property">class </em><code class="sig-name descname">PropagationDependentVariableTerminationSettings</code><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariableTerminationSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.PropagationDependentVariables">
+<em class="property">class </em><code class="sig-name descname">PropagationDependentVariables</code><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Members:</p>
+<p>mach_number_dependent_variable</p>
+<p>altitude_dependent_variable</p>
+<p>aerodynamic_force_coefficients_dependent_variable</p>
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.PropagationDependentVariables.aerodynamic_force_coefficients_dependent_variable">
+<code class="sig-name descname">aerodynamic_force_coefficients_dependent_variable</code><em class="property"> = PropagationDependentVariables.aerodynamic_force_coefficients_dependent_variable</em><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariables.aerodynamic_force_coefficients_dependent_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.PropagationDependentVariables.altitude_dependent_variable">
+<code class="sig-name descname">altitude_dependent_variable</code><em class="property"> = PropagationDependentVariables.altitude_dependent_variable</em><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariables.altitude_dependent_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.PropagationDependentVariables.mach_number_dependent_variable">
+<code class="sig-name descname">mach_number_dependent_variable</code><em class="property"> = PropagationDependentVariables.mach_number_dependent_variable</em><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariables.mach_number_dependent_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.PropagationDependentVariables.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._propagators.PropagationDependentVariables.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.PropagationTerminationSettings">
+<em class="property">class </em><code class="sig-name descname">PropagationTerminationSettings</code><a class="headerlink" href="#tudatpy.core._propagators.PropagationTerminationSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.PropagatorSettings">
+<em class="property">class </em><code class="sig-name descname">PropagatorSettings</code><a class="headerlink" href="#tudatpy.core._propagators.PropagatorSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.SingleAccelerationDependentVariableSaveSettings">
+<em class="property">class </em><code class="sig-name descname">SingleAccelerationDependentVariableSaveSettings</code><a class="headerlink" href="#tudatpy.core._propagators.SingleAccelerationDependentVariableSaveSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator">
+<em class="property">class </em><code class="sig-name descname">SingleArcDynamicsSimulator</code><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_computation_time_history">
+<code class="sig-name descname">get_cumulative_computation_time_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_computation_time_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_computation_time_history_base">
+<code class="sig-name descname">get_cumulative_computation_time_history_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_computation_time_history_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_number_of_function_evaluations">
+<code class="sig-name descname">get_cumulative_number_of_function_evaluations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_cumulative_number_of_function_evaluations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_history">
+<code class="sig-name descname">get_dependent_variable_history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_ids">
+<code class="sig-name descname">get_dependent_variable_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_numerical_solution_base">
+<code class="sig-name descname">get_dependent_variable_numerical_solution_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variable_numerical_solution_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variables_functions">
+<code class="sig-name descname">get_dependent_variables_functions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dependent_variables_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_double_state_derivative_function">
+<code class="sig-name descname">get_double_state_derivative_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_double_state_derivative_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dynamics_state_derivative">
+<code class="sig-name descname">get_dynamics_state_derivative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_dynamics_state_derivative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_environment_updater">
+<code class="sig-name descname">get_environment_updater</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_environment_updater" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution">
+<code class="sig-name descname">get_equations_of_motion_numerical_solution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution_base">
+<code class="sig-name descname">get_equations_of_motion_numerical_solution_base</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution_raw">
+<code class="sig-name descname">get_equations_of_motion_numerical_solution_raw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_equations_of_motion_numerical_solution_raw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_initial_propagation_time">
+<code class="sig-name descname">get_initial_propagation_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_initial_propagation_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_integrated_state_processors">
+<code class="sig-name descname">get_integrated_state_processors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_integrated_state_processors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_integrator_settings">
+<code class="sig-name descname">get_integrator_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_integrator_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_propagation_termination_condition">
+<code class="sig-name descname">get_propagation_termination_condition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_propagation_termination_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_propagation_termination_reason">
+<code class="sig-name descname">get_propagation_termination_reason</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_propagation_termination_reason" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.get_state_derivative_function">
+<code class="sig-name descname">get_state_derivative_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.get_state_derivative_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.integrate_equations_of_motion">
+<code class="sig-name descname">integrate_equations_of_motion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.integrate_equations_of_motion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.integration_completed_successfully">
+<code class="sig-name descname">integration_completed_successfully</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.integration_completed_successfully" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.manually_set_and_process_raw_numerical_equations_of_motion_solution">
+<code class="sig-name descname">manually_set_and_process_raw_numerical_equations_of_motion_solution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.manually_set_and_process_raw_numerical_equations_of_motion_solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.process_numerical_equations_of_motion_solution">
+<code class="sig-name descname">process_numerical_equations_of_motion_solution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.process_numerical_equations_of_motion_solution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.reset_initial_propagation_time">
+<code class="sig-name descname">reset_initial_propagation_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.reset_initial_propagation_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.SingleArcDynamicsSimulator.reset_propagation_termination_conditions">
+<code class="sig-name descname">reset_propagation_termination_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.SingleArcDynamicsSimulator.reset_propagation_termination_conditions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.SingleArcPropagatorSettings">
+<em class="property">class </em><code class="sig-name descname">SingleArcPropagatorSettings</code><a class="headerlink" href="#tudatpy.core._propagators.SingleArcPropagatorSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.SingleDependentVariableSaveSettings">
+<em class="property">class </em><code class="sig-name descname">SingleDependentVariableSaveSettings</code><a class="headerlink" href="#tudatpy.core._propagators.SingleDependentVariableSaveSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.SingleStateTypeDerivative">
+<em class="property">class </em><code class="sig-name descname">SingleStateTypeDerivative</code><a class="headerlink" href="#tudatpy.core._propagators.SingleStateTypeDerivative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType">
+<em class="property">class </em><code class="sig-name descname">TranslationalPropagatorType</code><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Members:</p>
+<p>undefined_translational_propagator</p>
+<p>cowell</p>
+<p>encke</p>
+<p>gauss_keplerian</p>
+<p>gauss_modified_equinoctial</p>
+<p>unified_state_model_quaternions</p>
+<p>unified_state_model_modified_rodrigues_parameters</p>
+<p>unified_state_model_exponential_map</p>
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.cowell">
+<code class="sig-name descname">cowell</code><em class="property"> = TranslationalPropagatorType.cowell</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.cowell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.encke">
+<code class="sig-name descname">encke</code><em class="property"> = TranslationalPropagatorType.encke</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.encke" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.gauss_keplerian">
+<code class="sig-name descname">gauss_keplerian</code><em class="property"> = TranslationalPropagatorType.gauss_keplerian</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.gauss_keplerian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.gauss_modified_equinoctial">
+<code class="sig-name descname">gauss_modified_equinoctial</code><em class="property"> = TranslationalPropagatorType.gauss_modified_equinoctial</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.gauss_modified_equinoctial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.undefined_translational_propagator">
+<code class="sig-name descname">undefined_translational_propagator</code><em class="property"> = TranslationalPropagatorType.undefined_translational_propagator</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.undefined_translational_propagator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_exponential_map">
+<code class="sig-name descname">unified_state_model_exponential_map</code><em class="property"> = TranslationalPropagatorType.unified_state_model_exponential_map</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_exponential_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_modified_rodrigues_parameters">
+<code class="sig-name descname">unified_state_model_modified_rodrigues_parameters</code><em class="property"> = TranslationalPropagatorType.unified_state_model_modified_rodrigues_parameters</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_modified_rodrigues_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_quaternions">
+<code class="sig-name descname">unified_state_model_quaternions</code><em class="property"> = TranslationalPropagatorType.unified_state_model_quaternions</em><a class="headerlink" href="#tudatpy.core._propagators.TranslationalPropagatorType.unified_state_model_quaternions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.TranslationalStatePropagatorSettings">
+<em class="property">class </em><code class="sig-name descname">TranslationalStatePropagatorSettings</code><a class="headerlink" href="#tudatpy.core._propagators.TranslationalStatePropagatorSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._propagators.VariableSettings">
+<em class="property">class </em><code class="sig-name descname">VariableSettings</code><a class="headerlink" href="#tudatpy.core._propagators.VariableSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._propagators.get_generalized_acceleration_size">
+<code class="sig-name descname">get_generalized_acceleration_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.get_generalized_acceleration_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._propagators.get_single_integration_differential_equation_order">
+<code class="sig-name descname">get_single_integration_differential_equation_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.get_single_integration_differential_equation_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tudatpy.core._propagators.get_single_integration_size">
+<code class="sig-name descname">get_single_integration_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tudatpy.core._propagators.get_single_integration_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -213,7 +510,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.2.0',
+            VERSION:'0.3.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'
