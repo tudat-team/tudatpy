@@ -1,0 +1,470 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>astropy.constants.constant &mdash; tudatpy 0.3.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../../../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_modules/simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_tutorials/machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>astropy.constants.constant</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for astropy.constants.constant</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">astropy.units.core</span> <span class="kn">import</span> <span class="n">Unit</span><span class="p">,</span> <span class="n">UnitsError</span>
+<span class="kn">from</span> <span class="nn">astropy.units.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">from</span> <span class="nn">astropy.utils</span> <span class="kn">import</span> <span class="n">lazyproperty</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="kn">import</span> <span class="n">AstropyUserWarning</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.misc</span> <span class="kn">import</span> <span class="n">InheritDocstrings</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Constant&#39;</span><span class="p">,</span> <span class="s1">&#39;EMConstant&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ConstantMeta</span><span class="p">(</span><span class="n">InheritDocstrings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Metaclass for the :class:`Constant`. The primary purpose of this is to</span>
+<span class="sd">    wrap the double-underscore methods of :class:`Quantity` which is the</span>
+<span class="sd">    superclass of :class:`Constant`.</span>
+
+<span class="sd">    In particular this wraps the operator overloads such as `__add__` to</span>
+<span class="sd">    prevent their use with constants such as ``e`` from being used in</span>
+<span class="sd">    expressions without specifying a system.  The wrapper checks to see if the</span>
+<span class="sd">    constant is listed (by name) in ``Constant._has_incompatible_units``, a set</span>
+<span class="sd">    of those constants that are defined in different systems of units are</span>
+<span class="sd">    physically incompatible.  It also performs this check on each `Constant` if</span>
+<span class="sd">    it hasn&#39;t already been performed (the check is deferred until the</span>
+<span class="sd">    `Constant` is actually used in an expression to speed up import times,</span>
+<span class="sd">    among other reasons).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">meth</span><span class="p">):</span>
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">meth</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">name_lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">instances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="n">name_lower</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checked_units</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">instances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">UnitsError</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_has_incompatible_units</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name_lower</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_checked_units</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="ow">and</span>
+                        <span class="n">name_lower</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_incompatible_units</span><span class="p">):</span>
+                    <span class="n">systems</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">instances</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s1">&#39;Constant </span><span class="si">{0!r}</span><span class="s1"> does not have physically compatible &#39;</span>
+                        <span class="s1">&#39;units across all systems of units and cannot be &#39;</span>
+                        <span class="s1">&#39;combined with other values without specifying a &#39;</span>
+                        <span class="s1">&#39;system (eg. </span><span class="si">{1}</span><span class="s1">.</span><span class="si">{2}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abbrev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abbrev</span><span class="p">,</span>
+                                                      <span class="n">systems</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+                <span class="k">return</span> <span class="n">meth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">wrapper</span>
+
+        <span class="c1"># The wrapper applies to so many of the __ methods that it&#39;s easier to</span>
+        <span class="c1"># just exclude the ones it doesn&#39;t apply to</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;__new__&#39;</span><span class="p">,</span> <span class="s1">&#39;__array_finalize__&#39;</span><span class="p">,</span> <span class="s1">&#39;__array_wrap__&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;__dir__&#39;</span><span class="p">,</span> <span class="s1">&#39;__getattr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="s1">&#39;__str__&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;__repr__&#39;</span><span class="p">,</span> <span class="s1">&#39;__hash__&#39;</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">,</span> <span class="s1">&#39;__getitem__&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;__len__&#39;</span><span class="p">,</span> <span class="s1">&#39;__bool__&#39;</span><span class="p">,</span> <span class="s1">&#39;__quantity_subclass__&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">Quantity</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Constant"><a class="viewcode-back" href="../../../_src_modules/constants.html#astropy.constants.Constant">[docs]</a><span class="k">class</span> <span class="nc">Constant</span><span class="p">(</span><span class="n">Quantity</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ConstantMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A physical or astronomical constant.</span>
+
+<span class="sd">    These objects are quantities that are meant to represent physical</span>
+<span class="sd">    constants.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_registry</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_has_incompatible_units</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">abbrev</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">uncertainty</span><span class="p">,</span>
+                <span class="n">reference</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;default_reference&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> requires a reference.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
+        <span class="n">name_lower</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">instances</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name_lower</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="c1"># By-pass Quantity initialization, since units may not yet be</span>
+        <span class="c1"># initialized here, and we store the unit in string form.</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">system</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Constant </span><span class="si">{0!r}</span><span class="s1"> already has a definition in the &#39;</span>
+                              <span class="s1">&#39;</span><span class="si">{1!r}</span><span class="s1"> system from </span><span class="si">{2!r}</span><span class="s1"> reference&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                              <span class="n">name</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">reference</span><span class="p">),</span> <span class="n">AstropyUserWarning</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">instances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">inst</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">system</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+
+        <span class="n">instances</span><span class="p">[</span><span class="n">system</span><span class="p">]</span> <span class="o">=</span> <span class="n">inst</span>
+
+        <span class="n">inst</span><span class="o">.</span><span class="n">_abbrev</span> <span class="o">=</span> <span class="n">abbrev</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_unit_string</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_uncertainty</span> <span class="o">=</span> <span class="n">uncertainty</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_reference</span> <span class="o">=</span> <span class="n">reference</span>
+        <span class="n">inst</span><span class="o">.</span><span class="n">_system</span> <span class="o">=</span> <span class="n">system</span>
+
+        <span class="n">inst</span><span class="o">.</span><span class="n">_checked_units</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">inst</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&lt;</span><span class="si">{0}</span><span class="s1"> name=</span><span class="si">{1!r}</span><span class="s1"> value=</span><span class="si">{2}</span><span class="s1"> uncertainty=</span><span class="si">{3}</span><span class="s1"> unit=</span><span class="si">{4!r}</span><span class="s1"> &#39;</span>
+                <span class="s1">&#39;reference=</span><span class="si">{5!r}</span><span class="s1">&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">uncertainty</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">),</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;  Name   = </span><span class="si">{0}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;  Value  = </span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;  Uncertainty  = </span><span class="si">{2}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;  Unit  = </span><span class="si">{3}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;  Reference = </span><span class="si">{4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">uncertainty</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__quantity_subclass__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__quantity_subclass__</span><span class="p">(</span><span class="n">unit</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of this `Constant` instance.  Since they are by</span>
+<span class="sd">        definition immutable, this merely returns another reference to</span>
+<span class="sd">        ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    <span class="n">__deepcopy__</span> <span class="o">=</span> <span class="n">__copy__</span> <span class="o">=</span> <span class="n">copy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">abbrev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A typical ASCII text abbreviation of the constant, also generally</span>
+<span class="sd">        the same as the Python variable used for this constant.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abbrev</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The full name of the constant.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@lazyproperty</span>
+    <span class="k">def</span> <span class="nf">_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The unit(s) in which this constant is defined.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">Unit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit_string</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">uncertainty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The known uncertainty in this constant&#39;s value.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uncertainty</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The source used for the value of this constant.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reference</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The system of units in which this constant is defined (typically</span>
+<span class="sd">        `None` so long as the constant&#39;s units can be directly converted</span>
+<span class="sd">        between systems).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_system</span>
+
+    <span class="k">def</span> <span class="nf">_instance_or_super</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">instances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="n">inst</span> <span class="o">=</span> <span class="n">instances</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inst</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">super</span><span class="p">(),</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">si</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If the Constant is defined in the SI system return that instance of</span>
+<span class="sd">        the constant, else convert to a Quantity in the appropriate SI units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_or_super</span><span class="p">(</span><span class="s1">&#39;si&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cgs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If the Constant is defined in the CGS system return that instance of</span>
+<span class="sd">        the constant, else convert to a Quantity in the appropriate CGS units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_or_super</span><span class="p">(</span><span class="s1">&#39;cgs&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;_abbrev&#39;</span><span class="p">,</span> <span class="s1">&#39;_name&#39;</span><span class="p">,</span> <span class="s1">&#39;_value&#39;</span><span class="p">,</span> <span class="s1">&#39;_unit_string&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;_uncertainty&#39;</span><span class="p">,</span> <span class="s1">&#39;_reference&#39;</span><span class="p">,</span> <span class="s1">&#39;_system&#39;</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checked_units</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;_checked_units&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">EMConstant</span><span class="p">(</span><span class="n">Constant</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An electromagnetic constant.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cgs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overridden for EMConstant to raise a `TypeError`</span>
+<span class="sd">        emphasizing that there are multiple EM extensions to CGS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot convert EM constants to cgs because there &quot;</span>
+                        <span class="s2">&quot;are different systems for E.M constants within the &quot;</span>
+                        <span class="s2">&quot;c.g.s system (ESU, Gaussian, etc.). Instead, &quot;</span>
+                        <span class="s2">&quot;directly use the constant with the appropriate &quot;</span>
+                        <span class="s2">&quot;suffix (e.g. e.esu, e.gauss, etc.).&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.3.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,8 +1,5 @@
 3. Un-guided Capsule Entry
 ==========================
 
-Script
-------
-
-.. literalinclude:: tutorial_3.py
+.. literalinclude:: scripts/tutorial_3.py
    :linenos:

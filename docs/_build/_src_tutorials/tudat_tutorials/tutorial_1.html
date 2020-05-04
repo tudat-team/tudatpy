@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1. Unperturbed Earth-orbiting Satellite &mdash; tudatpy 0.3.0 documentation</title>
+  <title>1. Unperturbed Earth-orbiting Satellite &mdash; tudatpy 0.3.1 documentation</title>
   
 
   
@@ -35,10 +35,10 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="tudatpy 0.3.0 documentation" href="../../index.html"/>
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="../../index.html"/>
         <link rel="up" title="Tudat Tutorials" href="../tudat_tutorials.html"/>
         <link rel="next" title="2. Perturbed Earth-orbiting Satellite" href="tutorial_2.html"/>
-        <link rel="prev" title="Tudat Tutorials" href="../tudat_tutorials.html"/> 
+        <link rel="prev" title="1. Unperturbed Earth-orbiting Satellite" href="notebooks/tutorial_1.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
             
           
@@ -93,6 +93,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/prototype.html">tudatpy.prototype</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
@@ -104,12 +105,14 @@
 <p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../tudat_tutorials.html">Tudat Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Unperturbed Earth-orbiting Satellite</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tudat_tutorials.html#notebooks">Notebooks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../tudat_tutorials.html#scripts">Scripts</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">1. Unperturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial_2.html">2. Perturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial_2_prototype.html">2. (PROTOTYPE) Perturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial_3.html">3. Un-guided Capsule Entry</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_2.html">2. Perturbed Earth-orbiting Satellite</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_3.html">3. Un-guided Capsule Entry</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../python_ecosystem.html">Python Ecosystem</a></li>
@@ -185,8 +188,6 @@
             
   <div class="section" id="unperturbed-earth-orbiting-satellite">
 <h1>1. Unperturbed Earth-orbiting Satellite<a class="headerlink" href="#unperturbed-earth-orbiting-satellite" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="script">
-<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
@@ -513,13 +514,13 @@
     <span class="nb">print</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">Single Earth-Orbiting Satellite Example.</span>
-<span class="s2">The initial position vector of Delfi-C3 is [km]: {</span>
+<span class="s2">The initial position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][:3] / 1E3}</span>
-<span class="s2">The initial velocity vector of Delfi-C3 is [km]: {</span>
+<span class="s2">The initial velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
-<span class="s2">After </span><span class="si">{simulation_end_epoch}</span><span class="s2"> seconds the position vector of Delfi-C3 is [km]: {</span>
+<span class="s2">After </span><span class="si">{simulation_end_epoch}</span><span class="s2"> seconds the position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_end_epoch][:3] / 1E3}</span>
-<span class="s2">And the velocity vector of Delfi-C3 is [km]: {</span>
+<span class="s2">And the velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
 <span class="s2">        &quot;&quot;&quot;</span>
     <span class="p">)</span>
@@ -543,7 +544,6 @@
 </pre></div>
 </td></tr></table></div>
 </div>
-</div>
 
 
            </div>
@@ -555,7 +555,7 @@
         <a href="tutorial_2.html" class="btn btn-neutral float-right" title="2. Perturbed Earth-orbiting Satellite" accesskey="n">Next →</a>
       
       
-        <a href="../tudat_tutorials.html" class="btn btn-neutral" title="Tudat Tutorials" accesskey="p">← Previous</a>
+        <a href="notebooks/tutorial_1.html" class="btn btn-neutral" title="1. Unperturbed Earth-orbiting Satellite" accesskey="p">← Previous</a>
       
     </div>
   
@@ -586,7 +586,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.3.0',
+            VERSION:'0.3.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

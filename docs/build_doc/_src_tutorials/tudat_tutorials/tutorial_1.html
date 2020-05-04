@@ -1,0 +1,622 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. Unperturbed Earth-orbiting Satellite &mdash; tudatpy 0.3.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Tudat Tutorials" href="../tudat_tutorials.html"/>
+        <link rel="next" title="2. Perturbed Earth-orbiting Satellite" href="tutorial_2.html"/>
+        <link rel="prev" title="Tudat Tutorials" href="../tudat_tutorials.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> tudatpy
+          
+
+          
+            
+            <img src="../../_static/TudatPy.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/elements.html">tudatpy.elements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/constants.html">tudatpy.constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/basic_astrodynamics.html">tudatpy.basic_astrodynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/numerical_integrators.html">tudatpy.numerical_integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/propagators.html">tudatpy.propagators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/simulation_setup.html">tudatpy.simulation_setup</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../tudat_tutorials.html">Tudat Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Unperturbed Earth-orbiting Satellite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Unperturbed Earth-orbiting Satellite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_2.html">2. Perturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_3.html">3. Un-guided Capsule Entry</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machine_learning.html">Machine Learning</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developers</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/general.html">General</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/pull_requests.html">Pull Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tudatpy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tudat_tutorials.html">Tudat Tutorials</a> &raquo;</li>
+        
+      <li>1. Unperturbed Earth-orbiting Satellite</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/_src_tutorials/tudat_tutorials/tutorial_1.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="unperturbed-earth-orbiting-satellite">
+<h1>1. Unperturbed Earth-orbiting Satellite<a class="headerlink" href="#unperturbed-earth-orbiting-satellite" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="script">
+<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1">###############################################################################</span>
+<span class="c1"># IMPORT STATEMENTS ###########################################################</span>
+<span class="c1">###############################################################################</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">elements</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">io</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">ephemerides</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">interpolators</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">numerical_integrators</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">spice_interface</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">basic_astrodynamics</span>
+<span class="c1"># from tudatpy import orbital_element_conversions # LEGACY MODULE</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">propagators</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">aerodynamics</span>
+<span class="kn">from</span> <span class="nn">tudatpy</span> <span class="kn">import</span> <span class="n">simulation_setup</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Load spice kernels.</span>
+    <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_spice_kernels</span><span class="p">()</span>
+
+    <span class="c1"># Set simulation start epoch.</span>
+    <span class="n">simulation_start_epoch</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Set numerical integration fixed step size.</span>
+    <span class="n">fixed_step_size</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="c1"># Set simulation end epoch.</span>
+    <span class="n">simulation_end_epoch</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># CREATE ENVIRONMENT ######################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="c1"># Create body objects.</span>
+    <span class="n">bodies_to_create</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Earth&quot;</span><span class="p">]</span>
+
+    <span class="n">body_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">get_default_body_settings</span><span class="p">(</span><span class="n">bodies_to_create</span><span class="p">)</span>
+
+    <span class="n">body_settings</span><span class="p">[</span><span class="s2">&quot;Earth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ephemeris_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">ConstantEphemerisSettings</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
+
+    <span class="n">body_settings</span><span class="p">[</span><span class="s2">&quot;Earth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rotation_model_settings</span><span class="o">.</span><span class="n">reset_original_frame</span><span class="p">(</span><span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create Earth Object.</span>
+    <span class="n">bodies</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_bodies</span><span class="p">(</span><span class="n">body_settings</span><span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># CREATE VEHICLE ##########################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="c1"># Create vehicle objects.</span>
+    <span class="n">bodies</span><span class="p">[</span><span class="s2">&quot;Delfi-C3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">Body</span><span class="p">()</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># FINALIZE BODIES #########################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="n">simulation_setup</span><span class="o">.</span><span class="n">set_global_frame_body_ephemerides</span><span class="p">(</span><span class="n">bodies</span><span class="p">,</span> <span class="s2">&quot;SSB&quot;</span><span class="p">,</span>
+                                                       <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># CREATE ACCELERATIONS ####################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="c1"># Define bodies that are propagated.</span>
+    <span class="n">bodies_to_propagate</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Delfi-C3&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Define central bodies.</span>
+    <span class="n">central_bodies</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Earth&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Define accelerations acting on Delfi-C3.</span>
+    <span class="n">accelerations_of_delfi_c3</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">Earth</span><span class="o">=</span><span class="p">[</span><span class="n">simulation_setup</span><span class="o">.</span><span class="n">Acceleration</span><span class="o">.</span><span class="n">point_mass_gravity</span><span class="p">()]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create global accelerations dictionary.</span>
+    <span class="n">accelerations</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Delfi-C3&quot;</span><span class="p">:</span> <span class="n">accelerations_of_delfi_c3</span><span class="p">}</span>
+
+    <span class="c1"># Create acceleration models.</span>
+    <span class="n">acceleration_models</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_acceleration_models_dict</span><span class="p">(</span>
+        <span class="n">bodies</span><span class="p">,</span> <span class="n">accelerations</span><span class="p">,</span> <span class="n">bodies_to_propagate</span><span class="p">,</span> <span class="n">central_bodies</span><span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># CREATE PROPAGATION SETTINGS #############################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="c1"># Set initial conditions for the Asterix satellite that will be</span>
+    <span class="c1"># propagated in this simulation. The initial conditions are given in</span>
+    <span class="c1"># Keplerian elements and later on converted to Cartesian elements.</span>
+
+    <span class="c1"># Set Keplerian elements for Delfi-C3</span>
+    <span class="n">earth_gravitational_parameter</span> <span class="o">=</span> <span class="n">bodies</span><span class="p">[</span>
+        <span class="s2">&quot;Earth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">gravity_field_model</span><span class="o">.</span><span class="n">get_gravitational_parameter</span><span class="p">()</span>
+
+    <span class="c1"># LEGACY DESIGN.</span>
+    <span class="c1"># KEI = orbital_element_conversions.KeplerianElementIndices</span>
+    <span class="c1"># asterix_initial_state_in_keplerian_elements = np.zeros(6)</span>
+    <span class="c1"># kep_state = asterix_initial_state_in_keplerian_elements</span>
+    <span class="c1"># kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3</span>
+    <span class="c1"># kep_state[int(KEI.eccentricity_index)] = 0.1</span>
+    <span class="c1"># kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)</span>
+    <span class="c1"># kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)</span>
+    <span class="c1"># kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)</span>
+    <span class="c1"># kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)</span>
+    <span class="c1"># system_initial_state = corbital_element_conversions.onvert_keplerian_to_cartesian_elements(</span>
+    <span class="c1">#     kep_state, earth_gravitational_parameter)</span>
+
+    <span class="c1"># REVISED CONTEMPORARY DESIGN.</span>
+    <span class="n">system_initial_state</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">keplerian2cartesian</span><span class="p">(</span>
+        <span class="n">mu</span><span class="o">=</span><span class="n">earth_gravitational_parameter</span><span class="p">,</span>
+        <span class="n">a</span><span class="o">=</span><span class="mf">7500.0E3</span><span class="p">,</span>
+        <span class="n">ecc</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">inc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">85.3</span><span class="p">),</span>
+        <span class="n">raan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">23.4</span><span class="p">),</span>
+        <span class="n">argp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">235.7</span><span class="p">),</span>
+        <span class="n">nu</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">139.87</span><span class="p">))</span>
+
+    <span class="c1"># Create propagation settings.</span>
+    <span class="n">propagator_settings</span> <span class="o">=</span> <span class="n">propagators</span><span class="o">.</span><span class="n">TranslationalStatePropagatorSettings</span><span class="p">(</span>
+        <span class="n">central_bodies</span><span class="p">,</span>
+        <span class="n">acceleration_models</span><span class="p">,</span>
+        <span class="n">bodies_to_propagate</span><span class="p">,</span>
+        <span class="n">system_initial_state</span><span class="p">,</span>
+        <span class="n">simulation_end_epoch</span>
+    <span class="p">)</span>
+    <span class="c1"># Create numerical integrator settings.</span>
+    <span class="n">integrator_settings</span> <span class="o">=</span> <span class="n">numerical_integrators</span><span class="o">.</span><span class="n">IntegratorSettings</span><span class="p">(</span>
+        <span class="n">numerical_integrators</span><span class="o">.</span><span class="n">AvailableIntegrators</span><span class="o">.</span><span class="n">rungeKutta4</span><span class="p">,</span>
+        <span class="n">simulation_start_epoch</span><span class="p">,</span>
+        <span class="n">fixed_step_size</span>
+    <span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># PROPAGATE ORBIT #########################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="c1"># Create simulation object and propagate dynamics.</span>
+    <span class="n">dynamics_simulator</span> <span class="o">=</span> <span class="n">propagators</span><span class="o">.</span><span class="n">SingleArcDynamicsSimulator</span><span class="p">(</span>
+        <span class="n">bodies</span><span class="p">,</span> <span class="n">integrator_settings</span><span class="p">,</span> <span class="n">propagator_settings</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">dynamics_simulator</span><span class="o">.</span><span class="n">get_equations_of_motion_numerical_solution</span><span class="p">()</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># PRINT INITIAL AND FINAL STATES ##########################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Single Earth-Orbiting Satellite Example.</span>
+<span class="s2">The initial position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
+<span class="s2">        result[simulation_start_epoch][:3] / 1E3}</span>
+<span class="s2">The initial velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
+<span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
+<span class="s2">After </span><span class="si">{simulation_end_epoch}</span><span class="s2"> seconds the position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
+<span class="s2">        result[simulation_end_epoch][:3] / 1E3}</span>
+<span class="s2">And the velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
+<span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># SAVE RESULTS ############################################################</span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="n">io</span><span class="o">.</span><span class="n">save2txt</span><span class="p">(</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;singleSatellitePropagationHistory.dat&quot;</span><span class="p">,</span>
+        <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;./tutorial_1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Final statement (not required, though good practice in a __main__).</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial_2.html" class="btn btn-neutral float-right" title="2. Perturbed Earth-orbiting Satellite" accesskey="n">Next →</a>
+      
+      
+        <a href="../tudat_tutorials.html" class="btn btn-neutral" title="Tudat Tutorials" accesskey="p">← Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Geoffrey Garrett (ggarrett13).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.3.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE: 'true'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

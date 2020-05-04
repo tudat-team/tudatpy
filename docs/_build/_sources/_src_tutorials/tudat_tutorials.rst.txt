@@ -9,15 +9,27 @@ the `TudatPy 1.0 design philosophy`_, TudatPy is designed such that all legacy T
 achievable in TudatPy (Python), at least as closely as possible. This mitigates the benefit of exploiting the Python
 language, but allows for direct interaction with all elements of the Tudat libraries.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: test
-   :hidden:
-
-   tudat_tutorials/tutorial_1
-   tudat_tutorials/tutorial_2
-   tudat_tutorials/tutorial_3
-
 .. _TudatPy 1.0 design philosophy: :ref:`tudatpy_design_philosophy`
 .. _original Tudat tutorials: http://tudat.tudelft.nl/tutorials/applicationWalkthroughs/index.html#walkthroughsindex
+
+Notebooks
+_________
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Notebooks
+
+   tudat_tutorials/notebooks/tutorial_1.ipynb
+
+Scripts
+_______
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Scripts
+
+   tudat_tutorials/tutorial_1.rst
+   tudat_tutorials/tutorial_2.rst
+   tudat_tutorials/tutorial_2_prototype.rst
+   tudat_tutorials/tutorial_3.rst
 

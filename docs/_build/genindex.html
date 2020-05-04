@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; tudatpy 0.3.0 documentation</title>
+  <title>Index &mdash; tudatpy 0.3.1 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
         <link rel="index" title="Index"
               href="#"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="tudatpy 0.3.0 documentation" href="index.html"/> 
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -68,7 +68,7 @@
             
             
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
             
           
@@ -91,6 +91,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="_src_modules/prototype.html">tudatpy.prototype</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_src_modules/elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_src_modules/constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
@@ -178,6 +179,7 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#K"><strong>K</strong></a>
@@ -234,12 +236,14 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body">Body (class in tudatpy.core._simulation_setup)</a>
+      <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment.bodies">bodies() (Environment property)</a>
 </li>
-      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.body_mass">body_mass() (Body property)</a>
+      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body">Body (class in tudatpy.core._simulation_setup)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.body_mass">body_mass() (Body property)</a>
+</li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.BodySettings">BodySettings (class in tudatpy.core._simulation_setup)</a>
 </li>
       <li><a href="_src_modules/numerical_integrators.html#tudatpy.core._numerical_integrators.AvailableIntegrators.bulirschStoer">bulirschStoer (AvailableIntegrators attribute)</a>
@@ -330,6 +334,8 @@
 </li>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.TranslationalPropagatorType.encke">encke (TranslationalPropagatorType attribute)</a>
 </li>
+      <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment">Environment (class in tudatpy.prototype)</a>
+</li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Ephemeris">Ephemeris (class in tudatpy.core._simulation_setup)</a>
 </li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.ephemeris">ephemeris() (Body property)</a>
@@ -345,6 +351,14 @@
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.EphemerisSettings">EphemerisSettings (class in tudatpy.core._simulation_setup)</a>
 </li>
       <li><a href="_src_modules/numerical_integrators.html#tudatpy.core._numerical_integrators.AvailableIntegrators.euler">euler (AvailableIntegrators attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment.finalize_environment">finalize_environment() (Environment method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -661,7 +675,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_aerodynamic_coefficient_interface">set_aerodynamic_coefficient_interface() (Body method)</a>
+
+      <ul>
+        <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment.set_aerodynamic_coefficient_interface">(Environment method)</a>
 </li>
+      </ul></li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_constant_body_mass">set_constant_body_mass() (Body method)</a>
 </li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_ephemeris">set_ephemeris() (Body method)</a>
@@ -675,7 +693,11 @@
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_gravity_field_model">set_gravity_field_model() (Body method)</a>
 </li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_radiation_pressure_interface">set_radiation_pressure_interface() (Body method)</a>
+
+      <ul>
+        <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment.set_radiation_pressure_interface">(Environment method)</a>
 </li>
+      </ul></li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_rotational_ephemeris">set_rotational_ephemeris() (Body method)</a>
 </li>
       <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.Body.set_state">set_state() (Body method)</a>
@@ -686,10 +708,10 @@
 </li>
       <li><a href="_src_modules/constants.html#astropy.constants.Constant.si">si() (Constant property)</a>
 </li>
-      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.RotationModelType.simple_rotational_model">simple_rotational_model (RotationModelType attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.RotationModelType.simple_rotational_model">simple_rotational_model (RotationModelType attribute)</a>
+</li>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.SingleAccelerationDependentVariableSaveSettings">SingleAccelerationDependentVariableSaveSettings (class in tudatpy.core._propagators)</a>
 </li>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.SingleArcDynamicsSimulator">SingleArcDynamicsSimulator (class in tudatpy.core._propagators)</a>
@@ -738,10 +760,10 @@
 </li>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.TranslationalPropagatorType">TranslationalPropagatorType (class in tudatpy.core._propagators)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.TranslationalStatePropagatorSettings">TranslationalStatePropagatorSettings (class in tudatpy.core._propagators)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_src_modules/basic_astrodynamics.html#module-tudatpy.core._basic_astrodynamics">tudatpy.core._basic_astrodynamics (module)</a>
 </li>
       <li><a href="_src_modules/constants.html#module-tudatpy.core._constants">tudatpy.core._constants (module)</a>
@@ -755,6 +777,8 @@
       <li><a href="_src_modules/spice_interface.html#module-tudatpy.core._spice_interface">tudatpy.core._spice_interface (module)</a>
 </li>
       <li><a href="_src_modules/elements.html#module-tudatpy.elements">tudatpy.elements (module)</a>
+</li>
+      <li><a href="_src_modules/prototype.html#module-tudatpy.prototype">tudatpy.prototype (module)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -792,6 +816,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_src_modules/propagators.html#tudatpy.core._propagators.VariableSettings">VariableSettings (class in tudatpy.core._propagators)</a>
 </li>
+      <li><a href="_src_modules/prototype.html#tudatpy.prototype.Environment.vehicles">vehicles() (Environment property)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -828,7 +854,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.3.0',
+            VERSION:'0.3.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

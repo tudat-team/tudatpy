@@ -9,6 +9,13 @@ The format is based on `Keep a Changelog`_ and this project adheres to `Semantic
 .. _`Keep a Changelog` : http://keepachangelog.com/
 .. _`Semantic Versioning` : http://semver.org/
 
+0.3.1 (04-05-2020)
+------------------
+
+* Implemented module :ref:`tudatpy.prototype`.
+
+    * Created class ``Environment`` to replace environment setup procedure.
+
 0.3.0 (02-05-2020)
 ------------------
 

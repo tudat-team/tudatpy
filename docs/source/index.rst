@@ -18,6 +18,7 @@ quality education in the field of astrodynamics.
    :caption: Modules
    :hidden:
 
+   _src_modules/prototype
    _src_modules/elements
    _src_modules/constants
    _src_modules/spice_interface

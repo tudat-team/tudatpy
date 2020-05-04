@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>2. Perturbed Earth-orbiting Satellite &mdash; tudatpy 0.3.0 documentation</title>
+  <title>2. Perturbed Earth-orbiting Satellite &mdash; tudatpy 0.3.1 documentation</title>
   
 
   
@@ -35,9 +35,9 @@
         <link rel="index" title="Index"
               href="../../genindex.html"/>
         <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="tudatpy 0.3.0 documentation" href="../../index.html"/>
+    <link rel="top" title="tudatpy 0.3.1 documentation" href="../../index.html"/>
         <link rel="up" title="Tudat Tutorials" href="../tudat_tutorials.html"/>
-        <link rel="next" title="3. Un-guided Capsule Entry" href="tutorial_3.html"/>
+        <link rel="next" title="2. (PROTOTYPE) Perturbed Earth-orbiting Satellite" href="tutorial_2_prototype.html"/>
         <link rel="prev" title="1. Unperturbed Earth-orbiting Satellite" href="tutorial_1.html"/> 
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                0.3.0
+                0.3.1
               </div>
             
           
@@ -93,6 +93,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_src_modules/prototype.html">tudatpy.prototype</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../_src_modules/spice_interface.html">tudatpy.spice_interface</a></li>
@@ -104,12 +105,14 @@
 <p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../tudat_tutorials.html">Tudat Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="tutorial_1.html">1. Unperturbed Earth-orbiting Satellite</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">2. Perturbed Earth-orbiting Satellite</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tudat_tutorials.html#notebooks">Notebooks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../tudat_tutorials.html#scripts">Scripts</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tutorial_1.html">1. Unperturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2. Perturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial_2_prototype.html">2. (PROTOTYPE) Perturbed Earth-orbiting Satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial_3.html">3. Un-guided Capsule Entry</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial_3.html">3. Un-guided Capsule Entry</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../python_ecosystem.html">Python Ecosystem</a></li>
@@ -185,8 +188,6 @@
             
   <div class="section" id="perturbed-earth-orbiting-satellite">
 <h1>2. Perturbed Earth-orbiting Satellite<a class="headerlink" href="#perturbed-earth-orbiting-satellite" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="script">
-<h2>Script<a class="headerlink" href="#script" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
@@ -488,7 +489,7 @@
     <span class="n">aero_c_settings</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">ConstantAerodynamicCoefficientSettings</span><span class="p">(</span>
         <span class="n">reference_area</span><span class="p">,</span>
         <span class="n">aerodynamic_coefficient</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-        <span class="n">are_coefficients_in_aerodynmic_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">are_coefficients_in_aerodynamic_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">are_coefficients_in_negative_axis_direction</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
     <span class="c1"># Create and set aerodynamic coefficients object</span>
@@ -552,7 +553,7 @@
             <span class="n">simulation_setup</span><span class="o">.</span><span class="n">Acceleration</span><span class="o">.</span><span class="n">point_mass_gravity</span><span class="p">()]</span>
 
     <span class="c1"># Create global accelerations dictionary.</span>
-    <span class="n">acceleration_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Asterix</span><span class="o">=</span><span class="n">accelerations_of_delfi_c3</span><span class="p">)</span>
+    <span class="n">acceleration_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Delfi-C3&quot;</span><span class="p">:</span> <span class="n">accelerations_of_delfi_c3</span><span class="p">}</span>
 
     <span class="c1"># Create acceleration models.</span>
     <span class="n">acceleration_models</span> <span class="o">=</span> <span class="n">simulation_setup</span><span class="o">.</span><span class="n">create_acceleration_models_dict</span><span class="p">(</span>
@@ -627,13 +628,13 @@
     <span class="nb">print</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">Single Earth-Orbiting Satellite Example.</span>
-<span class="s2">The initial position vector of Delfi-C3 is [km]: {</span>
+<span class="s2">The initial position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][:3] / 1E3}</span>
-<span class="s2">The initial velocity vector of Delfi-C3 is [km]: {</span>
+<span class="s2">The initial velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
-<span class="s2">After </span><span class="si">{simulation_end_epoch}</span><span class="s2"> seconds the position vector of Delfi-C3 is [km]: {</span>
+<span class="s2">After </span><span class="si">{simulation_end_epoch}</span><span class="s2"> seconds the position vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_end_epoch][:3] / 1E3}</span>
-<span class="s2">And the velocity vector of Delfi-C3 is [km]: {</span>
+<span class="s2">And the velocity vector of Delfi-C3 is [km]: </span><span class="se">\n</span><span class="s2">{</span>
 <span class="s2">        result[simulation_start_epoch][3:] / 1E3}</span>
 <span class="s2">        &quot;&quot;&quot;</span>
     <span class="p">)</span>
@@ -657,7 +658,6 @@
 </pre></div>
 </td></tr></table></div>
 </div>
-</div>
 
 
            </div>
@@ -666,7 +666,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial_3.html" class="btn btn-neutral float-right" title="3. Un-guided Capsule Entry" accesskey="n">Next →</a>
+        <a href="tutorial_2_prototype.html" class="btn btn-neutral float-right" title="2. (PROTOTYPE) Perturbed Earth-orbiting Satellite" accesskey="n">Next →</a>
       
       
         <a href="tutorial_1.html" class="btn btn-neutral" title="1. Unperturbed Earth-orbiting Satellite" accesskey="p">← Previous</a>
@@ -700,7 +700,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.3.0',
+            VERSION:'0.3.1',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

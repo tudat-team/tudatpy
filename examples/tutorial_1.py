@@ -148,13 +148,13 @@ def main():
     print(
         f"""
 Single Earth-Orbiting Satellite Example.
-The initial position vector of Delfi-C3 is [km]: {
-        result[simulation_start_epoch][:3] / 1E3}
-The initial velocity vector of Delfi-C3 is [km]: {
+The initial position vector of Delfi-C3 is [km]: \n{
+        result[simulation_start_epoch][:3] / 1E3} 
+The initial velocity vector of Delfi-C3 is [km]: \n{
         result[simulation_start_epoch][3:] / 1E3}
-After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: {
+After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
         result[simulation_end_epoch][:3] / 1E3}
-And the velocity vector of Delfi-C3 is [km]: {
+And the velocity vector of Delfi-C3 is [km]: \n{
         result[simulation_start_epoch][3:] / 1E3}
         """
     )

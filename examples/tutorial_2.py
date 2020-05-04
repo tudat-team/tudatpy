@@ -66,7 +66,7 @@ def main():
     aero_c_settings = simulation_setup.ConstantAerodynamicCoefficientSettings(
         reference_area,
         aerodynamic_coefficient * np.ones(3),
-        are_coefficients_in_aerodynmic_frame=True,
+        are_coefficients_in_aerodynamic_frame=True,
         are_coefficients_in_negative_axis_direction=True
     )
     # Create and set aerodynamic coefficients object
@@ -130,7 +130,7 @@ def main():
             simulation_setup.Acceleration.point_mass_gravity()]
 
     # Create global accelerations dictionary.
-    acceleration_dict = dict(Asterix=accelerations_of_delfi_c3)
+    acceleration_dict = {"Delfi-C3": accelerations_of_delfi_c3}
 
     # Create acceleration models.
     acceleration_models = simulation_setup.create_acceleration_models_dict(
@@ -205,13 +205,13 @@ def main():
     print(
         f"""
 Single Earth-Orbiting Satellite Example.
-The initial position vector of Delfi-C3 is [km]: {
+The initial position vector of Delfi-C3 is [km]: \n{
         result[simulation_start_epoch][:3] / 1E3}
-The initial velocity vector of Delfi-C3 is [km]: {
+The initial velocity vector of Delfi-C3 is [km/s]: \n{
         result[simulation_start_epoch][3:] / 1E3}
-After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: {
+After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
         result[simulation_end_epoch][:3] / 1E3}
-And the velocity vector of Delfi-C3 is [km]: {
+And the velocity vector of Delfi-C3 is [km/s]: \n{
         result[simulation_start_epoch][3:] / 1E3}
         """
     )
