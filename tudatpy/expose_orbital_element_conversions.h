@@ -9,6 +9,7 @@
 #include <pybind11/eigen.h>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;

@@ -33,6 +33,7 @@
 //#include "Tudat/Astrodynamics/Propagators/propagateCovariance.h"
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 
 
 namespace py = pybind11;

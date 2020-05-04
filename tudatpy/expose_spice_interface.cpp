@@ -24,5 +24,10 @@ namespace tudatpy {
               &tudat::spice_interface::clearSpiceKernels,
               tudatpy::clear_spice_kernels_docstring().c_str());
 
+        m.def("get_average_radius",
+              &tudat::spice_interface::getAverageRadius,
+              "<no_doc>");
+
+
     };
 }

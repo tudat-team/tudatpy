@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tudatpy.basic_astrodynamics &mdash; tudatpy 0.2.0 documentation</title>
+  <title>tudatpy.basic_astrodynamics &mdash; tudatpy 0.3.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="tudatpy 0.2.0 documentation" href="../index.html"/>
+    <link rel="top" title="tudatpy 0.3.0 documentation" href="../index.html"/>
         <link rel="next" title="tudatpy.numerical_integrators" href="numerical_integrators.html"/>
         <link rel="prev" title="tudatpy.spice_interface" href="spice_interface.html"/> 
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.3.0
               </div>
             
           
@@ -92,6 +92,7 @@
             
                 <p class="caption"><span class="caption-text">Modules</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="elements.html">tudatpy.elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">tudatpy.constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spice_interface.html">tudatpy.spice_interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">tudatpy.basic_astrodynamics</a></li>
@@ -103,6 +104,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/tudat_tutorials.html">Tudat Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/python_ecosystem.html">Python Ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_tutorials/machine_learning.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developers</span></p>
 <ul>
@@ -110,6 +112,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/pull_requests.html">Pull Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_src_dev/exposing_cpp.html">Exposing C++ in Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_src_dev/FAQ.html">Frequently Asked Questions</a></li>
 </ul>
 
             
@@ -168,8 +172,138 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-tudatpy.basic_astrodynamics">
-<span id="tudatpy-basic-astrodynamics"></span><h1>tudatpy.basic_astrodynamics<a class="headerlink" href="#module-tudatpy.basic_astrodynamics" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-tudatpy.core._basic_astrodynamics">
+<span id="id1"></span><span id="tudatpy-basic-astrodynamics"></span><h1>tudatpy.basic_astrodynamics<a class="headerlink" href="#module-tudatpy.core._basic_astrodynamics" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="tudatpy.core._basic_astrodynamics.AccelerationModel">
+<em class="property">class </em><code class="sig-name descname">AccelerationModel</code><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AccelerationModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration">
+<em class="property">class </em><code class="sig-name descname">AvailableAcceleration</code><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Members:</p>
+<p>undefined_acceleration</p>
+<p>point_mass_gravity</p>
+<p>central_gravity</p>
+<p>aerodynamic</p>
+<p>cannon_ball_radiation_pressure</p>
+<p>spherical_harmonic_gravity</p>
+<p>mutual_spherical_harmonic_gravity</p>
+<p>third_body_point_mass_gravity</p>
+<p>third_body_central_gravity</p>
+<p>third_body_spherical_harmonic_gravity</p>
+<p>third_body_mutual_spherical_harmonic_gravity</p>
+<p>thrust_acceleration</p>
+<p>relativistic_correction_acceleration</p>
+<p>empirical_acceleration</p>
+<p>direct_tidal_dissipation_in_central_body_acceleration</p>
+<p>direct_tidal_dissipation_in_orbiting_body_acceleration</p>
+<p>panelled_radiation_pressure_acceleration</p>
+<p>momentum_wheel_desaturation_acceleration</p>
+<p>solar_sail_acceleration</p>
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.aerodynamic">
+<code class="sig-name descname">aerodynamic</code><em class="property"> = AvailableAcceleration.aerodynamic</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.aerodynamic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.cannon_ball_radiation_pressure">
+<code class="sig-name descname">cannon_ball_radiation_pressure</code><em class="property"> = AvailableAcceleration.cannon_ball_radiation_pressure</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.cannon_ball_radiation_pressure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.central_gravity">
+<code class="sig-name descname">central_gravity</code><em class="property"> = AvailableAcceleration.point_mass_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.central_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration">
+<code class="sig-name descname">direct_tidal_dissipation_in_central_body_acceleration</code><em class="property"> = AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration">
+<code class="sig-name descname">direct_tidal_dissipation_in_orbiting_body_acceleration</code><em class="property"> = AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.empirical_acceleration">
+<code class="sig-name descname">empirical_acceleration</code><em class="property"> = AvailableAcceleration.empirical_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.empirical_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.momentum_wheel_desaturation_acceleration">
+<code class="sig-name descname">momentum_wheel_desaturation_acceleration</code><em class="property"> = AvailableAcceleration.momentum_wheel_desaturation_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.momentum_wheel_desaturation_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.mutual_spherical_harmonic_gravity">
+<code class="sig-name descname">mutual_spherical_harmonic_gravity</code><em class="property"> = AvailableAcceleration.mutual_spherical_harmonic_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.mutual_spherical_harmonic_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.panelled_radiation_pressure_acceleration">
+<code class="sig-name descname">panelled_radiation_pressure_acceleration</code><em class="property"> = AvailableAcceleration.panelled_radiation_pressure_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.panelled_radiation_pressure_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.point_mass_gravity">
+<code class="sig-name descname">point_mass_gravity</code><em class="property"> = AvailableAcceleration.point_mass_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.point_mass_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.relativistic_correction_acceleration">
+<code class="sig-name descname">relativistic_correction_acceleration</code><em class="property"> = AvailableAcceleration.relativistic_correction_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.relativistic_correction_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.solar_sail_acceleration">
+<code class="sig-name descname">solar_sail_acceleration</code><em class="property"> = AvailableAcceleration.solar_sail_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.solar_sail_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.spherical_harmonic_gravity">
+<code class="sig-name descname">spherical_harmonic_gravity</code><em class="property"> = AvailableAcceleration.spherical_harmonic_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.spherical_harmonic_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_central_gravity">
+<code class="sig-name descname">third_body_central_gravity</code><em class="property"> = AvailableAcceleration.third_body_point_mass_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_central_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_mutual_spherical_harmonic_gravity">
+<code class="sig-name descname">third_body_mutual_spherical_harmonic_gravity</code><em class="property"> = AvailableAcceleration.third_body_mutual_spherical_harmonic_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_mutual_spherical_harmonic_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_point_mass_gravity">
+<code class="sig-name descname">third_body_point_mass_gravity</code><em class="property"> = AvailableAcceleration.third_body_point_mass_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_point_mass_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_spherical_harmonic_gravity">
+<code class="sig-name descname">third_body_spherical_harmonic_gravity</code><em class="property"> = AvailableAcceleration.third_body_spherical_harmonic_gravity</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.third_body_spherical_harmonic_gravity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.thrust_acceleration">
+<code class="sig-name descname">thrust_acceleration</code><em class="property"> = AvailableAcceleration.thrust_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.thrust_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tudatpy.core._basic_astrodynamics.AvailableAcceleration.undefined_acceleration">
+<code class="sig-name descname">undefined_acceleration</code><em class="property"> = AvailableAcceleration.undefined_acceleration</em><a class="headerlink" href="#tudatpy.core._basic_astrodynamics.AvailableAcceleration.undefined_acceleration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -213,7 +347,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.2.0',
+            VERSION:'0.3.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE: 'true'

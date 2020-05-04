@@ -1,165 +1,234 @@
-# Initial imports and kernel setup
+###############################################################################
+# IMPORT STATEMENTS ###########################################################
+###############################################################################
 import numpy as np
-import tudatpy as tpy
+from tudatpy import constants
+from tudatpy import elements
+from tudatpy import io
+from tudatpy import ephemerides
+from tudatpy import interpolators
+from tudatpy import numerical_integrators
 from tudatpy import spice_interface
+from tudatpy import basic_astrodynamics
+# from tudatpy import orbital_element_conversions # LEGACY MODULE
+from tudatpy import propagators
+from tudatpy import aerodynamics
+from tudatpy import simulation_setup
 
-spice_interface.load_standard_spice_kernels()
 
-# 1.1. Set Up the Environment
-from tudatpy.simulation_setup import get_default_body_settings
-from tudatpy.simulation_setup import set_global_frame_body_ephemerides
-from tudatpy.simulation_setup import create_bodies
-from tudatpy.simulation_setup import ConstantAerodynamicCoefficientSettings
-from tudatpy.simulation_setup import CannonBallRadiationPressureInterfaceSettings
-from tudatpy.simulation_setup import create_aerodynamic_coefficient_interface
-from tudatpy.simulation_setup import create_radiation_pressure_interface
-from tudatpy.constants import JULIAN_DAY
+def main():
+    # Load spice kernels.
+    spice_interface.load_standard_spice_kernels()
 
-simulation_end_epoch = JULIAN_DAY
+    # Set simulation start epoch.
+    simulation_start_epoch = 0.0
 
-bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
+    # Set numerical integration fixed step size.
+    fixed_step_size = 1.0
 
-# Create body objects.
-simulation_start_epoch = 0.0
-time_step = 10.0
+    # Set simulation end epoch.
+    simulation_end_epoch = constants.JULIAN_DAY
 
-body_settings = get_default_body_settings(bodies_to_create,
-                                          simulation_start_epoch - 300.0,
-                                          simulation_end_epoch + 300.0, time_step)
+    ###########################################################################
+    # CREATE ENVIRONMENT ######################################################
+    ###########################################################################
 
-# TODO: Simplify
-for body in bodies_to_create:
-    body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
-    body_settings[body].rotation_model_settings.reset_original_frame("J2000")
+    # Create body objects.
+    bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
-body_dict = create_bodies(body_settings)
+    body_settings = simulation_setup.get_default_body_settings(
+        bodies_to_create,
+        simulation_start_epoch - 300.0,
+        simulation_end_epoch + 300.0,
+        fixed_step_size)
 
-# 2.2. Create the Vehicle
-from tudatpy.simulation_setup import Body
+    for body in bodies_to_create:
+        body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
+        body_settings[body].rotation_model_settings.reset_original_frame("J2000")
 
-body_dict["Asterix"] = Body()
-body_dict["Asterix"].set_constant_body_mass(400.0)
-set_global_frame_body_ephemerides(body_dict, "SSB", "J2000")
+    bodies = simulation_setup.create_bodies(body_settings)
 
-# Create aerodynamic coefficient interface settings
-reference_area = 4.0
-aerodynamic_coefficient = 1.2
-aerodynamic_coefficient_settings = ConstantAerodynamicCoefficientSettings(
-    reference_area,
-    aerodynamic_coefficient * np.ones(3), 1, 1
-)
+    ###########################################################################
+    # CREATE VEHICLE ##########################################################
+    ###########################################################################
 
-# Create and set aerodynamic coefficients object
-body_dict["Asterix"].set_aerodynamic_coefficient_interface(
-    create_aerodynamic_coefficient_interface(aerodynamic_coefficient_settings,
-                                             "Asterix")
-)
+    # Create vehicle objects.
+    bodies["Delfi-C3"] = simulation_setup.Body()
+    bodies["Delfi-C3"].set_constant_body_mass(400.0)
 
-# Create radiation pressure settings
-reference_area_radiation = 4.0
-radiation_pressure_coefficient = 1.2
+    ###########################################################################
+    # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
+    ###########################################################################
 
-occulting_bodies = ["Earth"]
-asterix_radiation_pressure_settings = CannonBallRadiationPressureInterfaceSettings(
-    "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
+    # Create aerodynamic coefficient interface settings
+    reference_area = 4.0
+    aerodynamic_coefficient = 1.2
+    aero_c_settings = simulation_setup.ConstantAerodynamicCoefficientSettings(
+        reference_area,
+        aerodynamic_coefficient * np.ones(3),
+        are_coefficients_in_aerodynmic_frame=True,
+        are_coefficients_in_negative_axis_direction=True
+    )
+    # Create and set aerodynamic coefficients object
+    bodies["Delfi-C3"].set_aerodynamic_coefficient_interface(
+        simulation_setup.create_aerodynamic_coefficient_interface(
+            aero_c_settings,
+            "Delfi-C3")
+    )
+    # TODO: Simplify (post 1.0.0 work)
 
-# Create and set radiation pressure settings
-body_dict["Asterix"].set_radiation_pressure_interface(
-    "Sun", create_radiation_pressure_interface(
-        asterix_radiation_pressure_settings, "Asterix", body_dict))
+    # Create radiation pressure settings
+    reference_area_radiation = 4.0
+    radiation_pressure_coefficient = 1.2
+    occulting_bodies = ["Earth"]
+    rad_press_settings = simulation_setup.CannonBallRadiationPressureInterfaceSettings(
+        "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
 
-# TODO: Simplify (post 1.0.0 work)
+    # Create and set radiation pressure settings
+    bodies["Delfi-C3"].set_radiation_pressure_interface(
+        "Sun", simulation_setup.create_radiation_pressure_interface(
+            rad_press_settings, "Delfi-C3", bodies))
 
-# 2.3. Set Up the Acceleration Models
-# from tudatpy.basic_astrodynamics import AvailableAcceleration
-# from tudatpy.simulation_setup import AccelerationSettings
-from tudatpy.simulation_setup import Acceleration
-# from tudatpy.simulation_setup import SphericalHarmonicAccelerationSettings
-from tudatpy.simulation_setup import create_acceleration_models_dict
-from tudatpy.orbital_element_conversions import KeplerianElementIndices
-from tudatpy.orbital_element_conversions import convert_keplerian_to_cartesian_elements
-from tudatpy.propagators import TranslationalStatePropagatorSettings
+    # TODO: Simplify (post 1.0.0 work)
 
-# Define propagation settings.
-accelerations_of_asterix = dict(
-    Sun=
-    [
-        Acceleration.canon_ball_radiation_pressure()
-        # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure)
-    ],
-    Earth=
-    [
-        Acceleration.spherical_harmonic_gravity(5, 5),
-        # SphericalHarmonicAccelerationSettings(5, 5),
+    ###########################################################################
+    # FINALIZE BODIES #########################################################
+    ###########################################################################
 
-        Acceleration.aerodynamic()
-        # AccelerationSettings(AvailableAcceleration.aerodynamic)
-    ])
+    # Finalize body creation.
+    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
 
-for other in set(bodies_to_create).difference({"Sun", "Earth"}):
-    accelerations_of_asterix[other] = [Acceleration.point_mass_gravity()]
+    ###########################################################################
+    # CREATE ACCELERATIONS ####################################################
+    ###########################################################################
 
-acceleration_dict = dict(Asterix=accelerations_of_asterix)
+    # Define bodies that are propagated.
+    bodies_to_propagate = ["Delfi-C3"]
 
-bodies_to_propagate = ["Asterix"]
-central_bodies = ["Earth"]
+    # Define central bodies.
+    central_bodies = ["Earth"]
 
-acceleration_model_dict = create_acceleration_models_dict(
-    body_dict,
-    acceleration_dict,
-    bodies_to_propagate,
-    central_bodies)
+    # Define unique (Sun, Earth) accelerations acting on Delfi-C3.
+    accelerations_of_delfi_c3 = dict(
+        Sun=
+        [
+            simulation_setup.Acceleration.canon_ball_radiation_pressure()
+            # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure) # LEGACY DESIGN.
+        ],
+        Earth=
+        [
+            simulation_setup.Acceleration.spherical_harmonic_gravity(5, 5),
+            # SphericalHarmonicAccelerationSettings(5, 5), # LEGACY DESIGN.
 
-# 1.4. Set Up the Propagation Settings
-from tudatpy.constants import JULIAN_DAY as simulation_end_epoch
+            simulation_setup.Acceleration.aerodynamic()
+            # AccelerationSettings(AvailableAcceleration.aerodynamic) # LEGACY DESIGN.
+        ])
 
-KEI = KeplerianElementIndices
-asterix_initial_state_in_keplerian_elements = np.zeros(6)
-kep_state = asterix_initial_state_in_keplerian_elements
-kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-kep_state[int(KEI.eccentricity_index)] = 0.1
-kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+    # Define other point mass accelerations acting on Delfi-C3.
+    for other in set(bodies_to_create).difference({"Sun", "Earth"}):
+        accelerations_of_delfi_c3[other] = [
+            simulation_setup.Acceleration.point_mass_gravity()]
 
-earth_gravitational_parameter = body_dict[
-    "Earth"].gravity_field_model.get_gravitational_parameter()
-system_initial_state = convert_keplerian_to_cartesian_elements(
-    kep_state, earth_gravitational_parameter)
+    # Create global accelerations dictionary.
+    acceleration_dict = dict(Asterix=accelerations_of_delfi_c3)
 
-propagator_settings = TranslationalStatePropagatorSettings(
-    central_bodies, acceleration_model_dict, bodies_to_propagate,
-    system_initial_state,
-    simulation_end_epoch
-)
+    # Create acceleration models.
+    acceleration_models = simulation_setup.create_acceleration_models_dict(
+        bodies,
+        acceleration_dict,
+        bodies_to_propagate,
+        central_bodies)
 
-# Create numerical integrator settings.
-from tudatpy.numerical_integrators import IntegratorSettings, AvailableIntegrators
+    ###########################################################################
+    # CREATE PROPAGATION SETTINGS #############################################
+    ###########################################################################
 
-simulation_start_epoch = 0.0
-fixed_step_size = 10.0
-integrator_settings = IntegratorSettings(AvailableIntegrators.rungeKutta4,
-                                         simulation_start_epoch, fixed_step_size)
+    # Set initial conditions for the Asterix satellite that will be
+    # propagated in this simulation. The initial conditions are given in
+    # Keplerian elements and later on converted to Cartesian elements.
 
-# 1.5. Perform the Orbit Propagation
-from tudatpy.propagators import SingleArcDynamicsSimulator
+    # Set Keplerian elements for Delfi-C3
+    earth_gravitational_parameter = bodies[
+        "Earth"].gravity_field_model.get_gravitational_parameter()
 
-dynamics_simulator = SingleArcDynamicsSimulator(body_dict, integrator_settings, propagator_settings)
-integration_result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+    # LEGACY DESIGN.
+    # KEI = orbital_element_conversions.KeplerianElementIndices
+    # asterix_initial_state_in_keplerian_elements = np.zeros(6)
+    # kep_state = asterix_initial_state_in_keplerian_elements
+    # kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
+    # kep_state[int(KEI.eccentricity_index)] = 0.1
+    # kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
+    # kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
+    # kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
+    # kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
+    # system_initial_state = corbital_element_conversions.onvert_keplerian_to_cartesian_elements(
+    #     kep_state, earth_gravitational_parameter)
 
-import pandas as pd
+    # REVISED CONTEMPORARY DESIGN.
+    system_initial_state = elements.keplerian2cartesian(
+        mu=earth_gravitational_parameter,
+        a=7500.0E3,
+        ecc=0.1,
+        inc=np.deg2rad(85.3),
+        raan=np.deg2rad(23.4),
+        argp=np.deg2rad(235.7),
+        nu=np.deg2rad(139.87))
 
-df = pd.DataFrame(index=integration_result.keys(),
-                  data=np.vstack(list(integration_result.values())),
-                  columns="x y z Vx Vy Vz".split(" "))
+    # Create propagation settings.
+    propagator_settings = propagators.TranslationalStatePropagatorSettings(
+        central_bodies,
+        acceleration_models,
+        bodies_to_propagate,
+        system_initial_state,
+        simulation_end_epoch
+    )
+    # Create numerical integrator settings.
+    integrator_settings = numerical_integrators.IntegratorSettings(
+        numerical_integrators.AvailableIntegrators.rungeKutta4,
+        simulation_start_epoch,
+        fixed_step_size
+    )
 
-df.index.name = "time"
-df.to_csv("results_2.dat")
+    ###########################################################################
+    # PROPAGATE ORBIT #########################################################
+    ###########################################################################
 
-pd.set_option('display.max_rows', 30)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', None)
+    # Create simulation object and propagate dynamics.
+    dynamics_simulator = propagators.SingleArcDynamicsSimulator(
+        bodies, integrator_settings, propagator_settings, True)
+    result = dynamics_simulator.get_equations_of_motion_numerical_solution()
 
-print(df)
+    ###########################################################################
+    # PRINT INITIAL AND FINAL STATES ##########################################
+    ###########################################################################
+
+    print(
+        f"""
+Single Earth-Orbiting Satellite Example.
+The initial position vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][:3] / 1E3}
+The initial velocity vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][3:] / 1E3}
+After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: {
+        result[simulation_end_epoch][:3] / 1E3}
+And the velocity vector of Delfi-C3 is [km]: {
+        result[simulation_start_epoch][3:] / 1E3}
+        """
+    )
+
+    ###########################################################################
+    # SAVE RESULTS ############################################################
+    ###########################################################################
+
+    io.save2txt(
+        solution=result,
+        filename="singlePerturbedSatellitePropagationHistory.dat",
+        directory="./tutorial_2",
+    )
+
+    # Final statement (not required, though good practice in a __main__).
+    return 0
+
+
+if __name__ == "__main__":
+    main()

@@ -252,5 +252,129 @@ namespace tudatpy {
                         py::arg("propagator") = tp::cowell,
                         py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
                         py::arg("print_interval") = TUDAT_NAN);
+
+
+//        py::enum_<tp::VariableType>(m, "VariableType")
+//                .value("independent_variable", tp::VariableType::independentVariable)
+//                .value("cpu_time_variable", tp::VariableType::cpuTimeVariable)
+//                .value("state_variable", tp::VariableType::stateVariable)
+//                .value("dependent_variable", tp::VariableType::dependentVariable)
+//                .export_values();
+
+
+//        enum PropagationDependentVariables
+//        {
+//            mach_number_dependent_variable = 0,
+//            altitude_dependent_variable = 1,
+//            airspeed_dependent_variable = 2,
+//            local_density_dependent_variable = 3,
+//            relative_speed_dependent_variable = 4,
+//            relative_position_dependent_variable = 5,
+//            relative_distance_dependent_variable = 6,
+//            relative_velocity_dependent_variable = 7,
+//            radiation_pressure_dependent_variable = 8,
+//            total_acceleration_norm_dependent_variable = 9,
+//            single_acceleration_norm_dependent_variable = 10,
+//            total_acceleration_dependent_variable = 11,
+//            single_acceleration_dependent_variable = 12,
+//            aerodynamic_force_coefficients_dependent_variable = 13,
+//            aerodynamic_moment_coefficients_dependent_variable = 14,
+//            rotation_matrix_to_body_fixed_frame_variable = 15,
+//            intermediate_aerodynamic_rotation_matrix_variable = 16,
+//            relative_body_aerodynamic_orientation_angle_variable = 17,
+//            body_fixed_airspeed_based_velocity_variable = 18,
+//            total_aerodynamic_g_load_variable = 19,
+//            stagnation_point_heat_flux_dependent_variable = 20,
+//            local_temperature_dependent_variable = 21,
+//            geodetic_latitude_dependent_variable = 22,
+//            control_surface_deflection_dependent_variable = 23,
+//            total_mass_rate_dependent_variables = 24,
+//            lvlh_to_inertial_frame_rotation_dependent_variable = 25,
+//            periapsis_altitude_dependent_variable = 26,
+//            total_torque_norm_dependent_variable = 27,
+//            single_torque_norm_dependent_variable = 28,
+//            total_torque_dependent_variable = 29,
+//            single_torque_dependent_variable = 30,
+//            body_fixed_groundspeed_based_velocity_variable = 31,
+//            keplerian_state_dependent_variable = 32,
+//            modified_equinocial_state_dependent_variable = 33,
+//            spherical_harmonic_acceleration_terms_dependent_variable = 34,
+//            body_fixed_relative_cartesian_position = 35,
+//            body_fixed_relative_spherical_position = 36,
+//            total_gravity_field_variation_acceleration = 37,
+//            single_gravity_field_variation_acceleration = 38,
+//            single_gravity_field_variation_acceleration_terms = 39,
+//            acceleration_partial_wrt_body_translational_state = 40,
+//            local_dynamic_pressure_dependent_variable = 41,
+//            local_aerodynamic_heat_rate_dependent_variable = 42
+//        };
+
+        py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables")
+                .value("mach_number_dependent_variable",
+                       tp::PropagationDependentVariables::mach_number_dependent_variable)
+                .value("altitude_dependent_variable",
+                       tp::PropagationDependentVariables::altitude_dependent_variable)
+                .value("aerodynamic_force_coefficients_dependent_variable",
+                       tp::PropagationDependentVariables::aerodynamic_force_coefficients_dependent_variable)
+                .export_values();
+
+        py::class_<tp::VariableSettings,
+                std::shared_ptr<tp::VariableSettings>> VariableSettings_(m, "VariableSettings");
+
+        py::class_<tp::SingleDependentVariableSaveSettings,
+                std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
+                tp::VariableSettings>(m, "SingleDependentVariableSaveSettings")
+                .def(py::init<
+                             const tp::PropagationDependentVariables,
+                             const std::string &,
+                             const std::string &,
+                             const int
+                     >(),
+                     py::arg("dependent_variable_type"),
+                     py::arg("associated_body"),
+                     py::arg("secondary_body") = "",
+                     py::arg("componentIndex") = -1
+                );
+
+        py::class_<
+                tp::SingleAccelerationDependentVariableSaveSettings,
+                std::shared_ptr<tp::SingleAccelerationDependentVariableSaveSettings>,
+                tp::SingleDependentVariableSaveSettings>(m, "SingleAccelerationDependentVariableSaveSettings")
+                .def(py::init<
+                             const tudat::basic_astrodynamics::AvailableAcceleration,
+                             const std::string &,
+                             const std::string &,
+                             const bool,
+                             const int
+                     >(),
+                     py::arg("acceleration_model_type"),
+                     py::arg("body_undergoing_acceleration"),
+                     py::arg("body_exerting_acceleration"),
+                     py::arg("use_norm") = 0,
+                     py::arg("component_index") = -1);
+
+        py::class_<tp::PropagationTerminationSettings,
+                std::shared_ptr<tp::PropagationTerminationSettings>
+        > PropagationTerminationSettings_(m, "PropagationTerminationSettings");
+
+        py::class_<
+                tp::PropagationDependentVariableTerminationSettings,
+                std::shared_ptr<tp::PropagationDependentVariableTerminationSettings>,
+                tp::PropagationTerminationSettings
+        >(m, "PropagationDependentVariableTerminationSettings")
+                .def(py::init<
+                             const std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
+                             const double,
+                             const bool,
+                             const bool,
+                             const std::shared_ptr<tudat::root_finders::RootFinderSettings>
+                     >(),
+                     py::arg("dependent_variable_settings"),
+                     py::arg("limit_value"),
+                     py::arg("use_as_lower_limit"),
+                     py::arg("terminate_exactly_on_final_condition") = false,
+                     py::arg("termination_root_finder_settings") = nullptr
+                );
+
     }
 }
