@@ -117,14 +117,16 @@ namespace ephemerides
 			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string contains more than 2 lines." );
 		}
 		// Check line length
-		for( std::string& line : tleLines )
+		for( std::string line : tleLines )
 		{
-			if( line.length() != 69 )
+			if( line.length( ) != 69 )
 			{
-				throw std::runtime_error("Error: TLE class was instantiated with string object, but one or more lines contain an invalid "
-							 "number of characters." );
+				std::cout << line << std::endl;
+				std::string s( 1, line.at( 0 ) );
+				throw std::runtime_error("Error: TLE class was instantiated with string object, but line " + s +
+				" contains an invalid number of characters (counted " + std::to_string( line.length( ) ) + " characters)" );
 			}
-			// TODO: checksum verification
+			// Checksum
 			int checksum = 0;
 			for( unsigned int i = 0; i < line.length( ) - 1; i++ )
 			{
@@ -142,7 +144,7 @@ namespace ephemerides
 			checksum %= 10;
 			if(checksum == static_cast< int >( line[ 68 ] ) - 48 )
 			{
-				std::cout << "TLE checksum verified." << std::endl;
+				// std::cout << "TLE checksum verified." << std::endl;
 			}
 			else
 			{
@@ -156,12 +158,10 @@ namespace ephemerides
 
 		int epochYear = std::stoi( line1.substr( 18, 2 ) );
 		double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
-		std::cout << "Epoch year: " << epochYear << "\nDay fraction: " << epochDayFraction << std::endl;
 
 		// Convert to seconds since J2000
 		// TLE day number starts with a 1, so a day fraction of 1.0 would mean Jan 1st, 0:00. Hence, we have to subtract 1.5 days
 		// in seconds to obtain number of seconds since Jan 1st, noon (as dictated by J2000).
-		// TODO: fix calculation (does not account for leap days!)
 		if( epochYear < 57 )
 		{
 			epochYear += 2000;
@@ -172,8 +172,7 @@ namespace ephemerides
 		}
 		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
 		boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
-		auto jdSinceJ2000 = basic_astrodynamics::calculateJulianDaySinceEpoch< double >( date, epochDayFraction );
-		epoch_ = (epochYear - 2000) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
+		epoch_ = ( epochYear - 2000 ) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );
 		double bStarExp = std::stod( line1.substr( 59, 2 ) );
