@@ -101,6 +101,10 @@ add_executable(test_SynchronousRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}/
 setup_custom_test_program(test_SynchronousRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_SynchronousRotationalEphemeris ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_TwoLineElementsEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestTwoLineElementsEphemeris.cpp")
+setup_custom_test_program(test_TwoLineElementsEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_TwoLineElementsEphemeris ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif()
 
 add_executable(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerEphemeris.cpp")
