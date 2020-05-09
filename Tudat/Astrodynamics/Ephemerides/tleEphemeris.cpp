@@ -111,7 +111,7 @@ namespace ephemerides
 			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string is empty." );
 		}
 		std::vector< std::string > tleLines;
-		boost::algorithm::split( tleLines, lines, boost::is_any_of( "\n" ) );
+		boost::algorithm::split( tleLines, lines, boost::is_any_of( "\n\r" ) );
 		if( tleLines.size() != 2 )
 		{
 			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string contains more than 2 lines." );
