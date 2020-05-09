@@ -21,8 +21,7 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/separatedParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.cpp"
@@ -50,8 +49,7 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/parser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/separatedParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/mapTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
@@ -89,11 +87,7 @@ target_link_libraries(test_MatrixTextFileReader tudat_input_output tudat_basic_a
 add_executable(test_StreamFilters "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestStreamFilters.cpp")
 setup_custom_test_program(test_StreamFilters "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_StreamFilters tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
-
-add_executable(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTwoLineElementsTextFileReader.cpp")
-setup_custom_test_program(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-
+ 
 add_executable(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp")
 setup_custom_test_program(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_BasicInputOutput tudat_input_output ${Boost_LIBRARIES})
