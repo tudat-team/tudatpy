@@ -26,6 +26,14 @@ namespace ephemerides
 							   const std::shared_ptr< Tle > tle_ptr, const bool useSDP ) :
 							   Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
 	{
+		if( referenceFrameOrigin != "Earth" )
+		{
+			throw std::runtime_error( "Error: TleEphemeris only supports an Earth-centered reference frame." );
+		}
+		if( useSDP )
+		{
+			throw std::runtime_error( "TLE SDP propagator requested, which is not yet implemented." );
+		}
 		useSDP_ = useSDP;
 		tle_ = tle_ptr;
 		// Create table with ephemeris data
@@ -41,28 +49,24 @@ namespace ephemerides
 		const Eigen::Vector6d cartesianStateAtEpochTEME =
 				spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 
-		std::cout << "State at TLE epoch: " << spice_interface::getCartesianStateFromTleAtEpoch( tle_->getEpoch( ), tle_ ) << std::endl;
-
 		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
-		std::cout << "Position in TEME:\n" << positionTEME << std::endl;
 		Eigen::Vector3d velocityTEME = cartesianStateAtEpochTEME.tail( 3 );
 
 		// First, rotate to the True Of Date (TOD) frame.
 		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch );
-		std::cout << "Eq of the equinoxes: " << equationOfEquinoxes << std::endl;
 
 		// Rotate around pole (z-axis)
-		// TODO: verify sign of rotation angle --> should be positive!
 		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
 		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
 		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
 
-		std::cout << "Position in TOD:\n" << positionTOD << std::endl;
-		std::cout << "Velocity in TOD:\n" << velocityTOD << std::endl;
-
-		double zeta, z, theta;
-		sofa_interface::getPrecessionAngles(zeta, z, theta, secondsSinceEpoch );
-		std::cout << "Zeta: " << zeta << " , z: " << z << " , theta: " << theta << std::endl;
+		// These angles (zeta, z, and theta) do not really have descriptive names. For a description of the precession geometry and these angles,
+		// see pages 226-228 and figure 3-31 in Vallado (2013).
+		double precessionAngleModToGcrfZeta;
+		double precessionAngleModToGcrfZ;
+		double precessionAngleModToGcrfTheta;
+		sofa_interface::getPrecessionAngles(precessionAngleModToGcrfZeta, precessionAngleModToGcrfZ, precessionAngleModToGcrfTheta,
+				secondsSinceEpoch );
 
 		// Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
 		// (according to the 1976/1980 model)
@@ -71,11 +75,6 @@ namespace ephemerides
 		Eigen::Vector3d  positionJ2000 = precessionNutationMatrix.transpose( ) * positionTOD;
 		Eigen::Vector3d  velocityJ2000 = precessionNutationMatrix.transpose( ) * velocityTOD;
 
-		// Get hour angle (theta GMST) to rotate to PEF
-		// double thetaGmst = sofa_interface::calculateGreenwichMeanSiderealTime( timeUTC, timeUT1,
-		// 		tle_->getEpoch(), basic_astrodynamics::iau_2000_b );
-
-		// TODO: convert state from TEME frame to frame set by the ephemeris settings
 		if( referenceFrameOrientation_ == "J2000" )
 		{
 			Eigen::Vector6d stateJ2000;
@@ -112,20 +111,22 @@ namespace ephemerides
 			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string is empty." );
 		}
 		std::vector< std::string > tleLines;
-		boost::algorithm::split( tleLines, lines, boost::is_any_of( "\n" ) );
+		boost::algorithm::split( tleLines, lines, boost::is_any_of( "\n\r" ) );
 		if( tleLines.size() != 2 )
 		{
 			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string contains more than 2 lines." );
 		}
 		// Check line length
-		for( std::string& line : tleLines )
+		for( std::string line : tleLines )
 		{
-			if( line.length() != 69 )
+			if( line.length( ) != 69 )
 			{
-				throw std::runtime_error("Error: TLE class was instantiated with string object, but one or more lines contain an invalid "
-							 "number of characters." );
+				std::cout << line << std::endl;
+				std::string s( 1, line.at( 0 ) );
+				throw std::runtime_error("Error: TLE class was instantiated with string object, but line " + s +
+				" contains an invalid number of characters (counted " + std::to_string( line.length( ) ) + " characters)" );
 			}
-			// TODO: checksum verification
+			// Checksum
 			int checksum = 0;
 			for( unsigned int i = 0; i < line.length( ) - 1; i++ )
 			{
@@ -143,7 +144,7 @@ namespace ephemerides
 			checksum %= 10;
 			if(checksum == static_cast< int >( line[ 68 ] ) - 48 )
 			{
-				std::cout << "TLE checksum verified." << std::endl;
+				// std::cout << "TLE checksum verified." << std::endl;
 			}
 			else
 			{
@@ -157,12 +158,10 @@ namespace ephemerides
 
 		int epochYear = std::stoi( line1.substr( 18, 2 ) );
 		double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
-		std::cout << "Epoch year: " << epochYear << "\nDay fraction: " << epochDayFraction << std::endl;
 
 		// Convert to seconds since J2000
 		// TLE day number starts with a 1, so a day fraction of 1.0 would mean Jan 1st, 0:00. Hence, we have to subtract 1.5 days
 		// in seconds to obtain number of seconds since Jan 1st, noon (as dictated by J2000).
-		// TODO: fix calculation (does not account for leap days!)
 		if( epochYear < 57 )
 		{
 			epochYear += 2000;
@@ -173,8 +172,7 @@ namespace ephemerides
 		}
 		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
 		boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
-		auto jdSinceJ2000 = basic_astrodynamics::calculateJulianDaySinceEpoch< double >( date, epochDayFraction );
-		epoch_ = epochYear * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
+		epoch_ = ( epochYear - 2000 ) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );
 		double bStarExp = std::stod( line1.substr( 59, 2 ) );
@@ -197,7 +195,7 @@ namespace ephemerides
 
 	Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 )
 	{
-
+		throw std::runtime_error( "Error constructing TLE object: two string initialization not yet implemented." );
 	}
 
     Tle::Tle( const double *spiceElements )
