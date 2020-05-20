@@ -1,0 +1,18 @@
+# CMake generated Testfile for 
+# Source directory: /home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics
+# Build directory: /home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/src/math/statistics
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+add_test(test_statistics_SimpleLinearRegression "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_SimpleLinearRegression")
+set_tests_properties(test_statistics_SimpleLinearRegression PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;50;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")
+add_test(test_statistics_BasicStatistics "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_BasicStatistics")
+set_tests_properties(test_statistics_BasicStatistics PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;51;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")
+add_test(test_statistics_MultiVariateGaussianProbabilityDistributions "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_MultiVariateGaussianProbabilityDistributions")
+set_tests_properties(test_statistics_MultiVariateGaussianProbabilityDistributions PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;52;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")
+add_test(test_statistics_BoostRandomVariables "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_BoostRandomVariables")
+set_tests_properties(test_statistics_BoostRandomVariables PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;53;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")
+add_test(test_statistics_KernelDensityDistribution "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_KernelDensityDistribution")
+set_tests_properties(test_statistics_KernelDensityDistribution PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;54;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")
+add_test(test_statistics_RandomSampling "/home/ggarrett/Repositories/new/tudat_bundle/tudat/cmake-build-debug/tests/test_statistics_RandomSampling")
+set_tests_properties(test_statistics_RandomSampling PROPERTIES  _BACKTRACE_TRIPLES "/home/ggarrett/Repositories/new/tudat_bundle/tudat/CMakeLists.txt;323;add_test;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;55;TUDAT_ADD_TESTCASE;/home/ggarrett/Repositories/new/tudat_bundle/tudat/src/math/statistics/CMakeLists.txt;0;")

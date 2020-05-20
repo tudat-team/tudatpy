@@ -1,5 +1,5 @@
 #
-# CMake 
+# cmake
 #
 CMakeCache.txt
 CMakeLists.txt.user
@@ -55,8 +55,8 @@ lib/
 #
 # Spice Kernel creation tools
 #
-Tudat/External/SpiceInterface/Kernels/KernelMerge/
-Tudat/External/SpiceInterface/Kernels/
+Tudat/interface/spice/Kernels/KernelMerge/
+Tudat/interface/spice/Kernels/
 
 #
 # Editor related
