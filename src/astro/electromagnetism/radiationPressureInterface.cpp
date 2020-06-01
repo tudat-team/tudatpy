@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include "tudat/astro/basic/missionGeometry.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 
 

@@ -26,7 +26,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/aerodynamics/windModel.h"
-#include "tudat/astro/basic/bodyShapeModel.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
 
 namespace tudat
 {

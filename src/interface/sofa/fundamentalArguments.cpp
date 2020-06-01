@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/interface/sofa/fundamentalArguments.h"
 
 namespace tudat

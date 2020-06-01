@@ -12,8 +12,8 @@
 #define TUDAT_NGAUSSKEPLERSTATEDERIVATIVE_H
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/astro/basic/stateRepresentationConversions.h"
-#include "tudat/astro/basic/astrodynamicsFunctions.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
 
 namespace tudat
 {

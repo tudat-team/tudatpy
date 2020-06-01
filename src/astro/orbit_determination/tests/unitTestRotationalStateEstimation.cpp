@@ -18,7 +18,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/simulation/estimation.h"
 
 namespace tudat

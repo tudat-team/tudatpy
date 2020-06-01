@@ -23,17 +23,17 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
 
-#include "tudat/astro/basic/sphericalStateConversions.h"
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"

@@ -17,7 +17,7 @@
 #include <iterator>
 #include <sstream>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/missileDatcomReader.h"

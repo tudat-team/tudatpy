@@ -28,7 +28,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/mission_segments/lambertTargeterGooding.h"
 

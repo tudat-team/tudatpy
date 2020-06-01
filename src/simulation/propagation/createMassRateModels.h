@@ -15,9 +15,9 @@
 #include <vector>
 #include <string>
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
-#include "tudat/astro/basic/accelerationModel.h"
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/simulation/environment/body.h"
 

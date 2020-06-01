@@ -107,7 +107,6 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
 endif ()
 
 
-
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     list(APPEND json_propagation_LIBRARIES
             json_interface_library
@@ -124,7 +123,10 @@ endif ()
 TUDAT_ADD_LIBRARY("json_interface"
         "${json_interface_SOURCES}"
         "${json_interface_HEADERS}"
+        PUBLIC_INTERFACE
         json_propagation_LIBRARIES
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add JSON-based application.
@@ -133,7 +135,8 @@ TUDAT_ADD_EXECUTABLE(json_interface
         tudat_json_interface
         )
 
-TUDAT_ADD_TESTCASE(Acceleration
+TUDAT_ADD_TEST_CASE(Acceleration
+        PRIVATE_LINKS
         tudat_json_interface)
 
 #set(JSON_TESTS_DIR "${SRCROOT}${JSONINTERFACEDIR}/tests")

@@ -13,7 +13,7 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"

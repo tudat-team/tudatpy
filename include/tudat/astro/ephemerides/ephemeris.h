@@ -18,7 +18,7 @@
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/basics/basicTypedefs.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/timeType.h"
 
 namespace tudat

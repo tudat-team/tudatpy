@@ -1,0 +1,22 @@
+{% set name = "sofa" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: "{{ name }}"
+  version: "{{ version }}"
+
+source:
+    path: ../../
+
+requirements:
+    build:
+        - cmake
+        - {{ compiler('c') }}              # [not win]
+        - vs2017_{{ target_platform  }}    # [win]
+
+
+about:
+  home: https://github.com/ggarrett13/sofa
+  license: BSD
+  license_family: BSD
+  summary: Standards of Fundamental Astronomy code, copyright of the Board of the International Astronomical Union.

@@ -11,11 +11,11 @@
 
 #include <cmath>
 
-#include "tudat/astro/basic/astrodynamicsFunctions.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
 namespace tudat
 {

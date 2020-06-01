@@ -11,9 +11,9 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/interface/json/tests/unitTestSupport.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/interface/json/environment/groundStations.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/math/basic/coordinateConversions.h"
 
 namespace tudat

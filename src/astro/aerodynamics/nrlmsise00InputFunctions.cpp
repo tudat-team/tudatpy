@@ -11,7 +11,7 @@
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 
 // Tudat library namespace.

@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #ifndef TUDAT_INTEGRATEEQUATIONS_H
 #define TUDAT_INTEGRATEEQUATIONS_H
@@ -20,7 +22,7 @@
 
 #include "tudat/math/integrators/numericalIntegrator.h"
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
@@ -825,3 +827,6 @@ public:
 } // namespace tudat
 
 #endif // TUDAT_INTEGRATEEQUATIONS_H
+
+// turn the warnings back on
+#pragma GCC diagnostic pop

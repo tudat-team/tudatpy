@@ -11,8 +11,8 @@
 #include <vector>
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/coordinateConversions.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
-#include "tudat/astro/basic/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat

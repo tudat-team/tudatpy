@@ -15,7 +15,7 @@
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat

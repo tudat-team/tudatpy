@@ -12,14 +12,14 @@
 #define TUDAT_CREATETORQUEMODEL_H
 
 
-#include "tudat/astro/basic/torqueModel.h"
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/environment/body.h"
 #include "tudat/simulation/propagation/torqueSettings.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
-#include "tudat/astro/basic/customTorque.h"
+#include "tudat/astro/basic_astro/customTorque.h"
 
 namespace tudat
 {

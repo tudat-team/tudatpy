@@ -19,7 +19,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/centralJ2GravityModel.h"
 #include "tudat/astro/gravitation/centralJ2J3GravityModel.h"

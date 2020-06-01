@@ -18,7 +18,7 @@
 
 #include "tudat/math/basic/linearAlgebra.h"
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"

@@ -17,7 +17,7 @@
 #include "tudat/basics/utilityMacros.h"
 
 #include "tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 namespace tudat
 {

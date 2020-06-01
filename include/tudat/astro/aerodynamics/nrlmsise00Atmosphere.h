@@ -19,7 +19,7 @@
 #include <functional>
 #include <boost/functional/hash.hpp>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/math/basic/mathematicalConstants.h"

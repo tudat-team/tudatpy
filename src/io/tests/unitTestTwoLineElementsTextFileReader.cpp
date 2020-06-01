@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/twoLineElementsTextFileReader.h"
 
 namespace tudat

@@ -48,6 +48,8 @@ set(environment_SOURCES
 TUDAT_ADD_LIBRARY("environment_setup"
         "${environment_SOURCES}"
         "${environment_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 add_dependencies(tudat_environment_setup

@@ -19,8 +19,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment/body.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 
 namespace tudat

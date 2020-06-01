@@ -25,7 +25,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 
 namespace tudat

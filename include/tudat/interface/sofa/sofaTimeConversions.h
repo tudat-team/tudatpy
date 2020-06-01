@@ -21,8 +21,8 @@ extern "C"
     #include <sofa/sofam.h>
 }
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 namespace tudat
 {

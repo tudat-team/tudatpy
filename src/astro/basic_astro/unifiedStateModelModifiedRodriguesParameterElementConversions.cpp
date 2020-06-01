@@ -19,10 +19,10 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
-#include "tudat/astro/basic/attitudeElementConversions.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
-#include "tudat/astro/basic/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
-#include "tudat/astro/basic/unifiedStateModelQuaternionElementConversions.h"
+#include "tudat/astro/basic_astro/attitudeElementConversions.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
+#include "tudat/astro/basic_astro/unifiedStateModelQuaternionElementConversions.h"
 
 namespace tudat
 {

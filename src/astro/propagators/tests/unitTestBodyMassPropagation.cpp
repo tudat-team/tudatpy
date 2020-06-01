@@ -15,7 +15,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/simulation/propagation//propagationSettings.h"
 #include "tudat/simulation/environment/body.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"

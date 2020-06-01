@@ -13,7 +13,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/dissipativeTorqueModel.h"
+#include "tudat/astro/basic_astro/dissipativeTorqueModel.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
 #include "tudat/io/basicInputOutput.h"
 

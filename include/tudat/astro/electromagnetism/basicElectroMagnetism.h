@@ -11,7 +11,7 @@
 #ifndef TUDAT_BASICELECTROMAGNETISM_H
 #define TUDAT_BASICELECTROMAGNETISM_H
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace tudat
 {

@@ -16,11 +16,11 @@
 #include <vector>
 #include <cmath>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositionsCircularCoplanar.h"
 
 namespace tudat

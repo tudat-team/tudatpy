@@ -14,10 +14,10 @@
 
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/simulation/environment/body.h"
 

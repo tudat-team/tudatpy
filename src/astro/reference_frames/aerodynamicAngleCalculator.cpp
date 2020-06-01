@@ -14,7 +14,7 @@
 #include <memory>
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/basic/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/math/basic/coordinateConversions.h"

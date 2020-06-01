@@ -15,8 +15,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/random/uniform_01.hpp>
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"

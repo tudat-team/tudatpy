@@ -31,8 +31,8 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/mission_segments/lambertRoutines.h"

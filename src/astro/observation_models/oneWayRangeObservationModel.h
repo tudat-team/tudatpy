@@ -18,7 +18,7 @@
 
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/observation_models/observationModel.h"

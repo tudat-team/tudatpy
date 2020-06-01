@@ -13,14 +13,14 @@
 #include <limits>
 #include <string>
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
 
-#include "tudat/astro/basic/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/relativity/metric.h"

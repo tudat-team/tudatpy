@@ -13,7 +13,7 @@
 #include "hodographicShaping.h"
 #include <cmath>
 #include <iostream>
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include <tudat/simulation/simulation.h>
 #include "tudat/basics/timeType.h"

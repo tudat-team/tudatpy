@@ -12,8 +12,8 @@
  *          American Institute of Aeronautics and Astronautics, 2002.
  */
 
-#include "tudat/astro/basic/attitudeElementConversions.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/attitudeElementConversions.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 #include "tudat/math/basic/mathematicalConstants.h"
 

@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"

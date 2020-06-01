@@ -9,7 +9,7 @@
  */
 
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
 
 //! Execute examples on tabulated atmosphere.

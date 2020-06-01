@@ -11,12 +11,12 @@
 #ifndef TUDAT_SIMULATIONHEADER_H
 #define TUDAT_SIMULATIONHEADER_H
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/timeConversions.h"
-#include "tudat/astro/basic/unitConversions.h"
-#include "tudat/astro/basic/keplerPropagator.h"
-#include "tudat/astro/basic/sphericalStateConversions.h"
-#include "tudat/astro/basic/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/keplerPropagator.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 #include "tudat/io/basicInputOutput.h"

@@ -28,8 +28,10 @@ set(basics_HEADERS
 TUDAT_ADD_LIBRARY("basics"
         "${basics_SOURCES}"
         "${basics_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(TimeTypes)
-TUDAT_ADD_TESTCASE(TudatTypeTraits tudat_basics)
+TUDAT_ADD_TEST_CASE(TimeTypes)
+TUDAT_ADD_TEST_CASE(TudatTypeTraits PRIVATE_LINKS tudat_basics)

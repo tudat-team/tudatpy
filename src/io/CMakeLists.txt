@@ -72,7 +72,8 @@ set(io_HEADERS
 TUDAT_ADD_LIBRARY("input_output"
         "${io_SOURCES}"
         "${io_HEADERS}"
-        "${Boost_LIBRARIES}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add unit test files.
@@ -82,87 +83,106 @@ TUDAT_ADD_LIBRARY("input_output"
 #  "${SRCROOT}${INPUTOUTPUTDIR}/tests/unitTestStreamFilters.cpp"
 #)
 
-TUDAT_ADD_TESTCASE(MapTextFileReader
+TUDAT_ADD_TEST_CASE(MapTextFileReader
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(MatrixTextFileReader
+TUDAT_ADD_TEST_CASE(MatrixTextFileReader
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(StreamFilters
+TUDAT_ADD_TEST_CASE(StreamFilters
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(TwoLineElementsTextFileReader
+TUDAT_ADD_TEST_CASE(TwoLineElementsTextFileReader
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(BasicInputOutput
+TUDAT_ADD_TEST_CASE(BasicInputOutput
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(ParsedDataVectorUtilities
+TUDAT_ADD_TEST_CASE(ParsedDataVectorUtilities
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(FieldValue
+TUDAT_ADD_TEST_CASE(FieldValue
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(TextParser
+TUDAT_ADD_TEST_CASE(TextParser
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(MissileDatcomReader
+TUDAT_ADD_TEST_CASE(MissileDatcomReader
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(MissileDatcomData
+TUDAT_ADD_TEST_CASE(MissileDatcomData
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(DictionaryInputSystem
+TUDAT_ADD_TEST_CASE(DictionaryInputSystem
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(Extractor
+TUDAT_ADD_TEST_CASE(Extractor
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(FixedWidthParser
+TUDAT_ADD_TEST_CASE(FixedWidthParser
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(SeparatedParser
+TUDAT_ADD_TEST_CASE(SeparatedParser
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(LinearFieldTransform
+TUDAT_ADD_TEST_CASE(LinearFieldTransform
+        PRIVATE_LINKS
         tudat_input_output
         )
 
-TUDAT_ADD_TESTCASE(SolarActivityData
+TUDAT_ADD_TEST_CASE(SolarActivityData
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(MultiArrayReader
+TUDAT_ADD_TEST_CASE(MultiArrayReader
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(MultiArrayWriter
+TUDAT_ADD_TEST_CASE(MultiArrayWriter
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(AerodynamicCoefficientReader
+TUDAT_ADD_TEST_CASE(AerodynamicCoefficientReader
+        PRIVATE_LINKS
         tudat_input_output
         tudat_basic_astrodynamics
         tudat_basics

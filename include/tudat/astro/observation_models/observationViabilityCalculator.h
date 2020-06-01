@@ -17,7 +17,7 @@
 
 #include "tudat/math/basic/linearAlgebra.h"
 
-#include "tudat/astro/basic/missionGeometry.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
 #include "tudat/astro/ground_stations/groundStation.h"

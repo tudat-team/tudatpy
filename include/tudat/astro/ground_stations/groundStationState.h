@@ -11,9 +11,9 @@
 #ifndef TUDAT_GROUNDSTATIONSTATE_H
 #define TUDAT_GROUNDSTATIONSTATE_H
 
-#include "tudat/astro/basic/bodyShapeModel.h"
-#include "tudat/astro/basic/stateRepresentationConversions.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 
 namespace tudat

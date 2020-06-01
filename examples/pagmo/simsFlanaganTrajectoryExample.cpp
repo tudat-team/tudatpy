@@ -26,7 +26,7 @@
 #include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
 #include "pagmo/algorithms/de1220.hpp"
 #include "Problems/applicationOutput.h"
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 int main( )
 {

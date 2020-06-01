@@ -23,7 +23,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureForce.h"
 

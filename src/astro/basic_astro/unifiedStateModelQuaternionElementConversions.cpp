@@ -18,8 +18,8 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
-#include "tudat/astro/basic/stateVectorIndices.h"
-#include "tudat/astro/basic/unifiedStateModelQuaternionElementConversions.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/unifiedStateModelQuaternionElementConversions.h"
 
 namespace tudat
 {

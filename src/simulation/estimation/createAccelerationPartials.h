@@ -13,7 +13,7 @@
 
 #include <memory.h>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/simulation/environment/body.h"
 #include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
@@ -30,7 +30,7 @@
 #include "tudat/astro/orbit_determination/AccelerationPartials/thrustAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/orbit_determination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
 
 namespace tudat

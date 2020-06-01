@@ -44,29 +44,36 @@ namespace input_output
  */
 static inline std::string getTudatRootPath( )
 {
-#ifdef TUDAT_CUSTOM_ROOT_PATH
-    return std::string( TUDAT_CUSTOM_ROOT_PATH );
-#else
+//    std::string TUDAT_CUSTOM_ROOT_PATH = "../";
+//
+//#ifdef TUDAT_CUSTOM_ROOT_PATH
+//    return std::string( TUDAT_CUSTOM_ROOT_PATH );
+//#else
+
     // Declare file path string assigned to filePath.
     // __FILE__ only gives the absolute path in the header file!
-    std::string filePath_( __FILE__ );
+//    std::string filePath_( __FILE__ );
 
     // Strip filename from temporary string and return root-path string.
-    return filePath_.substr( 0, filePath_.length( ) -
-                             std::string( "include/tudat/io/basicInputOutput.h" ).length( ) ) + "src/";
-#endif
+//    return filePath_.substr( 0, filePath_.length( ) -
+//                             std::string( "io/basicInputOutput.h" ).length( ) ) + TUDAT_;
+    return  "/home/ggarrett/Repositories/new/tudat_bundle/install_test/data/tudat/";
+    // TODO: THIS IS TEMPORARY.
 }
 
 static inline std::string getEarthOrientationDataFilesPath( )
 {
     // Declare file path string assigned to filePath.
     // __FILE__ only gives the absolute path in the header file!
-    std::string filePath_( __FILE__ );
+//    std::string filePath_( __FILE__ );
+//
+//    // __FILE__ only gives the absolute path in the header file!
+//    // Strip filename from temporary string and return root-path string.
+//    return ( filePath_.substr( 0, filePath_.length( ) -
+//                               std::string( "io/basicInputOutput.h" ).length( ) ) +
+//             "astro/earth_orientation/Data/" );
+    return getTudatRootPath( ) + "/earth_orientation/";
 
-    // Strip filename from temporary string and return root-path string.
-    return ( filePath_.substr( 0, filePath_.length( ) -
-                               std::string( "io/basicInputOutput.h" ).length( ) ) +
-             "astro/earth_orientation/data/" );
 }
 
 // TODO: Deprecate, should be self-contained in spice interface.
@@ -77,11 +84,12 @@ static inline std::string getEarthOrientationDataFilesPath( )
  */
 static inline std::string getSpiceKernelPath( )
 {
-#ifdef SPICE_KERNEL_CUSTOM_FOLDER
-    return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
-#else
-    return getTudatRootPath( ) + "interface/spice/kernels/";
-#endif
+//#ifdef SPICE_KERNEL_CUSTOM_FOLDER
+//    return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
+//#else
+//
+        return getTudatRootPath( ) + "/spice_kernels/";
+//#endif
 }
 
 //! Get atmosphere tables path.
@@ -91,7 +99,7 @@ static inline std::string getSpiceKernelPath( )
  */
 static inline std::string getAtmosphereTablesPath( )
 {
-    return getTudatRootPath( ) + "external/atmosphere_tables/";
+    return getTudatRootPath( ) + "/atmosphere_tables/";
 }
 
 //! Get gravity models path.
@@ -101,7 +109,7 @@ static inline std::string getAtmosphereTablesPath( )
  */
 static inline std::string getGravityModelsPath( )
 {
-    return getTudatRootPath( ) + "external/gravity_models/";
+    return getTudatRootPath( ) + "/gravity_models/";
 }
 
 //! Get space weather data files path.
@@ -111,7 +119,7 @@ static inline std::string getGravityModelsPath( )
  */
 static inline std::string getSpaceWeatherDataPath( )
 {
-    return getTudatRootPath( ) + "external/space_weather_data/";
+    return getTudatRootPath( ) + "/space_weather_data/";
 }
 
 //! Print floating-point number in formatted scientific notation.
@@ -268,7 +276,7 @@ void writeDataMapToTextFile(
                     << std::left << std::setw( precisionOfKeyType + 1 )
                     << iteratorDataMap->first;
         writeValueToStream( outputFile_, iteratorDataMap->second, precisionOfValueType,
-                            delimiter );
+                              delimiter );
     }
 
     // Close output file.

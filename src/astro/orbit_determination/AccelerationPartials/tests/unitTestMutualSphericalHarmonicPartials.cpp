@@ -13,8 +13,8 @@
 #include <limits>
 #include <string>
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>

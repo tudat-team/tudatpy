@@ -1,4 +1,4 @@
-#include "tudat/astro/basic/torqueModel.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
 
 namespace tudat
 {

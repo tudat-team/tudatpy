@@ -9,7 +9,7 @@
  *
  */
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"

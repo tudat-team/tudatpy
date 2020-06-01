@@ -18,7 +18,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 namespace tudat
 {

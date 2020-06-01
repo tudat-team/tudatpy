@@ -12,9 +12,9 @@
 #define TUDAT_JSONINTERFACE_STATE_H
 
 #include "tudat/simulation/environment/createBodies.h"
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

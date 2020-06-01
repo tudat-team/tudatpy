@@ -8,12 +8,14 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
+SET(CMAKE_INSTALL_RPATH "/home/ggarrett/Repositories/new/tudat_bundle/install_test/lib")
+
 # Add source files.
 set(numerical_integrators_SOURCES
         "rungeKuttaCoefficients.cpp"
         "createNumericalIntegrator.cpp"
         "bulirschStoerVariableStepsizeIntegrator.cpp"
-        "tests/numericalIntegratorTests.cpp"
+#        "tests/numericalIntegratorTests.cpp"
         "numericalIntegrator.cpp"
         "reinitializableNumericalIntegrator.cpp"
         "rungeKutta4Integrator.cpp"
@@ -33,25 +35,65 @@ set(numerical_integrators_HEADERS
         "rungeKutta4Integrator.h"
         "rungeKuttaCoefficients.h"
         "rungeKuttaVariableStepSizeIntegrator.h"
-        "tests/burdenAndFairesNumericalIntegratorTest.h"
-        "tests/numericalIntegratorTests.h"
-        "tests/numericalIntegratorTestFunctions.h"
+#        "tests/burdenAndFairesNumericalIntegratorTest.h"
+#        "tests/numericalIntegratorTests.h"
+#        "tests/numericalIntegratorTestFunctions.h"
         )
 
 # Add library.
 TUDAT_ADD_LIBRARY("numerical_integrators"
         "${numerical_integrators_SOURCES}"
         "${numerical_integrators_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(AdamsBashforthMoultonIntegrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(EulerIntegrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(NumericalIntegrator tudat_numerical_integrators)
-TUDAT_ADD_TESTCASE(RungeKutta4Integrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(RungeKuttaVariableStepSizeIntegrator tudat_numerical_integrators)
-TUDAT_ADD_TESTCASE(RungeKuttaCoefficients tudat_numerical_integrators)
-TUDAT_ADD_TESTCASE(RungeKuttaFehlberg45Integrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(RungeKuttaFehlberg78Integrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(RungeKutta87DormandPrinceIntegrator tudat_numerical_integrators tudat_input_output)
-TUDAT_ADD_TESTCASE(BulirschStoerVariableStepSizeIntegrator tudat_numerical_integrators tudat_input_output)
+TUDAT_ADD_TEST_CASE(AdamsBashforthMoultonIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        )
+
+TUDAT_ADD_TEST_CASE(EulerIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(NumericalIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKutta4Integrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKuttaVariableStepSizeIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKuttaCoefficients
+        PRIVATE_LINKS tudat_numerical_integrators
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg45Integrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg78Integrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(RungeKutta87DormandPrinceIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )
+
+TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
+        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
+        SOURCES "tests/numericalIntegratorTests.cpp"
+        )

@@ -18,7 +18,7 @@
 
 #include "tudat/basics/utilities.h"
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/math/basic/linearAlgebra.h"
 

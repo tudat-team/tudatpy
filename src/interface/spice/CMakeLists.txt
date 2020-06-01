@@ -26,14 +26,13 @@ set(spice_interface_HEADERS
 TUDAT_ADD_LIBRARY("spice_interface"
         "${spice_interface_SOURCES}"
         "${spice_interface_HEADERS}"
-        "${CSpice_LIBRARIES}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}" "${CSpice_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
-# Add data.
-TUDAT_ADD_DATA_DIR("kernels")
-
 # Add tests.
-TUDAT_ADD_TESTCASE(SpiceInterface
+TUDAT_ADD_TEST_CASE(SpiceInterface
+        PRIVATE_LINKS
         tudat_ephemerides
         tudat_basic_mathematics
         tudat_spice_interface

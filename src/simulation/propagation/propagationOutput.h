@@ -14,7 +14,7 @@
 #include <functional>
 
 #include "tudat/basics/utilities.h"
-#include "tudat/astro/basic/astrodynamicsFunctions.h"
+#include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"

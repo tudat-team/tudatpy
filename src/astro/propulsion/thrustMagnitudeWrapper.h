@@ -18,7 +18,7 @@
 
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/math/interpolators/interpolator.h"
-#include "tudat/astro/basic/modifiedEquinoctialElementConversions.h"
+#include "tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h"
 
 namespace tudat
 {

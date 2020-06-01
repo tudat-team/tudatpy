@@ -16,9 +16,9 @@
 #include <Eigen/Core>
 #include <cmath>
 
-#include "tudat/astro/basic/missionGeometry.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 namespace tudat
 {

@@ -37,12 +37,12 @@
 #include <utility>
 
 #include <boost/algorithm/string/trim.hpp>
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/twoLineElementsTextFileReader.h"
 

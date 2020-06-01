@@ -19,7 +19,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
-#include "tudat/astro/basic/torqueModel.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
 
 namespace tudat
 {

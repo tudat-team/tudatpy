@@ -21,7 +21,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat

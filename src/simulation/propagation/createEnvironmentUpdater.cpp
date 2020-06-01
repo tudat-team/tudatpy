@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation/createEnvironmentUpdater.h"
 
 namespace tudat

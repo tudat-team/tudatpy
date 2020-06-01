@@ -10,7 +10,7 @@
  */
 
 
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "sphericalShaping.h"

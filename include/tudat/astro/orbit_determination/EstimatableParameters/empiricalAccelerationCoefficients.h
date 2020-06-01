@@ -13,7 +13,7 @@
 #define TUDAT_EMPIRICALACCELERATIONCOEFFICIENTS_H
 
 #include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/basic/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
 
 namespace tudat

@@ -37,34 +37,41 @@ set(interpolators_HEADERS
 TUDAT_ADD_LIBRARY("interpolators"
         "${interpolators_SOURCES}"
         "${interpolators_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(CubicSplineInterpolator
+TUDAT_ADD_TEST_CASE(CubicSplineInterpolator
+        PRIVATE_LINKS
         tudat_input_output
         tudat_interpolators
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(HermiteCubicSplineInterpolator
+TUDAT_ADD_TEST_CASE(HermiteCubicSplineInterpolator
+        PRIVATE_LINKS
         tudat_input_output
         tudat_interpolators
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(LinearInterpolator
+TUDAT_ADD_TEST_CASE(LinearInterpolator
+        PRIVATE_LINKS
         tudat_input_output
         tudat_interpolators
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(MultiLinearInterpolator
+TUDAT_ADD_TEST_CASE(MultiLinearInterpolator
+        PRIVATE_LINKS
         tudat_input_output
         tudat_interpolators
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(LagrangeInterpolators
+TUDAT_ADD_TEST_CASE(LagrangeInterpolators
+        PRIVATE_LINKS
         tudat_input_output
         tudat_interpolators
         tudat_basic_mathematics

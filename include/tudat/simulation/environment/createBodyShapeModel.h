@@ -13,7 +13,7 @@
 
 #include <memory>
 
-#include "tudat/astro/basic/bodyShapeModel.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/simulation/environment/body.h"
 
 

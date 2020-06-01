@@ -13,7 +13,7 @@
 #include <iostream>
 #include "tudat/astro/LowThrustTrajectories/hybridMethodModel.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
-#include "tudat/astro/basic/modifiedEquinoctialElementConversions.h"
+#include "tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h"
 
 namespace tudat
 {

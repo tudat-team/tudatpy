@@ -1,0 +1,32 @@
+
+# defined since 2.8.3
+if (CMAKE_VERSION VERSION_LESS 2.8.3)
+  get_filename_component (CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
+endif ()
+
+# Tell the user project where to find our headers and libraries
+
+set (Sofa_VERSION "@Sofa_VERSION@")
+
+set (Sofa_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Sofa_INCLUDE_DIRS@")
+
+set (Sofa_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Sofa_LIB_DIR@")
+
+set (Sofa_DATA_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Sofa_DATA_DIR@")
+
+# Allows loading Sofa settings from another project
+set (Sofa_CONFIG_FILE "${CMAKE_CURRENT_LIST_FILE}")
+
+# List of compilation flags -DTOTO to export
+set (Sofa_DEFINITIONS "@Sofa_DEFINITIONS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include ("${CMAKE_CURRENT_LIST_DIR}/sofa_export.cmake")
+
+# These are IMPORTED targets created by NLOPTLibraryDepends.cmake
+set (Sofa_LIBRARIES "@Sofa_LIBRARIES@")
+
+if (CMAKE_VERSION VERSION_LESS 2.8.3)
+  set (CMAKE_CURRENT_LIST_DIR)
+endif ()
+

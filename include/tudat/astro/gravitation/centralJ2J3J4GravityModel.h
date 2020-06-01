@@ -19,7 +19,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/centralJ2GravityModel.h"
 #include "tudat/astro/gravitation/centralJ2J3GravityModel.h"

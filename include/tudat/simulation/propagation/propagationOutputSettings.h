@@ -13,8 +13,8 @@
 
 #include <string>
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )

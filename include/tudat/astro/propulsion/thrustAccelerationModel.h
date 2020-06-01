@@ -15,8 +15,8 @@
 
 #include <functional>
 
-#include "tudat/astro/basic/accelerationModel.h"
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"

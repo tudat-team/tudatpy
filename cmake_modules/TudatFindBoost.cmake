@@ -2,6 +2,9 @@
 # Run a first pass for finding the headers only,
 # and establishing the Boost version.
 set(_TUDAT_BOOST_MINIMUM_VERSION 1.64.0)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} QUIET REQUIRED)
 
 set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system regex date_time thread

@@ -16,8 +16,8 @@
 #include <memory>
 
 #include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
-#include "tudat/astro/basic/sphericalStateConversions.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/sphericalStateConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"

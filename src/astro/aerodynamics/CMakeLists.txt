@@ -66,77 +66,90 @@ endif ()
 TUDAT_ADD_LIBRARY("aerodynamics"
         "${aerodynamics_SOURCES}"
         "${aerodynamics_HEADERS}"
-        # For SHARED
+        PUBLIC_LINKS
         tudat_input_output
         tudat_geometric_shapes
         tudat_reference_frames
         tudat_interpolators
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add test data.
 #TUDAT_ADD_TEST_DATA(tests/aerodynamics_test_data)
 
 # Add tests.
-TUDAT_ADD_TESTCASE(AerodynamicMomentAndAerodynamicForce
+TUDAT_ADD_TEST_CASE(AerodynamicMomentAndAerodynamicForce
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
-        tudat_aerodynamics
+        Tudat::tudat_aerodynamics
         )
 
-TUDAT_ADD_TESTCASE(AerodynamicsNamespace
-        tudat_aerodynamics
-        tudat_basic_mathematics
+TUDAT_ADD_TEST_CASE(AerodynamicsNamespace
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(CoefficientGenerator
-        tudat_aerodynamics
-        tudat_geometric_shapes
-        tudat_interpolators
-        tudat_basic_mathematics
+TUDAT_ADD_TEST_CASE(CoefficientGenerator
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_geometric_shapes
+        Tudat::tudat_interpolators
+        Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(ExponentialAtmosphere
-        tudat_aerodynamics
-        tudat_basic_mathematics
+TUDAT_ADD_TEST_CASE(ExponentialAtmosphere
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(CustomConstantTemperatureAtmosphere
-        tudat_aerodynamics
-        tudat_basic_mathematics
+TUDAT_ADD_TEST_CASE(CustomConstantTemperatureAtmosphere
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(TabulatedAtmosphere
-        tudat_aerodynamics
-        tudat_input_output
-        tudat_interpolators
-        tudat_basic_mathematics
-        tudat_basic_astrodynamics
+TUDAT_ADD_TEST_CASE(TabulatedAtmosphere
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_input_output
+        Tudat::tudat_interpolators
+        Tudat::tudat_basic_mathematics
+        Tudat::tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(HeatTransfer
-        tudat_aerodynamics
-        tudat_root_finders
-        tudat_basic_mathematics
-        tudat_basic_astrodynamics
+TUDAT_ADD_TEST_CASE(HeatTransfer
+        PRIVATE_LINKS
+        Tudat::tudat_aerodynamics
+        Tudat::tudat_root_finders
+        Tudat::tudat_basic_mathematics
+        Tudat::tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(ControlSurfaceIncrements
+TUDAT_ADD_TEST_CASE(ControlSurfaceIncrements
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(AerodynamicCoefficientsFromFile
+TUDAT_ADD_TEST_CASE(AerodynamicCoefficientsFromFile
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(WindModel
+TUDAT_ADD_TEST_CASE(WindModel
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
 if (TUDAT_BUILD_WITH_NRLMSISE00)
-    TUDAT_ADD_TESTCASE(NRLMSISE00Atmosphere
-            tudat_aerodynamics
-            tudat_interpolators
-            tudat_basic_mathematics
+    TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
+            PRIVATE_LINKS
+            Tudat::tudat_aerodynamics
+            Tudat::tudat_interpolators
+            Tudat::tudat_basic_mathematics
             nrlmsise00
-            tudat_input_output
-            tudat_basic_astrodynamics)
+            Tudat::tudat_input_output
+            Tudat::tudat_basic_astrodynamics)
 endif ()

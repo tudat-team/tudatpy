@@ -26,7 +26,7 @@
 
 #include <memory>
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 namespace tudat
 {
 namespace input_output

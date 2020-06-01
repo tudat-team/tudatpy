@@ -58,14 +58,14 @@ set(ephemerides_HEADERS
 TUDAT_ADD_LIBRARY("ephemerides"
         "${ephemerides_SOURCES}"
         "${ephemerides_HEADERS}"
-        # For SHARED
-        tudat_spice_interface
-        tudat_reference_frames
-        tudat_interpolators
+        PUBLIC_LINKS tudat_spice_interface tudat_reference_frames tudat_interpolators
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(ApproximatePlanetPositions
+TUDAT_ADD_TEST_CASE(ApproximatePlanetPositions
+        PRIVATE_LINKS
         tudat_ephemerides
         tudat_gravitation
         tudat_basic_astrodynamics
@@ -74,7 +74,8 @@ TUDAT_ADD_TESTCASE(ApproximatePlanetPositions
         tudat_root_finders
         )
 
-TUDAT_ADD_TESTCASE(TabulatedEphemeris
+TUDAT_ADD_TEST_CASE(TabulatedEphemeris
+        PRIVATE_LINKS
         tudat_ephemerides
         tudat_gravitation
         tudat_basic_astrodynamics
@@ -83,7 +84,8 @@ TUDAT_ADD_TESTCASE(TabulatedEphemeris
         tudat_interpolators
         )
 
-TUDAT_ADD_TESTCASE(CartesianStateExtractor
+TUDAT_ADD_TEST_CASE(CartesianStateExtractor
+        PRIVATE_LINKS
         tudat_ephemerides
         tudat_gravitation
         tudat_basic_astrodynamics

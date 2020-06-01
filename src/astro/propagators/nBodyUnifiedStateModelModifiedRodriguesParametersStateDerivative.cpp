@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
 

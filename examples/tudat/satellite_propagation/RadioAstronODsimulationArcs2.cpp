@@ -11,7 +11,7 @@
 #include <tudat/simulation/estimation.h>
 
 #include <tudat/io/applicationOutput.h>
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 
 

@@ -8,6 +8,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #include "tudat/simulation/propagation/propagationPatchedConicFullProblem.h"
 #include "tudat/simulation/propagation/propagationLambertTargeterFullProblem.h"
@@ -1445,3 +1447,5 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 }
 
+// turn the warnings back on
+#pragma GCC diagnostic pop

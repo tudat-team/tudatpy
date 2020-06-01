@@ -12,7 +12,7 @@
 #define TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include <cmath>
 #include <vector>
 

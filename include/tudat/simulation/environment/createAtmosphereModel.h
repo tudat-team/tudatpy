@@ -19,7 +19,7 @@
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/basics/identityElements.h"
 

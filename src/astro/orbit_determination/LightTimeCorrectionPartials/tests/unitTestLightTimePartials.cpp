@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/simulation/estimation/createObservationModel.h"
 #include "tudat/simulation/estimation/createEstimatableParameters.h"
