@@ -17,7 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/compositeEphemeris.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceInterface.h"

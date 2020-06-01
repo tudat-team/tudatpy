@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 
 #include "tudat/interface/spice/spiceInterface.h"

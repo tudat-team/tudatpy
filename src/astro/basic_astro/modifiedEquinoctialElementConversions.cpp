@@ -20,13 +20,13 @@
 #include <cmath>
 
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
-#include "tudat/astro/basic/missionGeometry.h"
-#include "tudat/astro/basic/modifiedEquinoctialElementConversions.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
+#include "tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 namespace tudat
 {

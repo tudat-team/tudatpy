@@ -14,7 +14,7 @@
 #include <string>
 #include <boost/bind.hpp>
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/simulation/propagation/propagationSettings.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"

@@ -10,18 +10,20 @@
 
 # Set the header files.
 set(system_models_HEADERS
-  "engineModel.h"
-  "vehicleSystems.h"
-)
+        "engineModel.h"
+        "vehicleSystems.h"
+        )
 
 set(system_models_SOURCES
-  "dummySystemModel.cpp"
-)
+        "dummySystemModel.cpp"
+        )
 
 TUDAT_ADD_LIBRARY("system_models"
-     "${system_models_SOURCES}"
-     "${system_models_HEADERS}"
-     )
+        "${system_models_SOURCES}"
+        "${system_models_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+        )
 
 # Add static libraries.
 #add_library(tudat_system_models STATIC ${SYSTEMMODELS_SOURCES} ${SYSTEMMODELS_HEADERS})

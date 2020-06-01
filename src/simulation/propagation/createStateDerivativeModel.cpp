@@ -15,7 +15,7 @@
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 #include "tudat/math/interpolators/createInterpolator.h"
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 namespace tudat
 {

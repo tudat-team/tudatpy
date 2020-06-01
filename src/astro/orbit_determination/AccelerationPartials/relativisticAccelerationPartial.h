@@ -13,7 +13,7 @@
 
 #include <memory>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"

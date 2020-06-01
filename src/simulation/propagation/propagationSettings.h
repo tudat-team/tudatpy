@@ -19,11 +19,11 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
-#include "tudat/astro/basic/accelerationModel.h"
-#include "tudat/astro/basic/timeConversions.h"
-#include "tudat/astro/basic/torqueModel.h"
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"

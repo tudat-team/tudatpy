@@ -25,7 +25,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/electromagnetism/solarSailForce.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 

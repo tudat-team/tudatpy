@@ -9,7 +9,7 @@
  */
 
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 

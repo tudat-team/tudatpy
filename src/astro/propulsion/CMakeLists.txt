@@ -11,28 +11,30 @@
 
 # Set the source files.
 set(propulsion_SOURCES
-  "thrustGuidance.cpp"
-  "thrustFunctions.cpp"
-  "costateBasedThrustGuidance.cpp"
-)
+        "thrustGuidance.cpp"
+        "thrustFunctions.cpp"
+        "costateBasedThrustGuidance.cpp"
+        )
 
 # Set the header files.
 set(propulsion_HEADERS
-  "thrustAccelerationModel.h"
-  "thrustGuidance.h"
-  "thrustFunctions.h"
-  "thrustMagnitudeWrapper.h"
-  "massRateFromThrust.h"
-  "costateBasedThrustGuidance.h"
-)
+        "thrustAccelerationModel.h"
+        "thrustGuidance.h"
+        "thrustFunctions.h"
+        "thrustMagnitudeWrapper.h"
+        "massRateFromThrust.h"
+        "costateBasedThrustGuidance.h"
+        )
 
 TUDAT_ADD_LIBRARY("propulsion"
-     "${propulsion_SOURCES}"
-     "${propulsion_HEADERS}"
-     )
+        "${propulsion_SOURCES}"
+        "${propulsion_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+        )
 
 
- # Add static libraries.
+# Add static libraries.
 #add_library(tudat_propulsion STATIC ${PROPULSION_SOURCES} ${PROPULSION_HEADERS})
 #setup_tudat_library_target(tudat_propulsion "${SRCROOT}${PROPULSIONDIR}")
 #

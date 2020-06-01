@@ -2,10 +2,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
 

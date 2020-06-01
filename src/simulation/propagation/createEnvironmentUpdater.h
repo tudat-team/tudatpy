@@ -14,7 +14,7 @@
 #include <boost/make_shared.hpp>
 
 #include "tudat/simulation/propagation/environmentUpdater.h"
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {

@@ -27,7 +27,7 @@
 
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"

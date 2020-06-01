@@ -28,19 +28,21 @@ set(sofa_interface_HEADERS
 TUDAT_ADD_LIBRARY("sofa_interface"
         "${sofa_interface_SOURCES}"
         "${sofa_interface_HEADERS}"
-        "${Sofa_LIBRARIES}"
-        # For SHARED
+        PUBLIC_LINKS
         tudat_basic_astrodynamics
+        PRIVATE_LINKS "${Boost_LIBRARIES}" "${Sofa_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )
 
-TUDAT_ADD_TESTCASE(SofaEarthOrientationInterface
-#        ${Tudat_PROPAGATION_LIBRARIES}
-         tudat_sofa_interface
-         tudat_basic_mathematics
+TUDAT_ADD_TEST_CASE(SofaEarthOrientationInterface
+        PRIVATE_LINKS
+        tudat_sofa_interface
+        tudat_basic_mathematics
         "${Sofa_LIBRARIES}"
         )
 
-TUDAT_ADD_TESTCASE(SofaFundamentalArguments
+TUDAT_ADD_TEST_CASE(SofaFundamentalArguments
+        PRIVATE_LINKS
         tudat_sofa_interface
         tudat_basic_mathematics
         tudat_basic_astrodynamics
@@ -48,7 +50,8 @@ TUDAT_ADD_TESTCASE(SofaFundamentalArguments
 
         )
 
-TUDAT_ADD_TESTCASE(SofaTimeConversions
+TUDAT_ADD_TEST_CASE(SofaTimeConversions
+        PRIVATE_LINKS
         tudat_sofa_interface
         tudat_basic_astrodynamics
         tudat_basic_mathematics

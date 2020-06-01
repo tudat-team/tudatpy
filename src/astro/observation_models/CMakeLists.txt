@@ -12,50 +12,51 @@ set(OBSERVABLECORRECTIONSDIR "${OBSERVATIONMODELSDIR}/ObservableCorrections")
 
 # Set the source files.
 set(observation_models_SOURCES
-  "lightTimeSolution.cpp"
-  "observableTypes.cpp"
-  "linkTypeDefs.cpp"
-  "observationViabilityCalculator.cpp"
-  "observationManager.cpp"
-  "observationSimulator.cpp"
-  "observationModel.cpp"
-  "simulateObservations.cpp"
-  "corrections/firstOrderRelativisticCorrection.cpp"
-)
+        "lightTimeSolution.cpp"
+        "observableTypes.cpp"
+        "linkTypeDefs.cpp"
+        "observationViabilityCalculator.cpp"
+        "observationManager.cpp"
+        "observationSimulator.cpp"
+        "observationModel.cpp"
+        "simulateObservations.cpp"
+        "corrections/firstOrderRelativisticCorrection.cpp"
+        )
 
 # Set the header files.
 set(observation_models_HEADERS
-  "angularPositionObservationModel.h"
-  "lightTimeSolution.h"
-  "linkTypeDefs.h"
-  "observableTypes.h"
-  "observationModel.h"
-  "observationManager.h"
-  "observationSimulator.h"
-  "observationBias.h"
-  "nWayRangeObservationModel.h"
-  "oneWayRangeObservationModel.h"
-  "oneWayDopplerObservationModel.h"
-  "oneWayDifferencedRangeRateObservationModel.h"
-  "simulateObservations.h"
-  "positionObservationModel.h"
-  "velocityObservationModel.h"
-  "twoWayDopplerObservationModel.h"
-  "eulerAngleObservationModel.h"
-  "tests/testLightTimeCorrections.h"
-  "observationViabilityCalculator.h"
-  "corrections/lightTimeCorrection.h"
-  "corrections/firstOrderRelativisticCorrection.h"
-)
+        "angularPositionObservationModel.h"
+        "lightTimeSolution.h"
+        "linkTypeDefs.h"
+        "observableTypes.h"
+        "observationModel.h"
+        "observationManager.h"
+        "observationSimulator.h"
+        "observationBias.h"
+        "nWayRangeObservationModel.h"
+        "oneWayRangeObservationModel.h"
+        "oneWayDopplerObservationModel.h"
+        "oneWayDifferencedRangeRateObservationModel.h"
+        "simulateObservations.h"
+        "positionObservationModel.h"
+        "velocityObservationModel.h"
+        "twoWayDopplerObservationModel.h"
+        "eulerAngleObservationModel.h"
+        "tests/testLightTimeCorrections.h"
+        "observationViabilityCalculator.h"
+        "corrections/lightTimeCorrection.h"
+        "corrections/firstOrderRelativisticCorrection.h"
+        )
 
 TUDAT_ADD_LIBRARY("observation_models"
-     "${observation_models_SOURCES}"
-     "${observation_models_HEADERS}"
-     )
+        "${observation_models_SOURCES}"
+        "${observation_models_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+        )
 
 
-
- # Add static libraries.
+# Add static libraries.
 #add_library(tudat_observation_models STATIC ${OBSERVATION_MODELS_SOURCES} ${OBSERVATION_MODELS_HEADERS})
 #setup_tudat_library_target(tudat_observation_models "${SRCROOT}${OBSERVATIONMODELSDIR}")
 

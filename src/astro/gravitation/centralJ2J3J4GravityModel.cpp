@@ -13,7 +13,7 @@
 #include <stdexcept>
 
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/gravitation/centralJ2J3J4GravityModel.h"
 
 namespace tudat

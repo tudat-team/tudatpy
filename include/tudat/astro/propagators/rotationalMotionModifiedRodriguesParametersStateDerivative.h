@@ -13,7 +13,7 @@
 #define TUDAT_ROTATIONAL_MOTION_MODIFIED_RODRIGUES_PARAMETERS_STATE_DERIVATIVE_H
 
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
-#include "tudat/astro/basic/attitudeElementConversions.h"
+#include "tudat/astro/basic_astro/attitudeElementConversions.h"
 
 namespace tudat
 {

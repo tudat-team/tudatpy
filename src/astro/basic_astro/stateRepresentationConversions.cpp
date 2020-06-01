@@ -8,9 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/basic/stateRepresentationConversions.h"
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
 
 namespace tudat

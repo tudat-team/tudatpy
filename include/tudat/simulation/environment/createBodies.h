@@ -12,7 +12,7 @@
 #define TUDAT_CREATEBODIES_H
 
 #include "tudat/astro/ephemerides/ephemeris.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/simulation/environment/body.h"
 #include "tudat/simulation/environment/createEphemeris.h"

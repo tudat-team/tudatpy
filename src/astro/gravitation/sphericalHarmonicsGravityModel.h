@@ -24,7 +24,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModelBase.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 

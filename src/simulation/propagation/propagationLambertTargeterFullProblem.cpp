@@ -17,8 +17,8 @@
 #include <tudat/simulation/estimation.h>
 
 #include "tudat/astro/gravitation/librationPoint.h"
-#include "tudat/astro/basic/celestialBodyConstants.h"
-#include "tudat/astro/basic/missionGeometry.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 
 #include "tudat/astro/trajectory_design/trajectory.h"
 #include "tudat/astro/trajectory_design/exportTrajectory.h"

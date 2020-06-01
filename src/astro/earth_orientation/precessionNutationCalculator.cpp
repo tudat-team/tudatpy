@@ -11,9 +11,9 @@
 
 #include <boost/bind.hpp>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/precessionNutationCalculator.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 

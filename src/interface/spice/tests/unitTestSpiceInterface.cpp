@@ -30,7 +30,7 @@
 #include <functional>
 #include <memory>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/basics/basicTypedefs.h"

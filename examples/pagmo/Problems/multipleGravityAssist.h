@@ -19,11 +19,11 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <tudat/astro/basic/physicalConstants.h>
+#include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>
 #include <tudat/math/basic/mathematicalConstants.h>
-#include "tudat/astro/basic/unitConversions.h"
-#include <tudat/astro/basic/orbitalElementConversions.h>
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include <tudat/astro/basic_astro/orbitalElementConversions.h>
 
 #include <tudat/io/basicInputOutput.h>
 

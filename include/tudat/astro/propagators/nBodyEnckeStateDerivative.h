@@ -11,13 +11,13 @@
 #ifndef TUDAT_NBODYENCKESTATEDERIVATIVE_H
 #define TUDAT_NBODYENCKESTATEDERIVATIVE_H
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
-#include "tudat/astro/basic/keplerPropagator.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/keplerPropagator.h"
 
 #include "tudat/math/root_finders/rootFinder.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 
 namespace tudat

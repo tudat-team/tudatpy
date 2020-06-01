@@ -48,15 +48,17 @@ set(basic_mathematics_HEADERS
 TUDAT_ADD_LIBRARY("basic_mathematics"
         "${basic_mathematics_SOURCES}"
         "${basic_mathematics_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(MathematicalConstants)
-TUDAT_ADD_TESTCASE(LinearAlgebra tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(CoordinateConversions tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(NearestNeighbourSearch tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(NumericalDerivative tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(LegendrePolynomials tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(SphericalHarmonics tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(RotationAboutArbitraryAxis tudat_basic_mathematics)
-TUDAT_ADD_TESTCASE(RotationPartials tudat_basic_mathematics tudat_reference_frames)
+TUDAT_ADD_TEST_CASE(MathematicalConstants)
+TUDAT_ADD_TEST_CASE(LinearAlgebra PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(CoordinateConversions PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(NearestNeighbourSearch PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(NumericalDerivative PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(LegendrePolynomials PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(SphericalHarmonics PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(RotationAboutArbitraryAxis PRIVATE_LINKS tudat_basic_mathematics)
+TUDAT_ADD_TEST_CASE(RotationPartials PRIVATE_LINKS tudat_basic_mathematics tudat_reference_frames)

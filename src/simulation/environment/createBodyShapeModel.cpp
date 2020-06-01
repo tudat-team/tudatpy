@@ -11,8 +11,8 @@
 #if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceInterface.h"
 #endif
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/simulation/environment/createBodyShapeModel.h"
 
 namespace tudat

@@ -17,7 +17,7 @@
 
 #include "tudat/math/basic/coordinateConversions.h"
 
-#include "tudat/astro/basic/geodeticCoordinateConversions.h"
+#include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 
 namespace tudat
 {

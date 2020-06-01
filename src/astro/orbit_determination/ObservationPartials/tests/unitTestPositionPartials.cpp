@@ -23,7 +23,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationalOrientation.h"

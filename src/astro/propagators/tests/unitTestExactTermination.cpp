@@ -17,14 +17,14 @@
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
 #include "tudat/simulation/environment/defaultBodies.h"

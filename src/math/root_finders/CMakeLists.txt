@@ -34,6 +34,8 @@ set(root_finders_SOURCES
 TUDAT_ADD_LIBRARY("root_finders"
         "${root_finders_SOURCES}"
         "${root_finders_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add unit test files.
@@ -46,4 +48,4 @@ set(root_finders_test_SOURCES
         )
 
 # Add tests
-#TUDAT_ADD_TESTCASE(root_finders_test_SOURCES tudat_root_finders)
+#TUDAT_ADD_TEST_CASE(root_finders_test_SOURCES tudat_root_finders)

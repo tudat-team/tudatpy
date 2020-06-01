@@ -34,14 +34,13 @@ set(earth_orientation_HEADERS
 TUDAT_ADD_LIBRARY("earth_orientation"
         "${earth_orientation_SOURCES}"
         "${earth_orientation_HEADERS}"
-        ${Sofa_LIBRARIES}
+        PRIVATE_LINKS "${Sofa_LIBRARIES}" "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" #"${Sofa_INCLUDE_DIRS}"
         )
 
-# Add data.
-TUDAT_ADD_DATA_DIR("data")
-
 # Add tests.
-TUDAT_ADD_TESTCASE(EarthOrientationCalculator
+TUDAT_ADD_TEST_CASE(EarthOrientationCalculator
+        PRIVATE_LINKS
         tudat_earth_orientation
         tudat_spice_interface
         tudat_sofa_interface
@@ -53,7 +52,8 @@ TUDAT_ADD_TESTCASE(EarthOrientationCalculator
         ${CSpice_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(EopReader
+TUDAT_ADD_TEST_CASE(EopReader
+        PRIVATE_LINKS
         tudat_earth_orientation
         tudat_sofa_interface
         tudat_interpolators
@@ -64,7 +64,8 @@ TUDAT_ADD_TESTCASE(EopReader
         ${CSpice_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(PolarMotionCalculator
+TUDAT_ADD_TEST_CASE(PolarMotionCalculator
+        PRIVATE_LINKS
         tudat_earth_orientation
         tudat_sofa_interface
         tudat_interpolators
@@ -75,7 +76,8 @@ TUDAT_ADD_TESTCASE(PolarMotionCalculator
         ${CSpice_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(TimeScaleConverter
+TUDAT_ADD_TEST_CASE(TimeScaleConverter
+        PRIVATE_LINKS
         tudat_earth_orientation
         tudat_sofa_interface
         tudat_interpolators
@@ -86,7 +88,8 @@ TUDAT_ADD_TESTCASE(TimeScaleConverter
         ${CSpice_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(ShortPeriodEopCorrections
+TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
+        PRIVATE_LINKS
         tudat_earth_orientation
         tudat_sofa_interface
         tudat_basic_astrodynamics

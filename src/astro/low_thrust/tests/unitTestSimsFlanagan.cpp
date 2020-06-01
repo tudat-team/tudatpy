@@ -28,7 +28,7 @@
 #include "tudat/astro/LowThrustTrajectories/simsFlanaganModel.h"
 #include "tudat/astro/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
 #include "pagmo/algorithms/de1220.hpp"
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 namespace tudat
 {

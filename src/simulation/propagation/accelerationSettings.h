@@ -19,7 +19,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/propagation/createThrustModelGuidance.h"
 // #include "tudat/math/interpolators/createInterpolator.h"
 

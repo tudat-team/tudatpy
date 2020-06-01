@@ -13,11 +13,11 @@
 
 #include <Eigen/Core>
 
-#include <tudat/astro/basic/physicalConstants.h>
+#include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>
 #include <tudat/math/basic/mathematicalConstants.h>
-#include "tudat/astro/basic/unitConversions.h"
-#include <tudat/astro/basic/orbitalElementConversions.h>
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include <tudat/astro/basic_astro/orbitalElementConversions.h>
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 #include "tudat/simulation/propagation/propagationCR3BPFullProblem.h"

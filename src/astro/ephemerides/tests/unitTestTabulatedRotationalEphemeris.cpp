@@ -20,7 +20,7 @@
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 

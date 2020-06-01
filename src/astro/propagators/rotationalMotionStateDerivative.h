@@ -19,7 +19,7 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/astro/basic/torqueModel.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
 
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/simulation/environment/body.h"

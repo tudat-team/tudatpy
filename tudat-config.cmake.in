@@ -1,23 +1,26 @@
-
 # defined since 2.8.3
 if (CMAKE_VERSION VERSION_LESS 2.8.3)
   get_filename_component (CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 endif ()
 
-# Get dependencies using CMakeFindDependencyMacro.
+# Temporarily modify CMAKE_MODULE_PATH for cmake files in current dir.
+set(_TUDAT_CONFIG_OLD_MODULE_PATH "${CMAKE_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
-set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
+# Find dependencies.
 include(CMakeFindDependencyMacro)
 find_dependency(CSpice)
 find_dependency(Sofa)
 find_dependency(Eigen3)
-include(TudatFindBoost)
+find_dependency(Boost)
+#set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
+#include(TudatFindBoost)
 
 # Tell the user project where to find our headers and libraries
 set (Tudat_VERSION "@Tudat_VERSION@")
-set (Tudat_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Tudat_INCLUDE_DIR@")
-set (Tudat_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Tudat_LIB_DIR@")
-set (Tudat_DATA_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_Tudat_DATA_DIR@")
+set (Tudat_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_INSTALL_INCLUDE_DIR@")
+set (Tudat_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_INSTALL_LIB_DIR@")
+set (Tudat_DATA_DIRS "${CMAKE_CURRENT_LIST_DIR}/@RELATIVE_INSTALL_DATA_DIR@")
 
 # List of compilation flags -DTOTO to export
 set (Tudat_DEFINITIONS "@Tudat_DEFINITIONS@")
@@ -26,10 +29,10 @@ set (Tudat_DEFINITIONS "@Tudat_DEFINITIONS@")
 @_TUDAT_CONFIG_OPTIONAL_DEPS@
 
 # Allows loading CSpice settings from another project
-# set (Tudat_CONFIG_FILE "${CMAKE_CURRENT_LIST_FILE}")
+set (Tudat_CONFIG_FILE "${CMAKE_CURRENT_LIST_FILE}")
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-include ("${CMAKE_CURRENT_LIST_DIR}/tudat_targets.cmake")
+include ("${CMAKE_CURRENT_LIST_DIR}/tudat_export.cmake")
 
 # These are IMPORTED targets created by tudat_targets.cmake
 set (Tudat_PROPAGATION_LIBRARIES "@Tudat_PROPAGATION_LIBRARIES@")

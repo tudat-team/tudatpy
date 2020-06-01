@@ -65,6 +65,8 @@ set(gravitation_HEADERS
 TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
         "${gravitation_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add static libraries.

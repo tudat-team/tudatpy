@@ -23,7 +23,7 @@
 
 #include "tudat/math/basic/coordinateConversions.h"
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/ephemerides/keplerStateExtractor.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
 #include "tudat/basics/basicTypedefs.h"

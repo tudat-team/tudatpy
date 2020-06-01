@@ -6,7 +6,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/propulsion/costateBasedThrustGuidance.h"
-#include "tudat/astro/basic/modifiedEquinoctialElementConversions.h"
+#include "tudat/astro/basic_astro/modifiedEquinoctialElementConversions.h"
 
 namespace tudat
 {

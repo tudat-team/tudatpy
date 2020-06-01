@@ -24,9 +24,9 @@
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
 #endif
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/unitConversions.h"
-#include "tudat/astro/basic/geodeticCoordinateConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"

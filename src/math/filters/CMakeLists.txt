@@ -27,6 +27,8 @@ set(filters_SOURCES
 TUDAT_ADD_LIBRARY("filters"
         "${filters_SOURCES}"
         "${filters_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add test library interface.
@@ -41,6 +43,6 @@ target_link_libraries(filters_test_library
         tudat_input_output)
 
 # Add tests.
-TUDAT_ADD_TESTCASE(LinearKalmanFilter filters_test_library)
-TUDAT_ADD_TESTCASE(ExtendedKalmanFilter filters_test_library)
-TUDAT_ADD_TESTCASE(UnscentedKalmanFilter filters_test_library)
+TUDAT_ADD_TEST_CASE(LinearKalmanFilter PRIVATE_LINKSfilters_test_library)
+TUDAT_ADD_TEST_CASE(ExtendedKalmanFilter PRIVATE_LINKS filters_test_library)
+TUDAT_ADD_TEST_CASE(UnscentedKalmanFilter PRIVATE_LINKS filters_test_library)

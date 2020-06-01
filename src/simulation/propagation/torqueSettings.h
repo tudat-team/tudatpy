@@ -13,7 +13,7 @@
 
 #include <boost/tuple/tuple.hpp>
 
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 
 
 namespace tudat

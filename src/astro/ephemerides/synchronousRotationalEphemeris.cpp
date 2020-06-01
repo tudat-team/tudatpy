@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 
 

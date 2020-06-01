@@ -17,8 +17,8 @@
 
 #include <Eigen/Geometry>
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/torqueModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 namespace tudat

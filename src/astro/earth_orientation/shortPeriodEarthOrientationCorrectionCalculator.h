@@ -23,8 +23,8 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/astro/basic/unitConversions.h"
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/readAmplitudeAndArgumentMultipliers.h"
 
 #include "tudat/interface/sofa/fundamentalArguments.h"

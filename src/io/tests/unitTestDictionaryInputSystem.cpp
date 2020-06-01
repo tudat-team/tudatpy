@@ -21,7 +21,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/streamFilters.h"
 
 #include "tudat/io/basicInputOutput.h"

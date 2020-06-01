@@ -25,14 +25,14 @@
 #include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
 #include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
 #include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 namespace tudat
 {

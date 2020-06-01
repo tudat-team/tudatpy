@@ -12,7 +12,7 @@
  *
  */
 
-#include "tudat/astro/basic/bodyShapeModel.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
 
 namespace tudat
 {

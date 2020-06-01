@@ -16,7 +16,7 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/simulation/environment/body.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
@@ -24,7 +24,7 @@
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
-#include "tudat/astro/basic/empiricalAcceleration.h"
+#include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
 

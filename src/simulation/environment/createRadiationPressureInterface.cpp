@@ -11,7 +11,7 @@
 #include <boost/bind.hpp>
 
 #include "tudat/simulation/environment/createRadiationPressureInterface.h"
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat

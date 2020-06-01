@@ -16,7 +16,7 @@
 
 #include <iomanip>
 
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"

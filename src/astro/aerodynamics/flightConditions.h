@@ -19,7 +19,7 @@
 #include "tudat/astro/aerodynamics/trimOrientation.h"
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
-#include "tudat/astro/basic/bodyShapeModel.h"
+#include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/basics/basicTypedefs.h"
 

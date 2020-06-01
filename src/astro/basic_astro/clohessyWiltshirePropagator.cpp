@@ -14,7 +14,7 @@
 
 #include <cmath>
 
-#include "tudat/astro/basic/clohessyWiltshirePropagator.h"
+#include "tudat/astro/basic_astro/clohessyWiltshirePropagator.h"
 
 namespace tudat
 {

@@ -17,8 +17,8 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/simulation/propagation/propagationSettings.h"

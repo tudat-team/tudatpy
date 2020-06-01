@@ -22,7 +22,7 @@
  *
  */
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/twoLineElementData.h"
 
 namespace tudat

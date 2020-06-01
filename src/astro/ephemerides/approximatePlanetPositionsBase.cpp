@@ -14,7 +14,7 @@
  */
 
 #include "tudat/astro/ephemerides/approximatePlanetPositionsBase.h"
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat

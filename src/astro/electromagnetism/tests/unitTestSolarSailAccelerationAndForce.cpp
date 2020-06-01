@@ -40,7 +40,7 @@
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureForce.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 namespace tudat
 {

@@ -22,7 +22,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"

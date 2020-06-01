@@ -20,7 +20,7 @@
 
 #include "tudat/math/integrators/numericalIntegrator.h"
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"

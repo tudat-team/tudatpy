@@ -31,7 +31,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/astro/basic/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/math/root_finders/newtonRaphson.h"
 

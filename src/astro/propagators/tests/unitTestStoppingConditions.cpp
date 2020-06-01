@@ -16,9 +16,9 @@
 #include <memory>
 
 #include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment/body.h"
 #include "tudat/simulation/estimation/createNumericalSimulator.h"

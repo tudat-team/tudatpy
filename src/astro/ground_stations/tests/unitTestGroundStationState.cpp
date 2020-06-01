@@ -14,10 +14,10 @@
 
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
-#include "tudat/astro/basic/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"

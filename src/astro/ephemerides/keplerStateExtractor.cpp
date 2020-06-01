@@ -21,10 +21,10 @@
 
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
-#include "tudat/astro/basic/convertMeanToEccentricAnomalies.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/ephemerides/keplerStateExtractor.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
 

@@ -26,7 +26,7 @@
 #include "tudat/simulation/environment/defaultBodies.h"
 #include "tudat/simulation/environment/createBodies.h"
 #include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 namespace tudat
 {

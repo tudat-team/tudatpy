@@ -24,7 +24,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/missionGeometry.h"
+#include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
 
 namespace tudat

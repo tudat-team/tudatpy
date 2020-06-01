@@ -11,8 +11,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/basic/sphericalBodyShapeModel.h"
-#include "tudat/astro/basic/oblateSpheroidBodyShapeModel.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 

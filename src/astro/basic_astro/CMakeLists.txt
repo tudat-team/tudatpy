@@ -71,44 +71,52 @@ set(basic_astrodynamics_HEADERS
 TUDAT_ADD_LIBRARY("basic_astrodynamics"
         "${basic_astrodynamics_SOURCES}"
         "${basic_astrodynamics_HEADERS}"
-        # For .so
-        tudat_basic_mathematics
+        PUBLIC_LINKS tudat_basic_mathematics
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(AstrodynamicsFunctions
+TUDAT_ADD_TEST_CASE(AstrodynamicsFunctions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(OrbitalElementConversions
+TUDAT_ADD_TEST_CASE(OrbitalElementConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(UnitConversions
+TUDAT_ADD_TEST_CASE(UnitConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(PhysicalConstants
+TUDAT_ADD_TEST_CASE(PhysicalConstants
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(ConvertMeanAnomalyToEccentricAnomaly
+TUDAT_ADD_TEST_CASE(ConvertMeanAnomalyToEccentricAnomaly
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_root_finders
         )
 
-TUDAT_ADD_TESTCASE(ConvertMeanAnomalyToHyperbolicEccentricAnomaly
+TUDAT_ADD_TEST_CASE(ConvertMeanAnomalyToHyperbolicEccentricAnomaly
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_root_finders
         )
 
-TUDAT_ADD_TESTCASE(KeplerPropagator
+TUDAT_ADD_TEST_CASE(KeplerPropagator
+        PRIVATE_LINKS
         tudat_input_output
         tudat_gravitation
         tudat_basic_astrodynamics
@@ -116,68 +124,82 @@ TUDAT_ADD_TESTCASE(KeplerPropagator
         tudat_root_finders
         )
 
-TUDAT_ADD_TESTCASE(AccelerationModel
+TUDAT_ADD_TEST_CASE(AccelerationModel
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(ClohessyWiltshirePropagator
+TUDAT_ADD_TEST_CASE(ClohessyWiltshirePropagator
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(MissionGeometry
+TUDAT_ADD_TEST_CASE(MissionGeometry
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(TimeConversions
+TUDAT_ADD_TEST_CASE(TimeConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(CelestialBodyConstants
+TUDAT_ADD_TEST_CASE(CelestialBodyConstants
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(ModifiedEquinoctialElementConversions
-        tudat_basic_astrodynamics
-        tudat_basic_mathematics
-        )
-
-TUDAT_ADD_TESTCASE(GeodeticCoordinateConversions
-        tudat_basic_astrodynamics
-        tudat_basic_mathematics
-        )
-
-TUDAT_ADD_TESTCASE(StateConversions
+TUDAT_ADD_TEST_CASE(ModifiedEquinoctialElementConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(SphericalOrbitStateConversions
+TUDAT_ADD_TEST_CASE(GeodeticCoordinateConversions
+        PRIVATE_LINKS
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        )
+
+TUDAT_ADD_TEST_CASE(StateConversions
+        PRIVATE_LINKS
+        tudat_basic_astrodynamics
+        tudat_basic_mathematics
+        )
+
+TUDAT_ADD_TEST_CASE(SphericalOrbitStateConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_reference_frames
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(BodyShapeModels
+TUDAT_ADD_TEST_CASE(BodyShapeModels
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(UnifiedStateModelQuaternionElementConversions
+TUDAT_ADD_TEST_CASE(UnifiedStateModelQuaternionElementConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(UnifiedStateModelMRPElementConversions
+TUDAT_ADD_TEST_CASE(UnifiedStateModelMRPElementConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(UnifiedStateModelEMElementConversions
+TUDAT_ADD_TEST_CASE(UnifiedStateModelEMElementConversions
+        PRIVATE_LINKS
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TESTCASE(EmpiricalAcceleration
+TUDAT_ADD_TEST_CASE(EmpiricalAcceleration
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         tudat_electromagnetism
         ${CSpice_LIBRARIES}

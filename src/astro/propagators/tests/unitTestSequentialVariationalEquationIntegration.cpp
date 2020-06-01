@@ -19,13 +19,13 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/simulation/environment/defaultBodies.h"
 #include "tudat/simulation/environment/createBodies.h"

@@ -19,8 +19,8 @@ build:
   skip: true  # [win and vc<14]
 
 
-build:
-  requirements:
+requirements:
+  build:
     # Tools required to build the package. These packages are run on the build
     # system and include things such as revision control systems (Git, SVN) make
     # tools (GNU make, Autotool, CMake) and compilers (real cross, pseudo-cross,
@@ -39,19 +39,19 @@ outputs:
         # tools (GNU make, Autotool, CMake) and compilers (real cross, pseudo-cross,
         # or native when not cross-compiling), and any source pre-processors.
         - boost-cpp >=1.64.0,<1.65.0
-        - cspice
+#        - cspice
         - nlohmann_json
         - eigen
         - nlopt
-        - sofa
+#        - sofa
 
       host:
         # Packages that need to be specific to the target platform when the
         # target platform is not necessarily the same as the native build
         # platform
         - boost-cpp >=1.64.0,<1.65.0
-        - cspice
-        - sofa
+#        - cspice
+#        - sofa
         - nlohmann_json
         - eigen
         - nlopt
@@ -60,6 +60,7 @@ outputs:
         # that are installed automatically whenever the package is installed.
         # Package names should follow the package match specifications.
         - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
+
 
       #    files:
       # Explicit file lists are relative paths from the root of the build

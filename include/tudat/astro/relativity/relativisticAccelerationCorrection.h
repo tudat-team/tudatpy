@@ -14,8 +14,8 @@
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 
-#include "tudat/astro/basic/physicalConstants.h"
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/basics/basicTypedefs.h"
 
 namespace tudat

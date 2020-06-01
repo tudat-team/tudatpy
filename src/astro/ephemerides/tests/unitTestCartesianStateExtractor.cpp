@@ -21,7 +21,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/ephemerides/cartesianStateExtractor.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
 #include "tudat/basics/basicTypedefs.h"

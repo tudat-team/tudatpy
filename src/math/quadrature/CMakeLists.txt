@@ -27,8 +27,10 @@ set(numerical_quadrature_SOURCES
 TUDAT_ADD_LIBRARY("numerical_quadrature"
         "${numerical_quadrature_SOURCES}"
         "${numerical_quadrature_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add tests.
-TUDAT_ADD_TESTCASE(TrapezoidQuadrature tudat_numerical_quadrature)
-TUDAT_ADD_TESTCASE(GaussianQuadrature tudat_input_output tudat_numerical_quadrature)
+TUDAT_ADD_TEST_CASE(TrapezoidQuadrature PRIVATE_LINKS tudat_numerical_quadrature)
+TUDAT_ADD_TEST_CASE(GaussianQuadrature PRIVATE_LINKS tudat_input_output tudat_numerical_quadrature)

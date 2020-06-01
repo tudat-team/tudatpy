@@ -12,7 +12,7 @@
 #define TUDAT_NUNIFIEDSTATEMODELMODIFIEDRODRIGUESPARAMETERSSTATEDERIVATIVE_H
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/astro/basic/stateRepresentationConversions.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
 

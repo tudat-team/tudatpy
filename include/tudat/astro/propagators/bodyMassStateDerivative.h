@@ -18,7 +18,7 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 

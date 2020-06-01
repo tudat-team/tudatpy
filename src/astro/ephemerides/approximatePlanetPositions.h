@@ -20,7 +20,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/astro/basic/convertMeanToEccentricAnomalies.h"
+#include "tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositionsBase.h"
 
 #include "tudat/basics/basicTypedefs.h"

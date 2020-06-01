@@ -15,7 +15,7 @@
 #include <cmath>
 
 #include "tudat/astro/gravitation/jacobiEnergy.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 namespace tudat
 {

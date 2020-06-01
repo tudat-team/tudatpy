@@ -12,7 +12,7 @@
  *          and navigation. Master thesis, Delft University of Technology.
  */
 
-#include "tudat/astro/basic/attitudeElementConversions.h"
+#include "tudat/astro/basic_astro/attitudeElementConversions.h"
 
 #include "tudat/astro/propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionExponentialMapStateDerivative.h"

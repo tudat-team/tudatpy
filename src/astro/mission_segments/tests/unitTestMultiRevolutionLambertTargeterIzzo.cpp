@@ -24,7 +24,7 @@
 #include <Eigen/Geometry>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h"
 

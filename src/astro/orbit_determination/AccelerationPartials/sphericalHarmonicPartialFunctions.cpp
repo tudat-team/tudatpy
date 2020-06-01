@@ -10,7 +10,7 @@
 
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/coordinateConversions.h"
-#include "tudat/astro/basic/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/stateVectorIndices.h"
 
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 

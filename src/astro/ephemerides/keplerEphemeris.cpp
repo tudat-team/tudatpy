@@ -10,9 +10,9 @@
  */
 
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
-#include "tudat/astro/basic/astrodynamicsFunctions.h"
-#include "tudat/astro/basic/convertMeanToEccentricAnomalies.h"
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
+#include "tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
 namespace tudat
 {

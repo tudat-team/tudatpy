@@ -11,12 +11,12 @@
 
 #include <iostream>
 
-#include "tudat/astro/basic/torqueModelTypes.h"
-#include "tudat/astro/basic/dissipativeTorqueModel.h"
+#include "tudat/astro/basic_astro/torqueModelTypes.h"
+#include "tudat/astro/basic_astro/dissipativeTorqueModel.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
-#include "tudat/astro/basic/customTorque.h"
+#include "tudat/astro/basic_astro/customTorque.h"
 
 namespace tudat
 {

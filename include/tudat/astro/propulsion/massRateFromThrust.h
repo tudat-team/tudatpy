@@ -18,7 +18,7 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/massRateModel.h"
+#include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 

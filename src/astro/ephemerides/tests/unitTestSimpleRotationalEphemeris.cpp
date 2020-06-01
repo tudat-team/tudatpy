@@ -17,10 +17,10 @@
 
 #include <Eigen/Core>
 
-#include "tudat/astro/basic/unitConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/astro/basic/timeConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 //#include "tudat/interface/spice/spiceInterface.h"
 //#include "tudat/io/basicInputOutput.h"

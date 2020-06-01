@@ -23,7 +23,7 @@
 
 #include <Eigen/Core>
 
-#include <tudat/astro/basic/physicalConstants.h>
+#include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>
 
 #include "tudat/astro/trajectory_design/departureLegMga.h"

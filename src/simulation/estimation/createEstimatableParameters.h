@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEESTIMATABLEPARAMETERS_H
 #define TUDAT_CREATEESTIMATABLEPARAMETERS_H
 
-#include "tudat/astro/basic/accelerationModel.h"
+#include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
@@ -38,7 +38,7 @@
 #include "tudat/astro/orbit_determination/EstimatableParameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/desaturationDeltaV.h"
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
 #include "tudat/simulation/environment/body.h"

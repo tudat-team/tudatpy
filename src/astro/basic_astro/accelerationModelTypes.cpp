@@ -9,7 +9,7 @@
  *
  */
 
-#include "tudat/astro/basic/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {

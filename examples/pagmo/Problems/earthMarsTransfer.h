@@ -17,8 +17,8 @@
 
 #include <Eigen/Core>
 
-#include <tudat/astro/basic/orbitalElementConversions.h>
-#include <tudat/astro/basic/convertMeanToEccentricAnomalies.h>
+#include <tudat/astro/basic_astro/orbitalElementConversions.h>
+#include <tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h>
 #include <tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h>
 
 #include "pagmo/island.hpp"

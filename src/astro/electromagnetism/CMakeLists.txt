@@ -37,24 +37,30 @@ set(electromagnetism_SOURCES
 TUDAT_ADD_LIBRARY("electromagnetism"
         "${electromagnetism_SOURCES}"
         "${electromagnetism_HEADERS}"
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
-TUDAT_ADD_TESTCASE(CannonBallRadiationPressureAccelerationAndForce
+TUDAT_ADD_TEST_CASE(CannonBallRadiationPressureAccelerationAndForce
+        PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(LorentzStaticMagneticAccelerationAndForce
+TUDAT_ADD_TEST_CASE(LorentzStaticMagneticAccelerationAndForce
+        PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(RadiationPressureInterface
+TUDAT_ADD_TEST_CASE(RadiationPressureInterface
+        PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )
 
-TUDAT_ADD_TESTCASE(PanelledRadiationPressure
+TUDAT_ADD_TEST_CASE(PanelledRadiationPressure
+        PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         tudat_electromagnetism
         tudat_spice_interface
@@ -63,7 +69,8 @@ TUDAT_ADD_TESTCASE(PanelledRadiationPressure
         ${Sofa_LIBRARIES}
         )
 
-TUDAT_ADD_TESTCASE(SolarSailAccelerationAndForce
+TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
+        PRIVATE_LINKS
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )

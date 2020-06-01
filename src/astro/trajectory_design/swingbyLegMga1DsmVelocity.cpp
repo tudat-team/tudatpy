@@ -1,9 +1,9 @@
 #include "Eigen/Dense"
 #include "tudat/basics/basicTypedefs.h"
 
-#include "tudat/astro/basic/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
-#include "tudat/astro/basic/keplerPropagator.h"
+#include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/mission_segments/gravityAssist.h"
 #include "tudat/astro/mission_segments/lambertRoutines.h"
 

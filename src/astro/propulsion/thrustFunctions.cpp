@@ -10,7 +10,7 @@
 
 
 #include "tudat/astro/propulsion/thrustFunctions.h"
-#include "tudat/astro/basic/physicalConstants.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace tudat
 {
