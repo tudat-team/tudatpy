@@ -2,18 +2,18 @@
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
 import numpy as np
-from . import constants
-from . import elements
+from tudatpy import constants
+from tudatpy import elements
 # from tudatpy import io
 # from tudatpy import ephemerides
 # from tudatpy import interpolators
-from . import numerical_integrators
-from . import spice_interface
+from tudatpy import numerical_integrators
+from tudatpy import spice_interface
 # from tudatpy import basic_astrodynamics
 # # from tudatpy import orbital_element_conversions # LEGACY MODULE
-from . import propagators
+from tudatpy import propagators
 # from tudatpy import aerodynamics
-from . import simulation_setup
+from tudatpy import simulation_setup
 import time
 
 def main():
@@ -24,7 +24,7 @@ def main():
     simulation_start_epoch = 0.0
 
     # Set numerical integration fixed step size.
-    fixed_step_size = 1.0
+    fixed_step_size = 10.0
 
     # Set simulation end epoch.
     simulation_end_epoch = constants.JULIAN_DAY
