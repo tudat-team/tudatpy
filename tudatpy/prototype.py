@@ -1,185 +1,58 @@
-from .core import _spice_interface as spice_interface
-from .core import _simulation_setup as simulation_setup
+# from .core import _spice_interface as spice_interface
+# from .core import _simulation_setup as simulation_setup
+
+from tudatpy import spice_interface
+from tudatpy import simulation_setup
+from simulation_setup import Body as _Body
 import warnings
+import numpy as np
 
 
-class Environment:
+class Body(_Body):
 
-    def __init__(self,
-                 available_bodies,
-                 user_defined_bodies=None,
-                 frame_origin="SSB",
-                 frame_orientation="ECLIPJ2000",
-                 custom_body_settings=None,
-                 alternative_kernels=None,
-                 start_epoch=None,
-                 end_epoch=None,
-                 fixed_dt=None,
-                 epoch_margin=300.0):
+    def __init__(self, state=np.zeros(6)):
         """
 
         Parameters
         ----------
-        available_bodies : list[str]
-            List of bodies to be added to the environment that are part
-            of the available bodies cataloged in the tudatBundle.
-        user_defined_bodies : list[str]
-            List of user-defined bodies to be added to the environment
-            which are not part of the available bodies in the tudatBundle.
-        frame_origin : str
-            Frame origin for simulation output results.
-        frame_orientation : str
-            Frame orientation for simulation output results.
-        custom_body_settings : dict, optional
-            Custom body settings which update in place of the default.
-        alternative_kernels : str, optional
-
-        Examples
-        --------
-        available_bodies= ["Sun", "Earth", "Moon", "Mars", "Venus"]
-        user_defined_bodies = ["Delfi-C3"]
-        custom_body_settings = {"Delfi-C3":dict(constant_mass=400.0)}
-        tutorial_2_environment = Environment(
-           available_bodies=available_bodies,
-           user_defined_bodies=user_defined_bodies,
-           custom_body_settings=custom_body_settings)
-
+        state
         """
+        super().__init__(state)
 
-        self._available_bodies = available_bodies
-        self._user_defined_bodies = user_defined_bodies
-        self._frame_origin = frame_origin
-        self._frame_orientation = frame_orientation
-        self._custom_body_settings = custom_body_settings
-        self._alternative_kernels = alternative_kernels
-        self._start_epoch = start_epoch
-        self._end_epoch = end_epoch
-        self._epoch_margin = abs(epoch_margin)
-        self._fixed_dt = fixed_dt
-        self._reset_kernels = True
-        self._reset_bodies = True
-        self._reset_vehicles = True
-        self._body_settings = None
-        self._environment_finalized = False
 
-    def _check_initialize_environment(self):
 
-        if self._reset_kernels:
 
-            # Load standard spice kernels or alternative?
-            if self._alternative_kernels:
-                # Alternative if defined.
-                spice_interface.load_standard_spice_kernels(
-                    self._alternative_kernels)
-            else:
-                # Standard if alternative is not defined (None).
-                spice_interface.load_standard_spice_kernels()
-
-            # If kernels are reset, bodies should be too.
-            self._reset_bodies = True
-
-        if self._reset_bodies:
-
-            if (self._start_epoch is not None) and (self._end_epoch is not None) and (self._fixed_dt is not None):
-                self._body_settings = simulation_setup.get_default_body_settings(
-                    self._available_bodies,
-                    self._start_epoch - self._epoch_margin,
-                    self._end_epoch + self._epoch_margin,
-                    self._fixed_dt)
-            else:
-                if [self._start_epoch, self._end_epoch, self._fixed_dt].count(1) >= 1:
-                    warnings.warn(
-                        "Ambiguous definition of simulation epoch parameters."
-                        "Default body settings are being retrieved without"
-                        "definition of start_epoch, end_epoch and fixed_dt, "
-                        f"  start_epoch = {self._start_epoch},"
-                        f"  end_epoch = {self._end_epoch},"
-                        f"  fixed_dt = {self._fixed_dt}")
-
-                # Get default body settings.
-                self._body_settings = simulation_setup.get_default_body_settings(
-                    self._available_bodies)
-
-            for body in self._available_bodies:
-                self._body_settings[body].ephemeris_settings.reset_frame_orientation(self._frame_orientation)
-                self._body_settings[body].rotation_model_settings.reset_original_frame(self._frame_orientation)
-
-            # If custom body settings are to be used over the default.
-            if self._custom_body_settings:
-
-                # Cycle through bodies in the custom settings.
-                for body_str in self._custom_body_settings.keys():
-
-                    # Check if body is in the available bodies.
-                    if body_str in self._available_bodies:
-
-                        custom_settings = self._custom_body_settings[body_str]
-
-                        for settings_str in custom_settings.keys():
-
-                            try:
-                                setattr(
-                                    self._body_settings[body_str],
-                                    settings_str,
-                                    custom_settings[settings_str])
-                            except AttributeError:
-                                raise AttributeError(
-                                    f"The settings attribute of the BodySettings "
-                                    f"class does not exist. Available found at:"
-                                    f"https://ggarrett13.github.io/tudatpy/_build/_src_modules/simulation_setup.html#tudatpy.core._simulation_setup.BodySettings"
-                                )
-
-                    # Not sure if this is correct for custom bodies,
-                    # tutorial examples suggest it may be.
-                    elif body_str in self._user_defined_bodies:
-                        pass
-
-                    # Body settings provided doesn't correspond to any
-                    # defined in union[available, user_defined].
-                    else:
-                        raise EnvironmentError(
-                            f"The body {body_str} contained in the custom body "
-                            f"settings does not exist in the available bodies. "
-                            f"{body_str} not in {self._available_bodies}")
-
-            # If bodies are reset, vehicles must be re-added.
-            self._reset_vehicles = True
-            self._bodies = simulation_setup.create_bodies(self._body_settings)
-
-        if self._reset_vehicles:
-            for vehicle in self._user_defined_bodies:
-                self._bodies[vehicle] = simulation_setup.Body()
-
-        self._reset_kernels = False
-        self._reset_bodies = False
-        self._reset_vehicles = False
 
     @property
-    def bodies(self):
-        self._check_initialize_environment()
-        # Finalize body creation.
-        if not self._environment_finalized:
-            simulation_setup.set_global_frame_body_ephemerides(
-                self._bodies, self._frame_origin, self._frame_orientation)
+    def state(self):
+        """
+        Current state of the body.
 
-        return self._bodies
+        Returns
+        -------
+        np.ndarray[dim=6]
+        """
+        return self.get_state()
+
+    @state.setter
+    def state(self, x):
+        self.set_state(x)
 
     @property
-    def vehicles(self):
-        return self._user_defined_bodies
+    def inertia_tensor(self):
+        return self.get_body_inertia_tensor()
 
-    @vehicles.setter
-    def vehicles(self, x):
-        self._reset_vehicles = True
-        self._environment_finalized = False
-        self._user_defined_bodies = x
+    @inertia_tensor.setter
+    def inertia_tensor(self, x):
+        self.set_body_inertia_tensor(x)
 
-    def finalize_environment(self,
-                             frame_origin,
-                             frame_orientation):
-        self._environment_finalized = True
-        simulation_setup.set_global_frame_body_ephemerides(
-            self._bodies, self._frame_origin, self._frame_orientation)
+    @property
+    def atmosphere_model(self):
+        return self.get_atmosphere_model()
+
+    @atmosphere_model.setter
+    def atmosphere_model(self, x):
+        self.set_atmosphere_model(x)
 
     def set_radiation_pressure_interface(self,
                                          target_body_name,
@@ -210,13 +83,12 @@ class Environment:
         None
 
         """
-
         if model == "cannon_ball":
             rad_press_settings = simulation_setup.CannonBallRadiationPressureInterfaceSettings(
                 source, reference_area, coefficient, occulting)
 
             # Create and set radiation pressure settings
-            self.bodies[target_body_name].set_radiation_pressure_interface(
+            self.set_radiation_pressure_interface(
                 source, simulation_setup.create_radiation_pressure_interface(
                     rad_press_settings, target_body_name, self.bodies))
         else:
@@ -236,14 +108,13 @@ class Environment:
         ----------
         target_body_name
         reference_area
-        coefficint_vector
-        coefficients_in_aerodynmic_frame
+        coefficients
+        coefficients_in_aerodynamic_frame
         coefficients_in_negative_axis_direction
         model
 
         Returns
         -------
-        None
 
         """
         if model is "constant_coefficients":
@@ -261,4 +132,194 @@ class Environment:
             )
         else:
             raise NotImplementedError(f"Model {model} is not implemented.")
+
+
+class Environment:
+
+    def __init__(self,
+                 tudatpy_bodies,
+                 custom_bodies=None,
+                 frame_origin=None,
+                 frame_orientation=None,
+                 start_epoch=None,
+                 end_epoch=None,
+                 epoch_margin=300.0):
+        """
+
+        Parameters
+        ----------
+        tudatpy_bodies : list[str]
+            List of bodies to be added to the environment that are part
+            of the available bodies cataloged in the tudatBundle.
+        custom_bodies : list[str]
+            List of user-defined bodies to be added to the environment
+            which are not part of the available bodies in the tudatBundle.
+        frame_origin : str
+            Frame origin for simulation output results.
+        frame_orientation : str
+            Frame orientation for simulation output results.
+
+        Examples
+        --------
+
+
+        """
+        # Sets as [] if tudatpy_bodies is None.
+        self._tudatpy_bodies = [] or tudatpy_bodies
+
+        # Sets as [] if custom_bodies is None.
+        self._custom_bodies = [] or custom_bodies
+
+        # Warns ands sets default origin.
+        self._frame_origin = frame_origin or self._default_origin()
+
+        # Warns and sets default orientation.
+        self._frame_orientation = frame_orientation or self._default_orient()
+
+        self._start_epoch = start_epoch
+        self._end_epoch = end_epoch
+        self._epoch_margin = abs(epoch_margin)
+
+        self._body_settings = None
+        self._environment_finalized = False
+
+        if self._start_epoch and self._end_epoch:
+
+            # Get default body settings for cataloged bodies in tudatpy.
+            self._body_settings = simulation_setup.get_default_body_settings(
+                self._tudatpy_bodies,
+                self._start_epoch - self._epoch_margin,
+                self._end_epoch + self._epoch_margin)
+
+        else:
+
+            # Get default body settings for cataloged bodies in tudatpy.
+            self._body_settings = simulation_setup.get_default_body_settings(
+                self._tudatpy_bodies)
+
+        # Reset all bodies ephemeris and rotation model orientation frame.
+        for body in self._tudatpy_bodies:
+            self._body_settings[body].ephemeris_settings.reset_frame_orientation(
+                self._frame_orientation)
+            self._body_settings[body].rotation_model_settings.reset_original_frame(
+                self._frame_orientation)
+
+        # Create cataloged bodies.
+        self._bodies = simulation_setup.create_bodies(self._body_settings)
+
+        # Create all custom bodies.
+        for body in self._custom_bodies:
+            self._bodies[body] = simulation_setup.Body()
+
+    @staticmethod
+    def _default_orient(orientation="ECLIPJ2000"):
+        warnings.warn("frame_orientation was not explicitly set, so the "
+                      f"default of {orientation} is being used.")
+        return orientation
+
+    @staticmethod
+    def _default_origin(origin="SSB"):
+        warnings.warn("frame_origin was not explicitly set, so the default of "
+                      f"{origin} is being used.")
+        return origin
+
+    def _get_body(self, body):
+        # Check that environment has been finalized.
+        try:
+            assert self._environment_finalized
+        except AssertionError:
+            raise EnvironmentError(
+                "Environment bodies must be finalized before adding "
+                "interfaces or modifying existing bodies."
+            )
+
+        # Check that body exists in custom or given tudatpy bodies.
+        try:
+            assert body in self._tudatpy_bodies + self._custom_bodies
+        except AssertionError:
+            raise EnvironmentError(
+                f"The body named: {body}, does not exist in the environment.")
+
+        return self._bodies[body]
+
+    def _set_body(self, key, value):
+
+        # Check that body being defined is not already existing.
+        try:
+            print(key)
+            print(self._custom_bodies + self._tudatpy_bodies)
+            assert key not in self._custom_bodies + self._tudatpy_bodies
+        except AssertionError:
+            raise KeyError("Key already exists in the environment bodies.")
+
+        # Check that value being set is a Body type.
+        try:
+            assert isinstance(value, simulation_setup.Body) is True
+        except AssertionError:
+            raise AssertionError(
+                "Only bodies can be set as direct attributes of the "
+                "environment class.")
+
+        self._bodies[key] = value
+
+    # def __setattr__(self, key, value):
+    #     self._set_body(key, value)
+
+    def __str__(self):
+        return (
+            f"""
+Environment details
+===================
+frame_orientation: {self._frame_orientation}
+frame_origin: {self._frame_origin}
+tudatpy_bodies: {", ".join(self._tudatpy_bodies)}
+custom_bodies: {", ".join(self._custom_bodies)}   
+        """
+        )
+
+    def __setitem__(self, key, value):
+        self._set_body(key, value)
+        self._custom_bodies.append(key)
+
+    def __getitem__(self, body):
+        return self._get_body(body)
+
+    def __getattr__(self, body):
+        return self._get_body(body)
+
+    def finalize_environment(self):
+        self._environment_finalized = True
+        simulation_setup.set_global_frame_body_ephemerides(
+            self._bodies, self._frame_origin, self._frame_orientation)
+
+    #
+
+
+if __name__ == "__main__":
+    spice_interface.load_standard_spice_kernels()
+
+    env = Environment(tudatpy_bodies=["Earth"],
+                      custom_bodies=["Delfi"],
+                      frame_origin="SSB",
+                      frame_orientation="ECLIPJ2000",
+                      start_epoch=None,
+                      end_epoch=None,
+                      epoch_margin=300.0)
+
+    # After environment has been finalized, then member functions can be called.
+    env.finalize_environment()
+
+    # Method 1 of retrieving bodies.
+    state = env["Delfi"].get_state()
+
+    # Alternative way of retrieving bodies.
+    state = env.Delfi.get_state()
+
+    # Method 2 of setting custom bodies.
+    env["DWelfi_n3xt"] = simulation_setup.Body()
+
+    env.Delfi_one = simulation_setup.Body()
+
+    # print(env)
+
 

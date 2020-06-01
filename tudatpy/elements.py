@@ -1,8 +1,21 @@
-from . import _orbital_element_conversions
+# from . import _orbital_element_conversions as _oec
+from tudatpy import _orbital_element_conversions as _oec
 import numpy as np
 
+from astropy import units as u
 
-def spherical2cartesian(r, lat, lon, speed, fpa, heading):
+m_s = u.m / u.s
+m = u.m
+rad = u.rad
+
+
+@u.quantity_input
+def spherical2cartesian(r: m,
+                        lat: rad,
+                        lon: rad,
+                        speed: m_s,
+                        fpa: rad,
+                        heading: rad) -> np.ndarray:
     """
     Function to convert spherical state to cartesian.
 
@@ -27,7 +40,7 @@ def spherical2cartesian(r, lat, lon, speed, fpa, heading):
         Cartesian state represented as [Rx, Ry, Rz, Vx, Vz, Vy] with distance in (m) and speed in (m/s).
 
     """
-    spherical_idx = _orbital_element_conversions.SphericalOrbitalStateElementIndices
+    spherical_idx = _oec.SphericalOrbitalStateElementIndices
     spherical_state = np.zeros(6)
     spherical_state[int(spherical_idx.radius_index)] = r
     spherical_state[int(spherical_idx.latitude_index)] = lat
@@ -35,7 +48,7 @@ def spherical2cartesian(r, lat, lon, speed, fpa, heading):
     spherical_state[int(spherical_idx.speed_index)] = speed
     spherical_state[int(spherical_idx.flight_path_index)] = fpa
     spherical_state[int(spherical_idx.heading_angle_index)] = heading
-    return _orbital_element_conversions.convert_spherical_orbital_to_cartesian_state(spherical_state)
+    return _oec.convert_spherical_orbital_to_cartesian_state(spherical_state)
 
 
 def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
@@ -65,7 +78,7 @@ def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
         Cartesian state represented as [Rx, Ry, Rz, Vx, Vz, Vy] with distance in (m) and speed in (m/s).
 
     """
-    keplerian_idx = _orbital_element_conversions.KeplerianElementIndices
+    keplerian_idx = _oec.KeplerianElementIndices
     keplerian_state = np.zeros(6)
     keplerian_state[int(keplerian_idx.semi_major_axis_index)] = a
     keplerian_state[int(keplerian_idx.eccentricity_index)] = ecc
@@ -73,4 +86,9 @@ def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
     keplerian_state[int(keplerian_idx.longitude_of_ascending_node_index)] = raan
     keplerian_state[int(keplerian_idx.argument_of_periapsis_index)] = argp
     keplerian_state[int(keplerian_idx.true_anomaly_index)] = nu
-    return _orbital_element_conversions.convert_keplerian_to_cartesian_elements(keplerian_state, mu)
+    return _oec.convert_keplerian_to_cartesian_elements(keplerian_state, mu)
+
+
+if __name__ == "__main__":
+    res = spherical2cartesian(100, 2, 2, 1000, 1, 1)
+    print(res)

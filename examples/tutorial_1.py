@@ -4,17 +4,17 @@
 import numpy as np
 from tudatpy import constants
 from tudatpy import elements
-from tudatpy import io
-from tudatpy import ephemerides
-from tudatpy import interpolators
+# from tudatpy import io
+# from tudatpy import ephemerides
+# from tudatpy import interpolators
 from tudatpy import numerical_integrators
 from tudatpy import spice_interface
-from tudatpy import basic_astrodynamics
-# from tudatpy import orbital_element_conversions # LEGACY MODULE
+# from tudatpy import basic_astrodynamics
+# # from tudatpy import orbital_element_conversions # LEGACY MODULE
 from tudatpy import propagators
-from tudatpy import aerodynamics
+# from tudatpy import aerodynamics
 from tudatpy import simulation_setup
-
+import time
 
 def main():
     # Load spice kernels.
@@ -136,6 +136,7 @@ def main():
     # PROPAGATE ORBIT #########################################################
     ###########################################################################
 
+    t0 = time.time()
     # Create simulation object and propagate dynamics.
     dynamics_simulator = propagators.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings, True)
@@ -162,12 +163,12 @@ And the velocity vector of Delfi-C3 is [km]: \n{
     ###########################################################################
     # SAVE RESULTS ############################################################
     ###########################################################################
-
-    io.save2txt(
-        solution=result,
-        filename="singleSatellitePropagationHistory.dat",
-        directory="./tutorial_1",
-    )
+    #
+    # io.save2txt(
+    #     solution=result,
+    #     filename="singleSatellitePropagationHistory.dat",
+    #     directory="./tutorial_1",
+    # )
 
     # Final statement (not required, though good practice in a __main__).
     return 0

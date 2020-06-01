@@ -24,7 +24,7 @@ def main():
     simulation_start_epoch = 0.0
 
     # Set numerical integration fixed step size.
-    fixed_step_size = 1.0
+    fixed_step_size = 0.5
 
     # Set simulation end epoch.
     simulation_end_epoch = constants.JULIAN_DAY
@@ -212,7 +212,7 @@ The initial velocity vector of Delfi-C3 is [km/s]: \n{
 After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
         result[simulation_end_epoch][:3] / 1E3}
 And the velocity vector of Delfi-C3 is [km/s]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        result[simulation_end_epoch][3:] / 1E3}
         """
     )
 
