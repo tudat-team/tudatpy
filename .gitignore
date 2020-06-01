@@ -21,6 +21,8 @@ cmake-build-debug/
 cmake-build-release/
 build/
 .build/
+cmake_build-debug/
+cmake_build-release/
 
 # IDE project files
 .idea/
