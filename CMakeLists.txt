@@ -72,24 +72,44 @@ find_package(Boost 1.64.0
 find_package(Eigen3 REQUIRED)
 #endif ()
 
-#add_subdirectory(cspice)
-find_package(CSpice REQUIRED 1.0.0)
-
-#add_subdirectory(sofa)
-find_package(Sofa REQUIRED 1.0.0)
-
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 #set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 
-# Find Tudat library on local system.
-find_package(Tudat 4.0 REQUIRED)
-if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    if (DEFINED ${Tudat_BUILD_INCLUDE_DIRS})
-        set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
+# CSpice dependency if in build settings.
+if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
+    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(CSpice REQUIRED 1.0.0)
+    else ()
+        set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
     endif ()
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
+endif ()
+
+# Sofa dependency if in build settings.
+if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
+    #
+    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
+    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(Sofa REQUIRED 1.0.0)
+    else ()
+        set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
+    endif ()
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
+endif ()
+
+# Sofa dependency if in build settings.
+    #
+#    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Tudat 4.0 REQUIRED)
+else ()
+    set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
 endif ()
 
 #endif ()
@@ -118,7 +138,7 @@ find_package(pybind11)
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 # Add the module directory.
 add_subdirectory(tudatpy)
