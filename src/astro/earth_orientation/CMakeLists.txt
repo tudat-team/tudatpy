@@ -15,7 +15,7 @@ set(earth_orientation_SOURCES
         "polarMotionCalculator.cpp"
         "precessionNutationCalculator.cpp"
         "readAmplitudeAndArgumentMultipliers.cpp"
-        "tests/sofaEarthOrientationCookbookExamples.cpp"
+#        "tests/sofaEarthOrientationCookbookExamples.cpp"
         "shortPeriodEarthOrientationCorrectionCalculator.cpp"
         )
 
@@ -28,20 +28,22 @@ set(earth_orientation_HEADERS
         "precessionNutationCalculator.h"
         "readAmplitudeAndArgumentMultipliers.h"
         "shortPeriodEarthOrientationCorrectionCalculator.h"
-        "tests/sofaEarthOrientationCookbookExamples.h"
+#        "tests/sofaEarthOrientationCookbookExamples.h"
         )
 
 TUDAT_ADD_LIBRARY("earth_orientation"
         "${earth_orientation_SOURCES}"
         "${earth_orientation_HEADERS}"
         PRIVATE_LINKS "${Sofa_LIBRARIES}" "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" #"${Sofa_INCLUDE_DIRS}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )
-
+#message(        ${Sofa_LIBRARIES}
+#        ${CSpice_LIBRARIES})
 # Add tests.
 TUDAT_ADD_TEST_CASE(EarthOrientationCalculator
         PRIVATE_LINKS
         tudat_earth_orientation
+
         tudat_spice_interface
         tudat_sofa_interface
         tudat_interpolators
