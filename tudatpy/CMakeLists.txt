@@ -81,6 +81,7 @@ YACMA_PYTHON_MODULE(core
         #        expose_ephemeris.cpp
         )
 
+message( as as as ${Tudat_PROPAGATION_LIBRARIES})
 target_link_libraries(core PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
@@ -89,6 +90,10 @@ target_link_libraries(core PRIVATE
 
 target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${pybind11_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:include>)
+
+target_include_directories(core PUBLIC
+        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
         $<INSTALL_INTERFACE:include>)
 
 target_include_directories(core PUBLIC
@@ -128,4 +133,4 @@ install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
 
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-file(COPY test.py DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
