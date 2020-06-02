@@ -18,7 +18,7 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
             )
 
     target_include_directories("${target_name}"
-            SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+            SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
             )
 
     target_link_libraries("${target_name}"
