@@ -168,58 +168,37 @@ endif ()
 include(TudatFindBoost)
 #include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
-message(DEBUG_1: ${CSpice_BUILD_INCLUDE_DIRS})
-message(DEBUG_1: ${CSpice_INCLUDE_DIRS})
+
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-#    find_package(CSpice REQUIRED 1.0.0)
     add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-    if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(CSpice REQUIRED 1.0.0)
+    else ()
         set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
     endif ()
-    #    # Include CSpice directories.
-    #    # Set CMake flag to suppress CSpice warnings (platform-dependent solution).
-    #    if (NOT APPLE OR APPLE_INCLUDE_FORCE)
-    #        include_directories(SYSTEM AFTER "${CSpice_INCLUDE_DIRS}")
-    #    else ()
-    #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${CSpice_INCLUDE_DIRS}\"")
-    #    endif ()
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
 endif ()
-message(DEBUG_2: ${CSpice_BUILD_INCLUDE_DIRS})
-message(DEBUG_2: ${CSpice_INCLUDE_DIRS})
 
-message(DEBUG_1: ${Sofa_BUILD_INCLUDE_DIRS})
-message(DEBUG_1: ${Sofa_INCLUDE_DIRS})
-message(DEBUG_1: ${Sofa_LIBRARIES})
 # Sofa dependency if in build settings.
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-#    find_package(Sofa REQUIRED 1.0.0)
+    #
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-    if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(Sofa REQUIRED 1.0.0)
+    else ()
         set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
     endif ()
-    #    # Include CSpice directories.
-    #    # Set CMake flag to suppress CSpice warnings (platform-dependent solution).
-    #    if (NOT APPLE OR APPLE_INCLUDE_FORCE)
-    #        include_directories(SYSTEM AFTER "${CSpice_INCLUDE_DIRS}")
-    #    else ()
-    #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${CSpice_INCLUDE_DIRS}\"")
-    #    endif ()
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
-message(DEBUG_2:: ${Sofa_BUILD_INCLUDE_DIRS})
-message(DEBUG_2:: ${Sofa_INCLUDE_DIRS})
-message(DEBUG_2: ${Sofa_LIBRARIES})
 
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
-
 
 
 # NRLMSISE-00

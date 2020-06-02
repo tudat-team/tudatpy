@@ -289,11 +289,17 @@
 
 TUDAT_ADD_EXECUTABLE(application_SingleSatellitePropagator
         "singleSatellitePropagator.cpp"
-        ${Tudat_PROPAGATION_LIBRARIES})
+        ${Tudat_PROPAGATION_LIBRARIES}
+        ${CSpice_LIBRARIES}
+        ${Sofa_LIBRARIES}
+        )
 
 TUDAT_ADD_EXECUTABLE(application_SinglePerturbedSatellitePropagator
         "singlePerturbedSatellitePropagator.cpp"
-        ${Tudat_PROPAGATION_LIBRARIES})
+        ${Tudat_PROPAGATION_LIBRARIES}
+        ${CSpice_LIBRARIES}
+        ${Sofa_LIBRARIES}
+        )
 
 ## Add single, Earth-orbiting satellite propagator, with perturbations, application.
 #add_executable(application_SinglePerturbedSatellitePropagator "${SRCROOT}/singlePerturbedSatellitePropagator.cpp")
