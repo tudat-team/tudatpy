@@ -16,6 +16,7 @@ if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
 
 # Set cmake policy.
+#cmake_policy(SET CMP0024 OLD)
 cmake_policy(SET CMP0069 NEW)
 
 # Specific project name.
@@ -153,7 +154,7 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -167,12 +168,15 @@ endif ()
 include(TudatFindBoost)
 #include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
-
-# CSPICE.
+message(DEBUG_1: ${CSpice_BUILD_INCLUDE_DIRS})
+message(DEBUG_1: ${CSpice_INCLUDE_DIRS})
+# CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    add_subdirectory(external/cspice)
-    find_package(CSpice REQUIRED 1.0.0)
+#    find_package(CSpice REQUIRED 1.0.0)
     add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+    if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
+    endif ()
     #    # Include CSpice directories.
     #    # Set CMake flag to suppress CSpice warnings (platform-dependent solution).
     #    if (NOT APPLE OR APPLE_INCLUDE_FORCE)
@@ -183,20 +187,39 @@ if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
 endif ()
+message(DEBUG_2: ${CSpice_BUILD_INCLUDE_DIRS})
+message(DEBUG_2: ${CSpice_INCLUDE_DIRS})
+
+message(DEBUG_1: ${Sofa_BUILD_INCLUDE_DIRS})
+message(DEBUG_1: ${Sofa_INCLUDE_DIRS})
+message(DEBUG_1: ${Sofa_LIBRARIES})
+# Sofa dependency if in build settings.
+if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
+#    find_package(Sofa REQUIRED 1.0.0)
+    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
+    if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
+    endif ()
+    #    # Include CSpice directories.
+    #    # Set CMake flag to suppress CSpice warnings (platform-dependent solution).
+    #    if (NOT APPLE OR APPLE_INCLUDE_FORCE)
+    #        include_directories(SYSTEM AFTER "${CSpice_INCLUDE_DIRS}")
+    #    else ()
+    #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${CSpice_INCLUDE_DIRS}\"")
+    #    endif ()
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
+endif ()
+message(DEBUG_2:: ${Sofa_BUILD_INCLUDE_DIRS})
+message(DEBUG_2:: ${Sofa_INCLUDE_DIRS})
+message(DEBUG_2: ${Sofa_LIBRARIES})
+
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# SOFA
-if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    add_subdirectory(external/sofa)
-    find_package(Sofa REQUIRED 1.0.0)
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
-endif ()
 
 
 # NRLMSISE-00
@@ -264,6 +287,12 @@ include(YOLOProjectAddExternalData)
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(TudatLinkLibraries)
 
+# Add to parent scope if project is added via add_subdirectory().
+if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
+    set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
+endif ()
+
 # Include libraries of Tudat.
 include_directories(include/)
 add_subdirectory(src/astro)
@@ -310,7 +339,8 @@ file(
 )
 
 install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/tudat-config.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 

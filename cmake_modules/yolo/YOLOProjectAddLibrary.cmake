@@ -29,7 +29,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             )
 
     target_include_directories("${target_name}"
-            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES}
+            SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
             )
 
     target_link_libraries("${target_name}"
