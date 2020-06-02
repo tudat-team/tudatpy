@@ -58,16 +58,7 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-# Find Tudat library on local system.
-find_package(Tudat 4.0 REQUIRED)
-message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES]    ${Tudat_PROPAGATION_LIBRARIES})
-message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
 
-# TODO: Make Tudat export definitions to the config for inheritence to this project.
-#set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
-add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 #message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_LIBRARIES})
 
 #set(BOOST_ROOT /home/ggarrett/anaconda3/envs/test)
@@ -76,11 +67,35 @@ add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 find_package(Boost 1.64.0
         COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
+#add_subdirectory(eigen)
+#if (NOT EIGEN3_INCLUDE_DIR)
 find_package(Eigen3 REQUIRED)
+#endif ()
 
+#add_subdirectory(cspice)
 find_package(CSpice REQUIRED 1.0.0)
 
+#add_subdirectory(sofa)
 find_package(Sofa REQUIRED 1.0.0)
+
+# TODO: Make Tudat export definitions to the config for inheritence to this project.
+#set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
+add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
+
+# Find Tudat library on local system.
+find_package(Tudat 4.0 REQUIRED)
+if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    if (DEFINED ${Tudat_BUILD_INCLUDE_DIRS})
+        set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
+    endif ()
+endif ()
+
+#endif ()
+message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
+message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
+
 
 #include(TudatFindBoost)
 
