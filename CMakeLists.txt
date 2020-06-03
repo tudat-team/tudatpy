@@ -75,7 +75,11 @@ find_package(Eigen3 REQUIRED)
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 #set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
 #add_definitions(-DTUDAT_BUNDLE_BUILD=1)
-set(TUDAT_BUNDLE_BUILD on)
+#set(TUDAT_BUNDLE_BUILD on)
+set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON)	#add_definitions(-DTUDAT_BUNDLE_BUILD=1)
+set(TUDAT_BUILD_WITH_SOFA_INTERFACE ON)
+set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
+#set(TUDAT_BUNDLE_BUILD ON)
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
