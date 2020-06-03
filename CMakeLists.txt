@@ -77,6 +77,8 @@ find_package(Eigen3 REQUIRED)
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
+add_definitions(-DTUDAT_BUNDLE_BUILD=1)
+set(TUDAT_BUNDLE_BUILD on)
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
@@ -133,7 +135,7 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
-find_package(pybind11)
+find_package(pybind11 REQUIRED)
 
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)

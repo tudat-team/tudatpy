@@ -81,16 +81,15 @@ YACMA_PYTHON_MODULE(core
         #        expose_ephemeris.cpp
         )
 
-message( as as as ${Tudat_PROPAGATION_LIBRARIES})
 target_link_libraries(core PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
         ${PYTHON_LIBRARIES}
         ${Tudat_PROPAGATION_LIBRARIES})
 
-target_include_directories(core PUBLIC
-        $<BUILD_INTERFACE:${pybind11_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>)
+#target_include_directories(core PUBLIC
+#        $<BUILD_INTERFACE:${pybind11_INCLUDE_DIR}>
+#        $<INSTALL_INTERFACE:include>)
 
 target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
