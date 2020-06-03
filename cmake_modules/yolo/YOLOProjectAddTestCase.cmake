@@ -1,65 +1,67 @@
 include(CMakeParseArguments)
 
 function("TUDAT_ADD_TEST_CASE" arg1)
-    # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
-    # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
-    # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.
-    # INSTALL : (bool) Install the test in the install-tree.
-    cmake_parse_arguments(
-            PARSED_ARGS
-            ""
-            ""
-            "SOURCES;PRIVATE_LINKS"
-            ${ARGN})
+    if (TUDAT_BUILD_TESTS)
 
-    # Create target name.
-    get_filename_component(dirname ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-    set(target_name "test_${dirname}_${arg1}")
+        # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
+        # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
+        # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.
+        # INSTALL : (bool) Install the test in the install-tree.
+        cmake_parse_arguments(
+                PARSED_ARGS
+                ""
+                ""
+                "SOURCES;PRIVATE_LINKS"
+                ${ARGN})
 
-    # Add executable.
-    add_executable(${target_name} ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp ${PARSED_ARGS_SOURCES})
+        # Create target name.
+        get_filename_component(dirname ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+        set(target_name "test_${dirname}_${arg1}")
 
-    #==========================================================================
-    # TARGET-CONFIGURATION.
-    #==========================================================================
-    target_include_directories("${target_name}"
-            PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-            )
+        # Add executable.
+        add_executable(${target_name} ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp ${PARSED_ARGS_SOURCES})
 
-    target_include_directories("${target_name}"
-            SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
-            )
+        #==========================================================================
+        # TARGET-CONFIGURATION.
+        #==========================================================================
+        target_include_directories("${target_name}"
+                PUBLIC
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                $<INSTALL_INTERFACE:include>
+                )
 
-    target_link_libraries("${target_name}"
-            PUBLIC    ${PARSED_ARGS_PRIVATE_LINKS}
-            PRIVATE   "${Boost_LIBRARIES}"
-            )
+        target_include_directories("${target_name}"
+                SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
+                )
 
-    #==========================================================================
-    # BUILD-TREE.
-    #==========================================================================
-    set_target_properties(${target_name}
-            PROPERTIES
-            LINKER_LANGUAGE CXX
-            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
-            )
+        target_link_libraries("${target_name}"
+                PUBLIC ${PARSED_ARGS_PRIVATE_LINKS}
+                PRIVATE "${Boost_LIBRARIES}"
+                )
 
-    # Let's setup the target C++ standard, but only if the user did not provide it manually.
-    if (NOT CMAKE_CXX_STANDARD)
-        set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 17)
+        #==========================================================================
+        # BUILD-TREE.
+        #==========================================================================
+        set_target_properties(${target_name}
+                PROPERTIES
+                LINKER_LANGUAGE CXX
+                ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
+                )
+
+        # Let's setup the target C++ standard, but only if the user did not provide it manually.
+        if (NOT CMAKE_CXX_STANDARD)
+            set_property(TARGET ${target_name} PROPERTY CXX_STANDARD 17)
+        endif ()
+        set_property(TARGET ${target_name} PROPERTY CXX_STANDARD_REQUIRED YES)
+        set_property(TARGET ${target_name} PROPERTY CXX_EXTENSIONS NO)
+        add_test(${target_name} "${CMAKE_BINARY_DIR}/tests/${target_name}")
+
+        # Clean up set variables.
+        unset(target_name)
+        unset(dirname)
     endif ()
-    set_property(TARGET ${target_name} PROPERTY CXX_STANDARD_REQUIRED YES)
-    set_property(TARGET ${target_name} PROPERTY CXX_EXTENSIONS NO)
-    add_test(${target_name} "${CMAKE_BINARY_DIR}/tests/${target_name}")
-
-    # Clean up set variables.
-    unset(target_name)
-    unset(dirname)
-
 endfunction()
 
 # Clean up.

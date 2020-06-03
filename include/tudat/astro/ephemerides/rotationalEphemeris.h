@@ -13,6 +13,9 @@
 
 #include <string>
 
+//https://stackoverflow.com/questions/28914711/getting-error-shared-ptr-in-namespace-std-does-not-name-a-type
+#include <memory>
+
 #include <functional>
 
 #include <Eigen/Core>

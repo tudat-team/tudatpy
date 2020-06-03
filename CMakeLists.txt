@@ -154,7 +154,10 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+if (TUDAT_CONDA_BUILD)
+    message(STATUS "Building conda-build build of tudat.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+endif ()
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -166,13 +169,18 @@ if (TUDAT_BUILD_TESTS)
     set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
 endif ()
 include(TudatFindBoost)
+#find_package(Boost REQUIRED)
 #include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
+#message(here:${CMAKE_PROJECT_NAME}
+#        ${PROJECT_NAME})
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
     add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
     if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(CSpice REQUIRED 1.0.0)
+    elseif (NOT ${TUDAT_BUNDLE_BUILD})
         find_package(CSpice REQUIRED 1.0.0)
     else ()
         set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
@@ -186,6 +194,8 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     #
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
     if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(Sofa REQUIRED 1.0.0)
+    elseif (NOT ${TUDAT_BUNDLE_BUILD})
         find_package(Sofa REQUIRED 1.0.0)
     else ()
         set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})

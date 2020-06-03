@@ -11,7 +11,14 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
+// Deal with deprecation past boost version 1.67.
+//#if ((Boost_VERSION_MAJOR == 1) && (Boost_VERSION_MINOR >= 67))
+//#include <boost/test/tools/floating_point_comparison.hpp>
+//#else
+//#include <boost/test/floating_point_comparison.hpp>
+//#endif
+#include <boost/test/tools/floating_point_comparison.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
