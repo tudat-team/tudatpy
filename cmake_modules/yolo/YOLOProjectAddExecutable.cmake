@@ -21,6 +21,7 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
             SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
             )
 
+    message(STATUS LIB:BOOST:${Boost_LIBRARIES})
     target_link_libraries("${target_name}"
             PUBLIC    ${ARGN}
             PRIVATE   "${Boost_LIBRARIES}"
