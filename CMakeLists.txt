@@ -74,10 +74,7 @@ find_package(Eigen3 REQUIRED)
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 #set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
-add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
-add_definitions(-DTUDAT_BUNDLE_BUILD=1)
+#add_definitions(-DTUDAT_BUNDLE_BUILD=1)
 set(TUDAT_BUNDLE_BUILD on)
 
 # CSpice dependency if in build settings.
@@ -110,6 +107,14 @@ endif ()
 #    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(Tudat 4.0 REQUIRED)
+
+    if (TUDATPY_CONDA_BUILD)
+        message(STATUS "Building conda-build build of tudat.")
+
+        # TODO: Should inherit this from Tudat definitions.
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    endif ()
+
 else ()
     set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
 endif ()
