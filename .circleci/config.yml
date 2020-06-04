@@ -9,7 +9,8 @@ jobs:
       - run:
           name: Build and test
           command: |
-            conda build .circleci/test.conda.recipe
+            conda install conda-build
+            conda-build .circleci/test.conda.recipe
 
 # TODO: Make recipe dynamically according to current git_rev / SHA1.
 #            export git_rev=$CIRCLE_SHA1
