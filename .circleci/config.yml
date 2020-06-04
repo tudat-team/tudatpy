@@ -1,0 +1,45 @@
+version: 2.1
+
+jobs:
+  conda_linux64_release:
+    docker:
+      - image: deepgenomics/conda
+    steps:
+      - checkout
+      - run:
+          name: Build and test
+          command: |
+            curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh --retry 3 -o Miniconda3-latest-Linux-x86_64.sh
+            bash Miniconda3-latest-Linux-x86_64.sh
+            chmod +x ${TMPDIR}/conda.sh
+            /bin/bash ${TMPDIR}/conda.sh -b -p ${TMPDIR}/anaconda
+            rm -f ${TMPDIR}/conda.sh
+            export PATH="${TMPDIR}/anaconda/bin:${PATH}"
+
+          bash ./tools/circleci_conda_linux64_release.sh
+
+#  conda_linux32_release:
+#  conda_osx64_release:
+#  conda_osx32_release:
+#  conda_win32_release:
+#  conda_win64_release:
+
+
+#  macosx_xcode_11_release:
+#    macos:
+#      xcode: "11.3.0"
+#    steps:
+#      - checkout
+#      - run:
+#          name: Build and test
+#          command: >-
+#            git submodule update --init --recursive &&
+#            bash ./tools/circleci_macosx_xcode_11_release.sh
+
+workflows:
+  version: 2.1
+  all_builds:
+    jobs:
+      - bionic_gcc7_coverage
+      - bionic_clang6_release
+#      - macosx_xcode_11_release
