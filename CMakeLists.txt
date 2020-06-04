@@ -80,6 +80,7 @@ set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON)	#add_definitions(-DTUDAT_BUNDLE_BUILD=1
 set(TUDAT_BUILD_WITH_SOFA_INTERFACE ON)
 set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
 #set(TUDAT_BUNDLE_BUILD ON)
+#find_package (Python3 COMPONENTS Interpreter Development)
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
