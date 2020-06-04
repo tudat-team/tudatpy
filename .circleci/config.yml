@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  linux64_anaconda3_conda_build:
+  linux64_anaconda3:
     docker:
       - image: continuumio/anaconda3
     steps:
@@ -14,33 +14,32 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
-          persist_to_workspace:
-            root: /opt/conda/conda-bld/
-            paths:
-              - linux-64/
+      - run:
+          name: Install and test
+          command: |
+            conda install --use-local tudatpy
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64/
           destination: /linux-64
 
-  linux64_miniconda3_conda_build:
+  linux64_miniconda3:
     docker:
       - image: continuumio/miniconda3
-    working_directory: /tmp
     steps:
       - checkout
       - run:
-          name: Build and test
+          name: Build and Test
           command: |
             apt-get install make
             conda install conda-build -y
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
-          persist_to_workspace:
-            root: /opt/conda/conda-bld
-            paths:
-              - linux-64/
-
+      - run:
+          name: Install and test
+          command: |
+            conda install --use-local tudatpy
+            python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)'
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
           destination: /linux-64
@@ -70,6 +69,7 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda install --use-local tudatpy
+            python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)'
 
 workflows:
   version: 2.1
