@@ -10,7 +10,7 @@ jobs:
           name: Build and test
           command: |
             apt-get install make
-            conda install conda-build
+            conda install conda-build -y
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
@@ -24,7 +24,7 @@ jobs:
           name: Build and test
           command: |
             apt-get install make
-            conda install conda-build
+            conda install conda-build -y
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
