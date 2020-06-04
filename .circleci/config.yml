@@ -1,27 +1,38 @@
 version: 2.1
 
 jobs:
-  conda_linux64_release:
+  conda_linux64_test:
     docker:
       - image: deepgenomics/conda
     steps:
       - checkout
       - run:
           name: Build and test
-          command: |
-            curl https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh --retry 3 -o Miniconda3-latest-Linux-x86_64.sh
-            bash Miniconda3-latest-Linux-x86_64.sh
-            chmod +x ${TMPDIR}/conda.sh
-            /bin/bash ${TMPDIR}/conda.sh -b -p ${TMPDIR}/anaconda
-            rm -f ${TMPDIR}/conda.sh
-            export PATH="${TMPDIR}/anaconda/bin:${PATH}"
+          command: bash .circleci/test.conda.recipe/build.sh
 
-          bash ./tools/circleci_conda_linux64_release.sh
+# TODO: Make recipe dynamically according to current git_rev / SHA1.
+#            export git_rev=$CIRCLE_SHA1
 
+#  conda_linux64_release:
+#    docker:
+#      - image: deepgenomics/conda
+#    steps:
+#      - checkout
+#      - run:
+#          name: Build and test
+#          command: bash .circleci/test.conda.recipe/build.sh
+# TODO: Make recipe dynamically according to current git_rev / SHA1.
+#            export git_rev=$CIRCLE_SHA1
+
+#  conda_linux32_test:
 #  conda_linux32_release:
+#  conda_osx64_test:
 #  conda_osx64_release:
+#  conda_osx32_test:
 #  conda_osx32_release:
+#  conda_win32_test:
 #  conda_win32_release:
+#  conda_win64_test:
 #  conda_win64_release:
 
 
@@ -40,6 +51,4 @@ workflows:
   version: 2.1
   all_builds:
     jobs:
-      - bionic_gcc7_coverage
-      - bionic_clang6_release
-#      - macosx_xcode_11_release
+      - conda_linux64_test
