@@ -14,6 +14,7 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
+            dmesg
 
   miniconda3_linux64_test:
     docker:
@@ -28,6 +29,7 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
+            dmesg
 
 # TODO: Make recipe dynamically according to current git_rev / SHA1.
 #            export git_rev=$CIRCLE_SHA1
