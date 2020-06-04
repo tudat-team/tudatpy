@@ -73,15 +73,11 @@ jobs:
 
 workflows:
   version: 2.1
-  all_builds:
+  linux64_anaconda3:
     jobs:
       - linux64_anaconda3_conda_build
-      - linux64_miniconda3_conda_build
-  all_installs:
+      - linux64_anaconda3_conda_install
+  linux64_miniconda3:
     jobs:
-      - linux64_anaconda3_conda_install:
-          requires:
-            - linux64_anaconda3_conda_build
-      - linux64_miniconda3_conda_install:
-          requires:
-            - linux64_miniconda3_conda_build
+      - linux64_miniconda_conda_build
+      - linux64_miniconda_conda_install
