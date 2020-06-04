@@ -19,6 +19,7 @@ jobs:
           command: |
             conda create --name py37 python=3.7
             conda init bash
+            source /root/.bashrc
             conda activate py37
             conda install --use-local tudatpy -y
             mkdir tmp 
@@ -52,6 +53,7 @@ jobs:
           command: |
             conda create --name py37 python=3.7
             conda init bash
+            source /root/.bashrc
             conda activate py37
             conda install --use-local tudatpy -y
             mkdir tmp
