@@ -18,6 +18,8 @@ jobs:
           name: Install and test
           command: |
             conda install --use-local tudatpy
+            mkdir test 
+            cd test
             python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)'
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64/
@@ -40,6 +42,8 @@ jobs:
           name: Install and test
           command: |
             conda install --use-local tudatpy
+            mkdir test
+            cd test
             python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)'
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
