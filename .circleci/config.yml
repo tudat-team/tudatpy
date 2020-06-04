@@ -9,6 +9,7 @@ jobs:
       - run:
           name: Build and test
           command: |
+            apt-get install make
             conda install conda-build
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
@@ -22,6 +23,7 @@ jobs:
       - run:
           name: Build and test
           command: |
+            apt-get install make
             conda install conda-build
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
