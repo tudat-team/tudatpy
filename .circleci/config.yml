@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  anaconda3_linux64_test:
+  linux64_anaconda3_conda_build:
     docker:
       - image: continuumio/anaconda3
     steps:
@@ -14,15 +14,18 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
-          
+          persist_to_workspace:
+            root: /opt/conda/conda-bld/
+            paths:
+              - linux-64/
       - store_artifacts:
-          path: /opt/conda/conda-bld/linux-64
+          path: /opt/conda/conda-bld/linux-64/
           destination: /linux-64
-           
 
-  miniconda3_linux64_test:
+  linux64_miniconda3_conda_build:
     docker:
       - image: continuumio/miniconda3
+    working_directory: /tmp
     steps:
       - checkout
       - run:
@@ -33,51 +36,50 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
-      
+          persist_to_workspace:
+            root: /opt/conda/conda-bld
+            paths:
+              - linux-64/
+
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
           destination: /linux-64
 
-# TODO: Make recipe dynamically according to current git_rev / SHA1.
-#            export git_rev=$CIRCLE_SHA1
+  linux64_anaconda3_conda_install:
+    requires: linux64_anaconda3_conda_build
+    docker:
+      - image: continuumio/anaconda3
+    steps:
+      - attach_workspace:
+          at: /opt/conda/conda-bld/
+      - run:
+          name: Install and test
+          command: |
+            conda config --add channels ggarrett13
+            conda config --add channels conda-forge
+            conda install --use-local tudatpy
 
-#  conda_linux64_release:
-#    docker:
-#      - image: deepgenomics/conda
-#    steps:
-#      - checkout
-#      - run:
-#          name: Build and test
-#          command: bash .circleci/test.conda.recipe/build.sh
-# TODO: Make recipe dynamically according to current git_rev / SHA1.
-#            export git_rev=$CIRCLE_SHA1
-
-#  conda_linux32_test:
-#  conda_linux32_release:
-#  conda_osx64_test:
-#  conda_osx64_release:
-#  conda_osx32_test:
-#  conda_osx32_release:
-#  conda_win32_test:
-#  conda_win32_release:
-#  conda_win64_test:
-#  conda_win64_release:
-
-
-#  macosx_xcode_11_release:
-#    macos:
-#      xcode: "11.3.0"
-#    steps:
-#      - checkout
-#      - run:
-#          name: Build and test
-#          command: >-
-#            git submodule update --init --recursive &&
-#            bash ./tools/circleci_macosx_xcode_11_release.sh
+  linux64_miniconda3_conda_install:
+    requires: linux64_miniconda3_conda_build
+    docker:
+      - image: continuumio/miniconda3
+    steps:
+      - attach_workspace:
+          at: /opt/conda/conda-bld
+      - run:
+          name: Install and test
+          command: |
+            conda config --add channels ggarrett13
+            conda config --add channels conda-forge
+            conda install --use-local tudatpy
 
 workflows:
   version: 2.1
   all_builds:
     jobs:
-      - anaconda3_linux64_test
-      - miniconda3_linux64_test
+      - linux64_anaconda3_conda_build
+      - linux64_miniconda3_conda_build
+  all_installs:
+    jobs:
+      - linux64_anaconda3_conda_install
+      - linux64_miniconda3_conda_install
