@@ -14,10 +14,10 @@ jobs:
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
             conda-build .circleci/test.conda.recipe
-      - run:
-          name: Debug failure
-          when: on_fail
-          command: dmesg
+          
+      - store_artifacts:
+          path: /opt/conda/conda-bld/linux-64
+          destination: /linux-64
            
 
   miniconda3_linux64_test:
@@ -32,10 +32,11 @@ jobs:
             conda install conda-build -y
             conda config --add channels ggarrett13
             conda config --add channels conda-forge
-      - run:
-          name: Debug failure
-          when: on_fail
-          command: dmesg
+            conda-build .circleci/test.conda.recipe
+      
+      - store_artifacts:
+          path: /opt/conda/conda-bld/linux-64
+          destination: /linux-64
 
 # TODO: Make recipe dynamically according to current git_rev / SHA1.
 #            export git_rev=$CIRCLE_SHA1
