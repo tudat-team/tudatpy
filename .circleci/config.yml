@@ -1,7 +1,20 @@
 version: 2.1
 
 jobs:
-  conda_linux64_test:
+  anaconda3_linux64_test:
+    docker:
+      - image: continuumio/anaconda3
+    steps:
+      - checkout
+      - run:
+          name: Build and test
+          command: |
+            conda install conda-build
+            conda config --add channels ggarrett13
+            conda config --add channels conda-forge
+            conda-build .circleci/test.conda.recipe
+
+  miniconda3_linux64_test:
     docker:
       - image: continuumio/miniconda3
     steps:
@@ -55,4 +68,5 @@ workflows:
   version: 2.1
   all_builds:
     jobs:
-      - conda_linux64_test
+      - anaconda3_linux64_test
+      - miniconda3_linux64_test
