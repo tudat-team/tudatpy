@@ -1,4 +1,6 @@
 
+[![Build Status](https://img.shields.io/circleci/project/github/ggarrett13/tudatpy/master.svg?style=for-the-badge&logo=circleci)](https://circleci.com/gh/ggarrett13/tudatpy)
+
 # TudatPy
 
 TU Delft Astrodynamics Toolbox in Python, or **TudatPy**, is a library that primarily exposes the powerful set of C++ 
