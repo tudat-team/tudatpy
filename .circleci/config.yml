@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   conda_linux64_test:
     docker:
-      - image: deepgenomics/conda@27.0.0
+      - image: continuumio/miniconda3
     steps:
       - checkout
       - run:
