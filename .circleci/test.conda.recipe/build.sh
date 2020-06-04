@@ -28,6 +28,6 @@ cmake \
     -Dpybind11_DIR="$TUDATPY_BUILD_DIR/share/cmake/pybind11/" \
     ..
 
-make -j2
+make
 
 make install
