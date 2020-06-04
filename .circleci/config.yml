@@ -9,8 +9,7 @@ jobs:
       - run:
           name: Build and test
           command: |
-            sudo apt-get install build-essential cmake
-            bash .circleci/test.conda.recipe/build.sh
+            conda build .circleci/test.conda.recipe
 
 # TODO: Make recipe dynamically according to current git_rev / SHA1.
 #            export git_rev=$CIRCLE_SHA1
