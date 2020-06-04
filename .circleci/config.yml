@@ -23,9 +23,9 @@ jobs:
             touch test_no_undefined_symbol.txt
             python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)' > test_no_undefined_symbol.txt 
       - store_test_results:
-          path: ./test_no_undefined_symbol.txt
+          path: ./tmp/test_no_undefined_symbol.txt
       - store_artifacts:
-          path: ./test_no_undefined_symbol.txt
+          path: ./tmp/test_no_undefined_symbol.txt
           destination: /test_results
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64/
@@ -53,9 +53,9 @@ jobs:
             touch test_no_undefined_symbol.txt
             python -c 'from tudatpy import constants; print(constants.SPEED_OF_LIGHT)' > test_no_undefined_symbol.txt 
       - store_test_results:
-          path: ./test_no_undefined_symbol.txt
+          path: ./tmp/test_no_undefined_symbol.txt
       - store_artifacts:
-          path: ./test_no_undefined_symbol.txt
+          path: ./tmp/test_no_undefined_symbol.txt
           destination: /test_results
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
