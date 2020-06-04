@@ -1,5 +1,7 @@
 
 [![Build Status](https://img.shields.io/circleci/project/github/ggarrett13/tudatpy/master.svg?style=for-the-badge&logo=circleci)](https://circleci.com/gh/ggarrett13/tudatpy)
+[![Platforms Supported](https://anaconda.org/ggarrett13/tudatpy/badges/platforms.svg?style=for-the-badge&logo=anaconda)](https://anaconda.org/ggarrett13/tudatpy)
+
 
 # TudatPy
 
