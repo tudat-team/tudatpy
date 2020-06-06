@@ -161,7 +161,7 @@ endif ()
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
-#include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
+include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
