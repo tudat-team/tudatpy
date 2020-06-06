@@ -1,4 +1,4 @@
-boost-cpp:
+boost:
   - 1.64.0
 python:
   - 3.6
