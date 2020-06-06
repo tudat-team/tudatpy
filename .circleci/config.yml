@@ -1,0 +1,111 @@
+version: 2.1
+
+executors:
+  linux-bionic:
+    docker:
+      - image: circleci/buildpack-deps:bionic
+
+
+# Job definitions
+variables:
+  install-miniconda3: &install-miniconda3
+    run:
+      name: Download and install miniconda3
+      command: |
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+        bash ~/miniconda.sh -b -p $HOME/miniconda
+        export PATH=$HOME/miniconda/bin:$PATH
+        conda init bash
+        conda update --yes conda  # Update CONDA without command line prompt
+        #eval "$($HOME/miniconda/bin/conda shell.bash hook)"
+
+  install-build-essential: &install-build-essential
+    run:
+      name: Install build-essential
+      command: |
+        # Echo each command
+        set -x
+        # Exit on error.
+        set -e
+        # Core deps.
+        sudo apt-get install build-essential cmake
+
+
+  initialise-conda: &initialise-conda
+    run:
+      name: Initiate and setup conda env
+      command: |
+        export PATH=$HOME/miniconda/bin:$PATH
+        conda create --name build_env python=3.7 -y
+        conda install conda-build -y
+
+  build: &build
+    run:
+      name: Build and test
+      command: |
+        # source $BASH_ENV
+        export PATH=$HOME/miniconda/bin:$PATH
+        echo "CONDA_BUILD_SYSROOT = $CONDA_BUILD_SYSROOT"
+
+        # build the library
+        echo "\n\nRunning build\n\n"
+        git submodule update --init --recursive
+        conda config --add channels ggarrett13
+        conda build --no-anaconda-upload --quiet .conda
+
+        # get build artifact path
+        echo "\n\nGetting artifact name\n\n"
+        conda_artifact=$(conda build --quiet --output .conda)
+        printf 'export CONDA_ARTIFACT=%s\n' "${conda_artifact}" >> $BASH_ENV
+        source $BASH_ENV
+
+        # merge the results from all of the tests into a single file for parsing
+        # echo "\n\nSaving test results\n\n"
+        # mkdir test-reports
+        # cp /tmp/*-junit.xml test-reports
+
+  deploy: &deploy
+    run:
+      name: Deploy new version to conda
+      branches:
+        only:
+          - master
+          - develop
+          - /rc-.*/
+
+      command: |
+        export PATH=$HOME/miniconda/bin:$PATH
+        conda install anaconda-client
+        export ANACONDA_API_TOKEN=$ANACONDA_TOKEN
+        # upload to conda -- logout afterwards to release the token and avoid race conditions
+        # see the comment above where the version is calculated, to understand why both master
+        # and dev are being pushed.
+        if [ "${CIRCLE_BRANCH}" == "master" ]; then
+          anaconda upload --user ggarrett13 ${CONDA_ARTIFACT}
+        elif [ "${CIRCLE_BRANCH}" == "develop" ]; then
+          anaconda upload --user ggarrett13 --label dev --version ${NEW_GIT_TAG} ${CONDA_ARTIFACT}
+        fi
+        anaconda logout
+
+jobs:
+  build-and-test:
+    parameters:
+      os:
+        type: executor
+    executor: << parameters.os >>
+    steps:
+      - checkout
+      - *install-miniconda3
+      - *install-build-essential
+      - *initialise-conda
+      - *build
+      - *deploy
+
+workflows:
+  version: 2.1
+  linux-64:
+    jobs:
+      - build-and-test:
+          matrix:
+            parameters:
+              os: [linux-bionic]
