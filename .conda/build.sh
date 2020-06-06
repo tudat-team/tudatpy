@@ -16,7 +16,7 @@ fi
 cmake \
     -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=$PREFIX \
+    -DCMAKE_INSTALL_PREFIX=$PREFI X \
     -DCMAKE_PREFIX_PATH=$PREFIX \
     -DPREFIX=$PREFIX \
     -DTUDAT_CONDA_BUILD=on \
@@ -25,6 +25,6 @@ cmake \
     -DTUDAT_BUILD_WITH_SPICE_INTERFACE=on \
     ..
 
-make -j2
+make  # -j2: Kills the remote build server.
 
 make install
