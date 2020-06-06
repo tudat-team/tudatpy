@@ -45,8 +45,8 @@ variables:
         conda install anaconda-client -y
         conda install conda-verify -y
         conda config --add channels conda-forge
-        conda config --add channels ggarrett13
-        echo "export ANACONDA_ROOT_CHANNEL=ggarrett13" >> $BASH_ENV ; source $BASH_ENV
+        conda config --add channels tudat-team
+        echo "export ANACONDA_ROOT_CHANNEL=team-tudat" >> $BASH_ENV ; source $BASH_ENV
 
   lib_version: &lib_version
     run:
@@ -88,7 +88,7 @@ variables:
       command: |
         source $BASH_ENV
         # update version in git to make sure that this transfers into conda env
-        git remote set-url origin "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+        git remote set-url origin "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/tudat-team/${CIRCLE_PROJECT_REPONAME}.git"
         git config --global user.email "${GITHUB_EMAIL}"
         git config --global user.name "${GITHUB_USERNAME}"
         git diff --quiet version || git commit version -m "[skip ci] ${CIRCLE_PROJECT_REPONAME} updated to ${NEW_GIT_TAG}"
@@ -105,8 +105,6 @@ variables:
         # build the library
         echo "--- Running build ---"
         git submodule update --init --recursive
-        # conda config --add channels ggarrett13
-        # conda install conda-verify
         conda build --no-anaconda-upload .conda
         # conda build .conda
 
