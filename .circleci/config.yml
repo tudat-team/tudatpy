@@ -50,6 +50,7 @@ variables:
         # build the library
         echo "\n\nRunning build\n\n"
         git submodule update --init --recursive
+        conda config --add channels conda-forge     # <------------------ non-commonality
         conda config --add channels ggarrett13
         conda build --no-anaconda-upload --quiet .conda
 
