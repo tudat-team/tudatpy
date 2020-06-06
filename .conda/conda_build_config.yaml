@@ -1,0 +1,16 @@
+boost-cpp:
+  - 1.64.0
+python:
+  - 3.6
+  - 3.7
+numpy:
+  - 1.14
+channels:
+  - ggarrett13
+  - conda-forge
+  - defaults
+ignore_build_only_deps:
+  - numpy
+  - python
+
+
