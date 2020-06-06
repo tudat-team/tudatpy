@@ -162,7 +162,7 @@ jobs:
       - *install-build-essential
       - *initialise-conda
       - *lib_version
-      - *update_version
+#      - *update_version
       - *build
       - *deploy
 
