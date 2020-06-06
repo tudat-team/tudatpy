@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Core deps.
+sudo apt-get install build-essential cmake
+
 mkdir build
 cd build
 
