@@ -1,6 +1,6 @@
 
-[![Build Status](https://img.shields.io/circleci/project/github/ggarrett13/tudatpy/master.svg?style=for-the-badge&logo=circleci)](https://circleci.com/gh/ggarrett13/tudatpy)
-[![Conda](https://img.shields.io/conda/pn/ggarrett13/tudatpy?color=orange&logo=anaconda&style=for-the-badge)](https://anaconda.org/ggarrett13/tudatpy)
+[![Build Status](https://img.shields.io/circleci/project/github/tudat-team/tudatpy/master.svg?style=for-the-badge&logo=circleci)](https://circleci.com/gh/tudat-team/tudatpy)
+[![Conda](https://img.shields.io/conda/pn/tudat-team/tudatpy?color=orange&logo=anaconda&style=for-the-badge)](https://anaconda.org/tudat-team/tudatpy)
 
 
 # TudatPy
