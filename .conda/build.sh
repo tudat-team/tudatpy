@@ -24,6 +24,7 @@ cmake \
     -DTUDAT_BUILD_TUDAT_TUTORIALS=off \
     -DTUDAT_BUILD_WITH_SOFA_INTERFACE=on \
     -DTUDAT_BUILD_WITH_SPICE_INTERFACE=on \
+    -DTUDATPY_CONDA_BUILD=on \
     ..
 
 make  # -j2: Kills the remote build server.
