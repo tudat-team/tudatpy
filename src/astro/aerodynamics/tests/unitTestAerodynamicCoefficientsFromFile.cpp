@@ -30,6 +30,7 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficients_from_file )
 
 BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 {
+
     using namespace tudat;
     using namespace ephemerides;
     using namespace interpolators;
@@ -89,27 +90,19 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create vehicle  coefficients
         std::map< int, std::string > forceCoefficientFiles;
-//        forceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
-//                + "astro/aerodynamics/tests/aurora_CD.txt";
-//        forceCoefficientFiles[ 2 ] = tudat::input_output::getTudatRootPath( )
-//                + "astro/aerodynamics/tests/aurora_CL.txt";
-//        std::map< int, std::string > momentCoefficientFiles;
-//        momentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
-//                + "astro/aerodynamics/tests/aurora_Cm.txt";
-//        std::map< int, std::string > controlSurfaceForceCoefficientFiles;
-//        controlSurfaceForceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
-//                + "astro/aerodynamics/tests/dCDwTest.txt";
-//        std::map< int, std::string > controlSurfaceMomentCoefficientFiles;
-//        controlSurfaceMomentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
-//                + "astro/aerodynamics/tests/dCDwTest.txt";
-        forceCoefficientFiles[ 0 ] = "./aurora_CD.txt";
-        forceCoefficientFiles[ 2 ] = "./aurora_CL.txt";
+        forceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
+                + "astro/aerodynamics/tests/aurora_CD.txt";
+        forceCoefficientFiles[ 2 ] = tudat::input_output::getTudatRootPath( )
+                + "astro/aerodynamics/tests/aurora_CL.txt";
         std::map< int, std::string > momentCoefficientFiles;
-        momentCoefficientFiles[ 1 ] = "./aurora_Cm.txt";
+        momentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
+                + "astro/aerodynamics/tests/aurora_Cm.txt";
         std::map< int, std::string > controlSurfaceForceCoefficientFiles;
-        controlSurfaceForceCoefficientFiles[ 0 ] = "./dCDwTest.txt";
+        controlSurfaceForceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
+                + "astro/aerodynamics/tests/dCDwTest.txt";
         std::map< int, std::string > controlSurfaceMomentCoefficientFiles;
-        controlSurfaceMomentCoefficientFiles[ 1 ] = "./dCDwTest.txt";
+        controlSurfaceMomentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
+                + "astro/aerodynamics/tests/dCDwTest.txt";
 
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 simulation_setup::readTabulatedAerodynamicCoefficientsFromFiles(

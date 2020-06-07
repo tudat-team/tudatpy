@@ -89,10 +89,11 @@ option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with e
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
 # +============================================================================
+# TODO: Consider if this can work with <tudat/paths.hpp> going forward.
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
-set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data/" CACHE PATH "Installation directory for data files")
+set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data/${PROJECT_NAME_LOWER}" CACHE PATH "Installation directory for data files")
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/" CACHE PATH "Installation directory for man documentation")
 set(INSTALL_TESTS_DIR "${CMAKE_BINARY_DIR}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
 set(INSTALL_CMAKE_DIR "${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME_LOWER}" CACHE PATH "Installation directory for cmake config files")
@@ -300,7 +301,7 @@ add_subdirectory(examples)
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
 
 # Installation of the data files.
-install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}/${PROJECT_NAME_LOWER}")
+install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}")
 
 # Add all targets to the build-tree export set
 export(TARGETS ${${PROJECT_NAME}_LIBRARIES} NAMESPACE ${PROJECT_NAME}:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}_export.cmake")
@@ -321,6 +322,12 @@ configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}-config.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake" @ONLY
 )
+
+# Configure file path for tudat data loading.
+#configure_file(
+#        "include/tudat/paths.hpp.in"
+#        "${Tudat_INCLUDE_DIRS}/tudat/paths.hpp" @ONLY
+#)
 
 file(
         COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"

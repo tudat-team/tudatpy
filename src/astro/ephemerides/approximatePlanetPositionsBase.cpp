@@ -169,8 +169,7 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
 void ApproximatePlanetPositionsBase::reloadData( )
 {
     // Set  path to ephemeris file in file reader.
-    std::string filePath_ = input_output::getTudatRootPath( ) +
-            "external/ephemeris_data/p_elem_t2.txt";
+    std::string filePath_ = input_output::getEphemerisDataFilesPath( ) + "p_elem_t2.txt";
 
     // Open ephemeris file.
     std::ifstream ephemerisFile_( filePath_.c_str( ) );

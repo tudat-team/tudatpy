@@ -61,6 +61,16 @@ static inline std::string getTudatRootPath( )
     // TODO: THIS IS TEMPORARY.
 }
 
+static inline std::string getEphemerisDataFilesPath( )
+{
+//#ifdef SPICE_KERNEL_CUSTOM_FOLDER
+//    return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
+//#else
+    //
+    return getTudatRootPath( ) + "/ephemeris_data/";
+//#endif
+}
+
 static inline std::string getEarthOrientationDataFilesPath( )
 {
     // Declare file path string assigned to filePath.
