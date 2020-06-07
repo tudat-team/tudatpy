@@ -1,7 +1,5 @@
-{% set name = "tudat" %}
-
 package:
-  name: "{{ name }}"
+  name:  {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudat') }}
   version: {{ environ.get('NEW_GIT_TAG', 'dev') }}
 
 source:
@@ -33,7 +31,7 @@ requirements:
     - eigen
 
 outputs:
-  - name: "{{ name }}"
+  - name: {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudat') }}
     requirements:
       build:
         # Tools required to build the package. These packages are run on the build
