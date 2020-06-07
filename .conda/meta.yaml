@@ -17,9 +17,9 @@ build:
   number: 1
   skip: true  # [win and vc<14]
   run_exports:
-    - tudat
-    - tudat-cspice
-    - tudat-sofa
+    - {{ pin_compatible('tudat', max_pin='x.x') }}
+    - {{ pin_compatible('tudat-cspice', max_pin='x.x') }}
+    - {{ pin_compatible('tudat-sofa', max_pin='x.x') }}
 
 requirements:
   build:
@@ -51,18 +51,20 @@ outputs:
         # Packages that need to be specific to the target platform when the
         # target platform is not necessarily the same as the native build
         # platform
-        - eigen
+        - tudat
         - tudat-cspice
         - tudat-sofa
-        - tudat
+        - python=3.7
+        - eigen
 
       run:
         # Packages required to run the package. These are the dependencies
         # that are installed automatically whenever the package is installed.
         # Package names should follow the package match specifications.
-        - {{ pin_compatible('pandas', max_pin='x.x') }}
-#        - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
-#        - pandas
+        - {{ pin_compatible('numpy') }}
+        - {{ pin_compatible('pandas') }}
+        - {{ pin_compatible('tudat') }}
+        - python=3.7
 
 about:
   home: http://tudat.tudelft.nl/
