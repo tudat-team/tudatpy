@@ -29,9 +29,9 @@ variables:
       name: Install build-essential
       command: |
         # Echo each command
-        set -x
+        # set -x
         # Exit on error.
-        set -e
+        # set -e
         # Core deps.
         # sudo apt-get install build-essential cmake
 
