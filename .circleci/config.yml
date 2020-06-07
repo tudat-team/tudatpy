@@ -33,7 +33,7 @@ variables:
         # Exit on error.
         # set -e
         # Core deps.
-        # sudo apt-get install build-essential cmake
+        sudo apt-get install build-essential cmake
 
   initialise-conda: &initialise-conda
     run:
