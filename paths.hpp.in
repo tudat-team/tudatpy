@@ -1,0 +1,16 @@
+//
+// Created by ggarrett on 07-06-20.
+//
+
+#ifndef TUDAT_PATHS_HPP
+#define TUDAT_PATHS_HPP
+
+#include <string.h>
+
+std::string get_tudat_data_path() {
+    std::string current_file_path( __FILE__ );
+    // Header is used in install-tree.
+    return current_file_path + "@TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP@";
+}
+
+#endif //TUDAT_PATHS_HPP
