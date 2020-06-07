@@ -28,10 +28,20 @@ cmake \
 
 make  # -j2: Kills the remote build server.
 
-ctest -T Test
+# Log CircleCI results in JUnit in ~/tmp/test-reports
+if [ -z "$CIRCLECI"  ]; then
+  mkdir -p "~/tmp/test-reports"
+  touch "~/tmp/test-reports/test.log"
+  for filepath in ./tests/test_*; do
+    filename="$(basename -- $filepath)"
+    $filepath --log_format=JUNIT --log_level=all --log_sink="~/tmp/test-reports/${filename}.xml" >> "~/tmp/test-reports/test.log"
+  done
+fi
 
-# Extract test.xml results to $HOME/tmp/test-reports
-mkdir -p $HOME/tmp/test-reports
-find ./Testing -name \*.xml -exec cp {} $HOME/tmp/test-reports/test.xml \;
+#ctest -T Test
+#
+## Extract test.xml results to $HOME/tmp/test-reports
+#mkdir -p $HOME/tmp/test-reports
+#find ./Testing -name \*.xml -exec cp {} $HOME/tmp/test-reports/test.xml \;
 
 make install
