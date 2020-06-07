@@ -29,11 +29,11 @@ variables:
       name: Install build-essential
       command: |
         # Echo each command
-#        set -x
+        #        set -x
         # Exit on error.
-#        set -e
-        # Core deps.
-#        sudo apt-get install build-essential cmake
+        #        set -e
+      # Core deps.
+  #        sudo apt-get install build-essential cmake
 
   initialise-conda: &initialise-conda
     run:
@@ -119,6 +119,7 @@ variables:
         # mkdir test-reports
         # cp /tmp/*-junit.xml test-reports
 
+
   deploy: &deploy
     run:
       name: Deploy new version to conda
@@ -162,9 +163,15 @@ jobs:
       - *install-build-essential
       - *initialise-conda
       - *lib_version
-#      - *update_version
+      #      - *update_version
       - *build
       - *deploy
+
+      # Test results.
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results
 
 workflows:
   version: 2.1

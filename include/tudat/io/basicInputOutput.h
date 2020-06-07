@@ -31,6 +31,8 @@
 
 #include "tudat/io/streamFilters.h"
 
+#include <tudat/paths.hpp>
+
 namespace tudat
 {
 namespace input_output
@@ -42,23 +44,85 @@ namespace input_output
  * trailing slash included.
  * \return Tudat root-path.
  */
-static inline std::string getTudatRootPath( )
-{
-//    std::string TUDAT_CUSTOM_ROOT_PATH = "../";
-//
-//#ifdef TUDAT_CUSTOM_ROOT_PATH
-//    return std::string( TUDAT_CUSTOM_ROOT_PATH );
-//#else
 
+//static inline std::string getTudatRootPath( )
+//{
+//    // Declare file path string assigned to filePath.
+//    // __FILE__ only gives the absolute path in the header file!
+//
+//
+//    // Get path to root_dir of tudat from <tudat/paths.hpp>
+//    std::string DIR_PATH = get_tudat_data_path();
+//
+//    // Check if both strings are equal, strcmp() returns 0 if both strings are exactly equal.
+//    int result = strcmp(DIR_PATH.c_str(), "0");
+//
+//    if (result == 0)
+//    { // Header <tudat/paths.hpp> was called in build-tree.
+//        std::string filePath_( __FILE__ );
+//        return filePath_.substr( 0, filePath_.length( ) -
+//                                    std::string( "include/tudat/io/basicInputOutput.h" ).length( ) ) + "data";
+//    }
+//    else
+//    { // Header <tudat/paths.hpp> was called in install-tree.
+//        return DIR_PATH;
+//    }
+//}
+static inline std::string getTudatRootPath( )
+        {
+            // Declare file path string assigned to filePath.
+            // __FILE__ only gives the absolute path in the header file!
+
+
+            // Get path to root_dir of tudat from <tudat/paths.hpp>
+            std::string DIR_PATH = get_tudat_data_path();
+
+            // Check if both strings are equal, strcmp() returns 0 if both strings are exactly equal.
+            int result = strcmp(DIR_PATH.c_str(), "0");
+
+            if (result == 0)
+            { // Header <tudat/paths.hpp> was called in build-tree.
+                std::string filePath_( __FILE__ );
+                return filePath_.substr( 0, filePath_.length( ) -
+                                            std::string( "include/tudat/io/basicInputOutput.h" ).length( ) ) + "src/";
+            }
+            else
+            { // Header <tudat/paths.hpp> was called in install-tree.
+                return DIR_PATH;
+            }
+        }
+
+
+static inline std::string getTudatDataPath( )
+{
     // Declare file path string assigned to filePath.
     // __FILE__ only gives the absolute path in the header file!
-//    std::string filePath_( __FILE__ );
 
-    // Strip filename from temporary string and return root-path string.
-//    return filePath_.substr( 0, filePath_.length( ) -
-//                             std::string( "io/basicInputOutput.h" ).length( ) ) + TUDAT_;
-    return  "/home/ggarrett/Repositories/new/tudat_bundle/install_test/data/tudat/";
-    // TODO: THIS IS TEMPORARY.
+
+    // Get path to root_dir of tudat from <tudat/paths.hpp>
+    std::string DIR_PATH = get_tudat_data_path();
+
+    // Check if both strings are equal, strcmp() returns 0 if both strings are exactly equal.
+    int result = strcmp(DIR_PATH.c_str(), "0");
+
+    if (result == 0)
+    { // Header <tudat/paths.hpp> was called in build-tree.
+        std::string filePath_( __FILE__ );
+        return filePath_.substr( 0, filePath_.length( ) -
+                                    std::string( "include/tudat/io/basicInputOutput.h" ).length( ) ) + "data";
+    }
+    else
+    { // Header <tudat/paths.hpp> was called in install-tree.
+        return DIR_PATH;
+    }
+}
+
+// TODO: Document getEphemerisDataFilesPath()
+static inline std::string getEphemerisDataFilesPath( )
+{
+
+    return getTudatDataPath( ) + "/ephemeris_data/";
+
 }
 
 static inline std::string getEarthOrientationDataFilesPath( )
@@ -72,7 +136,7 @@ static inline std::string getEarthOrientationDataFilesPath( )
 //    return ( filePath_.substr( 0, filePath_.length( ) -
 //                               std::string( "io/basicInputOutput.h" ).length( ) ) +
 //             "astro/earth_orientation/Data/" );
-    return getTudatRootPath( ) + "/earth_orientation/";
+    return getTudatDataPath( ) + "/earth_orientation/";
 
 }
 
@@ -88,7 +152,7 @@ static inline std::string getSpiceKernelPath( )
 //    return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
 //#else
 //
-        return getTudatRootPath( ) + "/spice_kernels/";
+        return getTudatDataPath( ) + "/spice_kernels/";
 //#endif
 }
 
@@ -99,7 +163,7 @@ static inline std::string getSpiceKernelPath( )
  */
 static inline std::string getAtmosphereTablesPath( )
 {
-    return getTudatRootPath( ) + "/atmosphere_tables/";
+    return getTudatDataPath( ) + "/atmosphere_tables/";
 }
 
 //! Get gravity models path.
@@ -109,7 +173,7 @@ static inline std::string getAtmosphereTablesPath( )
  */
 static inline std::string getGravityModelsPath( )
 {
-    return getTudatRootPath( ) + "/gravity_models/";
+    return getTudatDataPath( ) + "/gravity_models/";
 }
 
 //! Get space weather data files path.
@@ -119,7 +183,7 @@ static inline std::string getGravityModelsPath( )
  */
 static inline std::string getSpaceWeatherDataPath( )
 {
-    return getTudatRootPath( ) + "/space_weather_data/";
+    return getTudatDataPath( ) + "/space_weather_data/";
 }
 
 //! Print floating-point number in formatted scientific notation.

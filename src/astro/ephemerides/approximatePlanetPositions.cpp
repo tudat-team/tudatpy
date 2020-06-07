@@ -134,7 +134,7 @@ Eigen::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
             = trueAnomalyAtGivenJulianData_;
 
     // Convert Keplerian elements to standard units.
-    // Convert semi-major axis from AU to meters.
+    // Convert semi-major axis from AU to meters
     planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )
             = unit_conversions::convertAstronomicalUnitsToMeters(
                 planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex ) );
