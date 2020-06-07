@@ -28,6 +28,8 @@ cmake \
 
 make  # -j2: Kills the remote build server.
 
+ctest
+
 # Log CircleCI results in JUnit in ~/tmp/test-reports
 if [ -z "$CIRCLECI"  ]; then
   mkdir -p "$HOME/tmp/test-reports"
@@ -38,7 +40,7 @@ if [ -z "$CIRCLECI"  ]; then
   done
 fi
 
-#ctest -T Test
+ctest   #-T Test
 #
 ## Extract test.xml results to $HOME/tmp/test-reports
 #mkdir -p $HOME/tmp/test-reports
