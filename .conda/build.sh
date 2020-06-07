@@ -30,11 +30,11 @@ make  # -j2: Kills the remote build server.
 
 # Log CircleCI results in JUnit in ~/tmp/test-reports
 if [ -z "$CIRCLECI"  ]; then
-  mkdir -p "~/tmp/test-reports"
-  touch "~/tmp/test-reports/test.log"
+  mkdir -p "$HOME/tmp/test-reports"
+  touch "$HOME/tmp/test-reports/test.log"
   for filepath in ./tests/test_*; do
     filename="$(basename -- $filepath)"
-    $filepath --log_format=JUNIT --log_level=all --log_sink="~/tmp/test-reports/${filename}.xml" >> "~/tmp/test-reports/test.log"
+    $filepath --log_format=JUNIT --log_level=all --log_sink="$HOME/tmp/test-reports/${filename}.xml" >> "$HOME/tmp/test-reports/test.log"
   done
 fi
 
