@@ -22,7 +22,6 @@ set(spice_interface_HEADERS
         "spiceInterface.h"
         )
 
-message(halalalala ${CSpice_INCLUDE_DIRS})
 # Add library.
 TUDAT_ADD_LIBRARY("spice_interface"
         "${spice_interface_SOURCES}"
