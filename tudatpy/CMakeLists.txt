@@ -84,7 +84,6 @@ YACMA_PYTHON_MODULE(core
 target_link_libraries(core PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
-        ${PYTHON_LIBRARIES}
         ${Tudat_PROPAGATION_LIBRARIES})
 
 #target_include_directories(core PUBLIC
