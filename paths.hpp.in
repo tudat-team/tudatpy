@@ -7,7 +7,7 @@
 
 #include <string.h>
 
-std::string get_tudat_data_path() {
+static inline std::string get_tudat_data_path() {
     std::string current_file_path( __FILE__ );
     // Header is used in install-tree.
     return current_file_path + "@TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP@";
