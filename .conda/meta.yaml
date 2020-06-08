@@ -18,6 +18,11 @@ build:
     - tudat-cspice
     - tudat-sofa
   detect_binary_files_with_prefix: true
+  missing_dso_whitelist:
+    - libgcc-ng
+    - libstdcxx-ng
+    - libm
+    - libc
 
 
 requirements:
