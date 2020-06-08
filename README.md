@@ -13,13 +13,13 @@ quality education in the field of astrodynamics. See the [documentation](https:/
 Installation
 ===================
 
-Installing `tudatpy` from the `ggarrett13` channel can be achieved by adding `ggarrett13` to your channels with:
+Installing `tudatpy` from the `tudat-team` channel can be achieved by adding `tudat-team` to your channels with:
 
 ```
-conda config --add channels ggarrett13
+conda config --add channels tudat-team
 ```
 
-Once the `ggarrett13` channel has been enabled, `tudatpy` can be installed with:
+Once the `tudat-team` channel has been enabled, `tudatpy` can be installed with:
 
 ```
 conda install tudatpy
@@ -28,7 +28,7 @@ conda install tudatpy
 It is possible to list all of the versions of `tudatpy` available on your platform with:
 
 ```
-conda search tudatpy --channel ggarrett13
+conda search tudatpy --channel tudat-team
 ```
 
 ## Creating an issue on GitHub
