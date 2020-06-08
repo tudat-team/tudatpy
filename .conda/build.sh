@@ -16,7 +16,7 @@ fi
 
 cmake \
     -DCMAKE_CXX_STANDARD=17 \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_INSTALL_PREFIX=$PREFIX \
     -DCMAKE_PREFIX_PATH=$PREFIX \
     -DPREFIX=$PREFIX \
@@ -29,7 +29,7 @@ cmake \
 
 make    #: Kills the remote build server.
 
-#ctest --verbose
+ctest --verbose
 
 
 # Log CircleCI results in JUnit in ~/tmp/test-reports
