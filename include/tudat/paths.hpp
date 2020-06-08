@@ -11,3 +11,4 @@ static inline std::string get_tudat_data_path() {
 }
 
 #endif //TUDATBUNDLE_PATHS_HPP
+

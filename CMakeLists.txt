@@ -39,6 +39,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/yolo")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 enable_testing()
+set(Tudat_DEFINITIONS "")
 #==============================================================================
 
 
@@ -48,42 +49,55 @@ enable_testing()
 # +============================================================================
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TESTS=${TUDAT_BUILD_TESTS}")
 
 # Build option: include default data suite.
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_FETCH_DATA_SUITE=${TUDAT_FETCH_DATA_SUITE}")
 
 # Build with propagation tests.
 option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_PROPAGATION_TESTS=${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
 
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TUDAT_TUTORIALS=${TUDAT_BUILD_TUDAT_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_PAGMO_TUTORIALS "Build pagmo2 tutorials." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_PAGMO_TUTORIALS=${TUDAT_BUILD_PAGMO_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TBB_SUPPORT "Build tbb support for Pagmo." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BUILD_TBB_SUPPORT}")
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
 
 # Build sofa interface.
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 
 # Build spice interface.
 option(TUDAT_BUILD_WITH_SPICE_INTERFACE "Build Tudat with spice interface." ON)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE}")
 
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
+list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
@@ -126,13 +140,14 @@ endforeach ()
 if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
     if (TUDAT_CONDA_BUILD)
-        # Going of intuition.
+        # Going off intuition.
         set(CMAKE_INSTALL_RPATH "")
     else ()
-        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+        set(CMAKE_INSTALL_RPATH "")
     endif ()
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
+
 
 # Enforce TBB if pagmo tutorials are to be built.
 if (TUDAT_BUILD_PAGMO_TUTORIALS)
