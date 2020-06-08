@@ -125,10 +125,13 @@ endforeach ()
 # +============================================================================
 if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
-    #set(CMAKE_VERBOSE_MAKEFILE ON)
-    #set(CMAKE_INSTALL_RPATH "${INSTALL_LIB_DIR}")
-#    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-#    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    if (TUDAT_CONDA_BUILD)
+        # Going of intuition.
+        set(CMAKE_INSTALL_RPATH "")
+    else ()
+        set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+    endif ()
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
 # Enforce TBB if pagmo tutorials are to be built.
@@ -291,7 +294,6 @@ add_subdirectory(src/interface)
 add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
-#add_subdirectory(data)
 add_subdirectory(examples)
 
 # Cleanup YOLO global project variables.
@@ -328,6 +330,7 @@ configure_file(
 #set(Tudat_DATA_DIRS ${INSTALL_CMAKE_DIR}/${RELATIVE_INSTALL_DATA_DIR})
 
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP "${INSTALL_INCLUDE_DIR}/tudat" "${INSTALL_DATA_DIR}/tudat")
+file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
 configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
