@@ -21,12 +21,13 @@ cmake \
     -DCMAKE_PREFIX_PATH=$PREFIX \
     -DPREFIX=$PREFIX \
     -DTUDAT_CONDA_BUILD=on \
+    -DTUDAT_BUILD_STATIC_LIBRARY=on \
     -DTUDAT_BUILD_TUDAT_TUTORIALS=off \
     -DTUDAT_BUILD_WITH_SOFA_INTERFACE=on \
     -DTUDAT_BUILD_WITH_SPICE_INTERFACE=on \
     ..
 
-make  # -j2: Kills the remote build server.
+make  -j2   #: Kills the remote build server.
 
 #ctest
 
