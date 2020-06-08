@@ -95,7 +95,7 @@ set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation dire
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
 set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data/" CACHE PATH "Installation directory for data files")
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/" CACHE PATH "Installation directory for man documentation")
-set(INSTALL_TESTS_DIR "${CMAKE_BINARY_DIR}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
+#set(INSTALL_TESTS_DIR "${CMAKE_INSTALL_PREFIX}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
 set(INSTALL_CMAKE_DIR "${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME_LOWER}" CACHE PATH "Installation directory for cmake config files")
 
 # Make relative paths absolute (needed later on)
