@@ -17,6 +17,8 @@ build:
   run_exports:
     - tudat-cspice
     - tudat-sofa
+  detect_binary_files_with_prefix: true
+
 
 requirements:
   build:

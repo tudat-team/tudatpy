@@ -7,10 +7,22 @@
 
 #include <string.h>
 
+#ifdef TUDAT_CONDA_BUILD
+
+static inline std::string get_tudat_data_path() {
+    // Header is used in install-tree. BUILD_PREFIX is replaced with INSTALL_PREFIX by conda-bld, when detected.
+    std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";
+    return INSTALL_PREFIX + "/@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
+}
+
+#else
+
 static inline std::string get_tudat_data_path() {
     std::string current_file_path( __FILE__ );
     // Header is used in install-tree.
-    return current_file_path + "@TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP@";
+    return current_file_path + "/@TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP@";
 }
+
+#endif //TUDAT_CONDA_BUILD
 
 #endif //TUDAT_PATHS_HPP
