@@ -127,8 +127,8 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
     #set(CMAKE_VERBOSE_MAKEFILE ON)
     #set(CMAKE_INSTALL_RPATH "${INSTALL_LIB_DIR}")
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+#    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
 # Enforce TBB if pagmo tutorials are to be built.
