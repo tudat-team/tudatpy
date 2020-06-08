@@ -3,9 +3,9 @@
 [![Conda](https://img.shields.io/conda/pn/tudat-team/tudatpy?color=orange&logo=anaconda&style=for-the-badge)](https://anaconda.org/tudat-team/tudatpy)
 
 
-# TudatPy
+# tudatpy
 
-TU Delft Astrodynamics Toolbox in Python, or **TudatPy**, is a library that primarily exposes the powerful set of C++ 
+TU Delft Astrodynamics Toolbox in Python, or **tudatpy**, is a library that primarily exposes the powerful set of C++ 
 libraries, [Tudat](https://tudat.tudelft.nl/). TudatPy aims at accelerating the implementation of Tudat simulations,
 providing and interface between Tudat and popular machine learning frameworks and establishing a platform to provide 
 quality education in the field of astrodynamics. See the [documentation](https://ggarrett13.github.io/tudatpy/) for more.
