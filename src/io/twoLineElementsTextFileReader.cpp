@@ -55,7 +55,7 @@ namespace input_output
 using mathematical_constants::PI;
 
 //! Open data file.
-void TwoLineElementsTextFileReader::openFile( )
+void TwoLineElementsTextFileReader::openFile()
 {
     if ( absoluteDirectoryPath_.compare( "" ) == 0 )
     {

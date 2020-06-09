@@ -38,6 +38,7 @@
 
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/twoLineElementsTextFileReader.h"
+#include "tudat/io/basicInputOutput.h"
 
 namespace tudat
 {
@@ -61,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
 
     // Set input directory, file name, then open file and store data strings
     // with Textfilereader class, and finally close file.
-    twoLineElementsTextFileReaderForTwoLine.setRelativeDirectoryPath( "io/tests/" );
+    twoLineElementsTextFileReaderForTwoLine.setAbsoluteDirectoryPath( input_output::getTudatRootPath() + "io/tests/" );
 
     twoLineElementsTextFileReaderForTwoLine.setFileName(
                 "testTwoLineElementsTextFile2Line.txt" );
