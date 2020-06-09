@@ -30,7 +30,7 @@ cmake \
 
 make    #: Kills the remote build server.
 
-#ctest
+ctest
 
 
 # Log CircleCI results in JUnit in ~/tmp/test-reports
