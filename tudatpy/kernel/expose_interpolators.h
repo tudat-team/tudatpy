@@ -2,8 +2,8 @@
 // Created by ggarrett on 29-04-20.
 //
 
-#ifndef TUDATBUNDLE_EXPOSE_INTERPOLATORS_H
-#define TUDATBUNDLE_EXPOSE_INTERPOLATORS_H
+#ifndef TUDAT_EXPOSE_INTERPOLATORS_H
+#define TUDAT_EXPOSE_INTERPOLATORS_H
 
 #include <pybind11/pybind11.h>
 

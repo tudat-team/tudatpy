@@ -75,6 +75,7 @@ YACMA_PYTHON_MODULE(core
         kernel/expose_propagators.cpp
         kernel/expose_simulation_setup.cpp
         kernel/expose_unit_tests.cpp
+        kernel/expose_io.cpp
         #        expose_mathematics.cpp
         #        trampoline_classes.cpp
         kernel/docstrings.cpp
@@ -84,7 +85,6 @@ YACMA_PYTHON_MODULE(core
 target_link_libraries(core PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
-        ${PYTHON_LIBRARIES}
         ${Tudat_PROPAGATION_LIBRARIES})
 
 #target_include_directories(core PUBLIC
@@ -132,4 +132,6 @@ install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
 
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
+file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+
 file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

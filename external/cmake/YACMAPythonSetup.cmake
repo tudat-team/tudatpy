@@ -13,11 +13,13 @@ else()
 endif()
 
 # Find Python interpreter.
-find_package(PythonInterp REQUIRED)
+#find_package(PythonInterp REQUIRED)
+find_package(Python3 REQUIRED)
 
 if(_YACMA_PYTHON_MODULE_NEED_LINK)
     # NOTE: this will give us both the Python lib and the Python include dir.
-    find_package(PythonLibs REQUIRED)
+    #find_package(PythonLibs REQUIRED)
+    #find_package(PythonLibs REQUIRED)
     if(NOT YACMA_PYTHON_INCLUDE_DIR)
         set(YACMA_PYTHON_INCLUDE_DIR "${PYTHON_INCLUDE_DIRS}" CACHE PATH "Path to the Python include dir.")
     endif()

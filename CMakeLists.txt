@@ -70,6 +70,7 @@ find_package(Boost 1.64.0
 #add_subdirectory(eigen)
 #if (NOT EIGEN3_INCLUDE_DIR)
 find_package(Eigen3 REQUIRED)
+include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 #endif ()
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
@@ -79,8 +80,11 @@ find_package(Eigen3 REQUIRED)
 set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON)	#add_definitions(-DTUDAT_BUNDLE_BUILD=1)
 set(TUDAT_BUILD_WITH_SOFA_INTERFACE ON)
 set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
+set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
+set(TUDAT_INSTALL ON)
+set(TUDAT_TEST_INSTALL OFF)
 #set(TUDAT_BUNDLE_BUILD ON)
-#find_package (Python3 COMPONENTS Interpreter Development)
+find_package (Python3 COMPONENTS Interpreter Development)
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
@@ -145,7 +149,24 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
-find_package(pybind11 REQUIRED)
+#find_package(pybind11 REQUIRED)
+
+
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(pybind11 REQUIRED)
+
+    if (TUDATPY_CONDA_BUILD)
+        message(STATUS "Building conda-build build of tudatpy.")
+
+        # TODO: Should inherit this from Tudat definitions.
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    endif ()
+
+else ()
+    set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
+    set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
+endif ()
+
 
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)

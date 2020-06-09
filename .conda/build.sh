@@ -30,4 +30,7 @@ cmake \
 
 make
 
+echo "Quick build test (Tudat_DATA_DIR):"
+python3 -c "import tudatpy.io as io; print(io.get_tudat_data_path())"
+
 make install
