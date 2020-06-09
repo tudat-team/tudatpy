@@ -316,6 +316,11 @@ add_subdirectory(examples)
 # Cleanup YOLO global project variables.
 #include(YOLOProjectCleanup)
 
+configure_file( # Really dirty trick, and should be removed.
+        "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/tudat/paths.hpp" @ONLY
+)
+
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
 #        PATTERN include/paths* EXCLUDE)
@@ -350,10 +355,7 @@ file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP "${INSTALL_INCLUDE_DIR}/
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
 #if(TUDAT_INSTALL)
-configure_file(
-"${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
-"${CMAKE_CURRENT_SOURCE_DIR}/include/tudat/paths.hpp" @ONLY
-)
+
 #endif()
 
 #install(

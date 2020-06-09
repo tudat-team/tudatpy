@@ -10,27 +10,31 @@
 #ifdef TUDAT_INSTALL
 static inline std::string get_tudat_install_data_path() {
     // Function is used by libraries post, post installation to find data dirs.
-    if(NOT TUDAT_CONDA_INSTALL)
+#ifdef TUDAT_CONDA_INSTALL
         std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";
-    else()
+#else
         std::string INSTALL_PREFIX = "/opt/anaconda1anaconda2anaconda3";
-    endif()
+#endif //TUDAT_CONDA_INSTALL
     return INSTALL_PREFIX + "/@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
 }
-#endif
+#endif //TUDAT_INSTALL
 
 static inline std::string get_tudat_build_data_path() {
     // Function can only be used in build-tree (i.e. build tests).
     std::string filePath_( __FILE__ );
     return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "include/paths.hpp" ).length( ) ) + "data/";
+                                std::string( "include/tudat/paths.hpp" ).length( ) ) + "data/";
 }
 
 static inline std::string get_tudat_src_dir_path() {
     // Function is used to find src_dir in order to find test data. (this will be deprecated in favour of a tests folder).
     std::string filePath_( __FILE__ );
-    return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "include/paths.hpp" ).length( ) ) + "src/";
+    std::cout<< "return1" << filePath_ << std::endl;
+    std::cout<< "return2" << filePath_.substr( 0, filePath_.length( ) - std::string( "include/tudat/paths.hpp" ).length( ) ) << std::endl;
+    std::cout<< "return3" << filePath_.substr( 0, filePath_.length( ) - std::string( "include/tudat/paths.hpp" ).length( ) ) +  "src/" << std::endl;
+    return filePath_.substr( 0, filePath_.length( ) - std::string( "include/tudat/paths.hpp" ).length( ) ) + "src/";
+
 }
+
 
 #endif //TUDAT_PATHS_HPP
