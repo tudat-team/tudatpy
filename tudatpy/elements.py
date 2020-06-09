@@ -1,5 +1,5 @@
 # from . import _orbital_element_conversions as _oec
-from tudatpy import _orbital_element_conversions as _oec
+from tudatpy.kernel import orbital_element_conversions as _oec
 import numpy as np
 
 # from astropy import units as u
@@ -7,7 +7,6 @@ import numpy as np
 # m_s = u.m / u.s
 # m = u.m
 # rad = u.rad
-
 
 # @u.quantity_input
 def spherical2cartesian(r,

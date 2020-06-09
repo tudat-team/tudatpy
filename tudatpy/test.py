@@ -1,20 +1,14 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-import numpy as np
-from tudatpy import constants
-from tudatpy import elements
-# from tudatpy import io
-# from tudatpy import ephemerides
-# from tudatpy import interpolators
-from tudatpy import numerical_integrators
-from tudatpy import spice_interface
-# from tudatpy import basic_astrodynamics
-# # from tudatpy import orbital_element_conversions # LEGACY MODULE
-from tudatpy import propagators
-# from tudatpy import aerodynamics
-from tudatpy import simulation_setup
 import time
+import numpy as np
+from tudatpy import elements
+from tudatpy.kernel import constants
+from tudatpy.kernel import numerical_integrators
+from tudatpy.kernel import spice_interface
+from tudatpy.kernel import propagators
+from tudatpy.kernel import simulation_setup
 
 def main():
     # Load spice kernels.

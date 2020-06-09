@@ -1,6 +1,6 @@
-from .core._basic_astrodynamics import AvailableAcceleration
-from .core._simulation_setup import AccelerationSettings
-from .core._simulation_setup import SphericalHarmonicAccelerationSettings
+from .kernel.basic_astrodynamics import AvailableAcceleration
+from .kernel.simulation_setup import AccelerationSettings
+from .kernel.simulation_setup import SphericalHarmonicAccelerationSettings
 
 
 def modify_simulation_setup(simulation_setup):

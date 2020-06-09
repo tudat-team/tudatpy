@@ -4,15 +4,15 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-#CMP0048 is set to NEW
-project(TudatPy VERSION 0.2.0 LANGUAGES CXX C)
-
+# Get version from file.
+file(READ "version" TudatPy_VERSION)
+project(TudatPy VERSION "${TudatPy_VERSION}" LANGUAGES CXX C)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "tudatpy version: ${tudatpy_VERSION}")
+message(STATUS "TudatPy version: ${TudatPy_VERSION}")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -84,9 +84,9 @@ set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
 set(TUDAT_INSTALL ON)
 set(TUDAT_TEST_INSTALL OFF)
 
-option(TUDATPY_CONDA_INSTALL OFF)
+option(TUDATPY_CONDA_BUILD OFF)
 
-set(TUDAT_CONDA_INSTALL ${TUDATPY_CONDA_INSTALL})
+set(TUDAT_CONDA_BUILD ${TUDATPY_CONDA_BUILD})
 
 #set(TUDAT_BUNDLE_BUILD ON)
 find_package(Python3 COMPONENTS Interpreter Development)
@@ -183,7 +183,6 @@ else ()
     set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
     set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
 endif ()
-
 
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
