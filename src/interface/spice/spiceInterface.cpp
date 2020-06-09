@@ -279,7 +279,34 @@ int getTotalCountOfKernelsLoaded( )
 //! Clear all Spice kernels.
 void clearSpiceKernels( ) { kclear_c( ); }
 
-void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels, const std::string state)
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
+{
+#ifdef TUDAT_INSTALL
+    const std::string state = "install";
+#else
+    const std::string state = "build";
+#endif
+
+    std::string kernelPath = input_output::getSpiceKernelPath(state);
+
+    loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
+    loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
+
+    if( alternativeEphemerisKernels.size( ) == 0  )
+    {
+        loadSpiceKernelInTudat( kernelPath + "tudat_merged_spk_kernel.bsp" );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < alternativeEphemerisKernels.size( ); i++ )
+        {
+            loadSpiceKernelInTudat( alternativeEphemerisKernels.at( i ) );
+        }
+    }
+    loadSpiceKernelInTudat( kernelPath + "naif0012.tls" );
+}
+
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels, const std::string state )
 {
     std::string kernelPath = input_output::getSpiceKernelPath(state);
 
