@@ -15,7 +15,7 @@ namespace tudatpy {
         m.def("get_tudat_data_path",
               &getTudatDataPath,
 #ifdef TUDAT_INSTALL
-              py::arg("state") = "install",
+              py::arg("state") = "install"
 #else
               py::arg("state") = "build"
 #endif

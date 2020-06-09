@@ -113,7 +113,7 @@ target_include_directories(core PUBLIC
 
 target_include_directories(core SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
 target_compile_definitions(core PRIVATE "${pybind11_DEFINITIONS}")
-target_compile_definitions(core PRIVATE "${Tudat_DEFINITIONS}")
+#target_compile_definitions(core PRIVATE "${Tudat_DEFINITIONS}")
 set_target_properties(core PROPERTIES CXX_VISIBILITY_PRESET hidden)
 set_target_properties(core PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 

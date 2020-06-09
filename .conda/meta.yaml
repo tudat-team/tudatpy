@@ -1,11 +1,11 @@
 {% set name = "tudatpy" %}
 
 package:
-  name: {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudatpy') }}
-  version: {{ environ.get('NEW_GIT_TAG', 'dev') }}
+  name: tudatpy  # {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudatpy') }}
+  version: 1.0  #{{ environ.get('NEW_GIT_TAG', 'dev') }}
 
 source:
-  git_url: ../
+  path: ../
 
 build:
   # A non-negative integer representing the build number of the package.
@@ -20,6 +20,8 @@ build:
     - {{ pin_compatible('tudat', max_pin='x.x') }}
     - {{ pin_compatible('tudat-cspice', max_pin='x.x') }}
     - {{ pin_compatible('tudat-sofa', max_pin='x.x') }}
+    - {{ pin_compatible('numpy', max_pin='x.x') }}
+
 
 requirements:
   build:
@@ -33,14 +35,13 @@ requirements:
     - cmake
 
 outputs:
-  - name: {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudatpy') }}
+  - name: {{ environ.get('CIRCLE_ PROJECT_REPONAME', 'tudatpy') }}
     requirements:
       build:
         # Tools required to build the package. These packages are run on the build
         # system and include things such as revision control systems (Git, SVN) make
         # tools (GNU make, Autotool, CMake) and compilers (real cross, pseudo-cross,
         # or native when not cross-compiling), and any source pre-processors.
-#        - boost-cpp==1.64.0
         - eigen
         - tudat-cspice
         - tudat-sofa
@@ -54,8 +55,10 @@ outputs:
         - tudat
         - tudat-cspice
         - tudat-sofa
-        - python=3.7
+        - python
         - eigen
+        - numpy
+        - pandas
 
       run:
         # Packages required to run the package. These are the dependencies
@@ -64,7 +67,19 @@ outputs:
         - {{ pin_compatible('numpy') }}
         - {{ pin_compatible('pandas') }}
         - {{ pin_compatible('tudat') }}
-        - python=3.7
+        - python
+
+      test:
+        - pytest
+        - pandas
+
+test:
+  requires:
+    - pytest
+  files:
+    - test.py
+    - tests/test_constants.py
+    - tests/test_interface_spice.py
 
 about:
   home: http://tudat.tudelft.nl/

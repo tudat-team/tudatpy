@@ -10,7 +10,7 @@ from .core import _numerical_integrators
 from .core import _propagators
 from .core import _orbital_element_conversions
 from .core import _simulation_setup
-from .core import _io
+# from .core import _io
 from .core import _unit_tests
 from ._layer_simulation_setup import modify_simulation_setup
 import sys
@@ -52,8 +52,8 @@ modify_simulation_setup(_simulation_setup)
 sys.modules["tudatpy.simulation_setup"] = _simulation_setup
 sys.modules["simulation_setup"] = _simulation_setup
 
-sys.modules["tudatpy.io"] = _io
-sys.modules["io"] = _io
+# sys.modules["tudatpy.io"] = _io
+# sys.modules["io"] = _io
 
 sys.modules["tudatpy.unit_tests"] = _unit_tests
 sys.modules["unit_tests"] = _unit_tests
