@@ -2,20 +2,20 @@
 from tudatpy import _orbital_element_conversions as _oec
 import numpy as np
 
-from astropy import units as u
+# from astropy import units as u
 
-m_s = u.m / u.s
-m = u.m
-rad = u.rad
+# m_s = u.m / u.s
+# m = u.m
+# rad = u.rad
 
 
-@u.quantity_input
-def spherical2cartesian(r: m,
-                        lat: rad,
-                        lon: rad,
-                        speed: m_s,
-                        fpa: rad,
-                        heading: rad) -> np.ndarray:
+# @u.quantity_input
+def spherical2cartesian(r,
+                        lat,
+                        lon,
+                        speed,
+                        fpa,
+                        heading) -> np.ndarray:
     """
     Function to convert spherical state to cartesian.
 

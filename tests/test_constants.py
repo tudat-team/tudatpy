@@ -1,10 +1,9 @@
-from tudatpy import constants
+import tudatpy.constants as constants
 import unittest
 
 
 class TestPhysicalConstants(unittest.TestCase):
     """
-    Testing of interfaced Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h
     """
 
     def test_sea_level_gravitational_constant(self):
@@ -127,27 +126,3 @@ class TestCelestialBodyConstants(unittest.TestCase):
 
     def test_pluto_gravitational_parameter(self):
         assert constants.PLUTO_GRAVITATIONAL_PARAMETER == constants.SUN_GRAVITATIONAL_PARAMETER / 1.35e8
-
-    def test_planet_names(self):
-        assert constants.planet_names == {0: "Sun",
-                                          1: "Mercury",
-                                          2: "Venus",
-                                          3: "Earth",
-                                          4: "Mars",
-                                          5: "Jupiter",
-                                          6: "Saturn",
-                                          7: "Uranus",
-                                          8: "Neptune",
-                                          9: "Pluto"}
-
-    def test_planet_id_numbers(self):
-        assert constants.planet_id_numbers == {"Sun": 0,
-                                               "Mercury": 1,
-                                               "Venus": 2,
-                                               "Earth": 3,
-                                               "Mars": 4,
-                                               "Jupiter": 5,
-                                               "Saturn": 6,
-                                               "Uranus": 7,
-                                               "Neptune": 8,
-                                               "Pluto": 9}
