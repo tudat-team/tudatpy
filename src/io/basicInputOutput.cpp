@@ -83,7 +83,7 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
                  << std::setfill( '0' )
                  << exponent;
 
-    // Declare output string and write buffer output to the string.
+    // Declare output string and write bu ffer output to the string.
     std::string outputString;
     outputStream >> outputString;
 

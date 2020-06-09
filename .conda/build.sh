@@ -26,6 +26,7 @@ cmake \
     -DTUDAT_BUILD_WITH_SOFA_INTERFACE=on \
     -DTUDAT_BUILD_WITH_SPICE_INTERFACE=on \
     -DTUDAT_INSTALL=on \
+    -DTUDAT_TEST_INSTALL=off \
     ..
 
 make    #: Kills the remote build server.
