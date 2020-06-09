@@ -28,7 +28,7 @@ cmake \
     -Dpybind11_DIR="$TUDATPY_BUILD_DIR/share/cmake/pybind11/" \
     ..
 
-make -j2
+make
 
 #echo "Quick build test (Tudat_DATA_DIR):"
 #python3 -c "import tudatpy.io as io; print(io.get_tudat_data_path())"
