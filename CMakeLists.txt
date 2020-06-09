@@ -77,14 +77,31 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 #set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
 #add_definitions(-DTUDAT_BUNDLE_BUILD=1)
 #set(TUDAT_BUNDLE_BUILD on)
-set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON)	#add_definitions(-DTUDAT_BUNDLE_BUILD=1)
+set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON) #add_definitions(-DTUDAT_BUNDLE_BUILD=1)
 set(TUDAT_BUILD_WITH_SOFA_INTERFACE ON)
 set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
 set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
 set(TUDAT_INSTALL ON)
 set(TUDAT_TEST_INSTALL OFF)
+
+option(TUDATPY_CONDA_INSTALL OFF)
+
+set(TUDAT_CONDA_INSTALL ${TUDATPY_CONDA_INSTALL})
+
 #set(TUDAT_BUNDLE_BUILD ON)
-find_package (Python3 COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development)
+
+if (TUDAT_INSTALL)
+    add_definitions(-DTUDAT_INSTALL=1)
+endif ()
+
+if (TUDAT_CONDA_INSTALL)
+    add_definitions(-DTUDAT_CONDA_INSTALL=1)
+endif ()
+
+if (TUDAT_TEST_INSTALL)
+    add_definitions(-DTUDAT_TEST_INSTALL=1)
+endif ()
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
@@ -112,7 +129,7 @@ else ()
 endif ()
 
 # Sofa dependency if in build settings.
-    #
+#
 #    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(Tudat 4.0 REQUIRED)

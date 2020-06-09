@@ -3,11 +3,8 @@ boost:
 python:
   - 3.6
   - 3.7
-numpy:
-  - 1.14
-channel_sources: conda-forge,ggarrett13,defaults
-ignore_build_only_deps:
-  - numpy
-  - python
+channel_sources: conda-forge,tudat-team,defaults
+#ignore_build_only_deps:
+#  - python
 
 
