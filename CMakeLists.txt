@@ -325,6 +325,8 @@ add_subdirectory(examples)
 # Cleanup YOLO global project variables.
 #include(YOLOProjectCleanup)
 
+file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
+
 configure_file( # Really dirty trick, and should be removed.
         "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/tudat/paths.hpp" @ONLY
@@ -360,8 +362,6 @@ configure_file(
 # Configure file path for tudat data loading.
 #set(Tudat_DATA_DIRS ${INSTALL_CMAKE_DIR}/${RELATIVE_INSTALL_DATA_DIR})
 
-file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP "${INSTALL_INCLUDE_DIR}/tudat" "${INSTALL_DATA_DIR}/tudat")
-file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
 file(
         COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
@@ -386,6 +386,9 @@ else ()
             COMPATIBILITY SameMinorVersion)
 endif ()
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config-version.cmake" DESTINATION "${INSTALL_CMAKE_DIR}")
+
+# ========
+message(STATUS "TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX: ${TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX}")
 
 # +============================================================================
 # CLEAN UP (Project name independent)
