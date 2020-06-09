@@ -104,6 +104,8 @@ list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGAT
 #  Offer the user the choice of overriding the installation directories.
 # +============================================================================
 # TODO: Consider if this can work with <tudat/paths.hpp> going forward.
+option(TUDAT_INSTALL on)
+option(TUDAT_TEST_INSTALL on)
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
@@ -315,8 +317,8 @@ add_subdirectory(examples)
 #include(YOLOProjectCleanup)
 
 # Installation of the header files.
-install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}"
-        PATTERN include/paths* EXCLUDE)
+install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
+#        PATTERN include/paths* EXCLUDE)
 
 # Installation of the data files.
 install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}/tudat")
@@ -347,15 +349,17 @@ configure_file(
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP "${INSTALL_INCLUDE_DIR}/tudat" "${INSTALL_DATA_DIR}/tudat")
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
+#if(TUDAT_INSTALL)
 configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/paths.hpp" @ONLY
+"${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
+"${CMAKE_CURRENT_SOURCE_DIR}/include/tudat/paths.hpp" @ONLY
 )
+#endif()
 
-install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/paths.hpp"
-        DESTINATION "${INSTALL_INCLUDE_DIR}/tudat"
-)
+#install(
+#        FILES "${CMAKE_CURRENT_BINARY_DIR}/paths.hpp"
+#        DESTINATION "${INSTALL_INCLUDE_DIR}/tudat"
+#)
 
 file(
         COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"

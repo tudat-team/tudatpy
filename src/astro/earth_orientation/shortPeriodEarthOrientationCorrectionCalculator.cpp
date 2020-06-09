@@ -21,6 +21,12 @@ namespace earth_orientation
 template< >
 double ShortPeriodEarthOrientationCorrectionCalculator< double >::sumCorrectionTerms( const Eigen::Vector6d& arguments )
 {
+#ifdef TUDAT_TEST_INSTALL
+    static std::string state = "install";
+#else
+    static std::string state = "build";
+#endif
+
     // Initialize corrections to zero.
     double currentCorrection = 0;
     double tideAngle = 0.0;
@@ -52,6 +58,12 @@ template< >
 Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d >::sumCorrectionTerms(
         const Eigen::Vector6d& arguments )
 {
+#ifdef TUDAT_TEST_INSTALL
+        static std::string state = "install";
+#else
+        static std::string state = "build";
+#endif
+
     // Initialize corrections to zero.
     Eigen::Vector2d currentCorrection = Eigen::Vector2d::Zero( );
     double tideAngle = 0.0;
@@ -85,14 +97,19 @@ Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d
 std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
         const double minimumAmplitude )
 {
+#ifdef TUDAT_TEST_INSTALL
+        static std::string state = "install";
+#else
+        static std::string state = "build";
+#endif
     return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                 1.0E-6, minimumAmplitude,
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcLibrationAmplitudes.txt",
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationFundamentalArgumentMultipliers.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcLibrationFundamentalArgumentMultipliers.txt",
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 }
 
@@ -100,17 +117,22 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > get
 std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
         const double minimumAmplitude )
 {
+#ifdef TUDAT_TEST_INSTALL
+        static std::string state = "install";
+#else
+        static std::string state = "build";
+#endif
     return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), minimumAmplitude,
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
                     "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
                     "polarMotionOceanTidesAmplitudes.txt", },
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 

@@ -65,7 +65,7 @@ Vector6d getBodyCartesianStateAtEpoch(
 
     // Convert from km(/s) to m(/s).
     return unit_conversions::convertKilometersToMeters< Vector6d >(
-                cartesianStateVector );
+            cartesianStateVector );
 }
 
 //! Get Cartesian position of a body, as observed from another body.
@@ -93,7 +93,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
 
     // Convert from km to m.
     return unit_conversions::convertKilometersToMeters< Eigen::Vector3d >(
-                cartesianPositionVector );
+            cartesianPositionVector );
 }
 
 //! Compute quaternion of rotation between two frames.
@@ -219,9 +219,9 @@ double getBodyGravitationalParameter( const std::string& body )
 
     // Convert from km^3/s^2 to m^3/s^2
     return unit_conversions::convertKilometersToMeters< double >(
-                unit_conversions::convertKilometersToMeters< double >(
+            unit_conversions::convertKilometersToMeters< double >(
                     unit_conversions::convertKilometersToMeters< double >(
-                        gravitationalParameter[ 0 ] ) ) );
+                            gravitationalParameter[ 0 ] ) ) );
 }
 
 //! Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
@@ -236,7 +236,7 @@ double getAverageRadius( const std::string& body )
 
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >(
-                radii[ 0 ] + radii[ 1 ] + radii[ 2 ] ) / 3.0;
+            radii[ 0 ] + radii[ 1 ] + radii[ 2 ] ) / 3.0;
 }
 
 //! Convert a body name to its NAIF identification number.
@@ -279,9 +279,9 @@ int getTotalCountOfKernelsLoaded( )
 //! Clear all Spice kernels.
 void clearSpiceKernels( ) { kclear_c( ); }
 
-void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels  )
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels, const std::string state)
 {
-    std::string kernelPath = input_output::getSpiceKernelPath( );
+    std::string kernelPath = input_output::getSpiceKernelPath(state);
 
     loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
     loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
