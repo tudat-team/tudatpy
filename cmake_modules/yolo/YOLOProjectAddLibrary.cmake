@@ -22,11 +22,14 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
     #==========================================================================
     # TARGET-CONFIGURATION.
     #==========================================================================
-    target_include_directories("${target_name}"
-            PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-            )
+    # NOTE: make sure the include directories from the current build
+    # are included first, so that if there is already a pagmo installation
+    # in the prefix path we don't risk including the headers from that
+    # one instead.
+    target_include_directories("${target_name}" PUBLIC
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+            $<INSTALL_INTERFACE:include>)
 
     target_include_directories("${target_name}"
             SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}

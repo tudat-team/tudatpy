@@ -16,32 +16,27 @@ if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
 
 # Set cmake policy.
-#cmake_policy(SET CMP0024 OLD)
 cmake_policy(SET CMP0069 NEW)
 
+# Get version from file.
+file(READ "version" Tudat_VERSION)
+
 # Specific project name.
-project(Tudat VERSION 4.0.0 LANGUAGES C CXX)
+project(Tudat VERSION ${Tudat_VERSION} LANGUAGES C CXX)
 
 # Get lower string name of PROJECT_NAME for directory configuration.
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-#==============================================================================
-# TEMPORARILY HERE
-#==============================================================================
-#set(CMAKE_LIBRARY_PATH "/home/ggarrett/anaconda3/envs/test/lib")
-#set(CMAKE_INCLUDE_PATH "/home/ggarrett/anaconda3/envs/test/include")
-
-# Add local module path
+# Add local module path.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/yolo")
 
+# General system information.
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 enable_testing()
 set(Tudat_DEFINITIONS "")
-#==============================================================================
-
 
 # +============================================================================
 # BUILD OPTIONS
@@ -312,8 +307,6 @@ if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
 #    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
 endif ()
 
-# Include libraries of Tudat.
-include_directories(include/)
 add_subdirectory(src/astro)
 add_subdirectory(src/basics)
 add_subdirectory(src/interface)
@@ -329,12 +322,17 @@ file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PR
 
 configure_file( # Really dirty trick, and should be removed.
         "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/tudat/paths.hpp" @ONLY
+        "${CMAKE_CURRENT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
 )
+
+configure_file(
+        "${PROJECT_SOURCE_DIR}/config.hpp.in"
+        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
+        )
 
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
-#        PATTERN include/paths* EXCLUDE)
+install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" DESTINATION ${INSTALL_INCLUDE_DIR}/include/tudat)
 
 # Installation of the data files.
 install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}/tudat")
