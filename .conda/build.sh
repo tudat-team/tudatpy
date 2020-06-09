@@ -28,11 +28,7 @@ cmake \
     -Dpybind11_DIR="$TUDATPY_BUILD_DIR/share/cmake/pybind11/" \
     ..
 
-if[-v "$COMPILES_CORES"]; then
-  make "-j${COMPILE_CORES}"
-else
-  make
-fi
+make
 
 #echo "Quick build test (Tudat_DATA_DIR):"
 #python3 -c "import tudatpy.io as io; print(io.get_tudat_data_path())"

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from .core._io import *
+from .kernel.io import *
 
 
 def save2txt(solution, filename, directory="./", column_names=None):

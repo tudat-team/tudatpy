@@ -1,11 +1,11 @@
 {% set name = "tudatpy" %}
 
 package:
-  name: tudatpy  # {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudatpy') }}
-  version: 1.0  #{{ environ.get('NEW_GIT_TAG', 'dev') }}
+  name: {{ name }}
+  version: {{ environ.get('NEW_GIT_TAG', 'dev') }}
 
 source:
-  path: ../
+  git_url: ../
 
 build:
   # A non-negative integer representing the build number of the package.
@@ -29,7 +29,7 @@ requirements:
     - cmake
 
 outputs:
-  - name: {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudatpy') }}
+  - name: {{ name }}
     run_exports:
       - {{ pin_compatible('tudat', max_pin='x.x') }}
       - {{ pin_compatible('tudat-cspice', max_pin='x.x') }}

@@ -1,8 +1,8 @@
 # from .core import _spice_interface as spice_interface
 # from .core import _simulation_setup as simulation_setup
 
-from tudatpy import spice_interface
-from tudatpy import simulation_setup
+from tudatpy.kernel import spice_interface
+from tudatpy.kernel import simulation_setup
 from simulation_setup import Body as _Body
 import warnings
 import numpy as np
