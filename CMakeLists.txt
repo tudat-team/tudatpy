@@ -105,7 +105,7 @@ list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGAT
 # +============================================================================
 # TODO: Consider if this can work with <tudat/paths.hpp> going forward.
 option(TUDAT_INSTALL on)
-option(TUDAT_TEST_INSTALL on)
+option(TUDAT_TEST_INSTALL off)
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
