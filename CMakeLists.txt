@@ -49,55 +49,56 @@ set(Tudat_DEFINITIONS "")
 # +============================================================================
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TESTS=${TUDAT_BUILD_TESTS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TESTS=${TUDAT_BUILD_TESTS}")
 
 # Build option: include default data suite.
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_FETCH_DATA_SUITE=${TUDAT_FETCH_DATA_SUITE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_FETCH_DATA_SUITE=${TUDAT_FETCH_DATA_SUITE}")
 
 # Build with propagation tests.
 option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_PROPAGATION_TESTS=${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_PROPAGATION_TESTS=${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
 
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TUDAT_TUTORIALS=${TUDAT_BUILD_TUDAT_TUTORIALS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TUDAT_TUTORIALS=${TUDAT_BUILD_TUDAT_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_PAGMO_TUTORIALS "Build pagmo2 tutorials." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_PAGMO_TUTORIALS=${TUDAT_BUILD_PAGMO_TUTORIALS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_PAGMO_TUTORIALS=${TUDAT_BUILD_PAGMO_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TBB_SUPPORT "Build tbb support for Pagmo." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BUILD_TBB_SUPPORT}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BUILD_TBB_SUPPORT}")
+
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
 
 # Build sofa interface.
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 
 # Build spice interface.
 option(TUDAT_BUILD_WITH_SPICE_INTERFACE "Build Tudat with spice interface." ON)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE}")
 
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
-list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
@@ -105,7 +106,9 @@ list(APPEND ${Tudat_DEFINITIONS} "-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGAT
 # +============================================================================
 # TODO: Consider if this can work with <tudat/paths.hpp> going forward.
 option(TUDAT_INSTALL on)
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_INSTALL=${TUDAT_INSTALL}")
 option(TUDAT_TEST_INSTALL off)
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_TEST_INSTALL=${TUDAT_INSTALL}")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
@@ -178,6 +181,7 @@ include(compiler)
 if (TUDAT_CONDA_BUILD)
     message(STATUS "Building conda-build build of tudat.")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
 endif ()
 
 # Find Eigen3 library on local system and include directories.
@@ -301,6 +305,7 @@ include(TudatLinkLibraries)
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
     set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
+#    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
 endif ()
 
 # Include libraries of Tudat.
@@ -354,15 +359,6 @@ configure_file(
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_PATHS_HPP "${INSTALL_INCLUDE_DIR}/tudat" "${INSTALL_DATA_DIR}/tudat")
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
-#if(TUDAT_INSTALL)
-
-#endif()
-
-#install(
-#        FILES "${CMAKE_CURRENT_BINARY_DIR}/paths.hpp"
-#        DESTINATION "${INSTALL_INCLUDE_DIR}/tudat"
-#)
-
 file(
         COPY "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}"
@@ -373,9 +369,6 @@ install(
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
-
-# Install the export set for use with the install-tree
-#install(EXPORT tudat_targets DESTINATION "${INSTALL_CMAKE_DIR}")
 
 # Take care of versioning.
 include(CMakePackageConfigHelpers)

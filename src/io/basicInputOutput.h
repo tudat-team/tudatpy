@@ -45,7 +45,7 @@ namespace input_output
 * \return Tudat root-path.
 */
 
-static inline std::string getTudatRootPath( )
+static inline std::string getTudatRootPath()
 {
     return get_tudat_src_dir_path();
 }
