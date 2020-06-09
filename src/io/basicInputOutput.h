@@ -62,7 +62,7 @@ static inline std::string getTudatDataPath(
         return get_tudat_build_data_path();
     }
 #ifdef TUDAT_INSTALL
-        elif(strcmp(state.c_str(), "install")==0){
+        else if(strcmp(state.c_str(), "install")==0){
 return get_tudat_build_data_path();
 }
 #endif
