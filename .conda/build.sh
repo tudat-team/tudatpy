@@ -31,7 +31,11 @@ cmake \
 
 make    #: Kills the remote build server.
 
-#ctest
+make install
+
+# TODO: Need to increase fidelity of input_output library for install/build tree data loading. (also separate tests from source).
+
+ctest
 
 
 # Log CircleCI results in JUnit in ~/tmp/test-reports
@@ -50,4 +54,3 @@ make    #: Kills the remote build server.
 #mkdir -p $HOME/tmp/test-reports
 #find ./Testing -name \*.xml -exec cp {} $HOME/tmp/test-reports/test.xml \;
 
-make install
