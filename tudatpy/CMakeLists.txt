@@ -59,8 +59,8 @@ endforeach ()
 
 
 # Core module.
-YACMA_PYTHON_MODULE(core
-        kernel/core.cpp
+YACMA_PYTHON_MODULE(kernel
+        kernel/kernel.cpp
         kernel/expose_constants.cpp
         kernel/expose_root_finders.cpp
         kernel/expose_interpolators.cpp
@@ -76,52 +76,52 @@ YACMA_PYTHON_MODULE(core
         kernel/expose_simulation_setup.cpp
         kernel/expose_unit_tests.cpp
         kernel/expose_io.cpp
-        #        expose_mathematics.cpp
-        #        trampoline_classes.cpp
         kernel/docstrings.cpp
-        #        expose_ephemeris.cpp
         )
 
-target_link_libraries(core PRIVATE
+target_link_libraries(kernel PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
         ${Tudat_PROPAGATION_LIBRARIES})
 
-#target_include_directories(core PUBLIC
-#        $<BUILD_INTERFACE:${pybind11_INCLUDE_DIR}>
-#        $<INSTALL_INTERFACE:include>)
-
-target_include_directories(core PUBLIC
+target_include_directories(kernel PUBLIC
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
-        $<INSTALL_INTERFACE:include>)
-
-target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${Tudat_INCLUDE_DIRS}>
-        $<INSTALL_INTERFACE:include>)
-
-target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>
-        $<INSTALL_INTERFACE:include>)
-
-target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
-        $<INSTALL_INTERFACE:include>)
-
-target_include_directories(core PUBLIC
         $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
         $<INSTALL_INTERFACE:include>)
 
-target_include_directories(core SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
-target_compile_definitions(core PRIVATE "${pybind11_DEFINITIONS}")
-#target_compile_definitions(core PRIVATE "${Tudat_DEFINITIONS}")
-set_target_properties(core PROPERTIES CXX_VISIBILITY_PRESET hidden)
-set_target_properties(core PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+#target_include_directories(core PUBLIC
+#        $<BUILD_INTERFACE:${Tudat_INCLUDE_DIRS}>
+#        $<INSTALL_INTERFACE:include>)
+#
+#target_include_directories(core PUBLIC
+#        $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>
+#        $<INSTALL_INTERFACE:include>)
+#
+#target_include_directories(core PUBLIC
+#        $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
+#        $<INSTALL_INTERFACE:include>)
+#
+#target_include_directories(core PUBLIC
+#        $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
+#        $<INSTALL_INTERFACE:include>)
+
+target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
+target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
+target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")
+target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
+target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
+target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
+set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 
 # Setup the installation path.
 set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 
-# Install the core module.
-install(TARGETS core
+# Install the kernel module.
+install(TARGETS kernel
         RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}
         LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}
         )

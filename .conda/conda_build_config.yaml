@@ -1,10 +1,9 @@
 boost:
   - 1.64.0
 python:
-  - 3.6
   - 3.7
-channel_sources: conda-forge,tudat-team,defaults
-#ignore_build_only_deps:
-#  - python
+#channel_sources: conda-forge,tudat-team,defaults
+ignore_build_only_deps:
+  - python
 
 

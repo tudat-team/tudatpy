@@ -1,4 +1,4 @@
-from ..core.simulation_setup import Body as _Body
+from ..kernel.simulation_setup import Body as _Body
 import numpy as np
 
 

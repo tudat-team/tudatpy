@@ -1,6 +1,6 @@
 from ._body import Body
-from ..core._simulation_setup import create_bodies
-from ..core._simulation_setup import get_default_body_settings
+from ..kernel.simulation_setup import create_bodies
+from ..kernel.simulation_setup import get_default_body_settings
 
 Earth = Body("Earth")
 Earth = Body("Earth")
