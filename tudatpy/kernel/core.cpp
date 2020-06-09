@@ -14,6 +14,7 @@
 #include "expose_propagators.h"
 #include "expose_simulation_setup.h"
 #include "expose_unit_tests.h"
+#include "expose_io.h"
 
 #include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
 
@@ -84,6 +85,10 @@ PYBIND11_MODULE (core, m) {
     // simulation_setup module
     auto simulation_setup = m.def_submodule("_simulation_setup");
     tudatpy::expose_simulation_setup(simulation_setup);
+
+    // io module
+    auto io = m.def_submodule("_io");
+    tudatpy::expose_io(io);
 
     // unit_tests module
     auto unit_tests = m.def_submodule("_unit_tests");
