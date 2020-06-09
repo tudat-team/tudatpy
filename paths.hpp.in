@@ -11,9 +11,9 @@
 static inline std::string get_tudat_install_data_path() {
     // Function is used by libraries post, post installation to find data dirs.
 #ifdef TUDAT_CONDA_INSTALL
-        std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";
+    std::string INSTALL_PREFIX = "/opt/anaconda1anaconda2anaconda3";
 #else
-        std::string INSTALL_PREFIX = "/opt/anaconda1anaconda2anaconda3";
+    std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";
 #endif //TUDAT_CONDA_INSTALL
     return INSTALL_PREFIX + "/@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
 }
