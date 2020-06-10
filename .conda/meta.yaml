@@ -25,7 +25,7 @@ requirements:
     # or native when not cross-compiling), and any source pre-processors.
     - {{ compiler('cxx') }}            # [not win]
     - {{ compiler('c') }}              # [not win]
-#    - vs2017_{{ target_platform  }}    # [win]
+    - vs2017_{{ target_platform  }}    # [win]
     - cmake
 
 outputs:
@@ -54,7 +54,6 @@ outputs:
         - tudat-sofa
         - python
         - eigen
-        - pandas
         - numpy
       run:
         # Packages required to run the package. These are the dependencies
@@ -62,7 +61,6 @@ outputs:
         # Package names should follow the package match specifications.
         - {{ pin_compatible('numpy') }}
         - {{ pin_compatible('tudat') }}
-        - {{ pin_compatible('pandas') }}
         - python
 
 test:
