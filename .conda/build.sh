@@ -33,10 +33,6 @@ make    #: Kills the remote build server.
 
 make install
 
-# TODO: Need to increase fidelity of input_output library for install/build tree data loading. (also separate tests from source).
-
-ctest
-
 
 # Log CircleCI results in JUnit in ~/tmp/test-reports
 #if [ -z "$CIRCLECI"  ]; then
