@@ -353,6 +353,13 @@ export(PACKAGE ${PROJECT_NAME})
 # PROJECT CONFIG
 #  Add the targets, libraries and tests.
 # +============================================================================
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}-config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+        INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}")
+
 configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}-config.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake" @ONLY
@@ -368,13 +375,14 @@ file(
 )
 
 install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+        FILES
+#        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 
 # Take care of versioning.
-include(CMakePackageConfigHelpers)
+
 # NOTE: SameMinorVersion available only
 # since CMake 3.11.
 if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
