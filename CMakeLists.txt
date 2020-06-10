@@ -131,7 +131,7 @@ endif ()
 #
 #    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Tudat 4.0 REQUIRED)
+    find_package(Tudat 2.8 REQUIRED)
 
     if (TUDATPY_CONDA_BUILD)
         message(STATUS "Building conda-build build of tudat.")
