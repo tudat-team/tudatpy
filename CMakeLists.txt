@@ -8,7 +8,7 @@ endif (POLICY CMP0048)
 file(READ "version" TudatPy_VERSION)
 project(TudatPy VERSION "${TudatPy_VERSION}" LANGUAGES CXX C)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
@@ -17,7 +17,6 @@ message(STATUS "TudatPy version: ${TudatPy_VERSION}")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -89,7 +88,7 @@ option(TUDATPY_CONDA_BUILD OFF)
 set(TUDAT_CONDA_BUILD ${TUDATPY_CONDA_BUILD})
 
 #set(TUDAT_BUNDLE_BUILD ON)
-find_package(Python3 COMPONENTS Interpreter Development)
+#find_package(Python3 COMPONENTS Interpreter Development)
 
 if (TUDAT_INSTALL)
     add_definitions(-DTUDAT_INSTALL=1)
