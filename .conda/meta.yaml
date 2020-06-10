@@ -63,13 +63,16 @@ outputs:
         - {{ pin_compatible('tudat') }}
         - python
 
-test:
-  requires:
-    - pytest
-  files:
-    - test.py
-    - tests/test_constants.py
-    - tests/test_interface_spice.py
+#test:
+#  requires:
+#    - pytest
+#    - tudatpy
+#    - tudatpy.kernel
+#
+#  files:
+#    - test.py
+#    - tests/test_constants.py
+#    - tests/test_interface_spice.py
 
 about:
   home: http://tudat.tudelft.nl/
