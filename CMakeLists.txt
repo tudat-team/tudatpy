@@ -321,8 +321,8 @@ add_subdirectory(examples)
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
 configure_file( # Really dirty trick, and should be removed.
-        "${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
+        "${PROJECT_SOURCE_DIR}/paths.hpp.in"
+        "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
 )
 
 configure_file(
@@ -332,7 +332,8 @@ configure_file(
 
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" DESTINATION ${INSTALL_INCLUDE_DIR}/include/tudat)
+install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp"
+        DESTINATION ${INSTALL_INCLUDE_DIR}/tudat)
 
 # Installation of the data files.
 install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}/tudat")
