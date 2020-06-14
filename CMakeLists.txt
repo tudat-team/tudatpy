@@ -186,6 +186,9 @@ endif ()
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
+endif ()
 
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
@@ -193,6 +196,9 @@ if (TUDAT_BUILD_TESTS)
     set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
 endif ()
 include(TudatFindBoost)
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+endif ()
 #find_package(Boost REQUIRED)
 #include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
@@ -304,7 +310,7 @@ include(TudatLinkLibraries)
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
     set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
-#    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
+    #    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
 endif ()
 
 add_subdirectory(src/astro)
@@ -323,12 +329,12 @@ file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PR
 configure_file( # Really dirty trick, and should be removed.
         "${PROJECT_SOURCE_DIR}/paths.hpp.in"
         "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
-)
+        )
 
 configure_file(
         "${PROJECT_SOURCE_DIR}/config.hpp.in"
         "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-        )
+)
 
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
