@@ -177,13 +177,15 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 if (APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -lstdc++ -v")
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -lstdc++ -v")
 endif ()
 
 if (TUDAT_CONDA_BUILD)
     message(STATUS "Building conda-build build of tudat.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
+    if (NOT APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+        set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
+    endif ()
 endif ()
 
 # Find Eigen3 library on local system and include directories.
