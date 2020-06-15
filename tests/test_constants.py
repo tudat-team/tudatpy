@@ -1,4 +1,4 @@
-import tudatpy.constants as constants
+import tudatpy.kernel.constants as constants
 import unittest
 
 
@@ -79,7 +79,7 @@ class TestPhysicalConstants(unittest.TestCase):
         assert constants.LG_TIME_RATE_TERM_LONG == 6.969290134e-10
 
 
-class TestCelestialBodyConstants(unittest.TestCase):
+class TestCelestialConstants(unittest.TestCase):
     """
     Testing of interfaced Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h
     """

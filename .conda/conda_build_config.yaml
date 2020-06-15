@@ -1,9 +1,15 @@
 boost:
   - 1.64.0
 python:
+  - 3.6
   - 3.7
-#channel_sources: conda-forge,tudat-team,defaults
+numpy:
+  - 1.14
+channel_targets:
+  - tudat-team main
+channel_sources:
+  - tudat-team, conda-forge, defaults
 ignore_build_only_deps:
+  - numpy
   - python
-
 
