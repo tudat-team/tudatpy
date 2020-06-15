@@ -4,6 +4,8 @@ from .kernel import simulation_setup
 modify_simulation_setup(simulation_setup)
 
 __all__ = [
+    'apps',
+    'bodies',
     'io',
     'elements',
     'prototype',
@@ -26,4 +28,3 @@ __all__ = [
 
 # Clean up namespace
 del modify_simulation_setup
-
