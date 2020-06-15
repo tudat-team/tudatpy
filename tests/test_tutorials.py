@@ -1,13 +1,13 @@
 import unittest
 import numpy as np
-from tudatpy.apps import single_satellite_propagator
+from tudatpy.apps import satellite_propagator
 from tudatpy.kernel import constants
 
 
 class TestTutorials(unittest.TestCase):
 
     def test_tutorial_1(self):
-        test_output = single_satellite_propagator(
+        test_output = satellite_propagator.single(
             start_epoch=0.0,
             fixed_step_size=10.0,
             end_epoch=constants.JULIAN_DAY,

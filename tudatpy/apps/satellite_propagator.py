@@ -1,7 +1,6 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-
 import numpy as np
 import pandas as pd
 from tudatpy import elements
@@ -15,7 +14,7 @@ from tudatpy.kernel import simulation_setup
 ###############################################################################
 # FUNCTION DEFINITION OF TUTORIAL #############################################
 ###############################################################################
-def single_satellite_propagator(
+def single(
         start_epoch=0.0,
         fixed_step_size=10.0,
         end_epoch=constants.JULIAN_DAY,

@@ -1,3 +1,1 @@
-
-from ._single_satellite_propagator import single_satellite_propagator
-
+__all__ = ["satellite_propagator"]

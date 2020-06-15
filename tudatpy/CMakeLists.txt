@@ -92,22 +92,6 @@ target_include_directories(kernel PUBLIC
         $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
         $<INSTALL_INTERFACE:include>)
 
-#target_include_directories(core PUBLIC
-#        $<BUILD_INTERFACE:${Tudat_INCLUDE_DIRS}>
-#        $<INSTALL_INTERFACE:include>)
-#
-#target_include_directories(core PUBLIC
-#        $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>
-#        $<INSTALL_INTERFACE:include>)
-#
-#target_include_directories(core PUBLIC
-#        $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
-#        $<INSTALL_INTERFACE:include>)
-#
-#target_include_directories(core PUBLIC
-#        $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
-#        $<INSTALL_INTERFACE:include>)
-
 target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
 target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
 target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")
@@ -130,10 +114,13 @@ install(TARGETS kernel
 install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
         DESTINATION ${TUDATPY_INSTALL_PATH})
 
-install(DIRECTORY apps/ DESTINATION "${TUDATPY_INSTALL_PATH}")
-install(DIRECTORY bodies/ DESTINATION "${TUDATPY_INSTALL_PATH}")
+macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
+    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+endmacro()
+
+INSTALL_PURE_PYTHON_MODULE_DIR(apps)
+INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
+INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-
-file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
