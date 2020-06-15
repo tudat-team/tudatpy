@@ -204,7 +204,7 @@ def single(
 
     # Print output
     if print_output:
-        print(output.T)
+        print(output)
 
     # Return output
     if return_output:
