@@ -4,7 +4,7 @@ from setuptools.dist import Distribution
 import sys
 
 NAME = 'tudatpy'
-VERSION = '0.3.1'
+VERSION = ''
 DESCRIPTION = 'TU Delft Astrodynamics Toolbox in Python'
 LONG_DESCRIPTION = 'A platform to accelerate Tudat implementation, interface with machine learning frameworks and provide a tool for contemporary education in astrodynamics.'
 URL = 'https://github.com/ggarrett13/tudatpy'
