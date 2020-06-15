@@ -137,7 +137,9 @@ if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
         message(STATUS "Building conda-build build of tudat.")
 
         # TODO: Should inherit this from Tudat definitions.
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+        if (NOT APPLE)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+        endif (NOT APPLE)
     endif ()
 
 else ()
