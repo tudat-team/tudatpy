@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/config.hpp>
+#include <tudat/paths.hpp>
 
 #include "expose_constants.h"
 #include "expose_root_finders.h"
@@ -98,6 +99,16 @@ PYBIND11_MODULE (kernel, m) {
     unit_tests.def("get_apollo_coefficient_interface",
                    tudat::unit_tests::getApolloCoefficientInterface,
                    "<no doc>");
+
+    // Tudat path information. Maybe move to path module or external cpp file.
+    m.def("get_tudat_path", &tudat::input_output::get_tudat_path);
+    m.def("get_tudat_data_path", &tudat::input_output::get_tudat_data_path);
+    m.def("get_ephemeris_data_files_path", &tudat::input_output::getEphemerisDataFilesPath);
+    m.def("get_earth_orientation_data_files_path", &tudat::input_output::getEarthOrientationDataFilesPath);
+    m.def("get_spice_kernel_path", &tudat::input_output::getSpiceKernelPath);
+    m.def("get_atmosphere_tables_path", &tudat::input_output::getAtmosphereTablesPath);
+    m.def("get_gravity_models_path", &tudat::input_output::getGravityModelsPath);
+    m.def("get_space_weather_data_path", &tudat::input_output::getSpaceWeatherDataPath);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

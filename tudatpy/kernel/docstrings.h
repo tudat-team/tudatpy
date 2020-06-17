@@ -2,8 +2,8 @@
 // Created by ggarrett on 24-04-20.
 //
 
-#ifndef TUDATBUNDLE_DOSTRINGS_H
-#define TUDATBUNDLE_DOSTRINGS_H
+#ifndef TUDAT_DOSTRINGS_H
+#define TUDAT_DOSTRINGS_H
 
 #include <string>
 
