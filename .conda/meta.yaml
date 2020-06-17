@@ -1,9 +1,12 @@
 package:
-  name:  {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudat') }}
-  version: {{ environ.get('NEW_GIT_TAG', 'dev') }}
+#  name:  {{ environ.get('CIRCLE_PROJECT_REPONAME', 'tudat') }}
+  name:  tudat
+  version: 2.8.19
+#  version: {{ environ.get('NEW_GIT_TAG', 'dev') }}
 
 source:
-  git_url: ../
+  git_url: https://github.com/tudat-team/tudat.git
+  git_rev: 88bcc2e94a8b41ce3fa36b04e61cd48b04711c8e
 
 build:
   # A non-negative integer representing the build number of the package.
@@ -15,8 +18,8 @@ build:
   number: 1
   skip: true  # [win and vc<14]
   run_exports:
-    - tudat-cspice
-    - tudat-sofa
+    - cspice-cmake
+    - sofa-cmake
   detect_binary_files_with_prefix: true
   missing_dso_whitelist:
     - libgcc-ng
@@ -46,8 +49,8 @@ outputs:
         # tools (GNU make, Autotool, CMake) and compilers (real cross, pseudo-cross,
         # or native when not cross-compiling), and any source pre-processors.
         - boost-cpp==1.64.0
-        - tudat-cspice
-        - tudat-sofa
+        - cspice-cmake
+        - sofa-cmake
         - eigen
 
       host:
@@ -55,8 +58,8 @@ outputs:
         # target platform is not necessarily the same as the native build
         # platform
         - boost-cpp==1.64.0
-        - tudat-cspice
-        - tudat-sofa
+        - cspice-cmake
+        - sofa-cmake
         - eigen
 
       run:
