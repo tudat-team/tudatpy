@@ -61,7 +61,7 @@ if( TUDAT_BUILD_CLANG )
     set ( CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" )
     set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g" )
 
-    set ( CMAKE_CXX_FLAGS                "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11" )
+    set ( CMAKE_CXX_FLAGS                "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libstdc++ -lstdc++" )
     set ( CMAKE_CXX_FLAGS_DEBUG          "-g" )
     set ( CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG" )
     set ( CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG" )

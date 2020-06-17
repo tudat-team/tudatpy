@@ -72,7 +72,7 @@ set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BU
 
 
 # Build static library instead of dynamic.
-option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." OFF)
+option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." ON)
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
 
 # Build static library instead of dynamic.
@@ -143,12 +143,7 @@ endforeach ()
 # +============================================================================
 if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
-    if (TUDAT_CONDA_BUILD)
-        # Going off intuition.
-        set(CMAKE_INSTALL_RPATH "")
-    else ()
-        set(CMAKE_INSTALL_RPATH "")
-    endif ()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
@@ -156,7 +151,6 @@ endif ()
 # Enforce TBB if pagmo tutorials are to be built.
 if (TUDAT_BUILD_PAGMO_TUTORIALS)
     if (TUDAT_BUILD_TBB_SUPPORT)
-
     else ()
         message("Forcing TBB support for Pagmo tutorial build.")
         set(TUDAT_BUILD_TBB_SUPPORT ON)
@@ -186,6 +180,10 @@ endif ()
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++")
+endif ()
 
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
@@ -193,6 +191,9 @@ if (TUDAT_BUILD_TESTS)
     set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
 endif ()
 include(TudatFindBoost)
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+endif ()
 #find_package(Boost REQUIRED)
 #include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
@@ -304,7 +305,7 @@ include(TudatLinkLibraries)
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
     set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
-#    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
+    #    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
 endif ()
 
 add_subdirectory(src/astro)
@@ -323,12 +324,12 @@ file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PR
 configure_file( # Really dirty trick, and should be removed.
         "${PROJECT_SOURCE_DIR}/paths.hpp.in"
         "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
-)
+        )
 
 configure_file(
         "${PROJECT_SOURCE_DIR}/config.hpp.in"
         "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-        )
+)
 
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
