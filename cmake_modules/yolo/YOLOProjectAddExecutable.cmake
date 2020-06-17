@@ -38,7 +38,7 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
             LINKER_LANGUAGE CXX
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
 
     # Let's setup the target C++ standard, but only if the user did not provide it manually.

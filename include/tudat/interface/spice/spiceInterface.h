@@ -266,16 +266,9 @@ int getTotalCountOfKernelsLoaded( );
  */
 void clearSpiceKernels( );
 
-void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels );
 
 void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels =
-        std::vector< std::string >( ),
-#ifdef TUDAT_INSTALL
-        const std::string state = "install"
-#else
-        const std::string state = "build"
-#endif
-        );
+        std::vector< std::string >( ));
 
 } // namespace spice_interface
 } // namespace tudat

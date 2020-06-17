@@ -97,19 +97,15 @@ Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d
 std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
         const double minimumAmplitude )
 {
-#ifdef TUDAT_TEST_INSTALL
-        static std::string state = "install";
-#else
-        static std::string state = "build";
-#endif
+
     return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                 1.0E-6, minimumAmplitude,
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcLibrationAmplitudes.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcOceanTidesAmplitudes.txt" },
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) + "utcLibrationAmplitudes.txt",
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) + "utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcLibrationFundamentalArgumentMultipliers.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) + "utcLibrationFundamentalArgumentMultipliers.txt",
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 }
 
@@ -117,22 +113,18 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > get
 std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
         const double minimumAmplitude )
 {
-#ifdef TUDAT_TEST_INSTALL
-        static std::string state = "install";
-#else
-        static std::string state = "build";
-#endif
+
     return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), minimumAmplitude,
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) +
                     "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) +
                     "polarMotionOceanTidesAmplitudes.txt", },
                 std::vector< std::string >{
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) +
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( state ) +
+                    tudat::input_output::getEarthOrientationDataFilesPath(  ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 

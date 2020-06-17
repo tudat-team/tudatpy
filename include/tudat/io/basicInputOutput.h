@@ -38,125 +38,6 @@ namespace tudat
 namespace input_output
 {
 
-//! Get root-path for Tudat library.
-/*!
- * Returns root-path corresponding with root-directory of Tudat library as a string with
- * trailing slash included.
- * \return Tudat root-path.
- */
-
-static inline std::string getTudatRootPath( )
-{
-    return get_tudat_src_dir_path();
-}
-
-
-static inline std::string getTudatDataPath(
-#ifdef TUDAT_INSTALL
-        std::string state = "install"
-#else
-        std::string state = "build"
-#endif
-        ){
-if (strcmp(state.c_str(), "build")==0){
-    return get_tudat_build_data_path();
-}
-#ifdef TUDAT_INSTALL
-else if (strcmp(state.c_str(), "install")==0){
-    return get_tudat_install_data_path();
-}
-#endif
-else{
-    throw std::invalid_argument("Argument not recognised in getTudatDataPath().");
-}
-}
-
-static inline std::string getEphemerisDataFilesPath(
-#ifdef TUDAT_INSTALL
-        std::string state = "install"
-#else
-        std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/ephemeris_data/";
-}
-
-static inline std::string getEarthOrientationDataFilesPath(
-#ifdef TUDAT_INSTALL
-        std::string state = "install"
-#else
-        std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/earth_orientation/";
-}
-
-//! Get Spice kernel path.
-/*!
- * Returns path in which Spice kernels are located.
- * \return Path containing Spice kernels.
- */
-static inline std::string getSpiceKernelPath(
-#ifdef TUDAT_INSTALL
-                std::string state = "install"
-#else
-                std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/spice_kernels/";
-}
-
-//! Get atmosphere tables path.
-/*!
- * Returns path in which atmosphere tables are located.
- * \return Path containing atmosphere tables.
- */
-static inline std::string getAtmosphereTablesPath(
-#ifdef TUDAT_INSTALL
-                std::string state = "install"
-#else
-                std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/atmosphere_tables/";
-}
-
-//! Get gravity models path.
-/*!
- * Returns path in which gravity models are located.
- * \return Path containing gravity models.
- */
-static inline std::string getGravityModelsPath(
-#ifdef TUDAT_INSTALL
-                std::string state = "install"
-#else
-                std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/gravity_models/";
-}
-
-//! Get space weather data files path.
-/*!
- * Returns path in which space weather data files are located.
- * \return Path containing space weather data files.
- */
-static inline std::string getSpaceWeatherDataPath(
-#ifdef TUDAT_INSTALL
-                std::string state = "install"
-#else
-                std::string state = "build"
-#endif
-        )
-{
-    return getTudatDataPath(state) + "/space_weather_data/";
-}
-
 //! Print floating-point number in formatted scientific notation.
 /*!
  * Prints floating-point number in formatted scientific notation. The user can specify the
@@ -365,7 +246,7 @@ void writeDataMapToTextFile( InputIterator first, InputIterator last,
 {
     writeDataMapToTextFile( first, last,
                             outputFilename,
-                            getTudatRootPath( ),
+                            get_tudat_path( ),
                             "",
                             std::numeric_limits< typename
                             InputIterator::value_type::first_type >::digits10,
@@ -390,7 +271,7 @@ void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
 {
     return writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
                                    outputFilename,
-                                   getTudatRootPath( ),
+                                   get_tudat_path( ),
                                    "",
                                    std::numeric_limits< KeyType >::digits10,
                                    std::numeric_limits< ValueType >::digits10,
@@ -421,7 +302,7 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
 {
     return writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
                                    outputFilename,
-                                   getTudatRootPath( ),
+                                   get_tudat_path( ),
                                    "",
                                    std::numeric_limits< KeyType >::digits10,
                                    std::numeric_limits< ScalarType >::digits10,
@@ -469,7 +350,7 @@ template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
                         const int precisionOfMatrixEntries = 16,
-                        const boost::filesystem::path& outputDirectory = getTudatRootPath( ),
+                        const boost::filesystem::path& outputDirectory = get_tudat_path( ),
                         const std::string& delimiter = "\t",
                         const std::string& header = "" )
 {
