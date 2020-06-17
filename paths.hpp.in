@@ -7,31 +7,43 @@
 
 #include <string.h>
 
-#ifdef TUDAT_INSTALL
-static inline std::string get_tudat_install_data_path() {
-    // Function is used by libraries post, post installation to find data dirs.
-#ifdef TUDAT_CONDA_BUILD
-    std::string INSTALL_PREFIX = "/opt/anaconda1anaconda2anaconda3";
-#else
-    std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";
-#endif //TUDAT_CONDA_BUILD
-    return INSTALL_PREFIX + "/@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
+namespace tudat::input_output {
+
+    static inline std::string get_tudat_path() {
+        return "@CMAKE_INSTALL_PREFIX@";
+    }
+
+    static inline std::string getTudatRootPath() {
+        return "@CMAKE_INSTALL_PREFIX@";
+    }
+
+    static inline std::string get_tudat_data_path() {
+        return get_tudat_path() + "/" + "@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
+    }
+
+    static inline std::string getEphemerisDataFilesPath() {
+        return get_tudat_data_path() + "/" + "ephemeris_data" + "/";
+    }
+
+    static inline std::string getEarthOrientationDataFilesPath() {
+        return get_tudat_data_path() + "/" + "earth_orientation" + "/";
+    }
+
+    static inline std::string getSpiceKernelPath() {
+        return get_tudat_data_path() + "/" + "spice_kernels" + "/";
+    }
+
+    static inline std::string getAtmosphereTablesPath() {
+        return get_tudat_data_path() + "/" + "atmosphere_tables" + "/";
+    }
+
+    static inline std::string getGravityModelsPath() {
+        return get_tudat_data_path() +  "/" + "gravity_models" + "/";
+    }
+
+    static inline std::string getSpaceWeatherDataPath() {
+        return get_tudat_data_path() +  "/" + "space_weather_data" +"/";
+    }
+
 }
-#endif //TUDAT_INSTALL
-
-static inline std::string get_tudat_build_data_path() {
-    // Function can only be used in build-tree (i.e. build tests).
-    std::string filePath_( __FILE__ );
-    return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "include/tudat/paths.hpp" ).length( ) ) + "data/";
-}
-
-static inline std::string get_tudat_src_dir_path() {
-    // Function is used to find src_dir in order to find test data. (this will be deprecated in favour of a tests folder).
-    std::string filePath_( __FILE__ );
-    return filePath_.substr( 0, filePath_.length( ) - std::string( "include/tudat/paths.hpp" ).length( ) ) + "src/";
-
-}
-
-
 #endif //TUDAT_PATHS_HPP

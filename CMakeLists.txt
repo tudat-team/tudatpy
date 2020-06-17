@@ -72,7 +72,7 @@ set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BU
 
 
 # Build static library instead of dynamic.
-option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." OFF)
+option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." ON)
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
 
 # Build static library instead of dynamic.
@@ -143,12 +143,7 @@ endforeach ()
 # +============================================================================
 if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
-    if (TUDAT_CONDA_BUILD)
-        # Going off intuition.
-        set(CMAKE_INSTALL_RPATH "")
-    else ()
-        set(CMAKE_INSTALL_RPATH "")
-    endif ()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
@@ -156,7 +151,6 @@ endif ()
 # Enforce TBB if pagmo tutorials are to be built.
 if (TUDAT_BUILD_PAGMO_TUTORIALS)
     if (TUDAT_BUILD_TBB_SUPPORT)
-
     else ()
         message("Forcing TBB support for Pagmo tutorial build.")
         set(TUDAT_BUILD_TBB_SUPPORT ON)
