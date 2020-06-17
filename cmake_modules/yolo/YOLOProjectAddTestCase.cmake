@@ -1,6 +1,18 @@
 include(CMakeParseArguments)
 
 set(TESTS_REQUIRING_TEST_DATA
+        # Fails remotely
+        test_aerodynamics_AerodynamicMomentAndAerodynamicForce
+        test_aerodynamics_TabulatedAtmosphere
+        test_aerodynamics_ControlSurfaceIncrements
+        test_aerodynamics_WindModel
+        test_ephemerides_ApproximatePlanetPositions
+        test_ephemerides_TabulatedEphemeris
+        test_spice_SpiceInterface
+        test_simulation_EnvironmentModelSetup
+        test_simulation_AccelerationModelSetup
+        test_io_BasicInputOutput
+        # Fails locally
         test_aerodynamics_AerodynamicCoefficientsFromFile
         test_basic_astro_EmpiricalAcceleration
         test_earth_orientation_EarthOrientationCalculator
