@@ -1,49 +1,57 @@
-//
-// Created by ggarrett on 07-06-20.
-//
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
 #ifndef TUDAT_PATHS_HPP
 #define TUDAT_PATHS_HPP
 
 #include <string.h>
 
-namespace tudat::input_output {
+namespace tudat {
+    namespace input_output {
 
-    static inline std::string get_tudat_path() {
-        return "@CMAKE_INSTALL_PREFIX@";
+        static inline std::string get_tudat_path() {
+            return "@CMAKE_INSTALL_PREFIX@";
+        }
+
+        static inline std::string getTudatRootPath() {
+            return "@CMAKE_INSTALL_PREFIX@";
+        }
+
+        static inline std::string get_tudat_data_path() {
+            return get_tudat_path() + "/" + "@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
+        }
+
+        static inline std::string getEphemerisDataFilesPath() {
+            return get_tudat_data_path() + "/" + "ephemeris_data" + "/";
+        }
+
+        static inline std::string getEarthOrientationDataFilesPath() {
+            return get_tudat_data_path() + "/" + "earth_orientation" + "/";
+        }
+
+        static inline std::string getSpiceKernelPath() {
+            return get_tudat_data_path() + "/" + "spice_kernels" + "/";
+        }
+
+        static inline std::string getAtmosphereTablesPath() {
+            return get_tudat_data_path() + "/" + "atmosphere_tables" + "/";
+        }
+
+        static inline std::string getGravityModelsPath() {
+            return get_tudat_data_path() + "/" + "gravity_models" + "/";
+        }
+
+        static inline std::string getSpaceWeatherDataPath() {
+            return get_tudat_data_path() + "/" + "space_weather_data" + "/";
+        }
+
     }
-
-    static inline std::string getTudatRootPath() {
-        return "@CMAKE_INSTALL_PREFIX@";
-    }
-
-    static inline std::string get_tudat_data_path() {
-        return get_tudat_path() + "/" + "@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@";
-    }
-
-    static inline std::string getEphemerisDataFilesPath() {
-        return get_tudat_data_path() + "/" + "ephemeris_data" + "/";
-    }
-
-    static inline std::string getEarthOrientationDataFilesPath() {
-        return get_tudat_data_path() + "/" + "earth_orientation" + "/";
-    }
-
-    static inline std::string getSpiceKernelPath() {
-        return get_tudat_data_path() + "/" + "spice_kernels" + "/";
-    }
-
-    static inline std::string getAtmosphereTablesPath() {
-        return get_tudat_data_path() + "/" + "atmosphere_tables" + "/";
-    }
-
-    static inline std::string getGravityModelsPath() {
-        return get_tudat_data_path() +  "/" + "gravity_models" + "/";
-    }
-
-    static inline std::string getSpaceWeatherDataPath() {
-        return get_tudat_data_path() +  "/" + "space_weather_data" +"/";
-    }
-
 }
 #endif //TUDAT_PATHS_HPP

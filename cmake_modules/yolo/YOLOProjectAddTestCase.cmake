@@ -81,7 +81,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                     LINKER_LANGUAGE CXX
                     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
                     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-                    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/tests"
+                    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
                     )
 
             # Let's setup the target C++ standard, but only if the user did not provide it manually.
@@ -99,7 +99,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                     EXPORT tudat_export
                     LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
                     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-                    RUNTIME DESTINATION "${INSTALL_BIN_DIR}/tests"
+                    RUNTIME DESTINATION "${INSTALL_BIN_DIR}/tudat/tests"
                     )
 
             # Clean up set variables.

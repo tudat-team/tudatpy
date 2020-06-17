@@ -49,6 +49,16 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
     set_property(TARGET ${target_name} PROPERTY CXX_EXTENSIONS NO)
     add_test(${target_name} "${CMAKE_BINARY_DIR}/tests/${target_name}")
 
+    #==========================================================================
+    # INSTALL-TREE.
+    #==========================================================================
+    install(TARGETS "${target_name}"
+            EXPORT tudat_export
+            LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+            ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+            RUNTIME DESTINATION "${INSTALL_BIN_DIR}/tudat"
+            )
+
     # Clean up set variables.
     unset(target_name)
 
