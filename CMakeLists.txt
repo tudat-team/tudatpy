@@ -301,7 +301,7 @@ file(
 
 install(
         FILES
-#        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/TudatFindBoost.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}"
 )
