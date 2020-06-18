@@ -1,0 +1,8 @@
+{
+  "initialTime": -5,
+  "finalTime": 5,
+  "timeStep": 0.5,
+  "interpolator": {
+    "type": "linear"
+  }
+}

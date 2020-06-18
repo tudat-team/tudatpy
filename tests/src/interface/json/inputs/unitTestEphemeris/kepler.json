@@ -1,0 +1,17 @@
+{
+  "initialStateInKeplerianElements": [
+    7.0E+6,
+    0.1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "epochOfInitialState": -40000,
+  "centralBodyGravitationalParameter": 4.0E+14,
+  "rootFinderAbsoluteTolerance": 1E-9,
+  "rootFinderMaximumNumberOfIterations": 100,
+  "type": "kepler",
+  "frameOrigin": "Foo",
+  "frameOrientation": "FOO"
+}

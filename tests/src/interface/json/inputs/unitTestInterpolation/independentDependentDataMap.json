@@ -1,0 +1,16 @@
+{
+  "independentVariableValues": [
+    1,
+    2
+  ],
+  "dependentVariableValues": [
+    [
+      0.5,
+      1.5
+    ],
+    [
+      1.5,
+      2.5
+    ]
+  ]
+}

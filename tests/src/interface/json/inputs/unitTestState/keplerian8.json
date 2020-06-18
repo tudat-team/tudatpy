@@ -1,0 +1,7 @@
+{
+  "centralBodyGravitationalParameter": 4.0E+8,
+  "semiMajorAxis": 3,
+  "eccentricity": 0.1,
+  "eccentricAnomaly": 1,
+  "type": "keplerian"
+}
