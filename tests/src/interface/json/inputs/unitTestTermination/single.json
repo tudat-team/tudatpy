@@ -1,0 +1,8 @@
+{
+  "variable": {
+    "body": "body",
+    "dependentVariableType": "altitude",
+    "relativeToBody": "Earth"
+  },
+  "lowerLimit": 105000
+}

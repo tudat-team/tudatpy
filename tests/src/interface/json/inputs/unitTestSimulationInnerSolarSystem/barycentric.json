@@ -1,0 +1,217 @@
+{
+  "initialEpoch": 1.0E+7,
+  "finalEpoch": 1.2592E+7,
+  "spice": {
+    "preloadEphemeris": false,
+    "useStandardKernels": true
+  },
+  "bodies": {
+    "Sun": {
+      "useDefaultSettings": true
+    },
+    "Mercury": {
+      "useDefaultSettings": true
+    },
+    "Venus": {
+      "useDefaultSettings": true
+    },
+    "Earth": {
+      "useDefaultSettings": true
+    },
+    "Moon": {
+      "useDefaultSettings": true
+    },
+    "Mars": {
+      "useDefaultSettings": true
+    }
+  },
+  "propagators": [
+    {
+      "centralBodies": [
+        "SSB",
+        "SSB",
+        "SSB",
+        "SSB",
+        "SSB",
+        "SSB"
+      ],
+      "accelerations": {
+        "Mercury": {
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        },
+        "Venus": {
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mercury": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        },
+        "Earth": {
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mercury": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        },
+        "Moon": {
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mercury": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        },
+        "Mars": {
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mercury": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        },
+        "Sun": {
+          "Mercury": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        }
+      },
+      "integratedStateType": "translational",
+      "bodiesToPropagate": [
+        "Sun",
+        "Mercury",
+        "Venus",
+        "Earth",
+        "Moon",
+        "Mars"
+      ]
+    }
+  ],
+  "integrator": {
+    "type": "rungeKutta4",
+    "stepSize": 3600
+  }
+}

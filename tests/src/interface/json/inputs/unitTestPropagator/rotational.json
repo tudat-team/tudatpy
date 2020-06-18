@@ -1,0 +1,42 @@
+{
+  "torques": {
+    "A": {
+      "B": [
+        {
+          "type": "secondOrderGravitational"
+        }
+      ]
+    },
+    "B": {
+      "A": [
+        {
+          "type": "secondOrderGravitational"
+        },
+        {
+          "type": "aerodynamic"
+        }
+      ]
+    }
+  },
+  "integratedStateType": "rotational",
+  "bodiesToPropagate": [
+    "A",
+    "B"
+  ],
+  "initialStates": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ]
+}

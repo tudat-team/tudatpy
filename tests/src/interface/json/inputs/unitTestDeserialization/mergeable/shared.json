@@ -1,0 +1,10 @@
+{
+  "integrator": {
+    "type": "rungeKutta4",
+    "stepSize": 30,
+    "initialTimes": [
+      0,
+      86400
+    ]
+  }
+}
