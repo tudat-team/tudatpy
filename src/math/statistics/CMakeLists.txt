@@ -39,19 +39,3 @@ TUDAT_ADD_LIBRARY("statistics"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add test library interface.
-add_library(statistics_test_library INTERFACE)
-target_link_libraries(statistics_test_library
-        INTERFACE
-        tudat_statistics
-        tudat_basics
-        )
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(SimpleLinearRegression PRIVATE_LINKS statistics_test_library)
-TUDAT_ADD_TEST_CASE(BasicStatistics PRIVATE_LINKS statistics_test_library)
-TUDAT_ADD_TEST_CASE(MultiVariateGaussianProbabilityDistributions PRIVATE_LINKS statistics_test_library)
-TUDAT_ADD_TEST_CASE(BoostRandomVariables PRIVATE_LINKS statistics_test_library)
-TUDAT_ADD_TEST_CASE(KernelDensityDistribution PRIVATE_LINKS statistics_test_library)
-TUDAT_ADD_TEST_CASE(RandomSampling PRIVATE_LINKS statistics_test_library)

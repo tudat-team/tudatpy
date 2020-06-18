@@ -24,9 +24,3 @@ TUDAT_ADD_LIBRARY("system_models"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add static libraries.
-#add_library(tudat_system_models STATIC ${SYSTEMMODELS_SOURCES} ${SYSTEMMODELS_HEADERS})
-#setup_tudat_library_target(tudat_system_models "${SRCROOT}${SYSTEMMODELSDIR}")
-#set_target_properties(tudat_system_models PROPERTIES LINKER_LANGUAGE CXX)
-

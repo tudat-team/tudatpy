@@ -37,15 +37,3 @@ TUDAT_ADD_LIBRARY("root_finders"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add unit test files.
-set(root_finders_test_SOURCES
-        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestBisection.cpp"
-        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestHalleyRootFinder.cpp"
-        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestNewtonRaphson.cpp"
-        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestRootFinders.cpp"
-        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestSecantRootFinder.cpp"
-        )
-
-# Add tests
-#TUDAT_ADD_TEST_CASE(root_finders_test_SOURCES tudat_root_finders)

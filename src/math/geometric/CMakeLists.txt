@@ -42,6 +42,3 @@ TUDAT_ADD_LIBRARY("geometric_shapes"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(LawgsSurfaceGeometry PRIVATE_LINKS tudat_geometric_shapes tudat_basic_mathematics)
