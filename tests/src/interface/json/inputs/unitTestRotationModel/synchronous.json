@@ -1,0 +1,6 @@
+{
+  "type": "synchronous",
+  "originalFrame": "ECLIPJ2000",
+  "targetFrame": "IAU_Earth",
+  "centralBodyName": "Sun"
+}
