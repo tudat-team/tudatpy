@@ -1,6 +1,0 @@
-{
-  "body": "body",
-  "dependentVariableType": "accelerationNorm",
-  "accelerationType": "thrust",
-  "bodyExertingAcceleration": "body"
-}

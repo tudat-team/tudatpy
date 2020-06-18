@@ -1,7 +1,0 @@
-{
-  "centralBodyGravitationalParameter": 4.0E+8,
-  "inclination": 0.3,
-  "periapsisDistance": 2,
-  "apoapsisDistance": 3,
-  "type": "keplerian"
-}

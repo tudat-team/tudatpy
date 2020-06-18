@@ -52,6 +52,5 @@ TUDAT_ADD_LIBRARY("environment_setup"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
 
-add_dependencies(tudat_environment_setup
-        tudat_spice_interface)
+#add_dependencies(tudat_environment_setup tudat_spice_interface)
 

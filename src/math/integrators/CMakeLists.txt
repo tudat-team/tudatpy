@@ -8,8 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-SET(CMAKE_INSTALL_RPATH "/home/ggarrett/Repositories/new/tudat_bundle/install_test/lib")
-
 # Add source files.
 set(numerical_integrators_SOURCES
         "rungeKuttaCoefficients.cpp"
@@ -46,54 +44,4 @@ TUDAT_ADD_LIBRARY("numerical_integrators"
         "${numerical_integrators_HEADERS}"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
-        )
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(AdamsBashforthMoultonIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        )
-
-TUDAT_ADD_TEST_CASE(EulerIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(NumericalIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKutta4Integrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKuttaVariableStepSizeIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKuttaCoefficients
-        PRIVATE_LINKS tudat_numerical_integrators
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg45Integrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg78Integrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(RungeKutta87DormandPrinceIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
-        )
-
-TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
-        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-        SOURCES "tests/numericalIntegratorTests.cpp"
         )

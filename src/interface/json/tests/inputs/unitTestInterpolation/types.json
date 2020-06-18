@@ -1,7 +1,0 @@
-[
-  "linear",
-  "cubicSpline",
-  "lagrange",
-  "hermiteSpline",
-  "piecewiseConstant"
-]

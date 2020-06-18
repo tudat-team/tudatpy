@@ -31,18 +31,3 @@ TUDAT_ADD_LIBRARY("filters"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
-# Add test library interface.
-add_library(filters_test_library INTERFACE)
-target_link_libraries(filters_test_library
-        INTERFACE
-        tudat_filters
-        tudat_numerical_integrators
-        tudat_statistics
-        tudat_basics
-        tudat_basic_mathematics
-        tudat_input_output)
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(LinearKalmanFilter PRIVATE_LINKSfilters_test_library)
-TUDAT_ADD_TEST_CASE(ExtendedKalmanFilter PRIVATE_LINKS filters_test_library)
-TUDAT_ADD_TEST_CASE(UnscentedKalmanFilter PRIVATE_LINKS filters_test_library)

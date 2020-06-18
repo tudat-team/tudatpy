@@ -5,6 +5,7 @@
 #ifndef TUDAT_UTIL_H
 #define TUDAT_UTIL_H
 
+#include <vector>
 
 namespace tudat {
 namespace input_output {

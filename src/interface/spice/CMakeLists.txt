@@ -29,12 +29,3 @@ TUDAT_ADD_LIBRARY("spice_interface"
         PRIVATE_LINKS "${Boost_LIBRARIES}" "${CSpice_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}"
         )
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(SpiceInterface
-        PRIVATE_LINKS
-        tudat_ephemerides
-        tudat_basic_mathematics
-        tudat_spice_interface
-        tudat_basic_astrodynamics
-        )

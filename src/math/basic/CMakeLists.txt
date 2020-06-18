@@ -51,14 +51,3 @@ TUDAT_ADD_LIBRARY("basic_mathematics"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add tests.
-TUDAT_ADD_TEST_CASE(MathematicalConstants)
-TUDAT_ADD_TEST_CASE(LinearAlgebra PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(CoordinateConversions PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(NearestNeighbourSearch PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(NumericalDerivative PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(LegendrePolynomials PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(SphericalHarmonics PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(RotationAboutArbitraryAxis PRIVATE_LINKS tudat_basic_mathematics)
-TUDAT_ADD_TEST_CASE(RotationPartials PRIVATE_LINKS tudat_basic_mathematics tudat_reference_frames)

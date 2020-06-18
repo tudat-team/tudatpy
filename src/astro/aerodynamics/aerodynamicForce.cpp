@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "aerodynamicForce.h"
+#include "tudat/astro/aerodynamics/aerodynamicForce.h"
 
 namespace tudat
 {
