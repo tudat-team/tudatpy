@@ -60,7 +60,3 @@ TUDAT_ADD_LIBRARY("propagation_setup"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )
-
-## Silence warnings.
-#set_property(TARGET tudat_propagation_setup APPEND PROPERTY COMPILE_OPTIONS
-#        "-Wmaybe-uninitialized")

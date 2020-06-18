@@ -1,5 +1,0 @@
-{
-  "body": "vehicle",
-  "dependentVariableType": "relativeBodyAerodynamicOrientationAngle",
-  "angle": "bank"
-}

@@ -30,21 +30,3 @@ TUDAT_ADD_LIBRARY("reference_frames"
         PRIVATE_LINKS "${Boost_LIBRARIES}"
         PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-# Add static libraries.
-#add_library(tudat_reference_frames STATIC ${REFERENCEFRAMES_SOURCES} ${REFERENCEFRAMES_HEADERS})
-#setup_tudat_library_target(tudat_reference_frames "${SRCROOT}${REFERENCEFRAMESDIR}")
-
-## Add unit tests.
-#add_executable(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}/tests/unitTestReferenceFrameTransformations.cpp")
-#setup_custom_test_program(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}")
-#target_link_libraries(test_ReferenceFrameTransformations tudat_reference_frames ${Boost_LIBRARIES})
-#
-#add_executable(test_ApparentAccelerationModel "${SRCROOT}${REFERENCEFRAMESDIR}/tests/unitTestApparentAccelerationModel.cpp")
-#setup_custom_test_program(test_ApparentAccelerationModel "${SRCROOT}${REFERENCEFRAMESDIR}")
-#target_link_libraries(test_ApparentAccelerationModel tudat_reference_frames tudat_basic_astrodynamics ${Boost_LIBRARIES})
-#
-#add_executable(test_AerodynamicAngleCalculator "${SRCROOT}${REFERENCEFRAMESDIR}/tests/unitTestAerodynamicAngleCalculator.cpp")
-#setup_custom_test_program(test_AerodynamicAngleCalculator "${SRCROOT}${REFERENCEFRAMESDIR}")
-#target_link_libraries(test_AerodynamicAngleCalculator tudat_environment_setup tudat_propagators tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_electromagnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_spice_interface ${CSpice_LIBRARIES} ${Boost_LIBRARIES})
-#

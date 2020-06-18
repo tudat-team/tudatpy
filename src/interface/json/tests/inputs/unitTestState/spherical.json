@@ -1,9 +1,0 @@
-{
-  "radius": 2,
-  "epoch": 666,
-  "latitude": 0.5,
-  "longitude": -1.4,
-  "speed": 5,
-  "flightPathAngle": 0.08,
-  "type": "spherical"
-}

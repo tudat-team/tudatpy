@@ -44,70 +44,48 @@ set(Tudat_DEFINITIONS "")
 # +============================================================================
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TESTS=${TUDAT_BUILD_TESTS}")
 
 # Build option: include default data suite.
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_FETCH_DATA_SUITE=${TUDAT_FETCH_DATA_SUITE}")
 
 # Build with propagation tests.
 option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_PROPAGATION_TESTS=${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
 
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TUDAT_TUTORIALS=${TUDAT_BUILD_TUDAT_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_PAGMO_TUTORIALS "Build pagmo2 tutorials." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_PAGMO_TUTORIALS=${TUDAT_BUILD_PAGMO_TUTORIALS}")
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TBB_SUPPORT "Build tbb support for Pagmo." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_TBB_SUPPORT=${TUDAT_BUILD_TBB_SUPPORT}")
-
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." ON)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_STATIC_LIBRARY=${TUDAT_BUILD_STATIC_LIBRARY}")
 
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter functionality." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
 
 # Build sofa interface.
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 
 # Build spice interface.
 option(TUDAT_BUILD_WITH_SPICE_INTERFACE "Build Tudat with spice interface." ON)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE}")
 
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
 # +============================================================================
 # TODO: Consider if this can work with <tudat/paths.hpp> going forward.
-option(TUDAT_INSTALL on)
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_INSTALL=${TUDAT_INSTALL}")
-option(TUDAT_TEST_INSTALL off)
-add_definitions(-DTUDAT_INSTALL=${TUDAT_INSTALL})
-add_definitions(-DTUDAT_TEST_INSTALL=${TUDAT_TEST_INSTALL})
-message(STATUS TUDAT_TEST_INSTALL=${TUDAT_TEST_INSTALL})
-message(STATUS TUDAT_INSTALL=${TUDAT_INSTALL})
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_TEST_INSTALL=${TUDAT_TEST_INSTALL}")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
@@ -127,10 +105,10 @@ endforeach ()
 
 # Find relative paths for cmake-config file. (for find_package)
 file(RELATIVE_PATH rel_include_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
-file(RELATIVE_PATH rel_lib_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
-file(RELATIVE_PATH rel_data_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_DATA_DIR}")
-file(RELATIVE_PATH rel_bin_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_BIN_DIR}")
-file(RELATIVE_PATH rel_man_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_MAN_DIR}")
+file(RELATIVE_PATH rel_lib_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
+file(RELATIVE_PATH rel_data_dir    "${INSTALL_CMAKE_DIR}" "${INSTALL_DATA_DIR}")
+file(RELATIVE_PATH rel_bin_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_BIN_DIR}")
+file(RELATIVE_PATH rel_man_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_MAN_DIR}")
 
 # Set relative paths for config.cmake.
 foreach (p include lib data bin man)
@@ -146,7 +124,6 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
-
 
 # Enforce TBB if pagmo tutorials are to be built.
 if (TUDAT_BUILD_PAGMO_TUTORIALS)
@@ -166,7 +143,6 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
-
 
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
@@ -194,11 +170,6 @@ include(TudatFindBoost)
 if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()
-#find_package(Boost REQUIRED)
-#include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
-
-#message(here:${CMAKE_PROJECT_NAME}
-#        ${PROJECT_NAME})
 
 # CSpice dependency if in build settings.
 if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
@@ -229,12 +200,10 @@ else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
-
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
-
 
 # NRLMSISE-00
 if (NOT BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
@@ -245,57 +214,9 @@ else ()
     add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
 
-# DOCUMENTATION.
-# Add an option to toggle the generation of the API documentation.
-# If documentation should be built, find Doxygen package and setup config file.
-option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
-if (BUILD_DOCUMENTATION)
-    find_package(Doxygen)
-
-    if (NOT DOXYGEN_FOUND)
-        message(FATAL_ERROR
-                "Doxygen is needed to build the documentation. Please install it correctly.")
-    endif ()
-
-    # Configure the Template Doxyfile for our specific project.
-    configure_file(${CODEROOT}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
-
-    # Add a custom target to run Doxygen when ever the project is built.
-    # IF you do NOT want the documentation to be generated EVERY time you build the project
-    # then leave out the 'ALL' keyword from the above command.
-    add_custom_target(docs ALL COMMAND ${DOXYGEN_EXECUTABLE}
-            ${PROJECT_BINARY_DIR}/Doxyfile
-            SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
-
-    # Install documentation.
-    install(DIRECTORY "${CODEROOT}/Documentation"
-            DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
-endif ()
-
-
-# Setup TUDAT_ADD_TEST_CASE function from yolo.
-#set(_TUDAT_TEST_CASE_LINK_ITEMS "${Boost_LIBRARIES}")
-#set(_TUDAT_TEST_CASE_PREFIX "test")
-#set(_TUDAT_TEST_CASE_ADD_DIRNAME ON)
-#set(_TUDAT_TEST_CASE_INSTALL OFF)
 include(YOLOProjectAddTestCase)
-
-# Setup TUDAT_ADD_LIBRARY function from yolo.
-#set(_TUDAT_LIBRARY_LINK_ITEMS "${Boost_LIBRARIES}")
-#set(_TUDAT_LIBRARY_PREFIX "tudat")
-#set(_TUDAT_LIBRARY_BUILD_STATIC "${TUDAT_BUILD_STATIC_LIBRARY}")
-#set(_TUDAT_LIBRARY_EXPORT "tudat_export")
-#set(_TUDAT_LIBRARY_ARCHIVE_OUTPUT_DIRECTORY "${${PROJECT_NAME_UPPER}_RELATIVE_BINARY_LIB_DIR}")
-#set(_TUDAT_LIBRARY_LIBRARY_OUTPUT_DIRECTORY "${${PROJECT_NAME_UPPER}_RELATIVE_BINARY_LIB_DIR}")
-#set(_TUDAT_LIBRARY_RUNTIME_OUTPUT_DIRECTORY "${${PROJECT_NAME_UPPER}_RELATIVE_BINARY_BIN_DIR}")
-#set(_TUDAT_LIBRARY_LIBRARY_DESTINATION "${${PROJECT_NAME_UPPER}_RELATIVE_INSTALL_LIB_DIR}")
-#set(_TUDAT_LIBRARY_ARCHIVE_DESTINATION "${${PROJECT_NAME_UPPER}_RELATIVE_INSTALL_LIB_DIR}")
-
-#set(_TUDAT_LIBRARY_COMPILE_FLAGS            "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 include(YOLOProjectAddLibrary)
-
 include(YOLOProjectAddExecutable)
-
 include(YOLOProjectAddExternalData)
 
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
@@ -304,8 +225,7 @@ include(TudatLinkLibraries)
 # Add to parent scope if project is added via add_subdirectory().
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
-    set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
-    #    set(Tudat_DEFINITIONS ${Tudat_DEFINITIONS} PARENT_SCOPE)
+    set(Tudat_ESTIMATION_LIBRARIES  ${Tudat_ESTIMATION_LIBRARIES}  PARENT_SCOPE)
 endif ()
 
 add_subdirectory(src/astro)
@@ -315,6 +235,10 @@ add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(examples)
+
+if (TUDAT_BUILD_TESTS)
+    add_subdirectory(tests)
+endif ()
 
 # Cleanup YOLO global project variables.
 #include(YOLOProjectCleanup)
