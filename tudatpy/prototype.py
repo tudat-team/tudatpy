@@ -296,7 +296,7 @@ custom_bodies: {", ".join(self._custom_bodies)}
 
 
 if __name__ == "__main__":
-    spice_interface.load_standard_spice_kernels()
+    spice_interface.load_standard_kernels()
 
     env = Environment(tudatpy_bodies=["Earth"],
                       custom_bodies=["Delfi"],

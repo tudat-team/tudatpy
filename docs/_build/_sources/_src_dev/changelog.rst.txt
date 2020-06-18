@@ -100,7 +100,7 @@ Added
 
 * Added module :ref:`tudatpy.spice_interface`.
 
-  * Exposed function ``spice_interface.load_standard_spice_kernels()``.
+  * Exposed function ``spice_interface.load_standard_kernels()``.
   * Exposed function ``spice_interface.clear_spice_kernels()``.
 
 * Added module :ref:`tudatpy.basic_astrodynamics`.

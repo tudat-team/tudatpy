@@ -13,7 +13,7 @@ namespace tudatpy {
     std::string constants_docstring();
 
     // spice_interface
-    std::string load_standard_spice_kernels_docstring();
+    std::string load_standard_kernels_docstring();
     std::string clear_spice_kernels_docstring();
 
     // simulation_setup

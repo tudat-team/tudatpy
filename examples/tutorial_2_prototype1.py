@@ -19,7 +19,7 @@ import time
 
 def main():
     # Load spice kernels.
-    spice_interface.load_standard_spice_kernels()
+    spice_interface.load_standard_kernels()
 
     # Set simulation start epoch.
     simulation_start_epoch = 0.0

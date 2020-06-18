@@ -2,8 +2,8 @@
 // Created by ggarrett on 29-04-20.
 //
 
-#ifndef TUDATBUNDLE_EXPOSE_SPICE_INTERFACE_H
-#define TUDATBUNDLE_EXPOSE_SPICE_INTERFACE_H
+#ifndef TUDAT_EXPOSE_SPICE_INTERFACE_H
+#define TUDAT_EXPOSE_SPICE_INTERFACE_H
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

@@ -244,11 +244,11 @@
             <span class="c1"># Load standard spice kernels or alternative?</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_kernels</span><span class="p">:</span>
                 <span class="c1"># Alternative if defined.</span>
-                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_spice_kernels</span><span class="p">(</span>
+                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_kernels</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_kernels</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Standard if alternative is not defined (None).</span>
-                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_spice_kernels</span><span class="p">()</span>
+                <span class="n">spice_interface</span><span class="o">.</span><span class="n">load_standard_kernels</span><span class="p">()</span>
 
             <span class="c1"># If kernels are reset, bodies should be too.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_bodies</span> <span class="o">=</span> <span class="kc">True</span>
