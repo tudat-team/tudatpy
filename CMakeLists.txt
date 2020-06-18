@@ -8,13 +8,14 @@ endif (POLICY CMP0048)
 file(READ "version" TudatPy_VERSION)
 project(TudatPy VERSION "${TudatPy_VERSION}" LANGUAGES CXX C)
 
+# Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "TudatPy version: ${TudatPy_VERSION}")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -22,27 +23,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
-
-# Add local module path
-#list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
-message(STATUS "CMake Module path(s): ${CMAKE_MODULE_PATH}")
-
-# Set compiler based on preferences (e.g. USE_CLANG) and system.
-#include(compiler)
-
-# Set testing options based on platform.
-#enable_testing()
-
-# Find Eigen3 library on local system.
-#find_package(Eigen3 REQUIRED)
-
-# Include Eigen3 directories.
-# Set CMake flag to suppress Eigen warnings (platform-dependent solution).
-#if (NOT APPLE OR APPLE_INCLUDE_FORCE)
-#    include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
-#else ()
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
-#endif ()
 
 # Configure Boost libraries.
 if (NOT Boost_USE_STATIC_LIBS)
@@ -57,36 +37,21 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-
-#message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_LIBRARIES})
-
-#set(BOOST_ROOT /home/ggarrett/anaconda3/envs/test)
-
 # Find Boost libraries on local system.
 find_package(Boost 1.64.0
         COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
-#add_subdirectory(eigen)
-#if (NOT EIGEN3_INCLUDE_DIR)
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
-#endif ()
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
-#set(Tudat_DEFINITIONS "DTUDAT_BUILD_WITH_SPICE_INTERFACE=ON")
-#add_definitions(-DTUDAT_BUNDLE_BUILD=1)
-#set(TUDAT_BUNDLE_BUILD on)
-set(TUDAT_BUILD_WITH_SPICE_INTERFACE ON) #add_definitions(-DTUDAT_BUNDLE_BUILD=1)
-set(TUDAT_BUILD_WITH_SOFA_INTERFACE ON)
-set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
-set(TUDAT_BUILD_WITH_JSON_INTERFACE ON)
-set(TUDAT_INSTALL ON)
-set(TUDAT_TEST_INSTALL OFF)
+add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
+add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 
-option(TUDATPY_CONDA_BUILD OFF)
+option(TUDATPY_CONDA_BUILD ON)
 
-set(TUDAT_CONDA_BUILD ${TUDATPY_CONDA_BUILD})
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 #set(TUDAT_BUNDLE_BUILD ON)
 #find_package(Python3 COMPONENTS Interpreter Development)
 
@@ -102,34 +67,23 @@ if (TUDAT_TEST_INSTALL)
     add_definitions(-DTUDAT_TEST_INSTALL=1)
 endif ()
 
-# CSpice dependency if in build settings.
-if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(CSpice REQUIRED 1.0.0)
-    else ()
-        set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
-    endif ()
+# CSpice dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(CSpice REQUIRED 1.0.0)
 else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
+    set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
 endif ()
 
-# Sofa dependency if in build settings.
-if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    #
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(Sofa REQUIRED 1.0.0)
-    else ()
-        set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
-    endif ()
+
+# Sofa dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Sofa REQUIRED 1.0.0)
 else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
+    set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
 endif ()
 
+
 # Sofa dependency if in build settings.
-#
-#    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(Tudat 2.8 REQUIRED)
 
@@ -149,10 +103,6 @@ endif ()
 #endif ()
 message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
 message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
-
-
-#include(TudatFindBoost)
-
 
 set(POSITION_INDEPENDENT_CODE True)
 
@@ -177,7 +127,7 @@ if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
         message(STATUS "Building conda-build build of tudatpy.")
 
         # TODO: Should inherit this from Tudat definitions.
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
     endif ()
 
 else ()

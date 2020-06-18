@@ -116,6 +116,7 @@ install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
 
 macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
     install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+    file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
 
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
@@ -124,3 +125,4 @@ INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

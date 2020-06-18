@@ -15,11 +15,16 @@ namespace tudatpy {
 
     void expose_spice_interface(py::module &m) {
 
-        m.def("load_standard_spice_kernels",&tudat::spice_interface::loadStandardSpiceKernels,
+        m.def("load_standard_kernels",
+              &tudat::spice_interface::loadStandardSpiceKernels,
               py::arg("alternative_kernels") = std::vector<std::string>(),
-              tudatpy::load_standard_spice_kernels_docstring().c_str());
+              tudatpy::load_standard_kernels_docstring().c_str());
 
-        m.def("clear_spice_kernels",
+        m.def("load_kernel",
+              &tudat::spice_interface::loadSpiceKernelInTudat,
+              "<no_doc>");
+
+        m.def("clear_kernels",
               &tudat::spice_interface::clearSpiceKernels,
               tudatpy::clear_spice_kernels_docstring().c_str());
 

@@ -64,7 +64,7 @@ Routine Listings
     };
 
     // spice_interface
-    std::string load_standard_spice_kernels_docstring(){
+    std::string load_standard_kernels_docstring(){
         return R"mydelimiter(
 Definition at line 283 of file ``spiceInterface.cpp``.
 
