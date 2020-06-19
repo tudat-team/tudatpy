@@ -31,17 +31,17 @@ std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sph
     switch ( sphericalHarmonicsModel )
     {
     case egm96:
-        return input_output::getGravityModelsPath( ) + "Earth/egm96.txt";
+        return paths::getGravityModelsPath( ) + "Earth/egm96.txt";
     case ggm02c:
-        return input_output::getGravityModelsPath( ) + "Earth/ggm02c.txt";
+        return paths::getGravityModelsPath( ) + "Earth/ggm02c.txt";
     case ggm02s:
-        return input_output::getGravityModelsPath( ) + "Earth/ggm02s.txt";
+        return paths::getGravityModelsPath( ) + "Earth/ggm02s.txt";
     case glgm3150:
-        return input_output::getGravityModelsPath( ) + "Moon/glgm3150.txt";
+        return paths::getGravityModelsPath( ) + "Moon/glgm3150.txt";
     case lpe200:
-        return input_output::getGravityModelsPath( ) + "Moon/lpe200.txt";
+        return paths::getGravityModelsPath( ) + "Moon/lpe200.txt";
     case jgmro120d:
-        return input_output::getGravityModelsPath( ) + "Mars/jgmro120d.txt";
+        return paths::getGravityModelsPath( ) + "Mars/jgmro120d.txt";
     default:
         std::cerr << "No path known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
         throw;

@@ -16,7 +16,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
 if __name__ == "__main__":
 
     # Delete all headers in /src
-    for path in Path('tests').rglob('*.txt'):
+    for path in Path('tests').rglob('*.dat'):
         print(path.name)
         if path.name != "CMakeLists.txt":
             print(path)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         # print(str(path))
             path_rel_test_dest = os.path.join(*str(path).split("/")[:])
             dest = os.path.join("tests", "data", path.name)
-            print(path)
+            print(path, " to ", dest)
             try:
                 shutil.copyfile(path, dest)
             except shutil.SameFileError:

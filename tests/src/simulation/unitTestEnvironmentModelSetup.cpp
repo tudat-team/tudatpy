@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 
     // Create settings for tabulated atmosphere.
     std::string atmosphereTableFile =
-            tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+            tudat::paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
             std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
 

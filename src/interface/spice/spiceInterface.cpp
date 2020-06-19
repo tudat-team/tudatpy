@@ -13,6 +13,7 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/paths.hpp"
 
 namespace tudat
 {
@@ -265,6 +266,7 @@ bool checkBodyPropertyInKernelPool( const std::string& bodyName, const std::stri
 //! Load a Spice kernel.
 void loadSpiceKernelInTudat( const std::string& fileName )
 {
+    std::cout<< "loading kernel path: " << fileName.c_str( ) << std::endl;
     furnsh_c(  fileName.c_str( ) );
 }
 
@@ -282,7 +284,7 @@ void clearSpiceKernels( ) { kclear_c( ); }
 void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
 {
 
-    std::string kernelPath = input_output::getSpiceKernelPath();
+    std::string kernelPath = paths::getSpiceKernelPath();
 
     loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
     loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );

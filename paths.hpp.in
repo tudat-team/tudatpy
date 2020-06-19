@@ -11,6 +11,16 @@
 #ifndef TUDAT_PATHS_HPP
 #define TUDAT_PATHS_HPP
 
+//#ifdef TUDAT_INSTALL
+#define TUDAT_PATH "@CMAKE_INSTALL_PREFIX@"
+//#endif
+
+//#ifdef TUDAT_TEST_INSTALL
+#define TUDAT_TEST_DATA_PATH "/@PROJECT_BINARY_DIR@/tests/data"
+//#else
+//#define TUDAT_TEST_DATA_PATH TUDAT_PATH + "/tests/data"
+//#endif
+
 #define DATA_REL_INSTALL "/" + "@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@"
 #define EPHEMERIS_REL_DATA "/" + "ephemeris_data" + "/"
 #define EARTH_ORIENTATION_REL_DATA "/" + "earth_orientation" + "/"
@@ -21,48 +31,64 @@
 #define SPACE_WEATHER_REL_DATA "/" + "space_weather_data" + "/"
 
 #include <string.h>
+#include <iostream>
 
 namespace tudat {
-    namespace input_output {
+    namespace paths {
 
         static inline std::string get_tudat_path() {
-            return "@CMAKE_INSTALL_PREFIX@";
+            std::cout << "get_tudat_path(): " << TUDAT_PATH << std::endl;
+            return TUDAT_PATH;
         }
 
         [[deprecated("Use get_tudat_path() instead")]]
         static inline std::string getTudatRootPath() {
-            return "@CMAKE_INSTALL_PREFIX@";
+            std::cout << "getTudatRootPath(): " << TUDAT_PATH << std::endl;
+            return TUDAT_PATH;
         }
 
         static inline std::string get_tudat_data_path() {
+            std::cout << "get_tudat_data_path(): " << get_tudat_path() + DATA_REL_INSTALL << std::endl;
             return get_tudat_path() + DATA_REL_INSTALL;
         }
 
+        static inline std::string getTudatTestDataPath() {
+            std::cout << "getTudatTestDataPath(): " << get_tudat_path() + DATA_REL_INSTALL << std::endl;
+            return TUDAT_TEST_DATA_PATH;
+        }
+
         static inline std::string getEphemerisDataFilesPath() {
+            std::cout << "getEphemerisDataFilesPath(): " << get_tudat_data_path() + EPHEMERIS_REL_DATA << std::endl;
             return get_tudat_data_path() + EPHEMERIS_REL_DATA;
         }
 
         static inline std::string getEarthOrientationDataFilesPath() {
+            std::cout << "getEarthOrientationDataFilesPath(): " << get_tudat_data_path() + EARTH_ORIENTATION_REL_DATA << std::endl;
             return get_tudat_data_path() + EARTH_ORIENTATION_REL_DATA;
         }
 
         static inline std::string getQuadratureDataPath() {
+            std::cout << "getQuadratureDataPath(): " << get_tudat_data_path() + QUADRATURE_REL_DATA << std::endl;
             return get_tudat_data_path() + QUADRATURE_REL_DATA;
         }
 
         static inline std::string getSpiceKernelPath() {
+            std::cout << "getSpiceKernelPath(): " << get_tudat_data_path() + SPICE_KERNELS_REL_DATA << std::endl;
             return get_tudat_data_path() + SPICE_KERNELS_REL_DATA;
         }
 
         static inline std::string getAtmosphereTablesPath() {
+            std::cout << "getAtmosphereTablesPath(): " << get_tudat_data_path() + ATMOSPHERE_TABLES_REL_DATA << std::endl;
             return get_tudat_data_path() + ATMOSPHERE_TABLES_REL_DATA;
         }
 
         static inline std::string getGravityModelsPath() {
+            std::cout << "getGravityModelsPath(): " << get_tudat_data_path() + GRAVITY_MODELS_REL_DATA << std::endl;
             return get_tudat_data_path() + GRAVITY_MODELS_REL_DATA;
         }
 
         static inline std::string getSpaceWeatherDataPath() {
+            std::cout << "getSpaceWeatherDataPath(): " << get_tudat_data_path() + SPACE_WEATHER_REL_DATA << std::endl;
             return get_tudat_data_path() + SPACE_WEATHER_REL_DATA;
         }
 

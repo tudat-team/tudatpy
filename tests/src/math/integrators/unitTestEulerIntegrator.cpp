@@ -51,12 +51,12 @@ BOOST_AUTO_TEST_CASE( testEulerIntegratorUsingMatlabData )
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
     // (The MathWorks, 2012)). This data is generated using the EULER1 numerical integrator.
-    const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/matlabOutputEulerForwards.txt";
-    const std::string pathToBackwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/matlabOutputEulerBackwards.txt";
-    const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/matlabOutputEulerDiscreteEvent.txt";
+    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputEulerForwards.txt";
+    const std::string pathToBackwardIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputEulerBackwards.txt";
+    const std::string pathToDiscreteEventIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputEulerDiscreteEvent.txt";
 
     // Store benchmark data in matrix.
     const Eigen::MatrixXd matlabForwardIntegrationData =

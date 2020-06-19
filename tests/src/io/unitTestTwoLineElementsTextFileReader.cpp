@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
 
     // Set input directory, file name, then open file and store data strings
     // with Textfilereader class, and finally close file.
-    twoLineElementsTextFileReaderForTwoLine.setAbsoluteDirectoryPath( input_output::getTudatRootPath() + "io/tests/" );
+    twoLineElementsTextFileReaderForTwoLine.setAbsoluteDirectoryPath( paths::getTudatTestDataPath() + "/" );
 
     twoLineElementsTextFileReaderForTwoLine.setFileName(
                 "testTwoLineElementsTextFile2Line.txt" );

@@ -1354,10 +1354,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         // Load thrust tables from files (as a function of Mach number and specific impulse) and create interpolators.
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Tmax_test.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt" );
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > specificImpulseValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Isp_test.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt" );
 
         std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator =
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
@@ -1660,9 +1660,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
     std::string thrustFile =
-            tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Tmax_test.txt";
+            tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt";
     std::string specificImpulseFile =
-            tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Isp_test.txt";
+            tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt";
 
     accelerationsOfApollo[ "Apollo" ].push_back(
                 std::make_shared< ThrustAccelerationSettings >(

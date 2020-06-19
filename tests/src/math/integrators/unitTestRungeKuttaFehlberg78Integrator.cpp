@@ -106,11 +106,9 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
     // (The MathWorks, 2012)). This data is generated using the RKF87 numerical integrator.
-    const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests"
+    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( )
             + "/matlabOutputRungeKuttaFehlberg78Forward.txt";
-    const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests"
+    const std::string pathToDiscreteEventIntegrationOutputFile = paths::getTudatTestDataPath( )
             + "/matlabOutputRungeKuttaFehlberg78DiscreteEvent.txt";
 
     // Store benchmark data in matrix.

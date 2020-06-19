@@ -27,7 +27,8 @@
 #include "tudat/io/missileDatcomData.h"
 
 namespace tudat
-{
+{using namespace paths;
+
 namespace unit_tests
 {
 
@@ -38,12 +39,12 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     using namespace input_output;
 
     // Read and process data file.
-    std::string fileLocation = getTudatRootPath( )
-            + "io/tests/inputForBenchMarkMissileDatcomData.dat";
+    std::string fileLocation = getTudatTestDataPath( )
+            + "/inputForBenchMarkMissileDatcomData.dat";
     MissileDatcomData myMissileDatcomData( fileLocation );
 
     // Set name of file and path to write to and from.
-    std::string outputFileName = getTudatRootPath( ) + "io/tests/bodyTailConfiguration";
+    std::string outputFileName = getTudatTestDataPath( ) + "/bodyTailConfiguration";
 
     // Write files for coefficients at each angle of attack.
     myMissileDatcomData.writeCoefficientsToFile( outputFileName, 9, 2 );
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
         tudatFile = readMatrixFromFile( totalPath );
 
         // Read benchmark file
-        totalPath = getTudatRootPath( ) + "io/tests/benchmark_"
+        totalPath = getTudatTestDataPath( ) + "/benchmark_"
                 + std::to_string( i );
         benchmarkFile = readMatrixFromFile( totalPath );
 

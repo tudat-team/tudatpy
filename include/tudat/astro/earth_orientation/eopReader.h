@@ -26,6 +26,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/interface/sofa/earthOrientation.h"
+#include "tudat/paths.hpp"
 
 
 namespace tudat
@@ -47,7 +48,7 @@ public:
      * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
      */
     EOPReader(
-            const std::string& eopFile = tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
+            const std::string& eopFile = tudat::paths::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
             const std::string& format = "C04",
             const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006 );
 
