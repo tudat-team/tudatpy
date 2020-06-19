@@ -146,7 +146,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
         const bool propagateNominal = true,
         const bool writeToFileInLoop = false,
         const std::string baseFileName = "",
-        const std::string outputFolder = input_output::getTudatRootPath( ) )
+        const std::string outputFolder = paths::getTudatRootPath( ) )
 {
     propagatedStates.resize( dissipationTimes.size( ) + 1 );
     dependentVariables.resize( dissipationTimes.size( ) + 1 );

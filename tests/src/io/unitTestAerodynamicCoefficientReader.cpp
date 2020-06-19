@@ -60,21 +60,21 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
     // Test functionality of 3-dimensional multi-array reader
     for( unsigned testCase = 0; testCase < 4; testCase++ )
     {
-        std::string fileName = tudat::input_output::getTudatRootPath( )
-                + "/astro/aerodynamics/tests/dCDwTest.txt";
+        std::string fileName = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
 
         std::map< int, std::string > files;
         if( ( testCase == 0 ) || ( testCase == 2 ) )
         {
-            files[ 0 ] = tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_CD.txt";
+            files[ 0 ] = tudat::paths::getTudatTestDataPath( ) + "/aurora_CD.txt";
         }
         if( testCase != 2 )
         {
-            files[ 1 ] = tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_Cm.txt";
+            files[ 1 ] = tudat::paths::getTudatTestDataPath( ) + "/aurora_Cm.txt";
         }
         if( testCase != 3 )
         {
-            files[ 2 ] = tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_CL.txt";
+            files[ 2 ] = tudat::paths::getTudatTestDataPath( ) + "/aurora_CL.txt";
         }
 
         std::pair< boost::multi_array< Eigen::Vector3d, 2 >, std::vector< std::vector< double > > > outputArray =

@@ -90,19 +90,19 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create vehicle  coefficients
         std::map< int, std::string > forceCoefficientFiles;
-        forceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/aurora_CD.txt";
-        forceCoefficientFiles[ 2 ] = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/aurora_CL.txt";
+        forceCoefficientFiles[ 0 ] = tudat::paths::getTudatTestDataPath( )
+                + "/aurora_CD.txt";
+        forceCoefficientFiles[ 2 ] = tudat::paths::getTudatTestDataPath( )
+                + "/aurora_CL.txt";
         std::map< int, std::string > momentCoefficientFiles;
-        momentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/aurora_Cm.txt";
+        momentCoefficientFiles[ 1 ] = tudat::paths::getTudatTestDataPath( )
+                + "/aurora_Cm.txt";
         std::map< int, std::string > controlSurfaceForceCoefficientFiles;
-        controlSurfaceForceCoefficientFiles[ 0 ] = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/dCDwTest.txt";
+        controlSurfaceForceCoefficientFiles[ 0 ] = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
         std::map< int, std::string > controlSurfaceMomentCoefficientFiles;
-        controlSurfaceMomentCoefficientFiles[ 1 ] = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/dCDwTest.txt";
+        controlSurfaceMomentCoefficientFiles[ 1 ] = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
 
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 simulation_setup::readTabulatedAerodynamicCoefficientsFromFiles(
@@ -151,10 +151,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         // Read tables with thrust and specific impulse as function of dependent variables
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Tmax_test.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt" );
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > specificImpulseValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/propulsion/tests/Isp_test.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt" );
 
         // Use multilinear interpolation to find Thrust and specific impulse from tables at current values
         // of thrustdpendent variables
@@ -287,28 +287,28 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > cdMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_CD.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/aurora_CD.txt" );
         std::shared_ptr< interpolators::Interpolator< double, double > > cdInterpolator =
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     cdMuliArray.second, cdMuliArray.first );
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > clMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_CL.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/aurora_CL.txt" );
         std::shared_ptr< interpolators::Interpolator< double, double > > clInterpolator =
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     clMuliArray.second, clMuliArray.first );
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > >  cmMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/aurora_Cm.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/aurora_Cm.txt" );
         std::shared_ptr< interpolators::Interpolator< double, double > > cmInterpolator =
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     cmMuliArray.second, cmMuliArray.first );
 
         std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > >  controlSurfaceIncrementMuliArray =
                 tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
-                    tudat::input_output::getTudatRootPath( ) + "/astro/aerodynamics/tests/dCDwTest.txt" );
+                    tudat::paths::getTudatTestDataPath( ) + "/dCDwTest.txt" );
         std::shared_ptr< interpolators::Interpolator< double, double > > controlSurfaceIncrementinterpolator =
                 std::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
                     controlSurfaceIncrementMuliArray.second, controlSurfaceIncrementMuliArray.first );

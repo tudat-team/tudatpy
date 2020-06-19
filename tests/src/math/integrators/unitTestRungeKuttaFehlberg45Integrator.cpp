@@ -63,8 +63,8 @@ using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivat
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData )
 {
     // Read in benchmark data (Table 5.9 from (Burden and Faires, 2001)).
-    std::string pathToBenchmarkDatafile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/table5_6BurdenAndFaires.txt";
+    std::string pathToBenchmarkDatafile = paths::getTudatTestDataPath( )
+            + "/table5_6BurdenAndFaires.txt";
 
     // Store benchmark data in matrix.
     Eigen::MatrixXd table5_9BurdenAndFaires
@@ -269,11 +269,9 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
     // (The MathWorks, 2012)). This data is generated using the RKF54b numerical integrator.
-    const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests"
+    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( )
             + "/matlabOutputRungeKuttaFehlberg45Forward.txt";
-    const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests"
+    const std::string pathToDiscreteEventIntegrationOutputFile = paths::getTudatTestDataPath( )
             + "/matlabOutputRungeKuttaFehlberg45DiscreteEvent.txt";
 
     // Store benchmark data in matrix.

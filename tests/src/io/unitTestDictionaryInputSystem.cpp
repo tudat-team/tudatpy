@@ -129,8 +129,7 @@ BOOST_AUTO_TEST_CASE( testInputFileParsingUsingDictionary )
     using unit_conversions::convertKilometersToMeters;
 
     // Set input file.
-    const std::string inputFile = input_output::getTudatRootPath( )
-            + "io/tests/exampleInputFile.in";
+    const std::string inputFile = paths::getTudatTestDataPath( ) + "/exampleInputFile.in";
 
     // Read in input file and filter out comment lines.
     std::string filteredData = readAndFilterInputFile( inputFile );

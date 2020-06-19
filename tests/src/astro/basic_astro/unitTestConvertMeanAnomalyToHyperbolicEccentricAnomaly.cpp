@@ -60,9 +60,8 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
     // Make a string containing the output file name. This output file is tagged with the date and
     // time at which the code was executed. The default date format is: YYYYMMDDTHHMMSS, in which T
     // separates date and time.
-    const std::string outputFileName = input_output::getTudatRootPath( ) +
-            "astro/basic/tests/" +
-            "ErrorReportConversionMeanToHyperbolicEccentricAnomaly" +
+    const std::string outputFileName = paths::getTudatTestDataPath( ) +
+            "/ErrorReportConversionMeanToHyperbolicEccentricAnomaly" +
             testName + "RunAt" + boost::posix_time::to_iso_string( now )
             + ".txt";
 

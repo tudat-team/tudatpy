@@ -87,10 +87,10 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                    "/math/filters/tests/noiseData/lkfSystemNoise1.dat" );
-    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                         "/math/filters/tests/noiseData/lkfMeasurementNoise1.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                    "/lkfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                         "/lkfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;

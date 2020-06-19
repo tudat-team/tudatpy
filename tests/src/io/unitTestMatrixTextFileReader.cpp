@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
     {
         // Read input file and store data in matrix.
         const Eigen::MatrixXd inputFileMatrix = input_output::readMatrixFromFile(
-                    input_output::getTudatRootPath( )
-                    + "/io/tests/testMatrix.txt", ";"  );
+                paths::getTudatTestDataPath( )
+                    + "/testMatrix.txt", ";"  );
 
         // Check if data input file matrix matches expected matrix.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMatrix, inputFileMatrix,
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
 
         // Read input file and store data in matrix (with empty lines).
         const Eigen::MatrixXd inputFileMatrix2 = input_output::readMatrixFromFile(
-                    input_output::getTudatRootPath( )
-                    + "/io/tests/testMatrix4.txt", ";"  );
+                paths::getTudatTestDataPath( )
+                    + "/testMatrix4.txt", ";"  );
 
         // Check if data input file matrix matches expected matrix.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMatrix, inputFileMatrix2,
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
     {
         // Read input file and store data in matrix.
         const Eigen::MatrixXd inputFileMatrix = input_output::readMatrixFromFile(
-                    input_output::getTudatRootPath( )
-                    + "/io/tests/testMatrix2.txt", " \t", "#" );
+                paths::getTudatTestDataPath( )
+                    + "/testMatrix2.txt", " \t", "#" );
 
         // Check if data input file matrix matches expected matrix.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMatrix, inputFileMatrix,
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         {
             // Read input file and store data in matrix.
             const Eigen::MatrixXd inputFileMatrix = input_output::readMatrixFromFile(
-                        input_output::getTudatRootPath( )
-                        + "/io/tests/testMatrix3.txt", " \t", "#" );
+                    paths::getTudatTestDataPath( )
+                        + "/testMatrix3.txt", " \t", "#" );
         }
 
         // Catch expected runtime error.
@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         {
             // Read fake input file.
             const Eigen::MatrixXd inputFileMatrix = input_output::readMatrixFromFile(
-                        input_output::getTudatRootPath( )
-                        + "/io/tests/fakeFile.txt", " \t", "#" );
+                    paths::getTudatTestDataPath( )
+                        + "/fakeFile.txt", " \t", "#" );
         }
 
         // Catch expected runtime error.

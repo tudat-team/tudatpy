@@ -43,8 +43,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 {
     // Test functionality of 2-dimensional multi-array reader
     {
-        std::string fileName = tudat::input_output::getTudatRootPath( )
-                + "astro/propulsion/tests/Isp_test.txt";
+        std::string fileName = tudat::paths::getTudatTestDataPath( )
+                + "/Isp_test.txt";
 
         for ( unsigned int i = 0; i < 2; i++)
         {
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
     // Test functionality of 3-dimensional multi-array reader
     {
-        std::string fileName = tudat::input_output::getTudatRootPath( )
-                + "/astro/aerodynamics/tests/dCDwTest.txt";
+        std::string fileName = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
 
         for ( unsigned int i = 0; i < 2; i++)
         {
@@ -142,13 +142,13 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
             std::string fileName;
             if ( j == 0 )
             {
-                fileName = tudat::input_output::getTudatRootPath( )
-                        + "/astro/aerodynamics/tests/dCDw4DTest1.txt";
+                fileName = tudat::paths::getTudatTestDataPath( )
+                        + "/dCDw4DTest1.txt";
             }
             else
             {
-                fileName = tudat::input_output::getTudatRootPath( )
-                        + "/astro/aerodynamics/tests/dCDw4DTest2.txt";
+                fileName = tudat::paths::getTudatTestDataPath( )
+                        + "/dCDw4DTest2.txt";
             }
 
             for ( unsigned int i = 0; i < 2; i++)

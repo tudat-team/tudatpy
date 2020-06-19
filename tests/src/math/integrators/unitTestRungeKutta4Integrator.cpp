@@ -51,13 +51,12 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
     // (The MathWorks, 2012)). This data is generated using the RK4 numerical integrator.
-    const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/matlabOutputRungeKutta4Forwards.txt";
-    const std::string pathToBackwardIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/matlabOutputRungeKutta4Backwards.txt";
-    const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
-            + "/math/integrators/tests/"
-            + "matlabOutputRungeKutta4DiscreteEvent.txt";
+    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputRungeKutta4Forwards.txt";
+    const std::string pathToBackwardIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputRungeKutta4Backwards.txt";
+    const std::string pathToDiscreteEventIntegrationOutputFile = paths::getTudatTestDataPath( )
+            + "/matlabOutputRungeKutta4DiscreteEvent.txt";
 
     // Store benchmark data in matrix.
     const Eigen::MatrixXd matlabForwardIntegrationData =

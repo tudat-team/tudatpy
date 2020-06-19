@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     using namespace tudat;
 
     // Load missile Datcom data.
-    std::string fileLocation = input_output::getTudatRootPath( )
-            + "io/tests/testFileMissileDatcomReader.dat";
+    std::string fileLocation = paths::getTudatTestDataPath( )
+            + "/testFileMissileDatcomReader.dat";
     input_output::MissileDatcomReader missileDatcomReader( fileLocation );
 
     std::vector< double > missileDatcomData = missileDatcomReader.getMissileDatcomData( );

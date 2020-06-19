@@ -19,6 +19,7 @@
 #include "tudat/simulation/environment/createAerodynamicControlSurfaces.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/paths.hpp"
 
 namespace tudat
 {

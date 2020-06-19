@@ -122,10 +122,10 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
                 integratorSettings );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                    "/math/filters/tests/noiseData/ekfSystemNoise1.dat" );
-    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                         "/math/filters/tests/noiseData/ekfMeasurementNoise1.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                    "/ekfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                         "/ekfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -274,10 +274,10 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
                 integratorSettings );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                    "/math/filters/tests/noiseData/ekfSystemNoise2.dat" );
-    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                         "/math/filters/tests/noiseData/ekfMeasurementNoise2.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                    "/ekfSystemNoise2.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                         "/ekfMeasurementNoise2.dat" );
 
     // Loop over each time step
     const bool showProgress = false;

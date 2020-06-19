@@ -225,29 +225,29 @@ public:
     GcrsToItrsRotationModelSettings(
             const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
             const std::string baseFrameName = "GCRS",
-            const std::string& eopFile = input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
+            const std::string& eopFile = paths::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
             const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
             const std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
             std::make_shared< EopCorrectionSettings >(
                 1.0E-6, 0.0, std::vector< std::string >{
-                    input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
-                    input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
+                    paths::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
+                    paths::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "utcLibrationFundamentalArgumentMultipliers.txt",
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "utcOceanTidesFundamentalArgumentMultipliers.txt" } ),
             const std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings =
             std::make_shared< EopCorrectionSettings >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0, std::vector< std::string >{
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "polarMotionOceanTidesAmplitudes.txt", },
                 std::vector< std::string >{
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
-                    input_output::getEarthOrientationDataFilesPath( ) +
+                    paths::getEarthOrientationDataFilesPath( ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } ) ):
         RotationModelSettings( gcrs_to_itrs_rotation_model, baseFrameName, "ITRS" ),
         inputTimeScale_( inputTimeScale ), nutationTheory_( nutationTheory ), eopFile_( eopFile ),

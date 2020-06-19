@@ -100,10 +100,10 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
                 integratorSettings );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                    "/math/filters/tests/noiseData/ukfSystemNoise1.dat" );
-    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                         "/math/filters/tests/noiseData/ukfMeasurementNoise1.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                    "/ukfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                         "/ukfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -219,9 +219,9 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
 
     // Load noise from file
     Eigen::MatrixXld systemNoise = input_output::readMatrixFromFile< long double >(
-                tudat::input_output::getTudatRootPath( ) + "/math/filters/tests/noiseData/ukfSystemNoise2.dat" );
+                tudat::paths::getTudatTestDataPath( ) + "/ukfSystemNoise2.dat" );
     Eigen::MatrixXld measurementNoise = input_output::readMatrixFromFile< long double >(
-                tudat::input_output::getTudatRootPath( ) + "/math/filters/tests/noiseData/ukfMeasurementNoise2.dat" );
+                tudat::paths::getTudatTestDataPath( ) + "/ukfMeasurementNoise2.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -341,10 +341,10 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
                 integratorSettings );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
-                                                                    "/math/filters/tests/noiseData/ukfSystemNoise3.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
+                                                                    "/ukfSystemNoise3.dat" );
     Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile(
-                tudat::input_output::getTudatRootPath( ) + "/math/filters/tests/noiseData/ukfMeasurementNoise3.dat" );
+                tudat::paths::getTudatTestDataPath( ) + "/ukfMeasurementNoise3.dat" );
 
     // Loop over each time step
     const bool showProgress = false;

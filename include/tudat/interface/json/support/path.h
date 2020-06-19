@@ -26,10 +26,10 @@ namespace json_interface
 //! E.g., the text "${TUDAT_ROOT_PATH}" will be replaced with the actual path when reading JSON files.
 static std::vector< std::pair< std::string, std::string > > pathPlaceholders =
 {
-    std::make_pair( "tudat_ROOT_PATH", input_output::getTudatRootPath( ) ),
-    std::make_pair( "ATMOSPHERE_TABLES_PATH", input_output::getAtmosphereTablesPath( ) ),
-    std::make_pair( "GRAVITY_MODELS_PATH", input_output::getGravityModelsPath( ) ),
-    std::make_pair( "SPICE_KERNELS_PATH", input_output::getSpiceKernelPath( ) )
+    std::make_pair( "tudat_ROOT_PATH", paths::getTudatRootPath( ) ),
+    std::make_pair( "ATMOSPHERE_TABLES_PATH", paths::getAtmosphereTablesPath( ) ),
+    std::make_pair( "GRAVITY_MODELS_PATH", paths::getGravityModelsPath( ) ),
+    std::make_pair( "SPICE_KERNELS_PATH", paths::getSpiceKernelPath( ) )
 };
 
 //! Return \p path with the recognized paths replaced by placeholders (such as ${TUDAT_ROOT_PATH}).

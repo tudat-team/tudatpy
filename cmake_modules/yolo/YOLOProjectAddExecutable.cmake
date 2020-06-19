@@ -36,9 +36,9 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
     set_target_properties(${target_name}
             PROPERTIES
             LINKER_LANGUAGE CXX
-            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+            ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+            LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+            RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
             )
 
     # Let's setup the target C++ standard, but only if the user did not provide it manually.
@@ -47,7 +47,7 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
     endif ()
     set_property(TARGET ${target_name} PROPERTY CXX_STANDARD_REQUIRED YES)
     set_property(TARGET ${target_name} PROPERTY CXX_EXTENSIONS NO)
-    add_test(${target_name} "${CMAKE_BINARY_DIR}/tests/${target_name}")
+#    add_test(${target_name} "${PROJECT_BINARY_DIR}/tests/${target_name}")
 
     #==========================================================================
     # INSTALL-TREE.
