@@ -101,14 +101,14 @@ PYBIND11_MODULE (kernel, m) {
                    "<no doc>");
 
     // Tudat path information. Maybe move to path module or external cpp file.
-    m.def("get_tudat_path", &tudat::input_output::get_tudat_path);
-    m.def("get_tudat_data_path", &tudat::input_output::get_tudat_data_path);
-    m.def("get_ephemeris_data_files_path", &tudat::input_output::getEphemerisDataFilesPath);
-    m.def("get_earth_orientation_data_files_path", &tudat::input_output::getEarthOrientationDataFilesPath);
-    m.def("get_spice_kernel_path", &tudat::input_output::getSpiceKernelPath);
-    m.def("get_atmosphere_tables_path", &tudat::input_output::getAtmosphereTablesPath);
-    m.def("get_gravity_models_path", &tudat::input_output::getGravityModelsPath);
-    m.def("get_space_weather_data_path", &tudat::input_output::getSpaceWeatherDataPath);
+    m.def("get_tudat_path", &tudat::paths::get_tudat_path);
+    m.def("get_tudat_data_path", &tudat::paths::get_tudat_data_path);
+    m.def("get_ephemeris_data_files_path", &tudat::paths::getEphemerisDataFilesPath);
+    m.def("get_earth_orientation_data_files_path", &tudat::paths::getEarthOrientationDataFilesPath);
+    m.def("get_spice_kernel_path", &tudat::paths::getSpiceKernelPath);
+    m.def("get_atmosphere_tables_path", &tudat::paths::getAtmosphereTablesPath);
+    m.def("get_gravity_models_path", &tudat::paths::getGravityModelsPath);
+    m.def("get_space_weather_data_path", &tudat::paths::getSpaceWeatherDataPath);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
