@@ -276,8 +276,8 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
 
     // Load input data used for generating matlab interpolation.
     Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
-                input_output::getTudatRootPath( ) +
-                "math/interpolators/tests/interpolator_test_input_data.dat","," );
+                paths::getTudatTestDataPath( ) +
+                "/interpolator_test_input_data.dat","," );
 
     // Put data in STL vectors.
     std::vector< double > independentVariableValues;

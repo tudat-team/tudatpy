@@ -52,10 +52,10 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterOneIndependentVariable )
         const double equalityTolerance = 1e-8;
 
         // Read 1-dimensional multi-array
-        std::string inFileName1 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/tabulatedDragCoefficient.txt";
-        std::string inFileName2 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/tabulatedDragCoefficient.txt";
+        std::string inFileName1 = tudat::paths::getTudatTestDataPath( )
+                + "/tabulatedDragCoefficient.txt";
+        std::string inFileName2 = tudat::paths::getTudatTestDataPath( )
+                + "/tabulatedDragCoefficient.txt";
 
         // Extract drag coefficient data
         Eigen::MatrixXd fileContents1 = tudat::input_output::readMatrixFromFile( inFileName1 );
@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterOneIndependentVariable )
 
         // Create new multi-array files
         std::map< int, std::string > outFileNamesMap;
-        outFileNamesMap[ 0 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/tabulatedDragCoefficient1_copy.txt";
-        outFileNamesMap[ 2 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/tabulatedDragCoefficient2_copy.txt";
+        outFileNamesMap[ 0 ] = tudat::paths::getTudatTestDataPath( ) + "/tabulatedDragCoefficient1_copy.txt";
+        outFileNamesMap[ 2 ] = tudat::paths::getTudatTestDataPath( ) + "/tabulatedDragCoefficient2_copy.txt";
 
         // Write multi-array to new files
         tudat::input_output::MultiArrayFileWriter< 1, 6 >::writeMultiArrayAndIndependentVariablesToFiles(
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterOneIndependentVariable )
         const double equalityTolerance = 1e-8;
 
         // Read 1-dimensional multi-array
-        std::string inFileName1 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/tabulatedDragCoefficient.txt";
-        std::string inFileName2 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/tabulatedDragCoefficient.txt";
+        std::string inFileName1 = tudat::paths::getTudatTestDataPath( )
+                + "/tabulatedDragCoefficient.txt";
+        std::string inFileName2 = tudat::paths::getTudatTestDataPath( )
+                + "/tabulatedDragCoefficient.txt";
 
         // Extract drag coefficient data
         Eigen::MatrixXd fileContents1 = tudat::input_output::readMatrixFromFile( inFileName1 );
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterOneIndependentVariable )
         independentVariables.push_back( tudat::utilities::convertEigenVectorToStlVector< double >( independentVariables1Before ) );
 
         // Create new multi-array files
-        std::string outFileName = tudat::input_output::getTudatRootPath( ) + "io/tests/tabulatedDragCoefficient3_copy.txt";
+        std::string outFileName = tudat::paths::getTudatTestDataPath( ) + "/tabulatedDragCoefficient3_copy.txt";
 
         // Write multi-array to new files
         tudat::input_output::MultiArrayFileWriter< 1, 6 >::writeMultiArrayAndIndependentVariablesToFiles(
@@ -212,10 +212,10 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterMultiIndependentVariables )
         const double equalityTolerance = 1e-8;
 
         // Read 2-dimensional multi-array
-        std::string inFileName1 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/aurora_CD.txt";
-        std::string inFileName2 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/aurora_CL.txt";
+        std::string inFileName1 = tudat::paths::getTudatTestDataPath( )
+                + "/aurora_CD.txt";
+        std::string inFileName2 = tudat::paths::getTudatTestDataPath( )
+                + "/aurora_CL.txt";
 
         // Extract drag coefficient data
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > fileContents1 =
@@ -258,8 +258,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterMultiIndependentVariables )
 
         // Create new multi-array files
         std::map< int, std::string > outFileNamesMap;
-        outFileNamesMap[ 0 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/aurora_CD_copy.txt";
-        outFileNamesMap[ 2 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/aurora_CL_copy.txt";
+        outFileNamesMap[ 0 ] = tudat::paths::getTudatTestDataPath( ) + "/aurora_CD_copy.txt";
+        outFileNamesMap[ 2 ] = tudat::paths::getTudatTestDataPath( ) + "/aurora_CL_copy.txt";
 
         // Write multi-array to new files
         tudat::input_output::MultiArrayFileWriter< 2, 6 >::writeMultiArrayAndIndependentVariablesToFiles(
@@ -319,10 +319,10 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterMultiIndependentVariables )
         const double equalityTolerance = 1e-8;
 
         // Read 3-dimensional multi-array
-        std::string inFileName1 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/dCDwTest.txt";
-        std::string inFileName2 = tudat::input_output::getTudatRootPath( )
-                + "astro/aerodynamics/tests/dCDwTest.txt";
+        std::string inFileName1 = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
+        std::string inFileName2 = tudat::paths::getTudatTestDataPath( )
+                + "/dCDwTest.txt";
 
         // Extract drag coefficient data
         std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > fileContents1 =
@@ -369,8 +369,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayWriterMultiIndependentVariables )
 
         // Create new multi-array files
         std::map< int, std::string > outFileNamesMap;
-        outFileNamesMap[ 0 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/dCDwTest1_copy.txt";
-        outFileNamesMap[ 2 ] = tudat::input_output::getTudatRootPath( ) + "io/tests/dCDwTest2_copy.txt";
+        outFileNamesMap[ 0 ] = tudat::paths::getTudatTestDataPath( ) + "/dCDwTest1_copy.txt";
+        outFileNamesMap[ 2 ] = tudat::paths::getTudatTestDataPath( ) + "/dCDwTest2_copy.txt";
 
         // Write multi-array to new files
         tudat::input_output::MultiArrayFileWriter< 3, 6 >::writeMultiArrayAndIndependentVariablesToFiles(

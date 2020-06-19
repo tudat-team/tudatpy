@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 {
     // Set path to new directory.
     const boost::filesystem::path pathToNewDirectory(
-                input_output::getTudatRootPath( ) + "io/tests/ListAllFiles" );
+            paths::getTudatTestDataPath( ) + "/ListAllFiles" );
 
     // Set number of files in directory.
     const unsigned int numberOfFiles = 10;
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 {
     // Set path to output directory.
     const boost::filesystem::path pathToOutputDirectory(
-                input_output::getTudatRootPath( ) + "io/tests/WriteDataMap" );
+            paths::getTudatTestDataPath( ) + "/WriteDataMap" );
 
     // Case 1: write key=double, value=double map to file.
     {
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
                     keyDoubleValueDoubleMap, "keyDoubleValueDoubleMapDataFileWithDefaults" );
 
         // Set absolute path to data file.
-        std::string dataFileAbsolutePath = input_output::getTudatRootPath( )
+        std::string dataFileAbsolutePath = paths::getTudatTestDataPath( )
                 + "/keyDoubleValueDoubleMapDataFileWithDefaults";
 
         // Read data file and tokenize per row.
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
         }
 
         // Remove output file.
-        boost::filesystem::remove( input_output::getTudatRootPath( )
+        boost::filesystem::remove( paths::getTudatTestDataPath( )
                                    + "/keyDoubleValueDoubleMapDataFileWithDefaults" );
     }
 
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
                     keyDoubleValueVector3dMap, "keyDoubleValueVector3dMapDataFile" );
 
         // Set absolute path to data file.
-        std::string dataFileAbsolutePath = input_output::getTudatRootPath( )
+        std::string dataFileAbsolutePath = paths::getTudatTestDataPath( )
                 + "/keyDoubleValueVector3dMapDataFile";
 
         // Read data file and tokenize per row.
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
         }
 
         // Remove output file.
-        boost::filesystem::remove( input_output::getTudatRootPath( )
+        boost::filesystem::remove( paths::getTudatTestDataPath( )
                                    + "/keyDoubleValueVector3dMapDataFile" );
     }
 
@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE( testMatrixFileWriting )
 
     // Write matrix to file
     std::string fileName = "randomTestMatrix.save";
-    std::string outputPath = input_output::getTudatRootPath( ) + "io/tests/";
+    std::string outputPath = paths::getTudatTestDataPath( );
     input_output::writeMatrixToFile( randomMatrix, fileName, 16, outputPath, "\t" );
 
     //  Read matrix to file and check if it is equal to original

@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
 
         // Read input file and store data in matrix.
         auto inputFileMap = input_output::readStlVectorMapFromFile< int, int >(
-                    input_output::getTudatRootPath( ) + "/io/tests/testMap1.txt" );
+                paths::getTudatTestDataPath( ) + "/testMap1.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
 
         // Read input file and store data in matrix.
         auto inputFileMap = input_output::readStlVectorMapFromFile< double, float >(
-                    input_output::getTudatRootPath( ) + "/io/tests/testMap2.txt" );
+                paths::getTudatTestDataPath( ) + "/testMap2.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
 
         // Read input file and store data in matrix.
         auto inputFileMap = input_output::readStlVectorMapFromFile< std::string, std::string >(
-                    input_output::getTudatRootPath( ) + "/io/tests/testMap3.txt" );
+                paths::getTudatTestDataPath( ) + "/testMap3.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.

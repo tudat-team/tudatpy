@@ -33,6 +33,8 @@
 
 #include <tudat/paths.hpp>
 
+using namespace tudat::paths;
+
 namespace tudat
 {
 namespace input_output
