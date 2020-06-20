@@ -283,11 +283,21 @@ void clearSpiceKernels( ) { kclear_c( ); }
 
 void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels )
 {
+    std::cout << "9991 - " << getTotalCountOfKernelsLoaded( ) << std::endl;
+
+    std::cout << "in" << getTotalCountOfKernelsLoaded( ) << std::endl;
 
     std::string kernelPath = paths::getSpiceKernelPath();
 
+    std::cout << "out" << getTotalCountOfKernelsLoaded( ) << std::endl;
+
+    std::cout << kernelPath << std::endl;
+
     loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
     loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
+
+    std::cout << "9991 - " << getTotalCountOfKernelsLoaded( ) << std::endl;
+
 
     if( alternativeEphemerisKernels.size( ) == 0  )
     {
@@ -301,6 +311,10 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
         }
     }
     loadSpiceKernelInTudat( kernelPath + "naif0012.tls" );
+
+    std::cout << "9991 - " << getTotalCountOfKernelsLoaded( ) << std::endl;
+
+
 }
 
 } // namespace spice_interface

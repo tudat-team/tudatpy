@@ -457,11 +457,17 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     // Get ammount of loaded Spice kernels.
     int spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
 
+    std::cout << "1" << getTotalCountOfKernelsLoaded( ) << std::endl;
+
     // Loaded kernels should be 0.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );
 
+    std::cout << "2" << getTotalCountOfKernelsLoaded( ) << std::endl;
+
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
+
+    std::cout << "3" << getTotalCountOfKernelsLoaded( ) << std::endl;
 
     // Get ammount of loaded Spice kernels.
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
@@ -469,11 +475,17 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     // Loaded kernels should be 4.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 4 );
 
+    std::cout << getTotalCountOfKernelsLoaded( ) << std::endl;
+
     // Clear all Spice kernels.
     clearSpiceKernels( );
 
+    std::cout << getTotalCountOfKernelsLoaded( ) << std::endl;
+
     // Get ammount of loaded Spice kernels.
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
+
+    std::cout << getTotalCountOfKernelsLoaded( ) << std::endl;
 
     // Loaded kernels should be 0.
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );

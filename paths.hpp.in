@@ -11,85 +11,107 @@
 #ifndef TUDAT_PATHS_HPP
 #define TUDAT_PATHS_HPP
 
-//#ifdef TUDAT_INSTALL
-#define TUDAT_PATH "@CMAKE_INSTALL_PREFIX@"
-//#endif
+#include <stdlib.h>
 
-//#ifdef TUDAT_TEST_INSTALL
-#define TUDAT_TEST_DATA_PATH "/@PROJECT_BINARY_DIR@/tests/data"
-//#else
-//#define TUDAT_TEST_DATA_PATH TUDAT_PATH + "/tests/data"
-//#endif
+#define HOME "HOME"
+#define RESOURCES_FOLDER "/.tudat/"
+#define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
 
-#define DATA_REL_INSTALL "/" + "@TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX@"
-#define EPHEMERIS_REL_DATA "/" + "ephemeris_data" + "/"
-#define EARTH_ORIENTATION_REL_DATA "/" + "earth_orientation" + "/"
-#define QUADRATURE_REL_DATA "/" + "quadrature" + "/"
-#define SPICE_KERNELS_REL_DATA "/" + "spice_kernels" + "/"
-#define ATMOSPHERE_TABLES_REL_DATA "/" + "atmosphere_tables" + "/"
-#define GRAVITY_MODELS_REL_DATA "/" + "gravity_models" + "/"
-#define SPACE_WEATHER_REL_DATA "/" + "space_weather_data" + "/"
+#define EPHEMERIS_RELATIVE_TO_RESOURCES "/ephemeris_data/"
+#define EARTH_ORIENTATION_RELATIVE_TO_RESOURCES "/earth_orientation/"
+#define QUADRATURE_RELATIVE_TO_RESOURCES "/quadrature/"
+#define SPICE_KERNELS_RELATIVE_TO_RESOURCES "/spice_kernels/"
+#define ATMOSPHERE_TABLES_RELATIVE_TO_RESOURCES "/atmosphere_tables/"
+#define GRAVITY_MODELS_RELATIVE_TO_RESOURCES "/gravity_models/"
+#define SPACE_WEATHER_RELATIVE_TO_RESOURCES "/space_weather_data/"
 
 #include <string.h>
+#include <system_error>
+#include <sys/stat.h>
 #include <iostream>
 
+
 namespace tudat {
-    namespace paths {
+    namespace paths { ;
 
-        static inline std::string get_tudat_path() {
-            std::cout << "get_tudat_path(): " << TUDAT_PATH << std::endl;
-            return TUDAT_PATH;
-        }
+        static inline std::string get_resource_path() {
 
-        [[deprecated("Use get_tudat_path() instead")]]
-        static inline std::string getTudatRootPath() {
-            std::cout << "getTudatRootPath(): " << TUDAT_PATH << std::endl;
-            return TUDAT_PATH;
+            // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
+            //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
+            //  with no resources.
+//            return "/home/ggarrett/.tudat/";
+            char *env_home = getenv(HOME);
+            return std::string(env_home) + RESOURCES_FOLDER;
+
+//            // Only works on osx and linux.
+//            char *env_home = getenv(HOME);
+//            if (env_home != NULL) {
+//                // Create hidden project home folder path.
+//                char const *resource_path = strcat(env_home, RESOURCES_FOLDER);
+//
+//                // Ensure its existence.
+//                struct stat info;
+//                int statRC = stat(resource_path, &info);
+//                int exists;
+//                if (statRC != 0) {
+//                    if (errno == ENOENT) { return 0; } // something along the path does not exist
+//                    if (errno == ENOTDIR) { return 0; } // something in path prefix is not a dir
+//                    exists = -1;
+//                } else { exists = (info.st_mode & S_IFDIR) ? 1 : 0; }
+//                if (exists) {
+//                    std::cout << "resource_path: " << std::string(resource_path) << std::endl;
+//                    return std::string(resource_path);
+//                } else {
+//                    throw std::runtime_error("Resource folder ($HOME/.tudat) does not exist.");
+//                }
+//
+//            } else {
+//                throw std::runtime_error("$HOME variable does not exist.");
+//            }
         }
 
         static inline std::string get_tudat_data_path() {
-            std::cout << "get_tudat_data_path(): " << get_tudat_path() + DATA_REL_INSTALL << std::endl;
-            return get_tudat_path() + DATA_REL_INSTALL;
+            return get_resource_path();
+        }
+
+        static inline std::string get_tudat_path() {
+            return get_resource_path();
+        }
+
+        static inline std::string get_default_output_path() {
+            return get_resource_path();
         }
 
         static inline std::string getTudatTestDataPath() {
-            std::cout << "getTudatTestDataPath(): " << get_tudat_path() + DATA_REL_INSTALL << std::endl;
-            return TUDAT_TEST_DATA_PATH;
+            return TEST_DATA_FOLDER;
         }
 
         static inline std::string getEphemerisDataFilesPath() {
-            std::cout << "getEphemerisDataFilesPath(): " << get_tudat_data_path() + EPHEMERIS_REL_DATA << std::endl;
-            return get_tudat_data_path() + EPHEMERIS_REL_DATA;
+            return get_resource_path() + EPHEMERIS_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getEarthOrientationDataFilesPath() {
-            std::cout << "getEarthOrientationDataFilesPath(): " << get_tudat_data_path() + EARTH_ORIENTATION_REL_DATA << std::endl;
-            return get_tudat_data_path() + EARTH_ORIENTATION_REL_DATA;
+            return get_resource_path() + EARTH_ORIENTATION_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getQuadratureDataPath() {
-            std::cout << "getQuadratureDataPath(): " << get_tudat_data_path() + QUADRATURE_REL_DATA << std::endl;
-            return get_tudat_data_path() + QUADRATURE_REL_DATA;
+            return get_resource_path() + QUADRATURE_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getSpiceKernelPath() {
-            std::cout << "getSpiceKernelPath(): " << get_tudat_data_path() + SPICE_KERNELS_REL_DATA << std::endl;
-            return get_tudat_data_path() + SPICE_KERNELS_REL_DATA;
+            return get_resource_path() + SPICE_KERNELS_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getAtmosphereTablesPath() {
-            std::cout << "getAtmosphereTablesPath(): " << get_tudat_data_path() + ATMOSPHERE_TABLES_REL_DATA << std::endl;
-            return get_tudat_data_path() + ATMOSPHERE_TABLES_REL_DATA;
+            return get_resource_path() + ATMOSPHERE_TABLES_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getGravityModelsPath() {
-            std::cout << "getGravityModelsPath(): " << get_tudat_data_path() + GRAVITY_MODELS_REL_DATA << std::endl;
-            return get_tudat_data_path() + GRAVITY_MODELS_REL_DATA;
+            return get_resource_path() + GRAVITY_MODELS_RELATIVE_TO_RESOURCES;
         }
 
         static inline std::string getSpaceWeatherDataPath() {
-            std::cout << "getSpaceWeatherDataPath(): " << get_tudat_data_path() + SPACE_WEATHER_REL_DATA << std::endl;
-            return get_tudat_data_path() + SPACE_WEATHER_REL_DATA;
+            return get_resource_path() + SPACE_WEATHER_RELATIVE_TO_RESOURCES;
         }
 
     }

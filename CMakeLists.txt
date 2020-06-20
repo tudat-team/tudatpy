@@ -261,7 +261,8 @@ install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" "${PROJECT_BINARY
         DESTINATION ${INSTALL_INCLUDE_DIR}/tudat)
 
 # Installation of the data files.
-install(DIRECTORY data/ DESTINATION "${INSTALL_DATA_DIR}/tudat")
+file(COPY resources/ DESTINATION "$ENV{HOME}/.tudat/")
+
 
 # Add all targets to the build-tree export set
 export(TARGETS ${${PROJECT_NAME}_LIBRARIES} NAMESPACE ${PROJECT_NAME}:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}_export.cmake")

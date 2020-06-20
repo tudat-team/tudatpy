@@ -23,7 +23,8 @@
 
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
-#include "tudat/io/basicInputOutput.h"
+//#include "tudat/io/basicInputOutput.h"
+#include "tudat/paths.hpp"
 
 namespace tudat
 {
@@ -276,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
 
     // Load input data used for generating matlab interpolation.
     Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
-                paths::getTudatTestDataPath( ) +
+                tudat::paths::getTudatTestDataPath( ) +
                 "/interpolator_test_input_data.dat","," );
 
     // Put data in STL vectors.

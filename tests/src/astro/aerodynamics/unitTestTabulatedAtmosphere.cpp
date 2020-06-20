@@ -184,9 +184,9 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphere )
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
-    tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/density.dat";
-    tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/pressure.dat";
-    tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/temperature.dat";
+    tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/density.dat";
+    tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/pressure.dat";
+    tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/temperature.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, independentVariables, dependentVariables );
 
     // Declare tolerance used for Boost tests.
@@ -257,10 +257,10 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
-    tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/pressure.dat";
-    tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/temperature.dat";
-    tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
-    tabulatedAtmosphereFiles[ 3 ] = paths::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/density.dat";
+    tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/pressure.dat";
+    tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/temperature.dat";
+    tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
+    tabulatedAtmosphereFiles[ 3 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/density.dat";
 
     // Test 1: check with single vector of default values
     {
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereExtraVariables )
 
     // Create a tabulated atmosphere object.
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                paths::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m_wHR_GC.dat",
+                paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m_wHR_GC.dat",
                 dependentVariables );
 
     // Declare tolerance used for Boost tests.

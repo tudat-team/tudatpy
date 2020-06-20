@@ -71,10 +71,13 @@ function("TUDAT_ADD_TEST_CASE" arg1)
         # are included first, so that if there is already a pagmo installation
         # in the prefix path we don't risk including the headers from that
         # one instead.
+        message(${PROJECT_BINARY_DIR}/tests/include)
         target_include_directories("${target_name}" PUBLIC
-                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-                $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-                $<INSTALL_INTERFACE:include>)
+                $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>  # Configured test headers
+                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests/include>  # Test specific headers
+                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>        # Project headers
+                $<INSTALL_INTERFACE:include>
+                )                           # Installed headers
 
         target_include_directories("${target_name}"
                 SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
