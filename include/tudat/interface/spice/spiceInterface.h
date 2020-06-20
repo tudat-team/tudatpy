@@ -44,13 +44,6 @@ namespace tudat
 namespace spice_interface
 {
 
-//! Get Spice kernel path.
-/*!
-* Returns path in which Spice kernels are located.
-* \return Path containing Spice kernels.
-*/
-std::string getSpiceKernelPath( );
-
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 /*!
  * Function to convert a Julian date to ephemeris time, which is equivalent to barycentric
