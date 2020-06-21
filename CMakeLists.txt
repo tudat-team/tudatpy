@@ -263,6 +263,35 @@ install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" "${PROJECT_BINARY
 # Installation of the data files.
 file(COPY resources/ DESTINATION "$ENV{HOME}/.tudat/")
 
+# Unzip compressed data and place in build tree.
+#add_custom_target( unpack_resources ALL)
+#add_custom_command(TARGET unpack_resources PRE_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/atmosphere_tables"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/earth_orientation"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/ephemeris"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/gravity_models"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/quadrature"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/space_weather"
+#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/spice_kernels"
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/atmosphere_tables.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/earth_orientation.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/ephemeris.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/gravity_models.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/quadrature.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/space_weather.zip
+#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/spice_kernels.zip
+#        WORKING_DIRECTORY "$ENV{HOME}/.tudat/"
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/atmosphere_tables.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/earth_orientation.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/ephemeris.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/gravity_models.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/quadrature.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/space_weather.zip
+#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/spice_kernels.zip
+#        COMMENT "Unpacking resources.."
+#        VERBATIM)
+
+
 
 # Add all targets to the build-tree export set
 export(TARGETS ${${PROJECT_NAME}_LIBRARIES} NAMESPACE ${PROJECT_NAME}:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}_export.cmake")
