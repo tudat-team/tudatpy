@@ -31,6 +31,7 @@
 #include "tudat/io/extractSolarActivityData.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/paths.hpp"
 
 
 namespace tudat
@@ -47,13 +48,8 @@ BOOST_AUTO_TEST_CASE( test_parsing_and_extraction )
     tudat::input_output::solar_activity::ParseSolarActivityData solarActivityParser;
     tudat::input_output::solar_activity::ExtractSolarActivityData solarActivityExtractor;
 
-    // Parse file
-    // save path of cpp file
-    std::string cppPath( __FILE__ );
-
-    // Strip filename from temporary string and return root-path string.
-    std::string folder = cppPath.substr( 0, cppPath.find_last_of( "/\\" ) + 1 );
-    std::string filePath = folder + "testSolarActivity.txt";
+    // Get path of test data file.
+    std::string filePath = paths::getTudatTestDataPath() + "/testSolarActivity.txt";
 
     // Open dataFile
     std::ifstream dataFile;
@@ -100,13 +96,8 @@ BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData )
     using tudat::input_output::solar_activity::SolarActivityDataMap;
     using tudat::input_output::solar_activity::SolarActivityData;
 
-    // Parse file
-    // save path of cpp file
-    std::string cppPath( __FILE__ );
-
-    // Strip filename from temporary string and return root-path string.
-    std::string folder = cppPath.substr( 0, cppPath.find_last_of( "/\\" ) + 1 );
-    std::string filePath = folder + "testSolarActivity.txt";
+    // Get path of test data file.
+    std::string filePath = paths::getTudatTestDataPath() + "/testSolarActivity.txt";
 
     // Read file.
     SolarActivityDataMap solarActivity = tudat::input_output::solar_activity::readSolarActivityData( filePath );
@@ -142,7 +133,7 @@ BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData )
     BOOST_CHECK_EQUAL( solarActivityIterator->second->planetaryRangeIndexSum , 0.0 );
 
     // Test full line from full activity file
-    std::string filePath2 = folder + "sw19571001.txt";
+    std::string filePath2 = paths::getTudatTestDataPath() + "/sw19571001.txt";
 
     // Read file.
     SolarActivityDataMap solarActivity2 = tudat::input_output::solar_activity::readSolarActivityData( filePath2 );

@@ -32,11 +32,14 @@ set(TESTS_REQUIRING_TEST_DATA
 #        test_quadrature_GaussianQuadrature
 #        test_io_MapTextFileReader
 #        test_io_MatrixTextFileReader
-        test_io_TwoLineElementsTextFileReader
+
+        # HERE
+#        test_io_TwoLineElementsTextFileReader
 #        test_io_MissileDatcomReader
-        test_io_MissileDatcomData
-        test_io_DictionaryInputSystem
-        test_io_BasicInputOutput
+#        test_io_MissileDatcomData
+#        test_io_DictionaryInputSystem
+#        test_io_BasicInputOutput
+
 #        test_io_MultiArrayReader
 #        test_io_MultiArrayWriter
 #        test_io_AerodynamicCoefficientReader

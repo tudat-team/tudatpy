@@ -44,6 +44,7 @@
 
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/paths.hpp"
 #include "tudat/io/twoLineElementsTextFileReader.h"
 
 namespace tudat
@@ -59,7 +60,7 @@ void TwoLineElementsTextFileReader::openFile()
 {
     if ( absoluteDirectoryPath_.compare( "" ) == 0 )
     {
-        absoluteFilePath_ = get_tudat_path( ) + relativeDirectoryPath_ + fileName_;
+        absoluteFilePath_ = get_resource_path( ) + relativeDirectoryPath_ + fileName_;
     }
 
     else
