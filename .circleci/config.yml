@@ -166,7 +166,7 @@ jobs:
       - *lib_version
       #      - *update_version
       - *build
-      - *deploy
+#      - *deploy
 
       # Test results.
       - store_test_results:
