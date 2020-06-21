@@ -12,6 +12,7 @@
 #define TUDAT_PATHS_HPP
 
 #include <stdlib.h>
+#include <system_error>
 
 #define HOME "HOME"
 #define RESOURCES_FOLDER "/.tudat/"
@@ -23,25 +24,20 @@
 #define SPICE_KERNELS_RELATIVE_TO_RESOURCES "/spice_kernels/"
 #define ATMOSPHERE_TABLES_RELATIVE_TO_RESOURCES "/atmosphere_tables/"
 #define GRAVITY_MODELS_RELATIVE_TO_RESOURCES "/gravity_models/"
-#define SPACE_WEATHER_RELATIVE_TO_RESOURCES "/space_weather_data/"
+#define SPACE_WEATHER_RELATIVE_TO_RESOURCES "/space_weather/"
 
 #include <string.h>
-#include <system_error>
 #include <sys/stat.h>
 #include <iostream>
 
-
 namespace tudat {
-    namespace paths { ;
+    namespace paths {
 
         static inline std::string get_resource_path() {
-
             // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
             //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
             //  with no resources.
-//            return "/home/ggarrett/.tudat/";
-            char *env_home = getenv(HOME);
-            return std::string(env_home) + RESOURCES_FOLDER;
+            return std::string(getenv(HOME)) + RESOURCES_FOLDER;
 
 //            // Only works on osx and linux.
 //            char *env_home = getenv(HOME);

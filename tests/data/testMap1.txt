@@ -1,5 +1,0 @@
-% This is the matrix used to test the matrix map in Tudat
-1	1	2
-2	1	2	4
-3	1	2	4	8
-4	1	2	4	8	16
