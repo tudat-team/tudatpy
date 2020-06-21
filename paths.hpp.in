@@ -18,7 +18,7 @@
 #define RESOURCES_FOLDER "/.tudat/"
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
 
-#define EPHEMERIS_RELATIVE_TO_RESOURCES "/ephemeris_data/"
+#define EPHEMERIS_RELATIVE_TO_RESOURCES "/ephemeris/"
 #define EARTH_ORIENTATION_RELATIVE_TO_RESOURCES "/earth_orientation/"
 #define QUADRATURE_RELATIVE_TO_RESOURCES "/quadrature/"
 #define SPICE_KERNELS_RELATIVE_TO_RESOURCES "/spice_kernels/"
