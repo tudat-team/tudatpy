@@ -105,10 +105,10 @@ endforeach ()
 
 # Find relative paths for cmake-config file. (for find_package)
 file(RELATIVE_PATH rel_include_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
-file(RELATIVE_PATH rel_lib_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
-file(RELATIVE_PATH rel_data_dir    "${INSTALL_CMAKE_DIR}" "${INSTALL_DATA_DIR}")
-file(RELATIVE_PATH rel_bin_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_BIN_DIR}")
-file(RELATIVE_PATH rel_man_dir     "${INSTALL_CMAKE_DIR}" "${INSTALL_MAN_DIR}")
+file(RELATIVE_PATH rel_lib_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}")
+file(RELATIVE_PATH rel_data_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_DATA_DIR}")
+file(RELATIVE_PATH rel_bin_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_BIN_DIR}")
+file(RELATIVE_PATH rel_man_dir "${INSTALL_CMAKE_DIR}" "${INSTALL_MAN_DIR}")
 
 # Set relative paths for config.cmake.
 foreach (p include lib data bin man)
@@ -152,6 +152,10 @@ if (TUDAT_CONDA_BUILD)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
     set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
 endif ()
+
+# Get tudat resource manager dependency.
+find_package(TudatResources REQUIRED)
+include_directories(TudatResources_INCLUDE_DIRS)
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -225,7 +229,7 @@ include(TudatLinkLibraries)
 # Add to parent scope if project is added via add_subdirectory().
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
-    set(Tudat_ESTIMATION_LIBRARIES  ${Tudat_ESTIMATION_LIBRARIES}  PARENT_SCOPE)
+    set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
 endif ()
 
 add_subdirectory(src/astro)
@@ -257,41 +261,10 @@ configure_file(
 
 # Installation of the header files.
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
-install(FILES "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp"
+install(FILES
+        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp"
+        "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp"
         DESTINATION ${INSTALL_INCLUDE_DIR}/tudat)
-
-# Installation of the data files.
-file(COPY resources/ DESTINATION "$ENV{HOME}/.tudat/")
-
-# Unzip compressed data and place in build tree.
-#add_custom_target( unpack_resources ALL)
-#add_custom_command(TARGET unpack_resources PRE_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/atmosphere_tables"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/earth_orientation"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/ephemeris"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/gravity_models"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/quadrature"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/space_weather"
-#        COMMAND ${CMAKE_COMMAND} -E remove_directory "$ENV{HOME}/.tudat/spice_kernels"
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/atmosphere_tables.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/earth_orientation.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/ephemeris.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/gravity_models.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/quadrature.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/space_weather.zip
-#        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/resources/spice_kernels.zip
-#        WORKING_DIRECTORY "$ENV{HOME}/.tudat/"
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/atmosphere_tables.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/earth_orientation.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/ephemeris.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/gravity_models.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/quadrature.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/space_weather.zip
-#        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/spice_kernels.zip
-#        COMMENT "Unpacking resources.."
-#        VERBATIM)
-
-
 
 # Add all targets to the build-tree export set
 export(TARGETS ${${PROJECT_NAME}_LIBRARIES} NAMESPACE ${PROJECT_NAME}:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}_export.cmake")
@@ -306,7 +279,7 @@ export(PACKAGE ${PROJECT_NAME})
 
 # +============================================================================
 # PROJECT CONFIG
-#  Add the targets, libraries and tests.
+#  For external use of project.
 # +============================================================================
 include(CMakePackageConfigHelpers)
 
