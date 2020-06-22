@@ -14,21 +14,12 @@
 #include <stdlib.h>
 #include <system_error>
 
-#define HOME "HOME"
-#define RESOURCES_FOLDER "/.tudat/"
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
-
-#define EPHEMERIS_RELATIVE_TO_RESOURCES "/ephemeris/"
-#define EARTH_ORIENTATION_RELATIVE_TO_RESOURCES "/earth_orientation/"
-#define QUADRATURE_RELATIVE_TO_RESOURCES "/quadrature/"
-#define SPICE_KERNELS_RELATIVE_TO_RESOURCES "/spice_kernels/"
-#define ATMOSPHERE_TABLES_RELATIVE_TO_RESOURCES "/atmosphere_tables/"
-#define GRAVITY_MODELS_RELATIVE_TO_RESOURCES "/gravity_models/"
-#define SPACE_WEATHER_RELATIVE_TO_RESOURCES "/space_weather/"
 
 #include <string.h>
 #include <sys/stat.h>
 #include <iostream>
+#include <tudat/resource/resource.h>
 
 namespace tudat {
     namespace paths {
@@ -37,7 +28,8 @@ namespace tudat {
             // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
             //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
             //  with no resources.
-            return std::string(getenv(HOME)) + RESOURCES_FOLDER;
+            return get_resources_path();
+//            return std::string(getenv(HOME)) + RESOURCES_FOLDER;
 
 //            // Only works on osx and linux.
 //            char *env_home = getenv(HOME);
@@ -83,31 +75,31 @@ namespace tudat {
         }
 
         static inline std::string getEphemerisDataFilesPath() {
-            return get_resource_path() + EPHEMERIS_RELATIVE_TO_RESOURCES;
+            return get_ephemeris_path();
         }
 
         static inline std::string getEarthOrientationDataFilesPath() {
-            return get_resource_path() + EARTH_ORIENTATION_RELATIVE_TO_RESOURCES;
+            return get_earth_orientation_path();
         }
 
         static inline std::string getQuadratureDataPath() {
-            return get_resource_path() + QUADRATURE_RELATIVE_TO_RESOURCES;
+            return get_quadrature_path();
         }
 
         static inline std::string getSpiceKernelPath() {
-            return get_resource_path() + SPICE_KERNELS_RELATIVE_TO_RESOURCES;
+            return get_spice_kernels_path();
         }
 
         static inline std::string getAtmosphereTablesPath() {
-            return get_resource_path() + ATMOSPHERE_TABLES_RELATIVE_TO_RESOURCES;
+            return get_atmosphere_tables_path();
         }
 
         static inline std::string getGravityModelsPath() {
-            return get_resource_path() + GRAVITY_MODELS_RELATIVE_TO_RESOURCES;
+            return get_gravity_models_path();
         }
 
         static inline std::string getSpaceWeatherDataPath() {
-            return get_resource_path() + SPACE_WEATHER_RELATIVE_TO_RESOURCES;
+            return get_space_weather_path();
         }
 
     }
