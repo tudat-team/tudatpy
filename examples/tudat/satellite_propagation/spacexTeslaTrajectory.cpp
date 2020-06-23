@@ -35,7 +35,7 @@ int main( )
 
 
     // Load Spice kernels.
-    spice_interface::loadStandardSpiceKernels( { input_output::getSpiceKernelPath( ) + "de430.bsp" } );
+    spice_interface::loadStandardSpiceKernels( { paths::getSpiceKernelPath( ) + "/de430.bsp" } );
 
     // Set simulation time settings.
     const double simulationStartEpoch =

@@ -28,34 +28,7 @@ namespace tudat {
             // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
             //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
             //  with no resources.
-            return get_resources_path();
-//            return std::string(getenv(HOME)) + RESOURCES_FOLDER;
-
-//            // Only works on osx and linux.
-//            char *env_home = getenv(HOME);
-//            if (env_home != NULL) {
-//                // Create hidden project home folder path.
-//                char const *resource_path = strcat(env_home, RESOURCES_FOLDER);
-//
-//                // Ensure its existence.
-//                struct stat info;
-//                int statRC = stat(resource_path, &info);
-//                int exists;
-//                if (statRC != 0) {
-//                    if (errno == ENOENT) { return 0; } // something along the path does not exist
-//                    if (errno == ENOTDIR) { return 0; } // something in path prefix is not a dir
-//                    exists = -1;
-//                } else { exists = (info.st_mode & S_IFDIR) ? 1 : 0; }
-//                if (exists) {
-//                    std::cout << "resource_path: " << std::string(resource_path) << std::endl;
-//                    return std::string(resource_path);
-//                } else {
-//                    throw std::runtime_error("Resource folder ($HOME/.tudat) does not exist.");
-//                }
-//
-//            } else {
-//                throw std::runtime_error("$HOME variable does not exist.");
-//            }
+            return get_resources_path().string();
         }
 
         static inline std::string get_tudat_data_path() {
@@ -75,31 +48,31 @@ namespace tudat {
         }
 
         static inline std::string getEphemerisDataFilesPath() {
-            return get_ephemeris_path();
+            return get_ephemeris_path().string();
         }
 
         static inline std::string getEarthOrientationDataFilesPath() {
-            return get_earth_orientation_path();
+            return get_earth_orientation_path().string();
         }
 
         static inline std::string getQuadratureDataPath() {
-            return get_quadrature_path();
+            return get_quadrature_path().string();
         }
 
         static inline std::string getSpiceKernelPath() {
-            return get_spice_kernels_path();
+            return get_spice_kernels_path().string();
         }
 
         static inline std::string getAtmosphereTablesPath() {
-            return get_atmosphere_tables_path();
+            return get_atmosphere_tables_path().string();
         }
 
         static inline std::string getGravityModelsPath() {
-            return get_gravity_models_path();
+            return get_gravity_models_path().string();
         }
 
         static inline std::string getSpaceWeatherDataPath() {
-            return get_space_weather_path();
+            return get_space_weather_path().string();
         }
 
     }

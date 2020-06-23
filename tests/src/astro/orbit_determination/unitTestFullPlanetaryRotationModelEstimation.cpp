@@ -54,7 +54,7 @@ using namespace tudat::observation_models;
 BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 {    
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
     
     //Define environment settings    
