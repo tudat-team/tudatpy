@@ -34,9 +34,9 @@ BOOST_AUTO_TEST_SUITE( test_itrs_to_gcrs_rotation )
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 {
 
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0012.tls" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "earth_latest_high_prec.bpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "earth_fixed.tf" );
+    spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/naif0012.tls" );
+    spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_latest_high_prec.bpc" );
+    spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_fixed.tf" );
 
     // Create rotation model
     std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
