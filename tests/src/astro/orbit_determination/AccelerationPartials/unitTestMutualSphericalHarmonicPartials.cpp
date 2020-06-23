@@ -75,7 +75,7 @@ std::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
     std::pair< double, double > moonGravityFieldSettings = readGravityFieldFile(
-                input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", 50, 50, coefficients, 0, 1 );
+                paths::getGravityModelsPath( ) + "/Moon/lpe200.txt", 50, 50, coefficients, 0, 1 );
 
     return std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( moonGravityFieldSettings.first, moonGravityFieldSettings.second,
@@ -86,7 +86,7 @@ std::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 {
     // Load spice kernel.
-    spice_interface::loadStandardSpiceKernels( { input_output::getSpiceKernelPath( ) + "de430_mar097_small.bsp" } );
+    spice_interface::loadStandardSpiceKernels( { paths::getSpiceKernelPath( ) + "/de430_mar097_small.bsp" } );
 
     std::vector< std::string > bodyList;
     bodyList.push_back( "Sun" );

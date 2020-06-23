@@ -36,7 +36,7 @@ int main( )
 
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.

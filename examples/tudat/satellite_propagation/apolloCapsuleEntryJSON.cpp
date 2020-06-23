@@ -39,9 +39,9 @@ protected:
         JsonSimulationManager::resetExportSettings( );
 
         // Then, replace the output file paths (empty strings placeholders had been specified in the JSON file)
-        const std::string outputDirectory = tudat_applications::getOutputPath( ) + "ApolloCapsuleExampleJSON/";
-        getExportSettings( 0 )->setOutputFile( outputDirectory + "apolloPropagationHistory.dat" );
-        getExportSettings( 1 )->setOutputFile( outputDirectory + "apolloDependentVariableHistory.dat" );
+        const std::string outputDirectory = tudat_applications::getOutputPath( ) + "/ApolloCapsuleExampleJSON/";
+        getExportSettings( 0 )->setOutputFile( outputDirectory + "/apolloPropagationHistory.dat" );
+        getExportSettings( 1 )->setOutputFile( outputDirectory + "/apolloDependentVariableHistory.dat" );
     }
 
     // Override resetPropagatorSettings method

@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_SUITE( test_doppler_models )
 BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
     // Load Spice kernels
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 {
     // Load Spice kernels
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.

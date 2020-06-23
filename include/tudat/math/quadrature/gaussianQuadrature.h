@@ -45,7 +45,7 @@ void readGaussianQuadratureNodes(
     gaussQuadratureNodes =
             utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
-                    paths::getQuadratureDataPath( ) + "gaussianNodes.txt" ) );
+                    paths::getQuadratureDataPath( ) + "/gaussianNodes.txt" ) );
 }
 
 
@@ -61,7 +61,7 @@ void readGaussianQuadratureWeights(
 {
     gaussQuadratureWeights = utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
-                    paths::getQuadratureDataPath( ) + "gaussianWeights.txt" ) );
+                    paths::getQuadratureDataPath( ) + "/gaussianWeights.txt" ) );
 }
 
 //! Container object for Gauss quadrature nodes and weights (templated by data variable type, e.g. float, double, long double)

@@ -220,7 +220,7 @@ int main( )
     std::vector< double > interTimeVectorMessenger;
 
     // Calculate intermediate points and write to file
-    std::string outputFileTraj = tudat_applications::getOutputPath( ) + "messengerTrajectory.dat";
+    std::string outputFileTraj = tudat_applications::getOutputPath( ) + "/messengerTrajectory.dat";
     Messenger.intermediatePoints( 1000.0 , interPositionVectorMessenger, interTimeVectorMessenger );
     writeTrajectoryToFile( interPositionVectorMessenger, interTimeVectorMessenger, outputFileTraj );
 
@@ -230,7 +230,7 @@ int main( )
     std::vector< double > manDeltaVVectorMessenger;
 
     // Calculate maneuvers and write to file
-    std::string outputFileMan = tudat_applications::getOutputPath( ) + "messengerManeuvers.dat";
+    std::string outputFileMan = tudat_applications::getOutputPath( ) + "/messengerManeuvers.dat";
     Messenger.maneuvers( manPositionVectorMessenger, manTimeVectorMessenger, manDeltaVVectorMessenger );
     writeTrajectoryToFile( manPositionVectorMessenger, manTimeVectorMessenger, outputFileMan );
 

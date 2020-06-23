@@ -645,7 +645,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
 
 BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.

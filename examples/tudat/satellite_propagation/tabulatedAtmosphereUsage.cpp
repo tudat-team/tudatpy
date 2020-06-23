@@ -37,7 +37,7 @@ int main( )
         BoundaryInterpolationType boundaryHandling = use_boundary_value_with_warning;
 
         // Create a tabulated atmosphere object.
-        std::string tabulatedAtmosphereFile = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphere.dat";
+        std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphere.dat";
         TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile, // path to file
                                                  dependentVariables, // list of dependent variables
                                                  0.0, // gas constant (value does not matter, since it is specified as dependent variable)
@@ -80,11 +80,11 @@ int main( )
 
         // Give names of files in same order as dependent variables
         std::map< int, std::string > tabulatedAtmosphereFiles;
-        tabulatedAtmosphereFiles[ 0 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/density.dat";
-        tabulatedAtmosphereFiles[ 1 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/pressure.dat";
-        tabulatedAtmosphereFiles[ 2 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/temperature.dat";
-        tabulatedAtmosphereFiles[ 3 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/gasConstant.dat";
-        tabulatedAtmosphereFiles[ 4 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
+        tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/density.dat";
+        tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/pressure.dat";
+        tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/temperature.dat";
+        tabulatedAtmosphereFiles[ 3 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/gasConstant.dat";
+        tabulatedAtmosphereFiles[ 4 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
 
         // Set boundary handling to default value for each independent variable
         std::vector< BoundaryInterpolationType > boundaryHandling = std::vector< BoundaryInterpolationType >( 3, use_default_value );

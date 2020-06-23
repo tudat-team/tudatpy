@@ -284,12 +284,12 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
 {
 
     std::string kernelPath = paths::getSpiceKernelPath();
-    loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
-    loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
+    loadSpiceKernelInTudat( kernelPath + "/pck00010.tpc" );
+    loadSpiceKernelInTudat( kernelPath + "/gm_de431.tpc" );
 
     if( alternativeEphemerisKernels.size( ) == 0  )
     {
-        loadSpiceKernelInTudat( kernelPath + "tudat_merged_spk_kernel.bsp" );
+        loadSpiceKernelInTudat( kernelPath + "/tudat_merged_spk_kernel.bsp" );
     }
     else
     {
@@ -298,7 +298,7 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
             loadSpiceKernelInTudat( alternativeEphemerisKernels.at( i ) );
         }
     }
-    loadSpiceKernelInTudat( kernelPath + "naif0012.tls" );
+    loadSpiceKernelInTudat( kernelPath + "/naif0012.tls" );
 
 
 }

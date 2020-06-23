@@ -58,7 +58,7 @@ Eigen::VectorXd  executeParameterEstimation(
         const double arcOverlap  = 5.0E3 )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     // Specify initial time

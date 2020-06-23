@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Load Spice kernels.
-    spice_interface::loadStandardSpiceKernels( std::vector<std::string>());
+    spice_interface::loadStandardSpiceKernels( std::vector<std::string>() );
 
     for( unsigned int i = 0; i < 3; i++ )
     {

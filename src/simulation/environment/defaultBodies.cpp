@@ -32,7 +32,7 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     // A default atmosphere is only implemented for Earth.
     if( bodyName == "Earth" )
     {
-        std::string atmosphereTableFile = paths::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+        std::string atmosphereTableFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
         atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
     }
 

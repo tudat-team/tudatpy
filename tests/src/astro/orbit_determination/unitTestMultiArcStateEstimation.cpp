@@ -53,7 +53,7 @@ Eigen::VectorXd  executeParameterEstimation(
         const int linkArcs )
 {
     //Load spice kernels.f
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
     //Define setting for total number of bodies and those which need to be integrated numerically.

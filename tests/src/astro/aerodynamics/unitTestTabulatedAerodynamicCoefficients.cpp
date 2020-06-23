@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
 
     // Read CD as semiMajorAixsfunction of altitude
     Eigen::MatrixXd aerodynamicsDataFromFile = readMatrixFromFile(
-                tudat_applications::getOutputPath( ) + "tabulatedDragCoefficient.txt" );
+                tudat_applications::getOutputPath( ) + "/tabulatedDragCoefficient.txt" );
     Eigen::VectorXd altitudeInKm = aerodynamicsDataFromFile.col(0);
     std::vector< double > altitudes;
     for ( int i = 0; i < altitudeInKm.rows( ); i++ )
