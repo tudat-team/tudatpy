@@ -4,7 +4,6 @@
 import numpy as np
 import pandas as pd
 from tudatpy import elements
-from tudatpy import load_standard_spice_kernels
 from tudatpy.kernel import constants
 from tudatpy.kernel import numerical_integrators
 from tudatpy.kernel import spice_interface
