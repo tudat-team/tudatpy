@@ -65,7 +65,7 @@ def single(
 
     """
     # Load spice kernels.
-    load_standard_spice_kernels()
+    spice_interface.load_standard_kernels()
 
     # Set simulation start epoch.
     simulation_start_epoch = start_epoch
