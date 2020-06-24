@@ -1,5 +1,6 @@
 from ._layer_simulation_setup import modify_simulation_setup
 from .kernel import simulation_setup
+from ._version import *
 # from .kernel import get_spice_kernel_path
 # from .kernel import spice_interface
 
