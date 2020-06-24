@@ -5,15 +5,15 @@ if (POLICY CMP0048)
 endif (POLICY CMP0048)
 
 # Get version from file.
-file(READ "version" TudatPy_VERSION)
-project(TudatPy VERSION "${TudatPy_VERSION}" LANGUAGES CXX C)
+file(READ "version" tudatpy_VERSION)
+project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "TudatPy version: ${TudatPy_VERSION}")
+message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
