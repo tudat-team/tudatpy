@@ -147,11 +147,11 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-if (TUDAT_CONDA_BUILD)
-    message(STATUS "Building conda-build build of tudat.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
-endif ()
+#if (TUDAT_CONDA_BUILD)
+message(STATUS "Building conda-build build of tudat.")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
+#endif ()
 
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
@@ -162,7 +162,6 @@ find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++")
 endif ()
 
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
