@@ -13,7 +13,7 @@
  *      scientific notation.
  *
  */
- 
+
 #include <sstream>
 #include <string>
 
@@ -43,7 +43,7 @@ namespace paths {
         return std::string(get_resource_path()).c_str();
     }
 
-    std::string getTudatTestDataPath() {
+    const std::string getTudatTestDataPath() {
         return std::string(TEST_DATA_FOLDER).c_str();
     }
 
