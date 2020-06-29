@@ -31,7 +31,6 @@
 #include "tudat/io/extractSolarActivityData.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/paths.hpp"
 
 
 namespace tudat
