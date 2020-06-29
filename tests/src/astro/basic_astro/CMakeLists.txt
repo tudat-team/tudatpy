@@ -37,6 +37,7 @@ TUDAT_ADD_TEST_CASE(ConvertMeanAnomalyToEccentricAnomaly
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_root_finders
+        tudat_input_output
         )
 
 TUDAT_ADD_TEST_CASE(ConvertMeanAnomalyToHyperbolicEccentricAnomaly
@@ -44,6 +45,7 @@ TUDAT_ADD_TEST_CASE(ConvertMeanAnomalyToHyperbolicEccentricAnomaly
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_root_finders
+        tudat_input_output
         )
 
 TUDAT_ADD_TEST_CASE(KeplerPropagator
