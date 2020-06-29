@@ -248,10 +248,10 @@ endif ()
 
 file(RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" "${INSTALL_DATA_DIR}/tudat")
 
-configure_file( # Really dirty trick, and should be removed.
-        "${PROJECT_SOURCE_DIR}/paths.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
-        )
+#configure_file( # Really dirty trick, and should be removed.
+#        "${PROJECT_SOURCE_DIR}/paths.hpp.in"
+#        "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp" @ONLY
+#        )
 
 configure_file(
         "${PROJECT_SOURCE_DIR}/config.hpp.in"
