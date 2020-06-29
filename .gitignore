@@ -51,7 +51,6 @@ doc/doxygen/latex/
 build*/
 bin/
 lib/
-include/tudat/paths.hpp
 
 #
 # Spice Kernel creation tools
