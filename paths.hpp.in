@@ -28,7 +28,7 @@ namespace tudat {
             // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
             //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
             //  with no resources.
-            return get_resources_path().string();
+            return std::string(get_resources_path()).c_str();
         }
 
         static inline std::string get_tudat_data_path() {
@@ -48,31 +48,31 @@ namespace tudat {
         }
 
         static inline std::string getEphemerisDataFilesPath() {
-            return get_ephemeris_path().string();
+            return std::string(get_ephemeris_path());
         }
 
         static inline std::string getEarthOrientationDataFilesPath() {
-            return get_earth_orientation_path().string();
+            return std::string(get_earth_orientation_path());
         }
 
         static inline std::string getQuadratureDataPath() {
-            return get_quadrature_path().string();
+            return std::string(get_quadrature_path());
         }
 
         static inline std::string getSpiceKernelPath() {
-            return get_spice_kernels_path().string();
+            return std::string(get_spice_kernels_path());
         }
 
         static inline std::string getAtmosphereTablesPath() {
-            return get_atmosphere_tables_path().string();
+            return std::string(get_atmosphere_tables_path());
         }
 
         static inline std::string getGravityModelsPath() {
-            return get_gravity_models_path().string();
+            return std::string(get_gravity_models_path());
         }
 
         static inline std::string getSpaceWeatherDataPath() {
-            return get_space_weather_path().string();
+            return std::string(get_space_weather_path());
         }
 
     }
