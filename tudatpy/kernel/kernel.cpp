@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/config.hpp>
+#include <tudat/resource/resource.h>
 #include <tudat/paths.hpp>
 
 #include "expose_constants.h"
@@ -101,11 +102,20 @@ PYBIND11_MODULE (kernel, m) {
                    "<no doc>");
 
     // Tudat path information. Maybe move to path module or external cpp file.
+
     m.def("get_tudat_path", &tudat::paths::get_tudat_path);
+    m.def("_get_tudat_path_paths", &tudat::paths::get_tudat_path);
+    m.def("_get_tudat_path_resource", &tudat::paths::get_resources_path);
+
+
     m.def("get_tudat_data_path", &tudat::paths::get_tudat_data_path);
     m.def("get_ephemeris_data_files_path", &tudat::paths::getEphemerisDataFilesPath);
     m.def("get_earth_orientation_data_files_path", &tudat::paths::getEarthOrientationDataFilesPath);
+
     m.def("get_spice_kernel_path", &tudat::paths::getSpiceKernelPath);
+    m.def("_get_spice_kernel_path_resource", &tudat::paths::get_spice_kernels_path);
+    m.def("_get_spice_kernel_path_paths", &tudat::paths::getSpiceKernelPath);
+
     m.def("get_atmosphere_tables_path", &tudat::paths::getAtmosphereTablesPath);
     m.def("get_gravity_models_path", &tudat::paths::getGravityModelsPath);
     m.def("get_space_weather_data_path", &tudat::paths::getSpaceWeatherDataPath);
