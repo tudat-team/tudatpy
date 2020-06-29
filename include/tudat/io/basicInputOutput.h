@@ -37,6 +37,34 @@ using namespace tudat::paths;
 
 namespace tudat
 {
+
+namespace paths {
+
+    std::string get_resource_path();
+
+    std::string get_tudat_data_path();
+
+    std::string get_tudat_path();
+
+    std::string get_default_output_path();
+
+    std::string getTudatTestDataPath();
+
+    std::string getEphemerisDataFilesPath();
+
+    std::string getEarthOrientationDataFilesPath();
+
+    std::string getQuadratureDataPath();
+
+    std::string getSpiceKernelPath();
+
+    std::string getAtmosphereTablesPath();
+
+    std::string getGravityModelsPath();
+
+    std::string getSpaceWeatherDataPath();
+
+}
 namespace input_output
 {
 
