@@ -23,8 +23,7 @@
 
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
-//#include "tudat/io/basicInputOutput.h"
-#include "tudat/paths.hpp"
+#include "tudat/io/basicInputOutput.h"
 
 namespace tudat
 {
