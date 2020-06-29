@@ -262,7 +262,6 @@ configure_file(
 install(DIRECTORY include/ DESTINATION "${INSTALL_INCLUDE_DIR}")
 install(FILES
         "${PROJECT_BINARY_DIR}/include/tudat/config.hpp"
-        "${PROJECT_BINARY_DIR}/include/tudat/paths.hpp"
         DESTINATION ${INSTALL_INCLUDE_DIR}/tudat)
 
 # Add all targets to the build-tree export set
