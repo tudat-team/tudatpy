@@ -47,7 +47,7 @@ std::string get_tudat_path();
 
 std::string get_default_output_path();
 
-std::string getTudatTestDataPath();
+const std::string getTudatTestDataPath();
 
 std::string getEphemerisDataFilesPath();
 
