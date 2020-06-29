@@ -2,12 +2,10 @@
 
 package:
   name: {{ name }}
-  version: 0.5.9
+  version: rc
 
 source:
-#  git_url: https://github.com/tudat-team/tudatpy.git
   git_url: ../
-#  git_rev: 49cf732e5bf0a08f7a8f91211ccb4ab26ab04bb2
 
 build:
   # A non-negative integer representing the build number of the package.
@@ -16,11 +14,11 @@ build:
   #  and versions to determine the latest one. This is important because
   #  new builds that contain bug fixes for the way a package is built may be
   #  added to a repository.
-#  number: 1
+  number: 0
 #  skip: true  # [win and vc<14]
   run_exports:
-#    - {{ pin_compatible('tudat', max_pin='x.x') }}
     - {{ pin_compatible('cspice-cmake', max_pin='x.x') }}
+    - {{ pin_compatible('tudat-resources', max_pin='x.x') }}
     - {{ pin_compatible('sofa-cmake', max_pin='x.x') }}
 
 requirements:
@@ -39,6 +37,7 @@ requirements:
     # target platform is not necessarily the same as the native build
     # platform
     - tudat
+    - tudat-resources
     - cspice-cmake
     - sofa-cmake
     - python
@@ -50,14 +49,39 @@ requirements:
     # Package names should follow the package match specifications.
     - {{ pin_compatible('numpy') }}
     - {{ pin_compatible('pandas') }}
+    - {{ pin_compatible('tabulate') }}
     - {{ pin_compatible('tudat') }}
     - python
+
+test:
+  imports:
+    - tudatpy
+    - tudatpy.elements
+    - tudatpy.kernel
+    - tudatpy.kernel.constants
+    - tudatpy.kernel.simulation_setup
+    - tudatpy.kernel.propagators
+    - tudatpy.kernel.spice_interface
+    - tudatpy.kernel.numerical_integrators
+  requires:
+    - pytest
+  source_files:
+    - tests/test_constants.py
+    #- tests/test_interface_spice.py
+    #- tests/test_tutorials.py
+    - tests/test_paths.py
+  commands:
+    - python -c "from tudatpy.kernel.paths import get_resource_path; print(get_resource_path())"
+    #- python -c "from tudatpy.apps.satellite_propagator import single; single()"
+    - python -m pytest -v tests/test_constants.py
+    - python -m pytest -v tests/test_paths.py
+
 
 about:
   home: http://tudat.tudelft.nl/
   license: BSD
   license_family: BSD
-  summary: A Python platform to perform astrodynamics and space research
+  summary: A Python platform to perform astrodynamics and space research.
 
 extra:
   recipe-maintainers:
