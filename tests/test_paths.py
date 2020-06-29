@@ -13,4 +13,4 @@ def test_no_null_bytes():
     assert '\x00' not in kernel.paths.get_spice_kernel_path()
     assert '\x00' not in kernel.paths.get_atmosphere_tables_path()
     assert '\x00' not in kernel.paths.get_gravity_models_path()
-    assert '\x00' not in kernel.paths.get_space_weather_data_path()
+    assert '\x00' not in kernel.paths.get_space_weather_path()
