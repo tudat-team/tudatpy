@@ -8,8 +8,12 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#ifdef NDEBUG
+#ifdef TUDAT_BUILD_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif // TUDAT_BULD_GNU
+#endif // NDEBUG
 
 #include "tudat/simulation/propagation/propagationPatchedConicFullProblem.h"
 #include "tudat/simulation/propagation/propagationLambertTargeterFullProblem.h"
@@ -1447,5 +1451,9 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 }
 
+#ifdef NDEBUG
+#ifdef TUDAT_BUILD_GNU
 // turn the warnings back on
 #pragma GCC diagnostic pop
+#endif // TUDAT_BUILD_GNU
+#endif // NDEBUG
