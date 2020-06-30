@@ -12,6 +12,7 @@
  #         Software Competence Center Hagenberg GmbH (SCCH)
  #         <thomas.natschlaeger@scch.at>, <office@scch.at>
 
+ add_compile_definitions(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
  # Provide options to force building with GNU or Clang, if the standard compiler is not desired
  option(USE_CLANG "Force build with clang (if gcc is standard)" OFF) # OFF is the default
  option(USE_GNU "Force build with gcc (if clang is standard)" OFF) # OFF is the default
@@ -54,6 +55,7 @@
 
  # Set the compile flags
  if (TUDAT_BUILD_CLANG)
+     add_compile_definitions(TUDAT_BUILD_CLANG)
      message(STATUS "Using clang compiler.")
      set(CMAKE_C_FLAGS "-Wall -std=c11")
      set(CMAKE_C_FLAGS_DEBUG "-g")
@@ -71,6 +73,7 @@
      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
  elseif (TUDAT_BUILD_GNU)
+     add_compile_definitions(TUDAT_BUILD_GNU)
      message(STATUS "Using gnucxx compiler.")
      include(CheckCXXCompilerFlag)
      check_cxx_compiler_flag("-std=c++11" CXX_SUPPORTS_CXX11)
@@ -114,6 +117,7 @@
      endif ()
 
  elseif (TUDAT_BUILD_MSVC)
+     add_compile_definitions(TUDAT_BUILD_MSVC)
      message(STATUS "Using msvc compiler.")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      # Because we are using static boost libraries, with static runtime, we need to force MSVC to
