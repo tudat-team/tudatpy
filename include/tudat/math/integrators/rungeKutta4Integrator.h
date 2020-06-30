@@ -8,8 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  */
+#ifdef NDEBUG
+#ifdef TUDAT_BUILD_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif // TUDAT_BUILD_GNU
+#endif // NDEBUG
 
 #ifndef TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
@@ -309,5 +313,9 @@ typedef std::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
 #endif // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 
+#ifdef NDEBUG
+#ifdef TUDAT_BUILD_GNU
 // turn the warnings back on
 #pragma GCC diagnostic pop
+#endif // TUDAT_BUILD_GNU
+#endif // NDEBUG

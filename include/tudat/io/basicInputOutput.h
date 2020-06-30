@@ -39,29 +39,56 @@ namespace tudat {
 
 namespace paths {
 
-std::string get_resource_path();
+static inline std::string get_resource_path() {
+  // TODO: Improve robustness of resource path. Downloading of resources if they are not found should be
+  //  added. Users should be able to purge (delete) the resources after arduous use of the software, starting
+  //  with no resources.
+  return std::string(get_resources_path()).c_str();
+}
 
-std::string get_tudat_data_path();
+static inline std::string get_tudat_data_path() {
+  return std::string(get_resource_path()).c_str();
+}
 
-std::string get_tudat_path();
+static inline std::string get_tudat_path() {
+  return std::string(get_resource_path()).c_str();
+}
 
-std::string get_default_output_path();
+static inline std::string get_default_output_path() {
+  return std::string(get_resource_path()).c_str();
+}
 
-const std::string getTudatTestDataPath();
+static inline std::string getTudatTestDataPath() {
+  return std::string(TEST_DATA_FOLDER).c_str();
+}
 
-std::string getEphemerisDataFilesPath();
+static inline std::string getEphemerisDataFilesPath() {
+  return std::string(get_ephemeris_path()).c_str();
+}
 
-std::string getEarthOrientationDataFilesPath();
+static inline std::string getEarthOrientationDataFilesPath() {
+  return std::string(get_earth_orientation_path()).c_str();
+}
 
-std::string getQuadratureDataPath();
+static inline std::string getQuadratureDataPath() {
+  return std::string(get_quadrature_path()).c_str();
+}
 
-std::string getSpiceKernelPath();
+static inline std::string getSpiceKernelPath() {
+  return std::string(get_spice_kernels_path()).c_str();
+}
 
-std::string getAtmosphereTablesPath();
+static inline std::string getAtmosphereTablesPath() {
+  return std::string(get_atmosphere_tables_path()).c_str();
+}
 
-std::string getGravityModelsPath();
+static inline std::string getGravityModelsPath() {
+  return std::string(get_gravity_models_path()).c_str();
+}
 
-std::string getSpaceWeatherDataPath();
+static inline std::string getSpaceWeatherDataPath() {
+  return std::string(get_space_weather_path()).c_str();
+}
 
 } // namespace paths
 
