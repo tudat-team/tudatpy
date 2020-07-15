@@ -148,7 +148,7 @@ private:
                 // Set translational states for bodies provided as input.
                 for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
                 {
-                    bodyList_[ integratedStates_[ translational_state ][ i ].first ]->template
+                    bodyList_.at( integratedStates_[ translational_state ][ i ].first )->template
                             setTemplatedState< StateScalarType >(
                                 integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
@@ -160,7 +160,7 @@ private:
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->setCurrentRotationalStateToLocalFrame(
+                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->setCurrentRotationalStateToLocalFrame(
                                 integratedStateIterator_->second.segment( i * 7, 7 ).template cast< double >( ) );
                 }
                 break;
@@ -173,7 +173,7 @@ private:
 
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedMass[ i ].first ]
+                    bodyList_.at( bodiesWithIntegratedMass[ i ].first )
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
                 }
                 break;
@@ -212,7 +212,7 @@ private:
                         integratedStates_[ translational_state ];
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
+                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->
                             template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
 
                 }
@@ -224,7 +224,7 @@ private:
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
+                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
                                 currentTime );
                 }
                 break;
@@ -236,7 +236,7 @@ private:
                         integratedStates_.at( body_mass_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
+                    bodyList_.at( bodiesWithIntegratedStates[ i ].first )->
                             updateMass( currentTime );
 
                 }

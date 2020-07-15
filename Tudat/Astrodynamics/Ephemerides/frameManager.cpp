@@ -347,6 +347,7 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins(
     return ephemerisOrigins;
 }
 
+
 } // namespace ephemerides
 
 } // namespace tudat
