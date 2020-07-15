@@ -48,18 +48,18 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
 
 //! Function to create a map of bodies objects.
 NamedBodyMap createBodies(
-        const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings )
+        const BodyListSettings& bodySettings )
 {
     std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
-            = determineBodyCreationOrder( bodySettings );
+            = determineBodyCreationOrder( bodySettings.get( ) );
 
     // Declare map of bodies that is to be returned.
-    NamedBodyMap bodyMap;
+    NamedBodyMap bodyList;
 
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        bodyMap[ orderedBodySettings.at( i ).first ] = std::make_shared< Body >( );
+        bodyList.addBody( std::make_shared< Body >( ), orderedBodySettings.at( i ).first, false );
     }
 
     // Define constant mass for each body (if required).
@@ -68,7 +68,7 @@ NamedBodyMap createBodies(
         const double constantMass = orderedBodySettings.at( i ).second->constantMass;
         if ( constantMass == constantMass )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setConstantBodyMass( constantMass );
+            bodyList.at( orderedBodySettings.at( i ).first )->setConstantBodyMass( constantMass );
         }
     }
 
@@ -77,7 +77,7 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->ephemerisSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setEphemeris(
+            bodyList.at( orderedBodySettings.at( i ).first )->setEphemeris(
                         createBodyEphemeris( orderedBodySettings.at( i ).second->ephemerisSettings,
                                              orderedBodySettings.at( i ).first ) );
         }
@@ -88,7 +88,7 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setAtmosphereModel(
+            bodyList.at( orderedBodySettings.at( i ).first )->setAtmosphereModel(
                         createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
                                                orderedBodySettings.at( i ).first ) );
         }
@@ -99,7 +99,7 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->shapeModelSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setShapeModel(
+            bodyList.at( orderedBodySettings.at( i ).first )->setShapeModel(
                         createBodyShapeModel( orderedBodySettings.at( i ).second->shapeModelSettings,
                                               orderedBodySettings.at( i ).first ) );
         }
@@ -110,9 +110,9 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->rotationModelSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setRotationalEphemeris(
+            bodyList.at( orderedBodySettings.at( i ).first )->setRotationalEphemeris(
                         createRotationModel( orderedBodySettings.at( i ).second->rotationModelSettings,
-                                             orderedBodySettings.at( i ).first, bodyMap ) );
+                                             orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
@@ -121,9 +121,9 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->gravityFieldSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setGravityFieldModel(
+            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldModel(
                         createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
-                                                 orderedBodySettings.at( i ).first, bodyMap,
+                                                 orderedBodySettings.at( i ).first, bodyList,
                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
@@ -132,9 +132,9 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setGravityFieldVariationSet(
+            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldVariationSet(
                         createGravityFieldModelVariationsSet(
-                            orderedBodySettings.at( i ).first, bodyMap,
+                            orderedBodySettings.at( i ).first, bodyList,
                             orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
@@ -144,7 +144,7 @@ NamedBodyMap createBodies(
     {
         if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != nullptr )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setAerodynamicCoefficientInterface(
+            bodyList.at( orderedBodySettings.at( i ).first )->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface(
                             orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
                             orderedBodySettings.at( i ).first ) );
@@ -163,11 +163,11 @@ NamedBodyMap createBodies(
              radiationPressureSettingsIterator != radiationPressureSettings.end( );
              radiationPressureSettingsIterator++ )
         {
-            bodyMap[ orderedBodySettings.at( i ).first ]->setRadiationPressureInterface(
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureInterface(
                         radiationPressureSettingsIterator->first,
                         createRadiationPressureInterface(
                             radiationPressureSettingsIterator->second,
-                            orderedBodySettings.at( i ).first, bodyMap ) );
+                            orderedBodySettings.at( i ).first, bodyList ) );
         }
 
     }
@@ -176,11 +176,13 @@ NamedBodyMap createBodies(
     {
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
         {
-            createGroundStation( bodyMap.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).first,
+            createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).first,
                      orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
         }
     }
-    return bodyMap;
+    bodyList.processBodyFrameDefinitions( );
+
+    return bodyList;
 
 }
 

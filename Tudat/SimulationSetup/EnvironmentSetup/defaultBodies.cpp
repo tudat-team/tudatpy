@@ -41,12 +41,13 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 
 //! Function to create default settings for a body's ephemeris.
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
-        const std::string& bodyName )
+        const std::string& bodyName,
+        const std::string baseFrameOrientation )
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< DirectSpiceEphemerisSettings >(
-                "SSB", "ECLIPJ2000", false, false, false );
+                "SSB", baseFrameOrientation, false, false, false );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
 #endif
@@ -57,12 +58,13 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrientation,
         const double timeStep )
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< InterpolatedSpiceEphemerisSettings >(
-                initialTime, finalTime, timeStep, "SSB", "ECLIPJ2000" );
+                initialTime, finalTime, timeStep, "SSB", baseFrameOrientation );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
 #endif
@@ -176,7 +178,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const std::string baseFrameOrientation )
 {
     TUDAT_UNUSED_PARAMETER( initialTime );
     TUDAT_UNUSED_PARAMETER( finalTime );
@@ -184,7 +187,7 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 #if USE_CSPICE
     // Create settings for a rotation model taken directly from Spice.
     return std::make_shared< RotationModelSettings >(
-                spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
+                spice_rotation_model, baseFrameOrientation, "IAU_" + bodyName );
 #else
     throw std::runtime_error( "Default rotational model settings can only be used together with the SPICE library" );
 #endif
@@ -290,6 +293,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrientation,
         const double timeStep )
 {
     std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );
@@ -298,7 +302,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
                 bodyName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
-                bodyName, initialTime, finalTime );
+                bodyName, initialTime, finalTime, baseFrameOrientation );
 
     if( ( !( initialTime == initialTime ) && ( finalTime == finalTime ) ) ||
             ( ( initialTime == initialTime ) && !( finalTime == finalTime ) ) )
@@ -313,7 +317,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     else
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName, initialTime, finalTime, timeStep );
+                    bodyName, initialTime, finalTime, baseFrameOrientation, timeStep );
     }
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
                 bodyName, initialTime, finalTime );
@@ -325,10 +329,12 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 
 
 //! Function to create default settings from which to create a set of body objects.
-std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
+BodyListSettings getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrigin,
+        const std::string baseFrameOrientation,
         const double timeStep )
 {
     std::map< std::string, std::shared_ptr< BodySettings > > settingsMap;
@@ -337,16 +343,18 @@ std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), initialTime, finalTime, timeStep );
+                    bodies.at( i ), initialTime, finalTime, baseFrameOrientation, timeStep);
 
     }
-    return settingsMap;
+    return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
 //! time-interval of validity of environment.
-std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
-        const std::vector< std::string >& bodies )
+BodyListSettings getDefaultBodySettings(
+        const std::vector< std::string >& bodies,        
+        const std::string baseFrameOrigin,
+        const std::string baseFrameOrientation )
 {
     std::map< std::string, std::shared_ptr< BodySettings > > settingsMap;
 
@@ -354,10 +362,10 @@ std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
 
     }
-    return settingsMap;
+    return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
 } // namespace simulation_setup

@@ -43,7 +43,8 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
  *  \return Default settings for a body's ephemeris.
  */
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
-        const std::string& bodyName );
+        const std::string& bodyName,
+        const std::string baseFrameOrientation = "ECLIPJ2000" );
 
 //! Function to create default settings for a body's ephemeris.
 /*!
@@ -59,6 +60,7 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrientation = "ECLIPJ2000",
         const double timeStep = 300.0 );
 
 //! Function to create default settings for a body's gravity field model.
@@ -91,7 +93,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
-        const double finalTime );
+        const double finalTime,
+        const std::string baseFrameOrientation = "ECLIPJ2000" );
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 );
 
@@ -132,6 +135,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrientation = "ECLIPJ2000",
         const double timeStep = 300.0 );
 
 //! Function to create default settings from which to create a set of body objects.
@@ -150,10 +154,12 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings from which to create a set of body objects.
  */
-std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
+BodyListSettings getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
         const double finalTime,
+        const std::string baseFrameOrigin = "SSB",
+        const std::string baseFrameOrientation = "ECLIPJ2000",
         const double timeStep = 300.0 );
 
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
@@ -166,8 +172,10 @@ std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
  *  \param bodies List of bodies for which default settings are to be retrieved.
  *  \return Default settings from which to create a set of body objects.
  */
-std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
-        const std::vector< std::string >& bodies );
+BodyListSettings getDefaultBodySettings(
+        const std::vector< std::string >& bodies,
+        const std::string baseFrameOrigin = "SSB",
+        const std::string baseFrameOrientation = "ECLIPJ2000" );
 
 } // namespace simulation_setup
 

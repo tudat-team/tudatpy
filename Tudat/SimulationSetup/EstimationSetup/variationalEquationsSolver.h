@@ -1749,7 +1749,7 @@ public:
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,
                     singleArcPropagationSettings->centralBodies_,
-                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap ) );
+                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap.get( ) ) );
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )

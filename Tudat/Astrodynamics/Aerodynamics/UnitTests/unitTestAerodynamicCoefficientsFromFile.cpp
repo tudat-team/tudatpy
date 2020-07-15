@@ -70,10 +70,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         // Define simulation body settings.
         std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                        simulationEndEpoch + 10.0 * fixedStepSize );
+                                        simulationEndEpoch + 10.0 * fixedStepSize, "J2000" );
         bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
         // Create Earth object
         simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
