@@ -59,7 +59,7 @@ NamedBodyMap createBodies(
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        bodyList.addBody( std::make_shared< Body >( ), orderedBodySettings.at( i ).first, false );
+        bodyList.addNewBody( orderedBodySettings.at( i ).first, false );
     }
 
     // Define constant mass for each body (if required).

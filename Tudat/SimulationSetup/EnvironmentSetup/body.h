@@ -1640,6 +1640,16 @@ public:
         return bodyMap_.count( bodyName );
     }
 
+    void addNewBody( const std::string bodyName, const bool processBody = true )
+    {
+        bodyMap_[ bodyName ] = std::make_shared< Body >( );
+        bodyMap_[ bodyName ]->setBodyName( bodyName );
+        if( processBody )
+        {
+            processBodyFrameDefinitions( );
+        }
+    }
+
     void addBody( std::shared_ptr< Body > bodyToAdd, const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = bodyToAdd;
