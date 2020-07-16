@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelEphemerisPartials )
     spice_interface::loadStandardSpiceKernels( );
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Mars" );
 
     std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
             getHighAccuracyMarsRotationModel( initialTime, finalTime );

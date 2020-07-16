@@ -703,6 +703,10 @@ public:
     void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
+        if( resetBaseFrames_ != nullptr )
+        {
+            resetBaseFrames_( );
+        }
     }
 
     //! Function to set the gravity field of the body.
@@ -1296,6 +1300,10 @@ public:
 
     void setBodyName( const std::string bodyName ){ bodyName_ = bodyName; }
 
+    void setBaseFrameFunction( const std::function< void( ) > resetBaseFrames )
+    {
+        resetBaseFrames_ = resetBaseFrames;
+    }
 protected:
 
 private:
@@ -1397,6 +1405,8 @@ private:
     bool suppressDependentOrientationCalculatorWarning_ = false;
 
     std::string bodyName_;
+
+    std::function< void( ) > resetBaseFrames_;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
@@ -1665,6 +1675,12 @@ public:
     void processBodyFrameDefinitions( )
     {
         setGlobalFrameBodyEphemerides( bodyMap_, frameOrigin_, frameOrientation_);
+
+        for( auto bodyIterator : bodyMap_ )
+        {
+            bodyIterator.second->setBaseFrameFunction(
+                        std::bind( &NamedBodyMap::processBodyFrameDefinitions, this ) );
+        }
     }
 
 private:

@@ -114,8 +114,8 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                   "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                                      "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
-                              centralBodyMap[ "Earth" ] ) );
+                                      "Earth", centralBodyMap.at( "Earth" ), bodyMap, initialEphemerisTime ),
+                              centralBodyMap.at( "Earth" ) ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =

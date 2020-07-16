@@ -62,21 +62,21 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0, "SSB", "J2000" );
 
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
 
     // EARTH
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
-    bodySettings[ "Earth" ]->atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
 
     // MOON
-    bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -85,8 +85,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+    bodyMap.addNewBody( "Vehicle" );
+
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
     double referenceArea = 10.0;
 
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -119,11 +120,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
                 aerodynamics::altitude_dependent, 1, 1, interpolatorSettings );
 
     // Aerodynamics interface
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////

@@ -54,7 +54,8 @@ NamedBodyMap createBodies(
             = determineBodyCreationOrder( bodySettings.get( ) );
 
     // Declare map of bodies that is to be returned.
-    NamedBodyMap bodyList;
+    NamedBodyMap bodyList = NamedBodyMap(
+                bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
 
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )

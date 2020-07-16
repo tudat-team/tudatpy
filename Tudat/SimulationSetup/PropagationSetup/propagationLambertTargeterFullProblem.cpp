@@ -121,7 +121,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForLambertT
     // Define ephemeris for the departure and arrival bodies.
     for ( unsigned int i = 0 ; i < departureAndArrivalBodies.size() ; i++){
 
-        bodyMap.at( departureAndArrivalBodies[i] ) = std::make_shared< simulation_setup::Body >( );
+        bodyMap.addNewBody( departureAndArrivalBodies[i] );
         bodyMap.at( departureAndArrivalBodies[i] )->setEphemeris( ephemerisVectorDepartureAndArrivalBodies[i] );
 
     }

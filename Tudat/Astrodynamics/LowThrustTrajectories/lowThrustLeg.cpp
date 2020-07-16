@@ -114,7 +114,7 @@ double LowThrustLeg::computeCurrentMass(
 {
     simulation_setup::NamedBodyMap bodyMapTest;
     std::string bodyToPropagate = "Vehicle";
-    bodyMapTest[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMapTest.addNewBody( bodyToPropagate );
     bodyMapTest.at( bodyToPropagate )->setConstantBodyMass( massInitialEpoch );
 
 

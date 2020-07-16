@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 450.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 190.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -854,7 +854,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 190.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -943,7 +943,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 160.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -1038,26 +1038,25 @@ NamedBodyMap getTestBodyMap( )
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, frameOrientation );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
 
 
 
     // Define central body ephemeris settings.
-    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
 
     // Create body map.
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
     return bodyMap;
 }
 
@@ -1188,7 +1187,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
     // Define mass function of the vehicle.
     std::function< double( const double ) > newMassFunction = [ = ]( const double ){ return 2000.0; }; // - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
+    bodyMap.at( "Vehicle" )->setBodyMassFunction( newMassFunction );
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
@@ -1377,7 +1376,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
 
     // Create environment
     NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( initialBodyMass );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( initialBodyMass );
 
     // Define integrator settings.
     double stepSize = ( timeOfFlight * physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );

@@ -371,25 +371,24 @@ NamedBodyMap getTestBodyMap( )
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, frameOrientation );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
 
     // Define central body ephemeris settings.
-    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
 
     // Create body map.
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
     bodyMap.at( "Vehicle" )->setSuppressDependentOrientationCalculatorWarning( true );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
     return bodyMap;
 }
 
@@ -509,7 +508,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
     // Create list of bodies
     NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleInitialMass );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleInitialMass );
 
     // Defined acceleration settings
     std::string bodyToPropagate = "Vehicle";
@@ -591,7 +590,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
                     stateAtArrival, terminationSettings, cowell );
 
         // Reset body mass for backwards propagatiom
-        bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtTimeOfFlight );
+        bodyMap.at( bodyToPropagate )->setConstantBodyMass( massAtTimeOfFlight );
 
         currentState = stateAtArrival;
         for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
@@ -814,7 +813,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
-        bodyMap[ bodyToPropagate ]->setConstantBodyMass( vehicleInitialMass );
+        bodyMap.at( bodyToPropagate )->setConstantBodyMass( vehicleInitialMass );
 
         // Perform the backward propagation.
         SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
