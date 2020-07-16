@@ -65,51 +65,51 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Create bodies.
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = std::make_shared< Body >( );
-    bodyMap[ "Moon" ] = std::make_shared< Body >( );
-    bodyMap[ "Sun" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Earth" );
+    bodyMap.addNewBody( "Moon" );
+    bodyMap.addNewBody( "Sun" );
+    bodyMap.addNewBody( "Mars" );
 
     // Define properties of bodies
-    bodyMap[ "Earth" ]->setShapeModel( std::make_shared< SphericalBodyShapeModel >(
+    bodyMap.at( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(
                                            spice_interface::getAverageRadius( "Earth" ) ) );
-    bodyMap[ "Mars" ]->setShapeModel( std::make_shared< SphericalBodyShapeModel >(
+    bodyMap.at( "Mars" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(
                                           spice_interface::getAverageRadius( "Mars" ) ) );
 
-    bodyMap[ "Earth" ]->setEphemeris(
+    bodyMap.at( "Earth" )->setEphemeris(
                 std::make_shared< ConstantEphemeris >(
                     getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
-    bodyMap[ "Moon" ]->setEphemeris(
+    bodyMap.at( "Moon" )->setEphemeris(
                 std::make_shared< ConstantEphemeris >(
                     getBodyCartesianStateAtEpoch( "Moon", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
-    bodyMap[ "Sun" ]->setEphemeris(
+    bodyMap.at( "Sun" )->setEphemeris(
                 std::make_shared< ConstantEphemeris >(
                     getBodyCartesianStateAtEpoch( "Sun", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
-    bodyMap[ "Mars" ]->setEphemeris(
+    bodyMap.at( "Mars" )->setEphemeris(
                 std::make_shared< ConstantEphemeris >(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
 
-    bodyMap[ "Sun" ]->setGravityFieldModel(
+    bodyMap.at( "Sun" )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
-    bodyMap[ "Moon" ]->setGravityFieldModel(
+    bodyMap.at( "Moon" )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
-    bodyMap[ "Earth" ]->setGravityFieldModel(
+    bodyMap.at( "Earth" )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
 
 
 
-    bodyMap[ "Earth" ]->setRotationalEphemeris(
+    bodyMap.at( "Earth" )->setRotationalEphemeris(
                 createRotationModel(
                     std::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Earth",
                         spice_interface::computeRotationQuaternionBetweenFrames(
                             "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Earth" ) );
-    bodyMap[ "Mars" ]->setRotationalEphemeris(
+    bodyMap.at( "Mars" )->setRotationalEphemeris(
                 createRotationModel(
                     std::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Mars",
@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
                             "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Mars" ) );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
+    
 
 
     // Create ground stations
@@ -144,16 +144,16 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     linkEnds2[ observed_body ] = groundStations[ 1 ];
 
     std::shared_ptr< GroundStation > receivingGroundStation =
-            bodyMap[ "Earth" ]->getGroundStation( "Graz" );
+            bodyMap.at( "Earth" )->getGroundStation( "Graz" );
 
     //Create parameter objects.
     std::shared_ptr< RotationRate > earthRotationRate = std::make_shared< RotationRate >(
                 std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                    bodyMap[ "Earth" ]->getRotationalEphemeris( ) ), "Earth");
+                    bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth");
     std::shared_ptr< ConstantRotationalOrientation > earthPolePosition =
             std::make_shared< ConstantRotationalOrientation >(
                 std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                    bodyMap[ "Earth" ]->getRotationalEphemeris( ) ), "Earth" );
+                    bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
 
 
 
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
             std::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
                              bodyMap.at( "Earth" )->getEphemeris( ), bodyMap.at( "Earth" )->getRotationalEphemeris( ),
                              std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
-                                          bodyMap[ "Earth" ]->getGroundStation( "Graz" ), std::placeholders::_1 ) ), std::placeholders::_1 );
+                                          bodyMap.at( "Earth" )->getGroundStation( "Graz" ), std::placeholders::_1 ) ), std::placeholders::_1 );
 
 
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     Eigen::Vector3d bodyPositionVariation;
     bodyPositionVariation << 10.0, 10.0, 10.0;
     std::shared_ptr< ConstantEphemeris > earthEphemeris = std::dynamic_pointer_cast< ConstantEphemeris >(
-                bodyMap[ "Earth" ]->getEphemeris( ) );
+                bodyMap.at( "Earth" )->getEphemeris( ) );
     Eigen::Vector6d earthUnperturbedState = earthEphemeris->getCartesianState( 0.0 );
     Eigen::Vector6d perturbedEarthState;
     Eigen::Matrix< double, 3, 3 > numericalPartialWrtReceiverPosition = Eigen::Matrix< double, 3, 3 >::Zero( );

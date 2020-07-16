@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Create ground stations
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );

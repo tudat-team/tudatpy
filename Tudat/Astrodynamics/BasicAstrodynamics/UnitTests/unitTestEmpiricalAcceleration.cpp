@@ -67,22 +67,18 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         const double fixedStepSize = 15.0;
 
         // Define body settings for simulation.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-        bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        BodyListSettings bodySettings = BodyListSettings(
+                    std::map< std::string, std::shared_ptr< BodySettings > >( ), "SSB", "J2000" );
+        bodySettings.addSettings( "Earth" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
+        bodyMap.addNewBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;

@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = earth;
-    bodyMap[ "Sun" ] = sun;
+    bodyMap.addBody( earth, "Earth" );
+    bodyMap.addBody( sun, "Sun" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Sun" ] = sun;
+    bodyMap.addBody( vehicle, "Vehicle" );
+    bodyMap.addBody( sun, "Sun" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -380,9 +380,9 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     std::shared_ptr< Body > moon = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = earth;
-    bodyMap[ "Sun" ] = sun;
-    bodyMap[ "Moon" ] = moon;
+    bodyMap.addBody( earth, "Earth" );
+    bodyMap.addBody( sun, "Sun" );
+    bodyMap.addBody( moon, "Moon" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -528,16 +528,16 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     using namespace tudat;
     // Create Earth object
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings( { "Earth" } );
-    defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
     bool areCoefficientsInAerodynamicFrame = 1;
@@ -547,12 +547,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                 areCoefficientsInAerodynamicFrame, 1 );
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
+    
 
 
     // Set spherical elements for vehicle.
@@ -576,19 +576,19 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
             simulation_setup::createAerodynamicAcceleratioModel(
-                bodyMap[ "Vehicle" ], bodyMap[ "Earth" ], "Vehicle", "Earth" );
+                bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ), "Vehicle", "Earth" );
     bodyMap.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
     accelerationModel->updateMembers( 0.0 );
 
     std::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
             createAnalyticalAccelerationPartial(
-                accelerationModel, std::make_pair( "Vehicle", bodyMap[ "Vehicle" ] ),
-            std::make_pair( "Earth", bodyMap[ "Earth" ] ), bodyMap );
+                accelerationModel, std::make_pair( "Vehicle", bodyMap.at( "Vehicle" ) ),
+            std::make_pair( "Earth", bodyMap.at( "Earth" ) ), bodyMap );
 
     // Create gravitational parameter object.
     std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = std::make_shared<
             ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                                           bodyMap[ "Vehicle" ]->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
+                                           bodyMap.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
 
     // Calculate analytical partials.
     aerodynamicAccelerationPartial->update( 0.0 );
@@ -690,8 +690,8 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
 
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Earth" ] = earth;
+    bodyMap.addBody( vehicle, "Vehicle" );;
+    bodyMap.addBody( earth, "Earth" );
 
     // Create gravity field.
     std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
@@ -817,8 +817,8 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Earth" ] = earth;
+    bodyMap.addBody( vehicle, "Vehicle" );;
+    bodyMap.addBody( earth, "Earth" );
 
     // Create gravity field.
     std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
@@ -1048,8 +1048,8 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Io" ] = io;
-    bodyMap[ "Jupiter" ] = jupiter;
+    bodyMap.addBody( io, "Io" );
+    bodyMap.addBody( jupiter, "Jupiter" );
 
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
@@ -1190,8 +1190,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     vehicle->setConstantBodyMass( vehicleMass );
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Sun" ] = sun;
+    bodyMap.addBody( vehicle, "Vehicle" );;
+    bodyMap.addBody( sun, "Sun" );
 
     // Load spice kernels.
     tudat::spice_interface::loadStandardSpiceKernels( );

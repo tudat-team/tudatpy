@@ -76,31 +76,39 @@ class BodyListSettings
 {
 public:
 
-    BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            std::map< std::string, std::shared_ptr< BodySettings > >( ),
+    BodyListSettings( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
+        _bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ),
+        frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
+
+    BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings,
                       const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
-        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
+        _bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {
-        return bodySettings_.at( bodyName );
+        return _bodySettings_.at( bodyName );
     }
 
     void addSettings( std::shared_ptr< BodySettings > settingsToAdd, const std::string bodyName )
     {
-        bodySettings_[ bodyName ] = settingsToAdd;
+        _bodySettings_[ bodyName ] = settingsToAdd;
+    }
+
+    void addSettings( const std::string bodyName )
+    {
+        _bodySettings_[ bodyName ] = std::make_shared< BodySettings >( );
     }
 
     std::string getFrameOrigin( ) const { return frameOrigin_; }
 
     std::string getFrameOrientation( ) const { return frameOrientation_; }
 
-    std::map< std::string, std::shared_ptr< BodySettings > > get( ) const { return bodySettings_; }
+    std::map< std::string, std::shared_ptr< BodySettings > > get( ) const { return _bodySettings_; }
 
 
 private:
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings_;
+    std::map< std::string, std::shared_ptr< BodySettings > > _bodySettings_;
 
     std::string frameOrigin_;
 

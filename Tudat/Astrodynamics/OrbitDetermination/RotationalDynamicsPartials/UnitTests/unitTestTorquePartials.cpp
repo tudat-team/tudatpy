@@ -62,14 +62,14 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    NamedBodyMap bodyMap = NamedBodyMap( "Mars", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Mars", false );
+    bodyMap.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodyMap.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Phobos" );
     std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
     std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     phobosInertiaTensor( 2, 2 ) = 0.5024;
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodyMap.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     // Create gravity field
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodyMap.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
@@ -112,19 +112,17 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodyMap.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodyMap.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
 
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Update Phobos and Mars to current state
     double testTime = 1000.0;
@@ -322,14 +320,14 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    NamedBodyMap bodyMap = NamedBodyMap( "Mars", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Mars", false );
+    bodyMap.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodyMap.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Phobos" );
     std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
     std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
 
@@ -340,7 +338,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     phobosInertiaTensor( 2, 2 ) = 0.5024;
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodyMap.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     // Create gravity field
@@ -354,7 +352,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodyMap.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
@@ -375,17 +373,15 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodyMap.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodyMap.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Update Phobos and Mars to current state
     double testTime = 1000.0;
@@ -636,14 +632,14 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    NamedBodyMap bodyMap = NamedBodyMap( "Mars", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Mars", false );
+    bodyMap.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodyMap.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Phobos" );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
@@ -652,7 +648,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodyMap.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
@@ -665,7 +661,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodyMap.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
@@ -687,7 +683,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodyMap.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
 
@@ -696,7 +692,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
 
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodyMap.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
 
@@ -704,7 +700,6 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     // Create empty bodies, phobos and mars.
     std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
     std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     double testTime = 1000.0;
     phobos->setStateFromEphemeris( testTime );

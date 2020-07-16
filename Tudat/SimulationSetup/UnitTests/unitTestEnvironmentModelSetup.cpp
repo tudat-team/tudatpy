@@ -541,12 +541,12 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
 
     // Define body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Moon" ] = getDefaultSingleBodySettings( "Moon", 0.0, 1.0E7 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Moon", 0.0, 1.0E7 ), "Moon" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
 
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
 
 
@@ -567,25 +567,25 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         deformingBodies.push_back( "Moon" );
         deformingBodies.push_back( "Sun" );
 
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Update states.
-        bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
-        bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
-        bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
-        bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
+        bodyMap.at( "Earth" )->setStateFromEphemeris( testTime );
+        bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+        bodyMap.at( "Sun" )->setStateFromEphemeris( testTime );
+        bodyMap.at( "Moon" )->setStateFromEphemeris( testTime );
 
         // Update gravity field
         std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+                    bodyMap.at( "Earth" )->getGravityFieldModel( ) );
         earthGravityField->update( testTime );
 
         // Retrieve corrections.
@@ -597,35 +597,35 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
     // Calculate non-interpolated corrections from two bodies in separate objects.
     {
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
 
         // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         deformingBodies.clear( );
         deformingBodies.push_back( "Sun" );
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Update states.
-        bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
-        bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
-        bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
-        bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
+        bodyMap.at( "Earth" )->setStateFromEphemeris( testTime );
+        bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+        bodyMap.at( "Sun" )->setStateFromEphemeris( testTime );
+        bodyMap.at( "Moon" )->setStateFromEphemeris( testTime );
 
         // Update gravity field
         std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+                    bodyMap.at( "Earth" )->getGravityFieldModel( ) );
         earthGravityField->update( testTime );
 
         // Retrieve corrections.
@@ -634,13 +634,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     }
 
     {
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
 
         // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
         deformingBodies.push_back( "Sun" );
-        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius,
                         std::make_shared< ModelInterpolationSettings >(
@@ -650,12 +650,12 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Update gravity field
         std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+                    bodyMap.at( "Earth" )->getGravityFieldModel( ) );
 
         earthGravityField->update( testTime );
 
@@ -778,17 +778,17 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
     bodiesToCreate.push_back( "Jupiter" );
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
-    bodySettings[ "Europa" ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
-    bodySettings[ "Europa" ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+    bodySettings.at( "Europa" )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+    bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
-            = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings[ "Europa" ]->rotationModelSettings );
+            = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings.at( "Europa" )->rotationModelSettings );
 
 
     // Create rotation model using setup function
@@ -887,42 +887,42 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
 
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
     Eigen::Vector6d initialKeplerElements =
             ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
-    bodySettings[ "Vehicle" ]->ephemerisSettings =
+    bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >(
                 initialKeplerElements,
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
 
     double testTime = 0.5E7;
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
 
     std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+            bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
 
     vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+    double sourceDistance = ( ( bodyMap.at( "Vehicle" )->getState( ) -  bodyMap.at( "Sun" )->getState( ) ).
             segment( 0, 3 ) ).norm( );
     double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
                 defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
@@ -985,11 +985,11 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings/
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings(
-                "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings(
+                "Earth", 0.0, 1.0E7 ), "Earth" );
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
@@ -997,7 +997,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
     double testHeadingAngle = 1.229357188236127;
@@ -1027,11 +1027,11 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     Eigen::Vector6d vehicleInertialState =
             ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
-                bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
-            bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
-    bodyMap[ "Earth" ]->setState( Eigen::Vector6d::Zero( ) );
-    bodyMap[ "Vehicle" ]->setState( vehicleInertialState );
-    bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+                bodyMap.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
+            bodyMap.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
+    bodyMap.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
+    bodyMap.at( "Vehicle" )->setState( vehicleInertialState );
+    bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
 
     // Update flight conditions
     vehicleFlightConditions->updateConditions( testTime );
@@ -1083,15 +1083,15 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
 
     // Get settings for vehicle
     Eigen::Vector6d initialKeplerElements =
             ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
 
@@ -1140,28 +1140,28 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
                 backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
                 centralBody );
 
-    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
+    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
 
     double testTime = 0.5E7;
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
 
     std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+            bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
 
     // Compute expected radiation pressure.
     vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+    double sourceDistance = ( ( bodyMap.at( "Vehicle" )->getState( ) -  bodyMap.at( "Sun" )->getState( ) ).
             segment( 0, 3 ) ).norm( );
 
     double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
@@ -1177,13 +1177,13 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     for ( int i = 0 ; i < 3 ; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )( )[ i ] -
-                           bodyMap[ "Earth" ]->getState()[ i + 3 ] ), 1.0E-15 );
+                           bodyMap.at( "Earth" )->getState()[ i + 3 ] ), 1.0E-15 );
 
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentVelocityVector( )[ i ] -
-                           ( bodyMap[ "Vehicle" ]->getState( ) - bodyMap[ "Earth" ]->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
+                           ( bodyMap.at( "Vehicle" )->getState( ) - bodyMap.at( "Earth" )->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
 
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentSolarVector( )[ i ] -
-                           ( - bodyMap[ "Vehicle" ]->getState( ) + bodyMap[ "Sun" ]->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
+                           ( - bodyMap.at( "Vehicle" )->getState( ) + bodyMap.at( "Sun" )->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
 
     }
 
@@ -1198,9 +1198,9 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->shapeModelSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( "Earth" );
+    bodySettings.at( "Earth" )->shapeModelSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
                 equatorialRadius, flattening );
 
     Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
@@ -1210,17 +1210,17 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
                 testCartesianPosition );
     testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
 
-    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+    bodySettings.at( "Earth" )->groundStationSettings.push_back(
                 std::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
-    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+    bodySettings.at( "Earth" )->groundStationSettings.push_back(
                 std::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
-    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+    bodySettings.at( "Earth" )->groundStationSettings.push_back(
                 std::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
@@ -1252,15 +1252,15 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
 
     // Get settings for vehicle
     Eigen::Vector6d initialKeplerElements =
             ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
 
@@ -1311,29 +1311,29 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
             std::make_shared< PanelledRadiationPressureInterfaceSettings >(
                 "Sun", emissivities, areas, diffuseReflectionCoefficients, panelSurfaceNormals );
 
-    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
+    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
 
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
 
     double testTime = 0.5E7;
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
+    bodyMap.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
 
     std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+            bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
 
     // Compute expected radiation pressure.
     vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+    double sourceDistance = ( ( bodyMap.at( "Vehicle" )->getState( ) -  bodyMap.at( "Sun" )->getState( ) ).
             segment( 0, 3 ) ).norm( );
 
     double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(

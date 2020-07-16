@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 bodiesToCreate.push_back( "Moon" );
 
                 // Create body objects.
-                std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+                BodyListSettings bodySettings = BodyListSettings( "Earth", "ECLIPJ2000" );
                 if( direction == 0 )
                 {
                     bodySettings =
@@ -110,16 +110,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 NamedBodyMap bodyMap = createBodies( bodySettings );
 
                 // Create spacecraft object.
-                bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-                bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
-                bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                bodyMap.addNewBody( "Vehicle" );
+                bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+                bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                         < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
 
 
-
-                // Finalize body creation.
-                setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
                 // Define propagator settings variables.
                 SelectedAccelerationMap accelerationMap;

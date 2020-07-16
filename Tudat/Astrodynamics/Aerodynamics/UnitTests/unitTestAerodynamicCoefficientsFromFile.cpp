@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Define simulation body settings.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                        simulationEndEpoch + 10.0 * fixedStepSize, "J2000" );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+                                        simulationEndEpoch + 10.0 * fixedStepSize, "SSB", "J2000" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
 
         // Create Earth object
@@ -82,9 +82,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create vehicle objects.
-        bodyMap[ "SpacePlane" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "SpacePlane" ]->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
-        bodyMap[ "SpacePlane" ]->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
+        bodyMap.addNewBody( "SpacePlane" );
+        bodyMap.at( "SpacePlane" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+        bodyMap.at( "SpacePlane" )->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
 
         // Create vehicle  coefficients
         std::map< int, std::string > forceCoefficientFiles;
@@ -125,13 +125,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                         "TestSurface" );
         }
 
-        bodyMap[ "SpacePlane" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "SpacePlane" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
 
-        bodyMap[ "SpacePlane" ]->setConstantBodyMass( 50.0E3 );
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+        bodyMap.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////

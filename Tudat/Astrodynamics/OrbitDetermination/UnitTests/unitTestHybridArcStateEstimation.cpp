@@ -73,14 +73,14 @@ Eigen::VectorXd  executeParameterEstimation(
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Jupiter" );
     bodyNames.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create orbiter
-    bodyMap[ "Orbiter" ] = std::make_shared< Body >( );
-    bodyMap[ "Orbiter" ]->setConstantBodyMass( 5.0E3 );
-    bodyMap[ "Orbiter" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodyMap.addNewBody( "Orbiter" );
+    bodyMap.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
+    bodyMap.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
 
@@ -92,12 +92,12 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    bodyMap[ "Orbiter" ]->setRadiationPressureInterface(
+    bodyMap.at( "Orbiter" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
                     orbiterRadiationPressureSettings, "Orbiter", bodyMap ) );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
