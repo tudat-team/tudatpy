@@ -8,7 +8,7 @@
  #    http://tudat.tudelft.nl/LICENSE.
 
 # Set the source files.
-set(OBSERVATION_PARTIALS_SOURCES
+set(observation_partials_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.cpp"
@@ -23,7 +23,7 @@ set(OBSERVATION_PARTIALS_SOURCES
 )
 
 # Set the header files.
-set(OBSERVATION_PARTIALS_HEADERS
+set(observation_partials_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.h"
@@ -39,20 +39,20 @@ set(OBSERVATION_PARTIALS_HEADERS
 )
 
 # Set the header files.
-set(OBSERVATION_PARTIALS_TEST_HEADERS
+set(observation_partials_TEST_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/observationPartialTestFunctions.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/numericalObservationPartial.h"
 )
 
-set(OBSERVATION_PARTIALS_TEST_SOURCES
+set(observation_partials_TEST_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/observationPartialTestFunctions.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/numericalObservationPartial.cpp"
 )
 # Add static libraries.
-add_library(tudat_observation_partials STATIC ${OBSERVATION_PARTIALS_SOURCES} ${OBSERVATION_PARTIALS_HEADERS})
+add_library(tudat_observation_partials STATIC ${observation_partials_SOURCES} ${observation_partials_HEADERS})
 setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}")
 
-add_library(tudat_observation_partials_test_functions STATIC ${OBSERVATION_PARTIALS_TEST_SOURCES} ${OBSERVATION_PARTIALS_TEST_HEADERS})
+add_library(tudat_observation_partials_test_functions STATIC ${observation_partials_TEST_SOURCES} ${observation_partials_TEST_HEADERS})
 setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}/UnitTests")
 
 add_executable(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/unitTestOneWayRangePartials.cpp")
