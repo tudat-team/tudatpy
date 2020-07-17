@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.3)
 if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
-
+set(CMAKE_PREFIX_PATH "/home/dominic/anaconda3/envs/tudat-deps-env/")
 # Set cmake policy.
 cmake_policy(SET CMP0069 NEW)
 
@@ -216,6 +216,13 @@ else ()
     message(STATUS "Extended precision propagation enabled!")
     add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
+
+if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
+endif ()
+
 
 include(YOLOProjectAddTestCase)
 include(YOLOProjectAddLibrary)

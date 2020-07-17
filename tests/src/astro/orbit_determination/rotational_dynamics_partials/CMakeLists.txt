@@ -8,7 +8,7 @@
  #    http://tudat.tudelft.nl/LICENSE.
 
 # Set the source files.
-set(TORQUE_PARTIALS_SOURCES
+set(rotational_dynamics_partials_SOURCES
   "${SRCROOT}${TORQUEPARTIALSDIR}/inertialTorquePartial.cpp"
   "${SRCROOT}${TORQUEPARTIALSDIR}/constantTorquePartial.cpp"
   "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.cpp"
@@ -16,7 +16,7 @@ set(TORQUE_PARTIALS_SOURCES
 )
 
 # Set the header files.
-set(TORQUE_PARTIALS_HEADERS
+set(rotational_dynamics_partials_HEADERS
   "${SRCROOT}${TORQUEPARTIALSDIR}/torquePartial.h"
   "${SRCROOT}${TORQUEPARTIALSDIR}/inertiaTensorPartial.h"
   "${SRCROOT}${TORQUEPARTIALSDIR}/inertialTorquePartial.h"
@@ -26,7 +26,7 @@ set(TORQUE_PARTIALS_HEADERS
 )
 
 # Add static libraries.
-add_library(tudat_torque_partials STATIC ${TORQUE_PARTIALS_SOURCES} ${TORQUE_PARTIALS_HEADERS})
+add_library(tudat_torque_partials STATIC ${rotational_dynamics_partials_SOURCES} ${rotational_dynamics_partials_HEADERS})
 setup_tudat_library_target(tudat_torque_partials "${SRCROOT}{TORQUEPARTIALSDIR}")
 
 if(TUDAT_BUILD_WITH_SPICE_INTERFACE)
