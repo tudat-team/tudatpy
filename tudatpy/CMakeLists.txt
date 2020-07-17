@@ -69,6 +69,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_reference_frames.cpp
         kernel/expose_aerodynamics.cpp
         kernel/expose_basic_astrodynamics.cpp
+        kernel/expose_low_thrust.cpp
         kernel/expose_gravitation.cpp
         kernel/expose_numerical_integrators.cpp
         kernel/expose_orbital_element_conversions.cpp
@@ -82,6 +83,9 @@ YACMA_PYTHON_MODULE(kernel
 target_link_libraries(kernel PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
+        Tudat::tudat_low_thrust
+        Tudat::tudat_shape_based
+        Tudat::tudat_numerical_quadrature
         ${Tudat_PROPAGATION_LIBRARIES})
 
 target_include_directories(kernel PUBLIC

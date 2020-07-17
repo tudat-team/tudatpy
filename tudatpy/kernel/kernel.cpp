@@ -5,6 +5,7 @@
 
 #include "expose_aerodynamics.h"
 #include "expose_basic_astrodynamics.h"
+#include "expose_low_thrust.h"
 #include "expose_constants.h"
 #include "expose_ephemerides.h"
 #include "expose_gravitation.h"
@@ -68,6 +69,10 @@ PYBIND11_MODULE(kernel, m) {
   // basic_astrodynamics module
   auto basic_astrodynamics = m.def_submodule("basic_astrodynamics");
   tudatpy::expose_basic_astrodynamics(basic_astrodynamics);
+
+  // low_thrust module
+  auto low_thrust = m.def_submodule("low_thrust");
+  tudatpy::expose_low_thrust(low_thrust);
 
   // gravitation module
   auto gravitation = m.def_submodule("gravitation");
