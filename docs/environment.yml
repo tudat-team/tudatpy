@@ -1,7 +1,3 @@
-name: tudat-docs-environment
-channels:
-  - tudat-team
-  - conda-forge
-  - defaults
+
 dependencies:
   - nbsphinx
