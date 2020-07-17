@@ -8,6 +8,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 
 namespace py = pybind11;
 

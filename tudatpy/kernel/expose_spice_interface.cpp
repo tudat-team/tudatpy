@@ -6,7 +6,6 @@
 #include "docstrings.h"
 
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
 
 namespace py = pybind11;
 namespace tsi = tudat::spice_interface;
@@ -32,6 +31,17 @@ namespace tudatpy {
               &tudat::spice_interface::getAverageRadius,
               "<no_doc>");
 
+        m.def("get_body_gravitational_parameter",
+			  &tudat::spice_interface::getBodyGravitationalParameter,
+			  "<no_doc>");
+
+        m.def("get_body_cartesian_state_at_epoch",
+			  &tudat::spice_interface::getBodyCartesianStateAtEpoch,
+			  py::arg("target_body_name"),
+			  py::arg("observer_body_name"),
+			  py::arg("reference_frame_name"),
+			  py::arg("aberration_corrections"),
+			  py::arg("ephemeris_time"));
 
     };
 }
