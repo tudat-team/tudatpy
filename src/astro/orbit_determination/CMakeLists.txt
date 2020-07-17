@@ -9,41 +9,37 @@
 
  # TODO: Add orbit determination library back in
 
-#set(ACCELERATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/AccelerationPartials")
-#set(TORQUEPARTIALSDIR "${ORBITDETERMINATIONDIR}/RotationalDynamicsPartials")
-#set(ESTIMATABLEPARAMETERSDIR "${ORBITDETERMINATIONDIR}/EstimatableParameters")
-#set(OBSERVATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/ObservationPartials")
-#set(LIGHTTIMECORRECTIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/LightTimeCorrectionPartials")
-#
-## Add subdirectories.
-#add_subdirectory("${SRCROOT}${ACCELERATIONPARTIALSDIR}")
-#add_subdirectory("${SRCROOT}${TORQUEPARTIALSDIR}")
-#add_subdirectory("${SRCROOT}${ESTIMATABLEPARAMETERSDIR}")
-#add_subdirectory("${SRCROOT}${OBSERVATIONPARTIALSDIR}")
-#
-## Get target properties for static libraries.
-#get_target_property(ACCELERATIONPARTIALSSOURCES tudat_acceleration_partials SOURCES)
-#get_target_property(TORQUEPARTIALSSOURCES tudat_torque_partials SOURCES)
-#get_target_property(ESTIMATABLEPARAMETERSOURCES tudat_estimatable_parameters SOURCES)
-#get_target_property(OBSERVATIONPARTIALSSOURCES tudat_observation_partials SOURCES)
-#
+ add_subdirectory("acceleration_partials")
+ add_subdirectory("rotational_dynamics_partials")
+ add_subdirectory("estimatable_parameters")
+ add_subdirectory("observation_partials")
+
 ## Set the source files.
-#set(ORBIT_DETERMINATION_SOURCES
-#  "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.cpp"
-#  "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.cpp"
-#)
+set(orbit_determination_SOURCES
+  "stateDerivativePartial.cpp"
+  "podInputOutputTypes.cpp"
+)
+
+# Set the header files.
+set(orbit_determination_HEADERS
+  "stateDerivativePartial.h"
+  "podInputOutputTypes.h"
+)
 #
-## Set the header files.
-#set(ORBIT_DETERMINATION_HEADERS
-#  "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.h"
-#  "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.h"
-#)
 #
-#
-## Add static libraries.
-#add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
-#setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
-#
+# Add library.
+TUDAT_ADD_LIBRARY("orbit_determination"
+        "${orbit_determination_SOURCES}"
+        "${orbit_determination_HEADERS}"
+        PUBLIC_LINKS
+#        tudat_input_output
+#        tudat_geometric_shapes
+#        tudat_reference_frames
+#        tudat_interpolators
+        PRIVATE_LINKS "${Boost_LIBRARIES}"
+        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+        )
+
 #if( BUILD_WITH_PROPAGATION_TESTS )
 #
 #add_executable(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/tests/unitTestEstimationFromIdealDataDoubleDouble.cpp")
