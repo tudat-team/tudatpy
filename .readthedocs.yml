@@ -16,4 +16,4 @@ python:
     - requirements: docs/requirements.tx
 
 conda:
-  file: docs/environment.yml
+  file: environment.yml
