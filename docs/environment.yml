@@ -1,4 +1,4 @@
-name: tudat-env
+name: environment
 channels:
   - tudat-team
   - conda-forge
