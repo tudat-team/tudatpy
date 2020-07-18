@@ -32,12 +32,12 @@ PYBIND11_MODULE(kernel, m) {
   options.disable_function_signatures();
   options.enable_user_defined_docstrings();
 
-  // Export the tudatBundle version.
+  // Export the tudat version.
   m.attr("_tudat_version_major") = TUDAT_VERSION_MAJOR;
   m.attr("_tudat_version_minor") = TUDAT_VERSION_MINOR;
   m.attr("_tudat_version_patch") = TUDAT_VERSION_PATCH;
 
-  // constants
+  // constants module
   auto constants = m.def_submodule("constants");
   tudatpy::expose_constants(constants);
 

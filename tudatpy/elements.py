@@ -1,14 +1,6 @@
-# from . import _orbital_element_conversions as _oec
 from tudatpy.kernel import orbital_element_conversions as _oec
 import numpy as np
 
-# from astropy import units as u
-
-# m_s = u.m / u.s
-# m = u.m
-# rad = u.rad
-
-# @u.quantity_input
 def spherical2cartesian(r,
                         lat,
                         lon,
@@ -50,7 +42,14 @@ def spherical2cartesian(r,
     return _oec.convert_spherical_orbital_to_cartesian_state(spherical_state)
 
 
-def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
+def keplerian2cartesian(mu: float = None,
+                        sma: float = None,
+                        ecc: float = None,
+                        inc: float = None,
+                        raan: float = None,
+                        argp: float = None,
+                        theta: float = None,
+                        **kwargs) -> np.ndarray:
     """
     Function to convert Keplerian state to cartesian.
 
@@ -58,18 +57,25 @@ def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
     ----------
     mu : float
         Standard gravitational parameter (m^3 / s^2).
-    a : float
+        (alias = "gravitational_parameter")
+    sma : float
         Semi-major axis (m).
+        (alias = "semi_major_axis")
     ecc : float
         Eccentricity (-).
+        (alias = "eccentricity")
     inc : float
         Inclination (rad).
+        (alias = "inclination")
     raan : float
         Right Ascension of the Ascending Node (rad).
+        (alias = "right_ascension_of_the_ascending_node")
     argp : float
         Argument of Perigee (rad).
-    nu : float
+        (alias = "argument_of_periapsis")
+    theta : float
         True anomaly (rad).
+        (alias = "true_anomaly")
 
     Returns
     -------
@@ -77,15 +83,23 @@ def keplerian2cartesian(mu, a, ecc, inc, raan, argp, nu):
         Cartesian state represented as [Rx, Ry, Rz, Vx, Vz, Vy] with distance in (m) and speed in (m/s).
 
     """
+    # TODO: Add epoch overloaded input version.
+    _mu = mu if mu else kwargs.get("gravitational_parameter")
+    _sma = sma if sma else kwargs.get("semi_major_axis")
+    _ecc = ecc if ecc else kwargs.get("eccentricity")
+    _inc = inc if inc else kwargs.get("inclination")
+    _raan = raan if raan else kwargs.get("right_ascension_of_the_ascending_node")
+    _argp = argp if argp else kwargs.get("argument_of_periapsis")
+    _theta = argp if argp else kwargs.get("true_anomaly")
     keplerian_idx = _oec.KeplerianElementIndices
     keplerian_state = np.zeros(6)
-    keplerian_state[int(keplerian_idx.semi_major_axis_index)] = a
-    keplerian_state[int(keplerian_idx.eccentricity_index)] = ecc
-    keplerian_state[int(keplerian_idx.inclination_index)] = inc
-    keplerian_state[int(keplerian_idx.longitude_of_ascending_node_index)] = raan
-    keplerian_state[int(keplerian_idx.argument_of_periapsis_index)] = argp
-    keplerian_state[int(keplerian_idx.true_anomaly_index)] = nu
-    return _oec.convert_keplerian_to_cartesian_elements(keplerian_state, mu)
+    keplerian_state[int(keplerian_idx.semi_major_axis_index)] = _sma
+    keplerian_state[int(keplerian_idx.eccentricity_index)] = _ecc
+    keplerian_state[int(keplerian_idx.inclination_index)] = _inc
+    keplerian_state[int(keplerian_idx.longitude_of_ascending_node_index)] = _raan
+    keplerian_state[int(keplerian_idx.argument_of_periapsis_index)] = _argp
+    keplerian_state[int(keplerian_idx.true_anomaly_index)] = _theta
+    return _oec.convert_keplerian_to_cartesian_elements(keplerian_state, _mu)
 
 
 if __name__ == "__main__":

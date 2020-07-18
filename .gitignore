@@ -23,6 +23,7 @@ build/
 .build/
 cmake_build-debug/
 cmake_build-release/
+cmake-build-*/
 
 # IDE project files
 .idea/
@@ -32,3 +33,5 @@ cmake_build-release/
 .pydevproject
 *.sublime-project
 *.sublime-workspace
+# Rever
+rever/

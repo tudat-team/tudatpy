@@ -1,29 +1,12 @@
 from ._layer_simulation_setup import modify_simulation_setup
 from .kernel import simulation_setup
 from ._version import *
-# from .kernel import get_spice_kernel_path
-# from .kernel import spice_interface
 
 modify_simulation_setup(simulation_setup)
 
 
-# Identical function from spice interface, added for static library fix.
-# def load_standard_spice_kernels(alternative_kernels: list = None) -> None:
-#     """
-#     Temporary fix:
-#         - https://github.com/tudat-team/tudatpy-feedstock/issues/1
-#     """
-#     spice_interface.load_kernel(get_spice_kernel_path().replace('\x00', '') + '/pck00010.tpc')
-#     spice_interface.load_kernel(get_spice_kernel_path().replace('\x00', '') + '/gm_de431.tpc')
-#     if alternative_kernels:
-#         for alternative_kernel in alternative_kernels:
-#             spice_interface.load_kernel(alternative_kernel)
-#     else:
-#         spice_interface.load_kernel(get_spice_kernel_path().replace('\x00', '') + '/tudat_merged_spk_kernel.bsp')
-#     spice_interface.load_kernel(get_spice_kernel_path().replace('\x00', '') + '/naif0012.tls')
-
-
 __all__ = [
+    '__version__',
     'apps',
     'bodies',
     'io',
