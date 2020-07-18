@@ -1,3 +1,4 @@
 nbsphinx
 sphinx_rtd_theme
 sphinxcontrib-fulltoc
+sphinxcontrib-bibtex
