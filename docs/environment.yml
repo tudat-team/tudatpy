@@ -1,0 +1,47 @@
+name: tudat-env
+channels:
+  - tudat-team
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=0_gnu
+  - boost-cpp=1.64.0=1
+  - bzip2=1.0.8=h516909a_2
+  - ca-certificates=2020.6.20=hecda079_0
+  - certifi=2020.6.20=py37hc8dfbb8_0
+  - cspice-cmake=66.0=h516909a_0
+  - icu=58.2=hf484d3e_1000
+  - ld_impl_linux-64=2.34=h53a641e_5
+  - libblas=3.8.0=14_openblas
+  - libcblas=3.8.0=14_openblas
+  - libffi=3.2.1=he1b5a44_1007
+  - libgcc-ng=9.2.0=h24d8f2e_2
+  - libgfortran-ng=7.5.0=hdf63c60_6
+  - libgomp=9.2.0=h24d8f2e_2
+  - liblapack=3.8.0=14_openblas
+  - libopenblas=0.3.7=h5ec1e0e_6
+  - libstdcxx-ng=9.2.0=hdf63c60_2
+  - ncurses=6.1=hf484d3e_1002
+  - numpy=1.18.5=py37h8960a57_0
+  - openssl=1.1.1g=h516909a_0
+  - pandas=1.0.5=py37h0da4684_0
+  - pip=20.1.1=py_1
+  - python=3.7.6=cpython_h8356626_6
+  - python-dateutil=2.8.1=py_0
+  - python_abi=3.7=1_cp37m
+  - pytz=2020.1=pyh9f0ad1d_0
+  - readline=8.0=hf8c457e_0
+  - setuptools=49.1.0=py37hc8dfbb8_0
+  - six=1.15.0=pyh9f0ad1d_0
+  - sofa-cmake=1.0.0=h516909a_0
+  - sqlite=3.32.3=hcee41ef_0
+  - tabulate=0.8.7=pyh9f0ad1d_0
+  - tk=8.6.10=hed695b0_0
+  - tudat=2.8.26=h2d0938a_1
+  - tudat-resources=1.0.10=he1b5a44_0
+  - tudatpy=0.5.17=py37he1b5a44_3
+  - wheel=0.34.2=py_1
+  - xz=5.2.5=h516909a_0
+  - zlib=1.2.11=h516909a_1006
+prefix: /home/ggarrett/miniconda3/envs/tudat-env
