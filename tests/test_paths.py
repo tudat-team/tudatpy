@@ -1,4 +1,6 @@
 from tudatpy import kernel
+import pytest
+import os
 
 
 def test_no_null_bytes():
@@ -14,3 +16,33 @@ def test_no_null_bytes():
     assert '\x00' not in kernel.paths.get_atmosphere_tables_path()
     assert '\x00' not in kernel.paths.get_gravity_models_path()
     assert '\x00' not in kernel.paths.get_space_weather_path()
+
+
+def test_paths_exist():
+    """ For linux which broke from osx's null byte fix.
+    """
+    assert os.path.exists(kernel.paths.get_resource_path())
+    assert os.path.exists(kernel.paths.get_ephemeris_path())
+    assert os.path.exists(kernel.paths.get_earth_orientation_path())
+    assert os.path.exists(kernel.paths.get_quadrature_path())
+    assert os.path.exists(kernel.paths.get_spice_kernel_path())
+    assert os.path.exists(kernel.paths.get_atmosphere_tables_path())
+    assert os.path.exists(kernel.paths.get_gravity_models_path())
+    assert os.path.exists(kernel.paths.get_space_weather_path())
+
+
+def test_paths_for_conda_prefix():
+    """ For testing conda-builds to ensure that prefix replacement occurs.
+    """
+    try:
+        if os.environ["CONDA_BUILD"]:
+            assert "$PREFIX/resource" in kernel.paths.get_resource_path()
+            assert "$PREFIX/resource" in kernel.paths.get_ephemeris_path()
+            assert "$PREFIX/resource" in kernel.paths.get_earth_orientation_path()
+            assert "$PREFIX/resource" in kernel.paths.get_quadrature_path()
+            assert "$PREFIX/resource" in kernel.paths.get_spice_kernel_path()
+            assert "$PREFIX/resource" in kernel.paths.get_atmosphere_tables_path()
+            assert "$PREFIX/resource" in kernel.paths.get_gravity_models_path()
+            assert "$PREFIX/resource" in kernel.paths.get_space_weather_path()
+    except KeyError:
+        pytest.skip("Reason: CONDA_BUILD not found in env.")

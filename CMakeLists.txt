@@ -5,7 +5,7 @@ if (POLICY CMP0048)
 endif (POLICY CMP0048)
 
 # Get version from file.
-file(READ "version" tudatpy_VERSION)
+file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 
 # Add cmake modules
