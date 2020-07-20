@@ -203,12 +203,14 @@ else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
+# TODO: add NRLMSISE back in
+
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# NRLMSISE-00
+# PRECOMPILE EXTENDED PRECISION STUFF
 if (NOT BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
     message(STATUS "Extended precision propagation disabled!")
     add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
