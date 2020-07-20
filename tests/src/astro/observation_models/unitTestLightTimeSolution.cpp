@@ -43,6 +43,7 @@ BOOST_AUTO_TEST_SUITE( test_light_time )
 //! Test light-time calculator.
 BOOST_AUTO_TEST_CASE( testLightWithSpice )
 {
+    std::cout<<"Test"<<std::endl;
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 

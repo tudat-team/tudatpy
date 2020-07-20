@@ -234,21 +234,21 @@ public:
                     paths::getEarthOrientationDataFilesPath( ) + "/utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "utcLibrationFundamentalArgumentMultipliers.txt",
+                    "/utcLibrationFundamentalArgumentMultipliers.txt",
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "utcOceanTidesFundamentalArgumentMultipliers.txt" } ),
+                    "/utcOceanTidesFundamentalArgumentMultipliers.txt" } ),
             const std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings =
             std::make_shared< EopCorrectionSettings >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0, std::vector< std::string >{
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+                    "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "polarMotionOceanTidesAmplitudes.txt", },
+                    "/polarMotionOceanTidesAmplitudes.txt", },
                 std::vector< std::string >{
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+                    "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
                     paths::getEarthOrientationDataFilesPath( ) +
-                    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } ) ):
+                    "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } ) ):
         RotationModelSettings( gcrs_to_itrs_rotation_model, baseFrameName, "ITRS" ),
         inputTimeScale_( inputTimeScale ), nutationTheory_( nutationTheory ), eopFile_( eopFile ),
         eopFileFormat_( "C04" ), ut1CorrectionSettings_( ut1CorrectionSettings ),

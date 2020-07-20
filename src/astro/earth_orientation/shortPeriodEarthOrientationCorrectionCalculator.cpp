@@ -101,11 +101,11 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > get
     return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                 1.0E-6, minimumAmplitude,
                 std::vector< std::string >{
-                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "utcLibrationAmplitudes.txt",
-                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "utcOceanTidesAmplitudes.txt" },
+                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "/utcLibrationAmplitudes.txt",
+                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
-                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "utcLibrationFundamentalArgumentMultipliers.txt",
-                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
+                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "/utcLibrationFundamentalArgumentMultipliers.txt",
+                    tudat::paths::getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 }
 
@@ -118,14 +118,14 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), minimumAmplitude,
                 std::vector< std::string >{
                     tudat::paths::getEarthOrientationDataFilesPath(  ) +
-                    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+                    "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
                     tudat::paths::getEarthOrientationDataFilesPath(  ) +
-                    "polarMotionOceanTidesAmplitudes.txt", },
+                    "/polarMotionOceanTidesAmplitudes.txt", },
                 std::vector< std::string >{
                     tudat::paths::getEarthOrientationDataFilesPath(  ) +
-                    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+                    "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
                     tudat::paths::getEarthOrientationDataFilesPath(  ) +
-                    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
+                    "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
                 std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 
 }
