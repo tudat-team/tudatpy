@@ -1,4 +1,4 @@
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/getRecommendedBaseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h"
 
 namespace tudat
 {

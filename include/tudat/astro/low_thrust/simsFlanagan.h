@@ -17,9 +17,9 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "tudat/astro/LowThrustTrajectories/simsFlanaganModel.h"
-#include "tudat/simulation/optimisationSettings.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
+#include "tudat/astro/low_thrust/simsFlanaganModel.h"
+#include "tudat/simulation/optimisation.h"
+#include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
 
 namespace tudat
 {

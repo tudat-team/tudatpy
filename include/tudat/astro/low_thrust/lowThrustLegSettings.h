@@ -27,10 +27,10 @@
 //    #include "tudat/astro/low_thrust/hybridMethod.h"
     #include "tudat/astro/low_thrust/simsFlanagan.h"
 #endif
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/sphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
-#include "tudat/astro/LowThrustTrajectories/lowThrustLeg.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 
 
 namespace tudat

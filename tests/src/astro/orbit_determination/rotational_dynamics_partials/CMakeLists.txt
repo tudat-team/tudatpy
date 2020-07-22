@@ -7,35 +7,7 @@
  #    a copy of the license with this file. If not, please or visit:
  #    http://tudat.tudelft.nl/LICENSE.
 
-# Set the source files.
-set(rotational_dynamics_partials_SOURCES
-  "${SRCROOT}${TORQUEPARTIALSDIR}/inertialTorquePartial.cpp"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/constantTorquePartial.cpp"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.cpp"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/sphericalHarmonicGravitationalTorquePartial.cpp"
-)
-
-# Set the header files.
-set(rotational_dynamics_partials_HEADERS
-  "${SRCROOT}${TORQUEPARTIALSDIR}/torquePartial.h"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/inertiaTensorPartial.h"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/inertialTorquePartial.h"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/constantTorquePartial.h"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.h"
-  "${SRCROOT}${TORQUEPARTIALSDIR}/sphericalHarmonicGravitationalTorquePartial.h"
-)
-
-# Add static libraries.
-add_library(tudat_torque_partials STATIC ${rotational_dynamics_partials_SOURCES} ${rotational_dynamics_partials_HEADERS})
-setup_tudat_library_target(tudat_torque_partials "${SRCROOT}{TORQUEPARTIALSDIR}")
-
-if(TUDAT_BUILD_WITH_SPICE_INTERFACE)
-
-    # Add unit tests
-    add_executable(test_TorquePartials "${SRCROOT}${TORQUEPARTIALSDIR}/tests/unitTestTorquePartials.cpp")
-    setup_custom_test_program(test_TorquePartials "${SRCROOT}${TORQUEPARTIALSDIR}")
-    target_link_libraries(test_TorquePartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-endif( )
-
-
+ TUDAT_ADD_TEST_CASE(TorquePartials
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )

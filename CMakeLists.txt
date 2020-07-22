@@ -58,9 +58,6 @@ option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OF
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
 
 # Build option: enable tutorials.
-option(TUDAT_BUILD_PAGMO_TUTORIALS "Build pagmo2 tutorials." OFF)
-
-# Build option: enable tutorials.
 option(TUDAT_BUILD_TBB_SUPPORT "Build tbb support for Pagmo." OFF)
 
 # Build static library instead of dynamic.
@@ -74,6 +71,9 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
+
+# Build pagmo-dependent code
+option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
@@ -161,6 +161,23 @@ if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
+
+# Sofa dependency if in build settings.
+if (TUDAT_BUILD_WITH_PAGMO)
+    #
+    add_definitions(-DTUDAT_BUILD_WITH_PAGMO1)
+    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+        find_package(Pagmo REQUIRED 2.15)
+    elseif (NOT ${TUDAT_BUNDLE_BUILD})
+        find_package(Pagmo REQUIRED 2.15)
+    else ()
+        set(Pagmo_INCLUDE_DIRS ${Pagmo_BUILD_INCLUDE_DIRS})
+    endif ()
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_PAGMO=0)
+endif ()
+
+
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
 if (TUDAT_BUILD_TESTS)
@@ -188,6 +205,7 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
 else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
+
 
 # TODO: add NRLMSISE back in
 add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)

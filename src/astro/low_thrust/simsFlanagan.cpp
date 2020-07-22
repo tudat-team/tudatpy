@@ -10,8 +10,8 @@
  */
 
 
-#include "tudat/astro/LowThrustTrajectories/simsFlanagan.h"
-#include "tudat/astro/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
+#include "tudat/astro/low_thrust/simsFlanagan.h"
+#include "tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h"
 #include "pagmo/problems/unconstrain.hpp"
 #include "pagmo/algorithms/compass_search.hpp"
 

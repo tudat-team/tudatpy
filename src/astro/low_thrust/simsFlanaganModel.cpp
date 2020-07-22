@@ -11,7 +11,7 @@
 
 
 #include <iostream>
-#include "tudat/astro/LowThrustTrajectories/simsFlanaganModel.h"
+#include "tudat/astro/low_thrust/simsFlanaganModel.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
 
 namespace tudat

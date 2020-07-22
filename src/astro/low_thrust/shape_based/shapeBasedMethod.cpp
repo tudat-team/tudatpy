@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
+#include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
 
 namespace tudat
 {

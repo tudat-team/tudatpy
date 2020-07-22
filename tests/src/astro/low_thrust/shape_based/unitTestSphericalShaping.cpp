@@ -28,9 +28,9 @@
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/sphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 namespace tudat
 {
