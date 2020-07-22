@@ -29,11 +29,6 @@ TUDAT_ADD_TEST_CASE(RadiationPressureInterface
 TUDAT_ADD_TEST_CASE(PanelledRadiationPressure
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
-        tudat_electromagnetism
-        tudat_spice_interface
-        ${CSpice_LIBRARIES}
-        ${Boost_LIBRARIES}
-        ${Sofa_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce

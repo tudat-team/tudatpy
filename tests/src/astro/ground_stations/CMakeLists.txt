@@ -8,16 +8,10 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Add ground station tests
-# Add static libraries.
-#add_library(tudat_ground_stations STATIC ${GROUND_STATIONS_SOURCES} ${GROUND_STATIONS_HEADERS})
-#setup_tudat_library_target(tudat_ground_stations "${SRCROOT}{GROUNDSTATIONSDIR}")
-#
-#
-#add_executable(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}/tests/unitTestGroundStationState.cpp")
-#setup_custom_test_program(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}")
-#target_link_libraries(test_GroundStationState ${Tudat_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
-#add_executable(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}/tests/unitTestPointingAnglesCalculator.cpp")
-#setup_custom_test_program(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}")
-#target_link_libraries(test_PointingAnglesCalculator ${Tudat_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+TUDAT_ADD_TEST_CASE(GroundStationState
+    PRIVATE_LINKS
+    ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(PointingAnglesCalculator
+    PRIVATE_LINKS
+    ${Tudat_PROPAGATION_LIBRARIES})

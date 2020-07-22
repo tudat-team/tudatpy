@@ -8,18 +8,23 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Clean up root finders test cmake
-## Add unit test files.
-#set(root_finders_test_SOURCES
-#        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestBisection.cpp"
-#        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestHalleyRootFinder.cpp"
-#        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestNewtonRaphson.cpp"
-#        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestRootFinders.cpp"
-#        "${SRCROOT}${MATHEMATICSDIR}/root_finders/tests/unitTestSecantRootFinder.cpp"
-#        )
-#
 ## Add tests
-#TUDAT_ADD_TEST_CASE(Bisection PRIVATE_LINKS tudat_root_finders)
-#TUDAT_ADD_TEST_CASE(HalleyRootFinder PRIVATE_LINKS tudat_root_finders)
-#TUDAT_ADD_TEST_CASE(RootFinders PRIVATE_LINKS tudat_root_finders)
-#TUDAT_ADD_TEST_CASE(SecantRootFinder PRIVATE_LINKS tudat_root_finders)
+TUDAT_ADD_TEST_CASE(Bisection
+    PRIVATE_LINKS
+    tudat_root_finders
+    )
+
+TUDAT_ADD_TEST_CASE( HalleyRootFinder
+    PRIVATE_LINKS
+    tudat_root_finders
+    )
+
+TUDAT_ADD_TEST_CASE(NewtonRaphson
+    PRIVATE_LINKS
+    tudat_root_finders
+    )
+
+TUDAT_ADD_TEST_CASE(SecantRootFinder
+    PRIVATE_LINKS
+    tudat_root_finders
+    )

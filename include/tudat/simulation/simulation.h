@@ -29,12 +29,8 @@
 #include "tudat/math/filters/createFilter.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
-
-#ifdef TUDAT_BUILD_WITH_SPICE_INTERFACE
-
 #include "tudat/interface/spice/spiceInterface.h"
 
-#endif
 
 #include "tudat/simulation/environment/body.h"
 #include "tudat/simulation/environment/createBodies.h"

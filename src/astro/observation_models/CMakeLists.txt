@@ -39,7 +39,6 @@ set(observation_models_HEADERS
         "velocityObservationModel.h"
         "twoWayDopplerObservationModel.h"
         "eulerAngleObservationModel.h"
-        "tests/testLightTimeCorrections.h"
         "observationViabilityCalculator.h"
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
@@ -48,6 +47,6 @@ set(observation_models_HEADERS
 TUDAT_ADD_LIBRARY("observation_models"
         "${observation_models_SOURCES}"
         "${observation_models_HEADERS}"
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

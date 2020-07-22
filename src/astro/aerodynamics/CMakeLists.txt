@@ -42,8 +42,6 @@ set(aerodynamics_HEADERS
         "customAerodynamicCoefficientInterface.h"
         "controlSurfaceAerodynamicCoefficientInterface.h"
         "flightConditions.h"
-        "tests/testApolloCapsuleCoefficients.h"
-        "flightConditions.cpp"
         "aerodynamicGuidance.h"
         "equilibriumWallTemperature.h"
         "windModel.h"
@@ -66,11 +64,11 @@ endif ()
 TUDAT_ADD_LIBRARY("aerodynamics"
         "${aerodynamics_SOURCES}"
         "${aerodynamics_HEADERS}"
-        PUBLIC_LINKS
-        tudat_input_output
-        tudat_geometric_shapes
-        tudat_reference_frames
-        tudat_interpolators
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+#        PUBLIC_LINKS
+#        tudat_input_output
+#        tudat_geometric_shapes
+#        tudat_reference_frames
+#        tudat_interpolators
+#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

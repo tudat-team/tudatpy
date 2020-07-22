@@ -34,6 +34,6 @@ set(earth_orientation_HEADERS
 TUDAT_ADD_LIBRARY("earth_orientation"
         "${earth_orientation_SOURCES}"
         "${earth_orientation_HEADERS}"
-        PRIVATE_LINKS "${Sofa_LIBRARIES}" "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
+#        PRIVATE_LINKS "${Sofa_LIBRARIES}" "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )

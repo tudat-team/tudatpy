@@ -1,14 +1,15 @@
 include(CMakeParseArguments)
 
+# TODO: remove this: all tests shoulld be run, if some are omitted, a warning/error should at least be printed
 set(TESTS_REQUIRING_TEST_DATA
         # The mysterious failures
-        test_basic_astro_EmpiricalAcceleration
-        test_earth_orientation_EarthOrientationCalculator
-        test_earth_orientation_EopReader
-        test_earth_orientation_PolarMotionCalculator
-        test_earth_orientation_TimeScaleConverter
-        test_earth_orientation_ShortPeriodEopCorrections
-        test_electromagnetism_PanelledRadiationPressure
+#        test_basic_astro_EmpiricalAcceleration
+#        test_earth_orientation_EarthOrientationCalculator
+#        test_earth_orientation_EopReader
+#        test_earth_orientation_PolarMotionCalculator
+#        test_earth_orientation_TimeScaleConverter
+#        test_earth_orientation_ShortPeriodEopCorrections
+#        test_electromagnetism_PanelledRadiationPressure
 
         # SPICE(FILENAMETOOLONG) --
         #
@@ -21,13 +22,13 @@ set(TESTS_REQUIRING_TEST_DATA
         #
         #  A traceback follows.  The name of the highest level module is first.
         #  furnsh_c --> FURNSH
-        test_aerodynamics_AerodynamicMomentAndAerodynamicForce
-        test_aerodynamics_ControlSurfaceIncrements
-        test_aerodynamics_AerodynamicCoefficientsFromFile
-        test_aerodynamics_WindModel
-        test_spice_SpiceInterface
-        test_simulation_EnvironmentModelSetup
-        test_simulation_AccelerationModelSetup
+#        test_aerodynamics_AerodynamicMomentAndAerodynamicForce
+#        test_aerodynamics_ControlSurfaceIncrements
+#        test_aerodynamics_AerodynamicCoefficientsFromFile
+#        test_aerodynamics_WindModel
+#        test_spice_SpiceInterface
+#        test_simulation_EnvironmentModelSetup
+#        test_simulation_AccelerationModelSetup
 
         # Fails remotely
         #        test_aerodynamics_AerodynamicMomentAndAerodynamicForce

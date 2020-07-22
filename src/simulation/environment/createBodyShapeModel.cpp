@@ -8,9 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceInterface.h"
-#endif
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
 #include "tudat/simulation/environment/createBodyShapeModel.h"
@@ -68,7 +66,6 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         }
         break;
     }
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     case spherical_spice:
     {
         // Retrieve radius from Spice and create spherical shape model.
@@ -76,7 +73,6 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
                     spice_interface::getAverageRadius( body ) );
         break;
     }
-#endif
     default:
        throw std::runtime_error( "Error, did not recognize body shape settings for " + body );
 

@@ -75,9 +75,6 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
-# Build spice interface.
-option(TUDAT_BUILD_WITH_SPICE_INTERFACE "Build Tudat with spice interface." ON)
-
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
@@ -174,19 +171,8 @@ if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
-# CSpice dependency if in build settings.
-if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(CSpice REQUIRED 1.0.0)
-    elseif (NOT ${TUDAT_BUNDLE_BUILD})
-        find_package(CSpice REQUIRED 1.0.0)
-    else ()
-        set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
-    endif ()
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=0)
-endif ()
+# CSpice dependency
+find_package(CSpice REQUIRED 1.0.0)
 
 # Sofa dependency if in build settings.
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
@@ -204,6 +190,8 @@ else ()
 endif ()
 
 # TODO: add NRLMSISE back in
+add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
+
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
