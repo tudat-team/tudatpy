@@ -10,15 +10,11 @@
 #    References
 #
 
-if (NOT TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    message(STATUS "SPICE disabled!")
-else ()
-    message(STATUS "SPICE enabled!")
-endif ()
 
 # Create lists of static libraries for ease of use
-list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
-list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES "")
+list(APPEND TUDAT_EXTERNAL_LIBRARIES ${CSpice_LIBRARIES})
+list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES Tudat::tudat_spice_interface)
+
 list(APPEND TUDAT_ITRS_LIBRARIES "")
 
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
@@ -27,10 +23,6 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     list(APPEND TUDAT_ITRS_LIBRARIES Tudat::tudat_earth_orientation)
 endif ()
 
-if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    list(APPEND TUDAT_EXTERNAL_LIBRARIES ${CSpice_LIBRARIES})
-    list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES Tudat::tudat_spice_interface)
-endif ()
 
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     list(APPEND TUDAT_EXTERNAL_LIBRARIES ${nlohmann_json_LIBRARIES})
@@ -55,7 +47,6 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_trajectory_design
         Tudat::tudat_environment_setup
         Tudat::tudat_ground_stations
-#        Tudat::tudat_propagators
         Tudat::tudat_aerodynamics
         Tudat::tudat_system_models
         Tudat::tudat_geometric_shapes
@@ -94,7 +85,6 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_observation_partials
             Tudat::tudat_orbit_determination
             Tudat::tudat_estimatable_parameters
-#            tudat_propagators
             Tudat::tudat_aerodynamics
             Tudat::tudat_system_models
             Tudat::tudat_geometric_shapes

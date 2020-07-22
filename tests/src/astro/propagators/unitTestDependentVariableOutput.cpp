@@ -91,7 +91,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
 
-    for( unsigned int testCase = 0; testCase < 4; testCase++ )
+#if TUDAT_BUILD_WITH_NRLMSISE
+    int maximumTestCase = 4;
+#else
+    int maximumTestCase = 2;
+#endif
+    for( unsigned int testCase = 0; testCase < maximumTestCase; testCase++ )
     {
         // Define simulation body settings.
         std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =

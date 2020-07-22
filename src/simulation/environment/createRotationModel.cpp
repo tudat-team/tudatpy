@@ -11,11 +11,7 @@
 #include <boost/make_shared.hpp>
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
-#endif
-
 #include "tudat/simulation/environment/createRotationModel.h"
 
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
@@ -205,7 +201,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
     }
 #endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     case spice_rotation_model:
     {
         // Create rotational ephemeris directly from Spice.
@@ -214,7 +209,6 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                     rotationModelSettings->getTargetFrame( ) );
         break;
     }
-#endif
     case planetary_rotation_model:
     {
         std::shared_ptr< PlanetaryRotationModelSettings > planetaryRotationModelSettings =

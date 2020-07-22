@@ -69,8 +69,4 @@ set(basic_astrodynamics_HEADERS
 
 TUDAT_ADD_LIBRARY("basic_astrodynamics"
         "${basic_astrodynamics_SOURCES}"
-        "${basic_astrodynamics_HEADERS}"
-        PUBLIC_LINKS tudat_basic_mathematics
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
-        )
+        "${basic_astrodynamics_HEADERS}")

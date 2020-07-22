@@ -59,8 +59,6 @@ public:
     /*!
      * Generic calculation of the derivative of a function using numerical techniques.
      * \see Function::derivative
-     * TODO: Use the external derivative code, this function is a basic/temporary implementation.
-     * for now this is the implementation:
      * \param order The Order of the derivative
      * \param independentVariable The independent variable with respect to which the derivative is taken.
      * \return The numerical derivative of the function.
@@ -129,7 +127,6 @@ private:
 //    IndependentVariable, DependentVariable, DependentVariable >         Integrator;
 };
 
-// TODO: Remove when using external derivative code.
 template< typename IndependentVariable, typename DependentVariable >
 const double BasicFunction< IndependentVariable, DependentVariable >::sqrt_epsilon_double
 = std::numeric_limits< double >::epsilon( );

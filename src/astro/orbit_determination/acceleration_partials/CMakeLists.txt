@@ -46,12 +46,5 @@ set(acceleration_partials_HEADERS
 TUDAT_ADD_LIBRARY("acceleration_partials"
         "${acceleration_partials_SOURCES}"
         "${acceleration_partials_HEADERS}"
-#        PUBLIC_LINKS
-#        tudat_input_output
-#        tudat_geometric_shapes
-#        tudat_reference_frames
-#        tudat_interpolators
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 

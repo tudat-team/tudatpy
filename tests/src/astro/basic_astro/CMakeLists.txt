@@ -134,9 +134,5 @@ TUDAT_ADD_TEST_CASE(UnifiedStateModelEMElementConversions
 TUDAT_ADD_TEST_CASE(EmpiricalAcceleration
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
-        tudat_electromagnetism
-        ${CSpice_LIBRARIES}
-        ${Boost_LIBRARIES}
-        ${Sofa_LIBRARIES}
         )
 

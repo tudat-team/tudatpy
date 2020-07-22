@@ -19,7 +19,7 @@
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 
-#if USE_NRLMSISE00
+#if TUDAT_BUILD_WITH_NRLMSISE
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
 #endif
@@ -38,9 +38,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceEphemeris.h"
-#endif
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -115,7 +113,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
     BOOST_CHECK_EQUAL( manualExponentialAtmosphere.getTemperature( 32.0, 0.0, 0.0, 0.0 ),
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
 
-#if USE_NRLMSISE00
+#if TUDAT_BUILD_WITH_NRLMSISE
     std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
     for( int atmosphereTest = 0; atmosphereTest < 2; atmosphereTest++ )
     {
@@ -150,6 +148,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
         BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
     }
 #endif
+
 }
 
 Eigen::Vector6d computeCustomState(
@@ -166,7 +165,6 @@ Eigen::Vector6d computeCustomState(
 
 }
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
@@ -292,9 +290,8 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
 
 }
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 {
@@ -505,9 +502,9 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
                 2.0 * std::numeric_limits< double >::epsilon( ) );
 }
 
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
+
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
@@ -717,9 +714,9 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         }
     }
 }
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
+
 //! Test set up of rotation models.
 BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 {
@@ -762,9 +759,9 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
+
 //! Test set up of synchronous rotation model.
 BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
 {
@@ -817,10 +814,10 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
 
 
-#if USE_SOFA
+
+#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 {
@@ -879,7 +876,7 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 }
 #endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
 //! Test set up of radiation pressure interfacel environment models.
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
@@ -932,9 +929,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
                                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
+
 //! Test set up of body shape environment models (see testShapeModels).
 BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 {
@@ -975,9 +972,9 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
     }
 
 }
-#endif
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
+
 //! Test set up of flight conditions object.
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
@@ -1073,7 +1070,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
 
 }
-#endif
+
 
 //! Test set up of solar sailing radiation pressure interface environment models.
 BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
@@ -1243,7 +1240,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 }
 
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
+
 //! Test set up of panelled radiation pressure interface environment models.
 BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
 {
@@ -1344,7 +1341,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
                                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

@@ -10,10 +10,7 @@
 
 #include <boost/make_shared.hpp>
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceInterface.h"
-#endif
-
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/simulation/environment/createGravityField.h"
@@ -251,7 +248,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     case central_spice:
     {
         if( gravityFieldVariationSettings.size( ) != 0 )
@@ -267,7 +263,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
         break;
     }
-#endif
     case spherical_harmonic:
     {
         // Check whether settings for spherical harmonic gravity field model are consistent with

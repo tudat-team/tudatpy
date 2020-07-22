@@ -9,10 +9,8 @@
  */
 
 #include <boost/lambda/lambda.hpp>
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
-#include "tudat/interface/spice/spiceEphemeris.h"
-#endif
 
+#include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
@@ -56,7 +54,6 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         // Check which type of ephemeris model is to be created.
         switch( ephemerisSettings->getEphemerisType( ) )
         {
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
         case direct_spice_ephemeris:
         {
             // Check consistency of type and class.
@@ -130,7 +127,6 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             break;
         }
-#endif
         case tabulated_ephemeris:
         {
             // Check consistency of type and class.

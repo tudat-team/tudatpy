@@ -17,12 +17,6 @@ set(root_finders_HEADERS
         "bisection.h"
         "terminationConditions.h"
         "createRootFinder.h"
-        "tests/testFunction.h"
-        "tests/testFunction1.h"
-        "tests/testFunction2.h"
-        "tests/testFunction3.h"
-        #"/tests/testFunctionWithLargeRootDifference.h"
-        "tests/testFunctionWithZeroRoot.h"
         )
 
 # Add source files.
@@ -34,6 +28,6 @@ set(root_finders_SOURCES
 TUDAT_ADD_LIBRARY("root_finders"
         "${root_finders_SOURCES}"
         "${root_finders_HEADERS}"
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

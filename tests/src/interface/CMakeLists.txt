@@ -8,14 +8,13 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
+add_subdirectory(spice)
+
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     add_subdirectory(json)
 endif ()
 
-#if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-add_subdirectory(spice)
-#endif ()
 
-#if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-add_subdirectory(sofa)
-#endif ()
+if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
+    add_subdirectory(sofa)
+endif ()

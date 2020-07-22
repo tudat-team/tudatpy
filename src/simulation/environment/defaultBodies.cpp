@@ -8,10 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceInterface.h"
-#endif
-
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment/defaultBodies.h"
 
@@ -43,13 +40,9 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName )
 {
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< DirectSpiceEphemerisSettings >(
                 "SSB", "ECLIPJ2000", false, false, false );
-#else
-    throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
-#endif
 }
 
 //! Function to create default settings for a body's ephemeris.
@@ -59,13 +52,9 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const double finalTime,
         const double timeStep )
 {
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< InterpolatedSpiceEphemerisSettings >(
                 initialTime, finalTime, timeStep, "SSB", "ECLIPJ2000" );
-#else
-    throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
-#endif
 }
 
 //! Function to create default settings for a body's gravity field model.
@@ -162,12 +151,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else
     {
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
         // Create settings for a point mass gravity with data from Spice
         return std::make_shared< GravityFieldSettings >( central_spice );
-#else
-        throw std::runtime_error( "Default gravity field settings can only be used together with the SPICE library" );
-#endif
     }
 }
 
@@ -181,13 +166,9 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
     TUDAT_UNUSED_PARAMETER( initialTime );
     TUDAT_UNUSED_PARAMETER( finalTime );
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     // Create settings for a rotation model taken directly from Spice.
     return std::make_shared< RotationModelSettings >(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
-#else
-    throw std::runtime_error( "Default rotational model settings can only be used together with the SPICE library" );
-#endif
 }
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 )
@@ -277,12 +258,8 @@ std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
     TUDAT_UNUSED_PARAMETER( initialTime );
     TUDAT_UNUSED_PARAMETER( finalTime );
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
     return std::make_shared< SphericalBodyShapeSettings >(
                 spice_interface::getAverageRadius( bodyName ) );
-#else
-    throw std::runtime_error( "Default bodyName settings can only be used together with the SPICE library" );
-#endif
 }
 
 //! Function to create default settings for a body's rotation model.
