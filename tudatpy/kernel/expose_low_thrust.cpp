@@ -21,7 +21,10 @@ namespace tudatpy {
 		m.def("create_low_thrust_leg", &tltt::createLowThrustLeg, py::arg("low_thrust_leg_settings"),
 			  py::arg("state_at_departure"), py::arg("state_at_arrival"), py::arg("time_of_flight"));
 
-		py::class_<tltt::SphericalShapingLegSettings, std::shared_ptr<tltt::SphericalShapingLegSettings>>(m, "SphericalShapingLegSettings")
+		py::class_<tltt::LowThrustLegSettings, std::shared_ptr<tltt::LowThrustLegSettings>>(m, "LowThrustLegSettings");
+
+		py::class_<tltt::SphericalShapingLegSettings, std::shared_ptr<tltt::SphericalShapingLegSettings>, tltt::LowThrustLegSettings>
+		        (m, "SphericalShapingLegSettings")
 		.def(py::init<
 		        const int,
 		        const double,

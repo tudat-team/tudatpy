@@ -6,6 +6,10 @@
 #define TUDATPY_EXPOSE_LOW_THRUST_H
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
+
 #include <tudat/astro/low_thrust/lowThrustLeg.h>
 #include <tudat/astro/low_thrust/lowThrustLegSettings.h>
 #include <tudat/astro/low_thrust/shape_based/sphericalShaping.h>
