@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/LowThrustTrajectories/lowThrustLeg.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 
 namespace tudat
 {

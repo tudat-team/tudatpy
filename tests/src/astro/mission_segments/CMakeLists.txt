@@ -8,45 +8,20 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Add mission segments library tests
+TUDAT_ADD_TEST_CASE(EscapeAndCapture PRIVATE_LINKS tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders tudat_input_output)
 
-# Add static libraries.
-#add_library(tudat_mission_segments STATIC ${MISSIONSEGMENTS_SOURCES} ${MISSIONSEGMENTS_HEADERS})
-#setup_tudat_library_target(tudat_mission_segments "${SRCROOT}${MISSIONSEGMENTSDIR}")
+TUDAT_ADD_TEST_CASE(GravityAssist tudat_gravitation PRIVATE_LINKS tudat_mission_segments tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders tudat_input_output)
 
-# Add unit tests.
-#add_executable(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestEscapeAndCapture.cpp")
-#setup_custom_test_program(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_EscapeAndCapture tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders tudat_input_output ${Boost_LIBRARIES})
-#
-#add_executable(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestGravityAssist.cpp")
-#setup_custom_test_program(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_GravityAssist tudat_gravitation tudat_mission_segments tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders tudat_input_output ${Boost_LIBRARIES})
-#
-#add_executable(test_LambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestLambertTargeterIzzo.cpp")
-#setup_custom_test_program(test_LambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_LambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_LambertTargeterGooding "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestLambertTargeterGooding.cpp")
-#setup_custom_test_program(test_LambertTargeterGooding "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_LambertTargeterGooding tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestLambertTargeter.cpp")
-#setup_custom_test_program(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_LambertTargeter tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestLambertRoutines.cpp")
-#setup_custom_test_program(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_LambertRoutines tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_ZeroRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestZeroRevolutionLambertTargeterIzzo.cpp")
-#setup_custom_test_program(test_ZeroRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_ZeroRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestMultiRevolutionLambertTargeterIzzo.cpp")
-#setup_custom_test_program(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_MultiRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-#
-#add_executable(test_MathematicalShapeFunctions "${SRCROOT}${MISSIONSEGMENTSDIR}/tests/unitTestMathematicalShapeFunctions.cpp")
-#setup_custom_test_program(test_MathematicalShapeFunctions "${SRCROOT}${MISSIONSEGMENTSDIR}")
-#target_link_libraries(test_MathematicalShapeFunctions tudat_mission_segments tudat_basic_mathematics ${Boost_LIBRARIES})
+TUDAT_ADD_TEST_CASE(LambertTargeterIzzo PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(LambertTargeterGooding PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(LambertTargeter PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(LambertRoutines PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(ZeroRevolutionLambertTargeterIzzo PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(MultiRevolutionLambertTargeterIzzo PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(MathematicalShapeFunctions PRIVATE_LINKS tudat_mission_segments tudat_basic_mathematics)

@@ -10,8 +10,8 @@
  */
 
 
-#include "createBaseFunctionHodographicShaping.h"
 #include <cmath>
+#include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 
 
 namespace tudat

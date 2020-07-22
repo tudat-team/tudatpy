@@ -13,7 +13,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "baseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 
 namespace tudat
 {

@@ -13,7 +13,7 @@
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
-#include "sphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 namespace tudat
 {

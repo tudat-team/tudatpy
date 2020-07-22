@@ -6,9 +6,9 @@
 #include "pagmo/algorithms/sade.hpp"
 #include "pagmo/island.hpp"
 #include "pagmo/problem.hpp"
-#include "Problems/himmelblau.h"
-#include "Problems/applicationOutput.h"
-#include "Problems/saveOptimizationResults.h"
+#include "problems/himmelblau.h"
+#include "problems/applicationOutput.h"
+#include "problems/saveOptimizationResults.h"
 
 int main( )
 {

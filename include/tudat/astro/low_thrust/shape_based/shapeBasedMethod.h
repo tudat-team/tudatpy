@@ -17,7 +17,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "tudat/astro/LowThrustTrajectories/lowThrustLeg.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
 
 using namespace tudat::low_thrust_trajectories;

@@ -21,7 +21,7 @@
 #include <Eigen/Geometry>
 #include <boost/bind.hpp>
 #include <functional>
-#include "tudat/astro/LowThrustTrajectories/lowThrustLeg.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 #include "pagmo/algorithm.hpp"
 
 

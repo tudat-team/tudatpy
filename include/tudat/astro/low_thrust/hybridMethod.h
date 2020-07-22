@@ -17,7 +17,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "tudat/astro/LowThrustTrajectories/hybridMethodModel.h"
+#include "tudat/astro/low_thrust/hybridMethodModel.h"
 #include "tudat/simulation/optimisationSettings.h"
 
 namespace tudat

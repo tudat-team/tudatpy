@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/LowThrustTrajectories/simsFlanaganOptimisationSetup.h"
-#include "tudat/astro/LowThrustTrajectories/simsFlanaganModel.h"
+#include "tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h"
+#include "tudat/astro/low_thrust/simsFlanaganModel.h"
 
 namespace tudat
 {
