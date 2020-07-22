@@ -8,25 +8,10 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Add relativity library tests
+TUDAT_ADD_TEST_CASE(RelativisticAccelerationCorrection PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-# Add static libraries.
-#add_library(tudat_relativity STATIC ${RELATIVITY_SOURCES} ${RELATIVITY_HEADERS})
-#setup_tudat_library_target(tudat_relativity "${SRCROOT}${RELATIVITYDIR}")
+if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#
-## Add unit tests
-#add_executable(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}/tests/unitTestShapiroTimeDelay.cpp")
-#setup_custom_test_program(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}")
-#target_link_libraries(test_ShapiroTimeDelay tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides ${Boost_LIBRARIES})
-#
-#endif( )
-#
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#
-#add_executable(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}/tests/unitTestRelativisticAccelerationCorrection.cpp")
-#setup_custom_test_program(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}")
-#target_link_libraries(test_RelativisticAccelerationCorrection ${Tudat_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+    TUDAT_ADD_TEST_CASE(ShapiroTimeDelay PRIVATE_LINKS tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides)
 
-#endif( )
+endif( )

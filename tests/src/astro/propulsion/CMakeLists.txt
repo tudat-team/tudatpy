@@ -8,12 +8,4 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Add propulsion library tests
-
-# Add static libraries.
-#add_library(tudat_propulsion STATIC ${PROPULSION_SOURCES} ${PROPULSION_HEADERS})
-#setup_tudat_library_target(tudat_propulsion "${SRCROOT}${PROPULSIONDIR}")
-#
-#add_executable(test_ThrustAcceleration "${SRCROOT}${PROPULSIONDIR}/tests/unitTestThrustAcceleration.cpp")
-#setup_custom_test_program(test_ThrustAcceleration "${SRCROOT}${PROPULSIONDIR}")
-#target_link_libraries(test_ThrustAcceleration ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+TUDAT_ADD_TEST_CASE(ThrustAcceleration PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})

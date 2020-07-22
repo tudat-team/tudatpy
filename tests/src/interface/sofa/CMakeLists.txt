@@ -12,7 +12,6 @@ TUDAT_ADD_TEST_CASE(SofaEarthOrientationInterface
         PRIVATE_LINKS
         tudat_sofa_interface
         tudat_basic_mathematics
-        "${Sofa_LIBRARIES}"
         )
 
 TUDAT_ADD_TEST_CASE(SofaFundamentalArguments
@@ -20,7 +19,6 @@ TUDAT_ADD_TEST_CASE(SofaFundamentalArguments
         tudat_sofa_interface
         tudat_basic_mathematics
         tudat_basic_astrodynamics
-        "${Sofa_LIBRARIES}"
         )
 
 TUDAT_ADD_TEST_CASE(SofaTimeConversions
@@ -28,5 +26,4 @@ TUDAT_ADD_TEST_CASE(SofaTimeConversions
         tudat_sofa_interface
         tudat_basic_astrodynamics
         tudat_basic_mathematics
-        "${Sofa_LIBRARIES}"
         )

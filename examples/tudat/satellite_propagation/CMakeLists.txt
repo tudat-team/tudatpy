@@ -216,13 +216,13 @@
 # add_executable(application_ApolloEntryJSON
 #                "${SRCROOT}/apolloCapsuleEntryJSON.cpp")
 # setup_executable_target(application_ApolloEntryJSON "${SRCROOT}")
-# target_link_libraries(application_ApolloEntryJSON json_interface_library ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
+# target_link_libraries(application_ApolloEntryJSON json_interface_library ${Tudat_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
 #
 # # Add lifetime maximisation propagation
 # add_executable(application_LifetimeMaximisation
 #                "${SRCROOT}/lifetimeMaximisation.cpp")
 # setup_executable_target(application_LifetimeMaximisation "${SRCROOT}")
-# target_link_libraries(application_LifetimeMaximisation json_interface_library ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
+# target_link_libraries(application_LifetimeMaximisation json_interface_library ${Tudat_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
 #endif()
 #
 ## Add Thrust example 1
@@ -264,19 +264,19 @@
 # add_executable(application_VariationalEquationsPropagator "${SRCROOT}/variationalEquationsPropagatorExample.cpp")
 # setup_executable_target(application_VariationalEquationsPropagator "${SRCROOT}")
 # target_link_libraries(application_VariationalEquationsPropagator
-#                          ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
+#                          ${Tudat_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
 #
 # # Add simulated Earth orbiter simulated POD example
 # add_executable(application_EarthOrbiterStateEstimation
 #                "${SRCROOT}/earthOrbiterStateEstimation.cpp")
 # setup_executable_target(application_EarthOrbiterStateEstimation "${SRCROOT}")
-# target_link_libraries(application_EarthOrbiterStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
+# target_link_libraries(application_EarthOrbiterStateEstimation ${Tudat_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
 #
 # # Add simulated Earth orbiter simulated POD example with vasic settings
 # add_executable(application_EarthOrbiterBasicStateEstimation
 #                "${SRCROOT}/earthOrbiterBasicStateEstimation.cpp")
 # setup_executable_target(application_EarthOrbiterBasicStateEstimation "${SRCROOT}")
-# target_link_libraries(application_EarthOrbiterBasicStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
+# target_link_libraries(application_EarthOrbiterBasicStateEstimation ${Tudat_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES} )
 #endif()
 #
 #

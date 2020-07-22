@@ -13,7 +13,6 @@ set(numerical_integrators_SOURCES
         "rungeKuttaCoefficients.cpp"
         "createNumericalIntegrator.cpp"
         "bulirschStoerVariableStepsizeIntegrator.cpp"
-#        "tests/numericalIntegratorTests.cpp"
         "numericalIntegrator.cpp"
         "reinitializableNumericalIntegrator.cpp"
         "rungeKutta4Integrator.cpp"
@@ -33,15 +32,12 @@ set(numerical_integrators_HEADERS
         "rungeKutta4Integrator.h"
         "rungeKuttaCoefficients.h"
         "rungeKuttaVariableStepSizeIntegrator.h"
-#        "tests/burdenAndFairesNumericalIntegratorTest.h"
-#        "tests/numericalIntegratorTests.h"
-#        "tests/numericalIntegratorTestFunctions.h"
         )
 
 # Add library.
 TUDAT_ADD_LIBRARY("numerical_integrators"
         "${numerical_integrators_SOURCES}"
         "${numerical_integrators_HEADERS}"
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

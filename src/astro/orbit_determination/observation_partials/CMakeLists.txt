@@ -38,29 +38,8 @@ set(observation_partials_HEADERS
   "firstOrderRelativisticPartial.h"
 )
 
-## Set the header files.
-#set(observation_partials_TEST_HEADERS
-#  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/observationPartialTestFunctions.h"
-#  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/numericalObservationPartial.h"
-#)
-
-#set(observation_partials_TEST_SOURCES
-#  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/observationPartialTestFunctions.cpp"
-#  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/tests/numericalObservationPartial.cpp"
-#)
-
 TUDAT_ADD_LIBRARY("observation_partials"
         "${observation_partials_SOURCES}"
         "${observation_partials_HEADERS}"
-#        PUBLIC_LINKS
-#        tudat_input_output
-#        tudat_geometric_shapes
-#        tudat_reference_frames
-#        tudat_interpolators
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
-
-#add_library(tudat_observation_partials_test_functions STATIC ${observation_partials_TEST_SOURCES} ${observation_partials_TEST_HEADERS})
-#setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}/UnitTests")

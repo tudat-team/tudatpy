@@ -21,11 +21,7 @@
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositionsBase.h"
 #include "tudat/math/interpolators/createInterpolator.h"
-
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
 #include "tudat/interface/spice/spiceInterface.h"
-#endif
-
 namespace tudat
 {
 
@@ -628,8 +624,6 @@ private:
     bool useLongDoubleStates_;
 };
 
-#if TUDAT_BUILD_WITH_SPICE_INTERFACE
-
 //! Function to create a tabulated ephemeris using data from Spice.
 /*!
  *  Function to create a tabulated ephemeris using data from Spice.
@@ -681,7 +675,6 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
     return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 interpolator, observerName, referenceFrameName );
 }
-#endif
 
 //! Function to create a ephemeris model.
 /*!

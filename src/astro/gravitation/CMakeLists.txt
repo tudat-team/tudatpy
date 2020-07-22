@@ -11,8 +11,6 @@
 #
 #
 
-# TODO: Removed planet test data here. Ensure no dependencies.
-
 # Set the source files.
 set(gravitation_SOURCES
         "basicSolidBodyTideGravityFieldVariations.cpp"
@@ -29,7 +27,6 @@ set(gravitation_SOURCES
         "thirdBodyPerturbation.cpp"
         "timeDependentSphericalHarmonicsGravityField.cpp"
         "unitConversionsCircularRestrictedThreeBodyProblem.cpp"
-#        "tests/planetTestData.cpp"
         "unitConversionsCircularRestrictedThreeBodyProblem.cpp"
         "triAxialEllipsoidGravity.cpp"
         "tabulatedGravityFieldVariations.cpp"
@@ -55,7 +52,6 @@ set(gravitation_HEADERS
         "thirdBodyPerturbation.h"
         "timeDependentSphericalHarmonicsGravityField.h"
         "unitConversionsCircularRestrictedThreeBodyProblem.h"
-#        "tests/planetTestData.h"
         "triAxialEllipsoidGravity.h"
         "tabulatedGravityFieldVariations.h"
         "mutualSphericalHarmonicGravityModel.h"
@@ -66,7 +62,4 @@ set(gravitation_HEADERS
 
 TUDAT_ADD_LIBRARY("gravitation"
         "${gravitation_SOURCES}"
-        "${gravitation_HEADERS}"
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
-        )
+        "${gravitation_HEADERS}")

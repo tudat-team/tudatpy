@@ -8,14 +8,12 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-if (TUDAT_BUILD_WITH_SPICE_INTERFACE)
-    TUDAT_ADD_TEST_CASE(EnvironmentModelSetup
-            PRIVATE_LINKS
-            ${Tudat_PROPAGATION_LIBRARIES}
-            )
+TUDAT_ADD_TEST_CASE(EnvironmentModelSetup
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
 
-    TUDAT_ADD_TEST_CASE(AccelerationModelSetup
-            PRIVATE_LINKS
-            ${Tudat_PROPAGATION_LIBRARIES}
-            )
-endif ()
+TUDAT_ADD_TEST_CASE(AccelerationModelSetup
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )

@@ -7,6 +7,7 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 
+
 TUDAT_ADD_TEST_CASE(EarthOrientationCalculator
         PRIVATE_LINKS
         tudat_earth_orientation
@@ -16,8 +17,6 @@ TUDAT_ADD_TEST_CASE(EarthOrientationCalculator
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_input_output
-        ${Sofa_LIBRARIES}
-        ${CSpice_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(EopReader
@@ -28,8 +27,6 @@ TUDAT_ADD_TEST_CASE(EopReader
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_input_output
-        ${Sofa_LIBRARIES}
-        ${CSpice_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(PolarMotionCalculator
@@ -40,8 +37,6 @@ TUDAT_ADD_TEST_CASE(PolarMotionCalculator
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_input_output
-        ${Sofa_LIBRARIES}
-        ${CSpice_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(TimeScaleConverter
@@ -52,8 +47,6 @@ TUDAT_ADD_TEST_CASE(TimeScaleConverter
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_input_output
-        ${Sofa_LIBRARIES}
-        ${CSpice_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
@@ -63,6 +56,6 @@ TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
         tudat_basic_astrodynamics
         tudat_basic_mathematics
         tudat_input_output
-        ${Sofa_LIBRARIES}
-        ${CSpice_LIBRARIES}
         )
+
+    # TODO: Add GCRS<->ITRS conversions
