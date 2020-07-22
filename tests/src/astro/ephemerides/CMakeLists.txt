@@ -108,9 +108,9 @@ TUDAT_ADD_TEST_CASE(SynchronousRotationalEphemeris
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-if(USE_SOFA)
+if(TUDAT_BUILD_WITH_SOFA_INTERFACE)
 
-    TUDAT_ADD_TEST_CASE(GcrsToItrsRotation
+    TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel
             PRIVATE_LINKS
             tudat_ephemerides
             tudat_spice_interface

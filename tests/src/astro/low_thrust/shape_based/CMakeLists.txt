@@ -8,12 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# TODO: Add shape-based low-thrust tests
-## Add unit tests.
-add_executable(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/tests/unitTestHodographicShaping.cpp")
-setup_custom_test_program(test_HodographicShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_HodographicShaping tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+TUDAT_ADD_TEST_CASE(HodographicShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})
 
-add_executable(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}/tests/unitTestSphericalShaping.cpp")
-setup_custom_test_program(test_SphericalShaping "${SRCROOT}${SHAPEBASEDMETHODSDIR}")
-target_link_libraries(test_SphericalShaping tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES}  ${Boost_LIBRARIES})
+TUDAT_ADD_TEST_CASE(SphericalShaping PRIVATE_LINKS tudat_shape_based_methods tudat_low_thrust_trajectories tudat_numerical_quadrature ${Tudat_PROPAGATION_LIBRARIES})

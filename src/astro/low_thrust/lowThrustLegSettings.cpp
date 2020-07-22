@@ -10,7 +10,7 @@
 
 #include <stdexcept>
 
-#include "tudat/astro/LowThrustTrajectories/lowThrustLegSettings.h"
+#include "tudat/astro/low_thrust/lowThrustLegSettings.h"
 
 namespace tudat
 {

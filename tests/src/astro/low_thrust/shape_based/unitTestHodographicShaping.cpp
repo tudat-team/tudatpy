@@ -21,10 +21,10 @@
 #include <cmath>
 #include <iostream>
 
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"

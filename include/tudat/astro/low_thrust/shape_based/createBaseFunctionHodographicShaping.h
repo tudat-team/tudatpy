@@ -14,7 +14,7 @@
 
 #include <cmath>
 #include <boost/make_shared.hpp>
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 
 namespace tudat
 {

@@ -15,11 +15,8 @@
 
 # Add subdirectories.
 add_subdirectory(acceleration_partials)
+add_subdirectory(rotational_dynamics_partials)
 add_subdirectory(observation_partials)
-
-#add_subdirectory("${SRCROOT}${TORQUEPARTIALSDIR}")
-#add_subdirectory("${SRCROOT}${ESTIMATABLEPARAMETERSDIR}")
-#add_subdirectory("${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 
 
 if( BUILD_WITH_PROPAGATION_TESTS )

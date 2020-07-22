@@ -107,30 +107,19 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
 endif ()
 
 
-if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-    list(APPEND json_propagation_LIBRARIES
-            json_interface_library
-            ${Tudat_ESTIMATION_LIBRARIES}
-            ${Boost_LIBRARIES})
-else ()
-    list(APPEND json_propagation_LIBRARIES
-            json_interface_library
-            ${Tudat_PROPAGATION_LIBRARIES}
-            ${Boost_LIBRARIES})
-endif ()
-
 # Add library.
-TUDAT_ADD_LIBRARY("json_interface"
+TUDAT_ADD_LIBRARY("json_interface_library"
         "${json_interface_SOURCES}"
         "${json_interface_HEADERS}"
-        PUBLIC_INTERFACE
-        json_propagation_LIBRARIES
-        PRIVATE_LINKS "${Boost_LIBRARIES}"
-        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
+#        PUBLIC_INTERFACE
+#        json_propagation_LIBRARIES
+#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
 # Add JSON-based application.
 TUDAT_ADD_EXECUTABLE(json_interface
         jsonInterfaceExecute.cpp
-        tudat_json_interface
+        tudat_json_interface_library
+        ${Tudat_PROPAGATION_LIBRARIES}
         )

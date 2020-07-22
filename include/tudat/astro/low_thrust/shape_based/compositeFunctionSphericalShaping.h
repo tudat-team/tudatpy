@@ -12,7 +12,7 @@
 #ifndef TUDAT_COMPOSITE_FUNCTION_SPHERICAL_SHAPING_H
 #define TUDAT_COMPOSITE_FUNCTION_SPHERICAL_SHAPING_H
 
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>

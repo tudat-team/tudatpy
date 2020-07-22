@@ -10,8 +10,8 @@
  */
 
 
-#include "baseFunctionsSphericalShaping.h"
 #include <cmath>
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 
 
 namespace tudat

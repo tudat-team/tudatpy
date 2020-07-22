@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "hodographicShapingOptimisationSetup.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
 
 using namespace tudat::ephemerides;
 using namespace tudat::basic_astrodynamics;

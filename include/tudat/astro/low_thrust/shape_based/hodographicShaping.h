@@ -12,9 +12,9 @@
 #ifndef TUDAT_HODOGRAPHIC_SHAPING_H
 #define TUDAT_HODOGRAPHIC_SHAPING_H
 
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsHodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"

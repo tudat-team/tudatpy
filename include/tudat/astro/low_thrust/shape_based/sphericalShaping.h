@@ -12,9 +12,9 @@
 #ifndef TUDAT_SPHERICAL_SHAPING_H
 #define TUDAT_SPHERICAL_SHAPING_H
 
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/shapeBasedMethod.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/baseFunctionsSphericalShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/compositeFunctionSphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
+#include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
+#include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
 #include <tudat/simulation/simulation.h>

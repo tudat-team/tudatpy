@@ -10,9 +10,9 @@
  */
 
 
-#include "compositeFunctionSphericalShaping.h"
 #include <cmath>
 #include <iostream>
+#include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
 
 namespace tudat
 {

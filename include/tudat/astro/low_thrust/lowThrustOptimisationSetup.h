@@ -23,11 +23,11 @@
 #include <boost/bind.hpp>
 #include <functional>
 
-#include "tudat/astro/LowThrustTrajectories/simsFlanagan.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/createBaseFunctionHodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/hodographicShaping.h"
-#include "tudat/astro/LowThrustTrajectories/ShapeBasedMethods/sphericalShaping.h"
-#include "tudat/astro/LowThrustTrajectories/lowThrustLegSettings.h"
+#include "tudat/astro/low_thrust/simsFlanagan.h"
+#include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
+#include "tudat/astro/low_thrust/lowThrustLegSettings.h"
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"

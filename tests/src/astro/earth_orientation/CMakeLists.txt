@@ -57,5 +57,3 @@ TUDAT_ADD_TEST_CASE(ShortPeriodEopCorrections
         tudat_basic_mathematics
         tudat_input_output
         )
-
-    # TODO: Add GCRS<->ITRS conversions
