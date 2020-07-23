@@ -40,7 +40,7 @@
 #include "tudat/astro/gravitation/centralJ2GravityModel.h"
 #include "tudat/astro/gravitation/centralJ2J3GravityModel.h"
 #include "tudat/astro/gravitation/centralJ2J3J4GravityModel.h"
-#include "tudat/astro/gravitation/tests/planetTestData.h"
+#include "tudat/astro/gravitation/planetTestData.h"
 
 namespace tudat
 {

@@ -33,7 +33,7 @@
 #include "tudat/math/integrators/adamsBashforthMoultonIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
-#include "tudat/math/integrators/tests/numericalIntegratorTestFunctions.h"
+#include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 namespace tudat
 {

@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include "tudat/interface/json/tests/unitTestSupport.h"
+#include "tudat/interface/json/unitTestSupport.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 #include "tudat/interface/json/support/deserialization.h"

@@ -28,7 +28,7 @@
 #include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationalOrientation.h"
 #include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/tests/numericalObservationPartial.h"
+#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
 #include "tudat/simulation/environment/createGroundStations.h"
 #include "tudat/simulation/environment/createBodies.h"
 #include "tudat/simulation/environment/defaultBodies.h"

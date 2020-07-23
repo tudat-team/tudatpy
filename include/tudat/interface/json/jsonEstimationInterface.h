@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONESTIMATIONINTERFACE_H
 #define TUDAT_JSONESTIMATIONINTERFACE_H
 
-#include "tudat/interface/json/tests/unitTestSupport.h"
+#include "tudat/interface/json/unitTestSupport.h"
 #include "tudat/interface/json/propagation/acceleration.h"
 #include "tudat/interface/json/estimation/observation.h"
 #include "tudat/interface/json/estimation/parameter.h"

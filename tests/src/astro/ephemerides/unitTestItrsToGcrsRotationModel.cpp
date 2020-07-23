@@ -16,7 +16,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
-#include "tudat/astro/earth_orientation/tests/sofaEarthOrientationCookbookExamples.h"
+#include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat

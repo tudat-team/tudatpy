@@ -32,8 +32,8 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/astro/basic_astro/tests/testAccelerationModels.h"
-#include "tudat/astro/basic_astro/tests/testBody.h"
+#include "tudat/astro/basic_astro/testAccelerationModels.h"
+#include "tudat/astro/basic_astro/testBody.h"
 #include "tudat/basics/basicTypedefs.h"
 
 namespace tudat

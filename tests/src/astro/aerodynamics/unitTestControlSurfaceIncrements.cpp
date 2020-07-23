@@ -26,7 +26,7 @@
 #include "tudat/math/geometric/sphereSegment.h"
 #include "tudat/simulation/simulation.h"
 
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {

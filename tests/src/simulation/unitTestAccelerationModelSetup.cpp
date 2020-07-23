@@ -31,7 +31,7 @@
 #include "tudat/simulation/estimation/createNumericalSimulator.h"
 #include "tudat/simulation/environment/createBodies.h"
 #include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 

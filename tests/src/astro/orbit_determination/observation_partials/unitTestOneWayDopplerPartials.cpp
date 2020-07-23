@@ -28,11 +28,11 @@
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
 #include "tudat/simulation/estimation/createObservationPartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/tests/numericalObservationPartial.h"
+#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
 #include "tudat/simulation/environment/createGroundStations.h"
 #include "tudat/simulation/environment/defaultBodies.h"
 #include "tudat/math/basic/numericalDerivative.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/tests/observationPartialTestFunctions.h"
+#include "tudat/astro/orbit_determination/ObservationPartials/observationPartialTestFunctions.h"
 
 namespace tudat
 {

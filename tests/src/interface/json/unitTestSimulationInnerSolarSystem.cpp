@@ -11,7 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include "tudat/simulation/simulation.h"
-#include "tudat/interface/json/tests/unitTestSupport.h"
+#include "tudat/interface/json/unitTestSupport.h"
 #include "tudat/interface/json/jsonInterface.h"
 
 namespace tudat

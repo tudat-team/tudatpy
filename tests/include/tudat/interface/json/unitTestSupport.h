@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/json/support/deserialization.h"
 #include "tudat/interface/json/support/utilities.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
@@ -31,15 +32,7 @@ inline boost::filesystem::path currentDirectory( )
 
 inline boost::filesystem::path inputDirectory( )
 {
-    boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
-    if ( boost::filesystem::exists( matlabInputDirectory ) )
-    {
-        return matlabInputDirectory;
-    }
-    else
-    {
-        return currentDirectory( ) / "inputs";
-    }
+    return boost::filesystem::path( paths::getTudatTestDataPath( ) ) / "json_inputs";
 }
 
 template< typename T = nlohmann::json >

@@ -33,8 +33,8 @@
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
-#include "tudat/math/integrators/tests/numericalIntegratorTests.h"
-#include "tudat/math/integrators/tests/numericalIntegratorTestFunctions.h"
+#include "tudat/math/integrators/numericalIntegratorTests.h"
+#include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/linearAlgebra.h"

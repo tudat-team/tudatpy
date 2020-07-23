@@ -23,7 +23,7 @@
 #include "tudat/math/filters/unscentedKalmanFilter.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 
-#include "tudat/math/filters/tests/controlClass.h"
+#include "tudat/math/filters/controlClass.h"
 
 namespace tudat
 {

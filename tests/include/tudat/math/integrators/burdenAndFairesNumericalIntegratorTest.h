@@ -26,7 +26,7 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/utilityMacros.h"
-#include "tudat/math/integrators/tests/numericalIntegratorTestFunctions.h"
+#include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 namespace tudat
 {

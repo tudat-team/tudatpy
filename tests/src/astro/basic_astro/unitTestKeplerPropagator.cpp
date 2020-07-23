@@ -36,7 +36,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/basics/basicTypedefs.h"
 
-#include "tudat/astro/basic_astro/tests/keplerPropagatorTestData.h"
+#include "tudat/astro/basic_astro/keplerPropagatorTestData.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/io/basicInputOutput.h"
 

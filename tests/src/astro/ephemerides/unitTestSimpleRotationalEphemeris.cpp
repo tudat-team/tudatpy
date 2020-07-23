@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
         // The following code block can be used to retrieve the benchmark data from Spice.
         /*
         loadSpiceKernelInTudat( getTudatRootPath( ) +
-              "astro/ephemerides/tests/pck00010.tpc" );
+              "astro/ephemerides/pck00010.tpc" );
         Eigen::Matrix3d spiceInitialRotationToTargetFrameMatrix;
         Eigen::Quaterniond spiceInitialRotationToTargetFrame =
                 computeRotationQuaternionBetweenFrames( baseFrame, targetFrame, 0.0 );

@@ -22,10 +22,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/root_finders/halleyRootFinder.h"
-#include "tudat/math/root_finders/tests/testFunction1.h"
-#include "tudat/math/root_finders/tests/testFunction2.h"
-#include "tudat/math/root_finders/tests/testFunction3.h"
-#include "tudat/math/root_finders/tests/testFunctionWithZeroRoot.h"
+#include "tudat/math/root_finders/testFunction1.h"
+#include "tudat/math/root_finders/testFunction2.h"
+#include "tudat/math/root_finders/testFunction3.h"
+#include "tudat/math/root_finders/testFunctionWithZeroRoot.h"
 
 namespace tudat
 {

@@ -22,7 +22,7 @@
  *
  */
 
-#include "tudat/astro/gravitation/tests/planetTestData.h"
+#include "tudat/astro/gravitation/planetTestData.h"
 
 namespace tudat
 {

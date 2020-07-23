@@ -22,7 +22,7 @@
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/astro/earth_orientation/tests/sofaEarthOrientationCookbookExamples.h"
+#include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
 
 namespace tudat
 {
