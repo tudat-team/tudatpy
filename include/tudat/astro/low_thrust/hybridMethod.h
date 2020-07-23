@@ -17,12 +17,10 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
-#include "tudat/astro/low_thrust/hybridMethodModel.h"
-#include "tudat/simulation/optimisationSettings.h"
+#include "tudat/astro/low_thrust/hybridMethodModel.h
+#include "tudat/simulation/optimisation.h"
 
-namespace tudat
-{
-namespace low_thrust_trajectories
+namespace tudatespace low_thrust_trajectories
 {
 
 class HybridMethod : public low_thrust_trajectories::LowThrustLeg

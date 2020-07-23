@@ -14,7 +14,7 @@
 
 #include <stdexcept>
 
-#include "tudat/math/root_finders/tests/testFunction.h"
+#include "tudat/math/root_finders/testFunction.h"
 #include "tudat/math/basic/basicFunction.h"
 
 namespace tudat

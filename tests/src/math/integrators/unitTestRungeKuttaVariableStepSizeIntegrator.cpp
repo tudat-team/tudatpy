@@ -32,7 +32,7 @@
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/math/integrators/tests/numericalIntegratorTestFunctions.h"
+#include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 #include <limits>
 #include <string>
