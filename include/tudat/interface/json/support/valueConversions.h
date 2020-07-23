@@ -219,7 +219,17 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
     nlohmann::json jsonArrayOfArrays;
     if ( jsonArray.front( ).is_array( ) )  // provided matrix
     {
-        jsonArrayOfArrays = jsonArray;
+        if( jsonArray.at( 0 ).size( ) == 1 )
+        {
+            for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
+            {
+                jsonArrayOfArrays.push_back( { jsonArray.at( i ).at( 0 ) } );
+            }
+        }
+        else
+        {
+            jsonArrayOfArrays = jsonArray;
+        }
     }
     else  // provided vector
     {
