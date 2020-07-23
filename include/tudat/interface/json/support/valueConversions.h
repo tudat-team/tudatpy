@@ -260,7 +260,18 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
         }
         for ( unsigned int c = 0; c < providedCols; ++c )
         {
-            matrix( r, c ) = jsonArrayOfArrays.at( r ).at( c );
+            if( providedCols > 1 && providedRows > 1 )
+            {
+                matrix( r, c ) = jsonArrayOfArrays.at( r ).at( c );
+            }
+            else if( providedCols == 1 )
+            {
+                matrix( r, c ) = jsonArrayOfArrays.at( r );
+            }
+            else if( providedRows == 1 )
+            {
+                matrix( r, c ) = jsonArrayOfArrays.at( c );
+            }
         }
     }
 }

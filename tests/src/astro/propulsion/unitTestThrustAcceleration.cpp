@@ -15,7 +15,7 @@
 #include <boost/make_shared.hpp>
 #include <memory>
 
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"

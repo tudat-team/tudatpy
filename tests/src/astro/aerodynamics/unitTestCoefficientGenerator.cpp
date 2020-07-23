@@ -29,8 +29,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/geometric/capsule.h"
 #include "tudat/math/geometric/sphereSegment.h"
-
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {

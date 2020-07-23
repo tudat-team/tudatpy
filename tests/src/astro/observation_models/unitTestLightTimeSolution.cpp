@@ -15,7 +15,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/observation_models/lightTimeSolution.h"
-#include "tudat/astro/observation_models/tests/testLightTimeCorrections.h"
+#include "tudat/astro/observation_models/testLightTimeCorrections.h"
 
 #include <limits>
 #include <string>

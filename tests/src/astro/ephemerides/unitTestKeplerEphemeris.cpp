@@ -22,7 +22,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/astro/basic_astro/tests/keplerPropagatorTestData.h"
+#include "tudat/astro/basic_astro/keplerPropagatorTestData.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/io/basicInputOutput.h"

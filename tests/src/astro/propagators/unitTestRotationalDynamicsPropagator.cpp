@@ -44,7 +44,7 @@
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/propagation/propagationSettings.h"
 #include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
+#include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
