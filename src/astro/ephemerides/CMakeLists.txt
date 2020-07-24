@@ -26,6 +26,7 @@ set(ephemerides_SOURCES
         "tabulatedRotationalEphemeris.cpp"
         "synchronousRotationalEphemeris.cpp"
         "fullPlanetaryRotationModel.cpp"
+        "tleEphemeris.cpp"
         )
 
 # Set the header files.
@@ -52,6 +53,7 @@ set(ephemerides_HEADERS
         "tabulatedRotationalEphemeris.h"
         "fullPlanetaryRotationModel.h"
         "synchronousRotationalEphemeris.h"
+        "tleEphemeris.h"
         )
 
 TUDAT_ADD_LIBRARY("ephemerides"
