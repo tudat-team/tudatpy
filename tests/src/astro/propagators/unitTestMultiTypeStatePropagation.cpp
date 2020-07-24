@@ -64,24 +64,22 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     const double fixedStepSize = 60.0;
 
     // Define body settings for simulation.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    BodyListSettings bodySettings = BodyListSettings( "SSB", "J2000" );
+    bodySettings.addSettings( "Earth" );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( "Asterix" );
+    bodyMap.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
+    
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
@@ -184,18 +182,18 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
             // Interpolate propagated dynamics type
             if( simulationCase == 3 )
             {
-                returnMap[ currentTime ] = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianState( currentTime );
+                returnMap[ currentTime ] = bodyMap.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
             }
             else if( simulationCase == 4 )
             {
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 1 );
-                returnMap[ currentTime ]( 0 ) = bodyMap[ "Asterix" ]->getBodyMassFunction( )( currentTime );
+                returnMap[ currentTime ]( 0 ) = bodyMap.at( "Asterix" )->getBodyMassFunction( )( currentTime );
             }
             else if( simulationCase == 5 )
             {
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 7 );
-                returnMap[ currentTime ].segment( 0, 6 ) = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianState( currentTime );
-                returnMap[ currentTime ]( 6 ) = bodyMap[ "Asterix" ]->getBodyMassFunction( )( currentTime );
+                returnMap[ currentTime ].segment( 0, 6 ) = bodyMap.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
+                returnMap[ currentTime ]( 6 ) = bodyMap.at( "Asterix" )->getBodyMassFunction( )( currentTime );
 
             }
 

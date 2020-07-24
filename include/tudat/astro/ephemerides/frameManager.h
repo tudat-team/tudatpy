@@ -283,6 +283,7 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
     return translationFunctionMap;
 }
 
+
 } // namespace ephemerides
 
 } // namespace tudat

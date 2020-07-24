@@ -322,24 +322,25 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     for( unsigned int i = 0; i < maximumIndex; i++ )
     {
         // Create Earth object
-        std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+        BodyListSettings defaultBodySettings =
                 getDefaultBodySettings( std::vector< std::string >{ "Earth" }, -1.0E6, 1.0E6 );
-        defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
         NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
-        bodyMap[ "Vehicle" ]->setEphemeris(
+        bodyMap.addNewBody( "Vehicle" );
+
+        bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+        bodyMap.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
         {
-            bodyMap[ "Vehicle" ]->setRotationalEphemeris(
+            bodyMap.at( "Vehicle" )->setRotationalEphemeris(
                         std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
         }
 
@@ -368,13 +369,10 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                     areCoefficientsInAerodynamicFrame, 1 );
-        bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
         Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
 
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
         SelectedAccelerationMap accelerationMap;
@@ -444,12 +442,12 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         {
             if( !setAngleGuidanceManually )
             {
-                setGuidanceAnglesFunctions( testAngles, bodyMap[ "Vehicle" ] );
+                setGuidanceAnglesFunctions( testAngles, bodyMap.at( "Vehicle" ) );
             }
             else
             {
                 std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                        bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
+                        bodyMap.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( );
                 angleCalculator->setOrientationAngleFunctions(
                             std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
                             std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),

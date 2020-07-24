@@ -110,19 +110,18 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
     }
 
 
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
+    simulation_setup::BodyListSettings bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
 
     // Define central body ephemeris settings.
-    bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    bodySettings.at( nameCentralBody )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
-    bodySettings[ nameCentralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ nameCentralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+    bodySettings.at( nameCentralBody )->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings.at( nameCentralBody )->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
     // Create body map.
@@ -130,13 +129,10 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
 
 
     // Define body to propagate.
-    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
 
     return bodyMap;
@@ -162,24 +158,25 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( nameCentralBody );
 
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-            simulation_setup::getDefaultBodySettings( bodiesToCreate );
-
     std::string frameOrigin = "SSB";
 
+    simulation_setup::BodyListSettings bodySettings =
+            simulation_setup::getDefaultBodySettings( bodiesToCreate, frameOrigin );
+
+
     // Define central body ephemeris settings.
-    bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    bodySettings.at( nameCentralBody )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
-    bodySettings[ nameCentralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ nameCentralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+    bodySettings.at( nameCentralBody )->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings.at( nameCentralBody )->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
@@ -188,14 +185,12 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
     for ( unsigned int i = 0 ; i < nameTransferBodies.size( ) ; i ++ )
     {
 
-        bodyMap[ nameTransferBodies[ i ] ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ nameTransferBodies[ i ] ]->setEphemeris( ephemerisVectorTransferBodies[ i ] );
-        bodyMap[ nameTransferBodies[ i ] ]->setGravityFieldModel( simulation_setup::createGravityFieldModel(
+        bodyMap.addNewBody( nameTransferBodies[ i ] );
+        bodyMap.at( nameTransferBodies[ i ] )->setEphemeris( ephemerisVectorTransferBodies[ i ] );
+        bodyMap.at( nameTransferBodies[ i ] )->setGravityFieldModel( simulation_setup::createGravityFieldModel(
                                                                       std::make_shared< simulation_setup::CentralGravityFieldSettings >( gravitationalParametersTransferBodies[ i ] ),
                                                                       nameTransferBodies[ i ] ) );
     }
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
     return bodyMap;
 
@@ -299,7 +294,7 @@ void propagateMgaWithoutDsmAndFullProblem(
                 timeOfFlight, initialTime, bodyMap, centralBody,
                 propagatorSettings, integratorSettings,
                 patchedConicsResult, fullProblemResult, dependentVariableResultCurrentLeg, departureAndArrivalBodies,
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ) ,
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ) ,
                 cartesianPositionAtDeparture, cartesianPositionAtArrival );
 }
 
@@ -341,9 +336,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         std::shared_ptr< transfer_trajectories::DepartureLegMga1DsmVelocity > departureLegMga1DsmVelocity =
                 std::make_shared< transfer_trajectories::DepartureLegMga1DsmVelocity >(
                     cartesianPositionAtDeparture, cartesianPositionAtArrival, timeArrival - initialTime,
-                    bodyMap[ departureAndArrivalBodies[ 0 ] ]->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
-                bodyMap[ departureAndArrivalBodies[ 0 ] ]->getGravityFieldModel( )->getGravitationalParameter( ),
+                    bodyMap.at( departureAndArrivalBodies[ 0 ] )->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+                bodyMap.at( departureAndArrivalBodies[ 0 ] )->getGravityFieldModel( )->getGravitationalParameter( ),
                 semiMajorAxis, eccentricity,
                 trajectoryVariableVector[ 0 ],
                 trajectoryVariableVector[ 1 ],
@@ -367,9 +362,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         std::shared_ptr< transfer_trajectories::SwingbyLegMga1DsmVelocity > swingbyLegMga1DsmVelocity =
                 std::make_shared< transfer_trajectories::SwingbyLegMga1DsmVelocity >(
                     cartesianPositionAtDeparture, cartesianPositionAtArrival, timeArrival - initialTime,
-                    bodyMap[ departureAndArrivalBodies[ 0 ] ]->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
-                bodyMap[ departureAndArrivalBodies[ 0 ] ]->getGravityFieldModel( )->getGravitationalParameter( ),
+                    bodyMap.at( departureAndArrivalBodies[ 0 ] )->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+                bodyMap.at( departureAndArrivalBodies[ 0 ] )->getGravityFieldModel( )->getGravitationalParameter( ),
                 pointerToVelocityBeforeArrival,
                 trajectoryVariableVector[ 0 ],
                 trajectoryVariableVector[ 1 ],
@@ -399,7 +394,7 @@ void propagateMga1DsmVelocityAndFullProblem(
                 timeDsm - initialTime, initialTime, bodyMap, centralBody,
                 legDepartureAndArrival, velocityAfterDeparture, propagatorSettingsBeforeDsm, integratorSettings,
                 patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm,
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                 cartesianPositionAtDeparture );
 
     // Second part of the leg: Lambert targeter from DSM location to arrival body.
@@ -413,7 +408,7 @@ void propagateMga1DsmVelocityAndFullProblem(
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
                                             dependentVariablesFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }
@@ -457,9 +452,9 @@ void propagateMga1DsmPositionAndFullProblem(
         std::shared_ptr< transfer_trajectories::DepartureLegMga1DsmPosition > departureLegMga1DsmPosition =
                 std::make_shared< transfer_trajectories::DepartureLegMga1DsmPosition >(
                     cartesianPositionAtDeparture, cartesianPositionAtArrival, timeArrival - initialTime,
-                    bodyMap[ departureAndArrivalBodies[ 0 ] ]->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
-                bodyMap[ departureAndArrivalBodies[ 0 ] ]->getGravityFieldModel( )->getGravitationalParameter( ),
+                    bodyMap.at( departureAndArrivalBodies[ 0 ] )->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+                bodyMap.at( departureAndArrivalBodies[ 0 ] )->getGravityFieldModel( )->getGravitationalParameter( ),
                 semiMajorAxis, eccentricity,
                 trajectoryVariableVector[ 0 ],
                 trajectoryVariableVector[ 1 ],
@@ -487,9 +482,9 @@ void propagateMga1DsmPositionAndFullProblem(
         std::shared_ptr< transfer_trajectories::SwingbyLegMga1DsmPosition > swingbyLegMga1DsmPosition =
                 std::make_shared< transfer_trajectories::SwingbyLegMga1DsmPosition >(
                     cartesianPositionAtDeparture, cartesianPositionAtArrival, timeArrival - initialTime,
-                    bodyMap[ departureAndArrivalBodies[ 0 ] ]->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
-                bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
-                bodyMap[ departureAndArrivalBodies[ 0 ] ]->getGravityFieldModel( )->getGravitationalParameter( ),
+                    bodyMap.at( departureAndArrivalBodies[ 0 ] )->getEphemeris( )->getCartesianState( initialTime ).segment( 3, 3 ),
+                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
+                bodyMap.at( departureAndArrivalBodies[ 0 ] )->getGravityFieldModel( )->getGravitationalParameter( ),
                 pointerToVelocityBeforeArrival, minimumPericenterRadius,
                 trajectoryVariableVector[ 0 ],
                 trajectoryVariableVector[ 1 ],
@@ -522,7 +517,7 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
                                             fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm, legDepartureAndArrival,
-                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionAtDeparture, cartesianPositionDSM );
 
 
@@ -537,7 +532,7 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
                                             fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }

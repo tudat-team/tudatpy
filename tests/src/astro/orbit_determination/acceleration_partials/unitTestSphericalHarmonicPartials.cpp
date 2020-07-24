@@ -475,9 +475,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = earth;
-    bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Moon" ] = createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" );
+    bodyMap.addBody( earth, "Earth" );
+    bodyMap.addBody( vehicle, "Vehicle" );;
+    bodyMap.addBody( createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
 
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
             std::make_shared< ephemerides::SimpleRotationalEphemeris >(
@@ -492,19 +492,19 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                 tudat::simulation_setup::createGravityFieldModel(
                     earthGravityFieldSettings, "Earth", bodyMap, gravityFieldVariationSettings ) );
     earth->setGravityFieldModel( earthGravityField );
-    bodyMap[ "Earth" ]->setGravityFieldVariationSet(
+    bodyMap.at( "Earth" )->setGravityFieldVariationSet(
                 createGravityFieldModelVariationsSet(
                     "Earth", bodyMap, gravityFieldVariationSettings ) );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
 
     // Set current state of vehicle and earth.
     double testTime = 1.0E6;
     earth->setState( Eigen::Vector6d::Zero( ) );
     earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodyMap[ "Moon" ] ->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000" ,"None", testTime ) );
+    bodyMap.at( "Moon" ) ->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000" ,"None", testTime ) );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -832,9 +832,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     bodyNames.push_back( "Moon" );
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->rotationModelSettings =
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings =
             std::make_shared< SynchronousRotationModelSettings >(
                 "Moon", "ECLIPJ2000", "IAU_Earth" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -842,7 +842,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     std::shared_ptr< tudat::simulation_setup::Body > moon = bodyMap.at( "Moon" );
     std::dynamic_pointer_cast< tudat::ephemerides::SynchronousRotationalEphemeris >(
                 earth->getRotationalEphemeris( ) )->setIsBodyInPropagation( 1 );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set translational and rotational state of bodies
     double testTime = 1.0E6;

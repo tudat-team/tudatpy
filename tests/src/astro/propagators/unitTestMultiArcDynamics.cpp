@@ -63,17 +63,17 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
                 resetFrameOrigin( "Earth" );
-        bodySettings[ "Moon" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        bodySettings.at( "Moon" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;

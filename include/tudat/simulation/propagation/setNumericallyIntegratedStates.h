@@ -425,10 +425,9 @@ void resetMultiArcIntegratedEphemerides(
     }
     
     // Having set new ephemerides, update body properties depending on ephemerides.
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( auto bodyIterator : bodyMap.get( )  )
     {
-        bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
+        bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
     }
 }
 
@@ -575,11 +574,10 @@ void resetIntegratedRotationalEphemerides(
                 bodyMap, bodiesToIntegrate, startIndexAndSize.first, equationsOfMotionNumericalSolution );
     
     // Having set new ephemerides, update body properties depending on ephemerides.
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( auto bodyIterator : bodyMap.get( )  )
     {
         //NOTE: Inefficient, should be done once following full integration.
-        bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
+        bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
     }
 }
 

@@ -68,14 +68,14 @@ using namespace tudat::reference_frames;
 NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
                              const bool useSymmetricEquator = 0 )
 {
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    NamedBodyMap bodyMap = NamedBodyMap( "Mars", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Mars", false );
+    bodyMap.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodyMap.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Phobos" );
 
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -92,7 +92,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     double phobosMass = 1.0659E16;
 
     phobosInertiaTensor *= (phobosReferenceRadius * phobosReferenceRadius * phobosMass );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor( phobosInertiaTensor );
+    bodyMap.at( "Phobos" )->setBodyInertiaTensor( phobosInertiaTensor );
 
     double phobosGravitationalParameter = phobosMass * physical_constants::GRAVITATIONAL_CONSTANT;
 
@@ -103,7 +103,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodyMap.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
@@ -123,13 +123,13 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodyMap.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
 
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodyMap.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
 
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 
 
             // Retrieve Phobos rotation model with reset rotational state
-            std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
+            std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
 
             // Declare rotational velocity vectors to compute/expect
             Eigen::Vector3d currentRotationalVelocityInTargetFrame, currentRotationalVelocityInBaseFrame;
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
 
         // Retrieve Phobos rotation model with reset rotational state
-        std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
+        std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
 
         // Declare vectors/matrices to be used in test
         Eigen::Vector3d currentRotationalVelocityInBaseFrame, currentRotationalVelocityInTargetFrame,
@@ -598,22 +598,22 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     const double fixedStepSize = 1.0;
 
     // Define simulation body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                    simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                                    simulationEndEpoch + 10.0 * fixedStepSize, "SSB", "J2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+    bodyMap.addNewBody( "Apollo" );
+    bodyMap.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
 
     // Set inertia tensor (dummy values)
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     inertiaTensor( 1, 1 ) = 0.4265;
     inertiaTensor( 2, 2 ) = 0.5024;
     inertiaTensor *= ( 0.1 * 25.0 * 5.0E3 );
-    bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
+    bodyMap.at( "Apollo" )->setBodyInertiaTensor( inertiaTensor );
 
     std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
     dummyRotationMap[ -1.0E100 ] = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
             dummyRotationInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Apollo" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodyMap.at( "Apollo" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyRotationInterpolator, "J2000", "Apollo_Fixed" ) );
 
     std::map< double, Eigen::Matrix< double, 6, 1 > > dummyStateMap;
@@ -641,11 +641,8 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
             dummyStateInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( dummyStateMap );
-    bodyMap[ "Apollo" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
+    bodyMap.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
                                            dummyStateInterpolator, "SSB", "J2000" ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
 
     // Test code for different propagation schemes
@@ -914,7 +911,6 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 
     // Retrieve list of body objects.
     NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
@@ -988,7 +984,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
                         bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
             // Retrieve Phobos rotation model with reset rotational state
-            std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
+            std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
 
             // Declare vectors/matrices to be used in test
             Eigen::Vector3d currentRotationalVelocityInBaseFrame, currentRotationalVelocityInTargetFrame;

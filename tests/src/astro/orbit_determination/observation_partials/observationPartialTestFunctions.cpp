@@ -43,15 +43,15 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies.
-    NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Moon" ] = std::make_shared< Body >( );
-    bodyMap[ "Sun" ] = std::make_shared< Body >( );
+    NamedBodyMap bodyMap = NamedBodyMap( "SSB", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Earth" );
+    bodyMap.addNewBody( "Mars" );
+    bodyMap.addNewBody( "Moon" );
+    bodyMap.addNewBody( "Sun" );
 
-    bodyMap[ "Earth" ]->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
+    bodyMap.at( "Earth" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                            spice_interface::getAverageRadius( "Earth" ) ) );
-    bodyMap[ "Mars" ]->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
+    bodyMap.at( "Mars" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                           spice_interface::getAverageRadius( "Mars" ) ) );
 
     if( useConstantEphemerides )
@@ -59,38 +59,38 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
         Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap.at( "Earth" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Mars", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap.at( "Mars" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Moon" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap.at( "Moon" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Sun", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Sun" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap.at( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
     }
     else
     {
-        bodyMap[ "Earth" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Earth", "SSB", false, false ) );
-        bodyMap[ "Mars" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Mars", "SSB", false, false ) );
-        bodyMap[ "Moon" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Moon", "SSB", false, false ) );
-        bodyMap[ "Sun" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
+        bodyMap.at( "Earth" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Earth", "SSB", false, false ) );
+        bodyMap.at( "Mars" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Mars", "SSB", false, false ) );
+        bodyMap.at( "Moon" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Moon", "SSB", false, false ) );
+        bodyMap.at( "Sun" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
     }
 
-    ( bodyMap[ "Sun" ] )->setGravityFieldModel(
+    ( bodyMap.at( "Sun" ) )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
-    ( bodyMap[ "Moon" ] )->setGravityFieldModel(
+    ( bodyMap.at( "Moon" ) )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
-    ( bodyMap[ "Mars" ] )->setGravityFieldModel(
+    ( bodyMap.at( "Mars" ) )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
                                                          gravitationalParameterScaling ) );
-    ( bodyMap[ "Earth" ] )->setGravityFieldModel(
+    ( bodyMap.at( "Earth" ) )->setGravityFieldModel(
                 std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
                                                          gravitationalParameterScaling ) );
 
 
-    ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
+    ( bodyMap.at( "Earth" ) )->setRotationalEphemeris(
                 createRotationModel(
                     std::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Earth",
@@ -109,11 +109,11 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
     if( !useConstantRotationalEphemeris )
     {
-        bodyMap[ "Mars" ]->setRotationalEphemeris( marsRotationModel );
+        bodyMap.at( "Mars" )->setRotationalEphemeris( marsRotationModel );
     }
     else
     {
-        bodyMap[ "Mars" ]->setRotationalEphemeris(
+        bodyMap.at( "Mars" )->setRotationalEphemeris(
                     std::make_shared< ephemerides::ConstantRotationalEphemeris >(
                         marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
     }
@@ -128,9 +128,6 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 
     createGroundStations( bodyMap, groundStationsToCreate );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     return bodyMap;
 }

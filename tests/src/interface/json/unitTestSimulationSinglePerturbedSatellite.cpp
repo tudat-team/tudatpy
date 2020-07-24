@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
 
     // Create body objects.
     const double interpolationStep = 300.0;
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate,
                                     simulationStartEpoch - 10.0 * interpolationStep,
                                     simulationEndEpoch + 10.0 * interpolationStep,
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodyMap.addNewBody( "Asterix" );
+    bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Asterix" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+    bodyMap.at( "Asterix" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 

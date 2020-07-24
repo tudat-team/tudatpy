@@ -19,6 +19,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/math/statistics/basicStatistics.h"
+
 namespace tudat
 {
 
@@ -222,17 +223,17 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Sun" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.addNewBody( "Asterix" );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
+    
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////

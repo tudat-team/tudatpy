@@ -135,35 +135,35 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     double finalTime = 1.2E7;
 
     // Get body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialTime, finalTime );
-    bodySettings[ "Jupiter" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Jupiter" );
-    bodySettings[ "Io" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Io" );
-    bodySettings[ "Europa" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Europa" );
+    bodySettings.at( "Jupiter" )->gravityFieldSettings = getDummyJovianSystemGravityField( "Jupiter" );
+    bodySettings.at( "Io" )->gravityFieldSettings = getDummyJovianSystemGravityField( "Io" );
+    bodySettings.at( "Europa" )->gravityFieldSettings = getDummyJovianSystemGravityField( "Europa" );
 
-    bodySettings[ "Jupiter" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Jupiter" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000" );
-    bodySettings[ "Io" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Io" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
-    bodySettings[ "Europa" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Europa" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
 
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Set current state and rotation of bodies.
     double currentTime = 1.1E7;
-    bodyMap[ "Jupiter" ]->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-    bodyMap[ "Jupiter" ]->setStateFromEphemeris( currentTime );
-    bodyMap[ "Io" ]->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-    bodyMap[ "Io" ]->setStateFromEphemeris( currentTime );
-    bodyMap[ "Europa" ]->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-    bodyMap[ "Europa" ]->setStateFromEphemeris( currentTime );
+    bodyMap.at( "Jupiter" )->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+    bodyMap.at( "Jupiter" )->setStateFromEphemeris( currentTime );
+    bodyMap.at( "Io" )->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+    bodyMap.at( "Io" )->setStateFromEphemeris( currentTime );
+    bodyMap.at( "Europa" )->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+    bodyMap.at( "Europa" )->setStateFromEphemeris( currentTime );
 
     // Retrieve gravity fields.
     std::shared_ptr< SphericalHarmonicsGravityField > jupiterGravityField = std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(

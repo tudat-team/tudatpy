@@ -89,14 +89,14 @@ executeMultiArcEarthMoonSimulation(
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Moon" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
-    bodySettings[ "Earth" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+    bodySettings.at( "Earth" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
 
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -255,9 +255,9 @@ executeMultiArcEarthMoonSimulation(
             double testEpoch = arcEndTimes.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
-            testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+            testStates.block( 0, 0, 6, 1 ) = bodyMap.at( "Moon" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
-            testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+            testStates.block( 6, 0, 6, 1 ) = bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
             if( propagateVariationalEquations )
             {
