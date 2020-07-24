@@ -29,7 +29,7 @@ namespace simulation_setup
 
 using namespace ephemerides;
 
-//! Function to create a ephemeris model.
+//! Function to create an ephemeris model.
 std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const std::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName )
@@ -121,7 +121,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                                 interpolatedEphemerisSettings->getFrameOrientation( ),
                                 interpolatedEphemerisSettings->getInterpolatorSettings( ) );
 #else
-                    throw std::runtime_error( "Error, long double compilation is turned off; requested long doubel tabulated ephemeris" );
+                    throw std::runtime_error( "Error, long double compilation is turned off; requested long double tabulated ephemeris" );
 #endif
                 }
             }
@@ -196,7 +196,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                                       tabulatedEphemerisSettings->getFrameOrientation( ) );
                     }
 #else
-                    throw std::runtime_error( "Error, long double compilation is turned off; requested long doubel tabulated ephemeris" );
+                    throw std::runtime_error( "Error, long double compilation is turned off; requested long double tabulated ephemeris" );
 #endif
                 }
             }
@@ -228,7 +228,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                     std::dynamic_pointer_cast< CustomEphemerisSettings >( ephemerisSettings );
             if( customEphemerisSettings == nullptr )
             {
-                throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
+                throw std::runtime_error( "Error, expected custom ephemeris settings for " + bodyName );
             }
             else
             {
@@ -291,6 +291,60 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             break;
         }
+		case direct_tle_ephemeris:
+		{
+			// Check consistency of type and class.
+			std::shared_ptr< DirectTleEphemerisSettings > directTleEphemerisSettings =
+					std::dynamic_pointer_cast< DirectTleEphemerisSettings >( ephemerisSettings );
+			if( directTleEphemerisSettings == nullptr )
+			{
+				throw std::runtime_error(
+						"Error, expected direct TLE ephemeris settings for body " + bodyName );
+			}
+			// Check if the Earth is present in the simulation
+			else
+			{
+				//std::string inputName = bodyName;
+
+				// Check period of the satellite for correct SDP setting
+
+
+				// Create corresponding ephemeris object.
+				ephemeris = std::make_shared< TleEphemeris >(
+						directTleEphemerisSettings->getFrameOrigin(),
+						directTleEphemerisSettings->getFrameOrientation(),
+						directTleEphemerisSettings->getTle()
+						);
+			}
+			break;
+		}
+		case interpolated_tle_ephemeris:
+		{
+			// Check consistency of type and class.
+			std::shared_ptr< InterpolatedTleEphemerisSettings > interpolatedTleEphemerisSettings =
+					std::dynamic_pointer_cast< InterpolatedTleEphemerisSettings >(
+							ephemerisSettings );
+			if( interpolatedTleEphemerisSettings == nullptr )
+			{
+				throw std::runtime_error(
+						"Error, expected interpolated TLE ephemeris settings for body " + bodyName );
+			}
+			else
+			{
+
+				ephemeris = createTabulatedEphemerisFromTLE< double, double >(
+						bodyName,
+						interpolatedTleEphemerisSettings->getInitialTime( ),
+						interpolatedTleEphemerisSettings->getFinalTime( ),
+						interpolatedTleEphemerisSettings->getTimeStep( ),
+						interpolatedTleEphemerisSettings->getFrameOrigin( ),
+						interpolatedTleEphemerisSettings->getFrameOrientation( ),
+						interpolatedTleEphemerisSettings->getTle( ),
+						interpolatedTleEphemerisSettings->getInterpolatorSettings( )
+						);
+			}
+			break;
+		}
         default:
         {
             throw std::runtime_error(

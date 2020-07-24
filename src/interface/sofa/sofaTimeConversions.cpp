@@ -14,6 +14,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 
+
 namespace tudat
 {
 
@@ -84,6 +85,12 @@ double getDeltaAtFromTai( const double taiInJulianDays )
 
     return deltaAt;
 }
+
+
+//double convertUTCtoUT1( const double utc )
+//{
+//	return 0.0; // iauUtcut1()
+//}
 
 //! Function to calculate difference between TDB and TT
 double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay, const double stationLongitude,

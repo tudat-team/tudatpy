@@ -80,7 +80,7 @@ Eigen::Vector6d SpiceEphemeris::getCartesianState(
     // Retrieve body state at given ephemeris time, using settings passed to constructor of this
     // object.
 
-    // Calculate ephemeris time at which cartesian state is to be determind.
+    // Calculate ephemeris time at which cartesian state is to be determined.
     const double ephemerisTime = secondsSinceEpoch;
 
     // Retrieve Cartesian state from spice.

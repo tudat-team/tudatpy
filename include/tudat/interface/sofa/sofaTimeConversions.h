@@ -116,6 +116,17 @@ TimeType convertUTCtoTT( const TimeType utc )
     return basic_astrodynamics::convertTAItoTT( convertUTCtoTAI( utc ) );
 }
 
+
+////! Function to convert UTC to UT1
+///*!
+// * Function to convert UTC (Universal Coordinated Time) to UT1 (Universal Time version 1) by looking up the difference
+// * in tables from SOFA. UTC closely follows (within 0.9 s) UT1, but for some applications an accurate conversion between
+// * the two is necessary.
+// * @param utc Time in UTC in seconds since J2000
+// * @return Time in UT1 in seconds since J2000
+// */
+//double convertUTCtoUT1( const double utc );
+
 //! Function to calculate difference between TDB and TT.
 /*!
  *  Function to calculate difference between TDB (Dynamical Barycentric Time) and TT (Terrestrial Time),
