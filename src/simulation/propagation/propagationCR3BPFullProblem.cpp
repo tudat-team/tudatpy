@@ -20,7 +20,7 @@ namespace propagators
 {
 
 
-std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setupBodySettingsCR3BP(
+simulation_setup::BodyListSettings setupBodySettingsCR3BP(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
@@ -58,7 +58,7 @@ std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setup
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( namePrimaryBody );
     bodiesToCreate.push_back( nameSecondaryBody );
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+    simulation_setup::BodyListSettings bodySettings =
             simulation_setup::getDefaultBodySettings( bodiesToCreate );
 
     // Compute effective gravitational parameters
@@ -74,16 +74,16 @@ std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setup
 
 
     // Define body ephemeris settings
-    bodySettings[ namePrimaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
+    bodySettings.at( namePrimaryBody )->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
                 initialStateInKeplerianElementsPrimary, 0.0, gravitationalParameterPrimaryTwoBodyProblem,
                 "SSB", frameOrientation );
-    bodySettings[ nameSecondaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
+    bodySettings.at( nameSecondaryBody )->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
                 initialStateInKeplerianElementsSecondary, 0.0, gravitationalParameterSecondaryTwoBodyProblem,
                 "SSB", frameOrientation );
     for( unsigned int j = 0; j < bodiesToCreate.size( ); j++ )
     {
-        bodySettings[ bodiesToCreate.at( j ) ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-        bodySettings[ bodiesToCreate.at( j ) ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+        bodySettings.at( bodiesToCreate.at( j ) )->ephemerisSettings->resetFrameOrientation( frameOrientation );
+        bodySettings.at( bodiesToCreate.at( j ) )->rotationModelSettings->resetOriginalFrame( frameOrientation );
     }
 
     return bodySettings;
@@ -103,11 +103,10 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
     simulation_setup::NamedBodyMap bodyMap = createBodies(
                 setupBodySettingsCR3BP( distancePrimarySecondary, namePrimaryBody, nameSecondaryBody, frameOrientation,
                                         primaryGravitationalParameter, secondaryGravitationalParameter ) );
-    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", frameOrientation );
 
     return bodyMap;
 

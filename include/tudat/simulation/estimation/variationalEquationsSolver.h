@@ -1380,6 +1380,7 @@ public:
                         template cast< StateScalarType >( );
 
                 // Integrate variational equations for current arc
+
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
@@ -1749,7 +1750,7 @@ public:
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,
                     singleArcPropagationSettings->centralBodies_,
-                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap ) );
+                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap.get( ) ) );
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )

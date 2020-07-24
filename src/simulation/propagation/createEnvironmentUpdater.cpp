@@ -893,25 +893,24 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
             std::vector< std::string > > singleAccelerationUpdateNeeds;
 
     // Iterate over all bodies.
-    for( simulation_setup::NamedBodyMap::const_iterator
-         bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( auto bodyIterator : bodyMap.get( )  )
     {
         singleAccelerationUpdateNeeds.clear( );
 
         // Check if current body is a vehicle.
 
         // Check if current body has flight conditions set.
-        if( bodyIterator->second ->getFlightConditions( ) != nullptr )
+        if( bodyIterator.second ->getFlightConditions( ) != nullptr )
         {
             // If vehicle has flight conditions, add flight conditions update function to update list.
             singleAccelerationUpdateNeeds[ vehicle_flight_conditions_update ].
-                    push_back( bodyIterator->first );
+                    push_back( bodyIterator.first );
         }
 
         // Get body radiation pressure interface(s) (one per source)
         std::map< std::string,
                 std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
-                = bodyIterator->second->getRadiationPressureInterfaces( );
+                = bodyIterator.second->getRadiationPressureInterfaces( );
 
         // Add each interface update function to update list.
         for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
@@ -919,28 +918,28 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
             singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
-                    push_back( bodyIterator->first );
+                    push_back( bodyIterator.first );
         }
 
         // If body has rotation model, update rotational state in each time step.;
-        if( ( bodyIterator->second->getRotationalEphemeris( ) != nullptr ) ||
-                ( bodyIterator->second->getDependentOrientationCalculator( ) != nullptr ) )
+        if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr ) ||
+                ( bodyIterator.second->getDependentOrientationCalculator( ) != nullptr ) )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
-                    push_back( bodyIterator->first );
+                    push_back( bodyIterator.first );
         }
 
 
         std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
                 std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >
-                ( bodyIterator->second->getGravityFieldModel( ) );
+                ( bodyIterator.second->getGravityFieldModel( ) );
         if( gravityField != nullptr )
         {
             singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
-                    push_back( bodyIterator->first );
+                    push_back( bodyIterator.first );
         }
 
-        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( bodyIterator->first );
+        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( bodyIterator.first );
 
         // Check whether requested updates are possible.
         checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
