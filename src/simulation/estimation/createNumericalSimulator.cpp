@@ -60,7 +60,7 @@ createVariationalEquationsSolver< double, double >(
         const bool clearNumericalSolution,
         const bool integrateEquationsOnCreation );
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 
 template std::shared_ptr< propagators::SingleArcDynamicsSimulator< double, Time > >

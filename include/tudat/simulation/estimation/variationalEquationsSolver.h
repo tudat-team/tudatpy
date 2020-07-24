@@ -2134,7 +2134,7 @@ extern template class SingleArcVariationalEquationsSolver< double, double >;
 extern template class MultiArcVariationalEquationsSolver< double, double >;
 extern template class HybridArcVariationalEquationsSolver< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class VariationalEquationsSolver< long double, double >;
 extern template class VariationalEquationsSolver< double, Time >;
 extern template class VariationalEquationsSolver< long double, Time >;
