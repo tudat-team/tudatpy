@@ -18,7 +18,7 @@ namespace propagators
 
 template class NBodyEnckeStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyEnckeStateDerivative< long double, double >;
 template class NBodyEnckeStateDerivative< double, Time >;
 template class NBodyEnckeStateDerivative< long double, Time >;

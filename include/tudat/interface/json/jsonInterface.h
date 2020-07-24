@@ -653,7 +653,7 @@ protected:
 
 extern template class JsonSimulationManager< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class JsonSimulationManager< double, long double >;
 //extern template class JsonSimulationManager< Time, double >;
 //extern template class JsonSimulationManager< Time, long double >;

@@ -82,7 +82,7 @@ template std::shared_ptr< acceleration_partials::AccelerationPartial > createAna
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,

@@ -303,7 +303,7 @@ private:
 
 extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, double >;
 extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, Time >;
 extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, Time >;

@@ -58,7 +58,7 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                     sphericalShapingSettings->boundsFreeCoefficient_.second );
         break;
     }
-#if( USE_PAGMO )
+#if( TUDAT_BUILD_WITH_PAGMO )
     case sims_flanagan_leg:
     {
         std::shared_ptr< SimsFlanaganLegSettings > simsFlanaganSettings =
