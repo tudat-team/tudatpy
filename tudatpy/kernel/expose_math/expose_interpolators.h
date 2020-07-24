@@ -8,17 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#ifndef TUDATPY_EXPOSE_INTERPOLATORS_H
+#define TUDATPY_EXPOSE_INTERPOLATORS_H
 
 #include <pybind11/pybind11.h>
+
+#include "tudat/math/interpolators.h"
 
 namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_interpolators(py::module &m);
 
 }
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+#endif//TUDATPY_EXPOSE_INTERPOLATORS_H

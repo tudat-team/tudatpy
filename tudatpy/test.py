@@ -5,10 +5,12 @@ import time
 import numpy as np
 from tudatpy import elements
 from tudatpy.kernel import constants
-from tudatpy.kernel import numerical_integrators
-from tudatpy.kernel import spice_interface
-from tudatpy.kernel import propagators
-from tudatpy.kernel import simulation_setup
+from tudatpy.kernel.math import numerical_integrators
+from tudatpy.kernel.interface import spice_interface
+from tudatpy.kernel.astro import propagators
+from tudatpy.kernel.simulation import environment_setup
+from tudatpy.kernel.simulation import propagation_setup
+
 
 def main():
     # Load spice kernels.
@@ -30,29 +32,31 @@ def main():
     # Create body objects.
     bodies_to_create = ["Earth"]
 
-    body_settings = simulation_setup.get_default_body_settings(bodies_to_create)
+    body_settings = environment_setup.get_default_body_settings(
+        bodies_to_create)
 
-    body_settings["Earth"].ephemeris_settings = simulation_setup.ConstantEphemerisSettings(
+    body_settings["Earth"].ephemeris_settings = environment_setup.ConstantEphemerisSettings(
         np.zeros(6))
 
-    body_settings["Earth"].rotation_model_settings.reset_original_frame("ECLIPJ2000")
+    body_settings["Earth"].rotation_model_settings.reset_original_frame(
+        "ECLIPJ2000")
 
     # Create Earth Object.
-    bodies = simulation_setup.create_bodies(body_settings)
+    bodies = environment_setup.create_bodies(body_settings)
 
     ###########################################################################
     # CREATE VEHICLE ##########################################################
     ###########################################################################
 
     # Create vehicle objects.
-    bodies["Delfi-C3"] = simulation_setup.Body()
+    bodies["Delfi-C3"] = environment_setup.Body()
 
     ###########################################################################
     # FINALIZE BODIES #########################################################
     ###########################################################################
 
-    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB",
-                                                       "ECLIPJ2000")
+    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB",
+                                                        "ECLIPJ2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -66,14 +70,14 @@ def main():
 
     # Define accelerations acting on Delfi-C3.
     accelerations_of_delfi_c3 = dict(
-        Earth=[simulation_setup.Acceleration.point_mass_gravity()]
+        Earth=[propagation_setup.Acceleration.point_mass_gravity()]
     )
 
     # Create global accelerations dictionary.
     accelerations = {"Delfi-C3": accelerations_of_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = simulation_setup.create_acceleration_models_dict(
+    acceleration_models = propagation_setup.create_acceleration_models_dict(
         bodies, accelerations, bodies_to_propagate, central_bodies)
 
     ###########################################################################
@@ -104,15 +108,16 @@ def main():
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
         mu=earth_gravitational_parameter,
-        a=7500.0E3,
+        sma=7500.0E3,
         ecc=0.1,
         inc=np.deg2rad(85.3),
         raan=np.deg2rad(23.4),
         argp=np.deg2rad(235.7),
-        nu=np.deg2rad(139.87))
+        theta=np.deg2rad(139.87)
+    )
 
     # Create propagation settings.
-    propagator_settings = propagators.TranslationalStatePropagatorSettings(
+    propagator_settings = propagation_setup.TranslationalStatePropagatorSettings(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
@@ -132,7 +137,7 @@ def main():
 
     t0 = time.time()
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagators.SingleArcDynamicsSimulator(
+    dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings, True)
     result = dynamics_simulator.get_equations_of_motion_numerical_solution()
 

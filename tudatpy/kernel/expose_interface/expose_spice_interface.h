@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#ifndef TUDAT_EXPOSE_SPICE_INTERFACE_H
+#define TUDAT_EXPOSE_SPICE_INTERFACE_H
 
 #include <pybind11/pybind11.h>
 
@@ -17,8 +17,8 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_spice_interface(py::module &m);
 
 }
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+#endif//TUDATBUNDLE_EXPOSE_SPICE_INTERFACE_H
