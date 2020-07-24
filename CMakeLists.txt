@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.3)
 if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
-set(CMAKE_PREFIX_PATH "/home/dominic/anaconda3/envs/tudat-deps-env/")
+
 # Set cmake policy.
 cmake_policy(SET CMP0069 NEW)
 
@@ -57,9 +57,6 @@ option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OF
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
 
-# Build option: enable tutorials.
-option(TUDAT_BUILD_TBB_SUPPORT "Build tbb support for Pagmo." OFF)
-
 # Build static library instead of dynamic.
 option(TUDAT_BUILD_STATIC_LIBRARY "Build tudat as a static library, instead of dynamic." ON)
 
@@ -70,7 +67,7 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
@@ -120,15 +117,6 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-endif ()
-
-# Enforce TBB if pagmo tutorials are to be built.
-if (TUDAT_BUILD_PAGMO_TUTORIALS)
-    if (TUDAT_BUILD_TBB_SUPPORT)
-    else ()
-        message("Forcing TBB support for Pagmo tutorial build.")
-        set(TUDAT_BUILD_TBB_SUPPORT ON)
-    endif ()
 endif ()
 
 # Set cmake build-type. If it not supplied by the user (either directly as an argument of through
