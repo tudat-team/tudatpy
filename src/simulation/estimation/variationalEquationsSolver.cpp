@@ -71,7 +71,7 @@ template class SingleArcVariationalEquationsSolver< double, double >;
 template class MultiArcVariationalEquationsSolver< double, double >;
 template class HybridArcVariationalEquationsSolver< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class VariationalEquationsSolver< long double, double >;
 template class VariationalEquationsSolver< double, Time >;
 template class VariationalEquationsSolver< long double, Time >;

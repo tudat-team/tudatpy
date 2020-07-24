@@ -102,7 +102,7 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
 //        const simulation_setup::NamedBodyMap& bodyMap,
 //        const double propagationStartTime );
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
 //        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
 //        const simulation_setup::NamedBodyMap& bodyMap,

@@ -110,7 +110,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 }
                 else
                 {
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
                     ephemeris = createTabulatedEphemerisFromSpice< long double, double >(
                                 inputName,
@@ -163,7 +163,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 }
                 else
                 {
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
                     // Cast input history to required type.
                     if( tabulatedEphemerisSettings->getBodyStateHistory( ).size( ) != 0 )

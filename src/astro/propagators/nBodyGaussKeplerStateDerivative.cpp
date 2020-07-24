@@ -112,7 +112,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
 
 template class NBodyGaussKeplerStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyGaussKeplerStateDerivative< long double, double >;
 template class NBodyGaussKeplerStateDerivative< double, Time >;
 template class NBodyGaussKeplerStateDerivative< long double, Time >;

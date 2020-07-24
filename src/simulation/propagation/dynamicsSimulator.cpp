@@ -40,7 +40,7 @@ template class SingleArcDynamicsSimulator< double, double >;
 template class MultiArcDynamicsSimulator< double, double >;
 template class HybridArcDynamicsSimulator< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class MultiArcDynamicsSimulator< long double, double >;
 template class MultiArcDynamicsSimulator< double, Time >;
 template class MultiArcDynamicsSimulator< long double, Time >;

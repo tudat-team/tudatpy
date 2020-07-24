@@ -439,7 +439,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 //extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 3, double, Time >(
 //        const ObservableType observableType,

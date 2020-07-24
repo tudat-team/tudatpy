@@ -1570,7 +1570,7 @@ extern template class MassPropagatorSettings< double >;
 extern template class CustomStatePropagatorSettings< double >;
 extern template class MultiTypePropagatorSettings< double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class PropagatorSettings< long double >;
 extern template class SingleArcPropagatorSettings< long double >;
 extern template class MultiArcPropagatorSettings< long double >;

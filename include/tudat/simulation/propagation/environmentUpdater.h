@@ -694,7 +694,7 @@ private:
 
 extern template class EnvironmentUpdater< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class EnvironmentUpdater< double, Time >;
 extern template class EnvironmentUpdater< long double, double >;
 extern template class EnvironmentUpdater< long double, Time >;
