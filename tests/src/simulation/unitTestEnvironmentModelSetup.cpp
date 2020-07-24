@@ -31,7 +31,6 @@
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
-//#include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"

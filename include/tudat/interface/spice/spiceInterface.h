@@ -36,7 +36,10 @@
 extern "C"
 {
     #include <cspice/SpiceUsr.h>
+    #include <cspice/SpiceZfc.h>
 }
+
+#include "tudat/astro/ephemerides/tleEphemeris.h"
 
 namespace tudat
 {
@@ -132,6 +135,17 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
                                                  const std::string& referenceFrameName,
                                                  const std::string& aberrationCorrections,
                                                  const double ephemerisTime );
+
+//! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
+/*!
+ * This function retrieves the state of a satellite at a certain epoch by propagating the
+ * SGP or SDP models (near-Earth resp. deep space) with the given two-line elements (TLE).
+ * This function serves as a wrapper for the ev2lin_ function in CSpice.
+ * @param epoch Time in seconds since J2000 at which the state is to be retrieved.
+ * @param tle Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
+ * @return Cartesian state vector (x, y, z, position + velocity).
+ */
+Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< ephemerides::Tle > tle );
 
 //! Compute quaternion of rotation between two frames.
 /*!
