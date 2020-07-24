@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 getBodyGravitationalParameter( "Earth" ) );
 
 #if TUDAT_BUILD_WITH_NRLMSISE
-    int maximumTestCase = 4;
+    unsigned int maximumTestCase = 4;
 #else
-    int maximumTestCase = 2;
+    unsigned int maximumTestCase = 2;
 #endif
     for( unsigned int testCase = 0; testCase < maximumTestCase; testCase++ )
     {
