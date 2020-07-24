@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rights reserved
+ *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#ifndef TUDATPY_EXPOSE_FUNDAMENTALS_H
+#define TUDATPY_EXPOSE_FUNDAMENTALS_H
 
 #include <pybind11/pybind11.h>
 
@@ -17,8 +17,8 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_fundamentals(py::module &m);
 
 }
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+#endif//TUDATPY_EXPOSE_FUNDAMENTALS_H
