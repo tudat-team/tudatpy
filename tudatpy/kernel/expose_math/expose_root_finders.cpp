@@ -8,17 +8,22 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#include "expose_root_finders.h"
+
+#include <tudat/math/root_finders.h>
 
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
+namespace trf = tudat::root_finders;
 
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_root_finders(py::module &m) {
 
+  py::class_<trf::RootFinderSettings,
+             std::shared_ptr<trf::RootFinderSettings>>
+      RootFinderSettings_(m, "RootFinderSettings");
 }
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+}// namespace tudatpy

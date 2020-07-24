@@ -42,7 +42,7 @@ endif ()
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
         __init__.py
-        _layer_simulation_setup.py
+        _layer_propagation_setup.py
         elements.py
         prototype.py
         io.py
@@ -60,22 +60,44 @@ endforeach ()
 
 # Core module.
 YACMA_PYTHON_MODULE(kernel
+        # kernel
         kernel/kernel.cpp
+
+        # kernel/astro
+        kernel/expose_astro.cpp
+        kernel/expose_astro/expose_fundamentals.cpp
+        kernel/expose_astro/expose_gravitation.cpp
+        kernel/expose_astro/expose_conversion.cpp
+        kernel/expose_astro/expose_ephemerides.cpp
+        kernel/expose_astro/expose_aerodynamics.cpp
+        kernel/expose_astro/expose_propagators.cpp
+        kernel/expose_astro/expose_reference_frames.cpp
+
+        # kernel/constants
         kernel/expose_constants.cpp
-        kernel/expose_root_finders.cpp
-        kernel/expose_interpolators.cpp
-        kernel/expose_spice_interface.cpp
-        kernel/expose_ephemerides.cpp
-        kernel/expose_reference_frames.cpp
-        kernel/expose_aerodynamics.cpp
-        kernel/expose_basic_astrodynamics.cpp
-        kernel/expose_gravitation.cpp
-        kernel/expose_numerical_integrators.cpp
-        kernel/expose_orbital_element_conversions.cpp
-        kernel/expose_propagators.cpp
-        kernel/expose_simulation_setup.cpp
-        kernel/expose_unit_tests.cpp
+
+        # kernel/interface
+        kernel/expose_interface.cpp
+        kernel/expose_interface/expose_spice_interface.cpp
+        #        kernel/expose_interface/expose_json_interface.cpp
+        #        kernel/expose_interface/expose_sofa_interface.cpp
+
+        # kernel/io
         kernel/expose_io.cpp
+
+        # kernel/math
+        kernel/expose_math.cpp
+        kernel/expose_math/expose_interpolators.cpp
+        kernel/expose_math/expose_numerical_integrators.cpp
+        kernel/expose_math/expose_root_finders.cpp
+
+        # kernel/simulation
+        kernel/expose_simulation.cpp
+        kernel/expose_simulation/expose_environment_setup.cpp
+        kernel/expose_simulation/expose_propagation_setup.cpp
+        kernel/expose_simulation/expose_estimation_setup.cpp
+
+        kernel/expose_unit_tests.cpp
         kernel/docstrings.cpp
         )
 

@@ -8,17 +8,23 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#include "expose_interpolators.h"
 
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
+namespace ti = tudat::interpolators;
+
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_interpolators(py::module &m) {
 
-}
+  py::class_<
+      ti::LagrangeInterpolatorSettings,
+      std::shared_ptr<ti::LagrangeInterpolatorSettings>>(m,
+                                                         "LagrangeInterpolatorSettings",
+                                                         "<no doc>");
+};
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+}// namespace tudatpy

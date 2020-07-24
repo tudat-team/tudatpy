@@ -8,17 +8,16 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_CONSTANTS_H
-#define TUDATPY_EXPOSE_CONSTANTS_H
+#ifndef TUDATPY_EXPOSE_SIMULATION_H
+#define TUDATPY_EXPOSE_SIMULATION_H
 
-#include <pybind11/pybind11.h>
+#include "pybind11/pybind11.h"
 
 namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_constants(py::module &m);
+void expose_simulation(py::module &m);
 
-}
-
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+}// namespace tudatpy
+#endif//TUDATPY_EXPOSE_SIMULATION_H

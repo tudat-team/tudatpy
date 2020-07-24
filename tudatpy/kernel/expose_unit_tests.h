@@ -2,8 +2,8 @@
 // Created by ggarrett on 02-05-20.
 //
 
-#ifndef TUDATBUNDLE_EXPOSE_UNIT_TESTS_H
-#define TUDATBUNDLE_EXPOSE_UNIT_TESTS_H
+#ifndef TUDATPY_EXPOSE_UNIT_TESTS_H
+#define TUDATPY_EXPOSE_UNIT_TESTS_H
 
 #include <pybind11/pybind11.h>
 //#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
@@ -16,4 +16,4 @@ namespace tudatpy {
 
 }
 
-#endif //TUDATBUNDLE_EXPOSE_UNIT_TESTS_H
+#endif //TUDATPY_EXPOSE_UNIT_TESTS_H
