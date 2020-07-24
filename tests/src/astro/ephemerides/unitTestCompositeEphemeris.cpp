@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Retrieve Earth state/rotation objects
     std::shared_ptr< Ephemeris > earthEphemeris = bodyMap.at( "Earth" )->getEphemeris( );

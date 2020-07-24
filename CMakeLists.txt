@@ -48,9 +48,6 @@ option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 # Build option: include default data suite.
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
 
-# Build with propagation tests.
-option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
-
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
 
@@ -240,7 +237,7 @@ add_subdirectory(src/interface)
 add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests)
