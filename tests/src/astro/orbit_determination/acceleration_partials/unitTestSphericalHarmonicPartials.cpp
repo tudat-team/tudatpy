@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     bodyMap.at( "Earth" )->setGravityFieldVariationSet(
                 createGravityFieldModelVariationsSet(
                     "Earth", bodyMap, gravityFieldVariationSettings ) );
-
+    bodyMap.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
 
     
 
