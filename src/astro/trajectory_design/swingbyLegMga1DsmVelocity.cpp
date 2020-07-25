@@ -24,11 +24,11 @@ void SwingbyLegMga1DsmVelocity::calculateLeg( Eigen::Vector3d& velocityBeforeArr
 
 
     // Prepare the gravity assist propagator module.
-    velocityAfterDeparture_ = mission_segments::gravityAssist( swingbyBodyGravitationalParameter_,
-                                                               departureBodyVelocity_,
-                                                               ( *velocityBeforeDepartureBodyPtr_ ),
-                                                               rotationAngle_, pericenterRadius_,
-                                                               swingbyDeltaV_ );
+    velocityAfterDeparture_ = mission_segments::calculateUnpoweredGravityAssistOutgoingVelocity(
+                swingbyBodyGravitationalParameter_,
+                departureBodyVelocity_,
+                ( *velocityBeforeDepartureBodyPtr_ ),
+                rotationAngle_, pericenterRadius_ );
 
     // Transfer the initial position and velocity into a vectorXd object with Cartesian
     // coordinates.

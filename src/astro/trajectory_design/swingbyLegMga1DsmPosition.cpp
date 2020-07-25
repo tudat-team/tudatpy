@@ -36,11 +36,12 @@ void SwingbyLegMga1DsmPosition::calculateLeg( Eigen::Vector3d& velocityBeforeArr
 
     // Perform a gravity assist at the current body, using the previously obtained velocity and
     // the properties of the swing-by body. Store the required deltaV.
-    deltaVSwingby_ = mission_segments::gravityAssist( swingbyBodyGravitationalParameter_,
-                                                      departureBodyVelocity_,
-                                                      ( *velocityBeforeDepartureBodyPtr_ ),
-                                                      velocityAfterDeparture_,
-                                                      minimumPericenterRadius_ );
+    deltaVSwingby_ = mission_segments::calculateGravityAssistDeltaV(
+                swingbyBodyGravitationalParameter_,
+                departureBodyVelocity_,
+                ( *velocityBeforeDepartureBodyPtr_ ),
+                velocityAfterDeparture_,
+                minimumPericenterRadius_ );
 
     //Calculate the deltaV originating from the DSM.
     deltaVDsm_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
