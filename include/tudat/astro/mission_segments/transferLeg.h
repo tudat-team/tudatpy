@@ -31,6 +31,12 @@
 #include "tudat/astro/mission_segments/lambertTargeterIzzo.h"
 
 
+namespace tudat
+{
+namespace mission_segments
+{
+
+
 enum TransferLegTypes
 {
     unpowered_unperturbed_leg,
@@ -38,10 +44,6 @@ enum TransferLegTypes
     dsm_velocity_based_leg
 };
 
-namespace tudat
-{
-namespace mission_segments
-{
 
 class TransferLeg
 {
@@ -49,32 +51,20 @@ public:
     TransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const Eigen::VectorXd legParameters ):
-        departureBodyEphemeris_( departureBodyEphemeris ), arrivalBodyEphemeris_( arrivalBodyEphemeris ),
-        legParameters_( legParameters )
-    { }
+            const TransferLegTypes legType,
+            const Eigen::VectorXd legParameters );
 
-    void updateLegParameters( const Eigen::VectorXd legParameters )
-    {
-        legParameters_ = legParameters;
-        computeTransfer( );
-    }
+    void updateLegParameters( const Eigen::VectorXd legParameters );
 
-    virtual double getLegDeltaV( ) = 0;
+    double getLegDeltaV( );
 
-    virtual TransferLegTypes getTransferLegType( ) = 0;
+    TransferLegTypes getTransferLegType( );
 
-    virtual bool departureVelocityIsPredetermined( ) = 0;
+//    virtual bool departureVelocityIsPredetermined( ) = 0;
 
-    Eigen::Vector3d getDepartureVelocity( )
-    {
-        return departureVelocity_;
-    }
+    Eigen::Vector3d getDepartureVelocity( );
 
-    Eigen::Vector3d getArrivalVelocity( )
-    {
-        return arrivalVelocity_;
-    }
+    Eigen::Vector3d getArrivalVelocity( );
 
 protected:
 
@@ -82,31 +72,23 @@ protected:
 
     void updateDepartureAndArrivalBodies(
             const double departureTime,
-            const double arrivalTime )
-    {
-        departureTime_ = departureTime;
-        arrivalTime_ = arrivalTime;
-        departureBodyState_ = departureBodyEphemeris_->getCartesianState( departureTime_ );
-        arrivalBodyState_ = arrivalBodyEphemeris_->getCartesianState( arrivalTime );
-    }
+            const double arrivalTime );
 
     std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris_;
-
     std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris_;
+    TransferLegTypes legType_;
 
     Eigen::VectorXd legParameters_;
 
     double departureTime_;
-
     double arrivalTime_;
 
     Eigen::Vector6d departureBodyState_;
-
     Eigen::Vector6d arrivalBodyState_;
-
     Eigen::Vector3d departureVelocity_;
-
     Eigen::Vector3d arrivalVelocity_;
+
+    double legTotalDeltaV_;
 
 };
 
@@ -117,48 +99,13 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const Eigen::VectorXd legParameters,
-            const double centralBodyGravitationalParameter ):
-        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legParameters ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
-    {
-        computeTransfer( );
-    }
-
-    double getLegDeltaV( )
-    {
-        return 0.0;
-    }
-
-    TransferLegTypes getTransferLegType( )
-    {
-        return unpowered_unperturbed_leg;
-    }
-
-    bool departureVelocityIsPredetermined( )
-    {
-        return false;
-    }
+            const double centralBodyGravitationalParameter );
 
 protected:
 
-    virtual void computeTransfer( )
-    {
-        if( legParameters_.rows( ) != 2 )
-        {
-            throw std::runtime_error( "Error when computing UnpoweredUnperturbedTransferLeg, incorrect input size" );
-        }
-        updateDepartureAndArrivalBodies(
-                    legParameters_( 0 ), legParameters_( 1 ) );
-
-        // Calculate and set the spacecraft velocities after departure and before arrival.
-        mission_segments::solveLambertProblemIzzo(
-                    departureBodyState_.segment( 0, 3 ), arrivalBodyState_.segment( 0, 3 ),
-                    legParameters_( 1 ) - legParameters_( 0 ), centralBodyGravitationalParameter_,
-                    departureVelocity_, arrivalVelocity_ );
-    }
+    virtual void computeTransfer( );
 
     double centralBodyGravitationalParameter_;
-
 };
 
 
@@ -170,105 +117,26 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const Eigen::VectorXd legParameters,
-            const double centralBodyGravitationalParameter ):
-        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legParameters ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
-    {
-        computeTransfer( );
-    }
-
-    double getLegDeltaV( )
-    {
-        return dsmDeltaV_;
-    }    
-
-    TransferLegTypes getTransferLegType( )
-    {
-        return dsm_position_based_leg;
-    }
-
-    bool departureVelocityIsPredetermined( )
-    {
-        return false;
-    }
+            const double centralBodyGravitationalParameter );
 
 protected:
 
-    virtual void computeTransfer( )
-    {
-        if( legParameters_.rows( ) != 2 )
-        {
-            throw std::runtime_error( "Error when computing UnpoweredUnperturbedTransferLeg, incorrect input size" );
-        }
-        updateDepartureAndArrivalBodies(
-                    legParameters_( 0 ), legParameters_( 1 ) );
+    virtual void computeTransfer( );
 
-        double timeOfFlight = arrivalTime_ - departureTime_;
-        dsmTimeOfFlightFraction_ = legParameters_( 2 );
-        dimensionlessRadiusDsm_ = legParameters_( 3 );
-        inPlaneAngle_ = legParameters_( 4 );
-        outOfPlaneAngle_ = legParameters_( 5 );
-
-        calculateDsmLocation( );
-
-
-        // Calculate the DSM time of application from the time of flight fraction.
-        dsmTime_ = dsmTimeOfFlightFraction_ * timeOfFlight;
-
-        // Calculate and set the spacecraft velocities after departure, before and after the DSM, and
-        // before arrival using two lambert targeters and all the corresponding positions and flight
-        // times.
-        mission_segments::solveLambertProblemIzzo( departureBodyState_.segment( 0, 3 ), dsmLocation_, dsmTime_,
-                                                   centralBodyGravitationalParameter_,
-                                                   departureVelocity_, velocityBeforeDsm_ );
-        mission_segments::solveLambertProblemIzzo( dsmLocation_, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -
-                                                   dsmTime_, centralBodyGravitationalParameter_,
-                                                   velocityAfterDsm_, arrivalVelocity_ );
-
-
-        //Calculate the deltaV originating from the DSM.
-        dsmDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
-    }
-
-    //! Calculates the Dsm location
-    void calculateDsmLocation( )
-    {
-        // Calculate the required unit vectors
-        const Eigen::Vector3d unitVector1 = departureBodyState_.segment( 0, 3 ).normalized( );
-        const Eigen::Vector3d unitVector3 = ( unitVector1.cross( departureBodyState_.segment( 3, 3 ) ) ).normalized( );
-        const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
-
-        // Calculate the absolute DSM radius.
-        const double absoluteRadiusDsm = dimensionlessRadiusDsm_ * departureBodyState_.segment( 0, 3 ).norm( );
-
-        // Calculate the radius in the central body reference frame.
-        dsmLocation_ = std::cos( inPlaneAngle_ ) * std::cos( outOfPlaneAngle_ ) * absoluteRadiusDsm *
-                unitVector1 +
-                std::sin( inPlaneAngle_ ) * std::cos( outOfPlaneAngle_ ) * absoluteRadiusDsm *
-                unitVector2 +
-                std::sin( outOfPlaneAngle_ ) * absoluteRadiusDsm * unitVector3;
-    }
+    void calculateDsmLocation( );
 
     double centralBodyGravitationalParameter_;
 
-
     double dsmTimeOfFlightFraction_;
-
     double dimensionlessRadiusDsm_;
-
     double inPlaneAngle_;
-
     double outOfPlaneAngle_;
 
 
     Eigen::Vector3d dsmLocation_;
-
     Eigen::Vector3d velocityBeforeDsm_;
-
     Eigen::Vector3d velocityAfterDsm_;
-
     double dsmTime_;
-
     double dsmDeltaV_;
 };
 
@@ -280,109 +148,25 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const Eigen::VectorXd legParameters,
-            const double centralBodyGravitationalParameter ):
-        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legParameters ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
-    {
-        computeTransfer( );
-    }
-
-    double getLegDeltaV( )
-    {
-        return dsmDeltaV_;
-    }
-
-    TransferLegTypes getTransferLegType( )
-    {
-        return dsm_velocity_based_leg;
-    }
-
-    bool departureVelocityIsPredetermined( )
-    {
-        return false;
-    }
+            const double centralBodyGravitationalParameter,
+            const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
 
 protected:
 
-    virtual void computeTransfer( )
-    {
-        if( legParameters_.rows( ) != 2 )
-        {
-            throw std::runtime_error( "Error when computing UnpoweredUnperturbedTransferLeg, incorrect input size" );
-        }
-        updateDepartureAndArrivalBodies(
-                    legParameters_( 0 ), legParameters_( 1 ) );
-
-        double timeOfFlight = arrivalTime_ - departureTime_;
-        dsmTimeOfFlightFraction_ = legParameters_( 2 );
-        excessVelocityMagnitude_ = legParameters_( 3 );
-        excessVelocityInPlaneAngle_ = legParameters_( 4 );
-        excessVelocityOutOfPlaneAngle_ = legParameters_( 5 );
-
-        // Calculate the DSM time of application from the time of flight fraction.
-        dsmTime_ = dsmTimeOfFlightFraction_ * timeOfFlight;
-
-        departureVelocity_ = departureBodyState_.segment( 3, 3, ) +
-                excessVelocityMagnitude_ * std::cos( excessVelocityInPlaneAngle_ ) *
-                std::cos( excessVelocityOutOfPlaneAngle_ ) * unitVector1 +
-                excessVelocityMagnitude_ * std::sin( excessVelocityInPlaneAngle_ ) *
-                std::cos( excessVelocityOutOfPlaneAngle_ ) * unitVector2 +
-                excessVelocityMagnitude_ * std::sin( excessVelocityOutOfPlaneAngle_ ) * unitVector3;
-
-        // Transfer the initial position and velocity into a vectorXd object with Cartesian
-        // coordinates.
-        Eigen::Vector6d departureCartesianElements, departureKeplerianElements;
-        departureCartesianElements.segment( 0, 3 ) = departureBodyPosition_;
-        departureCartesianElements.segment( 3, 3 ) = velocityAfterDeparture_;
-
-        // Convert the cartesian elements into keplerian elements.
-        departureKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
-                    departureCartesianElements, centralBodyGravitationalParameter_ );
-
-        // Propagate the keplerian elements until the moment of application of the DSM.
-        Eigen::Vector6d dsmArrivalCartesianElements, dsmArrivalKeplerianElements;
-        dsmArrivalKeplerianElements = orbital_element_conversions::propagateKeplerOrbit( departureKeplerianElements,
-                                                                                         dsmTime_, centralBodyGravitationalParameter_ );
-
-        // Convert the keplerian elements back into Cartesian elements.
-        dsmArrivalCartesianElements = orbital_element_conversions::convertKeplerianToCartesianElements(
-                    dsmArrivalKeplerianElements, centralBodyGravitationalParameter_ );
-
-        // Set the corresponding position and velocity vectors.
-        dsmLocation_ = cartesianElements.segment( 0, 3 );
-        velocityBeforeDsm_ = cartesianElements.segment( 3, 3 );
-
-        // Calculate the velocities after the DSM and before the arrival body.
-        mission_segments::solveLambertProblemIzzo( dsmLocation_, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -
-                                                   dsmTime_, centralBodyGravitationalParameter_,
-                                                   velocityAfterDsm_, arrivalBodyState_.segment( 3, 3 ) );
-
-        // Calculate the deltaV needed for the DSM.
-        dsmDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
-
-    }
-
+    virtual void computeTransfer( );
 
     double centralBodyGravitationalParameter_;
-
+    std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
 
     double dsmTimeOfFlightFraction_;
-
     double excessVelocityMagnitude_;
-
     double excessVelocityInPlaneAngle_;
-
     double excessVelocityOutOfPlaneAngle_;
 
-
     Eigen::Vector3d dsmLocation_;
-
     Eigen::Vector3d velocityBeforeDsm_;
-
     Eigen::Vector3d velocityAfterDsm_;
-
     double dsmTime_;
-
     double dsmDeltaV_;
 };
 

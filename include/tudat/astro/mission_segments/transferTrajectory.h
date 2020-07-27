@@ -47,33 +47,9 @@ public:
     void evaluateTrajectory(
             const std::vector< double >& nodeTimes,
             const std::vector< Eigen::VectorXd >& legFreeParameters,
-            const std::vector< Eigen::VectorXd >& nodeFreeParameters )
-    {
-        totalDeltaV_ = 0.0;
+            const std::vector< Eigen::VectorXd >& nodeFreeParameters );
 
-        Eigen::VectorXd legTotalParameters;
-        for( int i = 0; i < legs_.size( ); i++ )
-        {
-            getLegTotalParameters(
-                        nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
-            legs_.at( i )->updateLegParameters( legTotalParameters );
-            totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
-        }
-
-        Eigen::VectorXd nodeTotalParameters;
-        for( int i = 0; i < nodes_.size( ); i++ )
-        {
-            getNodeTotalParameters(
-                        nodeTimes, nodeFreeParameters.at( i ), i, nodeTotalParameters );
-            nodes_.at( i )->updateNodeParameters( nodeTotalParameters );
-            totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
-        }
-    }
-
-    double getTotalDeltaV( )
-    {
-        return totalDeltaV_;
-    }
+    double getTotalDeltaV( );
 
 private:
 
@@ -81,52 +57,13 @@ private:
             const std::vector< double >& nodeTimes,
             const Eigen::VectorXd& legFreeParameters,
             const int legIndex,
-            Eigen::VectorXd& legTotalParameters )
-    {
-        if( legs_.at( legIndex )->getTransferLegType( ) == unpowered_unperturbed_leg )
-        {
-            legTotalParameters.resize( 2, 1 );
-            legTotalParameters( 0 ) = nodeTimes.at( legIndex );
-            legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-        }
-        else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_position_based_leg )
-        {
-            legTotalParameters.resize( 6, 1 );
-            legTotalParameters( 0 ) = nodeTimes.at( legIndex );
-            legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-            legTotalParameters.segment( 2, 4 ) = legFreeParameters;
-        }
-        else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_velocity_based_leg )
-        {
-            legTotalParameters.resize( 5, 1 );
-            legTotalParameters( 0 ) = nodeTimes.at( legIndex );
-            legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
-            legTotalParameters.segment( 2, 3 ) = legFreeParameters;
-        }
-    }
+            Eigen::VectorXd& legTotalParameters );
 
     void getNodeTotalParameters(
             const std::vector< double >& nodeTimes,
             const Eigen::VectorXd& nodeFreeParameters,
             const int nodeIndex,
-            Eigen::VectorXd& nodeTotalParameters )
-    {
-        if( nodes_.at( nodeIndex )->getTransferNodeType( ) == powered_swingby );
-        {
-            nodeTotalParameters.resize( 1, 1 );
-            nodeTotalParameters( 0 ) = nodeTimes.at( i );
-        }
-        else if( nodes_.at( nodeIndex )->getTransferNodeType( ) == escape_and_departure );
-        {
-            nodeTotalParameters.resize( 1, 1 );
-            nodeTotalParameters( 0 ) = nodeTimes.at( i );
-        }
-        else if( nodes_.at( nodeIndex )->getTransferNodeType( ) == capture_and_insertion );
-        {
-            nodeTotalParameters.resize( 1, 1 );
-            nodeTotalParameters( 0 ) = nodeTimes.at( i );
-        }
-    }
+            Eigen::VectorXd& nodeTotalParameters );
 
     const std::vector< std::shared_ptr< TransferLeg > > legs_;
 
