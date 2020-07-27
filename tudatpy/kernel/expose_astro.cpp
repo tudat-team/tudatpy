@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "expose_astro.h"
+
 #include "expose_astro/expose_aerodynamics.h"
 #include "expose_astro/expose_conversion.h"
 #include "expose_astro/expose_ephemerides.h"
@@ -15,6 +17,7 @@
 #include "expose_astro/expose_gravitation.h"
 #include "expose_astro/expose_propagators.h"
 #include "expose_astro/expose_reference_frames.h"
+#include "expose_astro/expose_two_body.h"
 
 #include <pybind11/pybind11.h>
 
@@ -35,6 +38,9 @@ void expose_astro(py::module &m) {
 
   auto aerodynamics = m.def_submodule("aerodynamics");
   expose_aerodynamics(aerodynamics);
+
+  auto two_body = m.def_submodule("two_body");
+  expose_two_body(two_body);
 
   auto ephemerides = m.def_submodule("ephemerides");
   expose_ephemerides(ephemerides);

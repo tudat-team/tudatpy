@@ -4,12 +4,11 @@
 
 #include "expose_astro.h"
 #include "expose_constants.h"
+#include "expose_example.h"
 #include "expose_interface.h"
 #include "expose_io.h"
 #include "expose_math.h"
 #include "expose_simulation.h"
-
-#include "tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h"
 
 namespace py = pybind11;
 
@@ -28,6 +27,14 @@ PYBIND11_MODULE(kernel, m) {
   m.attr("_tudat_version_minor") = TUDAT_VERSION_MINOR;
   m.attr("_tudat_version_patch") = TUDAT_VERSION_PATCH;
 
+  // math module
+  auto math = m.def_submodule("math");
+  tudatpy::expose_math(math);
+
+  // interface module
+  auto interface = m.def_submodule("interface");
+  tudatpy::expose_interface(interface);
+
   // astro module
   auto astro = m.def_submodule("astro");
   tudatpy::expose_astro(astro);
@@ -35,14 +42,6 @@ PYBIND11_MODULE(kernel, m) {
   // constants module
   auto constants = m.def_submodule("constants");
   tudatpy::expose_constants(constants);
-
-  // interface module
-  auto interface = m.def_submodule("interface");
-  tudatpy::expose_interface(interface);
-
-  // math module
-  auto math = m.def_submodule("math");
-  tudatpy::expose_math(math);
 
   //   io module
   auto io = m.def_submodule("io");
@@ -52,12 +51,9 @@ PYBIND11_MODULE(kernel, m) {
   auto simulation = m.def_submodule("simulation");
   tudatpy::expose_simulation(simulation);
 
-  // unit_tests module
-  auto unit_tests = m.def_submodule("unit_tests");
-
-
-  unit_tests.def("get_apollo_coefficient_interface",
-                 &tudat::unit_tests::getApolloCoefficientInterface, "<no doc>");
+  // example module
+  auto example = m.def_submodule("example");
+  tudatpy::expose_example(example);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;

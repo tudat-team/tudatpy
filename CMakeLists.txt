@@ -8,6 +8,7 @@ endif (POLICY CMP0048)
 file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 
+include_directories(include)
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")

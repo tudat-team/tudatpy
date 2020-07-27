@@ -8,8 +8,11 @@ from tudatpy.kernel import constants
 from tudatpy.kernel.math import numerical_integrators
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.astro import propagators
+from tudatpy.kernel.astro import ephemerides
+from tudatpy.kernel.astro import fundamentals
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
+from tudatpy.kernel import example
 
 
 def main():
@@ -20,7 +23,7 @@ def main():
     simulation_start_epoch = 0.0
 
     # Set numerical integration fixed step size.
-    fixed_step_size = 1.0
+    fixed_step_size = 10.0
 
     # Set simulation end epoch.
     # simulation_end_epoch = 3100.0 # UNUSED VARIABLE
@@ -48,7 +51,8 @@ def main():
     # Create vehicle objects.
     bodies["Apollo"] = environment_setup.Body()
 
-    bodies["Apollo"].set_aerodynamic_coefficient_interface(unit_tests.get_apollo_coefficient_interface())
+    bodies["Apollo"].set_aerodynamic_coefficient_interface(
+        example.apollo_aerodynamics_coefficient_interface())
 
     bodies["Apollo"].set_constant_body_mass(5.0E3)
 
@@ -57,7 +61,7 @@ def main():
     ###########################################################################
 
     # Finalize body creation.
-    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
+    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -71,15 +75,15 @@ def main():
 
     # Define accelerations acting on Apollo.
     accelerations_of_apollo = dict(Earth=[
-        simulation_setup.Acceleration.spherical_harmonic_gravity(4, 0),
-        simulation_setup.Acceleration.aerodynamic()
+        propagation_setup.Acceleration.spherical_harmonic_gravity(4, 0),
+        propagation_setup.Acceleration.aerodynamic()
     ])
 
     # Create global accelerations dictionary.
     acceleration_dict = dict(Apollo=accelerations_of_apollo)
 
     # Create acceleration models.
-    acceleration_models = simulation_setup.create_acceleration_models_dict(
+    acceleration_models = propagation_setup.create_acceleration_models_dict(
         bodies, acceleration_dict,
         bodies_to_propagate, central_bodies)
 
@@ -94,19 +98,6 @@ def main():
     ###########################################################################
 
     # Set spherical elements for Apollo and convert to Cartesian.
-
-    # LEGACY DESIGN
-    # spherical_idx = orbital_element_conversions.SphericalOrbitalStateElementIndices
-    # apollo_spherical_entry_state = np.zeros(6)
-    # apollo_spherical_entry_state[spherical_idx.radiusIndex] = spice_interface.get_average_radius("Earth") + 120.0E3
-    # apollo_spherical_entry_state[spherical_idx.latitudeIndex] = np.deg2rad(0.0)
-    # apollo_spherical_entry_state[spherical_idx.longitudeIndex] = np.deg2rad(68.75)
-    # apollo_spherical_entry_state[spherical_idx.speedIndex] = 7.7E3
-    # apollo_spherical_entry_state[spherical_idx.flightPathIndex] = np.deg2rad(-0.9)
-    # apollo_spherical_entry_state[spherical_idx.headingAngleIndex] = np.deg2rad(34.37)
-    # system_initial_state = orbital_element_conversions.convert_spherical_orbital_to_cartesian_state(
-    #     apollo_spherical_entry_state)
-
     # REVISED CONTEMPORARY DESIGN
     cartesian_initial_state = elements.spherical2cartesian(
         r=spice_interface.get_average_radius("Earth") + 120.0E3,
@@ -126,32 +117,32 @@ def main():
     # Define list of dependent variables to save.
     # TODO: Revise design of dependent variable saves with Python class layer.
     dependent_variables_list = [
-        propagators.SingleDependentVariableSaveSettings(
-            propagators.PropagationDependentVariables.mach_number_dependent_variable,
+        propagation_setup.SingleDependentVariableSaveSettings(
+            propagation_setup.PropagationDependentVariables.mach_number_dependent_variable,
             "Apollo"
         ),
-        propagators.SingleDependentVariableSaveSettings(
-            propagators.PropagationDependentVariables.altitude_dependent_variable,
+        propagation_setup.SingleDependentVariableSaveSettings(
+            propagation_setup.PropagationDependentVariables.altitude_dependent_variable,
             "Apollo", "Earth"
         ),
-        propagators.SingleAccelerationDependentVariableSaveSettings(
-            basic_astrodynamics.AvailableAcceleration.aerodynamic,
+        propagation_setup.SingleAccelerationDependentVariableSaveSettings(
+            fundamentals.AvailableAcceleration.aerodynamic,
             "Apollo", "Earth", 1
         ),
-        propagators.SingleDependentVariableSaveSettings(
-            propagators.PropagationDependentVariables.aerodynamic_force_coefficients_dependent_variable,
+        propagation_setup.SingleDependentVariableSaveSettings(
+            propagation_setup.PropagationDependentVariables.aerodynamic_force_coefficients_dependent_variable,
             "Apollo"
         )
     ]
-    dependent_variables_to_save = propagators.DependentVariableSaveSettings(
+    dependent_variables_to_save = propagation_setup.DependentVariableSaveSettings(
         dependent_variables_list)
 
     # Define termination conditions.
-    termination_dependent_variable = propagators.SingleDependentVariableSaveSettings(
-        propagators.PropagationDependentVariables.altitude_dependent_variable,
+    termination_dependent_variable = propagation_setup.SingleDependentVariableSaveSettings(
+        propagation_setup.PropagationDependentVariables.altitude_dependent_variable,
         "Apollo", "Earth"
     )
-    termination_settings = propagators.PropagationDependentVariableTerminationSettings(
+    termination_settings = propagation_setup.PropagationDependentVariableTerminationSettings(
         dependent_variable_settings=termination_dependent_variable,
         limit_value=25.0E3,
         use_as_lower_limit=True,
@@ -159,13 +150,13 @@ def main():
     )
 
     # Create propagation settings.
-    propagator_settings = propagators.TranslationalStatePropagatorSettings(
+    propagator_settings = propagation_setup.TranslationalStatePropagatorSettings(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
         system_initial_state,
         termination_settings,
-        propagators.TranslationalPropagatorType.cowell,
+        propagation_setup.TranslationalPropagatorType.cowell,
         dependent_variables_to_save
     )
     integrator_settings = numerical_integrators.IntegratorSettings(
@@ -179,19 +170,20 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagators.SingleArcDynamicsSimulator(
-        bodies, integrator_settings, propagator_settings)
+    dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
+        bodies, integrator_settings, propagator_settings
+    )
 
-    io.save2txt(
-        solution=dynamics_simulator.get_equations_of_motion_numerical_solution(),
-        filename="apolloPropagationHistory.dat",
-        directory="./tutorial_3",
-    )
-    io.save2txt(
-        solution=dynamics_simulator.get_dependent_variable_history(),
-        filename="apolloDependentVariableHistory.dat",
-        directory="./tutorial_3"
-    )
+    # io.save2txt(
+    #     solution=dynamics_simulator.get_equations_of_motion_numerical_solution(),
+    #     filename="apolloPropagationHistory.dat",
+    #     directory="./tutorial_3",
+    # )
+    # io.save2txt(
+    #     solution=dynamics_simulator.get_dependent_variable_history(),
+    #     filename="apolloDependentVariableHistory.dat",
+    #     directory="./tutorial_3"
+    # )
 
     # Final statement (not required, though good practice in a __main__).
     return 0
