@@ -21,6 +21,32 @@ namespace tudatpy {
 
 void expose_root_finders(py::module &m) {
 
+  /*
+   *
+   *
+   *  root_finders
+   *  ├── bisection.h
+   *  ├── createRootFinder.h
+   *  ├── halleyRootFinder.h
+   *  ├── newtonRaphson.h
+   *  ├── rootFinder.h
+   *  ├── secantRootFinder.h
+   *  └── terminationConditions.h
+   *
+   */
+
+  py::class_<trf::RootFinderCore<double>,
+             std::shared_ptr<trf::RootFinderCore<double>>>
+      RootFinderCore_(m, "RootFinderCore");
+
+  py::class_<trf::NewtonRaphsonCore<double>,
+             std::shared_ptr<trf::NewtonRaphsonCore<double>>,
+             trf::RootFinderCore<double>>(m, "NewtonRaphsonCore")
+      .def(
+          py::init<const double, const unsigned int>(),
+          py::arg("x_tol"),
+          py::arg("max_iter"));
+
   py::class_<trf::RootFinderSettings,
              std::shared_ptr<trf::RootFinderSettings>>
       RootFinderSettings_(m, "RootFinderSettings");

@@ -10,13 +10,13 @@
 
 #include "expose_environment_setup.h"
 
-#include <tudat/simulation/environment_setup.h>
 #include "../docstrings.h"
+#include <tudat/simulation/environment_setup.h>
 
-#include <pybind11/chrono.h>
+//#include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-#include <pybind11/numpy.h>
+//#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -28,6 +28,73 @@ namespace ti = tudat::interpolators;
 namespace tudatpy {
 
 void expose_environment_setup(py::module &m) {
+
+  /*  This exposition module follows the structure of
+   *  tudat/src/simulation/environment_setup/
+   *  environment_setup
+   *  ├── body.h
+   *  ├── createAerodynamicCoefficientInterface.h
+   *  ├── createAerodynamicControlSurfaces.h
+   *  ├── createAtmosphereModel.h
+   *  ├── createBodies.h
+   *  ├── createBodyShapeModel.h
+   *  ├── createEphemeris.h
+   *  ├── createFlightConditions.h
+   *  ├── createGravityField.h
+   *  ├── createGravityFieldVariations.h
+   *  ├── createGroundStations.h
+   *  ├── createRadiationPressureInterface.h
+   *  ├── createRotationModel.h
+   *  └── defaultBodies.h
+   *
+   *  environment_setup/
+   *  ├── body.cpp
+   *  ├── CMakeLists.txt
+   *  ├── createAerodynamicCoefficientInterface.cpp
+   *  ├── createAerodynamicControlSurfaces.cpp
+   *  ├── createAtmosphereModel.cpp
+   *  ├── createBodies.cpp
+   *  ├── createBodyShapeModel.cpp
+   *  ├── createEphemeris.cpp
+   *  ├── createFlightConditions.cpp
+   *  ├── createGravityField.cpp
+   *  ├── createGravityFieldVariations.cpp
+   *  ├── createGroundStations.cpp
+   *  ├── createRadiationPressureInterface.cpp
+   *  ├── createRotationModel.cpp
+   *  └── defaultBodies.cpp
+   */
+
+  /////////////////////////////////////////////////////////////////////////////
+  // body.h ///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+  py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body")
+      .def(py::init<const Eigen::Vector6d &>(), py::arg("state") = Eigen::Vector6d::Zero())
+      .def("get_ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame)
+      .def("set_ephemeris_frame_to_base_frame", &tss::Body::setEphemerisFrameToBaseFrame)
+      .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame)
+      .def("get_state", &tss::Body::getState)
+      .def("set_state", &tss::Body::setState)
+      .def("get_ephemeris", &tss::Body::getEphemeris)
+      .def("set_ephemeris", &tss::Body::setEphemeris)
+      .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
+      .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
+      .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
+      .def("set_gravity_field_model", &tss::Body::setGravityFieldModel)
+      .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
+      .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
+      .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
+      .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
+      .def("get_body_mass", &tss::Body::getBodyMass)
+      .def("set_constant_body_mass", &tss::Body::setConstantBodyMass)
+      .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
+      .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface)
+      .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
+      .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
+      .def("get_flight_conditions", &tss::Body::getFlightConditions)
+      .def("set_flight_conditions", &tss::Body::setFlightConditions, py::arg("aerodynamic_flight_conditions"))
+      .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
+      .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"));
 
   /////////////////////////////////////////////////////////////////////////////
   // createBodies.h ///////////////////////////////////////////////////////////
@@ -45,64 +112,6 @@ void expose_environment_setup(py::module &m) {
       .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings)
       .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings);
 
-  // Body class
-  py::class_<tss::Body, std::shared_ptr<tss::Body>>(m, "Body")
-      .def(py::init<const Eigen::Vector6d &>(),
-           py::arg("state") = Eigen::Vector6d::Zero())
-      .def("get_ephemeris_frame_to_base_frame",
-           &tss::Body::getEphemerisFrameToBaseFrame)
-      .def("set_ephemeris_frame_to_base_frame",
-           &tss::Body::setEphemerisFrameToBaseFrame)
-      .def_property("ephemeris_frame_to_base_frame",
-                    &tss::Body::getEphemerisFrameToBaseFrame,
-                    &tss::Body::setEphemerisFrameToBaseFrame)
-      .def("get_state", &tss::Body::getState)
-      .def("set_state", &tss::Body::setState)
-      //                .def_property("state",
-      //                              &tss::Body::getState,
-      //                              &tss::Body::setState)
-      .def("get_ephemeris", &tss::Body::getEphemeris)
-      .def("set_ephemeris", &tss::Body::setEphemeris)
-      .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
-      .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
-      //                .def_property("ephemeris",
-      //                              &tss::Body::getEphemeris,
-      //                              &tss::Body::setEphemeris)
-      .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
-      .def("set_gravity_field_model", &tss::Body::setGravityFieldModel)
-      .def_property("gravity_field_model", &tss::Body::getGravityFieldModel,
-                    &tss::Body::setGravityFieldModel)
-      .def("get_aerodynamic_coefficient_interface",
-           &tss::Body::getAerodynamicCoefficientInterface)
-      .def("set_aerodynamic_coefficient_interface",
-           &tss::Body::setAerodynamicCoefficientInterface)
-      //                .def_property("aerodynamic_coefficient_interface",
-      //                              &tss::Body::getAerodynamicCoefficientInterface,
-      //                              &tss::Body::setAerodynamicCoefficientInterface)
-      .def("get_body_mass", &tss::Body::getBodyMass)
-      .def("set_constant_body_mass", &tss::Body::setConstantBodyMass)
-      //                .def_property("body_mass", // TODO: Check if this is compliant with the design.
-      //                              &tss::Body::getBodyMass,
-      //                              &tss::Body::setConstantBodyMass)
-      // TODO: Fix this in the Tudat code. Can't have a property setter and getter for different versions of the same internal property. Either set and get a list or make a cummulative function to add extra interfaces.
-      .def("get_radiation_pressure_interfaces",
-           &tss::Body::getRadiationPressureInterfaces)
-      .def("set_radiation_pressure_interface",
-           &tss::Body::setRadiationPressureInterface)
-      .def("set_aerodynamic_coefficient_interface",
-           &tss::Body::setAerodynamicCoefficientInterface)
-      .def("get_aerodynamic_coefficient_interface",
-           &tss::Body::getAerodynamicCoefficientInterface)
-      //                .def_property("aerodynamic_coefficient_interface",
-      //                              &tss::Body::getAerodynamicCoefficientInterface,
-      //                              &tss::Body::setAerodynamicCoefficientInterface)
-      .def("get_flight_conditions", &tss::Body::getFlightConditions)
-      .def("set_flight_conditions", &tss::Body::setFlightConditions,
-           py::arg("aerodynamic_flight_conditions"))
-      .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
-      .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris,
-           py::arg("rotational_ephemeris"));
-
   // getDefaultBodySettings (overload 1)
   m.def("get_default_body_settings",
         py::overload_cast<const std::vector<std::string> &, const double,
@@ -119,26 +128,29 @@ void expose_environment_setup(py::module &m) {
             &tss::getDefaultBodySettings),
         py::arg("bodies"));
 
+  m.def("set_global_frame_body_ephemerides",
+        &tss::setGlobalFrameBodyEphemerides<double, double>);
+
+  m.def("create_bodies", &tss::createBodies);
+
   /////////////////////////////////////////////////////////////////////////////
-  // createEphemeris.h ////////////////////////////////////////////////////////
+  // createEphemeris.h (complete, unverified)
   /////////////////////////////////////////////////////////////////////////////
-  py::class_<tss::EphemerisSettings, std::shared_ptr<tss::EphemerisSettings>>(
-      m, "EphemerisSettings")
-      .def(py::init<const tss::EphemerisType, const std::string &,
+  py::class_<tss::EphemerisSettings,
+             std::shared_ptr<tss::EphemerisSettings>>(m, "EphemerisSettings")
+      .def(py::init<const tss::EphemerisType,
+                    const std::string &,
                     const std::string &>(),
-           py::arg("ephemeris_type"), py::arg("frame_origin") = "SSB",
-           py::arg("frame_orientation"))
+           py::arg("ephemeris_type"),
+           py::arg("frame_origin") = "SSB",
+           py::arg("frame_orientation") = "ECLIPJ2000")
       .def("get_ephemeris_type", &tss::EphemerisSettings::getEphemerisType)
       .def("get_frame_origin", &tss::EphemerisSettings::getFrameOrigin)
-      .def("get_frame_orientation",
-           &tss::EphemerisSettings::getFrameOrientation)
-      .def("get_multi_arc_ephemeris",
-           &tss::EphemerisSettings::getMakeMultiArcEphemeris)
+      .def("get_frame_orientation", &tss::EphemerisSettings::getFrameOrientation)
+      .def("get_multi_arc_ephemeris", &tss::EphemerisSettings::getMakeMultiArcEphemeris)
       .def("reset_frame_origin", &tss::EphemerisSettings::resetFrameOrigin)
-      .def("reset_frame_orientation",
-           &tss::EphemerisSettings::resetFrameOrientation)
-      .def("reset_make_multi_arc_ephemeris",
-           &tss::EphemerisSettings::resetMakeMultiArcEphemeris);
+      .def("reset_frame_orientation", &tss::EphemerisSettings::resetFrameOrientation)
+      .def("reset_make_multi_arc_ephemeris", &tss::EphemerisSettings::resetMakeMultiArcEphemeris);
 
   py::class_<tss::DirectSpiceEphemerisSettings,
              std::shared_ptr<tss::DirectSpiceEphemerisSettings>,
@@ -151,18 +163,15 @@ void expose_environment_setup(py::module &m) {
            py::arg("correct_for_light_time_aberration") = false,
            py::arg("converge_light_time_aberration") = false,
            py::arg("ephemeris_type") = tss::direct_spice_ephemeris)
-      .def("get_correct_for_steller_aberration",
-           &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration)
-      .def("get_correct_for_steller_aberration",
-           &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration)
+      .def("get_correct_for_steller_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration)
+      .def("get_correct_for_steller_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration)
       .def("get_converge_light_time_aberration",
            // TODO : Fix getConvergeLighTimeAberration typo in Tudat.
            &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration);
 
   py::class_<tss::InterpolatedSpiceEphemerisSettings,
              std::shared_ptr<tss::InterpolatedSpiceEphemerisSettings>,
-             tss::DirectSpiceEphemerisSettings>(
-      m, "InterpolatedSpiceEphemerisSettings")
+             tss::DirectSpiceEphemerisSettings>(m, "InterpolatedSpiceEphemerisSettings")
       .def(py::init<
                double, double, double, std::string, std::string,
                std::shared_ptr<tudat::interpolators::InterpolatorSettings>>(),
@@ -263,19 +272,9 @@ void expose_environment_setup(py::module &m) {
   m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
         py::arg("ephemeris_model"));
 
-  // Tudat/SimulationSetup/EnvironmentSetup/createBodies.h
-  m.def("set_global_frame_body_ephemerides",
-        &tss::setGlobalFrameBodyEphemerides<double, double>);
-
-  //            void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
-  //                                                const std::string&
-  //                                                globalFrameOrigin, const
-  //                                                std::string&
-  //                                                globalFrameOrientation )
-
-  m.def("create_bodies", &tss::createBodies);
-
-  // createRotationalModel.cpp
+  /////////////////////////////////////////////////////////////////////////////
+  // createRotationalModel.h
+  /////////////////////////////////////////////////////////////////////////////
   py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no doc>")
       .value("simple_rotational_model",
              tss::RotationModelType::simple_rotation_model)
@@ -302,7 +301,9 @@ void expose_environment_setup(py::module &m) {
       .def("reset_original_frame",
            &tss::RotationModelSettings::resetOriginalFrame);
 
-  // Declaration for ConstantAerodynamicCoefficientSettings inheritance.
+  /////////////////////////////////////////////////////////////////////////////
+  // createAerodynamicCoefficientInterface.h
+  /////////////////////////////////////////////////////////////////////////////
   py::class_<tss::AerodynamicCoefficientSettings,
              std::shared_ptr<tss::AerodynamicCoefficientSettings>>
       AerodynamicCoefficientSettings_(m, "AerodynamicCoefficientSettings",
@@ -341,6 +342,9 @@ void expose_environment_setup(py::module &m) {
       RadiationPressureInterface_(m, "RadiationPressureInterface",
                                   "<no_doc, only_dec>");
 
+  /////////////////////////////////////////////////////////////////////////////
+  // createRadiationPressureInterface.h
+  /////////////////////////////////////////////////////////////////////////////
   py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType", "<no_doc>")
       .value(
           "cannon_ball_radiation_pressure_interface",

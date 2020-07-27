@@ -29,18 +29,18 @@ def main():
     ###########################################################################
 
     # Create body objects.
-    bodies_to_create = ["Earth"]
+    bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create)
+        bodies_to_create,
+        simulation_start_epoch - 300.0,
+        simulation_end_epoch + 300.0,
+        fixed_step_size)
 
-    body_settings["Earth"].ephemeris_settings = environment_setup.ConstantEphemerisSettings(
-        np.zeros(6))
+    for body in bodies_to_create:
+        body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
+        body_settings[body].rotation_model_settings.reset_original_frame("J2000")
 
-    body_settings["Earth"].rotation_model_settings.reset_original_frame(
-        "ECLIPJ2000")
-
-    # Create Earth Object.
     bodies = environment_setup.create_bodies(body_settings)
 
     ###########################################################################
@@ -49,13 +49,49 @@ def main():
 
     # Create vehicle objects.
     bodies["Delfi-C3"] = environment_setup.Body()
+    bodies["Delfi-C3"].set_constant_body_mass(400.0)
+
+    ###########################################################################
+    # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
+    ###########################################################################
+
+    # Create aerodynamic coefficient interface settings
+    reference_area = 4.0
+    aerodynamic_coefficient = 1.2
+    aero_c_settings = environment_setup.ConstantAerodynamicCoefficientSettings(
+        reference_area,
+        aerodynamic_coefficient * np.ones(3),
+        are_coefficients_in_aerodynamic_frame=True,
+        are_coefficients_in_negative_axis_direction=True
+    )
+    # Create and set aerodynamic coefficients object
+    bodies["Delfi-C3"].set_aerodynamic_coefficient_interface(
+        environment_setup.create_aerodynamic_coefficient_interface(
+            aero_c_settings,
+            "Delfi-C3")
+    )
+    # TODO: Simplify (post 1.0.0 work)
+
+    # Create radiation pressure settings
+    reference_area_radiation = 4.0
+    radiation_pressure_coefficient = 1.2
+    occulting_bodies = ["Earth"]
+    rad_press_settings = environment_setup.CannonBallRadiationPressureInterfaceSettings(
+        "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
+
+    # Create and set radiation pressure settings
+    bodies["Delfi-C3"].set_radiation_pressure_interface(
+        "Sun", environment_setup.create_radiation_pressure_interface(
+            rad_press_settings, "Delfi-C3", bodies))
+
+    # TODO: Simplify (post 1.0.0 work)
 
     ###########################################################################
     # FINALIZE BODIES #########################################################
     ###########################################################################
 
-    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB",
-                                                        "ECLIPJ2000")
+    # Finalize body creation.
+    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -67,17 +103,36 @@ def main():
     # Define central bodies.
     central_bodies = ["Earth"]
 
-    # Define accelerations acting on Delfi-C3.
+    # Define unique (Sun, Earth) accelerations acting on Delfi-C3.
     accelerations_of_delfi_c3 = dict(
-        Earth=[propagation_setup.Acceleration.point_mass_gravity()]
-    )
+        Sun=
+        [
+            propagation_setup.Acceleration.canon_ball_radiation_pressure()
+            # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure) # LEGACY DESIGN.
+        ],
+        Earth=
+        [
+            propagation_setup.Acceleration.spherical_harmonic_gravity(5, 5),
+            # SphericalHarmonicAccelerationSettings(5, 5), # LEGACY DESIGN.
+
+            propagation_setup.Acceleration.aerodynamic()
+            # AccelerationSettings(AvailableAcceleration.aerodynamic) # LEGACY DESIGN.
+        ])
+
+    # Define other point mass accelerations acting on Delfi-C3.
+    for other in set(bodies_to_create).difference({"Sun", "Earth"}):
+        accelerations_of_delfi_c3[other] = [
+            propagation_setup.Acceleration.point_mass_gravity()]
 
     # Create global accelerations dictionary.
-    accelerations = {"Delfi-C3": accelerations_of_delfi_c3}
+    acceleration_dict = {"Delfi-C3": accelerations_of_delfi_c3}
 
     # Create acceleration models.
     acceleration_models = propagation_setup.create_acceleration_models_dict(
-        bodies, accelerations, bodies_to_propagate, central_bodies)
+        bodies,
+        acceleration_dict,
+        bodies_to_propagate,
+        central_bodies)
 
     ###########################################################################
     # CREATE PROPAGATION SETTINGS #############################################
@@ -101,7 +156,6 @@ def main():
         argp=np.deg2rad(235.7),
         theta=np.deg2rad(139.87)
     )
-
     # Create propagation settings.
     propagator_settings = propagation_setup.TranslationalStatePropagatorSettings(
         central_bodies,
@@ -134,25 +188,15 @@ def main():
         f"""
 Single Earth-Orbiting Satellite Example.
 The initial position vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][:3] / 1E3} 
-The initial velocity vector of Delfi-C3 is [km]: \n{
+        result[simulation_start_epoch][:3] / 1E3}
+The initial velocity vector of Delfi-C3 is [km/s]: \n{
         result[simulation_start_epoch][3:] / 1E3}
 After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
         result[simulation_end_epoch][:3] / 1E3}
-And the velocity vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+And the velocity vector of Delfi-C3 is [km/s]: \n{
+        result[simulation_end_epoch][3:] / 1E3}
         """
     )
-
-    ###########################################################################
-    # SAVE RESULTS ############################################################
-    ###########################################################################
-    #
-    # io.save2txt(
-    #     solution=result,
-    #     filename="singleSatellitePropagationHistory.dat",
-    #     directory="./tutorial_1",
-    # )
 
     # Final statement (not required, though good practice in a __main__).
     return 0

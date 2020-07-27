@@ -12,7 +12,7 @@ from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 
 
-def main():
+def main_tutorial_1():
     # Load spice kernels.
     spice_interface.load_standard_kernels()
 
@@ -92,18 +92,6 @@ def main():
     earth_gravitational_parameter = bodies[
         "Earth"].gravity_field_model.get_gravitational_parameter()
 
-    # LEGACY DESIGN.
-    # KEI = orbital_element_conversions.KeplerianElementIndices
-    # asterix_initial_state_in_keplerian_elements = np.zeros(6)
-    # kep_state = asterix_initial_state_in_keplerian_elements
-    # kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-    # kep_state[int(KEI.eccentricity_index)] = 0.1
-    # kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-    # kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-    # kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-    # kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
-    # system_initial_state = corbital_element_conversions.onvert_keplerian_to_cartesian_elements(
-    #     kep_state, earth_gravitational_parameter)
 
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
@@ -173,5 +161,41 @@ And the velocity vector of Delfi-C3 is [km]: \n{
     return 0
 
 
+def main_tutorial_2():
+
+
 if __name__ == "__main__":
-    main()
+    # import numpy as np
+    # from tudatpy.kernel.astro.two_body import LambertTargeterIzzo
+    # from tudatpy.kernel.astro.two_body import LambertTargeterGooding
+    # from tudatpy.kernel.constants import JULIAN_DAY
+    #
+    # from datetime import datetime
+    #
+    # tic = datetime.now()
+    #
+    # lambert1 = LambertTargeterIzzo(
+    #     departure_position=[8.13198928e+10, -1.16357658e+11, -5.04299080e+10],
+    #     arrival_position=[2.49345342e+10, -1.93910554e+11, -8.96297815e+10],
+    #     time_of_flight=600.0 * JULIAN_DAY,
+    #     gravitational_parameter=1.32712442099e+20
+    # )
+    #
+    # lambert2 = LambertTargeterGooding(
+    #     departure_position=[8.13198928e+10, -1.16357658e+11, -5.04299080e+10],
+    #     arrival_position=[2.49345342e+10, -1.93910554e+11, -8.96297815e+10],
+    #     time_of_flight=600.0 * JULIAN_DAY,
+    #     gravitational_parameter=1.32712442099e+20
+    # )
+    #
+    # v1_tudat, v2_tudat = lambert1.get_velocity_vectors()
+    # v1_tudat2, v2_tudat2 = lambert2.get_velocity_vectors()
+    #
+    # print(datetime.now() - tic)
+    # v1_poli = np.array([12.46726047, 28.34486658, 13.91571767]) * 1e3
+    # v2_poli = np.array([17.314996, 15.97016173, 8.36039313]) * 1e3
+    #
+    # print(v1_tudat, v1_poli)
+    # print(v2_tudat, v2_poli)
+    main_tutorial_1()
+    main_tutorial_2()

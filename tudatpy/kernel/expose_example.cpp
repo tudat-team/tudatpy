@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2018, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,8 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_ASTRO_H
-#define TUDATPY_EXPOSE_ASTRO_H
+#include "expose_example.h"
+
+#include <tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h>
 
 #include <pybind11/pybind11.h>
 
@@ -17,8 +18,10 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_astro(py::module &m);
+void expose_example(py::module &m) {
 
-};// namespace tudatpy
+  m.def("apollo_aerodynamics_coefficient_interface",
+        &tudat::unit_tests::getApolloCoefficientInterface);
+}
 
-#endif// TUDATPY_EXPOSE_ASTRO_H
+}// namespace tudatpy

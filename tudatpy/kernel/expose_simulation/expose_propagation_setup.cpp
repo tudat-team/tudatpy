@@ -10,74 +10,301 @@
 
 #include "expose_propagation_setup.h"
 
+#include <pybind11/chrono.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/eigen.h>
-#include <pybind11/numpy.h>
-#include <pybind11/functional.h>
-#include <pybind11/chrono.h>
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tinterp = tudat::interpolators;
+namespace te = tudat::ephemerides;
 
 namespace tudatpy {
 
 void expose_propagation_setup(py::module &m) {
 
-  // Type registration
-  //  py::class_<tp::SingleStateTypeDerivative<double, double>,
-  //             std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>
-  //      SingleStateTypeDerivative(m, "SingleStateTypeDerivative");
-
+  /*
+   * propagation_setup
+   *  ├── accelerationSettings.h
+   *  ├── createAccelerationModels.h
+   *  ├── createEnvironmentUpdater.h
+   *  ├── createMassRateModels.h
+   *  ├── createStateDerivativeModel.h
+   *  ├── createThrustModelGuidance.h
+   *  ├── createTorqueModel.h
+   *  ├── dynamicsSimulator.h
+   *  ├── environmentUpdater.h
+   *  ├── propagationCR3BPFullProblem.h
+   *  ├── propagationLambertTargeterFullProblem.h
+   *  ├── propagationOutput.h
+   *  ├── propagationOutputSettings.h
+   *  ├── propagationPatchedConicFullProblem.h
+   *  ├── propagationSettings.h
+   *  ├── propagationTermination.h
+   *  ├── propagationTerminationSettings.h
+   *  ├── setNumericallyIntegratedStates.h
+   *  ├── thrustSettings.h
+   *  └── torqueSettings.h
+   *
+   * propagation_setup/
+   *  ├── createAccelerationModels.cpp
+   *  ├── createEnvironmentUpdater.cpp
+   *  ├── createMassRateModels.cpp
+   *  ├── createStateDerivativeModel.cpp
+   *  ├── createThrustModelGuidance.cpp
+   *  ├── createTorqueModel.cpp
+   *  ├── dynamicsSimulator.cpp
+   *  ├── environmentUpdater.cpp
+   *  ├── propagationCR3BPFullProblem.cpp
+   *  ├── propagationLambertTargeterFullProblem.cpp
+   *  ├── propagationOutput.cpp
+   *  ├── propagationOutputSettings.cpp
+   *  ├── propagationPatchedConicFullProblem.cpp
+   *  ├── propagationSettings.cpp
+   *  ├── propagationTermination.cpp
+   *  ├── setNumericallyIntegratedStates.cpp
+   *  └── thrustSettings.cpp
+   *
+   */
+  //////////////////////////////////////////////////////////////////////////////
   // accelerationSettings.h
+  //////////////////////////////////////////////////////////////////////////////
   py::class_<tss::AccelerationSettings,
-             std::shared_ptr<tss::AccelerationSettings>>(m,
-                                                         "AccelerationSettings")
+             std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings")
       .def(py::init<const tudat::basic_astrodynamics::AvailableAcceleration>(),
            py::arg("acceleration_type"));
 
   py::class_<tss::SphericalHarmonicAccelerationSettings,
              std::shared_ptr<tss::SphericalHarmonicAccelerationSettings>,
-             tss::AccelerationSettings>(m,
-                                        "SphericalHarmonicAccelerationSettings")
+             tss::AccelerationSettings>(m, "SphericalHarmonicAccelerationSettings")
       .def(py::init<const int, const int>(), py::arg("maximum_degree"),
            py::arg("maximum_order"));
 
-  //            basic_astrodynamics::AccelerationMap
-  //            createAccelerationModelsMap(
-  //                    const NamedBodyMap& bodyMap,
-  //                    const SelectedAccelerationMap&
-  //                    selectedAccelerationPerBody, const std::vector<
-  //                    std::string >& propagatedBodies, const std::vector<
-  //                    std::string >& centralBodies );
+  py::class_<tss::ThrustAccelerationSettings,
+             std::shared_ptr<tss::ThrustAccelerationSettings>,
+             tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
+      .def(py::init<//ctor 1
+               const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
+               const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
+           py::arg("thrust_direction_settings"),
+           py::arg("thrust_magnitude_settings"))
+      .def(py::init<//ctor 2
+               const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>> &,
+               const std::function<double(const double)>,
+               const tss::ThrustFrames,
+               const std::string>(),
+           py::arg("data_interpolation_settings"),
+           py::arg("specific_impulse_function"),
+           py::arg("thrust_frame"),
+           py::arg("central_body") = "")
+      .def(py::init<//ctor 3
+               const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>> &,
+               const double,
+               const tss::ThrustFrames,
+               const std::string>(),
+           py::arg("data_interpolation_settings"),
+           py::arg("constant_specific_impulse"),
+           py::arg("thrust_frame"),
+           py::arg("central_body") = "");
 
+  //////////////////////////////////////////////////////////////////////////////
   // createAccelerationModels.cpp
-  // createAccelerationModelsMap (overload 1)
-  m.def("create_acceleration_models_dict",
-        py::overload_cast<
-            const tss::NamedBodyMap &, const tss::SelectedAccelerationMap &,
-            const std::vector<std::string> &, const std::vector<std::string> &>(
+  //////////////////////////////////////////////////////////////////////////////
+  m.def("create_acceleration_models_dict",// overload [1/2]
+        py::overload_cast<const tss::NamedBodyMap &,
+                          const tss::SelectedAccelerationMap &,
+                          const std::vector<std::string> &,
+                          const std::vector<std::string> &>(
             &tss::createAccelerationModelsMap),
-        py::arg("body_dict"), py::arg("selected_acceleration_per_body"),
-        py::arg("propagated_bodies"), py::arg("central_bodies"));
+        py::arg("body_system"),
+        py::arg("selected_acceleration_per_body"),
+        py::arg("bodies_to_propagate"),
+        py::arg("central_bodies"));
 
-  //            basic_astrodynamics::AccelerationMap
-  //            createAccelerationModelsMap(
-  //                    const NamedBodyMap& bodyMap,
-  //                    const SelectedAccelerationMap&
-  //                    selectedAccelerationPerBody, const std::map<
-  //                    std::string, std::string >& centralBodies );
-
-  // createAccelerationModelsMap (overload 2)
-  m.def("create_acceleration_models_dict",
+  m.def("create_acceleration_models_dict",// overload [2/2]
         py::overload_cast<const tss::NamedBodyMap &,
                           const tss::SelectedAccelerationMap &,
                           const std::map<std::string, std::string> &>(
             &tss::createAccelerationModelsMap),
-        py::arg("body_dict"), py::arg("selected_acceleration_per_body"),
+        py::arg("body_system"),
+        py::arg("selected_acceleration_per_body"),
         py::arg("central_bodies"));
+
+  //////////////////////////////////////////////////////////////////////////////
+  // createThrustModelGuidance.h / createThrustModelGuidance.cpp
+  //////////////////////////////////////////////////////////////////////////////
+  m.def("get_combined_thrust_direction",
+        &tss::getCombinedThrustDirection,
+        py::arg("thrust_directions"),
+        py::arg("thrust_magnitudes"));
+
+  m.def("get_body_fixed_thrust_direction",
+        &tss::getBodyFixedThrustDirection,
+        py::arg("thrust_magnitude_settings"),
+        py::arg("body_system"),
+        py::arg("body_name"));
+
+  m.def("create_thrust_magnitude_wrapper",
+        &tss::createThrustMagnitudeWrapper,
+        py::arg("thrust_magnitude_settings"),
+        py::arg("body_system"),
+        py::arg("name_of_body_with_guidance"),
+        py::arg("magnitude_update_settings"));
+
+  m.def("update_thrust_magnitude_and_direction",
+        &tss::updateThrustMagnitudeAndDirection,
+        py::arg("thrust_magnitude_wrapper"),
+        py::arg("thrust_direction_guidance"),
+        py::arg("current_time"));
+
+  m.def("reset_thrust_magnitude_and_direction_time",
+        &tss::resetThrustMagnitudeAndDirectionTime,
+        py::arg("thrust_magnitude_wrapper"),
+        py::arg("thrust_direction_guidance"),
+        py::arg("current_time"));
+
+  //////////////////////////////////////////////////////////////////////////////
+  // thrustSettings.h / thrustSettings.cpp
+  //////////////////////////////////////////////////////////////////////////////
+  py::enum_<tss::ThrustDirectionGuidanceTypes>(m, "ThrustDirectionGuidanceTypes")
+      .value("colinear_with_state_segment_thrust_direction", tss::ThrustDirectionGuidanceTypes::colinear_with_state_segment_thrust_direction)
+      .value("thrust_direction_from_existing_body_orientation", tss::ThrustDirectionGuidanceTypes::thrust_direction_from_existing_body_orientation)
+      .value("custom_thrust_direction", tss::ThrustDirectionGuidanceTypes::custom_thrust_direction)
+      .value("custom_thrust_orientation", tss::ThrustDirectionGuidanceTypes::custom_thrust_orientation)
+      .value("mee_costate_based_thrust_direction", tss::ThrustDirectionGuidanceTypes::mee_costate_based_thrust_direction);
+
+  m.def("get_propulsion_input_variables",
+        &tss::getPropulsionInputVariables,
+        py::arg("body_with_guidance") = std::shared_ptr<tss::Body>(),
+        py::arg("independent_variables") = std::vector<tudat::propulsion::ThrustIndependentVariables>(),
+        py::arg("guidance_input_functions") = std::vector<std::function<double()>>());
+
+  py::class_<
+      tss::ThrustDirectionGuidanceSettings,
+      std::shared_ptr<tss::ThrustDirectionGuidanceSettings>>(m, "ThrustDirectionGuidanceSettings")
+      .def(py::init<
+               const tss::ThrustDirectionGuidanceTypes,
+               const std::string>(),
+           py::arg("thrust_direction_type"),
+           py::arg("relative_body"))
+      .def_readonly("thrust_direction_type", &tss::ThrustDirectionGuidanceSettings::thrustDirectionType_)
+      .def_readonly("relative_body", &tss::ThrustDirectionGuidanceSettings::relativeBody_);
+
+  py::class_<
+      tss::ThrustDirectionFromStateGuidanceSettings,
+      std::shared_ptr<tss::ThrustDirectionFromStateGuidanceSettings>,
+      tss::ThrustDirectionGuidanceSettings>(m, "ThrustDirectionFromStateGuidanceSettings")
+      .def(py::init<const std::string &,
+                    const bool,
+                    const bool>(),
+           py::arg("central_body"),
+           py::arg("is_colinear_with_velocity"),
+           py::arg("direction_is_opposite_to_vector"))
+      .def_readonly("is_colinear_with_velocity", &tss::ThrustDirectionFromStateGuidanceSettings::isColinearWithVelocity_)
+      .def_readonly("direction_is_opposite_to_vector", &tss::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_);
+
+  py::class_<
+      tss::CustomThrustOrientationSettings,
+      std::shared_ptr<tss::CustomThrustOrientationSettings>,
+      tss::ThrustDirectionGuidanceSettings>(m, "CustomThrustDirectionSettings")
+      .def(py::init<const std::function<Eigen::Quaterniond(const double)>>(),
+           py::arg("thrust_orientation_function"))
+      .def_readonly("thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_);
+
+  py::class_<
+      tss::MeeCostateBasedThrustDirectionSettings,
+      std::shared_ptr<tss::MeeCostateBasedThrustDirectionSettings>,
+      tss::ThrustDirectionGuidanceSettings>(m, "MeeCostateBasedThrustDirectionSettings")
+      .def(py::init<const std::string &,//ctor 1
+                    const std::string &,
+                    const std::function<Eigen::VectorXd(const double)>>(),
+           py::arg("vehicle_name"),
+           py::arg("central_body_name"),
+           py::arg("costate_function"))
+      .def(py::init<const std::string &,//ctor 2
+                    const std::string &,
+                    std::shared_ptr<tinterp::OneDimensionalInterpolator<double, Eigen::VectorXd>>>(),
+           py::arg("vehicle_name"),
+           py::arg("central_body_name"),
+           py::arg("costate_interpolator"))
+      .def(py::init<const std::string &,//ctor 3
+                    const std::string &,
+                    const Eigen::VectorXd>(),
+           py::arg("vehicle_name"),
+           py::arg("central_body_name"),
+           py::arg("constant_costates"))
+      .def_readonly("vehicle_name", &tss::MeeCostateBasedThrustDirectionSettings::vehicleName_)
+      .def_readonly("costate_function", &tss::MeeCostateBasedThrustDirectionSettings::costateFunction_);
+
+  py::enum_<tss::ThrustMagnitudeTypes>(m, "ThrustMagnitudeTypes")
+      .value("constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude)
+      .value("from_engine_properties_thrust_magnitude", tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
+      .value("thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function)
+      .value("thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables)
+      .value("bang_bang_thrust_magnitude_from_mee_costates", tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
+
+  py::class_<
+      tss::ThrustMagnitudeSettings,
+      std::shared_ptr<tss::ThrustMagnitudeSettings>>(m, "ThrustMagnitudeSettings")
+      .def(py::init<
+               const tss::ThrustMagnitudeTypes,
+               const std::string &>(),
+           py::arg("thrust_magnitude_guidance_type"),
+           py::arg("thrust_origin_id"))
+      .def_readonly("thrust_magnitude_guidance_type", &tss::ThrustMagnitudeSettings::thrustMagnitudeGuidanceType_)
+      .def_readonly("thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_);
+
+  py::class_<
+      tss::ConstantThrustMagnitudeSettings,
+      std::shared_ptr<tss::ConstantThrustMagnitudeSettings>,
+      tss::ThrustMagnitudeSettings>(m, "ConstantThrustMagnitudeSettings")
+      .def(py::init<
+               const double,
+               const double,
+               const Eigen::Vector3d>(),
+           py::arg("thrust_magnitude"),
+           py::arg("specific_impulse"),
+           py::arg("body_fixed_thrust_direction") = Eigen::Vector3d::UnitX())
+      .def_readonly("thrust_magnitude", &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_)
+      .def_readonly("specific_impulse", &tss::ConstantThrustMagnitudeSettings::specificImpulse_)
+      .def_readonly("body_fixed_thrust_direction", &tss::ConstantThrustMagnitudeSettings::bodyFixedThrustDirection_);
+
+  py::class_<
+      tss::FromBodyThrustMagnitudeSettings,
+      std::shared_ptr<tss::FromBodyThrustMagnitudeSettings>,
+      tss::ThrustMagnitudeSettings>(m, "FromBodyThrustMagnitudeSettings")
+      .def(py::init<
+               const double,
+               const std::string &>(),
+           py::arg("use_all_engines"),
+           py::arg("thrust_origin"))
+      .def_readonly("use_all_engines", &tss::FromBodyThrustMagnitudeSettings::useAllEngines_);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // dynamicsSimulator.h / dynamicsSimulator.cpp
+  //////////////////////////////////////////////////////////////////////////////
+  //  m.def("get_initial_state_of_bodies",// overload [1/2]
+  //        py::overload_cast<const std::vector<std::string> &,
+  //                          const std::vector<std::string> &,
+  //                          const tss::NamedBodyMap &,
+  //                          const double,
+  //                          std::shared_ptr<te::ReferenceFrameManager>>(
+  //            &tp::getInitialStatesOfBodies<>));
+
+  m.def("get_initial_state_of_bodies",// overload [2/2]
+        py::overload_cast<const std::vector<std::string> &,
+                          const std::vector<std::string> &,
+                          const tss::NamedBodyMap &,
+                          const double>(
+            &tp::getInitialStatesOfBodies<>),
+        py::arg("bodies_to_propagate"),
+        py::arg("central_bodies"),
+        py::arg("body_system"),
+        py::arg("initial_time"));
 
   py::class_<
       tp::SingleArcDynamicsSimulator<double, double>,

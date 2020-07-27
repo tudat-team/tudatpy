@@ -1,10 +1,6 @@
-.. tudatpy documentation master file, created by
-   sphinx-quickstart on Wed Apr 29 16:32:15 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-TudatPy
-===================================
+**********************
+TudatPy: Documentation
+**********************
 
 TU Delft Astrodynamics Toolbox in Python, or **TudatPy**, is a library that primarily exposes the powerful set of C++
 libraries, `Tudat`_. TudatPy aims at accelerating the implementation of Tudat simulations,
@@ -18,14 +14,9 @@ quality education in the field of astrodynamics.
    :caption: Modules
    :hidden:
 
+   _src_modules/kernel
    _src_modules/prototype
    _src_modules/elements
-   _src_modules/constants
-   _src_modules/spice_interface
-   _src_modules/basic_astrodynamics
-   _src_modules/numerical_integrators
-   _src_modules/propagators
-   _src_modules/simulation_setup
 
 .. toctree::
    :maxdepth: 2

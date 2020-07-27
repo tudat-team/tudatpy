@@ -21,12 +21,11 @@ namespace py = pybind11;
 namespace tudatpy {
 
 void expose_simulation(py::module &m) {
+  auto environment_setup = m.def_submodule("environment_setup");
+  expose_environment_setup(environment_setup);
 
   auto propagation_setup = m.def_submodule("propagation_setup");
   expose_propagation_setup(propagation_setup);
-
-  auto environment_setup = m.def_submodule("environment_setup");
-  expose_environment_setup(environment_setup);
 
   auto estimation_setup = m.def_submodule("estimation_setup");
   expose_estimation_setup(estimation_setup);
