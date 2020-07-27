@@ -46,6 +46,8 @@ set(TUDATPY_PYTHON_FILES
         elements.py
         prototype.py
         io.py
+        tutorial_1.py
+        tutorial_2.py
         )
 
 # Copy the python files in the current binary dir,
@@ -65,6 +67,7 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/astro
         kernel/expose_astro.cpp
+        kernel/expose_astro/expose_two_body.cpp
         kernel/expose_astro/expose_fundamentals.cpp
         kernel/expose_astro/expose_gravitation.cpp
         kernel/expose_astro/expose_conversion.cpp
@@ -72,6 +75,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_aerodynamics.cpp
         kernel/expose_astro/expose_propagators.cpp
         kernel/expose_astro/expose_reference_frames.cpp
+
 
         # kernel/constants
         kernel/expose_constants.cpp
@@ -99,6 +103,8 @@ YACMA_PYTHON_MODULE(kernel
 
         kernel/expose_unit_tests.cpp
         kernel/docstrings.cpp
+
+        kernel/expose_example.cpp
         )
 
 target_link_libraries(kernel PRIVATE
@@ -144,7 +150,13 @@ endmacro()
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
+INSTALL_PURE_PYTHON_MODULE_DIR(util)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY tutorial_1.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY tutorial_2.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY tutorial_3.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY tutorial_4.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY tutorial_5.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

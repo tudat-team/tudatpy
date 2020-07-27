@@ -5,9 +5,23 @@
 
 namespace tudatpy {
 
-    // constants
-    std::string constants_docstring(){
-        return R"mydelimiter(
+// astro
+std::string astro_docstring() {
+
+  return 0;
+}
+
+// astro : two_body
+std::string two_body_docstring() {
+
+  return 0;
+}
+
+
+
+// constants
+std::string constants_docstring() {
+  return R"mydelimiter(
 Summary
 -------
 Module containing all constants listed in the Tudat package.
@@ -61,32 +75,32 @@ Routine Listings
  - LONG_PI
  - TUDAT_NAN
         )mydelimiter";
-    };
+};
 
-    // spice_interface
-    std::string load_standard_kernels_docstring(){
-        return R"mydelimiter(
+// spice_interface
+std::string load_standard_kernels_docstring() {
+  return R"mydelimiter(
 Definition at line 283 of file ``spiceInterface.cpp``.
 
 References ``tudat::input_output::getSpiceKernelPath()``, and ``loadSpiceKernelInTudat()``.
 
 Referenced by ``tudat::unit_tests::executeEarthOrbiterBiasEstimation()``, ``tudat::unit_tests::executeEarthOrbiterParameterEstimation()``, ``tudat::unit_tests::executePlanetaryParameterEstimation()``, and ``tudat::json_interface::loadSpiceKernels()``.
         )mydelimiter";
-    };
+};
 
-    std::string clear_spice_kernels_docstring(){
-        return R"mydelimiter(
+std::string clear_spice_kernels_docstring() {
+  return R"mydelimiter(
 This function removes all Spice kernels from the kernel pool. Wrapper for the kclear_c function.
 
 Definition at line 281 of file ``spiceInterface.cpp``.
 
 Referenced by ``tudat::json_interface::loadSpiceKernels()``.
         )mydelimiter";
-    };
+};
 
-    // simulation_setup
-    std::string body_settings_docstring() {
-        return R"mydelimiter(
+// simulation_setup
+std::string body_settings_docstring() {
+  return R"mydelimiter(
 Class in which the general properties of each environment model can be set (see above for the list of the available types of environment models). We note that for :class:`Body` objects that represent vehicles, the manual creation is typically used, as the vehicle conditions may depend on the celestial bodies, but not vice versa.
 
 In many cases, default properties of (celestial) bodies may be used by calling the :literal:`getDefaultBodySettings` function, so that the user does not need to define all required properties line-by-line. At present, the following default settings are used (none if not in list):
@@ -99,5 +113,5 @@ Parameters
 - Atmosphere model: 1976 US Standard Atmosphere for Earth (using pregenerated tables). For other bodies, no default shape model is given.
 - Shape model: Spherical model with mean radius obtained from Spice (if avaiable).
         )mydelimiter";
-    };
-}
+};
+}// namespace tudatpy
