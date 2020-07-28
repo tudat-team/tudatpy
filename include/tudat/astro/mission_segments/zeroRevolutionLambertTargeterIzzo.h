@@ -90,9 +90,7 @@ public:
           convergenceTolerance( aConvergenceTolerance ),
           maximumNumberOfIterations( aMaximumNumberOfIterations ),
           transformed( false )
-    {
-        execute( );
-    }
+    { }
 
     //! Get radial velocity at departure.
     /*!

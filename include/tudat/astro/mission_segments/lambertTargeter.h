@@ -57,7 +57,8 @@ public:
           timeOfFlight( aTimeOfFlight ),
           gravitationalParameter( aGravitationalParameter ),
           cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ),
-          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) )
+          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) ),
+          solved( false )
     { }
 
     //! Default destructor.
@@ -73,6 +74,9 @@ public:
      */
     Eigen::Vector3d getInertialVelocityAtDeparture( )
     {
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
+
         // Return computed Cartesian velocity at departure.
         return cartesianVelocityAtDeparture;
     }
@@ -84,6 +88,9 @@ public:
      */
     Eigen::Vector3d getInertialVelocityAtArrival( )
     {
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
+
         // Return computed Cartesian velocity at arrival.
         return cartesianVelocityAtArrival;
     }
@@ -96,6 +103,8 @@ public:
      */
     std::pair< Eigen::Vector3d, Eigen::Vector3d > getInertialVelocityVectors( )
     {
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
 
         // Return computed Cartesian velocities at departure and arrival.
         return std::pair< Eigen::Vector3d, Eigen::Vector3d >(
