@@ -9,7 +9,7 @@
  */
 
 
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/constantTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/constantTorquePartial.h"
 
 namespace tudat
 {

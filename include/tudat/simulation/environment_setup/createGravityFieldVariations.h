@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 

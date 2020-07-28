@@ -11,7 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <tudat/simulation/estimation.h>
-#include "tudat/simulation/propagation/propagationLambertTargeterFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>

@@ -1,5 +1,5 @@
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/eulerAngleObservablePartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/eulerAngleObservablePartials.h"
 
 namespace tudat
 {

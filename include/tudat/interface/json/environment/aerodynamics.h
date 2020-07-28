@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_AERODYNAMICS_H
 #define TUDAT_JSONINTERFACE_AERODYNAMICS_H
 
-#include "tudat/simulation/environment/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

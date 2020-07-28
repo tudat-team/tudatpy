@@ -15,7 +15,7 @@
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 
 namespace tudat

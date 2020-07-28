@@ -16,7 +16,7 @@
 #include <boost/make_shared.hpp>
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

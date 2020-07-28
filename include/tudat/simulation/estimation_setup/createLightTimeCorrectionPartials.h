@@ -13,7 +13,7 @@
 #define TUDAT_CREATELIGHTTIMECORRECTIONPARTIALS_H
 
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 
 namespace tudat
 {

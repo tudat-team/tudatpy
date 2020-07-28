@@ -15,11 +15,11 @@
 
 #include "tudat/basics/tudatTypeTraits.h"
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/centralGravityAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
 {

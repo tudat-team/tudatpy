@@ -16,8 +16,8 @@
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/astro/mission_segments/lambertTargeter.h"
 #include "tudat/astro/mission_segments/lambertTargeterIzzo.h"

@@ -15,9 +15,9 @@
 #include "tudat/astro/propulsion/thrustGuidance.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createFlightConditions.h"
-#include "tudat/simulation/propagation/thrustSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/propagation_setup/thrustSettings.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
 

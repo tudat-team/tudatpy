@@ -10,8 +10,8 @@
 
 #include <boost/bind.hpp>
 
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 
 namespace tudat
 {

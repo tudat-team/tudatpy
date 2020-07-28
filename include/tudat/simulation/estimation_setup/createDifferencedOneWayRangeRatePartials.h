@@ -11,12 +11,12 @@
 #ifndef TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
 #define TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
 
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/estimation/createDifferencedOneWayRangeRatePartials.h"
-#include "tudat/simulation/estimation/createOneWayRangePartials.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
+#include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
 
-#include "tudat/astro/orbit_determination/ObservationPartials/oneWayRangePartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/differencedOneWayRangeRatePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
 
 namespace tudat
 {

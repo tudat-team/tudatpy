@@ -16,7 +16,7 @@
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
 #include "tudat/astro/propagators/nBodyEnckeStateDerivative.h"
@@ -32,7 +32,7 @@
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
 #include "tudat/astro/propagators/customStateDerivative.h"
 #include "tudat/astro/propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 
 namespace tudat

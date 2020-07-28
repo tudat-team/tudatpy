@@ -18,9 +18,9 @@
 #include <memory>
 
 #include "tudat/astro/observation_models/observationManager.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/observationBiasParameter.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/estimation/createObservationPartials.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 
 namespace tudat

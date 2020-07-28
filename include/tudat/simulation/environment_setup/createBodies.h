@@ -14,17 +14,17 @@
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createEphemeris.h"
-#include "tudat/simulation/environment/createAtmosphereModel.h"
-#include "tudat/simulation/environment/createBodyShapeModel.h"
-#include "tudat/simulation/environment/createEphemeris.h"
-#include "tudat/simulation/environment/createGravityField.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/environment/createRotationModel.h"
-#include "tudat/simulation/environment/createRadiationPressureInterface.h"
-#include "tudat/simulation/environment/createFlightConditions.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
 {
