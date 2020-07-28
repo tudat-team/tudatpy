@@ -123,9 +123,9 @@ Eigen::Vector3d calculatePositionBasedDsmLocation(
 
 void DsmPositionBasedTransferLeg::computeTransfer( )
 {
-    if( legParameters_.rows( ) != 2 )
+    if( legParameters_.rows( ) != 6 )
     {
-        throw std::runtime_error( "Error when computing UnpoweredUnperturbedTransferLeg, incorrect input size" );
+        throw std::runtime_error( "Error when computing DsmPositionBasedTransferLeg, incorrect input size" );
     }
     updateDepartureAndArrivalBodies(
                 legParameters_( 0 ), legParameters_( 1 ) );
@@ -200,9 +200,9 @@ DsmVelocityBasedTransferLeg::DsmVelocityBasedTransferLeg(
 
 void DsmVelocityBasedTransferLeg::computeTransfer( )
 {
-    if( legParameters_.rows( ) != 2 )
+    if( legParameters_.rows( ) != 3 )
     {
-        throw std::runtime_error( "Error when computing UnpoweredUnperturbedTransferLeg, incorrect input size" );
+        throw std::runtime_error( "Error when computing DsmVelocityBasedTransferLeg, incorrect input size" );
     }
     updateDepartureAndArrivalBodies(
                 legParameters_( 0 ), legParameters_( 1 ) );
