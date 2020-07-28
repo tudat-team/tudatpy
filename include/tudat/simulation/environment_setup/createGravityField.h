@@ -18,8 +18,8 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <memory>
 
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"

@@ -14,8 +14,8 @@
 
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/propagation/torqueSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"

@@ -25,10 +25,10 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 
 namespace tudat

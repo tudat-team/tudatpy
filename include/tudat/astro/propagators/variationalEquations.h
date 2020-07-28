@@ -21,10 +21,10 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialRotationalState.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
 {

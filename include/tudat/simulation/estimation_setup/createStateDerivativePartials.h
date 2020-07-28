@@ -12,12 +12,12 @@
 #define TUDAT_CREATESTATEDERIVATIVEPARTIALS_H
 
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
-#include "tudat/simulation/estimation/createAccelerationPartials.h"
-#include "tudat/simulation/estimation/createTorquePartials.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
+#include "tudat/simulation/estimation_setup/createTorquePartials.h"
 
 namespace tudat
 {

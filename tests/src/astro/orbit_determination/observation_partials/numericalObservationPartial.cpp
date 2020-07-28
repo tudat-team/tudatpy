@@ -9,8 +9,8 @@
  *
  */
 
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
 
 namespace tudat
 {

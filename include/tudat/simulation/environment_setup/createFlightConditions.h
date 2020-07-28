@@ -18,8 +18,8 @@
 #include "tudat/astro/aerodynamics/aerodynamicGuidance.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createAerodynamicCoefficientInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 
 
 namespace tudat

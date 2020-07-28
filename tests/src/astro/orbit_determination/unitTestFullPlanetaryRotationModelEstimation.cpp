@@ -20,7 +20,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/periodicSpinVariation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h"
 
 
 namespace tudat

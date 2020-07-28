@@ -17,12 +17,12 @@
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 
-#include "tudat/simulation/estimation/createAngularPositionPartials.h"
-#include "tudat/simulation/estimation/createOneWayRangePartials.h"
-#include "tudat/simulation/estimation/createDopplerPartials.h"
-#include "tudat/simulation/estimation/createDifferencedOneWayRangeRatePartials.h"
-#include "tudat/simulation/estimation/createNWayRangePartials.h"
-#include "tudat/simulation/estimation/createEulerAngleObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createAngularPositionPartials.h"
+#include "tudat/simulation/estimation_setup/createOneWayRangePartials.h"
+#include "tudat/simulation/estimation_setup/createDopplerPartials.h"
+#include "tudat/simulation/estimation_setup/createDifferencedOneWayRangeRatePartials.h"
+#include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
+#include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
 namespace tudat
 {
 

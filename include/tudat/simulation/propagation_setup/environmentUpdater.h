@@ -21,9 +21,9 @@
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 
 namespace tudat

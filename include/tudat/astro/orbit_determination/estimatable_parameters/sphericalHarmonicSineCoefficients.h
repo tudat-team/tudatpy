@@ -15,8 +15,8 @@
 
 #include <functional>
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 
 namespace tudat
 {

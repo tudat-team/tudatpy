@@ -16,11 +16,11 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createRotationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat

@@ -19,7 +19,7 @@
 
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/simulation/estimation/createLightTimeCorrection.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
@@ -31,8 +31,8 @@
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/observation_models/observationViabilityCalculator.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createLightTimeCalculator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 
 
 namespace tudat

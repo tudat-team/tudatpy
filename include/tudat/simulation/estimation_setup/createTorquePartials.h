@@ -14,13 +14,13 @@
 #include <boost/make_shared.hpp>
 
 #include "tudat/astro/basic_astro/torqueModel.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createAccelerationPartials.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/secondDegreeGravitationalTorquePartial.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/sphericalHarmonicGravitationalTorquePartial.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/inertialTorquePartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
 namespace tudat

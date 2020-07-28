@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEGROUNDSTATIONS_H
 #define TUDAT_CREATEGROUNDSTATIONS_H
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 
 namespace tudat

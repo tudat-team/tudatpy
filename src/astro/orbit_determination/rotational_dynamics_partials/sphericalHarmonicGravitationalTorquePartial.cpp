@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/sphericalHarmonicGravitationalTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 

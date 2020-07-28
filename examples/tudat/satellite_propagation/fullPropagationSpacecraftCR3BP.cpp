@@ -20,7 +20,7 @@
 #include <tudat/astro/basic_astro/orbitalElementConversions.h>
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
-#include "tudat/simulation/propagation/propagationCR3BPFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 
 #include <tudat/simulation/simulation.h>
 #include <tudat/io/basicInputOutput.h>

@@ -18,9 +18,9 @@
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
-#include "tudat/simulation/propagation/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"

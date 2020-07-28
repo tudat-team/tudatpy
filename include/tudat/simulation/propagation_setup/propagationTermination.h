@@ -13,8 +13,8 @@
 
 #include <memory>
 
-#include "tudat/simulation/propagation/propagationOutput.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudat
 {

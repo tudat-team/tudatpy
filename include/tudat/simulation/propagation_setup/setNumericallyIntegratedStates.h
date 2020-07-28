@@ -12,12 +12,12 @@
 #define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
 #include "tudat/basics/utilities.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/ephemerides/multiArcEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 
 namespace tudat

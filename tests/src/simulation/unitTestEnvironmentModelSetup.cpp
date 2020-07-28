@@ -45,11 +45,11 @@
 #include "tudat/io/parseSolarActivityData.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
-#include "tudat/simulation/environment/createAtmosphereModel.h"
-#include "tudat/simulation/environment/createEphemeris.h"
-#include "tudat/simulation/environment/createGravityField.h"
-#include "tudat/simulation/environment/createRotationModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {

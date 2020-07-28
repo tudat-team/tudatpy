@@ -11,8 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_EXPORT_H
 #define TUDAT_JSONINTERFACE_EXPORT_H
 
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/simulation/estimation/variationalEquationsSolver.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/interface/json/propagation/variable.h"
 
 #include "tudat/interface/json/support/valueAccess.h"

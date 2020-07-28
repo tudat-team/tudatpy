@@ -17,7 +17,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/torqueModel.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/basics/basicTypedefs.h"
 
 namespace tudat

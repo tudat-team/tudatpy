@@ -20,10 +20,10 @@
 
 #include "tudat/math/interpolators/interpolator.h"
 
-#include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/angularPositionPartial.h"
-#include "tudat/simulation/estimation/createLightTimeCorrectionPartials.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
 

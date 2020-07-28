@@ -20,11 +20,11 @@
 
 #include "tudat/io/basicInputOutput.h"
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 
 namespace tudat
 {

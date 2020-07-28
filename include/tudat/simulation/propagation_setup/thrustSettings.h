@@ -27,8 +27,8 @@
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/math/interpolators/interpolator.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createFlightConditions.h"
 
 namespace tudat
 {

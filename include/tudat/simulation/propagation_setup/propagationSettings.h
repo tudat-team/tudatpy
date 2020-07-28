@@ -27,11 +27,11 @@
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
-#include "tudat/simulation/propagation/propagationOutputSettings.h"
-#include "tudat/simulation/propagation/propagationTerminationSettings.h"
-#include "tudat/simulation/propagation/createAccelerationModels.h"
-#include "tudat/simulation/propagation/createTorqueModel.h"
-#include "tudat/simulation/propagation/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
 
 namespace tudat
 {

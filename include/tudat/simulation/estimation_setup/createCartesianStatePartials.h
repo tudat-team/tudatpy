@@ -18,12 +18,12 @@
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/positionPartials.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
 
 
 namespace tudat

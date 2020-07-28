@@ -22,15 +22,15 @@
 #include "tudat/math/interpolators/interpolator.h"
 
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/simulation/estimation/createLightTimeCalculator.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/oneWayDopplerPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/twoWayDopplerPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
+#include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
-#include "tudat/simulation/estimation/createLightTimeCorrectionPartials.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 
 namespace tudat
 {

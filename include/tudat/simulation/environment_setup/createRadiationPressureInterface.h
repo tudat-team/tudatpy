@@ -15,7 +15,7 @@
 #include <functional>
 #include <boost/make_shared.hpp>
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 
 

@@ -19,9 +19,9 @@
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/propagation/propagationOutputSettings.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/math/basic/rotationRepresentations.h"
 
 namespace tudat

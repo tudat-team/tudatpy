@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
 namespace tudat
 {

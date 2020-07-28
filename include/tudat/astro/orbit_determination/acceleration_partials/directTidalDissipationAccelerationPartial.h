@@ -13,7 +13,7 @@
 
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
 {

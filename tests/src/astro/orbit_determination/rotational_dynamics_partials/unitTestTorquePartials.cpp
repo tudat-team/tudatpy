@@ -24,13 +24,13 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/numericalAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/gravitationalParameter.h"
-#include "tudat/simulation/estimation/createTorquePartials.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/propagation/createTorqueModel.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
+#include "tudat/simulation/estimation_setup/createTorquePartials.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {

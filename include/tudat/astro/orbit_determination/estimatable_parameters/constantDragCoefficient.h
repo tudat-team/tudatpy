@@ -12,7 +12,7 @@
 #define TUDAT_CONSTANTDRAGCOEFFICIENT_H
 
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
 
 namespace tudat

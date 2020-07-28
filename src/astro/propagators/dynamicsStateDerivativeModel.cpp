@@ -1,7 +1,7 @@
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#include "tudat/astro/orbit_determination/AccelerationPartials/thirdBodyGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
 #endif
 
 namespace tudat

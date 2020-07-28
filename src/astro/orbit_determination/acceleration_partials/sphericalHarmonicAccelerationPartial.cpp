@@ -9,11 +9,11 @@
  */
 
 #include "tudat/math/basic/sphericalHarmonics.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicPartialFunctions.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/centralGravityAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 
 namespace tudat
 {

@@ -16,7 +16,7 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 

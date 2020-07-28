@@ -76,6 +76,7 @@ option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
 message(TUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS})
+message(TUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE})
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.

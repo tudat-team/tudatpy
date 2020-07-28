@@ -17,12 +17,12 @@
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>

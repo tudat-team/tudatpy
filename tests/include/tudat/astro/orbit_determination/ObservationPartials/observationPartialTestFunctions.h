@@ -25,12 +25,12 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationalOrientation.h"
-#include "tudat/simulation/estimation/createObservationPartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/simulation/estimation_setup/createObservationPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {

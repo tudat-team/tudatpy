@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/radiationPressureCoefficient.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/panelledRadiationPressureAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 
 namespace tudat
 {
