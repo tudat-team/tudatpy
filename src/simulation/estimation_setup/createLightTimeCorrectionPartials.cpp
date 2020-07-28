@@ -10,7 +10,7 @@
 
 
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 
 

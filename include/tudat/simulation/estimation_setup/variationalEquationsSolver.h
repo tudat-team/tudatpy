@@ -22,12 +22,12 @@
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/simulation/estimation/createStateDerivativePartials.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createStateDerivativePartials.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
 {

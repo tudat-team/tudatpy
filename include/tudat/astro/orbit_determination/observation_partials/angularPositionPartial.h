@@ -12,10 +12,10 @@
 #define TUDAT_ANGULARPOSITIONPARTIAL_H
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/positionPartials.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 
 namespace tudat
 {

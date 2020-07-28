@@ -19,10 +19,10 @@
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
-#include "tudat/simulation/estimation/variationalEquationsSolver.h"
-#include "tudat/simulation/estimation/createObservationManager.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createObservationManager.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 
 namespace tudat
 {

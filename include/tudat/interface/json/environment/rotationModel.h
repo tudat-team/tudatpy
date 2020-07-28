@@ -13,7 +13,7 @@
 
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
-#include "tudat/simulation/environment/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 
 namespace tudat

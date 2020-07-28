@@ -20,7 +20,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 
 
 namespace tudat

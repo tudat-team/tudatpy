@@ -19,7 +19,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

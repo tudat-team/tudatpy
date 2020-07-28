@@ -13,8 +13,8 @@
 
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 
 
 namespace tudat

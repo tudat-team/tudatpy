@@ -23,10 +23,10 @@
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/propagation/createAccelerationModels.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/createGravityField.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 
 namespace tudat

@@ -14,8 +14,8 @@
 #include "tudat/astro/ephemerides/compositeEphemeris.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/simulation/estimation/createLightTimeCorrection.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

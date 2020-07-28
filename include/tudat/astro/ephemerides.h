@@ -32,5 +32,6 @@
 #include "ephemerides/synchronousRotationalEphemeris.h"
 #include "ephemerides/tabulatedEphemeris.h"
 #include "ephemerides/tabulatedRotationalEphemeris.h"
+#include "ephemerides/tleEphemeris.h"
 
 #endif // TUDAT_EPHEMERIDES_H
