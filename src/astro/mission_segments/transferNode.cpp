@@ -235,6 +235,9 @@ void SwingbyWithFixedOutgoingVelocity::computeNode( )
 
 }
 
+
+
+
 SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const Eigen::VectorXd nodeParameters,
