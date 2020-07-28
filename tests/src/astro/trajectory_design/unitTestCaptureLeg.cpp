@@ -25,6 +25,9 @@
 
 #include <tudat/basics/testMacros.h>
 
+#include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/mission_segments/transferNode.h"
+
 #include "tudat/astro/trajectory_design/captureLeg.h"
 
 namespace tudat
@@ -49,23 +52,18 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planetPosition ( 53627979831.9492, -5044669560.01491,
-                                           -5339232305.54465 );
-    const Eigen::Vector3d planetVelocity ( -4857.99954791498, 50668.339570669, 4579.44661303178 );
+    const Eigen::Vector6d planetState = ( Eigen::Vector6d( ) <<
+                53627979831.9492, -5044669560.01491, -5339232305.54465,
+                -4857.99954791498, 50668.339570669, 4579.44661303178 ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris =
+            std::make_shared< ephemerides::ConstantEphemeris >( planetState );
 
     // Set velocity before capture body.
-    const Eigen::Vector3d velocityBeforePlanet ( -5080.6362408257, 55179.1205883308,
-                                                 3549.4183219232 );
-
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
-
-    // Set the time of flight, which is irrelevant for the deltaV consumption.
-    const double timeOfFlight = 1.0;
+    const Eigen::Vector3d velocityBeforePlanet (
+                -5080.6362408257, 55179.1205883308, 3549.4183219232 );
 
     // Set the gravitational parameters. The sun's is irrelevant for the deltaV consumption, but
     // required only for other functionality in the class.
-    const double sunGravitationalParameter = 1.32712428e20;
     const double mercuryGravitationalParameter = 2.2321e13;
 
     // Set the capture orbit (at inifinity).
@@ -73,17 +71,15 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::transfer_trajectories;
-    CaptureLeg legTest ( planetPosition, timeOfFlight, planetVelocity, sunGravitationalParameter,
-                         mercuryGravitationalParameter, pointerToVelocityBeforePlanet,
-                         semiMajorAxis, eccentricity );
+    using namespace tudat::mission_segments;
+    CaptureAndInsertionNode captureNode(
+                constantEphemeris, ( Eigen::VectorXd( 1 )<<0.0 ) .finished( ),
+                mercuryGravitationalParameter, semiMajorAxis, eccentricity,
+                [=]( ){return velocityBeforePlanet; } );
+
 
     // Prepare the variables for the results.
-    Eigen::Vector3d resultingVelocity;
-    double resultingDeltaV;
-
-    // Compute delta-V of the leg.
-    legTest.calculateLeg( resultingVelocity, resultingDeltaV );
+    double resultingDeltaV = captureNode.getNodeDeltaV( );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
@@ -103,21 +99,17 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planetPosition ( 227936637698.942, 0.0, 0.0 );
-    const Eigen::Vector3d planetVelocity ( 0.0, 24129.4836355380, 0.0 );
+    const Eigen::Vector6d planetState = ( Eigen::Vector6d( ) <<
+                 227936637698.942, 0.0, 0.0,
+                 0.0, 24129.4836355380, 0.0 ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris =
+            std::make_shared< ephemerides::ConstantEphemeris >( planetState );
 
     // Set velocity before capture body.
     const Eigen::Vector3d velocityBeforePlanet ( 0.0, 21480.6500358053, 0.0 );
 
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
-
-    // Set the time of flight, which is irrelevant for the deltaV consumption.
-    const double timeOfFlight = 1.0;
-
     // Set the gravitational parameters. The Sun's is irrelevant for the deltaV consumption, but
     // required only for other functionality in the class.
-    const double sunGravitationalParameter = 1.32712428e20;
     const double marsGravitationalParameter = 4.2830e13;
 
     // Set the capture orbit.
@@ -125,87 +117,15 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::transfer_trajectories;
-    CaptureLeg legTest ( planetPosition, timeOfFlight, planetVelocity, sunGravitationalParameter,
-                         marsGravitationalParameter, pointerToVelocityBeforePlanet,
-                         semiMajorAxis, eccentricity );
+    using namespace tudat::mission_segments;
+    CaptureAndInsertionNode captureNode(
+                constantEphemeris, ( Eigen::VectorXd( 1 )<<0.0 ) .finished( ),
+                marsGravitationalParameter, semiMajorAxis, eccentricity,
+                [=]( ){return velocityBeforePlanet; } );
+
 
     // Prepare the variables for the results.
-    Eigen::Vector3d resultingVelocity;
-    double resultingDeltaV;
-
-    // Compute delta-V of the leg.
-    legTest.calculateLeg( resultingVelocity, resultingDeltaV );
-
-    // Test if the computed delta-V corresponds to the expected value within the specified
-    // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, resultingDeltaV, tolerance );
-}
-
-//! Test updating the variables.
-BOOST_AUTO_TEST_CASE( testUpdatingVariables )
-{
-    // Set tolerance.
-    const double tolerance = 1.0e-13;
-
-    // Expected test result based on the last part of the ideal Messenger trajectory as modelled by
-    // GTOP software distributed and downloadable from the ESA website, or within the PaGMO
-    // Astrotoolbox.
-    const double expectedDeltaV = 4632.24252029314;
-
-    // Specify the required parameters.
-    // Set the dummy positions and velocities.
-    const Eigen::Vector3d dummyPosition ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-    const Eigen::Vector3d dummyVelocity ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-
-    // Set velocity before capture body.
-    const Eigen::Vector3d velocityBeforePlanet ( -5080.6362408257, 55179.1205883308,
-                                                 3549.4183219232 );
-
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
-
-    // Set the dummy time of flight.
-    const double dummyTimeOfFlight = TUDAT_NAN;
-
-    // Set the gravitational parameters. The sun's is irrelevant for the deltaV consumption, but
-    // required only for other functionality in the class.
-    const double sunGravitationalParameter = 1.32712428e20;
-    const double mercuryGravitationalParameter = 2.2321e13;
-
-    // Set the capture orbit (at inifinity).
-    const double semiMajorAxis = std::numeric_limits< double >::infinity( );
-    const double eccentricity = 0.;
-
-    // Set test case.
-    using namespace tudat::transfer_trajectories;
-    CaptureLeg legTest ( dummyPosition, dummyTimeOfFlight, dummyVelocity,
-                         sunGravitationalParameter, mercuryGravitationalParameter,
-                         pointerToVelocityBeforePlanet, semiMajorAxis, eccentricity );
-
-    // Prepare the variables for the results.
-    Eigen::Vector3d resultingVelocity;
-    double resultingDeltaV;
-
-    // Compute delta-V of the leg.
-    legTest.calculateLeg( resultingVelocity, resultingDeltaV );
-
-    // Specify the values for the parameters that are to be updated.
-    // Set the planetary positions and velocities.
-    Eigen::Vector3d planetPosition ( 53627979831.9492, -5044669560.01491, -5339232305.54465 );
-    Eigen::Vector3d planetVelocity ( -4857.99954791498, 50668.339570669, 4579.44661303178 );
-
-    // Set the time of flight, which is irrelevant for the deltaV consumption.
-    Eigen::VectorXd variableVector ( 1 );
-    variableVector[ 0 ] = 1;
-
-    // Pass both the ephemeris and the time of flight to the leg.
-    // Note that the second position vector is unused in the capture leg, hence a dummy is passed.
-    legTest.updateEphemeris( planetPosition, dummyPosition, planetVelocity );
-    legTest.updateDefiningVariables( variableVector );
-
-    // Compute delta-V of the leg.
-    legTest.calculateLeg( resultingVelocity, resultingDeltaV );
+    double resultingDeltaV = captureNode.getNodeDeltaV( );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.

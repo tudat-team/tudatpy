@@ -19,6 +19,10 @@ set(mission_segments_SOURCES
         "multiRevolutionLambertTargeterIzzo.cpp"
         "oscillatingFunctionNovak.cpp"
         "zeroRevolutionLambertTargeterIzzo.cpp"
+        "transferNode.cpp"
+        "transferLeg.cpp"
+        "transferTrajectory.cpp"
+        "createTransferTrajectory.cpp"
         )
 
 # Set the header files.
@@ -33,6 +37,10 @@ set(mission_segments_HEADERS
         "multiRevolutionLambertTargeterIzzo.h"
         "oscillatingFunctionNovak.h"
         "zeroRevolutionLambertTargeterIzzo.h"
+        "transferNode.h"
+        "transferLeg.h"
+        "transferTrajectory.h"
+        "createTransferTrajectory.h"
         )
 
 # Add library.
