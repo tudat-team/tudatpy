@@ -65,8 +65,11 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory )
     const int numberOfLegs = 6;
     std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
-    legTypeVector[ 0 ] = mga_Departure; legTypeVector[ 1 ] = mga_Swingby;
-    legTypeVector[ 2 ] = mga_Swingby; legTypeVector[ 3 ] = mga_Swingby; legTypeVector[ 4 ] = mga_Swingby;
+    legTypeVector[ 0 ] = mga_Departure;
+    legTypeVector[ 1 ] = mga_Swingby;
+    legTypeVector[ 2 ] = mga_Swingby;
+    legTypeVector[ 3 ] = mga_Swingby;
+    legTypeVector[ 4 ] = mga_Swingby;
     legTypeVector[ 5 ] = capture;
 
     // Create the ephemeris vector.
