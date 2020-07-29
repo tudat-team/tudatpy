@@ -5,6 +5,43 @@ namespace tudat
 namespace mission_segments
 {
 
+std::shared_ptr< TransferLegSettings > dsmVelocityBasedLeg( )
+{
+    return std::make_shared< TransferLegSettings >( dsm_velocity_based_leg );
+}
+
+
+std::shared_ptr< TransferLegSettings > dsmPositionBasedLeg( )
+{
+    return std::make_shared< TransferLegSettings >( dsm_position_based_leg );
+}
+
+
+std::shared_ptr< TransferLegSettings > unpoweredLeg( )
+{
+    return std::make_shared< TransferLegSettings >( unpowered_unperturbed_leg );
+}
+
+std::shared_ptr< TransferNodeSettings > escapeAndCaptureNode(
+        const double departureSemiMajorAxis,
+        const double departureEccentricity )
+{
+    return std::make_shared< EscapeAndDepartureNodeSettings >( departureSemiMajorAxis, departureEccentricity );
+}
+
+std::shared_ptr< TransferNodeSettings > swingbyNode(
+        const double minimumPeriapsisDistance )
+{
+    return std::make_shared< SwingbyNodeSettings >( minimumPeriapsisDistance );
+}
+
+std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionNode(
+        const double captureSemiMajorAxis,
+        const double captureEccentricity )
+{
+    return std::make_shared< CaptureAndInsertionNodeSettings >(
+                captureSemiMajorAxis, captureEccentricity );
+}
 
 std::shared_ptr< TransferLeg > createTransferLeg(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -132,7 +169,13 @@ std::shared_ptr< TransferNode > createTransferNode(
                     std::dynamic_pointer_cast< SwingbyNodeSettings >( nodeSettings );
             if( swingbySettings == nullptr )
             {
-                throw std::runtime_error( "Error when making powered_swingby node, type is inconsistent" );
+                throw std::runtime_error( "Error when making swingby node, type is inconsistent" );
+            }
+
+            if( swingbySettings->minimumPeriapsisRadius_ != swingbySettings->minimumPeriapsisRadius_ )
+            {
+                throw std::runtime_error(
+                            "Error when making swingby node, no minimum periapsis radius is provided" );
             }
 
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
@@ -289,14 +332,17 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                             nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
                             nodeTimes.at( i ), nodeTimes.at( i + 1 ),
                             legFreeParameters.at( i ) ) );
+
             nodes.push_back(
                         createTransferNode(
                             bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),
                             nodeFreeParameters.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), legs.at( i ), false ) );
 
+
         }
     }
 
+    std::cout<<nodeSettings.size( )<<" "<<nodeFreeParameters.size( )<<std::endl;
     nodes.push_back(
                 createTransferNode(
                     bodyMap, nodeSettings.at( legSettings.size( ) ),
@@ -309,7 +355,68 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
 
 }
 
-void printFreeParameterDefinitions(
+
+void getParameterVectorDecompositionIndices(
+        const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        std::vector< std::pair< int, int > >& legParameterIndices,
+        std::vector< std::pair< int, int > >& nodeParameterIndices )
+{
+    // First N parameters are times/TOFs
+    int currentParameterIndex = nodeSettings.size( );
+
+    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
+    {
+        switch( nodeSettings.at( i )->nodeType_  )
+        {
+        case swingby:
+            if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
+                currentParameterIndex += 3;
+            }
+            else
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            }
+            break;
+        case escape_and_departure:
+            if( legRequiresInputFromNode.at( legSettings.at( i )->legType_ ) )
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 3 ) );
+                currentParameterIndex += 3;
+            }
+            else
+            {
+                nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            }
+            break;
+        case capture_and_insertion:
+            nodeParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+            break;
+        }
+
+        if( i != legSettings.size( ) )
+        {
+            switch( legSettings.at( i )->legType_  )
+            {
+            case unpowered_unperturbed_leg:
+                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 0 ) );
+                break;
+            case dsm_position_based_leg:
+                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 4 ) );
+                currentParameterIndex += 4;
+                break;
+            case dsm_velocity_based_leg:
+                legParameterIndices.push_back( std::make_pair( currentParameterIndex, 1 ) );
+                currentParameterIndex += 1;
+                break;
+            }
+        }
+    }
+}
+
+void printTransferParameterDefinition(
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings )
 {
@@ -364,22 +471,29 @@ void printFreeParameterDefinitions(
     }
 
     int parameterIndex = 0;
+    for( int i = 0; i < nodeSettings.size( ); i++ )
+    {
+        std::cout << "Parameter "<<parameterIndex<<": Node time "<<i<<std::endl;
+        parameterIndex++;
+    }
+
     for( unsigned int i = 0; i < legParameterDefinitions.size( ); i++ )
     {
 
-        for( unsigned j = 0; nodeParameterDefinitions.at( i ).size( ); j++ )
+        for( unsigned j = 0; j < nodeParameterDefinitions.at( i ).size( ); j++ )
         {
             std::cout << "Parameter "<<parameterIndex<<": Node "<<i<<" "<< nodeParameterDefinitions.at( i ).at( j )<<std::endl;
             parameterIndex++;
         }
 
-        for( unsigned j = 0; legParameterDefinitions.at( i ).size( ); j++ )
+        for( unsigned j = 0; j < legParameterDefinitions.at( i ).size( ); j++ )
         {
-            std::cout << "Parameter "<<parameterIndex<<": Leg "<<i<<" "<< legParameterDefinitions.at( i ).at( j )<<std::endl;
+            std::cout << "Parameter "<<parameterIndex<<": Leg  "<<i<<" "<< legParameterDefinitions.at( i ).at( j )<<std::endl;
             parameterIndex++;
         }
 
     }
+    std::cout<<std::endl;
 }
 
 

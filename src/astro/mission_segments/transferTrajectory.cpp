@@ -49,7 +49,6 @@ void TransferTrajectory::evaluateTrajectory(
                 nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
-
 }
 
 double TransferTrajectory::getTotalDeltaV( )

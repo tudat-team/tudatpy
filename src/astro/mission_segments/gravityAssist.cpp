@@ -426,8 +426,10 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
     
     // Calculate the relative outgoing velocity.
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeOutgoingVelocity *
-            ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
+            ( std::cos( bendingAngle ) * unitVector1 +
+              std::sin( bendingAngle ) *
+              std::cos( rotationAngle ) * unitVector2 +
+              std::sin( bendingAngle ) *
               std::sin( rotationAngle ) * unitVector3 );
     
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
