@@ -49,18 +49,8 @@ class TransferLegSettings
 {
 public:
     TransferLegSettings(
-            const std::string& departureBodyName,
-            const std::string& arrivalBodyName,
-            const std::string& centralBodyName,
             const TransferLegTypes legType ):
-        departureBodyName_( departureBodyName ),
-        arrivalBodyName_( arrivalBodyName ),
-        centralBodyName_( centralBodyName ),
         legType_( legType ){ }
-
-    std::string departureBodyName_;
-    std::string arrivalBodyName_;
-    std::string centralBodyName_;
 
     TransferLegTypes legType_;
 };
@@ -70,13 +60,11 @@ class TransferNodeSettings
 {
 public:
     TransferNodeSettings(
-            const std::string& nodeBodyName,
             const TransferNodeTypes nodeType ):
-        nodeBodyName_( nodeBodyName ), nodeType_( nodeType ){ }
+        nodeType_( nodeType ){ }
 
     virtual ~TransferNodeSettings( ){ }
 
-    std::string nodeBodyName_;
     TransferNodeTypes nodeType_;
 };
 
@@ -84,14 +72,10 @@ class SwingbyNodeSettings: public TransferNodeSettings
 {
 public:
     SwingbyNodeSettings(
-            const std::string& nodeBodyName,
-            const TransferNodeTypes nodeType,
             const double minimumPeriapsisRadius ):
-        TransferNodeSettings( nodeBodyName, nodeType ),
+        TransferNodeSettings( swingby ),
         minimumPeriapsisRadius_( minimumPeriapsisRadius ){ }
 
-    std::string nodeBodyName_;
-    TransferNodeTypes nodeType_;
     double minimumPeriapsisRadius_;
 };
 
@@ -99,16 +83,12 @@ class EscapeAndDepartureNodeSettings: public TransferNodeSettings
 {
 public:
     EscapeAndDepartureNodeSettings(
-            const std::string& nodeBodyName,
-            const TransferNodeTypes nodeType,
             const double departureSemiMajorAxis,
             const double departureEccentricity ):
-        TransferNodeSettings( nodeBodyName, nodeType ),
+        TransferNodeSettings( escape_and_departure ),
         departureSemiMajorAxis_( departureSemiMajorAxis ),
         departureEccentricity_( departureEccentricity ){ }
 
-    std::string nodeBodyName_;
-    TransferNodeTypes nodeType_;
     double departureSemiMajorAxis_;
     double departureEccentricity_;
 };
@@ -117,15 +97,12 @@ class CaptureAndInsertionNodeSettings: public TransferNodeSettings
 {
 public:
     CaptureAndInsertionNodeSettings(
-            const std::string& nodeBodyName,
-            const TransferNodeTypes nodeType,
             const double captureSemiMajorAxis,
             const double captureEccentricity ):
-        TransferNodeSettings( nodeBodyName, nodeType ),
+        TransferNodeSettings( capture_and_insertion ),
         captureSemiMajorAxis_( captureSemiMajorAxis ),
         captureEccentricity_( captureEccentricity ){ }
 
-    std::string nodeBodyName_;
     TransferNodeTypes nodeType_;
     double captureSemiMajorAxis_;
     double captureEccentricity_;
@@ -134,6 +111,9 @@ public:
 std::shared_ptr< TransferLeg > createTransferLeg(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,
+        const std::string& departureBodyName,
+        const std::string& arrivalBodyName,
+        const std::string& centralBodyName,
         const double legStartTime,
         const double legEndTime,
         const Eigen::VectorXd& legFreeParameters,
@@ -142,6 +122,7 @@ std::shared_ptr< TransferLeg > createTransferLeg(
 std::shared_ptr< TransferNode > createTransferNode(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< TransferNodeSettings > nodeSettings,
+        const std::string& nodeBodyName,
         const double nodeTime,
         const Eigen::VectorXd& nodeFreeParameters,
         const std::shared_ptr< TransferLeg > incomingTransferLeg,
@@ -152,6 +133,8 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& nodeIds,
+        const std::string& centralBody,
         const std::vector< double >& nodeTimes,
         const std::vector< Eigen::VectorXd >& legFreeParameters,
         const std::vector< Eigen::VectorXd >& nodeFreeParameters );

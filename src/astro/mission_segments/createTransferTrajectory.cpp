@@ -9,45 +9,48 @@ namespace mission_segments
 std::shared_ptr< TransferLeg > createTransferLeg(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,
+        const std::string& departureBodyName,
+        const std::string& arrivalBodyName,
+        const std::string& centralBodyName,
         const double legStartTime,
         const double legEndTime,
         const Eigen::VectorXd& legFreeParameters,
         const std::shared_ptr< TransferNode > departureNode )
 {
-    if( bodyMap.count( legSettings->centralBodyName_ ) == 0 )
+    if( bodyMap.count( centralBodyName ) == 0 )
     {
-        throw std::runtime_error( "Error when making transfer leg, central body " + legSettings->centralBodyName_  + " not found." );
+        throw std::runtime_error( "Error when making transfer leg, central body " + centralBodyName  + " not found." );
     }
-    else if( bodyMap.at( legSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
+    else if( bodyMap.at( centralBodyName )->getGravityFieldModel( ) == nullptr )
     {
-        throw std::runtime_error( "Error when making transfer leg, central body " + legSettings->centralBodyName_  + " has no gravity field." );
-    }
-
-    if( bodyMap.count( legSettings->departureBodyName_ ) == 0 )
-    {
-        throw std::runtime_error( "Error when making transfer leg, departure body " + legSettings->departureBodyName_  + " not found." );
-    }
-    else if( bodyMap.at( legSettings->departureBodyName_ )->getEphemeris( ) == nullptr )
-    {
-        throw std::runtime_error( "Error when making transfer leg, departure body " + legSettings->departureBodyName_  + " has no ephemeris." );
+        throw std::runtime_error( "Error when making transfer leg, central body " + centralBodyName  + " has no gravity field." );
     }
 
-    if( bodyMap.count( legSettings->arrivalBodyName_ ) == 0 )
+    if( bodyMap.count( departureBodyName ) == 0 )
     {
-        throw std::runtime_error( "Error when making transfer leg, arrival body " + legSettings->arrivalBodyName_  + " not found." );
+        throw std::runtime_error( "Error when making transfer leg, departure body " + departureBodyName  + " not found." );
     }
-    else if( bodyMap.at( legSettings->arrivalBodyName_ )->getEphemeris( ) == nullptr )
+    else if( bodyMap.at( departureBodyName )->getEphemeris( ) == nullptr )
     {
-        throw std::runtime_error( "Error when making transfer leg, arrival body " + legSettings->arrivalBodyName_  + " has no ephemeris." );
+        throw std::runtime_error( "Error when making transfer leg, departure body " + departureBodyName  + " has no ephemeris." );
+    }
+
+    if( bodyMap.count( arrivalBodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when making transfer leg, arrival body " + arrivalBodyName  + " not found." );
+    }
+    else if( bodyMap.at( arrivalBodyName )->getEphemeris( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when making transfer leg, arrival body " + arrivalBodyName  + " has no ephemeris." );
     }
 
 
     const double centralBodyGravitationalParameter =
-            bodyMap.at( legSettings->centralBodyName_ )->getGravityFieldModel( )->getGravitationalParameter( );
+            bodyMap.at( centralBodyName )->getGravityFieldModel( )->getGravitationalParameter( );
     const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris =
-            bodyMap.at( legSettings->departureBodyName_ )->getEphemeris( );
+            bodyMap.at( departureBodyName )->getEphemeris( );
     const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris =
-            bodyMap.at( legSettings->arrivalBodyName_ )->getEphemeris( );
+            bodyMap.at( arrivalBodyName )->getEphemeris( );
 
     std::shared_ptr< TransferLeg >  transferLeg;
     switch( legSettings->legType_ )
@@ -92,6 +95,7 @@ std::shared_ptr< TransferLeg > createTransferLeg(
 std::shared_ptr< TransferNode > createTransferNode(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< TransferNodeSettings > nodeSettings,
+        const std::string &nodeBodyName,
         const double nodeTime,
         const Eigen::VectorXd& nodeFreeParameters,
         const std::shared_ptr< TransferLeg > incomingTransferLeg,
@@ -99,23 +103,23 @@ std::shared_ptr< TransferNode > createTransferNode(
         const bool nodeComputesOutgoingVelocity )
 {
 
-    if( bodyMap.count( nodeSettings->nodeBodyName_ ) == 0 )
+    if( bodyMap.count( nodeBodyName ) == 0 )
     {
-        throw std::runtime_error( "Error when making transfer node, body " + nodeSettings->nodeBodyName_  + " not found." );
+        throw std::runtime_error( "Error when making transfer node, body " + nodeBodyName  + " not found." );
     }
-    else if( bodyMap.at( nodeSettings->nodeBodyName_ )->getGravityFieldModel( ) == nullptr )
+    else if( bodyMap.at( nodeBodyName )->getGravityFieldModel( ) == nullptr )
     {
-        throw std::runtime_error( "Error when making transfer node, body " + nodeSettings->nodeBodyName_  + " has no gravity field." );
+        throw std::runtime_error( "Error when making transfer node, body " + nodeBodyName  + " has no gravity field." );
     }
-    else if( bodyMap.at( nodeSettings->nodeBodyName_ )->getEphemeris( ) == nullptr )
+    else if( bodyMap.at( nodeBodyName )->getEphemeris( ) == nullptr )
     {
-        throw std::runtime_error( "Error when making transfer node, body " + nodeSettings->nodeBodyName_  + " has no ephemeris." );
+        throw std::runtime_error( "Error when making transfer node, body " + nodeBodyName  + " has no ephemeris." );
     }
 
     const double centralBodyGravitationalParameter =
-            bodyMap.at( nodeSettings->nodeBodyName_ )->getGravityFieldModel( )->getGravitationalParameter( );
+            bodyMap.at( nodeBodyName )->getGravityFieldModel( )->getGravitationalParameter( );
     const std::shared_ptr< ephemerides::Ephemeris > centralBodyEphemeris =
-            bodyMap.at( nodeSettings->nodeBodyName_ )->getEphemeris( );
+            bodyMap.at( nodeBodyName )->getEphemeris( );
 
     std::shared_ptr< TransferNode > transferNode;
     switch( nodeSettings->nodeType_ )
@@ -209,14 +213,14 @@ std::shared_ptr< TransferNode > createTransferNode(
         }
 
 
-        std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
-                std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
+        std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
+                std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
         transferNode = std::make_shared< CaptureAndInsertionNode >(
                     centralBodyEphemeris, ( Eigen::VectorXd( 1 )<< nodeTime ).finished( ),
                     centralBodyGravitationalParameter,
                     captureAndInsertionSettings->captureSemiMajorAxis_,
                     captureAndInsertionSettings->captureEccentricity_,
-                    outgoingVelocityFunction );
+                    incomingVelocityFunction );
         break;
     }
     default:
@@ -229,14 +233,44 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& nodeIds,
+        const std::string& centralBody,
         const std::vector< double >& nodeTimes,
         const std::vector< Eigen::VectorXd >& legFreeParameters,
         const std::vector< Eigen::VectorXd >& nodeFreeParameters )
 {
+    if( legSettings.size( ) + 1 != nodeSettings.size( ) )
+    {
+        throw std::runtime_error( "Error when making transfer trajectory, number of legs ( "
+                                  + std::to_string( legSettings.size( ) ) +
+                                  " ) and number of nodes ( "
+                                  + std::to_string( nodeSettings.size( ) ) +
+                                  " ) are incompatible" );
+    }
+
+    if( nodeIds.size( ) != nodeSettings.size( ) )
+    {
+        throw std::runtime_error( "Error when making transfer trajectory, number of nodes ( "
+                                  + std::to_string( nodeSettings.size( ) ) +
+                                  " ) and number of node names ( "
+                                  + std::to_string( nodeIds.size( ) ) +
+                                  " ) are incompatible" );
+    }
+
+    if( nodeIds.size( ) != nodeTimes.size( ) )
+    {
+        throw std::runtime_error( "Error when making transfer trajectory, number of node names ( "
+                                  + std::to_string( nodeIds.size( ) ) +
+                                  " ) and number of node times ( "
+                                  + std::to_string( nodeTimes.size( ) ) +
+                                  " ) are incompatible" );
+    }
+
+
+
+
     std::vector< std::shared_ptr< TransferLeg > > legs;
-    legs.resize( legSettings.size( ) );
     std::vector< std::shared_ptr< TransferNode > > nodes;
-    nodes.resize( nodeSettings.size( ) );
 
 
     for( unsigned int i = 0; i < legSettings.size( ); i++ )
@@ -245,26 +279,38 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         {
             nodes.push_back(
                         createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeTimes.at( i ),
+                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),
                             nodeFreeParameters.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), nullptr, true ) );
             legs.push_back(
                         createTransferLeg(
-                            bodyMap, legSettings.at( i ), nodeTimes.at( i ), nodeTimes.at( i + 1 ),
+                            bodyMap, legSettings.at( i ),
+                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
+                            nodeTimes.at( i ), nodeTimes.at( i + 1 ),
                             legFreeParameters.at( i ), nodes.at( i ) ) );
         }
         else
         {
             legs.push_back(
                         createTransferLeg(
-                            bodyMap, legSettings.at( i ), nodeTimes.at( i ), nodeTimes.at( i + 1 ),
+                            bodyMap, legSettings.at( i ),
+                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
+                            nodeTimes.at( i ), nodeTimes.at( i + 1 ),
                             legFreeParameters.at( i ) ) );
             nodes.push_back(
                         createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeTimes.at( i ),
+                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),
                             nodeFreeParameters.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), legs.at( i ), false ) );
 
         }
     }
+
+    nodes.push_back(
+                createTransferNode(
+                    bodyMap, nodeSettings.at( legSettings.size( ) ),
+                    nodeIds.at( legSettings.size( ) ),
+                    nodeTimes.at( legSettings.size( ) ),
+                    nodeFreeParameters.at( legSettings.size( ) ),
+                    legs.at( legSettings.size( ) -  1 ), nullptr, false ) );
 
     return std::make_shared< TransferTrajectory >( legs, nodes );
 

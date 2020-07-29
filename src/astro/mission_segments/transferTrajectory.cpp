@@ -43,12 +43,17 @@ void TransferTrajectory::evaluateTrajectory(
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
         }
+        std::cout<<"Node  Delta V "<<nodes_.at( i )->getNodeDeltaV( )<<std::endl;
+        std::cout<<"Leg Delta V "<<legs_.at( i )->getLegDeltaV( )<<std::endl;
+
     }
 
     getNodeTotalParameters(
                 nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
+    std::cout<<"Node Delta V "<< nodes_.at( legs_.size( ) )->getNodeDeltaV( )<<std::endl;
+
 }
 
 double TransferTrajectory::getTotalDeltaV( )
