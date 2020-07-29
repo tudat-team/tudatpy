@@ -43,16 +43,12 @@ void TransferTrajectory::evaluateTrajectory(
             legs_.at( i )->updateLegParameters( legTotalParameters );
             totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
         }
-        std::cout<<"Node  Delta V "<<nodes_.at( i )->getNodeDeltaV( )<<std::endl;
-        std::cout<<"Leg Delta V "<<legs_.at( i )->getLegDeltaV( )<<std::endl;
-
     }
 
     getNodeTotalParameters(
                 nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
-    std::cout<<"Node Delta V "<< nodes_.at( legs_.size( ) )->getNodeDeltaV( )<<std::endl;
 
 }
 
@@ -104,7 +100,7 @@ void TransferTrajectory::getNodeTotalParameters(
         }
         else
         {
-            nodeTotalParameters.resize( 1, 4 );
+            nodeTotalParameters.resize( 4, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             nodeTotalParameters.segment( 1, 3 ) = nodeFreeParameters;
         }
@@ -118,7 +114,7 @@ void TransferTrajectory::getNodeTotalParameters(
         }
         else
         {
-            nodeTotalParameters.resize( 1, 4 );
+            nodeTotalParameters.resize( 4, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             nodeTotalParameters.segment( 1, 3 ) = nodeFreeParameters;
         }
