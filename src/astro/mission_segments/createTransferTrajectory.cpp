@@ -146,13 +146,6 @@ std::shared_ptr< TransferNode > createTransferNode(
         }
         else
         {
-            std::shared_ptr< SwingbyNodeSettings > swingbySettings =
-                    std::dynamic_pointer_cast< SwingbyNodeSettings >( nodeSettings );
-            if( swingbySettings == nullptr )
-            {
-                throw std::runtime_error( "Error when making powered_swingby node, type is inconsistent" );
-            }
-
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
             transferNode = std::make_shared< SwingbyWithFreeOutgoingVelocity >(
