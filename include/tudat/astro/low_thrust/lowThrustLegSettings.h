@@ -178,7 +178,7 @@ public:
     int numberOfRevolutions_;
 
     //! Gravitational parameter of the central body.
-    bool centralBodyGravitationalParameter_;
+    double centralBodyGravitationalParameter_;
 
     //! Initial guess for the free coefficient (i.e. coefficient of the second order component of the radial inverse polynomial).
     double initialValueFreeCoefficient_;
