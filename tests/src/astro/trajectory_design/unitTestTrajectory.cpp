@@ -109,19 +109,16 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     // Set transfer order
     std::vector< std::string > bodyOrder = {
         "Earth", "Venus", "Venus", "Earth", "Jupiter", "Saturn" };
+    int numberOfNodes = bodyOrder.size( );
 
     // Create leg settings (all unpowered)
     std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
-    std::vector< Eigen::VectorXd > transferLegFreeParameters;
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 1; i++ )
-    {
-        transferLegSettings.push_back( std::make_shared< TransferLegSettings >( unpowered_unperturbed_leg ) );
-        transferLegFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
-    }
-
-    // Define Earth departure orbit
-    double departureSemiMajorAxis = std::numeric_limits< double >::infinity( );
-    double departureEccentricity = 0.0;
+    transferLegSettings.resize( numberOfNodes - 1 );
+    transferLegSettings[ 0 ] = unpoweredLeg( );
+    transferLegSettings[ 1 ] = unpoweredLeg( );
+    transferLegSettings[ 2 ] = unpoweredLeg( );
+    transferLegSettings[ 3 ] = unpoweredLeg( );
+    transferLegSettings[ 4 ] = unpoweredLeg( );
 
     // Define minimum periapsis altitudes for flybys;
     std::map< std::string, double >minimumPeriapses;
@@ -129,28 +126,14 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     minimumPeriapses[ "Earth" ] = 6778000.0;
     minimumPeriapses[ "Jupiter" ] =  600000000.0;
 
-    // Define Saturn capture orbit
-    double arrivalSemiMajorAxis = 1.0895e8 / 0.02;
-    double arrivalEccentricity = 0.98;
-
-    // Create node settings
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
-    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
-
-    transferNodeSettings.push_back(
-                std::make_shared< EscapeAndDepartureNodeSettings >( departureSemiMajorAxis, departureEccentricity ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
-
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 2; i++ )
-    {
-        transferNodeSettings.push_back(
-                    std::make_shared< SwingbyNodeSettings >( minimumPeriapses.at( bodyOrder.at( i + 1 ) ) ) );
-        transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
-    }
-
-    transferNodeSettings.push_back(
-                std::make_shared< CaptureAndInsertionNodeSettings >( arrivalSemiMajorAxis, arrivalEccentricity ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
+    transferNodeSettings.resize( numberOfNodes );
+    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 1 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 1 ) ) );
+    transferNodeSettings[ 2 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 2 ) ) );
+    transferNodeSettings[ 3 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 3 ) ) );
+    transferNodeSettings[ 4 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 4 ) ) );
+    transferNodeSettings[ 5 ] = captureAndInsertionNode( 1.0895e8 / 0.02, 0.98 );
 
     // Create list of node times
     double JD = physical_constants::JULIAN_DAY;
@@ -162,13 +145,24 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     nodeTimes.push_back( nodeTimes.at( 3 ) + 1024.36205846918 * JD );
     nodeTimes.push_back( nodeTimes.at( 4 ) + 4552.30796805542 * JD );
 
-
+    std::vector< Eigen::VectorXd > transferLegFreeParameters;
+    for( int i = 0; i < numberOfNodes - 1; i++ )
+    {
+        transferLegFreeParameters.push_back( Eigen::VectorXd( 0 ) );
+    }
+    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        transferNodeFreeParameters.push_back( Eigen::VectorXd( 0 ) );
+    }
 
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
+
     BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
 }
 
@@ -189,36 +183,24 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     // Set transfer order
     std::vector< std::string > bodyOrder = {
         "Earth", "Earth", "Venus", "Venus", "Mercury" };
+    int numberOfNodes = bodyOrder.size( );
 
-    // Create leg settings (all unpowered)
+    // Create leg settings
     std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
-    std::vector< Eigen::VectorXd > transferLegFreeParameters;
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 1; i++ )
-    {
-        transferLegSettings.push_back( std::make_shared< TransferLegSettings >( dsm_velocity_based_leg ) );
-        transferLegFreeParameters.push_back( Eigen::VectorXd::Zero( 1 ) );
-    }
+    transferLegSettings.resize( numberOfNodes - 1 );
+    transferLegSettings[ 0 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 1 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 2 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 3 ] = dsmVelocityBasedLeg( );
 
     // Create node settings
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
-    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
-
-    transferNodeSettings.push_back(
-                std::make_shared< EscapeAndDepartureNodeSettings >(
-                    std::numeric_limits< double >::infinity( ), 0.0 ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 3 ) );
-
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 2; i++ )
-    {
-        transferNodeSettings.push_back(
-                    std::make_shared< TransferNodeSettings >( swingby ) );
-        transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 3 ) );
-    }
-
-    transferNodeSettings.push_back(
-                std::make_shared< CaptureAndInsertionNodeSettings >(
-                    std::numeric_limits< double >::infinity( ), 0.0 ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
+    transferNodeSettings.resize( numberOfNodes );
+    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 1 ] = swingbyNode( );
+    transferNodeSettings[ 2 ] = swingbyNode( );
+    transferNodeSettings[ 3 ] = swingbyNode( );
+    transferNodeSettings[ 4 ] = captureAndInsertionNode( std::numeric_limits< double >::infinity( ), 0.0 );
 
     // Add the time of flight and start epoch, which are in JD.
     double JD = physical_constants::JULIAN_DAY;
@@ -229,22 +211,28 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     nodeTimes.push_back( nodeTimes.at( 2 ) + 299.223139512  * JD );
     nodeTimes.push_back( nodeTimes.at( 3 ) + 180.510754824 * JD );
 
-   transferLegFreeParameters[ 0 ]( 0 ) = 0.234594654679;
-   transferLegFreeParameters[ 1 ]( 0 ) = 0.0964769387134,
-   transferLegFreeParameters[ 2 ]( 0 ) = 0.829948744508,
-   transferLegFreeParameters[ 3 ]( 0 ) = 0.317174785637,
+    std::vector< Eigen::VectorXd > transferLegFreeParameters;
+    transferLegFreeParameters.resize( numberOfNodes - 1 );
+    transferLegFreeParameters[ 0 ] = ( Eigen::VectorXd( 1 ) << 0.234594654679 ).finished( );
+    transferLegFreeParameters[ 1 ] = ( Eigen::VectorXd( 1 ) << 0.0964769387134 ).finished( );
+    transferLegFreeParameters[ 2 ] = ( Eigen::VectorXd( 1 ) << 0.829948744508 ).finished( );
+    transferLegFreeParameters[ 3 ] = ( Eigen::VectorXd( 1 ) << 0.317174785637 ).finished( );
 
-   transferNodeFreeParameters[ 0 ]<<1408.99421278, 0.37992647165 * 2 * 3.14159265358979, std::acos(  2 * 0.498004040298 - 1. ) - 3.14159265358979 / 2; // 1st leg.
-   transferNodeFreeParameters[ 1 ]<<1.80629232251 * 6.378e6, 1.35077257078, 0.0, // 2nd leg.
-   transferNodeFreeParameters[ 2 ]<<3.04129845698 * 6.052e6, 1.09554368115, 0.0, // 3rd leg.
-   transferNodeFreeParameters[ 3 ]<<1.10000000891 * 6.052e6, 1.34317576594, 0.0; //4th leg.
+    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
+    transferNodeFreeParameters.resize( numberOfNodes );
+    transferNodeFreeParameters[ 0 ] = ( Eigen::VectorXd( 3 ) <<1408.99421278, 0.37992647165 * 2 * 3.14159265358979, std::acos(  2 * 0.498004040298 - 1. ) - 3.14159265358979 / 2 ).finished( );
+    transferNodeFreeParameters[ 1 ] = ( Eigen::VectorXd( 3 ) <<1.80629232251 * 6.378e6, 1.35077257078, 0.0 ).finished( );
+    transferNodeFreeParameters[ 2 ] = ( Eigen::VectorXd( 3 ) <<3.04129845698 * 6.052e6, 1.09554368115, 0.0 ).finished( );
+    transferNodeFreeParameters[ 3 ] = ( Eigen::VectorXd( 3 ) <<1.10000000891 * 6.052e6, 1.34317576594, 0.0 ).finished( );
 
-   std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
-               bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
-               nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
-   transferTrajectory->evaluateTrajectory(
-               nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
-   BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+    std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
+                bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
+                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    transferTrajectory->evaluateTrajectory(
+                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
 
 }
 
@@ -262,39 +250,27 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     simulation_setup::NamedBodyMap bodyMap = getApproximatePlanetBodyMap( );
 
     // Set transfer order
-    // Set transfer order
-    std::vector< std::string > bodyOrder = {
-        "Earth", "Venus", "Venus",  "Earth", "Jupiter", "Saturn" };
+    std::vector< std::string > bodyOrder = { "Earth", "Venus", "Venus",  "Earth", "Jupiter", "Saturn" };
+    int numberOfNodes = bodyOrder.size( );
 
-    // Create leg settings (all unpowered)
+    // Create leg settings
     std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
-    std::vector< Eigen::VectorXd > transferLegFreeParameters;
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 1; i++ )
-    {
-        transferLegSettings.push_back( std::make_shared< TransferLegSettings >( dsm_velocity_based_leg ) );
-        transferLegFreeParameters.push_back( Eigen::VectorXd::Zero( 1 ) );
-    }
+    transferLegSettings.resize( numberOfNodes - 1 );
+    transferLegSettings[ 0 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 1 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 2 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 3 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 4 ] = dsmVelocityBasedLeg( );
 
-    // Create node settings
+
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
-    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
-
-    transferNodeSettings.push_back(
-                std::make_shared< EscapeAndDepartureNodeSettings >(
-                    std::numeric_limits< double >::infinity( ), 0.0 ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 3 ) );
-
-    for( unsigned int i = 0; i < bodyOrder.size( ) - 2; i++ )
-    {
-        transferNodeSettings.push_back(
-                    std::make_shared< TransferNodeSettings >( swingby ) );
-        transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 3 ) );
-    }
-
-    transferNodeSettings.push_back(
-                std::make_shared< CaptureAndInsertionNodeSettings >(
-                    std::numeric_limits< double >::infinity( ), 0.0 ) );
-    transferNodeFreeParameters.push_back( Eigen::VectorXd::Zero( 0 ) );
+    transferNodeSettings.resize( numberOfNodes );
+    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 1 ] = swingbyNode( );
+    transferNodeSettings[ 2 ] = swingbyNode( );
+    transferNodeSettings[ 3 ] = swingbyNode( );
+    transferNodeSettings[ 4 ] = swingbyNode( );
+    transferNodeSettings[ 5 ] = captureAndInsertionNode( std::numeric_limits< double >::infinity( ), 0.0 );
 
 
     // Add the time of flight and start epoch, which are in JD.
@@ -307,24 +283,29 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     nodeTimes.push_back( nodeTimes.at( 3 ) + 589.766954923325 * JD );
     nodeTimes.push_back( nodeTimes.at( 4 ) + 2200.00000000000 * JD );
 
-   transferLegFreeParameters[ 0 ]( 0 ) = 0.769483451363201;
-   transferLegFreeParameters[ 1 ]( 0 ) = 0.513289529822621;
-   transferLegFreeParameters[ 2 ]( 0 ) = 0.0274175362264024;
-   transferLegFreeParameters[ 3 ]( 0 ) = 0.263985256705873;
-   transferLegFreeParameters[ 4 ]( 0 ) = 0.599984695281461;
+    std::vector< Eigen::VectorXd > transferLegFreeParameters;
+    transferLegFreeParameters.resize( numberOfNodes - 1 );
+    transferLegFreeParameters[ 0 ] = ( Eigen::VectorXd( 1 ) << 0.769483451363201 ).finished( );
+    transferLegFreeParameters[ 1 ] = ( Eigen::VectorXd( 1 ) << 0.513289529822621 ).finished( );
+    transferLegFreeParameters[ 2 ] = ( Eigen::VectorXd( 1 ) << 0.0274175362264024 ).finished( );
+    transferLegFreeParameters[ 3 ] = ( Eigen::VectorXd( 1 ) << 0.263985256705873 ).finished( );
+    transferLegFreeParameters[ 4 ] = ( Eigen::VectorXd( 1 ) << 0.599984695281461 ).finished( );
 
-   transferNodeFreeParameters[ 0 ]<<3259.11446832345, 0.525976214695235 * 2 * 3.14159265358979, std::acos(  2 * 0.38086496458657 - 1 ) - 3.14159265358979 / 2; // 1st leg.
+    std::vector< Eigen::VectorXd > transferNodeFreeParameters;
+    transferNodeFreeParameters.resize( numberOfNodes );
+    transferNodeFreeParameters[ 0 ] = ( Eigen::VectorXd( 3 ) <<3259.11446832345, 0.525976214695235 * 2 * 3.14159265358979, std::acos(  2 * 0.38086496458657 - 1 ) - 3.14159265358979 / 2 ).finished( );; // 1st leg.
+    transferNodeFreeParameters[ 1 ] = ( Eigen::VectorXd( 3 ) <<1.34877968657176 * 6.052e6, -1.5937371121191, 0.0  ).finished( ); // 2nd leg.
+    transferNodeFreeParameters[ 2 ] = ( Eigen::VectorXd( 3 ) <<1.05 * 6.052e6, -1.95952512232447, 0.0  ).finished( );// 3rd leg.
+    transferNodeFreeParameters[ 3 ] = ( Eigen::VectorXd( 3 ) <<1.30730278372017 * 6.378e6, -1.55498859283059, 0.0  ).finished( ); //4th leg.
+    transferNodeFreeParameters[ 4 ] = ( Eigen::VectorXd( 3 ) <<69.8090142993495 * 7.1492e7, -1.5134625299674, 0.0  ).finished( );//4th leg.
+    transferNodeFreeParameters[ 5 ] = Eigen::VectorXd( 0 );
 
-   transferNodeFreeParameters[ 1 ]<<1.34877968657176 * 6.052e6, -1.5937371121191, 0.0, // 2nd leg.
-   transferNodeFreeParameters[ 2 ]<<1.05 * 6.052e6, -1.95952512232447, 0.0, // 3rd leg.
-   transferNodeFreeParameters[ 3 ]<<1.30730278372017 * 6.378e6, -1.55498859283059, 0.0; //4th leg.
-   transferNodeFreeParameters[ 4 ]<<69.8090142993495 * 7.1492e7, -1.5134625299674, 0.0; //4th leg.
-
-   std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
-               bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
-               nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
-   transferTrajectory->evaluateTrajectory(
-               nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
+                bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
+                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    transferTrajectory->evaluateTrajectory(
+                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
 
     // Test if the computed delta-V corresponds to the expected value within the specified
