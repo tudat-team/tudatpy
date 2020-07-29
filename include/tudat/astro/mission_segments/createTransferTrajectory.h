@@ -56,6 +56,12 @@ public:
 };
 
 
+std::shared_ptr< TransferLegSettings > dsmVelocityBasedLeg( );
+
+std::shared_ptr< TransferLegSettings > dsmPositionBasedLeg( );
+
+std::shared_ptr< TransferLegSettings > unpoweredLeg( );
+
 class TransferNodeSettings
 {
 public:
@@ -108,6 +114,17 @@ public:
     double captureEccentricity_;
 };
 
+std::shared_ptr< TransferNodeSettings > escapeAndCaptureNode(
+        const double departureSemiMajorAxis,
+        const double departureEccentricity );
+
+std::shared_ptr< TransferNodeSettings > swingbyNode(
+        const double minimumPeriapsisDistance = TUDAT_NAN );
+
+std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionNode(
+        const double captureSemiMajorAxis,
+        const double captureEccentricity );
+
 std::shared_ptr< TransferLeg > createTransferLeg(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,
@@ -139,7 +156,13 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const std::vector< Eigen::VectorXd >& legFreeParameters,
         const std::vector< Eigen::VectorXd >& nodeFreeParameters );
 
-void printFreeParameterDefinitions(
+void getParameterVectorDecompositionIndices(
+        const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        std::vector< std::pair< int, int > >& legParameterIndices,
+        std::vector< std::pair< int, int > >& nodeParameterIndices );
+
+void printTransferParameterDefinition(
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings );
 

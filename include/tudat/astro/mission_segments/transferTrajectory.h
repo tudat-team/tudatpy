@@ -42,7 +42,17 @@ public:
     TransferTrajectory(
             const std::vector< std::shared_ptr< TransferLeg > > legs,
             const std::vector< std::shared_ptr< TransferNode > > nodes ):
-        legs_( legs ), nodes_( nodes ){ }
+        legs_( legs ), nodes_( nodes )
+    {
+        totalDeltaV_ = 0.0;
+        for( unsigned int i = 0; i < legs_.size( ); i++ )
+        {
+            totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
+            totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
+        }
+
+        totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
+    }
 
     void evaluateTrajectory(
             const std::vector< double >& nodeTimes,
