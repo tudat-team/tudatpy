@@ -9,7 +9,7 @@
  */
 
 
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/inertialTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertialTorquePartial.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 
 namespace tudat

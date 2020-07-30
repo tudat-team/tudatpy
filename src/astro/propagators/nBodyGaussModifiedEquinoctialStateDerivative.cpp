@@ -76,7 +76,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
 
 template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyGaussModifiedEquinictialStateDerivative< long double, double >;
 template class NBodyGaussModifiedEquinictialStateDerivative< double, Time >;
 template class NBodyGaussModifiedEquinictialStateDerivative< long double, Time >;

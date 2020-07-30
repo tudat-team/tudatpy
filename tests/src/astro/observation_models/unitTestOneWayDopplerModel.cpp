@@ -20,12 +20,12 @@
 
 #include "tudat/io/basicInputOutput.h"
 
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
 namespace tudat

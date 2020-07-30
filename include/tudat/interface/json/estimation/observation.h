@@ -14,7 +14,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "tudat/astro/observation_models/simulateObservations.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

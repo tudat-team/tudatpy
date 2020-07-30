@@ -12,7 +12,7 @@ template class ObservationSimulator< 2, double, double >;
 template class ObservationSimulator< 3, double, double >;
 template class ObservationSimulator< 6, double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class ObservationSimulatorBase< double, Time >;
 template class ObservationSimulatorBase< long double, double >;
 template class ObservationSimulatorBase< long double, Time >;

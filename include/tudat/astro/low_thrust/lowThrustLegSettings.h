@@ -23,7 +23,7 @@
 #include <boost/bind.hpp>
 #include <functional>
 
-#if( USE_PAGMO )
+#if( TUDAT_BUILD_WITH_PAGMO )
 //    #include "tudat/astro/low_thrust/hybridMethod.h"
     #include "tudat/astro/low_thrust/simsFlanagan.h"
 #endif
@@ -44,7 +44,7 @@ enum LowThrustLegTypes
 {
     hodographic_shaping_leg,
     spherical_shaping_leg
-#if( USE_PAGMO )
+#if( TUDAT_BUILD_WITH_PAGMO )
     ,sims_flanagan_leg,
     hybrid_method_leg
 #endif
@@ -192,7 +192,7 @@ public:
 };
 
 
-#if( USE_PAGMO )
+#if( TUDAT_BUILD_WITH_PAGMO )
 //! Low-thrust leg settings for Sims-Flanagan method.
 class SimsFlanaganLegSettings: public LowThrustLegSettings
 {

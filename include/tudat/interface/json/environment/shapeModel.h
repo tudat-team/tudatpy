@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_SHAPEMODEL_H
 #define TUDAT_JSONINTERFACE_SHAPEMODEL_H
 
-#include "tudat/simulation/environment/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createBodyShapeModel.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

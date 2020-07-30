@@ -198,7 +198,7 @@ private:
 
 extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class RotationalMotionExponentialMapStateDerivative< long double, double >;
 extern template class RotationalMotionExponentialMapStateDerivative< double, Time >;
 extern template class RotationalMotionExponentialMapStateDerivative< long double, Time >;

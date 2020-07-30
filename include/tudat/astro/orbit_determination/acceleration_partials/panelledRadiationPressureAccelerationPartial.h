@@ -3,7 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 
 namespace tudat

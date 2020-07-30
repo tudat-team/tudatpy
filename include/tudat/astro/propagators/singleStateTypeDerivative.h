@@ -240,7 +240,7 @@ protected:
 
 extern template class SingleStateTypeDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class SingleStateTypeDerivative< long double, double >;
 extern template class SingleStateTypeDerivative< double, Time >;
 extern template class SingleStateTypeDerivative< long double, Time >;

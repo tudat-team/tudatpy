@@ -12,7 +12,7 @@
 #ifndef TUDAT_EMPIRICALACCELERATIONCOEFFICIENTS_H
 #define TUDAT_EMPIRICALACCELERATIONCOEFFICIENTS_H
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/math/interpolators/piecewiseConstantInterpolator.h"
 

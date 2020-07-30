@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/ObservationPartials/angularPositionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/angularPositionPartial.h"
 
 namespace tudat
 {

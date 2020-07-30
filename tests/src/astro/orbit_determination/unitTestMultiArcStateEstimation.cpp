@@ -23,9 +23,9 @@
 #include "tudat/simulation/simulation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/simulateObservations.h"
-#include "tudat/simulation/estimation/orbitDeterminationManager.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/estimation/podProcessing.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
 
 
 namespace tudat
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >(
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;

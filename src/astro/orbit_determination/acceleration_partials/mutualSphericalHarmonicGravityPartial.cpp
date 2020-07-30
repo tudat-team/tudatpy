@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 
 namespace tudat
 {

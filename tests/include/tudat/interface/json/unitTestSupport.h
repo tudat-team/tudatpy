@@ -17,7 +17,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/json/support/deserialization.h"
 #include "tudat/interface/json/support/utilities.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
 {

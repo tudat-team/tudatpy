@@ -20,7 +20,7 @@ namespace json_interface
 
 template class JsonSimulationManager< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class JsonSimulationManager< double, long double >;
 //template class JsonSimulationManager< Time, double >;
 //template class JsonSimulationManager< Time, long double >;

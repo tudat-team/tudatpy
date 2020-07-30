@@ -19,7 +19,7 @@
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/math/basic/coordinateConversions.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 using namespace tudat::simulation_setup;
 using namespace tudat::basic_astrodynamics;

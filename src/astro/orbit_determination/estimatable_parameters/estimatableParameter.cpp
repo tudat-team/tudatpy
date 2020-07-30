@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
 {
@@ -319,14 +319,14 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //template class EstimatableParameter< Eigen::VectorXd >;
 //template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
 //#endif
 
 //template class EstimatableParameterSet< double >;
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //template class EstimatableParameterSet< long double >;
 //#endif
 

@@ -201,7 +201,7 @@ private:
 
 extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class RotationalMotionQuaternionsStateDerivative< long double, double >;
 extern template class RotationalMotionQuaternionsStateDerivative< double, Time >;
 extern template class RotationalMotionQuaternionsStateDerivative< long double, Time >;

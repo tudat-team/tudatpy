@@ -288,7 +288,7 @@ private:
 
 extern template class NBodyGaussKeplerStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class NBodyGaussKeplerStateDerivative< long double, double >;
 extern template class NBodyGaussKeplerStateDerivative< double, Time >;
 extern template class NBodyGaussKeplerStateDerivative< long double, Time >;

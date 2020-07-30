@@ -21,10 +21,10 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialRotationalState.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
 {
@@ -609,7 +609,7 @@ extern template void VariationalEquations::getBodyInitialStatePartialMatrix< dou
         const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
         const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
