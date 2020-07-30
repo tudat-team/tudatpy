@@ -480,9 +480,9 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
  * \param normalizationCorrection Pre-computed scaling term used for part of computations.
  * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
 */
-double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
-                                                         const int order,
+double computeGeodesyLegendrePolynomialSecondDerivative( const int order,
                                                          const double polynomialParameter,
+                                                         const double oneOverPolynomialParameterComplement,
                                                          const double currentLegendrePolynomial,
                                                          const double incrementedLegendrePolynomial,
                                                          const double currentLegendrePolynomialDerivative,

@@ -145,7 +145,7 @@ void LegendreCache::update( const double polynomialParameter  )
                         {
                             legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
                                     computeGeodesyLegendrePolynomialSecondDerivative(
-                                        i, j - 1, currentPolynomialParameter_,
+                                        j - 1, currentPolynomialParameter_, currentOneOverPolynomialParameterComplement_,
                                         legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
                                     legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
@@ -156,7 +156,7 @@ void LegendreCache::update( const double polynomialParameter  )
                         {
                             legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
                                     computeGeodesyLegendrePolynomialSecondDerivative(
-                                        i, j - 1, currentPolynomialParameter_,
+                                        j - 1, currentPolynomialParameter_,  currentOneOverPolynomialParameterComplement_,
                                         legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
                                     legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
@@ -172,7 +172,7 @@ void LegendreCache::update( const double polynomialParameter  )
                     {
                         legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
                                 computeGeodesyLegendrePolynomialSecondDerivative(
-                                    i, jMax, currentPolynomialParameter_,
+                                    jMax, currentPolynomialParameter_,  currentOneOverPolynomialParameterComplement_,
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
                                 legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
                                 derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
@@ -181,7 +181,7 @@ void LegendreCache::update( const double polynomialParameter  )
                     {
                         legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
                                 computeGeodesyLegendrePolynomialSecondDerivative(
-                                    i, jMax, currentPolynomialParameter_,
+                                    jMax, currentPolynomialParameter_,  currentOneOverPolynomialParameterComplement_,
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
                                 legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
                                 1.0 );
@@ -530,9 +530,9 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
 }
 
 //! Compute second derivative of geodesy-normalized associated Legendre polynomial.
-double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
-                                                         const int order,
+double computeGeodesyLegendrePolynomialSecondDerivative( const int order,
                                                          const double polynomialParameter,
+                                                         const double oneOverPolynomialParameterComplement,
                                                          const double currentLegendrePolynomial,
                                                          const double incrementedLegendrePolynomial,
                                                          const double currentLegendrePolynomialDerivative,
@@ -543,11 +543,16 @@ double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
 
     // Return polynomial derivative.
     return normalizationCorrection * (
-                incrementedLegendrePolynomialDerivative / std::sqrt( 1.0 - polynomialParameterSquare ) +
-                polynomialParameter * std::pow( 1.0 - polynomialParameterSquare, -1.5 ) * incrementedLegendrePolynomial ) -
+                incrementedLegendrePolynomialDerivative * oneOverPolynomialParameterComplement +
+                polynomialParameter *
+                oneOverPolynomialParameterComplement * oneOverPolynomialParameterComplement * oneOverPolynomialParameterComplement *
+                incrementedLegendrePolynomial ) -
             static_cast< double >( order ) *
-            ( polynomialParameter / ( 1.0 - polynomialParameter * polynomialParameter ) * currentLegendrePolynomialDerivative +
-              ( 1.0 + polynomialParameterSquare ) / ( ( 1.0 - polynomialParameterSquare ) * ( 1.0 - polynomialParameterSquare ) ) * currentLegendrePolynomial );
+            ( polynomialParameter * oneOverPolynomialParameterComplement * oneOverPolynomialParameterComplement * currentLegendrePolynomialDerivative +
+              ( 1.0 + polynomialParameterSquare ) *
+              oneOverPolynomialParameterComplement * oneOverPolynomialParameterComplement *
+              oneOverPolynomialParameterComplement * oneOverPolynomialParameterComplement *
+              currentLegendrePolynomial );
 }
 
 
