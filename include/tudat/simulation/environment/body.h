@@ -1409,6 +1409,7 @@ private:
     std::function< void( ) > resetBaseFrames_;
 };
 
+
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
 //typedef std::unordered_map< std::string, std::shared_ptr< Body > > NamedBodyMap;
 
@@ -1683,6 +1684,17 @@ public:
         }
     }
 
+
+    std::string getFrameOrigin( ) const
+    {
+        return frameOrigin_;
+    }
+
+    std::string getFrameOrientation( ) const
+    {
+        return frameOrientation_;
+    }
+
 private:
 
     std::string frameOrigin_;
@@ -1692,6 +1704,8 @@ private:
     std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap_;
 
 };
+
+double getBodyGravitationalParameter( const NamedBodyMap& bodyMap, const std::string bodyName );
 
 //! Function ot retrieve the common global translational state origin of the environment
 /*!

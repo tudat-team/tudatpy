@@ -61,6 +61,26 @@ public:
 
 };
 
+inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType  )
+{
+    return std::make_shared< AccelerationSettings >( accelerationType );
+}
+
+inline std::shared_ptr< AccelerationSettings > pointMassGravityAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity );
+}
+
+inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic );
+}
+
+inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
+}
+
 //! Class for providing settings for spherical harmonics acceleration model.
 /*!
  *  Class for providing settings for spherical harmonics acceleration model,
@@ -87,6 +107,13 @@ public:
     //! Maximum order that is to be used for spherical harmonic acceleration
     int maximumOrder_;
 };
+
+
+inline std::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicAcceleration(
+        const int maximumDegree, const int maximumOrder )
+{
+    return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder );
+}
 
 //! Class for providing acceleration settings for mutual spherical harmonics acceleration model.
 /*!
@@ -538,6 +565,7 @@ public:
     double maneuverRiseTime_;
 
 };
+
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.

@@ -72,49 +72,68 @@ struct BodySettings
 
 };
 
+void addAerodynamicCoefficientInterface(
+        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
+
+
+void addRadiationPressureInterface(
+        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
+
 class BodyListSettings
 {
 public:
 
     BodyListSettings( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
-        _bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ),
+        bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ),
         frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
 
     BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings,
                       const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
-        _bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
+        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {
-        return _bodySettings_.at( bodyName );
+        return bodySettings_.at( bodyName );
+    }
+
+    int count( const std::string& bodyName ) const
+    {
+        return bodySettings_.count( bodyName );
     }
 
     void addSettings( std::shared_ptr< BodySettings > settingsToAdd, const std::string bodyName )
     {
-        _bodySettings_[ bodyName ] = settingsToAdd;
+        bodySettings_[ bodyName ] = settingsToAdd;
     }
 
     void addSettings( const std::string bodyName )
     {
-        _bodySettings_[ bodyName ] = std::make_shared< BodySettings >( );
+        bodySettings_[ bodyName ] = std::make_shared< BodySettings >( );
     }
 
     std::string getFrameOrigin( ) const { return frameOrigin_; }
 
     std::string getFrameOrientation( ) const { return frameOrientation_; }
 
-    std::map< std::string, std::shared_ptr< BodySettings > > get( ) const { return _bodySettings_; }
+    std::map< std::string, std::shared_ptr< BodySettings > > get( ) const { return bodySettings_; }
 
 
 private:
 
-    std::map< std::string, std::shared_ptr< BodySettings > > _bodySettings_;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings_;
 
     std::string frameOrigin_;
 
     std::string frameOrientation_;
 };
 
+void setSimpleRotationSettingsFromSpice(
+        const BodyListSettings& bodySettings, const std::string& bodyName, const double  spiceEvaluation );
+
+void addEmptyTabulateEphemeris(
+        const NamedBodyMap& bodyMap, const std::string& bodyName, const std::string& ephemerisOrigin = "" );
 
 //! Function that determines the order in which bodies are to be created
 /*!
