@@ -360,17 +360,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
 double AerodynamicAngleCalculator::getAerodynamicAngle(
         const AerodynamicsReferenceFrameAngles angleId )
 {
-    double angleValue = TUDAT_NAN;
-    if( currentAerodynamicAngles_.count( angleId ) == 0 )
-    {
-        throw std::runtime_error( "Error in AerodynamicAngleCalculator, angle " +
-                                  std::to_string( angleId ) + " not found" );
-    }
-    else
-    {
-        angleValue = currentAerodynamicAngles_.at( angleId );
-    }
-    return angleValue;
+    return currentAerodynamicAngles_.at( angleId );
 }
 
 //! Function to set the trajectory<->body-fixed orientation angles.
