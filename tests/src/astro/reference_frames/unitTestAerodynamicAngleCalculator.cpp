@@ -17,13 +17,13 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/propagation/createAccelerationModels.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 namespace tudat
 {
 namespace unit_tests

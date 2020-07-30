@@ -17,7 +17,7 @@
 #include "tudat/astro/propagators/variationalEquations.h"
 #include "tudat/astro/propagators/rotationalMotionQuaternionsStateDerivative.h"
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 
 namespace tudat
@@ -197,7 +197,7 @@ template void VariationalEquations::getBodyInitialStatePartialMatrix< double >(
 const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
 Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
-//#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
 const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
 Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );

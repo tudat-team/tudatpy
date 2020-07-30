@@ -12,7 +12,7 @@
 #define TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
 
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 
 namespace tudat
 {
