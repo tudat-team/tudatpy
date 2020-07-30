@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/ObservationPartials/twoWayDopplerPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/observation_partials/twoWayDopplerPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
 {

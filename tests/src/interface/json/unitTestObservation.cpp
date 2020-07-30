@@ -16,9 +16,9 @@
 #include "tudat/interface/json/estimation/parameter.h"
 #include "tudat/interface/json/support/valueConversions.h"
 
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
-#include "tudat/simulation/propagation/createAccelerationModels.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 
 namespace tudat
 {

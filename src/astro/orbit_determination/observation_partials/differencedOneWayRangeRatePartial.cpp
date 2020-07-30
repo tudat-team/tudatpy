@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/ObservationPartials/differencedOneWayRangeRatePartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
 
 namespace tudat
 {

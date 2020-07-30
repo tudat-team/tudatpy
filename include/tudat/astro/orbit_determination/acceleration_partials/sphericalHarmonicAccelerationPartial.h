@@ -17,10 +17,10 @@
 
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/accelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
 
 

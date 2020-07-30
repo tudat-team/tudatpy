@@ -12,8 +12,8 @@
 #define TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
 
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/torquePartial.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/inertiaTensorPartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat

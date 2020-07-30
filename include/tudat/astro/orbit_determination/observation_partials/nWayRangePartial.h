@@ -19,9 +19,9 @@
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/oneWayRangePartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
 namespace tudat

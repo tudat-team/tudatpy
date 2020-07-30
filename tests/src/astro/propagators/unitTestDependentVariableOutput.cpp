@@ -25,9 +25,9 @@
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>
@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 getBodyGravitationalParameter( "Earth" ) );
 
 #if TUDAT_BUILD_WITH_NRLMSISE
-    int maximumTestCase = 4;
+    unsigned int maximumTestCase = 4;
 #else
-    int maximumTestCase = 2;
+    unsigned int maximumTestCase = 2;
 #endif
     for( unsigned int testCase = 0; testCase < maximumTestCase; testCase++ )
     {

@@ -32,7 +32,7 @@
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/math/root_finders/createRootFinder.h"
-#include "tudat/simulation/propagation/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
 
 namespace tudat
 {
