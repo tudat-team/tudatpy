@@ -193,8 +193,6 @@ private:
     //! Current polynomial parameter (sine of latitude).
     double currentPolynomialParameter_;
 
-    double currentPolynomialParameterSquared_;
-
     //! Current 'complement' to polynomial parameter (cosine of latitude).
     double currentPolynomialParameterComplement_;
 
@@ -428,12 +426,12 @@ double computeLegendrePolynomialDerivative( const int order,
  * \param normalizationCorrection Pre-computed scaling term used for part of computations.
  * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
 */
-double computeGeodesyLegendrePolynomialDerivative(  const int order,
-                                                    const double polynomialParameter,
-                                                    const double oneOverPolynomialParameterComplement,
-                                                    const double currentLegendrePolynomial,
-                                                    const double incrementedLegendrePolynomial,
-                                                    const double normalizationCorrection );
+double computeGeodesyLegendrePolynomialDerivative( const int order,
+                                                   const double polynomialParameter,
+                                                   const double oneOverPolynomialParameterComplement,
+                                                   const double currentLegendrePolynomial,
+                                                   const double incrementedLegendrePolynomial,
+                                                   const double normalizationCorrection );
 
 
 //! Compute derivative of geodesy-normalized Legendre polynomial.
@@ -462,16 +460,6 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const double polynomialParameter,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial );
-
-double computeGeodesyLegendrePolynomialSecondDerivative( const int order,
-                                                         const double polynomialParameter,
-                                                         const double oneOverPolynomialParameterComplement,
-                                                         const double polynomialParameterComplementPowerTerm,
-                                                         const double currentLegendrePolynomial,
-                                                         const double incrementedLegendrePolynomial,
-                                                         const double currentLegendrePolynomialDerivative,
-                                                         const double incrementedLegendrePolynomialDerivative,
-                                                         const double normalizationCorrection );
 
 //! Compute second derivative of geodesy-normalized associated Legendre polynomial.
 /*!
