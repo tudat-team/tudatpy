@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/interface/json/unitTestSupport.h"
 #include "tudat/interface/json/propagation/state.h"
 

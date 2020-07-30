@@ -487,7 +487,7 @@ extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
 extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
 extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
 extern template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
 extern template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;

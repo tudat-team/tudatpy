@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/ObservationPartials/oneWayDopplerPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 
 namespace tudat
 {

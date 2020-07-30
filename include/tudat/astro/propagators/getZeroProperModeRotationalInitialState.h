@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/dissipativeTorqueModel.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
@@ -146,7 +146,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
         const bool propagateNominal = true,
         const bool writeToFileInLoop = false,
         const std::string baseFileName = "",
-        const std::string outputFolder = paths::getTudatRootPath( ) )
+        const std::string outputFolder = paths::get_resources_path() + "/outputFolder/"  )
 {
     propagatedStates.resize( dissipationTimes.size( ) + 1 );
     dependentVariables.resize( dissipationTimes.size( ) + 1 );

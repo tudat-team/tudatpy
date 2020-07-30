@@ -24,15 +24,15 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
-#include "tudat/simulation/estimation/createObservationPartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
+#include "tudat/simulation/estimation_setup/createObservationPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/math/basic/numericalDerivative.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartialTestFunctions.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
 
 namespace tudat
 {

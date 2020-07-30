@@ -229,7 +229,7 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
 
 template class NBodyStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyStateDerivative< long double, double >;
 template class NBodyStateDerivative< double, Time >;
 template class NBodyStateDerivative< long double, Time >;

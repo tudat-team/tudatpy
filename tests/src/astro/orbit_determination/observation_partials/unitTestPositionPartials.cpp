@@ -25,14 +25,14 @@
 
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationalOrientation.h"
-#include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/numericalObservationPartial.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 
 namespace tudat
