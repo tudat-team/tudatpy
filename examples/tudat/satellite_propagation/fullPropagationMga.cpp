@@ -22,8 +22,8 @@
 #include <tudat/io/basicInputOutput.h>
 #include <tudat/io/applicationOutput.h>
 
-#include "tudat/simulation/propagation/propagationPatchedConicFullProblem.h"
-#include "tudat/simulation/propagation/propagationLambertTargeterFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
 
 
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"

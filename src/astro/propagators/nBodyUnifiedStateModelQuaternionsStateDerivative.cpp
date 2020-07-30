@@ -104,7 +104,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
 
 template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyUnifiedStateModelQuaternionsStateDerivative< long double, double >;
 template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, Time >;
 template class NBodyUnifiedStateModelQuaternionsStateDerivative< long double, Time >;

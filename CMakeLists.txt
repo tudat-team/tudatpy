@@ -49,7 +49,7 @@ option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
 
 # Build with estimation tools.
-option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
+option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." ON)
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
@@ -72,6 +72,8 @@ option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
+message(TUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS})
+message(TUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE})
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
@@ -202,12 +204,12 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
 endif ()
 
 # PRECOMPILE EXTENDED PRECISION STUFF
-if (NOT BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
+if (NOT TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS)
     message(STATUS "Extended precision propagation disabled!")
-    add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
+    add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
 else ()
     message(STATUS "Extended precision propagation enabled!")
-    add_definitions(-DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
+    add_definitions(-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
 endif ()
 
 if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)

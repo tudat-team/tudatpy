@@ -11,7 +11,7 @@
 #ifndef TUDAT_CONSTANTROTATIONRATE_H
 #define TUDAT_CONSTANTROTATIONRATE_H
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 
 namespace tudat

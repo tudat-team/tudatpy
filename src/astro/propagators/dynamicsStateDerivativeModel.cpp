@@ -1,7 +1,7 @@
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#include "tudat/astro/orbit_determination/AccelerationPartials/thirdBodyGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
 #endif
 
 namespace tudat
@@ -69,7 +69,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
 
 template class DynamicsStateDerivativeModel< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class DynamicsStateDerivativeModel< Time, double >;
 template class DynamicsStateDerivativeModel< double, long double >;
 template class DynamicsStateDerivativeModel< Time, long double >;

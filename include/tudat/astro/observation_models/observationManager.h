@@ -15,7 +15,7 @@
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 
 namespace tudat
@@ -426,7 +426,7 @@ extern template class ObservationManager< 2, double, double >;
 extern template class ObservationManager< 3, double, double >;
 extern template class ObservationManager< 6, double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class ObservationManagerBase< double, Time >;
 extern template class ObservationManagerBase< long double, double >;
 extern template class ObservationManagerBase< long double, Time >;

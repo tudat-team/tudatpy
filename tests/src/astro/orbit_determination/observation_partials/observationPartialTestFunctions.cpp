@@ -9,11 +9,11 @@
  */
 
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartialTestFunctions.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/initialTranslationalState.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/ppnParameters.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 
 namespace tudat
