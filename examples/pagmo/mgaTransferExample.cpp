@@ -18,7 +18,6 @@
 #include "pagmo/problem.hpp"
 #include <pagmo/rng.hpp>
 #include "pagmo/algorithms/sade.hpp"
-
 #include "problems/multipleGravityAssist.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
@@ -70,11 +69,25 @@ simulation_setup::NamedBodyMap getApproximatePlanetBodyMap( )
     return bodyMap;
 }
 
+namespace std
+{
+template <typename T>
+ostream& operator<<(ostream& output, std::vector<T> const& values)
+{
+    std::cout<<"[ ";
+    for (auto const& value : values)
+    {
+        output << value <<", ";
+    }
+    std::cout<<" ]"<<std::endl;
+    return output;
+}
+}
 //! Execute  main
 int main( )
 {
     //Set seed for reproducible results
-    pagmo::random_device::set_seed( 12345678 );
+    pagmo::random_device::set_seed( 123456789 );
 
     // Set transfer order
     std::vector< std::string > bodyOrder = {
@@ -85,8 +98,8 @@ int main( )
     std::vector< std::shared_ptr< TransferLegSettings > > transferLegSettings;
     transferLegSettings.resize( numberOfNodes - 1 );
     transferLegSettings[ 0 ] = unpoweredLeg( );
-    transferLegSettings[ 1 ] = unpoweredLeg( );
-    transferLegSettings[ 2 ] = unpoweredLeg( );
+    transferLegSettings[ 1 ] = dsmVelocityBasedLeg( );
+    transferLegSettings[ 2 ] = dsmVelocityBasedLeg( );
     transferLegSettings[ 3 ] = unpoweredLeg( );
     transferLegSettings[ 4 ] = unpoweredLeg( );
 
@@ -110,7 +123,7 @@ int main( )
     simulation_setup::NamedBodyMap bodyMap = getApproximatePlanetBodyMap( );
 
     // Define search bounds: first parameter is start date, following parameters are leg durations
-    std::vector< std::vector< double > > bounds( 2, std::vector< double >( 6, 0.0 ) );
+    std::vector< std::vector< double > > bounds( 2, std::vector< double >( 14, 0.0 ) );
     bounds[ 0 ][ 0 ] = -2000.0; //MJD2000
     bounds[ 1 ][ 0 ] = 0.0; //MJD2000
     bounds[ 0 ][ 1 ] = 50.0;
@@ -123,26 +136,35 @@ int main( )
     bounds[ 1 ][ 4 ] = 2000.0;
     bounds[ 0 ][ 5 ] = 1000.0;
     bounds[ 1 ][ 5 ] = 10000.0;
+//    bounds[ 0 ][ 6 ] = 0.0;
+//    bounds[ 1 ][ 6 ] = 2.0E3;;
+//    bounds[ 0 ][ 7 ] = 0.0;
+//    bounds[ 1 ][ 7 ] = 2.0 * mathematical_constants::PI;
 
+//    bounds[ 0 ][ 8 ] = 0.0;
+//    bounds[ 1 ][ 8 ] = 2.0 * mathematical_constants::PI;
 
-//    for( int i = 1; i < 4; i++ )
-//    {
-//        // periapsis bounds
-//        bounds[ 0 ][ 4 + ( i - 1 ) * 4 + 1 ] = minimumPeriapses.at( bodyOrder.at( i ) );
-//        bounds[ 1 ][ 4 + ( i - 1 ) * 4 + 1 ] = 1.5 * minimumPeriapses.at( bodyOrder.at( i ) );
+//    bounds[ 0 ][ 9 ] = 0.05;
+//    bounds[ 1 ][ 9 ] = 0.95;
+    int currentIndex = 5;
+    for( int i = 1; i < 3; i++ )
+    {
+        // periapsis bounds
+        bounds[ 0 ][ currentIndex + ( i - 1 ) * 4 + 1 ] = minimumPeriapses.at( bodyOrder.at( i ) );
+        bounds[ 1 ][ currentIndex + ( i - 1 ) * 4 + 1 ] = 1.5 * minimumPeriapses.at( bodyOrder.at( i ) );
 
-//        // orbit orientation bounds
-//        bounds[ 0 ][ 4 + ( i - 1 ) * 4 + 2 ] = -mathematical_constants::PI / 2.0 - 0.1;
-//        bounds[ 1 ][ 4 + ( i - 1 ) * 4 + 2 ] = -mathematical_constants::PI / 2.0 + 0.1;
+        // orbit orientation bounds
+        bounds[ 0 ][ currentIndex + ( i - 1 ) * 4 + 2 ] = 0.0;
+        bounds[ 1 ][ currentIndex + ( i - 1 ) * 4 + 2 ] = 2.0 * mathematical_constants::PI;
 
-//        // Swingby Delta V bounds
-//        bounds[ 0 ][ 4 + ( i - 1 ) * 4 + 3 ] = 0;
-//        bounds[ 1 ][ 4 + ( i - 1 ) * 4 + 3 ] = 1000.0;;
+        // Swingby Delta V bounds
+        bounds[ 0 ][ currentIndex + ( i - 1 ) * 4 + 3 ] = 0;
+        bounds[ 1 ][ currentIndex + ( i - 1 ) * 4 + 3 ] = 2500.0;
 
-//        // DSM TOF fraction
-//        bounds[ 0 ][ 4 + ( i - 1 ) * 4 + 4 ] = 0.05;
-//        bounds[ 1 ][ 4 + ( i - 1 ) * 4 + 4 ] = 0.95;
-//    }
+        // DSM TOF fraction
+        bounds[ 0 ][ currentIndex + ( i - 1 ) * 4 + 4 ] = 0.05;
+        bounds[ 1 ][ currentIndex + ( i - 1 ) * 4 + 4 ] = 0.95;
+    }
 
     // Create object to compute the problem fitness
     problem prob{ MultipleGravityAssist(
@@ -153,7 +175,7 @@ int main( )
     algorithm algo{sade( )};
 
     // Create an island with 1000 individuals
-    island isl{algo, prob, 100 };
+    island isl{algo, prob, 500 };
 
     // Evolve for 512 generations
     for( int i = 0 ; i < 10000; i++ )
@@ -168,9 +190,10 @@ int main( )
 
         isl.wait_check( ); // Raises errors
 
-        if( i% 10 == 0 )
+        if( i% 100 == 0 )
         {
-            std::cout<<i<<" "<<isl.get_population().champion_f()[0]<<std::endl;        // Write current iteration results to file
+            std::cout<<i<<" "<<isl.get_population().champion_f()[0]<<"***  "<<
+                       isl.get_population().champion_x()<<std::endl;        // Write current iteration results to file
         }
 //        printPopulationToFile( isl.get_population( ).get_x( ), "mo_mga_EVEEJ_" + std::to_string( i ), false );
 //        printPopulationToFile( isl.get_population( ).get_f( ), "mo_mga_EVEEJ_" + std::to_string( i ), true );
