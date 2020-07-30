@@ -305,6 +305,111 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     return accelerationModelList;
 }
 
+template< typename InitialStateParameterType = double >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
+        const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
+        const NamedBodyMap& bodyMap )
+{
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > initialStateParameterSettings;
+
+    using namespace propagators;
+    if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    {
+        std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
+                std::dynamic_pointer_cast< SingleArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        switch( singleArcSettings->getStateType( ) )
+        {
+        case hybrid:
+        {
+            std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType > > multiTypePropagatorSettings =
+                    std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
+
+            std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType > > > >
+                    propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
+            for( auto propIterator : propagatorSettingsMap )
+            {
+                for( unsigned int i = 0; i < propIterator.second.size( ); i++ )
+                {
+                    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
+                            singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType >(
+                                propIterator.second.at( i ), bodyMap );
+                    initialStateParameterSettings.insert(
+                                initialStateParameterSettings.end( ),
+                                singleTypeinitialStateParameterSettings.begin( ),
+                                singleTypeinitialStateParameterSettings.end( ) );
+                }
+            }
+            break;
+        }
+        case translational_state:
+        {
+            std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType > > translationalPropagatorSettings =
+                    std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
+            // Retrieve estimated and propagated translational states, and check equality.
+            std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
+            std::vector< std::string > centralBodies = translationalPropagatorSettings->centralBodies_;
+
+            Eigen::VectorXd initialStates =  translationalPropagatorSettings->getInitialStates( );
+            for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+            {
+                initialStateParameterSettings.push_back(
+                            std::make_shared< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings<
+                            InitialStateParameterType > >(
+                                propagatedBodies.at( i ), initialStates.segment( i * 6, 6 ), centralBodies.at( i ),
+                                bodyMap.getFrameOrientation( ) ) );
+            }
+            break;
+
+        }
+        case rotational_state:
+        {
+            std::shared_ptr< RotationalStatePropagatorSettings< InitialStateParameterType > > rotationalPropagatorSettings =
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
+            // Retrieve estimated and propagated translational states, and check equality.
+            std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
+
+            Eigen::VectorXd initialStates =  rotationalPropagatorSettings->getInitialStates( );
+            for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+            {
+                initialStateParameterSettings.push_back(
+                            std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings<
+                            InitialStateParameterType > >(
+                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ), bodyMap.getFrameOrientation( ) ) );
+            }
+            break;
+        }
+        case body_mass_state:
+        {
+            throw std::runtime_error( "Error, cannot estimate initial mass state" );
+        }
+        case custom_state:
+        {
+            throw std::runtime_error( "Error, cannot estimate initial custom state" );
+        }
+        default:
+            throw std::runtime_error( "Error, did not recognize single-arc state type when identifying propagator settings for estimatable parameter settings." );
+        }
+    }
+    else if( std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    {
+        std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
+                std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) ;
+        throw std::runtime_error( "Error when identifying propagator settings for estimatable parameter settings; multi-arc parsing not yet implemented" );
+
+    }
+    else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) != nullptr )
+    {
+        std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType > > hybridArcSettings =
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+        throw std::runtime_error( "Error when identifying propagator settings for estimatable parameter settings; hybrid-arc parsing not yet implemented" );
+    }
+
+    return initialStateParameterSettings;
+}
+
 //! Function to create interface object for estimating parameters representing an initial dynamical state.
 /*!
  *  Function to create interface object for estimating parameters representing an initial dynamical state.
@@ -459,8 +564,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                             initialStateSettings->parameterType_.second.first, initialRotationalState,
                             std::bind( &Body::getBodyInertiaTensor,
                                        bodyMap.at( initialStateSettings->parameterType_.second.first ) ),
-                            initialStateSettings->baseOrientation_,
-                            initialStateSettings->frameOrientation_ );
+                            initialStateSettings->baseOrientation_ );
             }
             break;
         default:

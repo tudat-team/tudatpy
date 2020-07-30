@@ -28,6 +28,67 @@ namespace simulation_setup
 using namespace ephemerides;
 using namespace gravitation;
 
+void addAerodynamicCoefficientInterface(
+        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings )
+{
+    if( bodyMap.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in body map" );
+    }
+    bodyMap.at( bodyName )->setAerodynamicCoefficientInterface(
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
+}
+
+void addRadiationPressureInterface(
+        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
+{
+    if( bodyMap.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting radiation pressure interface for body "+ bodyName + ", body is not found in body map" );
+    }
+    bodyMap.at( bodyName )->setRadiationPressureInterface(
+                radiationPressureSettings->getSourceBody( ), createRadiationPressureInterface(
+                    radiationPressureSettings, bodyName, bodyMap ) );
+}
+
+void setSimpleRotationSettingsFromSpice(
+        const BodyListSettings& bodySettings, const std::string& bodyName, const double spiceEvaluationTime )
+{
+    if( bodySettings.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting simple rotation model settings for body " +
+                                  bodyName + ", no settings found for this body." );
+    }
+
+    Eigen::Quaterniond rotationAtReferenceTime =
+            spice_interface::computeRotationQuaternionBetweenFrames(
+                bodySettings.getFrameOrientation( ), "IAU_" + bodyName, spiceEvaluationTime );
+    double rotationRateAtReferenceTime =
+            spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
+                bodySettings.getFrameOrientation( ), "IAU_" + bodyName, spiceEvaluationTime ).norm( );
+
+    bodySettings.at( bodyName )->rotationModelSettings =
+            std::make_shared< SimpleRotationModelSettings >(
+                bodySettings.getFrameOrientation( ), "IAU_" + bodyName, rotationAtReferenceTime,
+                spiceEvaluationTime, rotationRateAtReferenceTime );
+}
+
+void addEmptyTabulateEphemeris(
+        const NamedBodyMap& bodyMap, const std::string& bodyName, const std::string& ephemerisOrigin )
+{
+    if( bodyMap.count( bodyName ) ==  0 )
+    {
+        throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
+    }
+    std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodyMap.getFrameOrigin( ) : ephemerisOrigin;
+    bodyMap.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                            < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodyMap.getFrameOrientation( ) ) );
+}
+
+
 //! Function that determines the order in which bodies are to be created
 std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings )
