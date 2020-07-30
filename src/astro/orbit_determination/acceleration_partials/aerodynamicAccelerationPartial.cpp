@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/aerodynamicAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 
 namespace tudat
 {

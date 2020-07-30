@@ -12,10 +12,10 @@
 #define TUDAT_CONSTANTTORQUEPARTIALS_H
 
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/torquePartial.h"
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/inertiaTensorPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/inertiaTensorPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat

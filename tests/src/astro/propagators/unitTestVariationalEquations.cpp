@@ -27,12 +27,12 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/variationalEquationsSolver.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
 {

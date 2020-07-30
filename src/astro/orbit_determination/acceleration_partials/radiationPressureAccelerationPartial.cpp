@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/radiationPressureCoefficient.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/radiationPressureAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
 
 namespace tudat
 {

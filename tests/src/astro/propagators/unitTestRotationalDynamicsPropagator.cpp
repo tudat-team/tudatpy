@@ -37,13 +37,13 @@
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat

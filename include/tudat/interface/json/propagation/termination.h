@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_TERMINATION_H
 #define TUDAT_JSONINTERFACE_TERMINATION_H
 
-#include "tudat/simulation/propagation/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

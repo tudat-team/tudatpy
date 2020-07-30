@@ -123,7 +123,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
 
 template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, double >;
 template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, Time >;
 template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< long double, Time >;

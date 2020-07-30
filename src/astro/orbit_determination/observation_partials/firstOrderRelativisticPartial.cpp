@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 
 namespace tudat
 {

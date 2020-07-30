@@ -9,7 +9,7 @@ template class Interpolator< double, Eigen::VectorXd >;
 template class Interpolator< double, Eigen::Vector6d >;
 template class Interpolator< double, Eigen::MatrixXd >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class Interpolator< Time, Eigen::VectorXd >;
 template class Interpolator< Time, Eigen::Vector6d >;
 template class Interpolator< Time, Eigen::MatrixXd >;

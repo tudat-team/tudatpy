@@ -12,7 +12,7 @@
 #include "tudat/interface/json/estimation/observation.h"
 #include "tudat/interface/json/propagation/acceleration.h"
 #include "tudat/interface/json/estimation/parameter.h"
-#include "tudat/simulation/estimation/estimatableParameterSettings.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 
 namespace tudat
 {

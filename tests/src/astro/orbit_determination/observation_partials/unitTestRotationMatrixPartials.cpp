@@ -16,8 +16,8 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/estimation/createCartesianStatePartials.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/rotationMatrixPartial.h"
+#include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/basicInputOutput.h"
 

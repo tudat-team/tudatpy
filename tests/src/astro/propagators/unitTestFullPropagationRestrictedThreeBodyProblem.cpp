@@ -23,7 +23,7 @@
 
 #include "tudat/simulation/simulation.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/propagation/propagationCR3BPFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 
 
 namespace tudat

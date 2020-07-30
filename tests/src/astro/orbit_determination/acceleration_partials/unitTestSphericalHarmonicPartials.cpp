@@ -13,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/numericalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/simulation/estimation.h"
 
 namespace tudat

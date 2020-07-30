@@ -73,6 +73,7 @@ int main( )
                 // Create central gravity acceleration between each 2 bodies.
                 if( i != j )
                 {
+
                     currentAccelerations[ bodyNames.at( j ) ].push_back(
                                 std::make_shared< AccelerationSettings >( central_gravity ) );
                 }

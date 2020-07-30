@@ -15,7 +15,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/sphericalHarmonicPartialFunctions.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
 
 namespace tudat
 {

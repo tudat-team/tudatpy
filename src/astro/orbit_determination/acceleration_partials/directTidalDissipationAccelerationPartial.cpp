@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat

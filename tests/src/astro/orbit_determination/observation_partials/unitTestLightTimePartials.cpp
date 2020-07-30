@@ -18,11 +18,11 @@
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
-#include "tudat/simulation/estimation/createLightTimeCorrectionPartials.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartialTestFunctions.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
 
 namespace tudat
 {

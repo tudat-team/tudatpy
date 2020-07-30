@@ -12,7 +12,7 @@
 #define TUDAT_PPNPARAMETERS_H
 
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
 {

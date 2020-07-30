@@ -14,7 +14,7 @@
 
 #include "tudat/interface/json/jsonInterface.h"
 #include "tudat/interface/json/estimation/parameter.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
 {
@@ -134,7 +134,7 @@ protected:
 
 extern template class JsonVariationalEquationsSimulationManager< double, double >;
 
-#if( BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //extern template class JsonVariationalEquationsSimulationManager< Time, double >;
 extern template class JsonVariationalEquationsSimulationManager< double, long double >;
 //extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
