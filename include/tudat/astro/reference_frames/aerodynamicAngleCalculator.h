@@ -116,7 +116,10 @@ public:
         angleOfSideslipFunction_( angleOfSideslipFunction ),
         bankAngleFunction_( bankAngleFunction ),
         angleUpdateFunction_( angleUpdateFunction ),
-        currentBodyAngleTime_( TUDAT_NAN ){ }
+        currentBodyAngleTime_( TUDAT_NAN )
+    {
+        currentAerodynamicAngles_.resize( 7 );
+    }
 
     //! Function to set the atmospheric wind model
     /*!
@@ -294,7 +297,7 @@ private:
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Map of current angles, as calculated by previous call to update( ) function.
-    std::map< AerodynamicsReferenceFrameAngles, double > currentAerodynamicAngles_;
+    std::vector< double > currentAerodynamicAngles_;
 
     //! Map of current transformation quaternions, as calculated since previous call to update( ) function.
     std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
