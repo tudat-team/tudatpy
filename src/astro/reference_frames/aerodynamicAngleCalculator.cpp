@@ -490,6 +490,45 @@ getAerodynamicForceTransformationFunction(
     return transformationFunction;
 }
 
+std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
+getAerodynamicForceTransformationReferenceFunction(
+        const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const AerodynamicsReferenceFrames accelerationFrame,
+        const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction,
+        const AerodynamicsReferenceFrames propagationFrame )
+{
+    std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > transformationFunction;
+
+    // If propagation frame is the inertial frame, use bodyFixedToInertialFrameFunction.
+    if( propagationFrame == inertial_frame )
+    {
+        std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > > rotationsList;
+
+        // Get accelerationFrame to corotating frame transformation.
+        std::function< Eigen::Quaterniond( ) > firstRotation =
+                std::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                           aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
+        rotationsList.push_back(
+                    std::bind( &transformVectorFromQuaternionFunction,
+                               std::placeholders::_1, firstRotation ) );
+
+        // Add corotating to inertial frame.
+        rotationsList.push_back(
+                    std::bind( &transformVectorFromQuaternionFunction,
+                               std::placeholders::_1, bodyFixedToInertialFrameFunction ) );
+
+        // Create transformation function.
+        transformationFunction = std::bind( &transformVectorReferenceFromVectorFunctions,
+                                            std::placeholders::_1, std::placeholders::_2, rotationsList );
+    }
+    else
+    {
+        throw std::runtime_error( "TODO: Write error message" );
+    }
+
+    return transformationFunction;
+}
+
 //! Function to update the aerodynamic angles to current time.
 void AerodynamicAnglesClosure::updateAngles( const double currentTime )
 {

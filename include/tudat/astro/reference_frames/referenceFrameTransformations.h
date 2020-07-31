@@ -67,7 +67,7 @@ Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
 
 Eigen::Vector3d transformVectorFunctionFromVectorReferenceFunctions(
         const std::function< Eigen::Vector3d&( ) > originalVector,
-        const std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
+        std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > transformationFunction );
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
 /*!
@@ -78,6 +78,11 @@ Eigen::Vector3d transformVectorFunctionFromVectorReferenceFunctions(
  * \return Vector originalVector, transformed to new frame.
  */
 Eigen::Vector3d transformVectorFromVectorFunctions(
+        const Eigen::Vector3d& originalVector,
+        const std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
+
+void transformVectorReferenceFromVectorFunctions(
+        Eigen::Vector3d& transformedVector,
         const Eigen::Vector3d& originalVector,
         const std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 

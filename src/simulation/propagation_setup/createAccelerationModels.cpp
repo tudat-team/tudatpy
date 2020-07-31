@@ -729,9 +729,9 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     }
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
-    std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
+    std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > toPropagationFrameTransformation;
     toPropagationFrameTransformation =
-            reference_frames::getAerodynamicForceTransformationFunction(
+            reference_frames::getAerodynamicForceTransformationReferenceFunction(
                 bodyFlightConditions->getAerodynamicAngleCalculator( ),
                 accelerationFrame,
                 std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
