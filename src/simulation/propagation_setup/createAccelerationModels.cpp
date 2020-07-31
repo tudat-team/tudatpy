@@ -737,11 +737,11 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
-    std::function< Eigen::Vector3d( ) > coefficientFunction =
-            std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+    std::function< Eigen::Vector3d&( ) > coefficientFunction =
+            std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficientsReference,
                        aerodynamicCoefficients );
     std::function< Eigen::Vector3d( ) > coefficientInPropagationFrameFunction =
-            std::bind( &reference_frames::transformVectorFunctionFromVectorFunctions,
+            std::bind( &reference_frames::transformVectorFunctionFromVectorReferenceFunctions,
                        coefficientFunction, toPropagationFrameTransformation );
 
     // Create acceleration model.
