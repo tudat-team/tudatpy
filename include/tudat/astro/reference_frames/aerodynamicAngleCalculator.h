@@ -372,6 +372,7 @@ getAerodynamicForceTransformationFunction(
         [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
+// EFFICIENCY TODO: MAKE THIS AND PREVIOUS FUNCTION THE SAME
 std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationReferenceFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,

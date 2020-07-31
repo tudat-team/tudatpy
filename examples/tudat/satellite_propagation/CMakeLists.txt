@@ -18,6 +18,11 @@ TUDAT_ADD_EXECUTABLE(application_SinglePerturbedSatellitePropagator
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_EXECUTABLE(application_InnerSolarSystemPropagation
+        "innerSolarSystemPropagation.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_EXECUTABLE(application_EarthOrbiterBasicStateEstimation
         "earthOrbiterBasicStateEstimation.cpp"
         ${Tudat_ESTIMATION_LIBRARIES}

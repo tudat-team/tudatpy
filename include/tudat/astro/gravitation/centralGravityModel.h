@@ -212,21 +212,6 @@ public:
         this->updateMembers( );
     }
 
-    //! Get gravitational acceleration.
-    /*!
-     * Returns the gravitational acceleration computed using the input parameters provided to the
-     * class. This function serves as a wrapper for the computeGravitationalAcceleration()
-     * function.
-     * \return Computed gravitational acceleration vector.
-     */
-    StateMatrix getAcceleration( )
-    {
-        return computeGravitationalAcceleration(
-                    this->positionOfBodySubjectToAcceleration,
-                    this->gravitationalParameter,
-                    this->positionOfBodyExertingAcceleration );
-    }
-
     //! Update members.
     /*!
      * Updates class members relevant for computing the central gravitational acceleration. In this
@@ -239,6 +224,10 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             this->updateBaseMembers( );
+            this->currentAcceleration_ = computeGravitationalAcceleration(
+                        this->positionOfBodySubjectToAcceleration,
+                        this->gravitationalParameter,
+                        this->positionOfBodyExertingAcceleration );
         }
     }
 

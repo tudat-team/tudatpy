@@ -51,10 +51,7 @@ int main( )
     bodyNames[ 5 ] = "Sun";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    NamedBodyMap bodyMap = createBodies( getDefaultBodySettings( bodyNames ) );
 
     // Run simulation for 2 different central body settings (barycentric and hierarchical)
     for( int centralBodySettings = 0; centralBodySettings < 2; centralBodySettings++ )

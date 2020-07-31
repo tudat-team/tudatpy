@@ -194,6 +194,7 @@ public:
 
         // Initialize atmosphere
         createAtmosphereInterpolators( );
+        independentVariableData_.resize( numberOfIndependentVariables_ );
     }
 
     //! Destructor

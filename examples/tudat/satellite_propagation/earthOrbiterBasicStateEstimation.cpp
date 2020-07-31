@@ -108,7 +108,7 @@ int main( )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
     accelerationsOfVehicle[ "Earth" ] = {
-            sphericalHarmonicAcceleration( 8, 8 ),
+            sphericalHarmonicAcceleration( 32, 32 ),
             aerodynamicAcceleration( ) };
     accelerationsOfVehicle[ "Sun" ] = {
             pointMassGravityAcceleration( ),

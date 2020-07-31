@@ -165,8 +165,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
             reference_frames::getAerodynamicForceTransformationFunction(
                 bodyMap.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                 reference_frames::aerodynamic_frame,
-                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( "Earth" ) ),
-                reference_frames::inertial_frame );
+                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( "Earth" ) ) );
 
     // Iterate over all time steps and compute test quantities
     for( std::map< double, Eigen::VectorXd >::const_iterator dataIterator = dependentVariableOutput.begin( );
