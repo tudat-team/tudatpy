@@ -180,8 +180,8 @@ public:
 
         if( !( currentTime_ == currentTime ) )
         {
-            currentAcceleratedBodyState_ = acceleratedBodyState_( );
-            currentCentralBodyState_ = centralBodyState_( );
+             acceleratedBodyState_( currentAcceleratedBodyState_ );
+             centralBodyState_( currentCentralBodyState_ );
             currentGravitationalParameter_ = gravitationalParameterFunction_( );
 
             currentPartialWrtPosition_ = calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
@@ -213,10 +213,10 @@ protected:
     std::function< double( ) > gravitationalParameterFunction_;
 
     //! Function to retrieve current state of body exerting acceleration.
-    std::function< Eigen::Vector3d( ) > centralBodyState_;
+    std::function< void( Eigen::Vector3d& ) > centralBodyState_;
 
     //! Function to retrieve current state of body undergoing acceleration.
-    std::function< Eigen::Vector3d( ) > acceleratedBodyState_;
+    std::function< void( Eigen::Vector3d& ) > acceleratedBodyState_;
 
     //! Boolean denoting whether the gravitational attraction of the central body on the accelerated body is included.
     bool accelerationUsesMutualAttraction_;

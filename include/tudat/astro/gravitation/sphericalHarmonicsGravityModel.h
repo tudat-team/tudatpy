@@ -202,7 +202,7 @@ public:
             const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
             const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return Eigen::Vector3d::Zero( ); },
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
             [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
@@ -264,8 +264,8 @@ public:
             const double anEquatorialRadius,
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
-            const StateFunction positionOfBodyExertingAccelerationFunction
-            = [ ]( ){ return Eigen::Vector3d::Zero( ); },
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
             [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
