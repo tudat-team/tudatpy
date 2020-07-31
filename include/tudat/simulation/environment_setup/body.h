@@ -441,6 +441,8 @@ public:
      */
     Eigen::Vector3d getPosition( ) { return currentState_.segment( 0, 3 ); }
 
+    void getPositionByReference( Eigen::Vector3d& position );
+
     //! Get current velocity.
     /*!
      * Returns the internally stored current velocity vector.

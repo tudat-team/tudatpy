@@ -18,6 +18,8 @@ namespace tudat
 namespace simulation_setup
 {
 
+void Body::getPositionByReference( Eigen::Vector3d& position ) { position = currentState_.segment( 0, 3 ); }
+
 
 //template void Body::setStateFromEphemeris< double, double >( const double& time );
 
