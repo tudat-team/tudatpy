@@ -308,7 +308,7 @@ public:
                     for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                     {
                         // Calculate acceleration and add to state derivative.
-                        totalAcceleration += innerAccelerationIterator->second[ j ]->getAcceleration( );
+                         innerAccelerationIterator->second[ j ]->addCurrentAcceleration( totalAcceleration );
                     }
                 }
             }
@@ -388,8 +388,8 @@ protected:
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
                     // Calculate acceleration and add to state derivative.
-                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
-                                innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
+                    innerAccelerationIterator->second[ j ]->getAccelerationByReference( currentAccelerationComponent_ );
+                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += currentAccelerationComponent_.
                             template cast< StateScalarType >( );
                 }
             }
@@ -459,6 +459,8 @@ protected:
 
     //! List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
+
+    Eigen::Vector3d currentAccelerationComponent_;
 
 };
 
