@@ -42,7 +42,7 @@ int main( )
 
     // Create bodies in simulation
     std::vector< std::string > bodiesToCreate = { "Sun", "Earth", "Moon", "Mars", "Venus" };
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - environmentTimeBuffer,
                                     simulationEndEpoch + environmentTimeBuffer,  "Earth", "J2000" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -83,7 +83,7 @@ int main( )
 
     using namespace tudat::basic_astrodynamics;
     accelerationsOfAsterix[ "Earth" ] = {
-            sphericalHarmonicAcceleration( 5, 5 ),
+            sphericalHarmonicAcceleration( 8, 8 ),
             aerodynamicAcceleration() };
 
     accelerationsOfAsterix[ "Sun" ] = {
