@@ -195,6 +195,13 @@ public:
         return currentForceCoefficients_;
     }
 
+    Eigen::Vector3d& getCurrentForceCoefficientsReference( )
+    {
+        return currentForceCoefficients_;
+    }
+
+
+
     //! Pure virtual function for calculating and returning aerodynamic moment coefficients
     /*!
      *  Pure virtual function for calculating and returning aerodynamic moment coefficients.
