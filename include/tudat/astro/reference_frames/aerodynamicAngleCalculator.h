@@ -179,6 +179,11 @@ public:
      */
     void update( const double currentTime, const bool updateBodyOrientation );
 
+    void getRotationQuaternionReferenceBetweenFrames(
+            Eigen::Quaterniond& rotationToFrame,
+            const AerodynamicsReferenceFrames originalFrame,
+            const AerodynamicsReferenceFrames targetFrame );
+
     //! Function to get the rotation quaternion between two frames
     /*!
      * Function to get the rotation quaternion between two frames. This function uses the values
@@ -366,6 +371,7 @@ getAerodynamicForceTransformationFunction(
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
         [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
+
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
 /*!

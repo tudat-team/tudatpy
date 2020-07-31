@@ -181,13 +181,16 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     }
 }
 
+
 //! Function to get the rotation quaternion between two frames
-Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames(
+void AerodynamicAngleCalculator::getRotationQuaternionReferenceBetweenFrames(
+        Eigen::Quaterniond& rotationToFrame,
         const AerodynamicsReferenceFrames originalFrame,
         const AerodynamicsReferenceFrames targetFrame )
 {
+    std::cout<<"Frames: "<<originalFrame<<" "<<targetFrame<<std::endl;
     // Initialize rotation to identity matrix.
-    Eigen::Quaterniond rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+    rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
 
     // Check if update settings are consistent with requested frames.
     if( !calculateVerticalToAerodynamicFrame_ &&
@@ -279,10 +282,13 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 case static_cast< int >( trajectory_frame ):
                     if( isTargetFrameUp )
                     {
-                        rotationToFrame =
-                                getTrajectoryToAerodynamicFrameTransformationQuaternion(
-                                    currentAerodynamicAngles_.at( bank_angle ) ) *
-                                rotationToFrame;
+                        if( ! ( currentAerodynamicAngles_.at( bank_angle ) == 0 ) )
+                        {
+                            rotationToFrame =
+                                    getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                                        currentAerodynamicAngles_.at( bank_angle ) ) *
+                                    rotationToFrame;
+                        }
                     }
                     else
                     {
@@ -296,18 +302,25 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 case static_cast< int >( aerodynamic_frame ):
                     if( isTargetFrameUp )
                     {
-                        rotationToFrame =
-                                getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-                                    currentAerodynamicAngles_.at( angle_of_attack ),
-                                    currentAerodynamicAngles_.at( angle_of_sideslip ) ) *
-                                rotationToFrame;
+                        if( !( currentAerodynamicAngles_.at( angle_of_attack ) == 0 &&
+                               currentAerodynamicAngles_.at( angle_of_sideslip ) == 0 ) )
+                        {
+                            rotationToFrame =
+                                    getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+                                        currentAerodynamicAngles_.at( angle_of_attack ),
+                                        currentAerodynamicAngles_.at( angle_of_sideslip ) ) *
+                                    rotationToFrame;
+                        }
                     }
                     else
                     {
-                        rotationToFrame =
-                                getAerodynamicToTrajectoryFrameTransformationQuaternion(
-                                    currentAerodynamicAngles_.at( bank_angle ) ) *
-                                rotationToFrame;
+                        if( ! ( currentAerodynamicAngles_.at( bank_angle ) == 0 ) )
+                        {
+                            rotationToFrame =
+                                    getAerodynamicToTrajectoryFrameTransformationQuaternion(
+                                        currentAerodynamicAngles_.at( bank_angle ) ) *
+                                    rotationToFrame;
+                        }
                     }
                     break;
                 case static_cast< int >( body_frame ):
@@ -352,7 +365,15 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
     {
         rotationToFrame = currentRotationMatrices_.at( currentRotationPair );
     }
+}
 
+//! Function to get the rotation quaternion between two frames
+Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames(
+        const AerodynamicsReferenceFrames originalFrame,
+        const AerodynamicsReferenceFrames targetFrame )
+{
+    Eigen::Quaterniond rotationToFrame;
+    getRotationQuaternionReferenceBetweenFrames( rotationToFrame, originalFrame, targetFrame );
     return rotationToFrame;
 }
 
@@ -440,30 +461,30 @@ getAerodynamicForceTransformationFunction(
         // Get accelerationFrame to corotating frame transformation.
         std::function< Eigen::Quaterniond( ) > firstRotation =
                 std::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                             aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
+                           aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
         rotationsList.push_back(
                     std::bind( &transformVectorFromQuaternionFunction,
-                                 std::placeholders::_1, firstRotation ) );
+                               std::placeholders::_1, firstRotation ) );
 
         // Add corotating to inertial frame.
         rotationsList.push_back(
                     std::bind( &transformVectorFromQuaternionFunction,
-                                 std::placeholders::_1, bodyFixedToInertialFrameFunction ) );
+                               std::placeholders::_1, bodyFixedToInertialFrameFunction ) );
 
         // Create transformation function.
         transformationFunction = std::bind( &transformVectorFromVectorFunctions,
-                                              std::placeholders::_1, rotationsList );
+                                            std::placeholders::_1, rotationsList );
     }
     else
     {
         // Get accelerationFrame to propagationFrame frame transformation directly.
         std::function< Eigen::Quaterniond( ) > rotationFunction =
                 std::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                             aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
+                           aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
 
         // Create transformation function.
         transformationFunction = std::bind( &transformVectorFromQuaternionFunction, std::placeholders::_1,
-                                              rotationFunction );
+                                            rotationFunction );
     }
 
     return transformationFunction;
@@ -520,7 +541,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 {
     setAerodynamicDependentOrientationCalculatorClosure(
                 std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                             rotationalEphemeris, std::placeholders::_1 ),
+                           rotationalEphemeris, std::placeholders::_1 ),
                 aerodynamicAngleCalculator );
 }
 

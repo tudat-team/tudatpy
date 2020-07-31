@@ -210,6 +210,8 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
 
     derivativeNormalizations_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
 
+    verticalLegendreValuesComputationMultipliersOne_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+    verticalLegendreValuesComputationMultipliersTwo_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
     for( int i = 0; i <= maximumDegree_; i++ )
     {
         for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
@@ -224,6 +226,14 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
             {
                 derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + j ] *= std::sqrt( 0.5 );
             }
+            verticalLegendreValuesComputationMultipliersOne_[ i * ( maximumOrder_ + 1 ) + j ] =
+                    std::sqrt( ( 2.0 * static_cast< double >( i ) + 1.0 )
+                               / ( ( static_cast< double >( i + j ) ) *
+                                   ( static_cast< double >( i - j ) ) ) );
+            verticalLegendreValuesComputationMultipliersTwo_[ i * ( maximumOrder_ + 1 ) + j ] =
+                    std::sqrt( ( static_cast< double >( i + j ) - 1.0 )
+                               * ( static_cast< double >( i - j ) - 1.0 )
+                               / ( 2.0 * static_cast< double >( i ) - 3.0 ) );
         }
     }
 
@@ -306,6 +316,16 @@ double LegendreCache::getLegendrePolynomialSecondDerivative(
     {
         return legendreSecondDerivatives_[ degree * ( maximumOrder_ + 1  ) + order ];
     };
+}
+
+double LegendreCache::getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order )
+{
+    return verticalLegendreValuesComputationMultipliersOne_[ degree * ( maximumOrder_ + 1 ) + order ];
+}
+
+double LegendreCache::getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order )
+{
+    return verticalLegendreValuesComputationMultipliersTwo_[ degree * ( maximumOrder_ + 1 ) + order ];
 }
 
 //! Compute unnormalized associated Legendre polynomial.
@@ -459,6 +479,10 @@ double computeGeodesyLegendrePolynomialFromCache( const int degree,
         return computeGeodesyLegendrePolynomialVertical( degree,
                                                          order,
                                                          geodesyLegendreCache.getCurrentPolynomialParameter( ),
+                                                         geodesyLegendreCache.getVerticalLegendreValuesComputationMultipliersOne(
+                                                             degree, order ),
+                                                         geodesyLegendreCache.getVerticalLegendreValuesComputationMultipliersTwo(
+                                                             degree, order ),
                                                          oneDegreePriorPolynomial,
                                                          twoDegreesPriorPolynomial );
     }
@@ -748,6 +772,22 @@ double computeLegendrePolynomialVertical( const int degree,
              * twoDegreesPriorPolynomial ) / ( static_cast< double >( degree - order ) );
 }
 
+double computeGeodesyLegendrePolynomialVertical( const int degree,
+                                                 const int order,
+                                                 const double polynomialParameter,
+                                                 const double firstMultiplier,
+                                                 const double secondMultiplier,
+                                                 const double oneDegreePriorPolynomial,
+                                                 const double twoDegreesPriorPolynomial )
+{
+    // Return polynomial.
+    return firstMultiplier *
+            ( std::sqrt( 2.0 * static_cast< double >( degree ) - 1.0 ) *
+              polynomialParameter * oneDegreePriorPolynomial
+              - secondMultiplier
+              * twoDegreesPriorPolynomial );
+}
+
 //! Compute geodesy-normalized Legendre polynomial through degree recursion.
 double computeGeodesyLegendrePolynomialVertical( const int degree,
                                                  const int order,
@@ -756,13 +796,15 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
                                                  const double twoDegreesPriorPolynomial )
 {
     // Return polynomial.
-    return std::sqrt( ( 2.0 * static_cast< double >( degree ) + 1.0 )
-                      / ( ( static_cast< double >( degree + order ) ) * ( static_cast< double >( degree - order ) ) ) )
-            * ( std::sqrt( 2.0 * static_cast< double >( degree ) - 1.0 ) * polynomialParameter * oneDegreePriorPolynomial
-                - std::sqrt( ( static_cast< double >( degree + order ) - 1.0 )
-                             * ( static_cast< double >( degree - order ) - 1.0 )
-                             / ( 2.0 * static_cast< double >( degree ) - 3.0 ) )
-                * twoDegreesPriorPolynomial );
+    double firstMultiplier = std::sqrt( ( 2.0 * static_cast< double >( degree ) + 1.0 )
+                                        / ( ( static_cast< double >( degree + order ) ) * ( static_cast< double >( degree - order ) ) ) );
+    double secondMultipler = std::sqrt( ( static_cast< double >( degree + order ) - 1.0 )
+                                        * ( static_cast< double >( degree - order ) - 1.0 )
+                                        / ( 2.0 * static_cast< double >( degree ) - 3.0 ) );
+    return computeGeodesyLegendrePolynomialVertical(
+                degree, order, polynomialParameter,
+                firstMultiplier, secondMultipler,
+                oneDegreePriorPolynomial, twoDegreesPriorPolynomial );
 }
 
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.

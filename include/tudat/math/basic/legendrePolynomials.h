@@ -75,6 +75,7 @@ public:
      */
     LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
 
+    ~LegendreCache( ){ }
     //! Update maximum degree and order of cache
     /*!
      * Update maximum degree and order of cache
@@ -180,7 +181,9 @@ public:
         currentPolynomialParameter_ = TUDAT_NAN;
     }
 
+    double getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order );
 
+    double getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order );
 
 private:
 
@@ -204,6 +207,10 @@ private:
      * n * ( maximumOrder_ + 1 ) + m.
      */
     std::vector< double > legendreValues_;
+
+    std::vector< double > verticalLegendreValuesComputationMultipliersOne_;
+
+    std::vector< double > verticalLegendreValuesComputationMultipliersTwo_;
 
     //! List of current values of first derivatives of Legendre polynomials at degree and order (n,m)
     /*!
@@ -594,6 +601,14 @@ double computeLegendrePolynomialVertical( const int degree,
                                           const double polynomialParameter,
                                           const double oneDegreePriorPolynomial,
                                           const double twoDegreesPriorPolynomial );
+
+double computeGeodesyLegendrePolynomialVertical( const int degree,
+                                                 const int order,
+                                                 const double polynomialParameter,
+                                                 const double firstMultiplier,
+                                                 const double secondMultiplier,
+                                                 const double oneDegreePriorPolynomial,
+                                                 const double twoDegreesPriorPolynomial );
 
 //! Compute geodesy-normalized Legendre polynomial through degree recursion.
 /*!
