@@ -188,7 +188,6 @@ void AerodynamicAngleCalculator::getRotationQuaternionReferenceBetweenFrames(
         const AerodynamicsReferenceFrames originalFrame,
         const AerodynamicsReferenceFrames targetFrame )
 {
-    std::cout<<"Frames: "<<originalFrame<<" "<<targetFrame<<std::endl;
     // Initialize rotation to identity matrix.
     rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
 
@@ -494,7 +493,7 @@ std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationReferenceFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
-        const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction,
+        const std::function< Eigen::Quaterniond&( ) > bodyFixedToInertialFrameFunction,
         const AerodynamicsReferenceFrames propagationFrame )
 {
     std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > transformationFunction;

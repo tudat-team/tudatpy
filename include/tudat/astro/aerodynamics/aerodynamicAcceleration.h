@@ -74,7 +74,7 @@ private:
     typedef std::function< double ( ) > DoubleReturningFunction;
 
     //! Typedef for coefficient-returning function.
-    typedef std::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
+    typedef std::function< void( Eigen::Vector3d& ) > CoefficientReturningFunction;
 
 public:
 
@@ -170,7 +170,8 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            currentForceCoefficients_ = coefficientMultiplier_ * this->coefficientFunction_( );
+            this->coefficientFunction_( currentForceCoefficients_ );
+            currentForceCoefficients_ *= coefficientMultiplier_;
             currentDensity_ = this->densityFunction_( );
             currentMass_ = this->massFunction_( );
             currentAirspeed_ = this->airSpeedFunction_( );

@@ -376,8 +376,7 @@ std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationReferenceFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
-        const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+        const std::function< Eigen::Quaterniond&( ) > bodyFixedToInertialFrameFunction,
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 

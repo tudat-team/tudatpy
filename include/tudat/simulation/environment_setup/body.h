@@ -229,6 +229,7 @@ public:
           ephemerisFrameToBaseFrame_( std::make_shared< BaseStateInterfaceImplementation< double, double > >(
                                           "", [ = ]( const double ){ return Eigen::Vector6d::Zero( ); } ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+          currentRotationToGlobalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
           currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
@@ -428,7 +429,7 @@ public:
         Eigen::Vector7d rotationalStateVector;
 
         rotationalStateVector.segment( 0, 4 ) =
-                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToLocalFrame_.inverse( ) ) );
+                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToGlobalFrame_ ) );
         rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
         return rotationalStateVector;
     }
@@ -497,6 +498,7 @@ public:
             throw std::runtime_error(
                         "Error, no rotation model found in Body::setCurrentRotationToLocalFrameFromEphemeris" );
         }
+        currentRotationToGlobalFrame_ = currentRotationToLocalFrame_.inverse( );
     }
 
     //! Function to set the rotation matrix derivative from global to body-fixed frame at given time
@@ -579,6 +581,8 @@ public:
             throw std::runtime_error(
                         "Error, no rotationalEphemeris_ found in Body::setCurrentRotationalStateToLocalFrameFromEphemeris" );
         }
+        currentRotationToGlobalFrame_ = currentRotationToLocalFrame_.inverse( );
+
     }
 
     //! Function to set the full rotational state directly
@@ -591,16 +595,16 @@ public:
      */
     void setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame )
     {
-        Eigen::Quaterniond currentRotationToGlobalFrame =
+         currentRotationToGlobalFrame_ =
                 Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
                                     currentRotationalStateFromLocalToGlobalFrame( 1 ),
                                     currentRotationalStateFromLocalToGlobalFrame( 2 ),
                                     currentRotationalStateFromLocalToGlobalFrame( 3 ) );
-        currentRotationToGlobalFrame.normalize( );
+        currentRotationToGlobalFrame_.normalize( );
 
-        currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
+        currentRotationToLocalFrame_ = currentRotationToGlobalFrame_.inverse( );
         currentAngularVelocityVectorInGlobalFrame_ =
-                currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+                currentRotationToGlobalFrame_ * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
         currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
 
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
@@ -618,7 +622,12 @@ public:
      */
     Eigen::Quaterniond getCurrentRotationToGlobalFrame( )
     {
-        return currentRotationToLocalFrame_.inverse( );
+        return currentRotationToGlobalFrame_;
+    }
+
+    Eigen::Quaterniond& getCurrentRotationToGlobalFrameReference( )
+    {
+        return currentRotationToGlobalFrame_;
     }
 
     //! Get current rotation from inertial to body-fixed frame.
@@ -1333,6 +1342,7 @@ private:
     //! Current rotation from the global to the body-fixed frame.
     Eigen::Quaterniond currentRotationToLocalFrame_;
 
+    Eigen::Quaterniond currentRotationToGlobalFrame_;
     //! Current first derivative w.r.t. time of the rotation matrix from the global to the
     //! body-fixed frame.
     Eigen::Matrix3d currentRotationToLocalFrameDerivative_;
