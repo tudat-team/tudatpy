@@ -76,17 +76,17 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
-    Eigen::Vector3d getAcceleration( )
+    AccelerationDataType getAcceleration( )
     {
         return currentAcceleration_;
     }
 
-    void getAccelerationByReference( Eigen::Vector3d& acceleration ) const
+    void getAccelerationByReference( AccelerationDataType& acceleration ) const
     {
         acceleration = std::move( currentAcceleration_ );
     }
 
-    void addCurrentAcceleration( Eigen::Vector3d& acceleration ) const
+    void addCurrentAcceleration( AccelerationDataType& acceleration ) const
     {
         acceleration += currentAcceleration_;
     }
@@ -106,7 +106,7 @@ protected:
     //! Previous time to which acceleration model was updated.
     double currentTime_;
 
-    Eigen::Vector3d currentAcceleration_;
+    AccelerationDataType currentAcceleration_;
 
 protected:
 

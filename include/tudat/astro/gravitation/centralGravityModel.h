@@ -168,7 +168,7 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return StateMatrix::Zero( ); },
+            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 [ = ]( ){ return aGravitationalParameter; },
@@ -201,8 +201,8 @@ public:
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
-            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = [ ]( ){ return StateMatrix::Zero( ); },
+            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,

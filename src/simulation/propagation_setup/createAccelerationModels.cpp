@@ -247,11 +247,16 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
         }
 
         // Create acceleration object.
+        std::function< void( Eigen::Vector3d& ) > bodyUndergoingAccelerationPositionFunction =
+                std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 );
+        std::function< void( Eigen::Vector3d& ) > bodyExertingAccelerationPositionFunction =
+                std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 );
+
         accelerationModelPointer =
                 std::make_shared< CentralGravitationalAccelerationModel3d >(
-                    std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                    bodyUndergoingAccelerationPositionFunction,
                     gravitationalParameterFunction,
-                    std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                    bodyExertingAccelerationPositionFunction,
                     useCentralBodyFixedFrame );
     }
 
@@ -364,8 +369,8 @@ createSphericalHarmonicsGravityAcceleration(
 
             // Create acceleration object.
             accelerationModel =
-                    std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >
-                    ( std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                    std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+                    std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
                       gravitationalParameterFunction,
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
                       cosineCoefficientFunction,
@@ -373,7 +378,7 @@ createSphericalHarmonicsGravityAcceleration(
                                  sphericalHarmonicsGravityField,
                                  sphericalHarmonicsSettings->maximumDegree_,
                                  sphericalHarmonicsSettings->maximumOrder_ ),
-                      std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                    std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                       std::bind( &Body::getCurrentRotationToGlobalFrame,
                                  bodyExertingAcceleration ), useCentralBodyFixedFrame );
         }
@@ -474,8 +479,8 @@ createMutualSphericalHarmonicsGravityAcceleration(
             }
 
             accelerationModel = std::make_shared< MutualSphericalHarmonicsGravitationalAccelerationModel >(
-                        std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                        std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                        std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                        std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                         gravitationalParameterFunction,
                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
                         sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),

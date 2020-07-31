@@ -60,7 +60,7 @@ private:
     typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
     //! Typedef for function returning body position.
-    typedef std::function< Eigen::Vector3d( ) > StateFunction;
+    typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
     //! Typedef for function returning gravitational parameter.
     typedef std::function< double( ) > DataReturningFunction;
