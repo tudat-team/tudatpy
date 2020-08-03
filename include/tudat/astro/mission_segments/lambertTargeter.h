@@ -114,7 +114,7 @@ public:
 
     Eigen::Vector6d getDepartureState( )  const
     {
-        return ( Eigen::Vector6d( ) << cartesianPositionAtDeparture, cartesianVelocityAtArrival ).finished( );
+        return ( Eigen::Vector6d( ) << cartesianPositionAtDeparture, cartesianVelocityAtDeparture ).finished( );
     }
 
     double getCentralBodyGravitationalParameter( ) const

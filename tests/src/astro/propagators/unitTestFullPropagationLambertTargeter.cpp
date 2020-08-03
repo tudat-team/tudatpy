@@ -83,12 +83,12 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     std::cout.precision(20);
 
     double initialTime = 0.0;
-    double fixedStepSize = 1.0;
 
     Eigen::Vector3d cartesianPositionAtDeparture ( 2.0 * 6.378136e6, 0.0, 0.0 );
     Eigen::Vector3d cartesianPositionAtArrival ( 2.0 * 6.378136e6, 2.0 * std::sqrt( 3.0 ) * 6.378136e6, 0.0 );
 
     double timeOfFlight = 806.78 * 5.0;
+    double fixedStepSize = timeOfFlight / 10000.0;
 
     std::string bodyToPropagate = "spacecraft" ;
     std::string centralBody = "Earth";
@@ -132,7 +132,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
         BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i ) ), 1.0 );
         BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i + 3 ) ), 1.0E-6 );
     }
-
 }
 
 }
