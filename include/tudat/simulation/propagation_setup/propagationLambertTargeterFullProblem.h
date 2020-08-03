@@ -66,6 +66,30 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
         const simulation_setup::NamedBodyMap& bodyMap );
 
 
+std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+std::shared_ptr< propagators::PropagationTerminationSettings > > getLambertTargeterTerminationSettings(
+        const double timeOfFlight,
+        const double initialTime,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies,
+        const bool setSphereOfInfluenceTermination = true,
+        const std::pair< double, double > distanceTerminationAsSoiFraction = std::make_pair( 1.0, 1.0 ),
+        const double timeTerminationInSynodicPeriods = 2.0 );
+
+void propagateLambertTargeterAndFullProblem(
+        const double timeOfFlight,
+        const double initialTime,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& centralBody,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies ,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+        std::map< double, Eigen::Vector6d >& fullProblemResult );
+
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
 /*!
  * Function to propagate the full dynamics problem and the Lambert targeter solution. The function computes the cartesian state as a function of time in two
@@ -91,14 +115,13 @@ void propagateLambertTargeterAndFullProblem(
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string& centralBody,
-        std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies ,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
-        std::map< double, Eigen::VectorXd >& dependentVariableResult,
-        const  std::pair< std::string, std::string >& departureAndArrivalBodies );
-
+        std::map< double, Eigen::VectorXd >& dependentVariableResult);
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
 /*!
@@ -136,56 +159,14 @@ void propagateLambertTargeterAndFullProblem(
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         std::map< double, Eigen::VectorXd >& dependentVariableResult,
-        const std::pair< std::string, std::string >& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const double departureBodyGravitationalParameter,
-        const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter,
+        const bool terminationSphereOfInfluence = true,
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
         const TranslationalPropagatorType propagator = cowell );
-
-
-//! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
-//! and at arrival.
-/*!
- * Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
- * and at arrival. The function returns a pair of vectors, the first one being the difference in state at departure and the second one the
- * difference in state at arrival.
- * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
- * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
- * \param timeOfFlight Time of flight [s].
- * \param initialTime Initial time of the propagation [s].
- * \param bodyMap Body map.
- * \param accelerationModelMap Acceleration map.
- * \param bodyToPropagate Names of the body to be propagated.
- * \param centralBody  Names of the central body of propagation
- * \param integratorSettings Integrator settings for the propagation.
- * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the departure and arrival body (false)
- * or at the sphere of influence of the departure and arrival body (true).
- * \return Pair of vectors containing the difference between the Lambert targeter and the full problem cartesian states
- * (at departure and at arrival respectively).
- */
-std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const double timeOfFlight,
-        const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const  std::pair< std::string, std::string >& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence,
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
-        const TranslationalPropagatorType propagator = cowell);
-
 
 
 } // namespace propagators
