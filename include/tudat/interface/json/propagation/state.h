@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_STATE_H
 #define TUDAT_JSONINTERFACE_STATE_H
 
-#include "tudat/simulation/environment/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"

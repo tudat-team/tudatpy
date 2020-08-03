@@ -14,10 +14,10 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/propagation/createAccelerationModels.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 
 namespace tudat
 {
@@ -50,13 +50,13 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
 
     // Create vehicle
     double vehicleMass = 2500.0;
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Put vehicle on circular orbit around Sun
     Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
     initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
-    bodyMap[ "Vehicle" ]->setEphemeris(
+    bodyMap.at( "Vehicle" )->setEphemeris(
                 std::make_shared< KeplerEphemeris >(
                     initialStateInKeplerianElements, 0.0, spice_interface::getBodyGravitationalParameter( "Sun" ),
                     "Sun", "ECLIPJ2000", 1 ) );
@@ -65,11 +65,11 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
     Eigen::Vector7d rotationalStateVehicle;
     rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
     rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-    bodyMap[ "Vehicle" ]->setRotationalEphemeris(
+    bodyMap.at( "Vehicle" )->setRotationalEphemeris(
                 std::make_shared< ConstantRotationalEphemeris >(
                     rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
 
     for( unsigned int test = 0; test <= 2; test++ )
     {
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
         if( test == 2 )
         {
             // Define simple rotational ephemeris
-            bodyMap[ "Vehicle" ]->setRotationalEphemeris(
+            bodyMap.at( "Vehicle" )->setRotationalEphemeris(
                         std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                             0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
         }
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
         std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
                 std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                     createRadiationPressureInterface( radiationPressureInterfaceSettings, "Vehicle", bodyMap ) );
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterface );
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
 
         // Define accelerations
@@ -169,13 +169,13 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
         Eigen::Vector3d calculatedAcceleration, expectedAcceleration;
         Eigen::Vector3d sunCenteredVehiclePosition;
 
-        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap[ "Vehicle" ]->getEphemeris( );
+        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap.at( "Vehicle" )->getEphemeris( );
         for( unsigned int i = 0; i < testTimes.size( ); i++ )
         {
             // Update environment and acceleration
-            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
                 std::shared_ptr< PanelledRadiationPressureAcceleration > panelledRadiationPressureAcceleration =
                         std::dynamic_pointer_cast< PanelledRadiationPressureAcceleration >( accelerationModel );
                 Eigen::Quaterniond currentRotationToInertialFrame =
-                        bodyMap[ "Vehicle" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTimes.at( i ) );
+                        bodyMap.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTimes.at( i ) );
 
                 expectedAcceleration = Eigen::Vector3d::Zero();
 
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
     for ( int testCase = 0 ; testCase < 4 ; testCase++){
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
         if ( testCase == 0 || testCase == 3 ){
             Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
             initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
-            bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+            bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
             initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
             initialStateInKeplerianElements[ orbital_element_conversions::inclinationIndex ] = unit_conversions::convertDegreesToRadians( 90.0 );
-            bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+            bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
 
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
             initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
             initialStateInKeplerianElements[ orbital_element_conversions::inclinationIndex ] = unit_conversions::convertDegreesToRadians( 20.0 );
-            bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+            bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
 
@@ -326,16 +326,16 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             Eigen::Vector7d rotationalStateVehicle;
             rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
             rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-            bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000",
+            bodyMap.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000",
                                                                                                            "VehicleFixed" ) );
         }
         else if ( testCase == 3 ){
             // Define simple rotational model.
-            bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
+            bodyMap.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                             0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
         }
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
 
 
 
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
                 std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                     createRadiationPressureInterface( radiationPressureInterfaceSettings, "Vehicle", bodyMap ) );
 
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterface );
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
 
 
@@ -453,7 +453,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
 
         accelerationMap[ "Vehicle" ] = accelerationsOnVehicle;
 
-        std::map< std::string, std::string > centralBodyMap; centralBodyMap[ "Vehicle" ] = "Sun";
+        std::map< std::string, std::string > centralBodyMap;
+        centralBodyMap[ "Vehicle" ] = "Sun";
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, centralBodyMap );
         std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModel =
                 accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
@@ -469,15 +470,15 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
         Eigen::Vector3d calculatedAcceleration, expectedAcceleration;
 
         Eigen::Vector3d sunCenteredVehiclePosition;
-        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap[ "Vehicle" ]->getEphemeris( );
+        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap.at( "Vehicle" )->getEphemeris( );
 
 
         for( unsigned int i = 0; i < testTimes.size( ) ; i++ )
         {
             // Update environment and acceleration
-            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -485,7 +486,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             calculatedAcceleration = accelerationModel->getAcceleration( );
 
             double radiationPressure = radiationPressureInterface->getCurrentRadiationPressure( );
-            Eigen::Vector3d expectedVehicleToSunNormalisedVector = ( bodyMap[ "Sun" ]->getState( ) - bodyMap[ "Vehicle" ]->getState( ) ).segment( 0, 3 )
+            Eigen::Vector3d expectedVehicleToSunNormalisedVector = ( bodyMap.at( "Sun" )->getState( ) - bodyMap.at( "Vehicle" )->getState( ) ).segment( 0, 3 )
                     .normalized();
 
 
@@ -495,7 +496,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // along +X-axis only)
             double cosinusPanelInclinationPositiveXaxis = expectedVehicleToSunNormalisedVector.dot( Eigen::Vector3d::UnitX( ) );
             Eigen::Vector3d accelerationPositiveXaxisOrientedPanels = - cosinusPanelInclinationPositiveXaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * ( areas[5] * ( ( 1.0 - emissivities[5] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[5] * Eigen::Vector3d::UnitX( ) )
                     + areas[6] * ( ( 1.0 - emissivities[6] ) * expectedVehicleToSunNormalisedVector
@@ -506,7 +507,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Calculated acceleration generated by the panels whose normals are along -X-axis.
             double cosinusPanelInclinationNegativeXaxis = expectedVehicleToSunNormalisedVector.dot( - Eigen::Vector3d::UnitX() );
             Eigen::Vector3d accelerationNegativeXaxisOrientedPanels = - cosinusPanelInclinationNegativeXaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * ( areas[3] * ( ( 1.0 - emissivities[3] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[3] * - Eigen::Vector3d::UnitX( ) )
                     + areas[4] * ( ( 1.0 - emissivities[4] ) * expectedVehicleToSunNormalisedVector
@@ -516,7 +517,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Calculated acceleration generated by the panels whose normals are along +Y-axis.
             double cosinusPanelInclinationPositiveYaxis = expectedVehicleToSunNormalisedVector.dot( Eigen::Vector3d::UnitY() );
             Eigen::Vector3d accelerationPositiveYaxisOrientedPanels = - cosinusPanelInclinationPositiveYaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * ( areas[7] * ( ( 1.0 - emissivities[7] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[7] * Eigen::Vector3d::UnitY( ) )
                     + areas[8] * ( ( 1.0 - emissivities[8] ) * expectedVehicleToSunNormalisedVector
@@ -526,7 +527,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Calculated acceleration generated by the panels whose normals are along -Y-axis.
             double cosinusPanelInclinationNegativeYaxis = expectedVehicleToSunNormalisedVector.dot( - Eigen::Vector3d::UnitY() );
             Eigen::Vector3d accelerationNegativeYaxisOrientedPanels = - cosinusPanelInclinationNegativeYaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * ( areas[9] * ( ( 1.0 - emissivities[9] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[9] * - Eigen::Vector3d::UnitY( ) )
                     + areas[10] * ( ( 1.0 - emissivities[10] ) * expectedVehicleToSunNormalisedVector
@@ -536,7 +537,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Calculated acceleration generated by the panels whose normals are along +Z-axis.
             double cosinusPanelInclinationPositiveZaxis = expectedVehicleToSunNormalisedVector.dot( Eigen::Vector3d::UnitZ() );
             Eigen::Vector3d accelerationPositiveZaxisOrientedPanels = - cosinusPanelInclinationPositiveZaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * ( areas[0] * ( ( 1.0 - emissivities[0] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[0] * Eigen::Vector3d::UnitZ( ) )
                     + areas[1] * ( ( 1.0 - emissivities[1] ) * expectedVehicleToSunNormalisedVector
@@ -546,7 +547,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Calculated acceleration generated by the panels whose normals are along -Z-axis.
             double cosinusPanelInclinationNegativeZaxis = expectedVehicleToSunNormalisedVector.dot( - Eigen::Vector3d::UnitZ() );
             Eigen::Vector3d accelerationNegativeZaxisOrientedPanels = - cosinusPanelInclinationNegativeZaxis
-                    * radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+                    * radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                     * areas[2] * ( ( 1.0 - emissivities[2] ) * expectedVehicleToSunNormalisedVector
                     + 2.0 / 3.0 * diffuseReflectionCoefficients[2] * - Eigen::Vector3d::UnitZ( ) );
 
@@ -644,7 +645,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             // Case with non constant rotational model for the spacecraft.
             if ( testCase == 3 )
             {
-               Eigen::Quaterniond currentRotationToInertialFrame = bodyMap[ "Vehicle" ]->getRotationalEphemeris( )
+               Eigen::Quaterniond currentRotationToInertialFrame = bodyMap.at( "Vehicle" )->getRotationalEphemeris( )
                         ->getRotationToBaseFrame( testTimes.at( i ) );
                Eigen::Vector3d expectedPanelNormalPositiveXaxis = currentRotationToInertialFrame * Eigen::Vector3d::UnitX();
                Eigen::Vector3d expectedPanelNormalNegativeXaxis = currentRotationToInertialFrame * - Eigen::Vector3d::UnitX();
@@ -663,7 +664,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
                }
 
                // Calculate expected acceleration (same characteristics for the panels oriented along the -X and +X axes).
-               expectedAcceleration = - radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
+               expectedAcceleration = - radiationPressure / bodyMap.at( "Vehicle" )->getBodyMass()
                        * ( areas[0] * fabs( cosinusPanelInclinationPositiveXaxis ) * ( ( 1.0 - emissivities[0] ) * expectedVehicleToSunNormalisedVector
                        + 2.0 / 3.0 * diffuseReflectionCoefficients[0] * expectedPanelNormal )
                        + areas[1] * fabs( cosinusPanelInclinationPositiveXaxis ) * ( ( 1.0 - emissivities[1] ) * expectedVehicleToSunNormalisedVector
@@ -700,8 +701,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
     // Compute spacecraft orbital period, and compute test times
@@ -712,7 +713,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
     // Put vehicle on circular orbit around Sun.
     Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
     initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                  spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
 
 
@@ -767,11 +768,11 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
         /// First calculation with simple rotational ephemeris and constant panel orientation.
 
         // Define simple rotational ephemeris.
-        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
+        bodyMap.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                         rightAscensionPole[ testCase ], declinationPole[ testCase ],  primeMeridianLongitude[ testCase ],
                         rotationalRate[ testCase ], numberSecondsSinceEpoch[ testCase ], "ECLIPJ2000", "VehicleFixed" ) );
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
 
 
         // Create panelled radiation pressure interface.
@@ -783,7 +784,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
                 std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                     createRadiationPressureInterface( radiationPressureInterfaceSettings, "Vehicle", bodyMap ) );
 
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterface );
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
 
         // Define accelerations.
@@ -794,7 +795,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
 
         accelerationMap[ "Vehicle" ] = accelerationsOnVehicle;
 
-        std::map< std::string, std::string > centralBodyMap; centralBodyMap[ "Vehicle" ] = "Sun";
+        std::map< std::string, std::string > centralBodyMap;
+        centralBodyMap[ "Vehicle" ] = "Sun";
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, centralBodyMap );
         std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModel =
                 accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
@@ -804,15 +806,15 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
         std::vector< Eigen::Vector3d > calculatedAcceleration;
 
         Eigen::Vector3d sunCenteredVehiclePosition;
-        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap[ "Vehicle" ]->getEphemeris( );
+        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap.at( "Vehicle" )->getEphemeris( );
 
 
         for( unsigned int i = 0; i < testTimes.size( ) ; i++ )
         {
             // Update environment and acceleration
-            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -829,7 +831,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
         Eigen::Vector7d rotationalStateVehicle;
         rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
         rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000",
+        bodyMap.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000",
                                                                                                        "VehicleFixed" ) );
 
         // Define time-varying panel orientation.
@@ -859,7 +861,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
                 std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                     createRadiationPressureInterface( radiationPressureInterfaceSettingsWithTimeVaryingPanelSurfaceNormal, "Vehicle", bodyMap ) );
 
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterfaceTimeVaryingSurfaceNormal );
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface( "Sun", radiationPressureInterfaceTimeVaryingSurfaceNormal );
 
         accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, centralBodyMap );
 
@@ -873,9 +875,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
         for( unsigned int i = 0; i < testTimes.size( ) ; i++ )
         {
             // Update environment and acceleration
-            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
-            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
             radiationPressureInterfaceTimeVaryingSurfaceNormal->updateInterface( testTimes[ i ] );
             accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers( testTimes[ i ] );
 

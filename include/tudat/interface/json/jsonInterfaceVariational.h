@@ -14,7 +14,7 @@
 
 #include "tudat/interface/json/jsonInterface.h"
 #include "tudat/interface/json/estimation/parameter.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
 {

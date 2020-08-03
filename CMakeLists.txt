@@ -48,11 +48,8 @@ option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 # Build option: include default data suite.
 option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
 
-# Build with propagation tests.
-option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
-
 # Build with estimation tools.
-option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." OFF)
+option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." ON)
 
 # Build option: enable tutorials.
 option(TUDAT_BUILD_TUDAT_TUTORIALS "Build tutorials." ON)
@@ -75,6 +72,8 @@ option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
+message(TUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS})
+message(TUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE})
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
@@ -240,7 +239,7 @@ add_subdirectory(src/interface)
 add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests)

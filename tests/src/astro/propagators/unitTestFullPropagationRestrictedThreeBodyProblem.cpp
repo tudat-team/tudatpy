@@ -23,7 +23,7 @@
 
 #include "tudat/simulation/simulation.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/propagation/propagationCR3BPFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 
 
 namespace tudat
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
                 physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft" );
 
     // Spacecraft properties
-    bodyMap[ "Spacecraft" ]->setConstantBodyMass( 100.0 );
+    bodyMap.at( "Spacecraft" )->setConstantBodyMass( 100.0 );
 
     // Initialization of the spacecraft state
     Eigen::Vector6d initialState;

@@ -63,12 +63,13 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                        "SSB", "J2000" );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -77,8 +78,8 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+        bodyMap.addNewBody( "Asterix" );
+        bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "Asterix" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
         // Create radiation pressure settings
@@ -101,13 +102,9 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+        bodyMap.at( "Asterix" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         asterixRadiationPressureSettings, "Asterix", bodyMap ) );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          ///////////////////////////////////////////
@@ -226,12 +223,13 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                         "SSB", "J2000" );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -240,8 +238,8 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+        bodyMap.addNewBody( "Asterix" );
+        bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -251,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "Asterix" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
         // Create radiation pressure settings
@@ -264,13 +262,11 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+        bodyMap.at( "Asterix" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
 
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////

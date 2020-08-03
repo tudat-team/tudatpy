@@ -21,15 +21,15 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
-#include "tudat/simulation/propagation/propagationSettings.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
 namespace tudat
@@ -57,12 +57,12 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
     spice_interface::loadStandardSpiceKernels( );
 
     // Get settings for celestial bodies
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 );
-    bodySettings[ "Moon" ] = getDefaultSingleBodySettings( "Moon", 0.0,10.0 * 86400.0 );
-    bodySettings[ "Mars" ] = getDefaultSingleBodySettings( "Mars", 0.0,10.0 * 86400.0 );
-    bodySettings[ "Venus" ] = getDefaultSingleBodySettings( "Venus", 0.0,10.0 * 86400.0 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Moon", 0.0,10.0 * 86400.0 ), "Moon" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Mars", 0.0,10.0 * 86400.0 ), "Mars" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Venus", 0.0,10.0 * 86400.0 ), "Venus" );
 
     // Create settings for sh gravity field.
     double gravitationalParameter = 398600.4418E9;
@@ -87,13 +87,13 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
               3.088038821491940e-7, 0.0, 0.0, -9.436980733957690e-8, -3.233531925405220e-7,
               -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
               ).finished( );
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 gravitationalParameter, 6378.0E3, cosineCoefficients, sineCoefficients,
                 "IAU_Earth" );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Define variables used in tests.
     SelectedAccelerationMap accelerationSettingsMap;
@@ -381,33 +381,33 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     spice_interface::loadStandardSpiceKernels( );
 
     // Get settings for celestial bodies
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 );
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
 
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
-    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
-    bodySettings[ "Vehicle" ]->ephemerisSettings =
+    bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 getApolloCoefficientInterface( ) );
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( &getBodyMass );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    bodyMap.at( "Vehicle" )->setBodyMassFunction( &getBodyMass );
+    
 
 
     // Define test time and state.
     double testTime = 2.0 * 86400.0;
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
-    Eigen::VectorXd testState = 1.1 * bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( testTime ) +
+    Eigen::VectorXd testState = 1.1 * bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( testTime ) +
             bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime );
     integratedStateToSet[ translational_state ] = testState;
 
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         // Define orientation angles.
         std::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleFlightConditions =
                 std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                    bodyMap[ "Vehicle" ]->getFlightConditions( ) );
+                    bodyMap.at( "Vehicle" )->getFlightConditions( ) );
         double angleOfAttack = 35.0 * mathematical_constants::PI / 180.0;
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;

@@ -20,7 +20,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/periodicSpinVariation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h"
 
 
 namespace tudat
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     double buffer = 10.0 * maximumTimeStep;
     
     // Create body objects; Mars with high-accuracy rotation model
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Mars" ]->rotationModelSettings = getHighAccuracyMarsRotationModel( initialEphemerisTime, finalEphemerisTime );    
+    bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( initialEphemerisTime, finalEphemerisTime );    
     NamedBodyMap bodyMap = createBodies( bodySettings );    
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
     
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );

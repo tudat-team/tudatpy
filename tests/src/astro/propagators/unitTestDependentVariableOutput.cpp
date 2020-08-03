@@ -25,9 +25,9 @@
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>
@@ -99,15 +99,15 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     for( unsigned int testCase = 0; testCase < maximumTestCase; testCase++ )
     {
         // Define simulation body settings.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                        simulationEndEpoch + 10.0 * fixedStepSize );
-        bodySettings[ "Earth" ]->gravityFieldSettings =
+                                        simulationEndEpoch + 10.0 * fixedStepSize, "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Earth" )->gravityFieldSettings =
                 std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
         if( testCase >= 2 )
         {
-            bodySettings[ "Earth" ]->atmosphereSettings =
+            bodySettings.at( "Earth" )->atmosphereSettings =
                     std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
         }
 
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         if( testCase% 2 == 0 )
         {
             isOblateSpheroidUsed = 1;
-            bodySettings[ "Earth" ]->shapeModelSettings =
+            bodySettings.at( "Earth" )->shapeModelSettings =
                     std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >(
                         oblateSpheroidEquatorialRadius, oblateSpheroidFlattening );
         }
@@ -127,13 +127,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
 
         // Create vehicle objects.
-        bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+        bodyMap.addNewBody( "Apollo" );
 
         // Create vehicle aerodynamic coefficients
-        bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
-        bodyMap[ "Apollo" ]->setEphemeris(
+        bodyMap.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+        bodyMap.at( "Apollo" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
@@ -145,11 +145,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         vehicleSystems->setNoseRadius( noseRadius );
         vehicleSystems->setWallEmissivity( wallEmissivity );
 
-        bodyMap[ "Apollo" ]->setVehicleSystems( vehicleSystems );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+        bodyMap.at( "Apollo" )->setVehicleSystems( vehicleSystems );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -537,12 +533,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( bodiesToCreate );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Earth", "ECLIPJ2000" );
 
     // Create Body objects
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Asterix" );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -663,10 +658,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     bodyNames[ 3 ] = "Sun";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
 
     SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Earth" ][ "Moon" ].push_back(
@@ -832,16 +827,14 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     double finalEphemerisTime = initialEphemerisTime + 3000.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames,  "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
-
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -1008,14 +1001,13 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     double finalEphemerisTime = initialEphemerisTime + 300.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations on Vehicle that are to be taken into account.
     for( int test = 0; test < 3; test++ )
