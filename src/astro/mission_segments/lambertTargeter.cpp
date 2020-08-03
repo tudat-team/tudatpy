@@ -29,7 +29,7 @@ Eigen::Vector6d getLambertTargeterCartesianStateDuringTransfer(
         const LambertTargeter& lambertTargeter,
         const double timeAfterDeparture )
 {
-    return orbital_element_conversions::convertCartesianToKeplerianElements(
+    return orbital_element_conversions::convertKeplerianToCartesianElements(
                 getLambertTargeterKeplerianStateDuringTransfer( lambertTargeter, timeAfterDeparture ),
                 lambertTargeter.getCentralBodyGravitationalParameter( ) );
 }

@@ -22,6 +22,8 @@
 #include "tudat/astro/trajectory_design/exportTrajectory.h"
 #include "tudat/astro/trajectory_design/planetTrajectory.h"
 
+using namespace tudat;
+using namespace tudat::propagators;
 
 namespace tudat
 {
@@ -29,7 +31,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace tudat;
+
 
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
@@ -58,11 +60,11 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTarget
     // Create ephemeris vector for departure and arrival bodies.
     std::vector< ephemerides::EphemerisPointer > ephemerisVectorDepartureAndArrivalBodies(2);
     ephemerisVectorDepartureAndArrivalBodies[ 0 ] = std::make_shared< ephemerides::ConstantEphemeris > (
-                ( Eigen::Vector6d( ) << cartesianPositionAtDeparture[0], cartesianPositionAtDeparture[1], cartesianPositionAtDeparture[2],
-            0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+                ( Eigen::Vector6d( ) << cartesianPositionAtDeparture,
+                  0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
     ephemerisVectorDepartureAndArrivalBodies[ 1 ] = std::make_shared< ephemerides::ConstantEphemeris >(
-                ( Eigen::Vector6d( ) << cartesianPositionAtArrival[0], cartesianPositionAtArrival[1], cartesianPositionAtArrival[2],
-            0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+                ( Eigen::Vector6d( ) << cartesianPositionAtArrival,
+                  0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap =
@@ -73,11 +75,10 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTarget
 
 }
 
-
-
+BOOST_AUTO_TEST_SUITE( testFullPropagationLambertTargeter )
 
 //! Test if the difference between the Lambert targeter solution and the full dynamics problem is computed correctly.
-BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
+BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeterBasic )
 {
 
     std::cout.precision(20);
@@ -104,33 +105,28 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
 
     // Define the body map.
     simulation_setup::NamedBodyMap bodyMap = setupBodyMapFromUserDefinedStatesForLambertTargeter(
-                "Earth", "spacecraft", departureAndArrivalBodies,
-                cartesianPositionAtDeparture, cartesianPositionAtArrival );
+                "Earth", "spacecraft", departureAndArrivalBodies, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
                 "Earth", "spacecraft", bodyMap );
 
-
-    // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
-    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(
-                cartesianPositionAtDeparture,  cartesianPositionAtArrival,
+    std::map< double, Eigen::Vector6d > lambertTargeterResult;
+    std::map< double, Eigen::Vector6d > fullProblemResult;
+    std::map< double, Eigen::VectorXd > dependentVariableResult;
+    propagateLambertTargeterAndFullProblem(
                 timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
-                centralBody, integratorSettings, departureAndArrivalBodies, false);
+                centralBody, departureAndArrivalBodies, integratorSettings, lambertTargeterResult, fullProblemResult,
+                dependentVariableResult, false );
 
-    Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
-    Eigen::Vector6d differenceStateAtArrival = differenceState.second;
-
-    std::cout << "differenceStateAtDeparture: " << differenceStateAtDeparture << "\n\n";
-    std::cout << "differenceStateAtArrival: " << differenceStateAtArrival << "\n\n";
-
-
-    for( int i = 0; i < 3; i++ )
+    for( auto stateIterator : lambertTargeterResult )
     {
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtDeparture( i ) ), 1.0 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtDeparture( i + 3 ) ), 1.0E-6 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i ) ), 1.0 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i + 3 ) ), 1.0E-6 );
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( lambertTargeterResult.at( stateIterator.first )( i ) -
+                                          fullProblemResult.at( stateIterator.first )( i ) ), 1.0E-5 );
+            BOOST_CHECK_SMALL( std::fabs( lambertTargeterResult.at( stateIterator.first )( i + 3 ) -
+                                          fullProblemResult.at( stateIterator.first )( i + 3 ) ), 1.0E-9 );
+        }
     }
 }
 
