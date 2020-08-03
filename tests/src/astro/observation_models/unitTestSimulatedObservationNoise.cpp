@@ -61,9 +61,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     double finalEphemerisTime = double( 1.0E7 + 3.0 * physical_constants::JULIAN_DAY );
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
-    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;

@@ -27,13 +27,13 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 
 namespace tudat
@@ -81,27 +81,27 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,
+                                    globalFrameOrigin, "ECLIPJ2000" );
 
     if( std::is_same< long double, StateScalarType >::value )
     {
         std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
-                    bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
+                    bodySettings.at( "Moon" )->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
     // Change ephemeris origins to test full functionality
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( moonEphemerisOrigin );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Earth" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Earth" )->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Mars" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Mars" )->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Venus" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Venus" )->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

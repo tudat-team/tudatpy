@@ -26,13 +26,13 @@
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {
@@ -67,29 +67,26 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings( { "Earth" }, -1.0E6, 1.0E6 );
-    defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
-    defaultBodySettings[ "Earth" ]->atmosphereSettings->setWindSettings(
+    defaultBodySettings.at( "Earth" )->atmosphereSettings->setWindSettings(
                 std::make_shared< CustomWindModelSettings >(
                     std::bind( &getCustomWindVector, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
     // Create vehicle object.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Set aerodynamic coefficients.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ), 1, 1 );
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define acceleration model settings.
     SelectedAccelerationMap accelerationMap;

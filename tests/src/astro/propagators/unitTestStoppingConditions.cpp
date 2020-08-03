@@ -17,12 +17,12 @@
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>
@@ -141,15 +141,15 @@ void performSimulation( const int testType )
 
 
     // Define simulation body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                    simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                                    simulationEndEpoch + 10.0 * fixedStepSize, "SSB", "J2000"  );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings =
+    bodySettings.at( "Earth" )->gravityFieldSettings =
             std::make_shared< simulation_setup::GravityFieldSettings >(
                 central_spice );
-    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
@@ -160,15 +160,13 @@ void performSimulation( const int testType )
     std::vector< std::string > centralBodies;
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.addNewBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+    bodyMap.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
@@ -356,15 +354,15 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Asterix" );
+    
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;

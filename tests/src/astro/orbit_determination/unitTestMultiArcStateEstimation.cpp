@@ -23,9 +23,9 @@
 #include "tudat/simulation/simulation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/simulateObservations.h"
-#include "tudat/simulation/estimation/orbitDeterminationManager.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/estimation/podProcessing.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
 
 
 namespace tudat
@@ -72,11 +72,11 @@ Eigen::VectorXd  executeParameterEstimation(
 
     double buffer = 10.0 * maximumTimeStep;
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Earth" ]->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
-    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
-    bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
+    bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
@@ -84,7 +84,7 @@ Eigen::VectorXd  executeParameterEstimation(
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
@@ -335,8 +335,9 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0,
+                                    "Earth", "ECLIPJ2000" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // CReate vehicles
@@ -344,13 +345,11 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     int numberOfVehicles = vehicleNames.size( );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        bodyMap[ vehicleNames.at( i ) ] = std::make_shared< Body >( );
-        bodyMap[ vehicleNames.at( i ) ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+        bodyMap.addNewBody( vehicleNames.at( i ) );
+        bodyMap.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                            std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
     }
 
-    // Finalize environment creation
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

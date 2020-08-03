@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/RotationalDynamicsPartials/secondDegreeGravitationalTorquePartial.h"
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/secondDegreeGravitationalTorquePartial.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 

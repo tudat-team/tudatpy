@@ -1,4 +1,4 @@
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 
 namespace tudat
 {

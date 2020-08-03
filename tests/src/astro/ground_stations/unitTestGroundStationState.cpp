@@ -21,10 +21,10 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/estimation/createLightTimeCalculator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     // Create Earth object
     std::shared_ptr< Body > earth = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = earth;
+    bodyMap.addBody( earth, "Earth" );
 
     // Central body characteristics (WGS84 Earth ellipsoid).
     const double flattening = 1.0 / 298.257223563;
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     // Create Earth object
     std::shared_ptr< Body > earth = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = earth;
+    bodyMap.addBody( earth, "Earth" );
 
     // Central body characteristics (WGS84 Earth ellipsoid).
     const double flattening = 1.0 / 298.257223563;
@@ -184,8 +184,6 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     earth->setRotationalEphemeris( std::make_shared< ephemerides::SpiceRotationalEphemeris >(
                                        "ECLIPJ2000", "IAU_Earth" ) );
 
-
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define ground station state
     const Eigen::Vector3d groundStationPosition( 1917032.190, 6029782.349, -801376.113 );

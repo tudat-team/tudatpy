@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_BODY_H
 #define TUDAT_JSONINTERFACE_BODY_H
 
-#include "tudat/simulation/environment/defaultBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/interface/json/environment/spice.h"
 
@@ -71,7 +71,7 @@ template< typename TimeType = double >
 void updateBodiesFromJSON(
         const nlohmann::json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
-        std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
+        simulation_setup::BodyListSettings& bodySettingsMap,
         const std::string globalFrameOrigin,
         const std::string globalFrameOrientation,
         const std::shared_ptr< SpiceSettings >& spiceSettings,
@@ -162,7 +162,7 @@ void updateBodiesFromJSON(
     // Create bodies.
     bodyMap = createBodies( bodySettingsMap );
 
-    // Finalize body creation.
+    
     setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
 }
 

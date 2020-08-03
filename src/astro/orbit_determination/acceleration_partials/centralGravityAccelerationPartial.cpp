@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/AccelerationPartials/centralGravityAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 
 
 namespace tudat

@@ -23,9 +23,9 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 
 
 namespace tudat
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Retrieve Earth state/rotation objects
     std::shared_ptr< Ephemeris > earthEphemeris = bodyMap.at( "Earth" )->getEphemeris( );
