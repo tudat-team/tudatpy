@@ -29,7 +29,7 @@ set(propagation_HEADERS
         environmentUpdater.h
         createThrustModelGuidance.h
         propagationLambertTargeterFullProblem.h
-        propagationPatchedConicFullProblem.h
+#        propagationPatchedConicFullProblem.h
         )
 
 # Add header files.
@@ -50,7 +50,7 @@ set(propagation_SOURCES
         propagationTermination.cpp
         propagationOutput.cpp
         environmentUpdater.cpp
-        propagationPatchedConicFullProblem.cpp
+#        propagationPatchedConicFullProblem.cpp
         )
 
 # Add library.

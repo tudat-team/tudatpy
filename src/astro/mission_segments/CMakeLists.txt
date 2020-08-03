@@ -13,6 +13,7 @@ set(mission_segments_SOURCES
         "escapeAndCapture.cpp"
         "gravityAssist.cpp"
         "improvedInversePolynomialWall.cpp"
+        "lambertTargeter.cpp"
         "lambertTargeterIzzo.cpp"
         "lambertTargeterGooding.cpp"
         "lambertRoutines.cpp"
