@@ -293,9 +293,7 @@ void propagateMgaWithoutDsmAndFullProblem(
     propagators::propagateLambertTargeterAndFullProblem(
                 timeOfFlight, initialTime, bodyMap, centralBody,
                 propagatorSettings, integratorSettings,
-                patchedConicsResult, fullProblemResult, dependentVariableResultCurrentLeg, departureAndArrivalBodies,
-                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ) ,
-                cartesianPositionAtDeparture, cartesianPositionAtArrival );
+                patchedConicsResult, fullProblemResult, dependentVariableResultCurrentLeg, departureAndArrivalBodies );
 }
 
 
@@ -408,7 +406,6 @@ void propagateMga1DsmVelocityAndFullProblem(
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
                                             dependentVariablesFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }
@@ -517,7 +514,6 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
                                             fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm, legDepartureAndArrival,
-                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionAtDeparture, cartesianPositionDSM );
 
 
@@ -532,7 +528,6 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
                                             fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
 }
