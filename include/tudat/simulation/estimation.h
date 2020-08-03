@@ -13,10 +13,10 @@
 #define TUDAT_ESTIMATIONHEADER_H
 
 #include "tudat/simulation/simulation.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/environment/createGroundStations.h"
-#include "tudat/simulation/estimation/orbitDeterminationManager.h"
-#include "tudat/simulation/estimation/podProcessing.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/astro/observation_models/simulateObservations.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 

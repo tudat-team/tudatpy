@@ -21,7 +21,7 @@
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 
 namespace tudat

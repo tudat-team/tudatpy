@@ -261,30 +261,26 @@ NamedBodyMap getTestBodyMap( )
     bodiesToCreate.push_back( "Mars" );
     bodiesToCreate.push_back( "Jupiter" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
 
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
 
     // Define central body ephemeris settings.
-    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
     // Create body map.
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
     return bodyMap;
 
@@ -323,7 +319,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 
     // Create body map
     NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
+    bodyMap.at( "Vehicle" )->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
 
 
     // Define integrator settings
@@ -429,7 +425,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
 
     // Create body map
     NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( initialMass );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( initialMass );
 
 
     // Define integrator settings

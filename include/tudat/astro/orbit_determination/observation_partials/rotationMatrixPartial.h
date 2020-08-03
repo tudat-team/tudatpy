@@ -21,7 +21,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat

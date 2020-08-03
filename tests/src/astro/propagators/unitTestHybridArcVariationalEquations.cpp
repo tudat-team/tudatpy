@@ -26,12 +26,12 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/io/basicInputOutput.h"
 
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/estimation/variationalEquationsSolver.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 namespace tudat
 {
@@ -86,14 +86,14 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ "Orbiter" ] = std::make_shared< Body >( );
-    bodyMap[ "Orbiter" ]->setConstantBodyMass( 5.0E3 );
-    bodyMap[ "Orbiter" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodyMap.addNewBody( "Orbiter" );
+    bodyMap.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
+    bodyMap.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
 
@@ -106,13 +106,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Orbiter" ]->setRadiationPressureInterface(
+    bodyMap.at( "Orbiter" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
                     orbiterRadiationPressureSettings, "Orbiter", bodyMap ) );
 
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
+    
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -302,9 +302,9 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             double testEpoch = integrationArcEnds.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
-            testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+            testStates.block( 0, 0, 6, 1 ) = bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
-            testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Orbiter" ]->getStateInBaseFrameFromEphemeris( testEpoch );/* -
+            testStates.block( 6, 0, 6, 1 ) = bodyMap.at( "Orbiter" )->getStateInBaseFrameFromEphemeris( testEpoch );/* -
                     testStates.block( 0, 0, 6, 1 );*/
 
             if( propagateVariationalEquations )
@@ -512,15 +512,15 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     double finalTime = 4.0 * 86400.0;
 
     // Get body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialTime - 3600.0, finalTime + 3600.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialTime - 3600.0, finalTime + 3600.0,
+                                    "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Spacecraft" ] = std::make_shared< Body >( );
-    bodyMap[ "Spacecraft" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodyMap.addNewBody( "Spacecraft" );
+    bodyMap.at( "Spacecraft" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                std::map< double, std::shared_ptr< Ephemeris > >( ), "Jupiter", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Jupiter", "ECLIPJ2000" );
 
     SelectedAccelerationMap singleArcAccelerationMap;
     std::vector< std::string > singleArcBodiesToPropagate = { "Io", "Europa", "Ganymede" };

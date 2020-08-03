@@ -22,7 +22,7 @@
 #include "tudat/astro/basic_astro/torqueModel.h"
 
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {

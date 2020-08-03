@@ -20,7 +20,7 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/desaturationDeltaV.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 
 
 namespace tudat
@@ -75,16 +75,16 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         // Create bodies needed in simulation
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodyNames );
-        bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Earth", spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
-        bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-        bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+        bodyMap.addNewBody( "Vehicle" );
+        bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                     referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+        bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
         // Create radiation pressure settings
@@ -107,16 +107,13 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
 
-        bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+        bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                                 std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
-
 
         // Create ground stations.
         std::vector< std::string > groundStationNames;

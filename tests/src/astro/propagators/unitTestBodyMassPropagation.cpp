@@ -16,9 +16,9 @@
 #include <boost/make_shared.hpp>
 
 #include "tudat/astro/basic_astro/massRateModel.h"
-#include "tudat/simulation/propagation//propagationSettings.h"
-#include "tudat/simulation/environment/body.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup//propagationSettings.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 
 namespace tudat
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 {
     // Crate bodyMap
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Vehicle" );
 
     // Create mass rate model.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -88,8 +88,9 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 {
     // Crate bodyMap
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle1" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle2" ] = std::make_shared< Body >( );
+    bodyMap.addNewBody( "Earth" );
+    bodyMap.addNewBody( "Vehicle1" );
+    bodyMap.addNewBody( "Vehicle2" );
 
     // Create mass rate models.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -97,13 +98,12 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                 std::bind( &getDummyMassRate1, bodyMap ) );
     massRateModels[ "Vehicle2" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 std::bind( &getDummyMassRate2, bodyMap ) );
-    bodyMap[ "Earth" ] = std::make_shared< Body >( );
-    bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    bodyMap.at( "Earth" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                           [ ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Vehicle1" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    bodyMap.at( "Vehicle1" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                           [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
-    bodyMap[ "Vehicle2" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                          [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
+    bodyMap.at( "Vehicle2" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                                         [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );
@@ -138,12 +138,12 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                               9.0 * std::exp( 4.0 * stateIterator->first / 1E4 ) ), 1.0E-13 );
 
         // Test reset mass solution of vehicles.
-        bodyMap[ "Vehicle1" ]->updateMass( stateIterator->first );
-        bodyMap[ "Vehicle2" ]->updateMass( stateIterator->first );
+        bodyMap.at( "Vehicle1" )->updateMass( stateIterator->first );
+        bodyMap.at( "Vehicle2" )->updateMass( stateIterator->first );
 
-        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ), bodyMap[ "Vehicle1" ]->getBodyMass( ),
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ), bodyMap.at( "Vehicle1" )->getBodyMass( ),
                 std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 1 ), bodyMap[ "Vehicle2" ]->getBodyMass( ),
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 1 ), bodyMap.at( "Vehicle2" )->getBodyMass( ),
                 std::numeric_limits< double >::epsilon( ) );
     }
 }

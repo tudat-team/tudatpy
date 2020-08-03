@@ -17,10 +17,10 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/positionPartials.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
 namespace tudat

@@ -18,8 +18,8 @@
 #include <Eigen/Core>
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/simulation/propagation/propagationLambertTargeterFullProblem.h"
-#include "tudat/simulation/propagation/propagationPatchedConicFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
+#include "tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/trajectory_design/trajectory.h"
 #include "tudat/astro/trajectory_design/exportTrajectory.h"

@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_INTERPOLATOR_H
 #define TUDAT_JSONINTERFACE_INTERPOLATOR_H
 
-#include "tudat/simulation/environment/createGravityFieldVariations.h"
+#include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

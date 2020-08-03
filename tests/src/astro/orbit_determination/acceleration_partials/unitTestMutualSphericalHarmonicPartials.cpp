@@ -25,16 +25,16 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/gravitationalParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationRate.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/constantRotationalOrientation.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
-#include "tudat/astro/orbit_determination/AccelerationPartials/numericalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravitationalParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/simulation.h"
 
 
@@ -99,20 +99,20 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         double initialTime = 1.0E6 - 1.0E5;
 
         // Retrieve body settings
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings(
+        BodyListSettings bodySettings = getDefaultBodySettings(
                     bodyList, 1.0E6 - 1.0E5, 1.0E6 + 1.0E5 );
-        bodySettings[ "Phobos" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Phobos" ]->ephemerisSettings = getDefaultEphemerisSettings(
+        bodySettings.addSettings( "Phobos" );
+        bodySettings.at( "Phobos" )->ephemerisSettings = getDefaultEphemerisSettings(
                     "Phobos" );
 
         // Update rotation models
-        bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Mars",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Mars", initialTime ),
                     initialTime, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-        bodySettings[ "Phobos" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        bodySettings.at( "Phobos" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Phobos",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Phobos", initialTime ),
@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     ( physical_constants::JULIAN_DAY / 4.0 ) );
 
         // Update gravity field settings.
-        bodySettings[ "Mars" ]->gravityFieldSettings = getMarsGravityFieldSettings( );
-        bodySettings[ "Phobos" ]->gravityFieldSettings = getPhobosGravityFieldSettings( );
+        bodySettings.at( "Mars" )->gravityFieldSettings = getMarsGravityFieldSettings( );
+        bodySettings.at( "Phobos" )->gravityFieldSettings = getPhobosGravityFieldSettings( );
 
         // Create body objects
         NamedBodyMap bodyMap = createBodies( bodySettings );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Create links to set and get state functions of bodies.
         std::shared_ptr< Body > mars = bodyMap.at( "Mars" );

@@ -11,7 +11,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/positionPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
 
 namespace tudat
 {

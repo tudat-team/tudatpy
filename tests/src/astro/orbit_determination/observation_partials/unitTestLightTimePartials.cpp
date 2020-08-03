@@ -18,11 +18,11 @@
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
-#include "tudat/simulation/estimation/createObservationModel.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
-#include "tudat/simulation/estimation/createLightTimeCorrectionPartials.h"
-#include "tudat/astro/orbit_determination/LightTimeCorrectionPartials/firstOrderRelativisticPartial.h"
-#include "tudat/astro/orbit_determination/ObservationPartials/observationPartialTestFunctions.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
 
 namespace tudat
 {
@@ -58,9 +58,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         double ephemerisEvaluationTime = basic_astrodynamics::calculateJulianDaySinceEpoch< double >(
                     boost::gregorian::date( 2002, 8, 10 ), 0.0 ) * physical_constants::JULIAN_DAY;
 
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Earth" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Earth" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Mars" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Mars" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
 
 

@@ -11,7 +11,7 @@
 #ifndef TUDAT_DIRECTTIDALTIMELAG_H
 #define TUDAT_DIRECTTIDALTIMELAG_H
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
 
 namespace tudat

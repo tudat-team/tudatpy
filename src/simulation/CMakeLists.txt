@@ -8,8 +8,8 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-add_subdirectory(environment)
-add_subdirectory(propagation)
+add_subdirectory(environment_setup)
+add_subdirectory(propagation_setup)
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
-    add_subdirectory(estimation)
+    add_subdirectory(estimation_setup)
 endif ()

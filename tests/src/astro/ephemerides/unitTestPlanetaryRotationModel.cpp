@@ -17,8 +17,8 @@
 
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createRotationModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 
 
@@ -40,7 +40,7 @@ namespace tudat
             spice_interface::loadStandardSpiceKernels( );
             
             NamedBodyMap bodyMap;
-            bodyMap[ "Mars" ] = std::make_shared< Body >( );
+            bodyMap.addNewBody( "Mars" );
             
             std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
                     getHighAccuracyMarsRotationModel( initialTime, finalTime );

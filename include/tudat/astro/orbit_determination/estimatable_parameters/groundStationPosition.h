@@ -15,7 +15,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/ground_stations/groundStationState.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 
 namespace tudat

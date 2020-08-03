@@ -27,14 +27,13 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
-#include "tudat/simulation/environment/body.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/propagators/nBodyCowellStateDerivative.h"
-#include "tudat/simulation/propagation/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/environment/defaultBodies.h"
-
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {
@@ -118,12 +117,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     double buffer = 3600.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer,
+                                    "Earth", "ECLIPJ2000" );
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

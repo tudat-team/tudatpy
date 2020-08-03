@@ -11,7 +11,7 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARAMETER_H
 #define TUDAT_TIDALLOVENUMBERPARAMETER_H
 
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 
 using std::string;

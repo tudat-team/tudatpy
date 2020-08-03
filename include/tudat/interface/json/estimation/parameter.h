@@ -11,7 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_PARAMETER_H
 #define TUDAT_JSONINTERFACE_PARAMETER_H
 
-#include "tudat/simulation/estimation/estimatableParameterSettings.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
 

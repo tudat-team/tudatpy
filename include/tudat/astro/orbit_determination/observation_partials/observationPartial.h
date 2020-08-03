@@ -22,8 +22,8 @@
 
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/observationBiasParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/observationBiasParameter.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat

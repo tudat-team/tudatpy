@@ -27,11 +27,11 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
-#include "tudat/simulation/environment/defaultBodies.h"
-#include "tudat/simulation/environment/createBodies.h"
-#include "tudat/simulation/estimation/createNumericalSimulator.h"
-#include "tudat/simulation/estimation/createEstimatableParameters.h"
-#include "tudat/simulation/estimation/variationalEquationsSolver.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 
 namespace tudat
 {
@@ -74,12 +74,12 @@ integrateEquations( const bool performIntegrationsSequentially )
     double buffer = numberOfTimeStepBuffer * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     NamedBodyMap bodyMap =
             createBodies( bodySettings );
     std::shared_ptr< Body > lageos = std::make_shared< Body >( );
-    bodyMap[ "LAGEOS" ] = lageos;
+    bodyMap.addBody( lageos, "LAGEOS" );
 
     // Create  body initial state
     Eigen::Vector6d lageosKeplerianElements;
@@ -95,7 +95,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     lageos->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
                               std::shared_ptr< interpolators::OneDimensionalInterpolator<
                               double, Eigen::Vector6d > >( ), "Earth" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -173,7 +173,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     }
 
     return std::make_pair( variationalEquationSolver->getStateTransitionMatrixInterface( ),
-                           bodyMap[ "LAGEOS" ]->getEphemeris( ) );
+                           bodyMap.at( "LAGEOS" )->getEphemeris( ) );
 }
 
 //! Test whether concurrent and sequential propagation of variational equations gives same results.

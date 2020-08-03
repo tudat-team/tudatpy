@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
 
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
         // Define degree two coefficients
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                 sineCoefficients( 2, 1 ) = 0.01;
             }
 
-            bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
         }
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Crate torque model
         SelectedTorqueMap selectedTorqueModelMap;
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
         // Set effective point-mass gravity
@@ -248,13 +248,13 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
             Eigen::Matrix3d sineCoefficients = Eigen::Matrix3d::Zero( );
             cosineCoefficients( 0, 0 ) = 1.0;
 
-            bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
         }
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Create two torque models
         SelectedTorqueMap selectedTorqueModelMap;

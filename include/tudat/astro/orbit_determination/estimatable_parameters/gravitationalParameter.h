@@ -12,7 +12,7 @@
 #define TUDAT_GRAVITATIONALPARAMETER_H
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
-#include "tudat/astro/orbit_determination/EstimatableParameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
 {

@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDATBUNDLE_TLEEPHEMERIS_H
-#define TUDATBUNDLE_TLEEPHEMERIS_H
+#ifndef TUDAT_TLEEPHEMERIS_H
+#define TUDAT_TLEEPHEMERIS_H
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
@@ -177,4 +177,4 @@ private:
 
 }
 }
-#endif //TUDATBUNDLE_TLEEPHEMERIS_H
+#endif //TUDAT_TLEEPHEMERIS_H
