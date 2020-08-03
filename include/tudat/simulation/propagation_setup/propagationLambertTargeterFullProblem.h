@@ -42,34 +42,14 @@ namespace propagators
 simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& departureAndArrivalBodies );
+        const  std::pair< std::string, std::string >& departureAndArrivalBodies );
 
 
 simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& departureAndArrivalBodies,
+        const  std::pair< std::string, std::string >& departureAndArrivalBodies,
         const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies);
-
-//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
-//! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
-/*!
- * Function to setup a Lambert targeter map. The body map contains the central, departure and arrival bodies and the body to be propagated.
- * The positions of the departure and arrival bodies are defined by the user and provided as inputs.
- * \param nameCentralBody Name of the central body.
- * \param nameBodyToPropagate Name of the body to be propagated.
- * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies.
- * \param cartesianPositionAtDeparture Vector containing the position coordinates of the departure body [m].
- * \param cartesianPositionAtArrival Vector containing the position coordinates of the arrival body [m].
- * \return Body map for the Lambert targeter.
- */
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
-        const std::string& nameCentralBody,
-        const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& departureAndArrivalBodies,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival );
-
 
 //! Function to directly setup an acceleration map for the Lambert targeter.
 /*!
@@ -84,23 +64,6 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const simulation_setup::NamedBodyMap& bodyMap );
-
-
-
-//! Function to determine the cartesian state at a given time for a keplerian orbit, based on the initial state.
-/*!
- * Function to determine the cartesian state at a given time for a keplerian orbit, based on the initial state.
- * \param initialState Initial cartesian state on this orbit (x-position coordinate [m], y-position coordinate [m], z-position coordinate [m],
- * x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
- * \param finalPropagationTime Final time at which the cartesian state has to be calculated [s].
- * \param gravitationalParameter gravitation parameter defining the keplerian orbit [m^3 s^-2].
- * \return Vector containing the cartesian state at a given time for a keplerian orbit.
- */
-Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
-        const Eigen::Vector6d& initialState,
-        const double finalPropagationTime,
-        const double gravitationalParameter);
-
 
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
@@ -134,11 +97,7 @@ void propagateLambertTargeterAndFullProblem(
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         std::map< double, Eigen::VectorXd >& dependentVariableResult,
-        const std::vector<std::string>& departureAndArrivalBodies,
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival );
-
+        const  std::pair< std::string, std::string >& departureAndArrivalBodies );
 
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
@@ -181,7 +140,7 @@ void propagateLambertTargeterAndFullProblem(
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         std::map< double, Eigen::VectorXd >& dependentVariableResult,
-        const std::vector<std::string>& departureAndArrivalBodies,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies,
         const bool terminationSphereOfInfluence,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival,
@@ -222,7 +181,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const std::vector< std::string >& departureAndArrivalBodies,
+        const  std::pair< std::string, std::string >& departureAndArrivalBodies,
         const bool terminationSphereOfInfluence,
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
         const TranslationalPropagatorType propagator = cowell);

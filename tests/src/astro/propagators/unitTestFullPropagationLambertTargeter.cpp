@@ -31,6 +31,51 @@ namespace unit_tests
 
 using namespace tudat;
 
+//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
+//! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
+/*!
+ * Function to setup a Lambert targeter map. The body map contains the central, departure and arrival bodies and the body to be propagated.
+ * The positions of the departure and arrival bodies are defined by the user and provided as inputs.
+ * \param nameCentralBody Name of the central body.
+ * \param nameBodyToPropagate Name of the body to be propagated.
+ * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies.
+ * \param cartesianPositionAtDeparture Vector containing the position coordinates of the departure body [m].
+ * \param cartesianPositionAtArrival Vector containing the position coordinates of the arrival body [m].
+ * \return Body map for the Lambert targeter.
+ */
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::pair< std::string, std::string >&  departureAndArrivalBodies,
+        const Eigen::Vector3d& cartesianPositionAtDeparture,
+        const Eigen::Vector3d& cartesianPositionAtArrival )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+    // Create ephemeris vector for departure and arrival bodies.
+    std::vector< ephemerides::EphemerisPointer > ephemerisVectorDepartureAndArrivalBodies(2);
+    ephemerisVectorDepartureAndArrivalBodies[ 0 ] = std::make_shared< ephemerides::ConstantEphemeris > (
+                ( Eigen::Vector6d( ) << cartesianPositionAtDeparture[0], cartesianPositionAtDeparture[1], cartesianPositionAtDeparture[2],
+            0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+    ephemerisVectorDepartureAndArrivalBodies[ 1 ] = std::make_shared< ephemerides::ConstantEphemeris >(
+                ( Eigen::Vector6d( ) << cartesianPositionAtArrival[0], cartesianPositionAtArrival[1], cartesianPositionAtArrival[2],
+            0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap =
+            propagators::setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
+                nameCentralBody, nameBodyToPropagate, departureAndArrivalBodies, ephemerisVectorDepartureAndArrivalBodies );
+
+    return bodyMap;
+
+}
+
+
+
+
 //! Test if the difference between the Lambert targeter solution and the full dynamics problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
 {
@@ -51,26 +96,27 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             std::make_shared < numerical_integrators::IntegratorSettings < > >
-                ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+            ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
-    std::vector< std::string > departureAndArrivalBodies;
-    departureAndArrivalBodies.push_back("departure");
-    departureAndArrivalBodies.push_back("arrival");
+    std::pair< std::string, std::string > departureAndArrivalBodies =
+            std::make_pair( "departure", "arrival" );
 
     // Define the body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedStatesForLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
-                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival);
+    simulation_setup::NamedBodyMap bodyMap = setupBodyMapFromUserDefinedStatesForLambertTargeter(
+                "Earth", "spacecraft", departureAndArrivalBodies,
+                cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
-                "Earth", "spacecraft", bodyMap);
+                "Earth", "spacecraft", bodyMap );
 
 
-   // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
-   std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
-             cartesianPositionAtArrival, timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
-             centralBody, integratorSettings, departureAndArrivalBodies, false);
+    // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
+    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
+            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(
+                cartesianPositionAtDeparture,  cartesianPositionAtArrival,
+                timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
+                centralBody, integratorSettings, departureAndArrivalBodies, false);
 
     Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
     Eigen::Vector6d differenceStateAtArrival = differenceState.second;
@@ -86,8 +132,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
         BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i ) ), 1.0 );
         BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i + 3 ) ), 1.0E-6 );
     }
-
-
 
 }
 
