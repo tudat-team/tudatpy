@@ -26,6 +26,8 @@
 
 #include "tudat/interface/spice/spiceInterface.h"
 
+#include "tudat/io/basicInputOutput.h"
+
 namespace tudat
 {
 
@@ -243,7 +245,8 @@ void propagateLambertTargeterAndFullProblem(
             getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
             dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
-    
+
+
     // Calculate the difference between the full problem and the Lambert targeter solution along the forward propagation direction.
     Eigen::Vector6d cartesianStateLambertSolution;
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
@@ -256,8 +259,8 @@ void propagateLambertTargeterAndFullProblem(
         fullProblemResult[ itr->first ] = itr->second;
         dependentVariableResult[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
-    
-    
+
+
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
     integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
@@ -283,6 +286,7 @@ void propagateLambertTargeterAndFullProblem(
         dependentVariableResult[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
         
     }
+
 
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
     

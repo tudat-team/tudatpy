@@ -221,13 +221,9 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateCartesianStateAlongKeplerOrbit(
     finalKeplerianState[orbital_element_conversions::trueAnomalyIndex] = trueAnomalyEndPropagation;
 
     // Convert keplerian to cartesian state at final time.
-    Eigen::Matrix< ScalarType, 6, 1 > cartesianStateLambertSolution = orbital_element_conversions::convertKeplerianToCartesianElements(
+    return orbital_element_conversions::convertKeplerianToCartesianElements(
                 finalKeplerianState, gravitationalParameter);
-
-    return cartesianStateLambertSolution;
 }
-
-
 
 } // namespace orbital_element_conversions
 
