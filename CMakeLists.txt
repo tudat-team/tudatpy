@@ -21,7 +21,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
+
+if(MINGW)
+   # https://github.com/tudat-team/tudatpy-feedstock/issues/3
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
+   # https://stackoverflow.com/questions/16596876/object-file-has-too-many-sections
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+   # https://sourceforge.net/p/mingw-w64/mailman/message/33154210/
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--large-address-aware")
+endif()
+
+if (MSVC)
+  # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
+  # This is equivalent to the big-obj for MinGW, this should stop error C1128.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
