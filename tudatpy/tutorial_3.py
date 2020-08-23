@@ -1,15 +1,10 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
-import time
 import numpy as np
 from tudatpy import elements
-from tudatpy.kernel import constants
-from tudatpy.kernel.math import numerical_integrators
 from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.astro import propagators
 from tudatpy.kernel.astro import ephemerides
-from tudatpy.kernel.astro import fundamentals
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 from tudatpy.kernel import example
@@ -126,7 +121,7 @@ def main():
             "Apollo", "Earth"
         ),
         propagation_setup.SingleAccelerationDependentVariableSaveSettings(
-            fundamentals.AvailableAcceleration.aerodynamic,
+            propagation_setup.AvailableAcceleration.aerodynamic,
             "Apollo", "Earth", 1
         ),
         propagation_setup.SingleDependentVariableSaveSettings(
@@ -135,8 +130,8 @@ def main():
         )
     ]
     dependent_variables_to_save = propagation_setup.DependentVariableSaveSettings(
-        dependent_variables_list)
-
+        dependent_variables_list
+    )
     # Define termination conditions.
     termination_dependent_variable = propagation_setup.SingleDependentVariableSaveSettings(
         propagation_setup.PropagationDependentVariables.altitude_dependent_variable,
@@ -159,8 +154,8 @@ def main():
         propagation_setup.TranslationalPropagatorType.cowell,
         dependent_variables_to_save
     )
-    integrator_settings = numerical_integrators.IntegratorSettings(
-        numerical_integrators.AvailableIntegrators.rungeKutta4,
+    integrator_settings = propagation_setup.IntegratorSettings(
+        propagation_setup.AvailableIntegrators.rungeKutta4,
         simulation_start_epoch,
         fixed_step_size
     )

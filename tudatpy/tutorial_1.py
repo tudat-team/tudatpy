@@ -4,9 +4,7 @@
 import numpy as np
 from tudatpy import elements
 from tudatpy.kernel import constants
-from tudatpy.kernel.math import numerical_integrators
 from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.astro import propagators
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 
@@ -111,8 +109,8 @@ def main():
         simulation_end_epoch
     )
     # Create numerical integrator settings.
-    integrator_settings = numerical_integrators.IntegratorSettings(
-        numerical_integrators.AvailableIntegrators.rungeKutta4,
+    integrator_settings = propagation_setup.IntegratorSettings(
+        propagation_setup.AvailableIntegrators.rungeKutta4,
         simulation_start_epoch,
         fixed_step_size
     )

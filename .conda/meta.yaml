@@ -15,7 +15,7 @@ build:
   #  new builds that contain bug fixes for the way a package is built may be
   #  added to a repository.
   number: 0
-#  skip: true  # [win and vc<14]
+  #  skip: true  # [win and vc<14]
   run_exports:
     - {{ pin_compatible('cspice-cmake', max_pin='x.x') }}
     - {{ pin_compatible('tudat-resources', max_pin='x.x') }}
