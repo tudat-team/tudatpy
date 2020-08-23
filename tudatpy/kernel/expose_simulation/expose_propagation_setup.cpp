@@ -22,10 +22,63 @@ namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
 namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
+namespace tni = tudat::numerical_integrators;
 
 namespace tudatpy {
 
 void expose_propagation_setup(py::module &m) {
+
+  /*
+   * This contains the addition of IntegratorSettings and AvailableIntegrators
+   * and AvailableAccelerations which should be relocated in the tudat source.
+   */
+
+  py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
+      .value("undefined_acceleration", tba::AvailableAcceleration::undefined_acceleration)
+      .value("point_mass_gravity", tba::AvailableAcceleration::point_mass_gravity)
+      .value("central_gravity", tba::AvailableAcceleration::central_gravity)
+      .value("aerodynamic", tba::AvailableAcceleration::aerodynamic)
+      .value("cannon_ball_radiation_pressure", tba::AvailableAcceleration::cannon_ball_radiation_pressure)
+      .value("spherical_harmonic_gravity", tba::AvailableAcceleration::spherical_harmonic_gravity)
+      .value("mutual_spherical_harmonic_gravity", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity)
+      .value("third_body_point_mass_gravity", tba::AvailableAcceleration::third_body_point_mass_gravity)
+      .value("third_body_central_gravity", tba::AvailableAcceleration::third_body_central_gravity)
+      .value("third_body_spherical_harmonic_gravity", tba::AvailableAcceleration::third_body_spherical_harmonic_gravity)
+      .value("third_body_mutual_spherical_harmonic_gravity", tba::AvailableAcceleration::third_body_mutual_spherical_harmonic_gravity)
+      .value("thrust_acceleration", tba::AvailableAcceleration::thrust_acceleration)
+      .value("relativistic_correction_acceleration", tba::AvailableAcceleration::relativistic_correction_acceleration)
+      .value("empirical_acceleration", tba::AvailableAcceleration::empirical_acceleration)
+      .value("direct_tidal_dissipation_in_central_body_acceleration", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration)
+      .value("direct_tidal_dissipation_in_orbiting_body_acceleration", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration)
+      .value("panelled_radiation_pressure_acceleration", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration)
+      .value("momentum_wheel_desaturation_acceleration", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration)
+      .value("solar_sail_acceleration", tba::AvailableAcceleration::solar_sail_acceleration)
+      .export_values();
+
+  py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
+      .value("euler", tni::AvailableIntegrators::euler)
+      .value("runge_kutta4", tni::AvailableIntegrators::rungeKutta4)
+      .value("rk4", tni::AvailableIntegrators::rungeKutta4)
+      .value("runge_kutta_variable_step_size", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
+      .value("bulirsch_stoer", tni::AvailableIntegrators::bulirschStoer)
+      .value("adams_bashforth_moulton", tni::AvailableIntegrators::adamsBashforthMoulton)
+      .export_values();
+
+  py::class_<
+      tni::IntegratorSettings<double>,
+      std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings")
+      .def(py::init<
+               const tni::AvailableIntegrators,
+               const double,
+               const double,
+               const int,
+               const bool>(),
+           py::arg("integrator_type"),
+           py::arg("initial_time"),
+           py::arg("initial_time_step"),
+           py::arg("save_frequency") = 1,
+           // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
+           py::arg("assess_propagation_termination_condition_during_integration_substeps") = false);
 
   /*
    * propagation_setup
@@ -110,6 +163,29 @@ void expose_propagation_setup(py::module &m) {
            py::arg("constant_specific_impulse"),
            py::arg("thrust_frame"),
            py::arg("central_body") = "");
+
+  //////////////////////////////////////////////////////////////////////////////
+  // propagationTerminationSettings.h
+  //////////////////////////////////////////////////////////////////////////////
+  py::enum_<tss::PropagationTerminationTypes,
+            std::shared_ptr<>>
+      //  enum PropagationTerminationTypes
+      //  {
+      //    time_stopping_condition = 0,
+      //    cpu_time_stopping_condition = 1,
+      //    dependent_variable_stopping_condition = 2,
+      //    hybrid_stopping_condition = 3,
+      //    custom_stopping_condition = 4
+      //  };
+
+      py::class_<tss::ThrustAccelerationSettings,
+                 std::shared_ptr<tss::ThrustAccelerationSettings>,
+                 tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
+          .def(py::init<//ctor 1
+                   const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
+                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
+               py::arg("thrust_direction_settings"),
+               py::arg("thrust_magnitude_settings"));
 
   //////////////////////////////////////////////////////////////////////////////
   // createAccelerationModels.cpp
@@ -659,6 +735,9 @@ void expose_propagation_setup(py::module &m) {
            py::arg("secondary_body") = "",
            py::arg("component_idx") = -1);
 
+  //////////////////////////////////////////////////////////////////////////////
+  // astro/basic_astro/accelerationModels.h   TODO: This needs to be moved in tudat source.
+  //////////////////////////////////////////////////////////////////////////////
   py::class_<
       tp::SingleAccelerationDependentVariableSaveSettings,
       std::shared_ptr<tp::SingleAccelerationDependentVariableSaveSettings>,

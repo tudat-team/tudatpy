@@ -1,4 +1,4 @@
-from .kernel.astro.fundamentals import AvailableAcceleration
+from .kernel.simulation.propagation_setup import AvailableAcceleration
 from .kernel.simulation.propagation_setup import AccelerationSettings
 from .kernel.simulation.propagation_setup import SphericalHarmonicAccelerationSettings
 
