@@ -1,0 +1,3 @@
+project:
+ name: {{ project_name }}
+ type: {{ project_type }}

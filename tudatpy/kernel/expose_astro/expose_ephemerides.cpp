@@ -24,15 +24,114 @@ namespace te = tudat::ephemerides;
 namespace tss = tudat::simulation_setup;
 
 namespace tudatpy {
-void expose_ephemerides(py::module &m) {
-  py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>> ephemeris(m, "Ephemeris");
 
-  py::enum_<tss::EphemerisType>(ephemeris, "EphemerisType")
+namespace trampoline {
+
+class PyEphemeris : public te::Ephemeris {
+ public:
+  /* Inherit the constructors */
+  using te::Ephemeris::Ephemeris;
+
+  Eigen::Vector6d getCartesianState(const double seconds_since_epoch) override {
+    PYBIND11_OVERLOAD_PURE(
+        Eigen::Vector6d,    /* Return type */
+        te::Ephemeris,      /* Parent class */
+        getCartesianState,  /* Name of function in C++ (must match Python name) */
+        seconds_since_epoch /* Argument(s) */
+    );
+  }
+
+  //  Eigen::Matrix<long double, 6, 1> getCartesianLongState(const double seconds_since_epoch) override {
+  //    PYBIND11_OVERLOAD_PURE(
+  //        Eigen::Matrix<long double, 6, 1>, /* Return type */
+  //        te::Ephemeris,                    /* Parent class */
+  //        getCartesianLongState,            /* Name of function in C++ (must match Python name) */
+  //        seconds_since_epoch               /* Argument(s) */
+  //    );
+  //  }
+
+  //  Eigen::Matrix<long double, 6, 1> getCartesianStateFromExtendedTime() override {
+  //    PYBIND11_OVERLOAD_PURE(
+  //        Eigen::Matrix<long double, 6, 1>,  /* Return type */
+  //        te::Ephemeris,                     /* Parent class */
+  //        getCartesianStateFromExtendedTime, /* Name of function in C++ (must match Python name) */
+  //        const Time &                       /* Argument(s) */
+  //    );
+  //  }
+
+  //  Eigen::Matrix<long double, 6, 1> getCartesianStateFromExtendedTime() override {
+  //    PYBIND11_OVERLOAD_PURE(
+  //        Eigen::Matrix<long double, 6, 1>,  /* Return type */
+  //        te::Ephemeris,                     /* Parent class */
+  //        getCartesianStateFromExtendedTime, /* Name of function in C++ (must match Python name) */
+  //        const double                       /* Argument(s) */
+  //    );
+};
+
+}// namespace trampoline
+
+void expose_ephemerides(py::module &m) {
+  /*
+   * ephemerides/
+   *  ├── approximatePlanetPositionsBase.h
+   *  ├── approximatePlanetPositionsCircularCoplanar.h
+   *  ├── approximatePlanetPositionsDataContainer.h
+   *  ├── approximatePlanetPositions.h
+   *  ├── cartesianStateExtractor.h
+   *  ├── compositeEphemeris.h
+   *  ├── constantEphemeris.h
+   *  ├── constantRotationalEphemeris.h
+   *  ├── customEphemeris.h
+   *  ├── ephemeris.h
+   *  ├── frameManager.h
+   *  ├── fullPlanetaryRotationModel.h
+   *  ├── itrsToGcrsRotationModel.h
+   *  ├── keplerEphemeris.h
+   *  ├── keplerStateExtractor.h
+   *  ├── multiArcEphemeris.h
+   *  ├── rotationalEphemeris.h
+   *  ├── simpleRotationalEphemeris.h
+   *  ├── synchronousRotationalEphemeris.h
+   *  ├── tabulatedEphemeris.h
+   *  ├── tabulatedRotationalEphemeris.h
+   *  └── tleEphemeris.h
+   *
+   * ephemerides/
+   *  ├── approximatePlanetPositionsBase.cpp
+   *  ├── approximatePlanetPositionsCircularCoplanar.cpp
+   *  ├── approximatePlanetPositions.cpp
+   *  ├── cartesianStateExtractor.cpp
+   *  ├── CMakeLists.txt
+   *  ├── compositeEphemeris.cpp
+   *  ├── ephemeris.cpp
+   *  ├── frameManager.cpp
+   *  ├── fullPlanetaryRotationModel.cpp
+   *  ├── keplerEphemeris.cpp
+   *  ├── keplerStateExtractor.cpp
+   *  ├── rotationalEphemeris.cpp
+   *  ├── simpleRotationalEphemeris.cpp
+   *  ├── synchronousRotationalEphemeris.cpp
+   *  ├── tabulatedEphemeris.cpp
+   *  ├── tabulatedRotationalEphemeris.cpp
+   *  └── tleEphemeris.cpp
+   *
+   */
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris")
+      .def("get_cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
+      .def("get_cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
+      .def("get_cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
+
+  py::enum_<tss::EphemerisType>(m.attr("Ephemeris"), "EphemerisType")
       .value("approximate_planet_positions", tss::approximate_planet_positions)
       .value("direct_spice_ephemeris", tss::direct_spice_ephemeris)
       .value("interpolated_spice", tss::interpolated_spice)
       .value("constant_ephemeris", tss::constant_ephemeris)
       .value("kepler_ephemeris", tss::kepler_ephemeris)
+      .value("direct_tle_ephemeris", tss::direct_tle_ephemeris)
+      .value("interpolated_tle_ephemeris", tss::interpolated_tle_ephemeris)
       .value("custom_ephemeris", tss::custom_ephemeris);
 
   py::class_<te::RotationalEphemeris,
@@ -45,6 +144,9 @@ void expose_ephemerides(py::module &m) {
         py::arg("current_time"),
         py::arg("rotational_ephemeris"));
 
+  //////////////////////////////////////////////////////////////////////////////
+  // constantEphemeris.h
+  //////////////////////////////////////////////////////////////////////////////
   py::class_<te::ConstantEphemeris,
              std::shared_ptr<te::ConstantEphemeris>,
              te::Ephemeris>(
@@ -63,21 +165,42 @@ void expose_ephemerides(py::module &m) {
            py::arg("constant_state"),
            py::arg("reference_frame_origin") = "SSB",
            py::arg("reference_frame_orientation") = "ECLIPJ2000")
-      .def("get_cartesian_state", &te::ConstantEphemeris::getCartesianState,
-           py::arg("seconds_since_epoch") = 0.0)
       .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
-           py::arg("new_state"))
-      .def("get_cartesian_position", &te::ConstantEphemeris::getCartesianPosition,
-           py::arg("seconds_since_epoch"))
-      .def("get_cartesian_velocity", &te::ConstantEphemeris::getCartesianVelocity,
-           py::arg("seconds_since_epoch"))
-      .def("get_cartesian_long_state", &te::ConstantEphemeris::getCartesianLongState,
-           py::arg("seconds_since_epoch"))
-      .def("get_cartesian_state_from_extended_time",
-           &te::ConstantEphemeris::getCartesianStateFromExtendedTime,
-           py::arg("current_time"))
-      .def("get_cartesian_long_state_from_extended_time",
-           &te::ConstantEphemeris::getCartesianLongStateFromExtendedTime,
-           py::arg("current_time"));
+           py::arg("new_state"));
+
+  //////////////////////////////////////////////////////////////////////////////
+  // tleEphemeris.h / tleEphemeris.cpp
+  //////////////////////////////////////////////////////////////////////////////
+  py::class_<te::Tle, std::shared_ptr<te::Tle>>(m, "Tle")
+      .def(py::init<//ctor 1
+               const std::string &>(),
+           py::arg("lines"))
+      .def(py::init<//ctor 2
+               const std::string &,
+               const std::string &>(),
+           py::arg("line_1"),
+           py::arg("line_2"))
+      .def("get_epoch", &te::Tle::getEpoch)
+      .def("get_b_star", &te::Tle::getBStar)
+      .def("get_epoch", &te::Tle::getEpoch)
+      .def("get_inclination", &te::Tle::getInclination)
+      .def("get_right_ascension", &te::Tle::getRightAscension)
+      .def("get_eccentricity", &te::Tle::getEccentricity)
+      .def("get_arg_of_perigee", &te::Tle::getArgOfPerigee)
+      .def("get_mean_anomaly", &te::Tle::getMeanAnomaly)
+      .def("get_mean_motion", &te::Tle::getMeanMotion);
+
+  py::class_<te::TleEphemeris,
+             std::shared_ptr<te::TleEphemeris>,
+             te::Ephemeris>(m, "TleEphemeris")
+      .def(py::init<
+               const std::string &,
+               const std::string &,
+               const std::shared_ptr<te::Tle>,
+               const bool>(),
+           py::arg("frame_origin") = "Earth",
+           py::arg("frame_orientation") = "J2000",
+           py::arg("tle") = nullptr,
+           py::arg("use_sdp") = false);
 };
 }// namespace tudatpy

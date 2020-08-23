@@ -17,33 +17,34 @@
 namespace tni = tudat::numerical_integrators;
 namespace py = pybind11;
 
+//typedef std::function<
+//    Eigen::VectorXd(
+//        const double,
+//        const Eigen::VectorXd &)>
+//    StateDerivativeFunction;
+
+typedef std::function< Eigen::Matrix< double, Eigen::Dynamic, 1 >(
+    const double, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction;
+
 namespace tudatpy {
 
 void expose_numerical_integrators(py::module &m) {
 
-  py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
-      .value("euler", tni::AvailableIntegrators::euler)
-      .value("rungeKutta4", tni::AvailableIntegrators::rungeKutta4)
-      .value("rungeKuttaVariableStepSize", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
-      .value("bulirschStoer", tni::AvailableIntegrators::bulirschStoer)
-      .value("adamsBashforthMoulton", tni::AvailableIntegrators::adamsBashforthMoulton)
-      .export_values();
+  py::class_<tni::NumericalIntegrator<>>(m, "NumericalIntegrator");
+  //      .def(py::init<>);
+  //
 
-  py::class_<
-      tni::IntegratorSettings<double>,
-      std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings")
+  //
+  py::class_<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >,//      tni::NumericalIntegrator<double, Eigen::VectorXd, Eigen::VectorXd, double>
+             std::shared_ptr<tni::RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >>
+             >(m, "RungeKutta4Integrator")
       .def(py::init<
-               const tni::AvailableIntegrators,
-               const double,
-               const double,
-               const int,
-               const bool>(),
-           py::arg("integrator_type"),
-           py::arg("initial_time"),
-           py::arg("initial_time_step"),
-           py::arg("save_frequency") = 1,
-            // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
-           py::arg("assess_propagation_termination_condition_during_integration_substeps") = false);
+           const stateDerivativeFunction &,
+           const double,
+           const double &>());
+
+  // Alias
+  //  m.def("rk4", m.attr("RungeKutta4Integrator"))
 }
 
 }// namespace tudatpy

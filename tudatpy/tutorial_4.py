@@ -2,11 +2,9 @@
 # IMPORT STATEMENTS ############################################################
 ################################################################################
 from tudatpy.kernel import constants
-from tudatpy.kernel.astro import fundamentals
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
-from tudatpy.kernel.math import numerical_integrators
 
 ################################################################################
 # GENERAL SIMULATION SETUP #####################################################
@@ -55,7 +53,7 @@ for propagation_variant in ["barycentric", "hierarchical"]:
         for body_j in bodies_to_create:
             if body_i != body_j:
                 current_accelerations[body_j] = [
-                    propagation_setup.AccelerationSettings(fundamentals.AvailableAcceleration.central_gravity)
+                    propagation_setup.AccelerationSettings(propagation_setup.AvailableAcceleration.central_gravity)
                 ]
         acceleration_dict[body_i] = current_accelerations
     central_bodies = []
@@ -102,8 +100,8 @@ for propagation_variant in ["barycentric", "hierarchical"]:
         simulation_end_epoch
     )
     # Create numerical integrator settings.
-    integrator_settings = numerical_integrators.IntegratorSettings(
-        numerical_integrators.AvailableIntegrators.rungeKutta4,
+    integrator_settings = propagation_setup.IntegratorSettings(
+        propagation_setup.AvailableIntegrators.rk4,
         simulation_start_epoch,
         fixed_step_size
     )
