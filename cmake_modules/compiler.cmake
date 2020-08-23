@@ -140,6 +140,4 @@
  endif ()
 
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
- set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
  message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS}.")
