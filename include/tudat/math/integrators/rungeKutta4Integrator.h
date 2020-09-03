@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -40,8 +40,10 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  * \sa NumericalIntegrator.
  */
-template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
+template< typename IndependentVariableType = double,
+         typename StateType = Eigen::VectorXd,
+           typename StateDerivativeType = Eigen::VectorXd,
+         typename TimeStepType = IndependentVariableType >
 class RungeKutta4Integrator
         : public numerical_integrators::ReinitializableNumericalIntegrator<
         IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
