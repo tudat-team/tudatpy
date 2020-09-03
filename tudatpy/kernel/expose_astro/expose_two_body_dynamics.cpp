@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_two_body.h"
+#include "expose_two_body_dynamics.h"
 
 #include <tudat/astro/mission_segments.h>
 #include <docstrings/astro/two_body.hpp>
@@ -71,7 +71,7 @@ class PyLambertTargeter : public tms::LambertTargeter {
 
 }// namespace trampoline
 
-void expose_two_body(py::module &m) {
+void expose_two_body_dynamics(py::module &m) {
   /*
     * mission_segments/
     * ├── escapeAndCapture.cpp

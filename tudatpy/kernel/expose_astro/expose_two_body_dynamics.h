@@ -17,7 +17,7 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_two_body(py::module &m);
+void expose_two_body_dynamics(py::module &m);
 
 }
 

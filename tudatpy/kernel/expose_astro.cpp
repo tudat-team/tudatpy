@@ -17,7 +17,7 @@
 #include "expose_astro/expose_gravitation.h"
 #include "expose_astro/expose_propagators.h"
 #include "expose_astro/expose_reference_frames.h"
-#include "expose_astro/expose_two_body.h"
+#include "expose_astro/expose_two_body_dynamics.h"
 
 #include <pybind11/pybind11.h>
 
@@ -39,8 +39,8 @@ void expose_astro(py::module &m) {
   auto aerodynamics = m.def_submodule("aerodynamics");
   expose_aerodynamics(aerodynamics);
 
-  auto two_body = m.def_submodule("two_body");
-  expose_two_body(two_body);
+  auto two_body_dynamics = m.def_submodule("two_body_dynamics");
+  expose_two_body_dynamics(two_body_dynamics);
 
   auto ephemerides = m.def_submodule("ephemerides");
   expose_ephemerides(ephemerides);

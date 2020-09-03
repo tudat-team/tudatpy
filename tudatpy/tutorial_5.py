@@ -44,7 +44,6 @@ bodies_to_create = ["Sun", "Earth", "Moon"]
 # Create bodies in simulation.
 body_settings = environment_setup.get_default_body_settings(bodies_to_create)
 body_system = environment_setup.create_bodies(body_settings)
-environment_setup.set_global_frame_body_ephemerides(body_system, "SSB", "ECLIPJ2000")
 
 ################################################################################
 # SETUP ENVIRONMENT : CREATE VEHICLE ###########################################
