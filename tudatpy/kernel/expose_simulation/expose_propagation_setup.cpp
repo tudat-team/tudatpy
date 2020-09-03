@@ -167,25 +167,25 @@ void expose_propagation_setup(py::module &m) {
   //////////////////////////////////////////////////////////////////////////////
   // propagationTerminationSettings.h
   //////////////////////////////////////////////////////////////////////////////
-  py::enum_<tss::PropagationTerminationTypes,
-            std::shared_ptr<>>
-      //  enum PropagationTerminationTypes
-      //  {
-      //    time_stopping_condition = 0,
-      //    cpu_time_stopping_condition = 1,
-      //    dependent_variable_stopping_condition = 2,
-      //    hybrid_stopping_condition = 3,
-      //    custom_stopping_condition = 4
-      //  };
+  //  py::enum_<tss::PropagationTerminationTypes,
+  //            std::shared_ptr<>>
+  //  enum PropagationTerminationTypes
+  //  {
+  //    time_stopping_condition = 0,
+  //    cpu_time_stopping_condition = 1,
+  //    dependent_variable_stopping_condition = 2,
+  //    hybrid_stopping_condition = 3,
+  //    custom_stopping_condition = 4
+  //  };
 
-      py::class_<tss::ThrustAccelerationSettings,
-                 std::shared_ptr<tss::ThrustAccelerationSettings>,
-                 tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
-          .def(py::init<//ctor 1
-                   const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
-                   const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
-               py::arg("thrust_direction_settings"),
-               py::arg("thrust_magnitude_settings"));
+//  py::class_<tss::ThrustAccelerationSettings,
+//             std::shared_ptr<tss::ThrustAccelerationSettings>,
+//             tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
+//      .def(py::init<//ctor 1
+//               const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
+//               const std::shared_ptr<tss::ThrustMagnitudeSettings>>(),
+//           py::arg("thrust_direction_settings"),
+//           py::arg("thrust_magnitude_settings"));
 
   //////////////////////////////////////////////////////////////////////////////
   // createAccelerationModels.cpp
