@@ -1,4 +1,4 @@
-import tudatpy.kernel.spice_interface as spice_interface
+import tudatpy.kernel.interface.spice_interface as spice_interface
 # from tudatpy import load_standard_spice_kernels
 # import pytest
 # from pytest_bdd import scenario, given, when, then
