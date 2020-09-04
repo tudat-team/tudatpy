@@ -36,13 +36,13 @@ def test_paths_for_conda_prefix():
     """
     try:
         if os.environ["CONDA_BUILD"]:
-            assert "$PREFIX/resource" in kernel.io.get_resource_path()
-            assert "$PREFIX/resource" in kernel.io.get_ephemeris_path()
-            assert "$PREFIX/resource" in kernel.io.get_earth_orientation_path()
-            assert "$PREFIX/resource" in kernel.io.get_quadrature_path()
-            assert "$PREFIX/resource" in kernel.io.get_spice_kernel_path()
-            assert "$PREFIX/resource" in kernel.io.get_atmosphere_tables_path()
-            assert "$PREFIX/resource" in kernel.io.get_gravity_models_path()
-            assert "$PREFIX/resource" in kernel.io.get_space_weather_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_resource_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_ephemeris_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_earth_orientation_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_quadrature_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_spice_kernel_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_atmosphere_tables_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_gravity_models_path()
+            assert os.path.join(os.environ["PREFIX"], "/resource") in kernel.io.get_space_weather_path()
     except KeyError:
         pytest.skip("Reason: CONDA_BUILD not found in env.")
