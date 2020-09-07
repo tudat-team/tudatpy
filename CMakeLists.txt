@@ -67,7 +67,7 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
