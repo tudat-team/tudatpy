@@ -1,6 +1,7 @@
 from tudatpy import kernel
 import pytest
 import os
+import sys
 
 
 def test_no_null_bytes():
@@ -31,18 +32,16 @@ def test_paths_exist():
     assert os.path.exists(kernel.io.get_space_weather_path())
 
 
-def test_paths_for_conda_prefix():
-    """ For testing conda-builds to ensure that prefix replacement occurs.
+def test_resource_paths_exist():
+    """ For testing tudat resources exist in hidden directory.
     """
     try:
-        if os.environ["CONDA_BUILD"]:
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_resource_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_ephemeris_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_earth_orientation_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_quadrature_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_spice_kernel_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_atmosphere_tables_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_gravity_models_path()
-            assert os.path.join(os.environ["PREFIX"], "resource") in kernel.io.get_space_weather_path()
+        if sys.platform == "win32" or sys.platform == "win64":
+            home_path = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
+            print(f"Checking {home_path} for .tudat/resource existence.")
+        else:
+            home_path = os.environ["HOME"]
+            print(f"Checking {home_path} for .tudat/resource existence.")
+        assert os.path.exists(os.path.join(home_path, ".tudat/resource")) == True
     except KeyError:
         pytest.skip("Reason: CONDA_BUILD not found in env.")
