@@ -46,7 +46,7 @@ set(Tudat_DEFINITIONS "")
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 
 # Build option: include default data suite.
-option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
+#option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
 
 # Build with propagation tests.
 option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
@@ -77,6 +77,17 @@ option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with e
 
 message(TUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS})
 message(TUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE})
+
+message(******************** BUILD CONFIGURATION ********************)
+message("TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
+message("TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
+message("TUDAT_BUILD_WITH_ESTIMATION_TOOLS                     ${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
+message("TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BUILD_TUDAT_TUTORIALS}")
+message("TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BUILD_STATIC_LIBRARY}")
+message("TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
+message("TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+message("TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
+message("TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
