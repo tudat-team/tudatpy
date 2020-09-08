@@ -5,12 +5,14 @@ import time
 import numpy as np
 from tudatpy import elements
 from tudatpy.kernel import constants
-from tudatpy.kernel import numerical_integrators
-from tudatpy.kernel import spice_interface
-from tudatpy.kernel import propagators
-from tudatpy.kernel import simulation_setup
+from tudatpy.kernel.math import numerical_integrators
+from tudatpy.kernel.interface import spice_interface
+from tudatpy.kernel.astro import propagators
+from tudatpy.kernel.simulation import environment_setup
+from tudatpy.kernel.simulation import propagation_setup
 
-def main():
+
+def main_tutorial_1():
     # Load spice kernels.
     spice_interface.load_standard_kernels()
 
@@ -30,29 +32,31 @@ def main():
     # Create body objects.
     bodies_to_create = ["Earth"]
 
-    body_settings = simulation_setup.get_default_body_settings(bodies_to_create)
+    body_settings = environment_setup.get_default_body_settings(
+        bodies_to_create)
 
-    body_settings["Earth"].ephemeris_settings = simulation_setup.ConstantEphemerisSettings(
+    body_settings["Earth"].ephemeris_settings = environment_setup.ConstantEphemerisSettings(
         np.zeros(6))
 
-    body_settings["Earth"].rotation_model_settings.reset_original_frame("ECLIPJ2000")
+    body_settings["Earth"].rotation_model_settings.reset_original_frame(
+        "ECLIPJ2000")
 
     # Create Earth Object.
-    bodies = simulation_setup.create_bodies(body_settings)
+    bodies = environment_setup.create_bodies(body_settings)
 
     ###########################################################################
     # CREATE VEHICLE ##########################################################
     ###########################################################################
 
     # Create vehicle objects.
-    bodies["Delfi-C3"] = simulation_setup.Body()
+    bodies["Delfi-C3"] = environment_setup.Body()
 
     ###########################################################################
     # FINALIZE BODIES #########################################################
     ###########################################################################
 
-    simulation_setup.set_global_frame_body_ephemerides(bodies, "SSB",
-                                                       "ECLIPJ2000")
+    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB",
+                                                        "ECLIPJ2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -66,14 +70,14 @@ def main():
 
     # Define accelerations acting on Delfi-C3.
     accelerations_of_delfi_c3 = dict(
-        Earth=[simulation_setup.Acceleration.point_mass_gravity()]
+        Earth=[propagation_setup.Acceleration.point_mass_gravity()]
     )
 
     # Create global accelerations dictionary.
     accelerations = {"Delfi-C3": accelerations_of_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = simulation_setup.create_acceleration_models_dict(
+    acceleration_models = propagation_setup.create_acceleration_models_dict(
         bodies, accelerations, bodies_to_propagate, central_bodies)
 
     ###########################################################################
@@ -88,31 +92,20 @@ def main():
     earth_gravitational_parameter = bodies[
         "Earth"].gravity_field_model.get_gravitational_parameter()
 
-    # LEGACY DESIGN.
-    # KEI = orbital_element_conversions.KeplerianElementIndices
-    # asterix_initial_state_in_keplerian_elements = np.zeros(6)
-    # kep_state = asterix_initial_state_in_keplerian_elements
-    # kep_state[int(KEI.semi_major_axis_index)] = 7500.0E3
-    # kep_state[int(KEI.eccentricity_index)] = 0.1
-    # kep_state[int(KEI.inclination_index)] = np.deg2rad(85.3)
-    # kep_state[int(KEI.argument_of_periapsis_index)] = np.deg2rad(235.7)
-    # kep_state[int(KEI.longitude_of_ascending_node_index)] = np.deg2rad(23.4)
-    # kep_state[int(KEI.true_anomaly_index)] = np.deg2rad(139.87)
-    # system_initial_state = corbital_element_conversions.onvert_keplerian_to_cartesian_elements(
-    #     kep_state, earth_gravitational_parameter)
 
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
         mu=earth_gravitational_parameter,
-        a=7500.0E3,
+        sma=7500.0E3,
         ecc=0.1,
         inc=np.deg2rad(85.3),
         raan=np.deg2rad(23.4),
         argp=np.deg2rad(235.7),
-        nu=np.deg2rad(139.87))
+        theta=np.deg2rad(139.87)
+    )
 
     # Create propagation settings.
-    propagator_settings = propagators.TranslationalStatePropagatorSettings(
+    propagator_settings = propagation_setup.TranslationalStatePropagatorSettings(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
@@ -132,7 +125,7 @@ def main():
 
     t0 = time.time()
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagators.SingleArcDynamicsSimulator(
+    dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings, True)
     result = dynamics_simulator.get_equations_of_motion_numerical_solution()
 
@@ -168,5 +161,41 @@ And the velocity vector of Delfi-C3 is [km]: \n{
     return 0
 
 
+def main_tutorial_2():
+
+
 if __name__ == "__main__":
-    main()
+    # import numpy as np
+    # from tudatpy.kernel.astro.two_body import LambertTargeterIzzo
+    # from tudatpy.kernel.astro.two_body import LambertTargeterGooding
+    # from tudatpy.kernel.constants import JULIAN_DAY
+    #
+    # from datetime import datetime
+    #
+    # tic = datetime.now()
+    #
+    # lambert1 = LambertTargeterIzzo(
+    #     departure_position=[8.13198928e+10, -1.16357658e+11, -5.04299080e+10],
+    #     arrival_position=[2.49345342e+10, -1.93910554e+11, -8.96297815e+10],
+    #     time_of_flight=600.0 * JULIAN_DAY,
+    #     gravitational_parameter=1.32712442099e+20
+    # )
+    #
+    # lambert2 = LambertTargeterGooding(
+    #     departure_position=[8.13198928e+10, -1.16357658e+11, -5.04299080e+10],
+    #     arrival_position=[2.49345342e+10, -1.93910554e+11, -8.96297815e+10],
+    #     time_of_flight=600.0 * JULIAN_DAY,
+    #     gravitational_parameter=1.32712442099e+20
+    # )
+    #
+    # v1_tudat, v2_tudat = lambert1.get_velocity_vectors()
+    # v1_tudat2, v2_tudat2 = lambert2.get_velocity_vectors()
+    #
+    # print(datetime.now() - tic)
+    # v1_poli = np.array([12.46726047, 28.34486658, 13.91571767]) * 1e3
+    # v2_poli = np.array([17.314996, 15.97016173, 8.36039313]) * 1e3
+    #
+    # print(v1_tudat, v1_poli)
+    # print(v2_tudat, v2_poli)
+    main_tutorial_1()
+    main_tutorial_2()

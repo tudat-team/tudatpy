@@ -1,21 +1,24 @@
-//
-// Created by ggarrett on 29-04-20.
-//
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rights reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
-#ifndef TUDATBUNDLE_EXPOSE_CONSTANTS_H
-#define TUDATBUNDLE_EXPOSE_CONSTANTS_H
+#ifndef TUDATPY_EXPOSE_CONSTANTS_H
+#define TUDATPY_EXPOSE_CONSTANTS_H
 
 #include <pybind11/pybind11.h>
-#include <pybind11/complex.h>
-
-#include "tudat/astro/basic_astro/celestialBodyConstants.h"
-#include "tudat/astro/basic_astro/physicalConstants.h"
-#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace py = pybind11;
 
 namespace tudatpy {
-    void expose_constants(py::module &m);
+
+void expose_constants(py::module &m);
+
 }
 
-#endif //TUDATBUNDLE_EXPOSE_CONSTANTS_H
+#endif//TUDATPY_EXPOSE_CONSTANTS_H

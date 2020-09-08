@@ -2,8 +2,8 @@
 // Created by ggarrett on 24-04-20.
 //
 
-#ifndef TUDAT_DOSTRINGS_H
-#define TUDAT_DOSTRINGS_H
+#ifndef TUDATPY_DOCSTRINGS_H
+#define TUDATPY_DOCSTRINGS_H
 
 #include <string>
 
@@ -22,4 +22,4 @@ namespace tudatpy {
 }
 
 
-#endif //TUDATBUNDLE_DOSTRINGS_H
+#endif //TUDATPY_DOCSTRINGS_H
