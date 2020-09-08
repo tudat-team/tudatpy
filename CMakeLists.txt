@@ -47,7 +47,7 @@ set(Tudat_DEFINITIONS "")
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 
-option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" ON)
+option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
 
 # Build option: include default data suite.
 #option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
