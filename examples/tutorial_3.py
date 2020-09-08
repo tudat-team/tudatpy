@@ -1,19 +1,15 @@
 ###############################################################################
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
+import time
 import numpy as np
 from tudatpy import elements
-from tudatpy import io
-from tudatpy import ephemerides
-from tudatpy import interpolators
-from tudatpy import numerical_integrators
-from tudatpy import spice_interface
-from tudatpy import basic_astrodynamics
-# from tudatpy import orbital_element_conversions # LEGACY MODULE
-from tudatpy import propagators
-from tudatpy import aerodynamics
-from tudatpy import simulation_setup
-from tudatpy import unit_tests
+from tudatpy.kernel import constants
+from tudatpy.kernel.math import numerical_integrators
+from tudatpy.kernel.interface import spice_interface
+from tudatpy.kernel.astro import propagators
+from tudatpy.kernel.simulation import environment_setup
+from tudatpy.kernel.simulation import propagation_setup
 
 
 def main():
@@ -35,22 +31,22 @@ def main():
 
     bodies_to_create = ["Earth"]
 
-    body_settings = simulation_setup.get_default_body_settings(bodies_to_create)
+    body_settings = environment_setup.get_default_body_settings(bodies_to_create)
 
-    body_settings["Earth"].ephemeris_settings = simulation_setup.ConstantEphemerisSettings(
+    body_settings["Earth"].ephemeris_settings = environment_setup.ConstantEphemerisSettings(
         np.zeros(6), "SSB", "J2000")
 
     body_settings["Earth"].rotation_model_settings.reset_original_frame("J2000")
 
     # Create Earth Object.
-    bodies = simulation_setup.create_bodies(body_settings)
+    bodies = environment_setup.create_bodies(body_settings)
 
     ###########################################################################
     # CREATE VEHICLE ##########################################################
     ###########################################################################
 
     # Create vehicle objects.
-    bodies["Apollo"] = simulation_setup.Body()
+    bodies["Apollo"] = environment_setup.Body()
 
     bodies["Apollo"].set_aerodynamic_coefficient_interface(unit_tests.get_apollo_coefficient_interface())
 
