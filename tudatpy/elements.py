@@ -1,5 +1,6 @@
-from tudatpy.kernel import orbital_element_conversions as _oec
+from .kernel.astro import conversion as _oec
 import numpy as np
+
 
 def spherical2cartesian(r,
                         lat,
@@ -90,7 +91,7 @@ def keplerian2cartesian(mu: float = None,
     _inc = inc if inc else kwargs.get("inclination")
     _raan = raan if raan else kwargs.get("right_ascension_of_the_ascending_node")
     _argp = argp if argp else kwargs.get("argument_of_periapsis")
-    _theta = argp if argp else kwargs.get("true_anomaly")
+    _theta = theta if theta else kwargs.get("true_anomaly")
     keplerian_idx = _oec.KeplerianElementIndices
     keplerian_state = np.zeros(6)
     keplerian_state[int(keplerian_idx.semi_major_axis_index)] = _sma

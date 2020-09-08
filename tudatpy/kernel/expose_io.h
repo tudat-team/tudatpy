@@ -2,8 +2,8 @@
 // Created by ggarrett on 29-04-20.
 //
 
-#ifndef TUDAT_EXPOSE_IO_H
-#define TUDAT_EXPOSE_IO_H
+#ifndef TUDATPY_EXPOSE_IO_H
+#define TUDATPY_EXPOSE_IO_H
 
 #include <pybind11/pybind11.h>
 
@@ -18,4 +18,4 @@ namespace tudatpy {
 }
 
 
-#endif //TUDAT_EXPOSE_IO_H
+#endif //TUDATPY_EXPOSE_IO_H
