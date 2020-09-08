@@ -7,6 +7,8 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 
+# TODO: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=26&view=logs&j=4b3757f9-99c5-5891-6c0c-93d7030cdf7d&t=f047df50-a233-5ae9-bf8f-c7dd8e5684ad -> https://stackoverflow.com/questions/36567072/why-do-i-get-ld-warning-direct-access-in-main-to-global-weak-symbol-in-this
+
 # Specify minimum cmake version required to compile Tudat.
 cmake_minimum_required(VERSION 3.3)
 
@@ -45,6 +47,8 @@ set(Tudat_DEFINITIONS "")
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 
+option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
+
 # Build option: include default data suite.
 #option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
 
@@ -75,19 +79,17 @@ option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
-message(TUDAT_BUILD_WITH_ESTIMATION_TOOLS=${TUDAT_BUILD_WITH_ESTIMATION_TOOLS})
-message(TUDAT_BUILD_WITH_SPICE_INTERFACE=${TUDAT_BUILD_WITH_SPICE_INTERFACE})
-
-message(******************** BUILD CONFIGURATION ********************)
-message("TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
-message("TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
-message("TUDAT_BUILD_WITH_ESTIMATION_TOOLS                     ${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
-message("TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BUILD_TUDAT_TUTORIALS}")
-message("TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BUILD_STATIC_LIBRARY}")
-message("TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
-message("TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
-message("TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
-message("TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
+message(STATUS "******************** BUILD CONFIGURATION ********************")
+message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
+message(STATUS "TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
+message(STATUS "TUDAT_BUILD_WITH_ESTIMATION_TOOLS                     ${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
+message(STATUS "TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BUILD_TUDAT_TUTORIALS}")
+message(STATUS "TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BUILD_STATIC_LIBRARY}")
+message(STATUS "TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
+message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
+message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
+message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
@@ -132,6 +134,27 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
+# Set required boost components.
+set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system regex date_time thread
+        serialization chrono atomic)
+
+# Download boost if option is used.
+if (TUDAT_DOWNLOAD_AND_BUILD_BOOST OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1))
+    # Set the required boost components (for tudat)
+    set(BoostComponents ${_TUDAT_REQUIRED_BOOST_LIBS})
+    # Pick a boost version
+    if (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
+        set(BoostVersion ${TUDAT_BOOST_VERSION})
+        set(BoostSHA1 ${TUDAT_BOOST_SHA1})
+    else ()
+        set(BoostVersion 1.67.0)
+        set(BoostSHA1 694ae3f4f899d1a80eb7a3b31b33be73c423c1ae)
+    endif ()
+    message(STATUS "Downloading Boost Version ${BoostVersion}")
+    include(cmake_modules/add_boost.cmake)
+    message(STATUS "Downloading Boost Version ${BoostVersion} - done")
+endif ()
+
 # Set cmake build-type. If it not supplied by the user (either directly as an argument of through
 # the "UserSettings.txt" file, the default built type is "Release".
 if ((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
@@ -145,11 +168,10 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-#if (TUDAT_CONDA_BUILD)
-message(STATUS "Building conda-build build of tudat.")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_CONDA_BUILD=${TUDAT_CONDA_BUILD} -D_GLIBCXX_USE_CXX11_ABI=0")
-#endif ()
+if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+endif ()
 
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)

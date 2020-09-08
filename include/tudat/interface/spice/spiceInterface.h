@@ -33,19 +33,16 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/io/basicInputOutput.h"
 
-extern "C"
-{
-    #include <cspice/SpiceUsr.h>
-    #include <cspice/SpiceZfc.h>
+extern "C" {
+#include <cspice/SpiceUsr.h>
+#include <cspice/SpiceZfc.h>
 }
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 
-namespace tudat
-{
+namespace tudat {
 
-namespace spice_interface
-{
+namespace spice_interface {
 
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 /*!
@@ -54,7 +51,7 @@ namespace spice_interface
  * \param julianDate Julian date that is to be converted to ephemeris time.
  * \return Ephemeris time calculated from Julian date.
  */
-double convertJulianDateToEphemerisTime( const double julianDate );
+double convertJulianDateToEphemerisTime(const double julianDate);
 
 //! Convert ephemeris time (equivalent to TDB) to a Julian date.
 /*!
@@ -63,7 +60,7 @@ double convertJulianDateToEphemerisTime( const double julianDate );
  * \param ephemerisTime Ephemeris time that is to be converted to Julian date.
  * \return Julian date calculated from ephemeris time.
  */
-double convertEphemerisTimeToJulianDate( const double ephemerisTime );
+double convertEphemerisTimeToJulianDate(const double ephemerisTime);
 
 //! Converts a date string to ephemeris time.
 /*!
@@ -73,7 +70,7 @@ double convertEphemerisTimeToJulianDate( const double ephemerisTime );
  *          for details on supported formats.
  * \return Ephemeris time corresponding to given dateString.
  */
-double convertDateStringToEphemerisTime( const std::string& dateString );
+double convertDateStringToEphemerisTime(const std::string &dateString);
 
 //! Get Cartesian state of a body, as observed from another body.
 /*!
@@ -101,9 +98,9 @@ double convertDateStringToEphemerisTime( const std::string& dateString );
  * \return Cartesian state vector (x,y,z, position+velocity).
  */
 Eigen::Vector6d getBodyCartesianStateAtEpoch(
-        const std::string& targetBodyName, const std::string& observerBodyName,
-        const std::string& referenceFrameName, const std::string& aberrationCorrections,
-        const double ephemerisTime );
+    const std::string &targetBodyName, const std::string &observerBodyName,
+    const std::string &referenceFrameName, const std::string &aberrationCorrections,
+    const double ephemerisTime);
 
 //! Get Cartesian position of a body, as observed from another body.
 /*!
@@ -130,11 +127,11 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch(
  *          of aberrationCorrections).
  * \return Cartesian position vector (x,y,z, position).
  */
-Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
-                                                 const std::string& observerBodyName,
-                                                 const std::string& referenceFrameName,
-                                                 const std::string& aberrationCorrections,
-                                                 const double ephemerisTime );
+Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyName,
+                                                const std::string &observerBodyName,
+                                                const std::string &referenceFrameName,
+                                                const std::string &aberrationCorrections,
+                                                const double ephemerisTime);
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 /*!
@@ -145,7 +142,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
  * @param tle Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
  * @return Cartesian state vector (x, y, z, position + velocity).
  */
-Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< ephemerides::Tle > tle );
+Eigen::Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle);
 
 //! Compute quaternion of rotation between two frames.
 /*!
@@ -157,9 +154,9 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
  * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
  * \return Rotation quaternion from original to new frame at given time.
  */
-Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& originalFrame,
-                                                           const std::string& newFrame,
-                                                           const double ephemerisTime );
+Eigen::Quaterniond computeRotationQuaternionBetweenFrames(const std::string &originalFrame,
+                                                          const std::string &newFrame,
+                                                          const double ephemerisTime);
 
 //! Computes time derivative of rotation matrix between two frames.
 /*!
@@ -171,9 +168,9 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& or
  * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
  * \return Time derivative of rotation matrix from original to new frame at given time.
  */
-Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string& originalFrame,
-                                                              const std::string& newFrame,
-                                                              const double ephemerisTime );
+Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &originalFrame,
+                                                             const std::string &newFrame,
+                                                             const double ephemerisTime);
 
 //! Computes the angular velocity of one frame w.r.t. to another frame.
 /*!
@@ -186,12 +183,12 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string&
  * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
  * \return Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
  */
-Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string& originalFrame,
-                                                                const std::string& newFrame,
-                                                                const double ephemerisTime );
+Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string &originalFrame,
+                                                               const std::string &newFrame,
+                                                               const double ephemerisTime);
 
-std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
-        const std::string& originalFrame, const std::string& newFrame, const double ephemerisTime );
+std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
+    const std::string &originalFrame, const std::string &newFrame, const double ephemerisTime);
 
 //! Get property of a body from Spice.
 /*!
@@ -204,9 +201,9 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
  *          gravitational parameter, 3 for tri-axial ellipsoid principal axes).
  * \return Property value(s) expressed in an STL vector of doubles.
  */
-std::vector< double > getBodyProperties( const std::string& body,
-                                         const std::string& property,
-                                         const int maximumNumberOfValues = 1 );
+std::vector<double> getBodyProperties(const std::string &body,
+                                      const std::string &property,
+                                      const int maximumNumberOfValues = 1);
 
 //! Get gravitational parameter of a body.
 /*!
@@ -215,7 +212,7 @@ std::vector< double > getBodyProperties( const std::string& body,
  * \param body Name of the body of which the parameter is to be retrieved.
  * \return Gravitational parameter of requested body.
  */
-double getBodyGravitationalParameter( const std::string& body );
+double getBodyGravitationalParameter(const std::string &body);
 
 //! Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
 /*!
@@ -225,7 +222,7 @@ double getBodyGravitationalParameter( const std::string& body );
  * \param body Name of the body of which the average radius is to be retrieved.
  * \return Arithmetic mean of principal axes of tri-axial ellipsoid shape model of body.
  */
-double getAverageRadius( const std::string& body );
+double getAverageRadius(const std::string &body);
 
 //! Convert a body name to its NAIF identification number.
 /*!
@@ -235,7 +232,7 @@ double getAverageRadius( const std::string& body );
  * \param bodyName Name of the body for which NAIF id is to be retrieved.
  * \return NAIF id number for the body with bodyName.
  */
-int convertBodyNameToNaifId( const std::string& bodyName );
+int convertBodyNameToNaifId(const std::string &bodyName);
 
 //! Check if a certain property of a body is in the kernel pool.
 /*!
@@ -247,7 +244,7 @@ int convertBodyNameToNaifId( const std::string& bodyName );
  *          sensitive.
  * \return True if property is in pool, false if not.
  */
-bool checkBodyPropertyInKernelPool( const std::string& bodyName, const std::string& bodyProperty );
+bool checkBodyPropertyInKernelPool(const std::string &bodyName, const std::string &bodyProperty);
 
 //! Load a Spice kernel.
 /*!
@@ -257,7 +254,7 @@ bool checkBodyPropertyInKernelPool( const std::string& bodyName, const std::stri
  * documentation, kernel section. Wrapper for the furnsh_c function.
  * \param fileName The file name of the Kernel to be loaded.
  */
-void loadSpiceKernelInTudat( const std::string& fileName );
+void loadSpiceKernelInTudat(const std::string &fileName);
 
 //! Get the amount of loaded Spice kernels.
 /*!
@@ -265,19 +262,25 @@ void loadSpiceKernelInTudat( const std::string& fileName );
  * same kernel can be loaded multple times. Wrapper for the ktotal_c function.
  * \return Total amount of loaded Spice kernels.
  */
-int getTotalCountOfKernelsLoaded( );
+int getTotalCountOfKernelsLoaded();
 
 //! Clear all Spice kernels.
 /*!
  * This function removes all Spice kernels from the kernel pool. Wrapper for the kclear_c function.
  */
-void clearSpiceKernels( );
+void clearSpiceKernels();
 
+//! Return all standard Spice kernels.
+/*!
+ * Returns string vector of all `tudat` standard spice kernels.
+ */
+std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
+                                                     std::vector<std::string>());
 
-void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels =
-        std::vector< std::string >( ));
+void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
+                                  std::vector<std::string>());
 
-} // namespace spice_interface
-} // namespace tudat
+}// namespace spice_interface
+}// namespace tudat
 
-#endif // TUDAT_SPICE_INTERFACE_H
+#endif// TUDAT_SPICE_INTERFACE_H

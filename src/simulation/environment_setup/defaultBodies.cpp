@@ -8,6 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define DEFAULT_MERCURY_GRAVITY_FIELD_SETTINGS
+#define DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 )
+#define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 )
+#define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
+
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -65,15 +70,15 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 {
     if( bodyName == "Earth" )
     {
-        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 );
+        return DEFAULT_EARTH_GRAVITY_FIELD_SETTINGS;
     }
     else if( bodyName == "Moon" )
     {
-        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 );
+        return DEFAULT_MOON_GRAVITY_FIELD_SETTINGS;
     }
     else if( bodyName == "Mars" )
     {
-        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
+        return DEFAULT_MARS_GRAVITY_FIELD_SETTINGS;
     }
     else if( bodyName == "Jupiter" )
     {

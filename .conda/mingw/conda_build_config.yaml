@@ -1,0 +1,10 @@
+channel_sources:
+  - msys2, tudat-team, conda-forge    # [win]
+  - tudat-team, conda-forge           # [not win]
+channel_targets:
+  - tudat-team main
+boost_cpp:
+  - 1.67.0
+tudat_resources:
+  - 1.1.2
+channel_priority: strict
