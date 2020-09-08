@@ -21,7 +21,7 @@ function(TUDAT_ADD_EXECUTABLE arg1 arg2)
             $<INSTALL_INTERFACE:include>)
 
     target_include_directories("${target_name}"
-            SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
+            SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}" "${TudatResources_INCLUDE_DIRS}"
             )
 
     message(STATUS LIB:BOOST:${Boost_LIBRARIES})

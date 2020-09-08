@@ -1,3 +1,3 @@
 # yolo
 
-You only link once.
+You only link once. A parody of YACMA.
