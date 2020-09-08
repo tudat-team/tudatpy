@@ -47,7 +47,7 @@ set(Tudat_DEFINITIONS "")
 # Build option: enable the test suite.
 option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 
-option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
+option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" ON)
 
 # Build option: include default data suite.
 #option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
@@ -71,7 +71,7 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
@@ -138,8 +138,14 @@ endif ()
 set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system regex date_time thread
         serialization chrono atomic)
 
+if (TUDAT_BUILD_TESTS)
+    # Add the unit test framework, if needed.
+    list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
+endif ()
+
 # Download boost if option is used.
 if (TUDAT_DOWNLOAD_AND_BUILD_BOOST OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1))
+    set(TUDAT_DOWNLOAD_AND_BUILD_BOOST ON)
     # Set the required boost components (for tudat)
     set(BoostComponents ${_TUDAT_REQUIRED_BOOST_LIBS})
     # Pick a boost version
@@ -153,6 +159,10 @@ if (TUDAT_DOWNLOAD_AND_BUILD_BOOST OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
     message(STATUS "Downloading Boost Version ${BoostVersion}")
     include(cmake_modules/add_boost.cmake)
     message(STATUS "Downloading Boost Version ${BoostVersion} - done")
+#    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+#    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
+#    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+#    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
 endif ()
 
 # Set cmake build-type. If it not supplied by the user (either directly as an argument of through
@@ -175,6 +185,7 @@ endif ()
 
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
+message(${TudatResources_INCLUDE_DIRS})
 include_directories(TudatResources_INCLUDE_DIRS)
 
 # Find Eigen3 library on local system and include directories.
@@ -203,10 +214,18 @@ endif ()
 
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
-if (TUDAT_BUILD_TESTS)
-    set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
+
+if (TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+    include(TudatFindBoost)
+#    # Configure Boost libraries.
+#    set(Boost_USE_STATIC_LIBS ON)
+#    set(Boost_USE_MULTITHREADED ON)
+#    set(Boost_USE_STATIC_RUNTIME ON)
+#    # Find Boost libraries on local system.
+#    find_package(Boost ${BoostVersion} COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS} REQUIRED)
+else ()
+    include(TudatFindBoost)
 endif ()
-include(TudatFindBoost)
 if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()

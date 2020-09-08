@@ -1,78 +1,29 @@
 include(CMakeParseArguments)
 
 # TODO: remove this: all tests shoulld be run, if some are omitted, a warning/error should at least be printed
-set(TESTS_REQUIRING_TEST_DATA
-        # The mysterious failures
-#        test_basic_astro_EmpiricalAcceleration
-#        test_earth_orientation_EarthOrientationCalculator
-#        test_earth_orientation_EopReader
-#        test_earth_orientation_PolarMotionCalculator
-#        test_earth_orientation_TimeScaleConverter
-#        test_earth_orientation_ShortPeriodEopCorrections
-#        test_electromagnetism_PanelledRadiationPressure
+if (TUDAT_SKIP_JSON_TESTS)
+    set(TEST_TO_BE_SKIPPED
+            test_json_Acceleration
+            test_json_Aerodynamics
+            test_json_Body
+            test_json_Ephemeris
+            test_json_GroundStation
+            test_json_Interpolation
+            test_json_Propagator
+            test_json_SimulationSingleSatellite
+            test_json_SimulationSinglePerturbedSatellite
+            test_json_SimulationInnerSolarSystem
+            test_json_SimulationGalileoConstellation
+            test_json_SimulationThrustAlongVelocityVector
+            test_json_SimulationThrustAccelerationFromFile
+            test_json_State
+            test_json_Thrust
+            )
+else ()
+    set(TEST_TO_BE_SKIPPED
+            )
+endif ()
 
-        # SPICE(FILENAMETOOLONG) --
-        #
-        #  Input file name </home/ggarrett/miniconda3/conda-bld/tudat_1592845536964/_h_env
-        #  _placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold
-        #  _placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold
-        #  _placehold_placehold_placehold_pl/resource/spice_kernels/pck00010.tpc> has
-        #  length 291 characters. The limit on the length of file names stored by FURNSH
-        #  is 255 characters.
-        #
-        #  A traceback follows.  The name of the highest level module is first.
-        #  furnsh_c --> FURNSH
-#        test_aerodynamics_AerodynamicMomentAndAerodynamicForce
-#        test_aerodynamics_ControlSurfaceIncrements
-#        test_aerodynamics_AerodynamicCoefficientsFromFile
-#        test_aerodynamics_WindModel
-#        test_spice_SpiceInterface
-#        test_simulation_EnvironmentModelSetup
-#        test_simulation_AccelerationModelSetup
-
-        # Fails remotely
-        #        test_aerodynamics_AerodynamicMomentAndAerodynamicForce
-        #        test_aerodynamics_TabulatedAtmosphere
-        #        test_aerodynamics_ControlSurfaceIncrements
-        #        test_aerodynamics_WindModel
-        #        test_ephemerides_ApproximatePlanetPositions
-        #        test_ephemerides_TabulatedEphemeris
-        #        test_spice_SpiceInterface
-        #        test_simulation_EnvironmentModelSetup
-        #        test_simulation_AccelerationModelSetup
-        #        test_io_BasicInputOutput
-        #        # Fails locally
-        #        test_aerodynamics_AerodynamicCoefficientsFromFile
-        #        test_basic_astro_EmpiricalAcceleration
-        #        test_earth_orientation_EarthOrientationCalculator
-        #        test_earth_orientation_EopReader
-        #        test_earth_orientation_PolarMotionCalculator
-        #        test_earth_orientation_TimeScaleConverter
-        #        test_earth_orientation_ShortPeriodEopCorrections
-        #        test_electromagnetism_PanelledRadiationPressure
-        #        test_interpolators_CubicSplineInterpolator
-        #        test_interpolators_LinearInterpolator
-        #        test_interpolators_MultiLinearInterpolator
-        #        test_integrators_EulerIntegrator
-        #        test_integrators_RungeKutta4Integrator
-        #        test_integrators_RungeKuttaFehlberg45Integrator
-        #        test_integrators_RungeKuttaFehlberg78Integrator
-        #        test_integrators_RungeKutta87DormandPrinceIntegrator
-        #        test_quadrature_GaussianQuadrature
-        #        test_io_MapTextFileReader
-        #        test_io_MatrixTextFileReader
-
-        # HERE
-        #        test_io_TwoLineElementsTextFileReader
-        #        test_io_MissileDatcomReader
-        #        test_io_MissileDatcomData
-        #        test_io_DictionaryInputSystem
-        #        test_io_BasicInputOutput
-
-        #        test_io_MultiArrayReader
-        #        test_io_MultiArrayWriter
-        #        test_io_AerodynamicCoefficientReader
-        )
 
 function("TUDAT_ADD_TEST_CASE" arg1)
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
@@ -90,7 +41,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
     get_filename_component(dirname ${CMAKE_CURRENT_SOURCE_DIR} NAME)
     set(target_name "test_${dirname}_${arg1}")
 
-    if (${target_name} IN_LIST TESTS_REQUIRING_TEST_DATA)
+    if (${target_name} IN_LIST TEST_TO_BE_SKIPPED)
 
     else ()
         # Add executable.
@@ -111,7 +62,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
                 )                           # Installed headers
 
         target_include_directories("${target_name}"
-                SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
+                SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}" "${TudatResources_INCLUDE_DIRS}"
                 )
 
         target_link_libraries("${target_name}"

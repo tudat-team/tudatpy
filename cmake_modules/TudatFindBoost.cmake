@@ -7,11 +7,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} QUIET REQUIRED)
 
-# Add the unit test framework, if needed.
-if(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK)
-    list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
-endif()
-
 if(_TUDAT_FIND_BOOST_PYTHON)
     # NOTE: since Boost 1.67, the naming of the Boost.Python library has changed to include the
     # major and minor python version as a suffix. See the release notes:
