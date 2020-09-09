@@ -92,7 +92,6 @@ def main_tutorial_1():
     earth_gravitational_parameter = bodies[
         "Earth"].gravity_field_model.get_gravitational_parameter()
 
-
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
         mu=earth_gravitational_parameter,
@@ -161,7 +160,7 @@ And the velocity vector of Delfi-C3 is [km]: \n{
     return 0
 
 
-def main_tutorial_2():
+# def main_tutorial_2():
 
 
 if __name__ == "__main__":
@@ -199,3 +198,4 @@ if __name__ == "__main__":
     # print(v2_tudat, v2_poli)
     main_tutorial_1()
     main_tutorial_2()
+    pass
