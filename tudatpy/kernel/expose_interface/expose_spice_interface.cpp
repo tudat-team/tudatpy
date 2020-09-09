@@ -13,6 +13,7 @@
 #include "../docstrings.h"
 #include "tudat/interface/spice.h"
 
+#include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -30,25 +31,34 @@ void expose_spice_interface(py::module &m) {
         py::arg("julian_date"),
         "Convert a Julian date to ephemeris time (equivalent to TDB in Spice).");
 
-  m.def("jd2tdb", m.attr("convert_julian_date_to_ephemeris_time"));
+//  m.def("jd2tdb", m.attr("convert_julian_date_to_ephemeris_time"));
 
   m.def("convert_ephemeris_time_to_julian_date",
         &tudat::spice_interface::convertEphemerisTimeToJulianDate,
         py::arg("ephemeris_time"),
         "Convert ephemeris time (equivalent to TDB) to a Julian date.");
 
-  m.def("tdb2jd", m.attr("convert_ephemeris_time_to_julian_date"));
+//  m.def("tdb2jd", m.attr("convert_ephemeris_time_to_julian_date"));
 
   m.def("convert_date_string_to_ephemeris_time",
         &tudat::spice_interface::convertDateStringToEphemerisTime,
         py::arg("date_string"),
         "Converts a date string to ephemeris time.");
 
-  m.def("dstr2jd", m.attr("convert_date_string_to_ephemeris_time"));
+//  m.def("dstr2jd", m.attr("convert_date_string_to_ephemeris_time"));
 
   // positional state related
   m.def("get_body_cartesian_position_at_epoch",
         &tudat::spice_interface::getBodyCartesianPositionAtEpoch,
+        py::arg("target_body_name"),
+        py::arg("observer_body_name"),
+        py::arg("reference_frame_name"),
+        py::arg("aberration_corrections"),
+        py::arg("ephemeris_time"),
+        "Get Cartesian position of a body, as observed from another body.");
+
+  m.def("get_body_cartesian_state_at_epoch",
+        &tudat::spice_interface::getBodyCartesianStateAtEpoch,
         py::arg("target_body_name"),
         py::arg("observer_body_name"),
         py::arg("reference_frame_name"),

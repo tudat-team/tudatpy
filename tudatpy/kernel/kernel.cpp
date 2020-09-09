@@ -31,13 +31,13 @@ PYBIND11_MODULE(kernel, m) {
   auto math = m.def_submodule("math");
   tudatpy::expose_math(math);
 
-  // interface module
-  auto interface = m.def_submodule("interface");
-  tudatpy::expose_interface(interface);
-
   // astro module
   auto astro = m.def_submodule("astro");
   tudatpy::expose_astro(astro);
+
+  // interface module
+  auto interface = m.def_submodule("interface");
+  tudatpy::expose_interface(interface);
 
   // constants module
   auto constants = m.def_submodule("constants");
