@@ -118,7 +118,7 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
-     message(STATUS "Using msvc compiler.")
+     message(STATUS "Using MSVC compiler.")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      # Because we are using static boost libraries, with static runtime, we need to force MSVC to
      # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace).

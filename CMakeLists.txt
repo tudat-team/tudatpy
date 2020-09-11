@@ -159,10 +159,10 @@ if (TUDAT_DOWNLOAD_AND_BUILD_BOOST OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
     message(STATUS "Downloading Boost Version ${BoostVersion}")
     include(cmake_modules/add_boost.cmake)
     message(STATUS "Downloading Boost Version ${BoostVersion} - done")
-#    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-#    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
-#    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-#    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
+    #    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
 endif ()
 
 # Set cmake build-type. If it not supplied by the user (either directly as an argument of through
@@ -179,8 +179,12 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 include(compiler)
 
 if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    if (Boost_MAJOR LESS_EQUAL 1)
+        if (Boost_MINOR LESS_EQUAL 67)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+        endif ()
+    endif ()
 endif ()
 
 # Get tudat resource manager dependency.
@@ -217,12 +221,12 @@ endif ()
 
 if (TUDAT_DOWNLOAD_AND_BUILD_BOOST)
     include(TudatFindBoost)
-#    # Configure Boost libraries.
-#    set(Boost_USE_STATIC_LIBS ON)
-#    set(Boost_USE_MULTITHREADED ON)
-#    set(Boost_USE_STATIC_RUNTIME ON)
-#    # Find Boost libraries on local system.
-#    find_package(Boost ${BoostVersion} COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS} REQUIRED)
+    #    # Configure Boost libraries.
+    #    set(Boost_USE_STATIC_LIBS ON)
+    #    set(Boost_USE_MULTITHREADED ON)
+    #    set(Boost_USE_STATIC_RUNTIME ON)
+    #    # Find Boost libraries on local system.
+    #    find_package(Boost ${BoostVersion} COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS} REQUIRED)
 else ()
     include(TudatFindBoost)
 endif ()
