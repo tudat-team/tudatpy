@@ -118,6 +118,7 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
+     add_definitions( "-D_ENABLE_EXTENDED_ALIGNED_STORAGE" )
      message(STATUS "Using MSVC compiler.")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
