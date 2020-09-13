@@ -73,34 +73,19 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
 
-# Build pagmo-dependent code
-option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
-
 # Build extended precision propagation tools.
 option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 
-message(STATUS "******************** BUILD CONFIGURATION ********************")
-message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
-message(STATUS "TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")
-message(STATUS "TUDAT_BUILD_WITH_ESTIMATION_TOOLS                     ${TUDAT_BUILD_WITH_ESTIMATION_TOOLS}")
-message(STATUS "TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BUILD_TUDAT_TUTORIALS}")
-message(STATUS "TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BUILD_STATIC_LIBRARY}")
-message(STATUS "TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
-message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
-message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
-message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
-message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
 # +============================================================================
-# TODO: Consider if this can work with <tudat/paths.hpp> going forward.
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
 set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data/" CACHE PATH "Installation directory for data files")
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/" CACHE PATH "Installation directory for man documentation")
-#set(INSTALL_TESTS_DIR "${CMAKE_INSTALL_PREFIX}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
+set(INSTALL_TESTS_DIR "${CMAKE_BINARY_DIR}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
 set(INSTALL_CMAKE_DIR "${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME_LOWER}" CACHE PATH "Installation directory for cmake config files")
 
 # Make relative paths absolute (needed later on)
@@ -175,16 +160,13 @@ endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
+
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
 if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
-    if (Boost_MAJOR LESS_EQUAL 1)
-        if (Boost_MINOR LESS_EQUAL 67)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
-        endif ()
-    endif ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
 endif ()
 
 # Get tudat resource manager dependency.
@@ -199,25 +181,13 @@ if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
-
-# Sofa dependency if in build settings.
-if (TUDAT_BUILD_WITH_PAGMO)
-    #
-    add_definitions(-DTUDAT_BUILD_WITH_PAGMO1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(Pagmo REQUIRED 2.15)
-    elseif (NOT ${TUDAT_BUNDLE_BUILD})
-        find_package(Pagmo REQUIRED 2.15)
-    else ()
-        set(Pagmo_INCLUDE_DIRS ${Pagmo_BUILD_INCLUDE_DIRS})
-    endif ()
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_PAGMO=0)
-endif ()
-
-
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
+if (TUDAT_BUILD_TESTS)
+    set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
+endif ()
+include(TudatFindBoost)
+#include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
 
 if (TUDAT_DOWNLOAD_AND_BUILD_BOOST)
     include(TudatFindBoost)
@@ -252,10 +222,8 @@ else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
-
 # TODO: add NRLMSISE back in
 add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
-
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
@@ -299,6 +267,7 @@ add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(examples)
+
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests)
@@ -403,3 +372,4 @@ unset(RELATIVE_INSTALL_DATA_DIR)
 unset(RELATIVE_INSTALL_MAN_DIR)
 unset(RELATIVE_INSTALL_TESTS_DIR)
 unset(RELATIVE_INSTALL_CMAKE_DIR)
+
