@@ -113,23 +113,35 @@
          # MinGW gives some c11plus.xe out of memory messages:
          # http://sourceforge.net/p/mingw-w64/mailman/message/33182613/
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrack-macro-expansion=0")
-#         set(CMAKE_EXE_LINKER_FLAGS "-Wl,--large-address-aware")
+         #         set(CMAKE_EXE_LINKER_FLAGS "-Wl,--large-address-aware")
      endif ()
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
      message(STATUS "Using MSVC compiler.")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
-     # Because we are using static boost libraries, with static runtime, we need to force MSVC to
-     # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace).
-     foreach (flag_var
-             CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-             CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-         # Find all dynamic runtime (MD) references and replace with static (MT)
-         if (${flag_var} MATCHES "/MD")
-             string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-         endif (${flag_var} MATCHES "/MD")
-     endforeach (flag_var)
+     if (TUDAT_FORCE_DYNAMIC_RUNTIME)
+         # This is needed for conda builds, as the prebuilt libraries are MD.
+         foreach (flag_var
+                 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+                 CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+             # Find all dynamic runtime (MD) references and replace with static (MT)
+             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
+             message(STATUS "Forcing MD_DynamicRuntime on MSVC")
+         endforeach (flag_var)
+     else ()
+         # The following applied to legacy Tudat.
+         # Because we are using static boost libraries, with static runtime, we need to force MSVC to
+         # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace).
+         foreach (flag_var
+                 CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+                 CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+             # Find all dynamic runtime (MD) references and replace with static (MT)
+             if (${flag_var} MATCHES "/MD")
+                 string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+             endif (${flag_var} MATCHES "/MD")
+         endforeach (flag_var)
+     endif ()
      if (MSVC_VERSION GREATER 1500)
          # Multiprocessor support during compilation
          add_definitions("/MP")
