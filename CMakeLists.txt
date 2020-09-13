@@ -7,8 +7,6 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 
-# TODO: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=26&view=logs&j=4b3757f9-99c5-5891-6c0c-93d7030cdf7d&t=f047df50-a233-5ae9-bf8f-c7dd8e5684ad -> https://stackoverflow.com/questions/36567072/why-do-i-get-ld-warning-direct-access-in-main-to-global-weak-symbol-in-this
-
 # Specify minimum cmake version required to compile Tudat.
 cmake_minimum_required(VERSION 3.3)
 
@@ -164,10 +162,23 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#endif ()
+
+if (_GLIBCXX_USE_CXX11_ABI)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+    message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=${D_GLIBCXX_USE_CXX11_ABI} added to CMAKE_CXX_FLAGS!")
 endif ()
+#if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+#    if (Boost_MAJOR LESS_EQUAL 1)
+#        if (Boost_MINOR LESS 67)
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#        endif ()
+#    endif ()
+#endif ()
 
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
