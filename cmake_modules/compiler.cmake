@@ -76,7 +76,7 @@
      elseif (NOT WIN32)
          set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libstdc++")
      else()
-         set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11")
+         set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -Wno-unused-result")
      endif ()
      set(CMAKE_CXX_FLAGS_DEBUG "-g")
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
