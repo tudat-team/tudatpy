@@ -62,6 +62,9 @@
  # Set the compile flags
  if (TUDAT_BUILD_CLANG)
      add_compile_definitions(TUDAT_BUILD_CLANG)
+     if(WIN32)
+      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+     endif()
      message(STATUS "Using clang compiler.")
      set(CMAKE_C_FLAGS "-Wall -std=c11")
      set(CMAKE_C_FLAGS_DEBUG "-g")
