@@ -209,6 +209,9 @@
                      " -Wno-c++98-compat"
                      " -Wno-shorten-64-to-32"
                      " -Wno-c++98-compat-pedantic"
+                     " -Wno-used-but-marked-unused" # : boost unit tests. should be reinabled and sorted out.
+                     " -Wno-newline-eof" # : end of line newline. should be reinabled and so.
+                     " -Wno-return-std-move-in-c++11" # :
                      )
              string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
              #endif ()
