@@ -207,6 +207,8 @@
                      " -Wno-exit-time-destructors"
                      " -Wno-undefined-func-template"
                      " -Wno-c++98-compat"
+                     " -Wno-shorten-64-to-32"
+                     " -Wno-c++98-compat-pedantic"
                      )
              string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
              #endif ()
