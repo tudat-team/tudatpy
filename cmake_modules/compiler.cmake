@@ -148,7 +148,7 @@
                  CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
              # Find all dynamic runtime (MD) references and replace with static (MT)
              if (${flag_var} MATCHES "/MD")
-                 string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+                 #string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
              endif (${flag_var} MATCHES "/MD")
          endforeach (flag_var)
      endif ()
@@ -209,13 +209,11 @@
                  "C3280" # Declaration hides variable
                  )
      endif ()
-     string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR
-             ${MSVC_DISABLED_WARNINGS_LIST})
      if (NOT CLANG)
+         string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
          string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
      endif ()
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
-
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
      add_definitions(${MSVC_DISABLED_WARNINGS_STR})
  endif ()
