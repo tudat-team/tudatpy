@@ -12,17 +12,38 @@
  #         Software Competence Center Hagenberg GmbH (SCCH)
  #         <thomas.natschlaeger@scch.at>, <office@scch.at>
 
+
+ ####################
+ # Debug information
+ ####################
+ message("")
+ message("*** COMPILER CONFIGURATION ***")
+ message("")
+ message(STATUS "CMAKE_C_COMPILER:   ${CMAKE_CXX_COMPILER}")
+ message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+
  add_compile_definitions(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+
  # Provide options to force building with GNU or Clang, if the standard compiler is not desired
  option(USE_CLANG "Force build with clang (if gcc is standard)" OFF) # OFF is the default
  option(USE_GNU "Force build with gcc (if clang is standard)" OFF) # OFF is the default
- set(CLANG_C_COMPILER "/usr/bin/clang" CACHE FILEPATH "Path to clang C compiler")
- set(CLANG_CXX_COMPILER "/usr/bin/clang++" CACHE FILEPATH "Path to clang C++ compiler")
- set(GNU_C_COMPILER "/usr/bin/gcc" CACHE FILEPATH "Path to C compiler")
- set(GNU_CXX_COMPILER "/usr/bin/g++" CACHE FILEPATH "Path to C++ compiler")
+
+ if (UNIX AND NOT APPLE)
+     set(CLANG_C_COMPILER "/usr/bin/clang" CACHE FILEPATH "Path to clang C compiler")
+     set(CLANG_CXX_COMPILER "/usr/bin/clang++" CACHE FILEPATH "Path to clang C++ compiler")
+     set(GNU_C_COMPILER "/usr/bin/gcc" CACHE FILEPATH "Path to C compiler")
+     set(GNU_CXX_COMPILER "/usr/bin/g++" CACHE FILEPATH "Path to C++ compiler")
+ elseif (APPLE)
+     # ...
+ elseif (WIN32)
+     # ...
+ endif ()
+ message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
 
  # Set the platform type and override compiler if necessary
  if (USE_CLANG OR USE_GNU)
+     message(STATUS "Forcing compiler selection... I hope you know what you're doing.")
+     message(AUTHOR_WARNING "This attempts to guess the CMAKE_C(XX)_COMPILER. Other Compiler variables are not deduced.")
      message(STATUS "Guessing compiler executables:")
      if (USE_GNU)
          message(STATUS "  GNU C     : ${GNU_C_COMPILER}")
@@ -61,30 +82,136 @@
 
  # Set the compile flags
  if (TUDAT_BUILD_CLANG)
+     # add compile definition and print status
      add_compile_definitions(TUDAT_BUILD_CLANG)
-     if(WIN32)
-      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_MD")
-     endif()
      message(STATUS "Using clang compiler.")
+
+     # set default cmake c flags for clang
      set(CMAKE_C_FLAGS "-Wall -std=c11")
      set(CMAKE_C_FLAGS_DEBUG "-g")
      set(CMAKE_C_FLAGS_MINSIZEREL "-Os -DNDEBUG")
      set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
      set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+
      if (APPLE)
-         set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libc++")
-     elseif (NOT WIN32)
-         set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libstdc++")
-     else() 
-         # this implies clang on windows
-         set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -Wno-unused-result")
-         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS} /MD /EHsc /W3 /FC /Ox -D_SCL_SECURE_NO_WARNINGS")
-         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
+         # standard apple clang compiler flags
+         set(CMAKE_CXX_FLAGS
+                 "${CMAKE_CXX_FLAGS}"
+                 " -std=c++11"
+                 " -stdlib=libc++"
+                 " -Wall "
+                 " -Wextra"
+                 )
+         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+         # disabled warnings for warnings coming from legacy tudat code
+         set(CMAKE_CXX_FLAGS
+                 "${CMAKE_CXX_FLAGS}"
+                 " -Wno-unused-parameter"
+                 " -Wno-unused-variable"
+                 )
+         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+     elseif (UNIX AND NOT APPLE)
+         # standard linux clang compiler flags
+         set(CMAKE_CXX_FLAGS
+                 "${CMAKE_CXX_FLAGS}"
+                 " -std=c++11"
+                 " -stdlib=libstdc++"
+                 " -Wall"
+                 " -Wextra"
+                 " -Wno-unused-parameter"
+                 " -Wno-unused-variable")
+         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+     elseif (WIN32)
+         # fixes an issue [reference this]
+         add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+
+         # standard windows clang c++ compiler flags
+         set(CMAKE_CXX_FLAGS
+                 "${CMAKE_CXX_FLAGS}"
+                 " -std=c++11"
+                 " -Wall"
+                 " -Wextra"
+                 " -Wno-unused-parameter"
+                 " -Wno-unused-variable"
+                 " -Wno-unused-result"
+                 )
+         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+         # if the clang msvc-like command line interface is being used
+         if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+             set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
+                     " /MD"
+                     " /EHsc"
+                     " /W3"
+                     " /FC"
+                     " /Ox"
+                     " -D_SCL_SECURE_NO_WARNINGS"
+                     " ${CXXFLAGS}"
+                     )
+             string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+             # clang-cl 9 doesn't properly implement an alternative for -isystem <dir>
+             # for system headers, all warnings incurred by eigen must be silenced to
+             # make the build log readable.
+             if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 12.0.0)
+                 set(CMAKE_CXX_FLAGS
+                         " -Wno-float-conversion"
+                         " -Wno-unreachable-code-return"
+                         " -Wno-unused-template"
+                         " -Wno-sign-conversion"
+                         " -Wno-undef"
+                         " -Wno-unused-result"
+                         " -Wno-documentation-unknown-command"
+                         " -Wno-missing-prototypes"
+                         " -Wno-missing-noreturn"
+                         " -Wno-deprecated-declarations"
+                         " -Wno-implicit-int-conversion"
+                         " -Wno-shadow-field-in-constructor"
+                         " -Wno-shadow-field"
+                         " -Wno-switch-enum"
+                         " -Wno-cast-align"
+                         " -Wno-float-equal"
+                         " -Wno-deprecated-dynamic-exception-spec"
+                         " -Wno-header-hygiene"
+                         " -Wno-zero-as-null-pointer-constant"
+                         " -Wno-vla-extension"
+                         " -Wno-old-style-cast"
+                         " -Wno-disabled-macro-expansion"
+                         " -Wno-covered-switch-default"
+                         " -Wno-range-loop-analysis"
+                         " -Wno-shadow"
+                         " -Wno-reserved-id-macro"
+                         " -Wno-float-overflow-conversion"
+                         " -Wno-unknown-argument"
+                         " -Wno-extra-semi"
+                         " -Wno-global-constructors"
+                         " -Wno-extra-semi-stmt"
+                         " -Wno-documentation-deprecated-sync"
+                         " -Wno-unused-variable"
+                         " -Wno-shadow-uncaptured-local"
+                         " -Wno-documentation"
+                         " -Wno-deprecated"
+                         " -Wno-unused-macros"
+                         " -Wno-vla"
+                         " -Wno-unreachable-code-break"
+                         " -Wno-implicit-fallthrough"
+                         " -Wno-conditional-uninitialized"
+                         " -Wno-exit-time-destructors"
+                         " -Wno-undefined-func-template"
+                         )
+                 string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+             endif ()
+         endif ()
+         set(CMAKE_CXX_FLAGS_DEBUG "-g")
+         set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
      endif ()
-     set(CMAKE_CXX_FLAGS_DEBUG "-g")
-     set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
  elseif (TUDAT_BUILD_GNU)
      add_compile_definitions(TUDAT_BUILD_GNU)
@@ -214,7 +341,7 @@
      endif ()
      if (CMAKE_C_COMPILER_ID MATCHES "Clang")
 
-     else()
+     else ()
          string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
          string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
      endif ()
