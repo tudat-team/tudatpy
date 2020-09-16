@@ -206,6 +206,7 @@
                      " -Wno-conditional-uninitialized"
                      " -Wno-exit-time-destructors"
                      " -Wno-undefined-func-template"
+                     " -Wnoc++98-compat"
                      )
              string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
              #endif ()
