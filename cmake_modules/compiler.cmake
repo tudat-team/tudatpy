@@ -75,8 +75,11 @@
          set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libc++")
      elseif (NOT WIN32)
          set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -stdlib=libstdc++")
-     else()
+     else() 
+         # this implies clang on windows
          set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -std=c++11 -Wno-unused-result /MD")
+         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS} -fexceptions")
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
      endif ()
      set(CMAKE_CXX_FLAGS_DEBUG "-g")
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
@@ -135,10 +138,6 @@
      # solution: https://stackoverflow.com/questions/1091662/vc-internal-compiler-error
      #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC /Ox -D_SCL_SECURE_NO_WARNINGS")
-     if(CMAKE_COMPILER_ID MATCHES "Clang")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS} -fexceptions")
-          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
-     endif()
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
          # This is needed for conda builds, as the prebuilt libraries are MD.
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
