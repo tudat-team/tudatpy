@@ -162,6 +162,7 @@
          # make the build log readable.
          if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 12.0.0)
              set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
                      " -Wno-float-conversion"
                      " -Wno-unreachable-code-return"
                      " -Wno-unused-template"
