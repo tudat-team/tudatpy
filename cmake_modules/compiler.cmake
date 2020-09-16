@@ -209,7 +209,8 @@
                  "C3280" # Declaration hides variable
                  )
      endif ()
-     if (NOT CLANG)
+     if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+     else()
          string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
          string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
      endif ()
