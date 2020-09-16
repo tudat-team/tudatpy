@@ -235,7 +235,7 @@ include_directories(TudatResources_INCLUDE_DIRS)
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
-if (APPLE)
+if (APPLE OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
@@ -270,7 +270,7 @@ endif ()
 #else ()
 #    include(TudatFindBoost)
 #endif ()
-if (UNIX)
+if (UNIX OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
