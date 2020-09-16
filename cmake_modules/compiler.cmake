@@ -211,7 +211,9 @@
      endif ()
      string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR
              ${MSVC_DISABLED_WARNINGS_LIST})
-     string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     if (NOT CLANG)
+         string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     endif ()
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
 
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
