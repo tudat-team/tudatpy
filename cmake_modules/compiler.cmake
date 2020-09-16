@@ -134,7 +134,11 @@
      # problem: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=95&view=logs&j=00f5923e-fdef-5026-5091-0d5a0b3d5a2c&t=3cc4a9ed-60e1-5810-6eb3-5f9cd4a26dba
      # solution: https://stackoverflow.com/questions/1091662/vc-internal-compiler-error
      #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
-#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC /Ox -D_SCL_SECURE_NO_WARNINGS")
+     if(CMAKE_COMPILER_ID MATCHES "Clang")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXFLAGS} -fexceptions")
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CFLAGS}")
+     endif()
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
          # This is needed for conda builds, as the prebuilt libraries are MD.
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
@@ -210,6 +214,7 @@
                  )
      endif ()
      if (CMAKE_C_COMPILER_ID MATCHES "Clang")
+
      else()
          string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_STR ${MSVC_DISABLED_WARNINGS_LIST})
          string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
