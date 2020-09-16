@@ -19,8 +19,11 @@
  message("")
  message("*** COMPILER CONFIGURATION ***")
  message("")
- message(STATUS "CMAKE_C_COMPILER:   ${CMAKE_CXX_COMPILER}")
+ message(STATUS "CMAKE_C_COMPILER:   ${CMAKE_C_COMPILER}")
  message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+ message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
+ message(STATUS "CMAKE_CXX_SIMULATE_ID: ${CMAKE_CXX_SIMULATE_ID}")
+ message(STATUS "CMAKE_CXX_COMPILER_VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
 
  add_compile_definitions(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
@@ -141,71 +144,70 @@
          string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
          # if the clang msvc-like command line interface is being used
-         if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+         #if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+         set(CMAKE_CXX_FLAGS
+                 "${CMAKE_CXX_FLAGS}"
+                 " /MD"
+                 " /EHsc"
+                 " /W3"
+                 " /FC"
+                 " /Ox"
+                 " -D_SCL_SECURE_NO_WARNINGS"
+                 " ${CXXFLAGS}"
+                 )
+         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+         # clang-cl 9 doesn't properly implement an alternative for -isystem <dir>
+         # for system headers, all warnings incurred by eigen must be silenced to
+         # make the build log readable.
+         if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 12.0.0)
              set(CMAKE_CXX_FLAGS
-                     "${CMAKE_CXX_FLAGS}"
-                     " /MD"
-                     " /EHsc"
-                     " /W3"
-                     " /FC"
-                     " /Ox"
-                     " -D_SCL_SECURE_NO_WARNINGS"
-                     " ${CXXFLAGS}"
+                     " -Wno-float-conversion"
+                     " -Wno-unreachable-code-return"
+                     " -Wno-unused-template"
+                     " -Wno-sign-conversion"
+                     " -Wno-undef"
+                     " -Wno-unused-result"
+                     " -Wno-documentation-unknown-command"
+                     " -Wno-missing-prototypes"
+                     " -Wno-missing-noreturn"
+                     " -Wno-deprecated-declarations"
+                     " -Wno-implicit-int-conversion"
+                     " -Wno-shadow-field-in-constructor"
+                     " -Wno-shadow-field"
+                     " -Wno-switch-enum"
+                     " -Wno-cast-align"
+                     " -Wno-float-equal"
+                     " -Wno-deprecated-dynamic-exception-spec"
+                     " -Wno-header-hygiene"
+                     " -Wno-zero-as-null-pointer-constant"
+                     " -Wno-vla-extension"
+                     " -Wno-old-style-cast"
+                     " -Wno-disabled-macro-expansion"
+                     " -Wno-covered-switch-default"
+                     " -Wno-range-loop-analysis"
+                     " -Wno-shadow"
+                     " -Wno-reserved-id-macro"
+                     " -Wno-float-overflow-conversion"
+                     " -Wno-unknown-argument"
+                     " -Wno-extra-semi"
+                     " -Wno-global-constructors"
+                     " -Wno-extra-semi-stmt"
+                     " -Wno-documentation-deprecated-sync"
+                     " -Wno-unused-variable"
+                     " -Wno-shadow-uncaptured-local"
+                     " -Wno-documentation"
+                     " -Wno-deprecated"
+                     " -Wno-unused-macros"
+                     " -Wno-vla"
+                     " -Wno-unreachable-code-break"
+                     " -Wno-implicit-fallthrough"
+                     " -Wno-conditional-uninitialized"
+                     " -Wno-exit-time-destructors"
+                     " -Wno-undefined-func-template"
                      )
              string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-             # clang-cl 9 doesn't properly implement an alternative for -isystem <dir>
-             # for system headers, all warnings incurred by eigen must be silenced to
-             # make the build log readable.
-             if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 12.0.0)
-                 set(CMAKE_CXX_FLAGS
-                         " -Wno-float-conversion"
-                         " -Wno-unreachable-code-return"
-                         " -Wno-unused-template"
-                         " -Wno-sign-conversion"
-                         " -Wno-undef"
-                         " -Wno-unused-result"
-                         " -Wno-documentation-unknown-command"
-                         " -Wno-missing-prototypes"
-                         " -Wno-missing-noreturn"
-                         " -Wno-deprecated-declarations"
-                         " -Wno-implicit-int-conversion"
-                         " -Wno-shadow-field-in-constructor"
-                         " -Wno-shadow-field"
-                         " -Wno-switch-enum"
-                         " -Wno-cast-align"
-                         " -Wno-float-equal"
-                         " -Wno-deprecated-dynamic-exception-spec"
-                         " -Wno-header-hygiene"
-                         " -Wno-zero-as-null-pointer-constant"
-                         " -Wno-vla-extension"
-                         " -Wno-old-style-cast"
-                         " -Wno-disabled-macro-expansion"
-                         " -Wno-covered-switch-default"
-                         " -Wno-range-loop-analysis"
-                         " -Wno-shadow"
-                         " -Wno-reserved-id-macro"
-                         " -Wno-float-overflow-conversion"
-                         " -Wno-unknown-argument"
-                         " -Wno-extra-semi"
-                         " -Wno-global-constructors"
-                         " -Wno-extra-semi-stmt"
-                         " -Wno-documentation-deprecated-sync"
-                         " -Wno-unused-variable"
-                         " -Wno-shadow-uncaptured-local"
-                         " -Wno-documentation"
-                         " -Wno-deprecated"
-                         " -Wno-unused-macros"
-                         " -Wno-vla"
-                         " -Wno-unreachable-code-break"
-                         " -Wno-implicit-fallthrough"
-                         " -Wno-conditional-uninitialized"
-                         " -Wno-exit-time-destructors"
-                         " -Wno-undefined-func-template"
-                         )
-                 string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-             endif ()
+             #endif ()
          endif ()
          set(CMAKE_CXX_FLAGS_DEBUG "-g")
          set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
