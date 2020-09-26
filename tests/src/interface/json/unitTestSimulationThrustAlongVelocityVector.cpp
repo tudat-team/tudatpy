@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" )
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );

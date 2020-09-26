@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     double finalTime = 1.0 * physical_constants::JULIAN_YEAR;
 
     // Get body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialTime - 86400.0, finalTime + 86400.0 );
 
     std::vector< std::string > galileanSatellites = { "Io", "Europa", "Ganymede" };
@@ -177,27 +177,27 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
-    bodySettings[ "Jupiter" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
+    bodySettings.at( "Jupiter" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ),
               cosineCoefficients, sineCoefficients, "IAU_Jupiter" );
-    bodySettings[ "Jupiter" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Jupiter" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Jupiter", Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
                 0.0, 2.0 * mathematical_constants::PI / ( 9.925 * 3600.0 ) );
 
     for( unsigned int i = 0; i < galileanSatellites.size( ); i++ )
     {
-        bodySettings[ galileanSatellites.at( i ) ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
+        bodySettings.at( galileanSatellites.at( i ) )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
                 ( getBodyGravitationalParameter( galileanSatellites.at( i ) ), getAverageRadius( galileanSatellites.at( i ) ),
                   cosineCoefficients, sineCoefficients, "IAU_" + galileanSatellites.at( i )  );
     }
 
-    bodySettings[ "Io" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Io" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1.0 * 421.8E6, 1.0 * 0.004, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ), "Jupiter", "ECLIPJ2000" );
-    bodySettings[ "Europa" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Europa" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Europa" ), "Jupiter", "ECLIPJ2000" );
-    bodySettings[ "Ganymede" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+    bodySettings.at( "Ganymede" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Ganymede" ), "Jupiter", "ECLIPJ2000" );
     //    bodySettings[ "Callisto" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Define propagation settings.
     double jupiterLoveNumber = 0.1;

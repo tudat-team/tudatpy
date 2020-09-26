@@ -113,7 +113,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                     std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< double >  >( parameter );
             if( tidalLoveNumber == nullptr )
             {
-                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );;
+                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );
             }
 
             // Get degree and order(s) of tidal variations

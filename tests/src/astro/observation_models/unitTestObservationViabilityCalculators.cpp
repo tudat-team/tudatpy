@@ -367,17 +367,17 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
 
     // Set simplified rotation models for Earth/Mars (spice rotation retrieval is slow)
-    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", 0.0 ),
                 0.0, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
-    bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Mars", 0.0 ),
@@ -386,11 +386,11 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     // Set unrealistically large radius of Moon to make iss occultation mode significant
     double moonRadius = 1.0E9;
-    bodySettings[ "Moon" ]->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( moonRadius );
+    bodySettings.at( "Moon" )->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( moonRadius );
 
     // Create list of body objects
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Create ground stations
     std::pair< std::string, std::string > earthStation1 = std::pair< std::string, std::string >( "Earth", "EarthStation1" );

@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( { "Earth" } );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-    bodySettings[ "Earth" ]->atmosphereSettings = nullptr;
-    bodySettings[ "Earth" ]->shapeModelSettings = nullptr;
+    bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
+    bodySettings.at( "Earth" )->atmosphereSettings = nullptr;
+    bodySettings.at( "Earth" )->shapeModelSettings = nullptr;
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         currentSatelliteName =  "Satellite" + std::to_string( i );
-        bodyMap[ currentSatelliteName ] = std::make_shared< simulation_setup::Body >( );
-    }
+        bodyMap.addNewBody( currentSatelliteName );
+     }
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );

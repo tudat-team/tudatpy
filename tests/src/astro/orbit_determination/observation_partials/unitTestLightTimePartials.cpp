@@ -58,9 +58,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         double ephemerisEvaluationTime = basic_astrodynamics::calculateJulianDaySinceEpoch< double >(
                     boost::gregorian::date( 2002, 8, 10 ), 0.0 ) * physical_constants::JULIAN_DAY;
 
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Earth" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Earth" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Mars" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Mars" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
 
 

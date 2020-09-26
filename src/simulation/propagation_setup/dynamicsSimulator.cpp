@@ -18,22 +18,7 @@ namespace tudat
 namespace propagators
 {
 
-std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
-        const simulation_setup::NamedBodyMap& bodyMap )
-{
-    // Get ephemerides from bodies
-    std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
-    {
-        if( bodyIterator->second->getEphemeris( ) != nullptr )
-        {
-            ephemerides[ bodyIterator->first ] = bodyIterator->second->getEphemeris( );
-        }
-    }
-    return std::make_shared< ephemerides::ReferenceFrameManager >(
-                ephemerides );
-}
+
 
 template class DynamicsSimulator< double, double >;
 template class SingleArcDynamicsSimulator< double, double >;

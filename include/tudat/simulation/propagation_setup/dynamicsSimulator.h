@@ -133,9 +133,6 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStatesOf
 }
 
 
-std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
-        const simulation_setup::NamedBodyMap& bodyMap );
-
 //! Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time.
 /*!
 * Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time, creates
@@ -156,7 +153,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     // Create ReferenceFrameManager and call overloaded function.
     return getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >(
                 bodiesToIntegrate, centralBodies, bodyMap, initialTime,
-                createFrameManager( bodyMap ) );
+                simulation_setup::createFrameManager( bodyMap.get( ) ) );
 }
 
 //! Function to get the states of single body, w.r.t. some central body, at the requested time.
@@ -425,7 +422,7 @@ public:
 
         if( setIntegratedResult_ )
         {
-            frameManager_ = createFrameManager( bodyMap );
+            frameManager_ = simulation_setup::createFrameManager( bodyMap.get( ) );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
@@ -834,11 +831,9 @@ public:
             equationsOfMotionNumericalSolutionRaw_.clear( );
         }
 
-        for( simulation_setup::NamedBodyMap::const_iterator
-             bodyIterator = bodyMap_.begin( );
-             bodyIterator != bodyMap_.end( ); bodyIterator++ )
+        for( auto bodyIterator : bodyMap_.get( )  )
         {
-            bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
+            bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
         }
     }
 
