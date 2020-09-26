@@ -2,6 +2,7 @@ include(CMakeParseArguments)
 
 # TODO: remove this: all tests shoulld be run, if some are omitted, a warning/error should at least be printed
 if (TUDAT_SKIP_JSON_TESTS)
+    # https://github.com/tudat-team/tudat/issues/8
     set(TEST_TO_BE_SKIPPED
             test_json_Acceleration
             test_json_Aerodynamics
@@ -22,6 +23,20 @@ if (TUDAT_SKIP_JSON_TESTS)
 else ()
     set(TEST_TO_BE_SKIPPED
             )
+endif ()
+
+if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
+    # https://github.com/tudat-team/tudat/issues/7
+    set(TEST_TO_BE_SKIPPED ${TEST_TO_BE_SKIPPED}
+            test_basic_astro_OrbitalElementConversions
+            test_basic_astro_TimeConversions
+            test_basic_astro_SphericalOrbitStateConversions
+            test_shape_based_HodographicShaping
+            test_orbit_determination_EstimationInput
+            test_orbit_determination_HybridArcStateEstimation
+            test_propagators_VariationalEquations
+            test_basics_TimeTypes
+            test_io_MultiArrayReader)
 endif ()
 
 
