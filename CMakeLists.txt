@@ -275,9 +275,7 @@ if (UNIX OR (WIN32 AND CLANG))
 endif ()
 
 # CSpice dependency
-#find_package(CSpice REQUIRED 1.0.0)
-set(CSpice_LIBRARIES "C:\\Users\\Geoffrey\\Desktop\\cspice\\cspice\\lib\\cspice.lib")
-set(CSpice_INCLUDE_DIRS "C:\\Users\\Geoffrey\\Desktop\\cspice\\cspice\\include\\spice")
+find_package(CSpice REQUIRED 1.0.0)
 
 # Sofa dependency if in build settings.
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
