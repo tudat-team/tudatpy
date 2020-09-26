@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
@@ -87,12 +87,12 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodyMap[ "Spacecraft" ] = std::make_shared< Body >( );
-    bodyMap[ "Spacecraft" ]->setEphemeris(
+    bodyMap.addNewBody( "Spacecraft" );;
+    bodyMap.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Define link ends for observations.
     LinkEnds linkEnds;
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
@@ -309,12 +309,12 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodyMap[ "Spacecraft" ] = std::make_shared< Body >( );
-    bodyMap[ "Spacecraft" ]->setEphemeris(
+    bodyMap.addNewBody( "Spacecraft" );;
+    bodyMap.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     {
         // Define link ends for observations.
