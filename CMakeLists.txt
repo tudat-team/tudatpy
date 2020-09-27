@@ -4,11 +4,6 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-
-set(Boost_INCLUDE_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/include")
-set(Eigen3_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/share/eigen3/cmake")
-set(Sofa_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/lib/cmake/sofa")
-
 # Get version from file.
 file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
