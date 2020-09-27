@@ -23,20 +23,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-if(MINGW)
-   # https://github.com/tudat-team/tudatpy-feedstock/issues/3
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
-   # https://stackoverflow.com/questions/16596876/object-file-has-too-many-sections
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
-   # https://sourceforge.net/p/mingw-w64/mailman/message/33154210/
-   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--large-address-aware")
-endif()
+if (MINGW)
+    # https://github.com/tudat-team/tudatpy-feedstock/issues/3
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
+    # https://stackoverflow.com/questions/16596876/object-file-has-too-many-sections
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    # https://sourceforge.net/p/mingw-w64/mailman/message/33154210/
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--large-address-aware")
+endif ()
 
 if (MSVC)
-  # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
-  # This is equivalent to the big-obj for MinGW, this should stop error C1128.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
+    # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
+    # This is equivalent to the big-obj for MinGW, this should stop error C1128.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
@@ -67,7 +67,9 @@ add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 
 option(TUDATPY_CONDA_BUILD ON)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+endif ()
 #set(TUDAT_BUNDLE_BUILD ON)
 #find_package(Python3 COMPONENTS Interpreter Development)
 
@@ -143,7 +145,7 @@ if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
         message(STATUS "Building conda-build build of tudatpy.")
 
         # TODO: Should inherit this from Tudat definitions.
-#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+        #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
     endif ()
 
 else ()
