@@ -4,6 +4,11 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
+
+set(Boost_INCLUDE_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/include")
+set(Eigen3_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/share/eigen3/cmake")
+set(Sofa_DIR "C:/Users/Geoffrey/anaconda3_1/envs/tudatpy-deps/Library/lib/cmake/sofa")
+
 # Get version from file.
 file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
@@ -69,8 +74,6 @@ add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 
-option(TUDATPY_CONDA_BUILD ON)
-
 if (DEFINED _GLIBCXX_USE_CXX11_ABI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
 endif ()
@@ -108,16 +111,7 @@ endif ()
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(Tudat 2.8 REQUIRED)
-
-    if (TUDATPY_CONDA_BUILD)
-        message(STATUS "Building conda-build build of tudat.")
-
-        # TODO: Should inherit this from Tudat definitions.
-        if (NOT APPLE)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-        endif (NOT APPLE)
-    endif ()
-
+    add_definitions(${Tudat_DEFINITIONS})
 else ()
     set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
 endif ()
@@ -139,19 +133,8 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
-#find_package(pybind11 REQUIRED)
-
-
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(pybind11 REQUIRED)
-
-    if (TUDATPY_CONDA_BUILD)
-        message(STATUS "Building conda-build build of tudatpy.")
-
-        # TODO: Should inherit this from Tudat definitions.
-        #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    endif ()
-
 else ()
     set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
     set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
