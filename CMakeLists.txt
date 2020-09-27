@@ -20,6 +20,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
+    add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+endif ()
+
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
