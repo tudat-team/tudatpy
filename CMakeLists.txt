@@ -11,14 +11,14 @@ project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 include_directories(include)
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
@@ -99,7 +99,7 @@ endif ()
 
 # Sofa dependency.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Sofa REQUIRED 1.0.0)
+    find_package(Sofa 1.0.0 REQUIRED)
 else ()
     set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
 endif ()
