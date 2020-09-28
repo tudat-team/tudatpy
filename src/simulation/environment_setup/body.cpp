@@ -93,6 +93,19 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
     }
 }
 
+double getBodyGravitationalParameter( const NamedBodyMap& bodyMap, const std::string bodyName )
+{
+    if( bodyMap.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", no such body is found" );
+    }
+    else if( bodyMap.at( bodyName )->getGravityFieldModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", body has not gravity field" );
+    }
+    return  bodyMap.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
+}
+
 
 //! Function ot retrieve the common global translational state origin of the environment
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
