@@ -1636,13 +1636,18 @@ class NamedBodyMap
 {
 public:
     NamedBodyMap( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000",
-                  const std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap =
+                  const std::unordered_map< std::string, std::shared_ptr< Body > >& bodyMap =
             std::unordered_map< std::string, std::shared_ptr< Body > >( ) ):
         frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ), bodyMap_( bodyMap ){ }
 
     std::shared_ptr< Body > at( const std::string& bodyName ) const
     {
         return bodyMap_.at( bodyName );
+    }
+
+    std::shared_ptr< Body > getBody( const std::string& bodyName ) const
+    {
+        return at( bodyName );
     }
 
     int count( const std::string& bodyName ) const
