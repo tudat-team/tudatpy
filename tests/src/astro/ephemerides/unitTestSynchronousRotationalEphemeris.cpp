@@ -52,16 +52,16 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
     bodiesToTest.push_back( "Ganymede" );
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
     for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
     {
-        bodySettings[ bodiesToTest.at( i ) ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
+        bodySettings.at( bodiesToTest.at( i ) )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
                     "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
-        bodySettings[ bodiesToTest.at( i ) ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+        bodySettings.at( bodiesToTest.at( i ) )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Test rotation model when body is in propagation, and outside of propagation
     for( unsigned int areBodiesInPropagation = 0; areBodiesInPropagation < 2; areBodiesInPropagation++ )
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                 }
                 else
                 {
-                    bodyMap[ bodiesToTest.at( i ) ]->setStateFromEphemeris( testTime );
-                    bodyMap[ "Jupiter" ]->setStateFromEphemeris( testTime );
-                    currentSatelliteState = bodyMap[ bodiesToTest.at( i ) ]->getState( ) -
-                             bodyMap[ "Jupiter" ]->getState(  );
+                    bodyMap.at( bodiesToTest.at( i ) )->setStateFromEphemeris( testTime );
+                    bodyMap.at( "Jupiter" )->setStateFromEphemeris( testTime );
+                    currentSatelliteState = bodyMap.at( bodiesToTest.at( i ) )->getState( ) -
+                             bodyMap.at( "Jupiter" )->getState(  );
                 }
 
                 // Retrieve rotation matrix

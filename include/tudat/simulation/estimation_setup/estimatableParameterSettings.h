@@ -411,10 +411,10 @@ public:
     InitialRotationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, 7, 1 > initialStateValue,
-            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::string& baseOrientation = "SSB" ):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( TUDAT_NAN ),
         initialStateValue_( initialStateValue ),
-        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+        baseOrientation_( baseOrientation ){ }
 
     //! Constructor, without initial value of rotational state.
     /*!
@@ -428,9 +428,9 @@ public:
     InitialRotationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const double initialTime,
-            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::string& baseOrientation = "SSB"):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( initialTime ),
-        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+        baseOrientation_( baseOrientation ){ }
 
     //! Time at which initial state is defined (NaN for user-defined initial state value).
     double initialTime_;
@@ -440,9 +440,6 @@ public:
 
     //! Orientation w.r.t. which the initial state is to be estimated.
     std::string baseOrientation_;
-
-    //! Orientation of the frame in which the state is defined.
-    std::string frameOrientation_;
 
 };
 

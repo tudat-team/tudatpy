@@ -43,7 +43,7 @@ static std::map< JsonSimulationTypes, std::string > simulationTypes =
 {
     { equations_of_motion_propagation, "EoM" },
     { variational_equations_propagation, "Variational" },
-    { state_estimation, "estimation" }
+    { state_estimation, "Estimation" }
 };
 
 //! Map of `ObservableType` string representations.
@@ -51,7 +51,7 @@ static std::map< std::string, JsonSimulationTypes > simulationTypesInverse =
 {
     { "EoM", equations_of_motion_propagation },
     { "Variational", variational_equations_propagation },
-    { "estimation", state_estimation }
+    { "Estimation", state_estimation }
 
 };
 
@@ -193,7 +193,7 @@ public:
         // Print message on propagation start if requested
         if ( applicationOptions_->notifyOnPropagationStart_ )
         {
-            std::cout << "propagation of file " << inputFilePath_ << " started." << std::endl;
+            std::cout << "Propagation of file " << inputFilePath_ << " started." << std::endl;
         }
 
         runJsonSimulation( );
@@ -385,7 +385,7 @@ public:
     //! Add a body named \p bodyName.
     void addBody( const std::string& bodyName )
     {
-        bodyMap_[ bodyName ] = std::make_shared< simulation_setup::Body >( );
+        bodyMap.addNewBody( bodyName );
     }
 
     //! Get body named \p bodyName.
@@ -619,7 +619,7 @@ protected:
     //! Body map.
     simulation_setup::NamedBodyMap bodyMap_;
 
-    //! propagation settings.
+    //! Propagation settings.
     std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).

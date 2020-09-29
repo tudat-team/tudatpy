@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Create bodies needed in simulation
         NamedBodyMap bodyMap = createBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
         {
             systemInitialState.segment( i * 6 , 6 ) =
-                    bodyMap[ bodiesToPropagate[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
-                    bodyMap[ centralBodies[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
+                    bodyMap.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
+                    bodyMap.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
 
         // Create acceleratiuon models.
@@ -165,11 +165,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Moon" )->getStateInBaseFrameFromEphemeris( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -188,11 +188,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             enckeIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             enckeIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Moon" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -268,31 +268,24 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         bodiesToCreate.push_back( "Venus" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
-        for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
-        {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-        }
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                        "SSB", "J2000" );
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
-        bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+        bodyMap.addNewBody( "Vehicle" );
+        bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+        bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                 std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+        bodyMap.at( "Vehicle" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
 
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -377,7 +370,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                    bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -396,7 +389,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                    bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -450,22 +443,17 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
         const double fixedStepSize = 15.0;
 
         // Define body settings for simulation.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-        bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        BodyListSettings bodySettings = BodyListSettings( "SSB", "J2000" );
+        bodySettings.addSettings( "Earth" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
+        bodyMap.addNewBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -510,7 +498,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
-
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(

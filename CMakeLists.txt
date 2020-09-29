@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.3)
 if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
-
+set(CMAKE_PREFIX_PATH "/home/dominic/anaconda3/envs/tudat-deps-env/")
 # Set cmake policy.
 cmake_policy(SET CMP0069 NEW)
 
@@ -51,9 +51,6 @@ option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
 
 # Build option: include default data suite.
 #option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
-
-# Build with propagation tests.
-option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
 
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." ON)
@@ -245,9 +242,9 @@ if (TUDAT_BUILD_WITH_PAGMO)
     #
     add_definitions(-DTUDAT_BUILD_WITH_PAGMO1)
     if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(Pagmo REQUIRED 2.15)
+        find_package(Pagmo REQUIRED)
     elseif (NOT ${TUDAT_BUNDLE_BUILD})
-        find_package(Pagmo REQUIRED 2.15)
+        find_package(Pagmo REQUIRED)
     else ()
         set(Pagmo_INCLUDE_DIRS ${Pagmo_BUILD_INCLUDE_DIRS})
     endif ()

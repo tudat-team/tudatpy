@@ -68,19 +68,19 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings for simulation.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    BodyListSettings bodySettings;
+    bodySettings.at( "Earth" ) = std::make_shared< BodySettings >( );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
     double vehicleMass = 5000.0;
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodyMap.addNewBody( "Vehicle" )
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
 

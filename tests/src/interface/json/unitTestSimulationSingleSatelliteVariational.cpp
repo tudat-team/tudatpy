@@ -74,16 +74,16 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap.addNewBody( "Asterix" );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );

@@ -12,7 +12,7 @@
 
 #include <tudat/io/applicationOutput.h>
 
-//! Execute propagation of orbits of Asterix and Obelix around the Earth.
+//! Execute propagation of orbits of Vehicle and Obelix around the Earth.
 int main( )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,47 +54,33 @@ int main( )
     double finalEphemerisTime = initialEphemerisTime + 3.0 * 86400.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
-                "ECLIPJ2000", "IAU_Earth", spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY );
-
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0,finalEphemerisTime + 3600.0 );
+    setSimpleRotationSettingsFromSpice( bodySettings, "Earth", initialEphemerisTime );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
 
-    // Create aerodynamic coefficient interface settings.
+    // Create spacecraft object.
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    // Create and add aerodynamic coefficient interface
     double referenceArea = 4.0;
-    double aerodynamicCoefficient = 1.2;
+    double aerodynamicDragCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ), 1, 1 );
+            constantAerodynamicCoefficientSettings(
+                referenceArea, ( Eigen::Vector3d( ) << aerodynamicDragCoefficient, -0.01, 0.1 ).finished( ), 1, 1 );
+    addAerodynamicCoefficientInterface(
+                bodyMap, "Vehicle", aerodynamicCoefficientSettings );
 
-    // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
-
-    // Create radiation pressure settings
+    // Create and add radiation pressure interace
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
-    std::vector< std::string > occultingBodies;
-    occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+    std::vector< std::string > occultingBodies = { "Earth" };
+    std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
+            cannonBallRadiationPressureSettings(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
-
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    addRadiationPressureInterface(
+                bodyMap, "Vehicle", vehicleRadiationPressureSettings );
+    addEmptyTabulateEphemeris( bodyMap, "Vehicle", "Earth" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE GROUND STATIONS               //////////////////////////////////////////////////////
@@ -118,49 +104,46 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Set accelerations on Vehicle that are to be taken into account.
-    SelectedAccelerationMap accelerationMap;
+    SelectedAccelerationMap accelerationSettingsList;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                    basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
-    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    accelerationsOfVehicle[ "Earth" ] = {
+            sphericalHarmonicAcceleration( 8, 8 ),
+            aerodynamicAcceleration( ) };
+    accelerationsOfVehicle[ "Sun" ] = {
+            pointMassGravityAcceleration( ),
+            cannonBallRadiationPressureAcceleration( ) };
+    accelerationsOfVehicle[ "Mars" ] = {
+            pointMassGravityAcceleration( ) };
+    accelerationsOfVehicle[ "Moon" ] = {
+            pointMassGravityAcceleration( ) };
+    accelerationSettingsList[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
-    std::vector< std::string > bodiesToIntegrate;
-    std::vector< std::string > centralBodies;
-    bodiesToIntegrate.push_back( "Vehicle" );
-    centralBodies.push_back( "Earth" );
+    std::vector< std::string > bodiesToIntegrate = { "Vehicle" };
+    std::vector< std::string > centralBodies = { "Earth" };
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodyMap, accelerationSettingsList, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Set Keplerian elements for Asterix.
-    Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
-    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
-    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    // Set Keplerian elements for Vehicle.
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
+    vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-
-    // Set (perturbed) initial state.
+    // Set initial state.
+    double earthGravitationalParameter = getBodyGravitationalParameter( bodyMap, "Earth" );
     Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+                vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -232,8 +215,7 @@ int main( )
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Vehicle", systemInitialState, "Earth" ) );
+    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(

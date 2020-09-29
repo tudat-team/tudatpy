@@ -20,7 +20,7 @@ namespace tudat
 namespace propagators
 {
 
-std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setupBodySettingsCR3BP(
+simulation_setup::BodyListSettings setupBodySettingsCR3BP(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,

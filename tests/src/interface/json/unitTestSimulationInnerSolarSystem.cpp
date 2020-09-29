@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     bodyNames[ 5 ] = "Mars";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     bodyNames[ 5 ] = "Mars";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );

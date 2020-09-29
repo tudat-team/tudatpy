@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
     double buffer = 10.0 * fixedStepSize;
 
     // Get default settings
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
     {
         if( bodyNames.at( i ) != "Sun" )
         {
-            bodySettings[ bodyNames.at( i ) ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
+            bodySettings.at( bodyNames.at( i ) )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
                     ( getBodyGravitationalParameter( bodyNames.at( i ) ), getAverageRadius( bodyNames.at( i ) ),
                       cosineCoefficients, sineCoefficients, "IAU_" + bodyNames.at( i ) );
         }
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Test estimation of Jupiter dissipation without and with frequency dependence
     for( unsigned int test = 0; test < 2; test++ )
@@ -349,15 +349,14 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     double finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000"  );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
 
     // Set accelerations on Vehicle that are to be taken into account.

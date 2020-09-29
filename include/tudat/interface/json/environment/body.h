@@ -71,7 +71,7 @@ template< typename TimeType = double >
 void updateBodiesFromJSON(
         const nlohmann::json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
-        std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
+        simulation_setup::BodyListSettings& bodySettingsMap,
         const std::string globalFrameOrigin,
         const std::string globalFrameOrientation,
         const std::shared_ptr< SpiceSettings >& spiceSettings,
@@ -162,7 +162,7 @@ void updateBodiesFromJSON(
     // Create bodies.
     bodyMap = createBodies( bodySettingsMap );
 
-    // Finalize body creation.
+    
     setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
 }
 
