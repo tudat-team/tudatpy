@@ -59,17 +59,17 @@ public:
      *  for variable step size integrators.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *  time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
      */
     IntegratorSettings( const AvailableIntegrators integratorType, const IndependentVariableType initialTime,
                         const IndependentVariableType initialTimeStep,
                         const int saveFrequency = 1,
-                        const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false ) :
+                        const bool assessTerminationOnMinorSteps = false ) :
         integratorType_( integratorType ), initialTime_( initialTime ),
         initialTimeStep_( initialTimeStep ), saveFrequency_( saveFrequency ),
-        assessPropagationTerminationConditionDuringIntegrationSubsteps_( assessPropagationTerminationConditionDuringIntegrationSubsteps )
+        assessTerminationOnMinorSteps_( assessTerminationOnMinorSteps )
     { }
     
     //! Virtual destructor.
@@ -111,7 +111,7 @@ public:
      * The default value is false, so the propagation termination condition is only checked at the end of each
      * integration step.
      */
-    bool assessPropagationTerminationConditionDuringIntegrationSubsteps_;
+    bool assessTerminationOnMinorSteps_;
 
 };
 
@@ -138,7 +138,7 @@ public:
      *  \param maximumStepSize Maximum step size for integration.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control.
@@ -152,13 +152,13 @@ public:
             const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
         IntegratorSettings< IndependentVariableType >(
             rungeKuttaVariableStepSize, initialTime, initialTimeStep, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps ),
+            assessTerminationOnMinorSteps ),
         areTolerancesDefinedAsScalar_( areTolerancesDefinedAsScalar ), coefficientSet_( coefficientSet ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
@@ -220,7 +220,7 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control.
@@ -235,13 +235,13 @@ public:
             const IndependentVariableType relativeErrorTolerance = 1.0E-12,
             const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
             true, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
             maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
@@ -261,7 +261,7 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control.
@@ -277,14 +277,14 @@ public:
             const IndependentVariableType relativeErrorTolerance = 1.0E-12,
             const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
         RungeKuttaVariableStepSizeSettingsScalarTolerances(
             initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
             relativeErrorTolerance, absoluteErrorTolerance, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
             maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize )
     {
         // Give error if integrator type is wrong
@@ -342,7 +342,7 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a vector.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control.
@@ -357,13 +357,13 @@ public:
             const DependentVariableType& relativeErrorTolerance,
             const DependentVariableType& absoluteErrorTolerance,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
         RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
             false, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
             maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
     { }
@@ -402,7 +402,7 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control.
@@ -418,13 +418,13 @@ public:
             const IndependentVariableType relativeErrorTolerance = 1.0E-12,
             const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.7,
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ):
         IntegratorSettings< IndependentVariableType >(
             bulirschStoer, initialTime, initialTimeStep, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps ),
+            assessTerminationOnMinorSteps ),
         extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
@@ -495,7 +495,7 @@ public:
      *  \param maximumOrder Maximum order of integrator (default 11).
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *      time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  \param assessTerminationOnMinorSteps Whether the propagation termination
      *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *      each integration step (`false`).
      *  \param bandwidth Maximum error factor for doubling the stepsize (default: 200).
@@ -510,11 +510,11 @@ public:
             const int minimumOrder = 6,
             const int maximumOrder = 11,
             const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType bandwidth = 200. ):
         IntegratorSettings< IndependentVariableType >(
             adamsBashforthMoulton, initialTime, initialTimeStep, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps ),
+            assessTerminationOnMinorSteps ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
         minimumOrder_( minimumOrder ), maximumOrder_( maximumOrder ),
@@ -551,6 +551,122 @@ public:
     IndependentVariableType bandwidth_;
 
 };
+
+template< typename IndependentVariableType = double >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
+                euler, initialTime, initialTimeStep, saveFrequency, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType = double >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Settings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
+                rungeKutta4, initialTime, initialTimeStep, saveFrequency, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+        const DependentVariableType& relativeErrorTolerance,
+        const DependentVariableType& absoluteErrorTolerance,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances<
+            IndependentVariableType, DependentVariableType > >(
+                initialTime, initialTimeStep,
+                coefficientSet, minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
+}
+
+template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+        const DependentVariableType& relativeErrorTolerance,
+        const DependentVariableType& absoluteErrorTolerance,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances<
+            IndependentVariableType > >(
+                initialTime, initialTimeStep,
+                coefficientSet, minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
+}
+
+template< typename IndependentVariableType = double >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const ExtrapolationMethodStepSequences extrapolationSequence,
+        const unsigned int maximumNumberOfSteps,
+        const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
+        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
+        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+                initialTime, initialTimeStep,
+                extrapolationSequence, maximumNumberOfSteps,
+                minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                saveFrequency,  assessTerminationOnMinorSteps,
+                safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize,
+                minimumFactorDecreaseForNextStepSize );
+}
+
+template< typename IndependentVariableType = double >
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultoSettings(
+        const IndependentVariableType initialTime,
+        const IndependentVariableType initialTimeStep,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+        const int minimumOrder = 6,
+        const int maximumOrder = 11,
+        const int saveFrequency = 1,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType bandwidth = 200. )
+{
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+                initialTime, initialTimeStep,
+                minimumStepSize, maximumStepSize,
+                relativeErrorTolerance, absoluteErrorTolerance,
+                minimumOrder, maximumOrder,
+                saveFrequency,assessTerminationOnMinorSteps, bandwidth );
+}
 
 //! Function to create a numerical integrator.
 /*!
@@ -778,23 +894,23 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
 
 
 extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
-Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
+                                                                             Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
         std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,
         const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
 
 extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
-Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double > > createIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double >(
+                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double > > createIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double >(
         std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
             const double, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
         const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
 
 extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::VectorXd,
-Eigen::VectorXd, long double > > createIntegrator< Time, Eigen::VectorXd, long double >(
+                                                                             Eigen::VectorXd, long double > > createIntegrator< Time, Eigen::VectorXd, long double >(
         std::function< Eigen::VectorXd( const Time, const Eigen::VectorXd& ) > stateDerivativeFunction,
         const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
 
 extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
-Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double > > createIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >(
+                                                                             Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double > > createIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >(
         std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
             const Time, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
         const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );

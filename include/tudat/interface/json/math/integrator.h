@@ -89,8 +89,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< IntegratorSetti
     jsonObject[ K::type ] = integratorType;
     jsonObject[ K::initialTime ] = integratorSettings->initialTime_;
     jsonObject[ K::saveFrequency ] = integratorSettings->saveFrequency_;
-    jsonObject[ K::assessPropagationTerminationConditionDuringIntegrationSubsteps ] =
-            integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_;
+    jsonObject[ K::assessTerminationOnMinorSteps ] =
+            integratorSettings->assessTerminationOnMinorSteps_;
 
     switch ( integratorType )
     {
@@ -199,8 +199,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
                     initialTime,
                     getValue< TimeType >( jsonObject, K::stepSize ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
-                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
-                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ) );
+                    getValue( jsonObject, K::assessTerminationOnMinorSteps,
+                              defaults.assessTerminationOnMinorSteps_ ) );
         return;
     }
     case rungeKuttaVariableStepSize:
@@ -221,8 +221,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
                         getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
                         getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
                         getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
-                        getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
-                                  defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                        getValue( jsonObject, K::assessTerminationOnMinorSteps,
+                                  defaults.assessTerminationOnMinorSteps_ ),
                         getValue( jsonObject, K::safetyFactorForNextStepSize,
                                   defaults.safetyFactorForNextStepSize_ ),
                         getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,
@@ -252,8 +252,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
                     getValue( jsonObject, K::minimumOrder, defaults.minimumOrder_ ),
                     getValue( jsonObject, K::maximumOrder, defaults.maximumOrder_ ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
-                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
-                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                    getValue( jsonObject, K::assessTerminationOnMinorSteps,
+                              defaults.assessTerminationOnMinorSteps_ ),
                     getValue( jsonObject, K::bandwidth,
                               defaults.bandwidth_ ) );
         return;
@@ -274,8 +274,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
                     getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
                     getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
-                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
-                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                    getValue( jsonObject, K::assessTerminationOnMinorSteps,
+                              defaults.assessTerminationOnMinorSteps_ ),
                     getValue( jsonObject, K::safetyFactorForNextStepSize,
                               defaults.safetyFactorForNextStepSize_ ),
                     getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,

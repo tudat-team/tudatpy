@@ -339,6 +339,17 @@ private:
 
 };
 
+inline std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
+        const double referenceArea,
+        const Eigen::Vector3d& constantForceCoefficient,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true )
+{
+    return std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, constantForceCoefficient,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+}
+
 //! Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
 /*!
  * Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
@@ -1220,6 +1231,7 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
+
 
 } // simulation_setup
 
