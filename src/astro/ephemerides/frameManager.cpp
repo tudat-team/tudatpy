@@ -9,6 +9,7 @@
  */
 #include "tudat/astro/ephemerides/frameManager.h"
 
+
 namespace tudat
 {
 
@@ -346,6 +347,7 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins(
     }
     return ephemerisOrigins;
 }
+
 
 } // namespace ephemerides
 

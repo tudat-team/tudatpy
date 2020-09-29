@@ -19,6 +19,7 @@
 
 #include "tudat/simulation/simulation.h"
 
+
 namespace tudat
 {
 namespace unit_tests
@@ -65,19 +66,11 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer );
-
-        for(  std::map< std::string, std::shared_ptr< BodySettings > >::iterator bodySettingIterator =
-              bodySettings.begin( ); bodySettingIterator != bodySettings.end( ); bodySettingIterator++ )
-        {
-            bodySettingIterator->second->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettingIterator->second->rotationModelSettings->resetOriginalFrame( "J2000" );
-        }
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer,
+                                        "SSB", "J2000" );
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
-
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -131,8 +124,8 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
         {
             systemInitialState.segment( i * 6 , 6 ) =
-                    bodyMap[ bodiesToPropagate[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
-                    bodyMap[ centralBodies[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
+                    bodyMap.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
+                    bodyMap.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
 
         // Avoid degradation of performance in Kepler element conversions
@@ -175,18 +168,18 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > cowellIntegrationResults;
-        bodyMap[ "Earth" ]->recomputeStateOnNextCall( );
-        bodyMap[ "Mars" ]->recomputeStateOnNextCall( );
-        bodyMap[ "Venus" ]->recomputeStateOnNextCall( );
+        bodyMap.at( "Earth" )->recomputeStateOnNextCall( );
+        bodyMap.at( "Mars" )->recomputeStateOnNextCall( );
+        bodyMap.at( "Venus" )->recomputeStateOnNextCall( );
 
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Venus" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -220,11 +213,11 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             usmIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             usmIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             usmIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Venus" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodyMap.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -318,31 +311,29 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             bodiesToCreate.push_back( "Venus" );
 
             // Create body objects.
-            std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                    getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+            BodyListSettings bodySettings =
+                    getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                            "SSB", "J2000" );
             for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
             {
-                bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-                bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+                bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+                bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
             }
             NamedBodyMap bodyMap = createBodies( bodySettings );
 
             // Create spacecraft object.
-            bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-            bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
-            bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+            bodyMap.addNewBody( "Vehicle" );
+            bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+            bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                     std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                     < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
             std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                     std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                         "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
-            bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+            bodyMap.at( "Vehicle" )->setRadiationPressureInterface(
                         "Sun", createRadiationPressureInterface(
                             vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
 
-
-            // Finalize body creation.
-            setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
             // Define propagator settings variables.
             SelectedAccelerationMap accelerationMap;
@@ -427,7 +418,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             while( currentTestTime < finalTestTime )
             {
                 cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                        bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                        bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
 
                 currentTestTime += testTimeStep;
             }
@@ -446,7 +437,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             while( currentTestTime < finalTestTime )
             {
                 usmIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                        bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                        bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
                 currentTestTime += testTimeStep;
             }
 
