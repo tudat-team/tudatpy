@@ -742,7 +742,7 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessTerminationOnMinorSteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
@@ -808,7 +808,7 @@ public:
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessTerminationOnMinorSteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }

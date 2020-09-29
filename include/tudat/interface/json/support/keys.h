@@ -456,7 +456,7 @@ struct Keys
         static const std::string stepSize;
         static const std::string initialStepSize;
         static const std::string saveFrequency;
-        static const std::string assessPropagationTerminationConditionDuringIntegrationSubsteps;
+        static const std::string assessTerminationOnMinorSteps;
         static const std::string rungeKuttaCoefficientSet;
         static const std::string minimumStepSize;
         static const std::string maximumStepSize;

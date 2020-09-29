@@ -13,21 +13,21 @@
 #include "tudat/simulation/simulation.h"
 #include <boost/test/unit_test.hpp>
 
-//! Test for the setting assessPropagationTerminationConditionDuringIntegrationSubsteps.
+//! Test for the setting assessTerminationOnMinorSteps.
 BOOST_AUTO_TEST_SUITE( test_assess_propagation_termination_condition_during_integration_substeps )
 
 //! Unit test description:
 //! - Use a "simple" termination condition, only limited by end epoch.
 //! - Use constant step-size integrator (RK4).
 //! - Check that the propagation stops after (before) reaching the termination condition when
-//!   `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off (on).
+//!   `assessTerminationOnMinorSteps` is off (on).
 //!
 //! For example: initial epoch = 0, step-size = 50 s, end epoch = 1020 s.
 //! Expected outcome:
-//! - Final epoch 1050 s when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off.
-//! - Final epoch 1000 s when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is on
+//! - Final epoch 1050 s when `assessTerminationOnMinorSteps` is off.
+//! - Final epoch 1000 s when `assessTerminationOnMinorSteps` is on
 //!   (because epoch will be 1025 > 1020 when computing k2).
-BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegrationSubstepsRKFixedStepSize )
+BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            USING STATEMENTS              ///////////////////////////////////////////////
@@ -181,13 +181,13 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
 //! - Use a termination condition based on altitude (and time limit sufficiently large so that it's not reached).
 //! - Use variable step-size integrator (RK78).
 //! - Check that the propagation stops after (before) reaching the termination condition when
-//!   `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off (on).
+//!   `assessTerminationOnMinorSteps` is off (on).
 //!
 //! For example: altitude limit 100 km.
 //! Expected outcome:
-//! - Final altitude below 100 km when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off.
-//! - Final altitude above 100 km when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is on.
-BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegrationSubstepsRKVariableStepSize )
+//! - Final altitude below 100 km when `assessTerminationOnMinorSteps` is off.
+//! - Final altitude above 100 km when `assessTerminationOnMinorSteps` is on.
+BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            USING STATEMENTS              //////////////////////////////////////////////////////
