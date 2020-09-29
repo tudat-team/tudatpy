@@ -645,11 +645,6 @@ class Body {
         bodyMassFunction_ = [ = ]( const double ){ return currentMass_; };
     }
 
-    currentMass_ = gravityFieldModel_->getGravitationalParameter()
-        / physical_constants::GRAVITATIONAL_CONSTANT;
-    bodyMassFunction_ = [=](const double) { return currentMass_; };
-  }
-
   //! Function to set the atmosphere model of the body.
   /*!
      *  Function to set the atmosphere model of the body.
@@ -1159,6 +1154,9 @@ class Body {
         resetBaseFrames_ = resetBaseFrames;
     }
 protected:
+private:
+	//! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
+	int bodyIsGlobalFrameOrigin_;
 
   //! Current state.
   Eigen::Vector6d currentState_;
@@ -1249,25 +1247,11 @@ protected:
   //!  Boolean defining whether the body is currently being propagated, or not
   bool isBodyInPropagation_ = false;
 
-    //! Predefined iterator for efficiency purposes.
-    std::map< std::string,
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > >::iterator
-    radiationPressureIterator_;
+	bool suppressDependentOrientationCalculatorWarning_ = false;
 
-    //! List of ground station objects on Body
-    std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStationMap;
+	std::string bodyName_;
 
-    //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
-    std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
-
-    //!  Boolean defining whether the body is currently being propagated, or not
-    bool isBodyInPropagation_ = false;
-
-    bool suppressDependentOrientationCalculatorWarning_ = false;
-
-    std::string bodyName_;
-
-    std::function< void( ) > resetBaseFrames_;
+	std::function< void( ) > resetBaseFrames_;
 };
 
 
