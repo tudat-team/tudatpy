@@ -125,7 +125,14 @@ void expose_environment_setup(py::module &m) {
                  const std::string >(),
                  py::arg("body_settings"),
                  py::arg("frame_origin"),
-                 py::arg("frame_orientation"));
+                 py::arg("frame_orientation"))
+			.def("at", &tss::BodyListSettings::at)
+			.def("add_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
+				 		        py::arg("body_name"))
+			.def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
+										(&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
+			.def("get_frame_origin", &tss::BodyListSettings::getFrameOrigin)
+			.def("get_frame_orientation", &tss::BodyListSettings::getFrameOrientation);
 
     py::class_<tss::NamedBodyMap,
             std::shared_ptr<tss::NamedBodyMap> >(m, "NamedBodyMap")
@@ -135,12 +142,12 @@ void expose_environment_setup(py::module &m) {
                  const std::unordered_map< std::string, std::shared_ptr< tss::Body > > >(),
                  py::arg("frame_origin") = "SSB",
                  py::arg("frame_orientation") = "ECLIPJ2000",
-                 py::arg("frame_orientation") =
+                 py::arg("body_map") =
             std::unordered_map< std::string, std::shared_ptr< tss::Body > >( ) )
             .def("get_body", &tss::NamedBodyMap::getBody)
             .def("count", &tss::NamedBodyMap::count)
             .def("add_new_body", &tss::NamedBodyMap::addNewBody)
-            .def("addBody", &tss::NamedBodyMap::addBody)
+            .def("add_body", &tss::NamedBodyMap::addBody)
             .def("processBodyFrameDefinitions", &tss::NamedBodyMap::processBodyFrameDefinitions);
 
     // getDefaultBodySettings (overload 1)
@@ -149,8 +156,8 @@ void expose_environment_setup(py::module &m) {
           const std::string >(
               &tss::getDefaultBodySettings),
           py::arg("bodies"),
-          py::arg("base_frame_origin"),
-          py::arg("base_frame_orientation"));
+          py::arg("base_frame_origin") = "SSB",
+          py::arg("base_frame_orientation") = "ECLIPJ2000");
 
     // getDefaultBodySettings (overload 2)
     m.def("get_default_body_settings",
@@ -161,9 +168,9 @@ void expose_environment_setup(py::module &m) {
           py::arg("bodies"),
           py::arg("initial_time"),
           py::arg("final_time"),
-          py::arg("base_frame_origin"),
-          py::arg("base_frame_orientation"),
-          py::arg("time_step"));
+          py::arg("base_frame_origin") = "SSB",
+          py::arg("base_frame_orientation") = "ECLIPJ2000",
+          py::arg("time_step") = 300.0);
 
 
     m.def("get_global_frame_origin", &tss::getGlobalFrameOrigin);
@@ -308,6 +315,51 @@ void expose_environment_setup(py::module &m) {
 
     m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
           py::arg("ephemeris_model"));
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	// createGravityField.h
+	/////////////////////////////////////////////////////////////////////////////
+	py::enum_<tss::GravityFieldType>(m, "GravityFieldType", "<no doc>")
+	        .value("central", tss::GravityFieldType::central)
+			.value("central_spice", tss::GravityFieldType::central_spice)
+			.value("spherical_harmonic", tss::GravityFieldType::spherical_harmonic)
+			.export_values();
+
+	py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel", "<no doc>")
+			.value("custom_model", tss::SphericalHarmonicsModel::customModel)
+			.value("egm96", tss::SphericalHarmonicsModel::egm96)
+			.value("ggm02c", tss::SphericalHarmonicsModel::ggm02c)
+			.value("ggm02s", tss::SphericalHarmonicsModel::ggm02s)
+			.value("glgm3150", tss::SphericalHarmonicsModel::glgm3150)
+			.value("lpe200", tss::SphericalHarmonicsModel::lpe200)
+			.value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d)
+			.export_values();
+
+	py::class_<tss::GravityFieldSettings, std::shared_ptr<tss::GravityFieldSettings>>(
+				m, "GravityFieldSettings", "<no doc>")
+			.def(py::init<const tss::GravityFieldType>(),
+			        py::arg("gravity_field_type"))
+			.def("get_gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType);
+
+	py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
+				tss::GravityFieldSettings>(m, "CentralGravityFieldSettings", "<no doc>")
+			.def(py::init<double>(), py::arg("gravitational_parameter"));
+
+	py::class_<tss::SphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>,
+			tss::GravityFieldSettings>(m, "SphericalHarmonicsGravityFieldSettings", "<no doc>")
+			.def(py::init<const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string&>(),
+			        py::arg("gravitational_parameter"), py::arg("reference_radius"), py::arg("cosine_coefficients"),
+			        py::arg("sine_coefficients"), py::arg("associated_reference_frame"))
+			.def("get_gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter)
+			.def("reset_gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter)
+			.def("get_reference_radius", &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius)
+			.def("get_cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients)
+			.def("get_sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients)
+			.def("get_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame)
+			.def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
+			.def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
+			.def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField);
 
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
