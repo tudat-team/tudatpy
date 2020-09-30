@@ -168,7 +168,7 @@ void expose_propagation_setup(py::module &m) {
   m.def("aerodynamic_acceleration", &tss::aerodynamicAcceleration);
   m.def("cannon_ball_radiation_pressure_acceleration", &tss::cannonBallRadiationPressureAcceleration);
   m.def("spherical_harmonic_acceleration", &tss::sphericalHarmonicAcceleration);
-  m.def("mutual_spherical_harmonic_acceleration", &tss::mutualSphericalHamonicAcceleration);
+  m.def("mutual_spherical_harmonic_acceleration", &tss::mutualSphericalHarmonicAcceleration);
   m.def("relativistic_acceleration_correction", &tss::relativisticAccelerationCorrection);
   m.def("empirical_acceleration", &tss::empiricalAcceleration);
   // TODO: add overloaded methods
