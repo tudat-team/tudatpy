@@ -104,7 +104,8 @@ YACMA_PYTHON_MODULE(kernel
 target_link_libraries(kernel PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
-        ${Tudat_PROPAGATION_LIBRARIES})
+        ${Tudat_PROPAGATION_LIBRARIES}
+        ${Tudat_ESTIMATION_LIBRARIES})
 
 target_include_directories(kernel PUBLIC
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
