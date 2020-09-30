@@ -161,6 +161,43 @@ void expose_propagation_setup(py::module &m) {
   //////////////////////////////////////////////////////////////////////////////
   // accelerationSettings.h
   //////////////////////////////////////////////////////////////////////////////
+
+  // Unified interface functions for acceleration settings
+  m.def("acceleration", &tss::acceleration, py::arg("acceleration_type"));
+  m.def("point_mass_gravity_acceleration", &tss::pointMassGravityAcceleration);
+  m.def("aerodynamic_acceleration", &tss::aerodynamicAcceleration);
+  m.def("cannon_ball_radiation_pressure_acceleration", &tss::cannonBallRadiationPressureAcceleration);
+  m.def("spherical_harmonic_acceleration", &tss::sphericalHarmonicAcceleration);
+  m.def("mutual_spherical_harmonic_acceleration", &tss::mutualSphericalHamonicAcceleration);
+  m.def("relativistic_acceleration_correction", &tss::relativisticAccelerationCorrection);
+  m.def("empirical_acceleration", &tss::empiricalAcceleration);
+  // TODO: add overloaded methods
+  // TODO: correct typo 'unspecified_thurst_frame' in Tudat
+  m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
+          const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
+          py::arg("thrust_direction_guidance_settings"),
+          py::arg("thrust_magnitude_settings"));
+  m.def("thrust_acceleration", py::overload_cast<
+					const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
+					const std::function<double(const double)>,
+					const tss::ThrustFrames,
+					const std::string>(&tss::thrustAcceleration),
+			py::arg("data_interpolation_settings"),
+			py::arg("specific_impulse_function"),
+			py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thurst_frame,
+			py::arg("central_body") = "");
+  m.def("thrust_acceleration", py::overload_cast<
+					const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
+					const double,
+					const tss::ThrustFrames,
+					const std::string>(&tss::thrustAcceleration),
+			py::arg("data_interpolation_settings"),
+			py::arg("constant_specific_impulse"),
+			py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thurst_frame,
+			py::arg("central_body") = "");
+  m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration);
+  m.def("momentum_wheel_desaturation_acceleration", &tss::momentumWheelDesaturationAcceleration);
+
   py::class_<tss::AccelerationSettings,
              std::shared_ptr<tss::AccelerationSettings>>(m, "AccelerationSettings")
       .def(py::init<const tudat::basic_astrodynamics::AvailableAcceleration>(),

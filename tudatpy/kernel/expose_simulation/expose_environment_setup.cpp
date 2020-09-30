@@ -96,44 +96,6 @@ void expose_environment_setup(py::module &m) {
             .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
             .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"));
 
-    /////////////////////////////////////////////////////////////////////////////
-    // createBodies.h ///////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
-    py::class_<tss::BodySettings, std::shared_ptr<tss::BodySettings>>(
-                m, "BodySettings", tudatpy::body_settings_docstring().c_str())
-            .def_readwrite("constant_mass", &tss::BodySettings::constantMass)
-            .def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings)
-            .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)
-            .def_readwrite("gravity_field_settings", &tss::BodySettings::gravityFieldSettings)
-            .def_readwrite("rotation_model_settings", &tss::BodySettings::rotationModelSettings)
-            .def_readwrite("shape_model_settings", &tss::BodySettings::shapeModelSettings)
-            .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings)
-            .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings)
-            .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings)
-            .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings);
-
-    py::class_<tss::BodyListSettings,
-            std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings")
-            .def(py::init<//ctor 1
-                 const std::string,
-                 const std::string >(),
-                 py::arg("frame_origin") ,
-                 py::arg("frame_orientation"))
-            .def(py::init<//ctor 2
-                 const std::map< std::string, std::shared_ptr< tss::BodySettings > >&,
-                 const std::string,
-                 const std::string >(),
-                 py::arg("body_settings"),
-                 py::arg("frame_origin"),
-                 py::arg("frame_orientation"))
-			.def("at", &tss::BodyListSettings::at)
-			.def("add_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
-				 		        py::arg("body_name"))
-			.def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
-										(&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
-			.def("get_frame_origin", &tss::BodyListSettings::getFrameOrigin)
-			.def("get_frame_orientation", &tss::BodyListSettings::getFrameOrientation);
-
     py::class_<tss::NamedBodyMap,
             std::shared_ptr<tss::NamedBodyMap> >(m, "NamedBodyMap")
             .def(py::init<//ctor 1
@@ -149,6 +111,48 @@ void expose_environment_setup(py::module &m) {
             .def("add_new_body", &tss::NamedBodyMap::addNewBody)
             .def("add_body", &tss::NamedBodyMap::addBody)
             .def("processBodyFrameDefinitions", &tss::NamedBodyMap::processBodyFrameDefinitions);
+
+	/////////////////////////////////////////////////////////////////////////////
+	// createBodies.h ///////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	py::class_<tss::BodySettings, std::shared_ptr<tss::BodySettings>>(
+			m, "BodySettings", tudatpy::body_settings_docstring().c_str())
+			.def_readwrite("constant_mass", &tss::BodySettings::constantMass)
+			.def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings)
+			.def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)
+			.def_readwrite("gravity_field_settings", &tss::BodySettings::gravityFieldSettings)
+			.def_readwrite("rotation_model_settings", &tss::BodySettings::rotationModelSettings)
+			.def_readwrite("shape_model_settings", &tss::BodySettings::shapeModelSettings)
+			.def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings)
+			.def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings)
+			.def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings)
+			.def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings);
+
+	py::class_<tss::BodyListSettings,
+			std::shared_ptr<tss::BodyListSettings> >(m, "BodyListSettings")
+			.def(py::init<//ctor 1
+						 const std::string,
+						 const std::string >(),
+				 py::arg("frame_origin") ,
+				 py::arg("frame_orientation"))
+			.def(py::init<//ctor 2
+						 const std::map< std::string, std::shared_ptr< tss::BodySettings > >&,
+						 const std::string,
+						 const std::string >(),
+				 py::arg("body_settings"),
+				 py::arg("frame_origin"),
+				 py::arg("frame_orientation"))
+			.def("at", &tss::BodyListSettings::at)
+			.def("add_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
+				 py::arg("body_name"))
+			.def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
+					(&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
+			.def("get_frame_origin", &tss::BodyListSettings::getFrameOrigin)
+			.def("get_frame_orientation", &tss::BodyListSettings::getFrameOrientation);
+
+	/////////////////////////////////////////////////////////////////////////////
+	// defaultBodies.h //////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
     // getDefaultBodySettings (overload 1)
     m.def("get_default_body_settings",
