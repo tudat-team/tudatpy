@@ -237,6 +237,13 @@ class Body {
     ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
   }
 
+	//! Get current state.
+	/*!
+	 * Returns the internally stored current state vector.
+	 * \return Current state.
+	 */
+	Eigen::Vector6d getState() { return currentState_; }
+
   //! Set current state of body manually
   /*!
      * Set current state of body manually, which must be in the global frame. Note that this
@@ -358,13 +365,6 @@ class Body {
       return currentBarycentricLongState_.template cast<StateScalarType>();
     }
   }
-
-  //! Get current state.
-  /*!
-     * Returns the internally stored current state vector.
-     * \return Current state.
-     */
-  Eigen::Vector6d getState() { return currentState_; }
 
   //! Get current rotational state.
   /*!

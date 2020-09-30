@@ -168,6 +168,25 @@ public:
 
 };
 
+inline std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicAcceleration(
+		const int maximumDegreeOfBodyExertingAcceleration,
+		const int maximumOrderOfBodyExertingAcceleration,
+		const int maximumDegreeOfBodyUndergoingAcceleration,
+		const int maximumOrderOfBodyUndergoingAcceleration,
+		const int maximumDegreeOfCentralBody = 0,
+		const int maximumOrderOfCentralBody = 0
+		)
+{
+	return std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
+			maximumDegreeOfBodyExertingAcceleration,
+			maximumOrderOfBodyExertingAcceleration,
+			maximumDegreeOfBodyUndergoingAcceleration,
+			maximumOrderOfBodyUndergoingAcceleration,
+			maximumDegreeOfCentralBody,
+			maximumOrderOfCentralBody
+			);
+}
+
 //! Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter.
 /*!
  *  Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter: the
@@ -225,6 +244,23 @@ public:
 
 };
 
+inline std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationCorrection(
+		const bool calculateSchwarzschildCorrection = true,
+		const bool calculateLenseThirringCorrection = false,
+		const bool calculateDeSitterCorrection = false,
+		const std::string primaryBody = "",
+		const Eigen::Vector3d centralBodyAngularMomentum = Eigen::Vector3d::Zero( )
+		)
+{
+	return std::make_shared< RelativisticAccelerationCorrectionSettings >(
+			calculateSchwarzschildCorrection,
+			calculateLenseThirringCorrection,
+			calculateDeSitterCorrection,
+			primaryBody,
+			centralBodyAngularMomentum
+			);
+}
+
 //! Class to define settings for empirical accelerations
 class EmpiricalAccelerationSettings: public AccelerationSettings
 {
@@ -256,6 +292,15 @@ public:
     Eigen::Vector3d cosineAcceleration_;
 
 };
+
+inline std::shared_ptr< EmpiricalAccelerationSettings > empiricalAcceleration(
+		const Eigen::Vector3d& constantAcceleration = Eigen::Vector3d::Zero( ),
+		const Eigen::Vector3d& sineAcceleration = Eigen::Vector3d::Zero( ),
+		const Eigen::Vector3d& cosineAcceleration = Eigen::Vector3d::Zero( )
+		)
+{
+	return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
+}
 
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 //! thrust implementation)
@@ -485,6 +530,33 @@ public:
 
 };
 
+inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionGuidanceSettings >
+        thrustDirectionGuidanceSettings,
+		const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
+{
+	return std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings );
+}
+
+inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration(
+		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
+		const std::function< double( const double ) > specificImpulseFunction,
+		const ThrustFrames thrustFrame = unspecified_thurst_frame,
+		const std::string centralBody = "" )
+{
+	return std::make_shared< ThrustAccelerationSettings >( dataInterpolationSettings, specificImpulseFunction,
+														thrustFrame, centralBody );
+}
+
+inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration(
+		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
+		const double constantSpecificImpulse,
+		const ThrustFrames thrustFrame = unspecified_thurst_frame,
+		const std::string centralBody = "" )
+{
+	return std::make_shared< ThrustAccelerationSettings >( dataInterpolationSettings, constantSpecificImpulse,
+														   thrustFrame, centralBody );
+}
+
 //! Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
 /*!
  *  Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..).
@@ -526,6 +598,16 @@ public:
     bool useTideRaisedOnPlanet_;
 };
 
+inline std::shared_ptr< DirectTidalDissipationAccelerationSettings > directTidalDissipationAcceleration(
+		const double k2LoveNumber, const double timeLag,
+		const bool includeDirectRadialComponent = true,
+		const bool useTideRaisedOnPlanet = true
+		)
+{
+	return std::make_shared< DirectTidalDissipationAccelerationSettings >( k2LoveNumber, timeLag,
+																		includeDirectRadialComponent,
+																		useTideRaisedOnPlanet);
+}
 
 //! Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
 /*!
@@ -566,6 +648,16 @@ public:
 
 };
 
+inline std::shared_ptr< MomentumWheelDesaturationAccelerationSettings > momentumWheelDesaturationAcceleration(
+		const std::vector< double > thrustMidTimes,
+		const std::vector< Eigen::Vector3d > deltaVValues,
+		const double totalManeuverTime,
+		const double maneuverRiseTime
+		)
+{
+	return std::make_shared< MomentumWheelDesaturationAccelerationSettings >( thrustMidTimes, deltaVValues,
+																		   totalManeuverTime, maneuverRiseTime);
+}
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
