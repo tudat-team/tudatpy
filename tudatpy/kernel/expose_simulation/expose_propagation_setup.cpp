@@ -34,34 +34,39 @@ void expose_propagation_setup(py::module &m) {
    */
 
   py::enum_<tba::AvailableAcceleration>(m, "AvailableAcceleration")
-      .value("undefined_acceleration", tba::AvailableAcceleration::undefined_acceleration)
-      .value("point_mass_gravity", tba::AvailableAcceleration::point_mass_gravity)
-      .value("central_gravity", tba::AvailableAcceleration::central_gravity)
-      .value("aerodynamic", tba::AvailableAcceleration::aerodynamic)
-      .value("cannon_ball_radiation_pressure", tba::AvailableAcceleration::cannon_ball_radiation_pressure)
-      .value("spherical_harmonic_gravity", tba::AvailableAcceleration::spherical_harmonic_gravity)
-      .value("mutual_spherical_harmonic_gravity", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity)
-      .value("third_body_point_mass_gravity", tba::AvailableAcceleration::third_body_point_mass_gravity)
-      .value("third_body_central_gravity", tba::AvailableAcceleration::third_body_central_gravity)
-      .value("third_body_spherical_harmonic_gravity", tba::AvailableAcceleration::third_body_spherical_harmonic_gravity)
-      .value("third_body_mutual_spherical_harmonic_gravity", tba::AvailableAcceleration::third_body_mutual_spherical_harmonic_gravity)
-      .value("thrust_acceleration", tba::AvailableAcceleration::thrust_acceleration)
-      .value("relativistic_correction_acceleration", tba::AvailableAcceleration::relativistic_correction_acceleration)
-      .value("empirical_acceleration", tba::AvailableAcceleration::empirical_acceleration)
-      .value("direct_tidal_dissipation_in_central_body_acceleration", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration)
-      .value("direct_tidal_dissipation_in_orbiting_body_acceleration", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration)
-      .value("panelled_radiation_pressure_acceleration", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration)
-      .value("momentum_wheel_desaturation_acceleration", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration)
-      .value("solar_sail_acceleration", tba::AvailableAcceleration::solar_sail_acceleration)
+      .value("undefined_acceleration_type", tba::AvailableAcceleration::undefined_acceleration)
+      .value("point_mass_gravity_type", tba::AvailableAcceleration::point_mass_gravity)
+      .value("central_gravity_type", tba::AvailableAcceleration::central_gravity)
+      .value("aerodynamic_type", tba::AvailableAcceleration::aerodynamic)
+      .value("cannon_ball_radiation_pressure_type", tba::AvailableAcceleration::cannon_ball_radiation_pressure)
+      .value("spherical_harmonic_gravity_type", tba::AvailableAcceleration::spherical_harmonic_gravity)
+      .value("mutual_spherical_harmonic_gravity_type", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity)
+      .value("third_body_point_mass_gravity_type", tba::AvailableAcceleration::third_body_point_mass_gravity)
+      .value("third_body_central_gravity_type", tba::AvailableAcceleration::third_body_central_gravity)
+      .value("third_body_spherical_harmonic_gravity_type", tba::AvailableAcceleration::third_body_spherical_harmonic_gravity)
+      .value("third_body_mutual_spherical_harmonic_gravity_type", tba::AvailableAcceleration::third_body_mutual_spherical_harmonic_gravity)
+      .value("thrust_acceleration_type", tba::AvailableAcceleration::thrust_acceleration)
+      .value("relativistic_correction_acceleration_type", tba::AvailableAcceleration::relativistic_correction_acceleration)
+      .value("empirical_acceleration_type", tba::AvailableAcceleration::empirical_acceleration)
+      .value("direct_tidal_dissipation_in_central_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration)
+      .value("direct_tidal_dissipation_in_orbiting_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration)
+      .value("panelled_radiation_pressure_acceleration_type", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration)
+      .value("momentum_wheel_desaturation_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration)
+      .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration)
+      .export_values();
+
+  py::enum_<tss::ThrustFrames>(m, "ThrustFrames")
+      .value("unspecified_thrust_frame", tss::ThrustFrames::unspecified_thrust_frame)
+      .value("inertial_thurst_frame", tss::ThrustFrames::inertial_thurst_frame)
+      .value("lvlh_thrust_frame", tss::ThrustFrames::lvlh_thrust_frame)
       .export_values();
 
   py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
-      .value("euler", tni::AvailableIntegrators::euler)
-      .value("runge_kutta4", tni::AvailableIntegrators::rungeKutta4)
-      .value("rk4", tni::AvailableIntegrators::rungeKutta4)
-      .value("runge_kutta_variable_step_size", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
-      .value("bulirsch_stoer", tni::AvailableIntegrators::bulirschStoer)
-      .value("adams_bashforth_moulton", tni::AvailableIntegrators::adamsBashforthMoulton)
+      .value("euler_type", tni::AvailableIntegrators::euler)
+      .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
+      .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
+      .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer)
+      .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
       .export_values();
 
   py::class_<
@@ -84,6 +89,21 @@ void expose_propagation_setup(py::module &m) {
       .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
       .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
       .export_values();
+
+  m.def("euler",
+        &tni::eulerSettings< double >,
+        py::arg("initial_time"),
+        py::arg("initial_time_step"),
+        py::arg("save_frequency") = 1,
+        py::arg("assess_termination_on_minor_steps") = false);
+
+  m.def("runge_kutta_4",
+        &tni::rungeKutta4Settings< double >,
+        py::arg("initial_time"),
+        py::arg("initial_time_step"),
+        py::arg("save_frequency") = 1,
+        py::arg("assess_termination_on_minor_steps") = false);
+
 
   py::class_<tni::BulirschStoerIntegratorSettings<double>,
              std::shared_ptr<tni::BulirschStoerIntegratorSettings<double>>,
@@ -163,16 +183,15 @@ void expose_propagation_setup(py::module &m) {
   //////////////////////////////////////////////////////////////////////////////
 
   // Unified interface functions for acceleration settings
-  m.def("acceleration", &tss::acceleration, py::arg("acceleration_type"));
-  m.def("point_mass_gravity_acceleration", &tss::pointMassGravityAcceleration);
-  m.def("aerodynamic_acceleration", &tss::aerodynamicAcceleration);
-  m.def("cannon_ball_radiation_pressure_acceleration", &tss::cannonBallRadiationPressureAcceleration);
-  m.def("spherical_harmonic_acceleration", &tss::sphericalHarmonicAcceleration);
-  m.def("mutual_spherical_harmonic_acceleration", &tss::mutualSphericalHarmonicAcceleration);
-  m.def("relativistic_acceleration_correction", &tss::relativisticAccelerationCorrection);
-  m.def("empirical_acceleration", &tss::empiricalAcceleration);
+//  m.def("acceleration", &tss::acceleration, py::arg("acceleration_type"));
+  m.def("point_mass_gravity", &tss::pointMassGravityAcceleration);
+  m.def("aerodynamic", &tss::aerodynamicAcceleration);
+  m.def("cannon_ball_radiation_pressure_", &tss::cannonBallRadiationPressureAcceleration);
+  m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration);
+  m.def("mutual_spherical_harmonic_gravity", &tss::mutualSphericalHarmonicAcceleration);
+  m.def("relativistic_correction", &tss::relativisticAccelerationCorrection);
+  m.def("empirical", &tss::empiricalAcceleration);
   // TODO: add overloaded methods
-  // TODO: correct typo 'unspecified_thurst_frame' in Tudat
   m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
           const std::shared_ptr<tss::ThrustMagnitudeSettings>>(&tss::thrustAcceleration),
           py::arg("thrust_direction_guidance_settings"),
@@ -184,7 +203,7 @@ void expose_propagation_setup(py::module &m) {
 					const std::string>(&tss::thrustAcceleration),
 			py::arg("data_interpolation_settings"),
 			py::arg("specific_impulse_function"),
-			py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thurst_frame,
+            py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
 			py::arg("central_body") = "");
   m.def("thrust_acceleration", py::overload_cast<
 					const std::shared_ptr<tinterp::DataInterpolationSettings<double, Eigen::Vector3d>>&,
@@ -193,7 +212,7 @@ void expose_propagation_setup(py::module &m) {
 					const std::string>(&tss::thrustAcceleration),
 			py::arg("data_interpolation_settings"),
 			py::arg("constant_specific_impulse"),
-			py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thurst_frame,
+            py::arg("thrust_frame") = tss::ThrustFrames::unspecified_thrust_frame,
 			py::arg("central_body") = "");
   m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration);
   m.def("momentum_wheel_desaturation_acceleration", &tss::momentumWheelDesaturationAcceleration);

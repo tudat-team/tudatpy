@@ -4,9 +4,7 @@
 import numpy as np
 from tudatpy import elements
 from tudatpy.kernel import constants
-from tudatpy.kernel.math import numerical_integrators
 from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.astro import propagators
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 
@@ -19,7 +17,7 @@ def main():
     simulation_start_epoch = 0.0
 
     # Set numerical integration fixed step size.
-    fixed_step_size = 0.5
+    fixed_step_size = 10.0
 
     # Set simulation end epoch.
     simulation_end_epoch = constants.JULIAN_DAY
@@ -35,12 +33,7 @@ def main():
         bodies_to_create,
         simulation_start_epoch - 300.0,
         simulation_end_epoch + 300.0,
-        fixed_step_size)
-
-    for body in bodies_to_create:
-        body_settings[body].ephemeris_settings.reset_frame_orientation("J2000")
-        body_settings[body].rotation_model_settings.reset_original_frame("J2000")
-
+        "Earth","J2000")
     bodies = environment_setup.create_bodies(body_settings)
 
     ###########################################################################
@@ -48,8 +41,8 @@ def main():
     ###########################################################################
 
     # Create vehicle objects.
-    bodies["Delfi-C3"] = environment_setup.Body()
-    bodies["Delfi-C3"].set_constant_body_mass(400.0)
+    bodies.add_new_body( "Delfi-C3", 1 )
+    bodies.get( "Delfi-C3").set_constant_body_mass(400.0)
 
     ###########################################################################
     # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
@@ -65,7 +58,7 @@ def main():
         are_coefficients_in_negative_axis_direction=True
     )
     # Create and set aerodynamic coefficients object
-    bodies["Delfi-C3"].set_aerodynamic_coefficient_interface(
+    bodies.get( "Delfi-C3" ).set_aerodynamic_coefficient_interface(
         environment_setup.create_aerodynamic_coefficient_interface(
             aero_c_settings,
             "Delfi-C3")
@@ -80,18 +73,10 @@ def main():
         "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
 
     # Create and set radiation pressure settings
-    bodies["Delfi-C3"].set_radiation_pressure_interface(
+    bodies.get( "Delfi-C3" ).set_radiation_pressure_interface(
         "Sun", environment_setup.create_radiation_pressure_interface(
             rad_press_settings, "Delfi-C3", bodies))
 
-    # TODO: Simplify (post 1.0.0 work)
-
-    ###########################################################################
-    # FINALIZE BODIES #########################################################
-    ###########################################################################
-
-    # Finalize body creation.
-    environment_setup.set_global_frame_body_ephemerides(bodies, "SSB", "J2000")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -104,28 +89,28 @@ def main():
     central_bodies = ["Earth"]
 
     # Define unique (Sun, Earth) accelerations acting on Delfi-C3.
-    accelerations_of_delfi_c3 = dict(
+    accelerations_settings_delfi_c3 = dict(
         Sun=
         [
-            propagation_setup.Acceleration.canon_ball_radiation_pressure()
+            propagation_setup.cannon_ball_radiation_pressure_()
             # AccelerationSettings(AvailableAcceleration.cannon_ball_radiation_pressure) # LEGACY DESIGN.
         ],
         Earth=
         [
-            propagation_setup.Acceleration.spherical_harmonic_gravity(5, 5),
+            propagation_setup.spherical_harmonic_gravity(5, 5),
             # SphericalHarmonicAccelerationSettings(5, 5), # LEGACY DESIGN.
 
-            propagation_setup.Acceleration.aerodynamic()
+            propagation_setup.aerodynamic()
             # AccelerationSettings(AvailableAcceleration.aerodynamic) # LEGACY DESIGN.
         ])
 
     # Define other point mass accelerations acting on Delfi-C3.
     for other in set(bodies_to_create).difference({"Sun", "Earth"}):
-        accelerations_of_delfi_c3[other] = [
-            propagation_setup.Acceleration.point_mass_gravity()]
+        accelerations_settings_delfi_c3[other] = [
+            propagation_setup.point_mass_gravity()]
 
     # Create global accelerations dictionary.
-    acceleration_dict = {"Delfi-C3": accelerations_of_delfi_c3}
+    acceleration_dict = {"Delfi-C3": accelerations_settings_delfi_c3}
 
     # Create acceleration models.
     acceleration_models = propagation_setup.create_acceleration_models_dict(
@@ -143,8 +128,8 @@ def main():
     # Keplerian elements and later on converted to Cartesian elements.
 
     # Set Keplerian elements for Delfi-C3
-    earth_gravitational_parameter = bodies[
-        "Earth"].gravity_field_model.get_gravitational_parameter()
+    earth_gravitational_parameter = bodies.get(
+        "Earth" ).gravity_field_model.get_gravitational_parameter()
 
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
@@ -154,8 +139,8 @@ def main():
         inc=np.deg2rad(85.3),
         raan=np.deg2rad(23.4),
         argp=np.deg2rad(235.7),
-        theta=np.deg2rad(139.87))
-
+        theta=np.deg2rad(139.87)
+    )
     # Create propagation settings.
     propagator_settings = propagation_setup.TranslationalStatePropagatorSettings(
         central_bodies,
@@ -165,8 +150,7 @@ def main():
         simulation_end_epoch
     )
     # Create numerical integrator settings.
-    integrator_settings = numerical_integrators.IntegratorSettings(
-        numerical_integrators.AvailableIntegrators.rungeKutta4,
+    integrator_settings = propagation_setup.runge_kutta_4(
         simulation_start_epoch,
         fixed_step_size
     )
