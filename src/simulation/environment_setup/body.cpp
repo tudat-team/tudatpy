@@ -112,7 +112,7 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( auto bodyIterator : bodyMap.get( ) )
+    for( auto bodyIterator : bodyMap.getMap( ) )
     {
         if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
@@ -154,7 +154,7 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
                                 const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator : bodyMap.get( )  )
+    for( auto bodyIterator : bodyMap.getMap( )  )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }

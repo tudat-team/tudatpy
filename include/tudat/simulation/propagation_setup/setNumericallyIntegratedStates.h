@@ -425,7 +425,7 @@ void resetMultiArcIntegratedEphemerides(
     }
     
     // Having set new ephemerides, update body properties depending on ephemerides.
-    for( auto bodyIterator : bodyMap.get( )  )
+    for( auto bodyIterator : bodyMap.getMap( )  )
     {
         bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
     }
@@ -574,7 +574,7 @@ void resetIntegratedRotationalEphemerides(
                 bodyMap, bodiesToIntegrate, startIndexAndSize.first, equationsOfMotionNumericalSolution );
     
     // Having set new ephemerides, update body properties depending on ephemerides.
-    for( auto bodyIterator : bodyMap.get( )  )
+    for( auto bodyIterator : bodyMap.getMap( )  )
     {
         //NOTE: Inefficient, should be done once following full integration.
         bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );

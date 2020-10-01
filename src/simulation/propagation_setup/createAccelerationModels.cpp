@@ -1064,7 +1064,7 @@ createThrustAcceleratioModel(
     if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
     {
         // Check input consisten
-        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thurst_frame )
+        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thrust_frame )
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }

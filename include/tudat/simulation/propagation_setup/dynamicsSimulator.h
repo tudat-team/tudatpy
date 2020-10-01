@@ -153,7 +153,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     // Create ReferenceFrameManager and call overloaded function.
     return getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >(
                 bodiesToIntegrate, centralBodies, bodyMap, initialTime,
-                simulation_setup::createFrameManager( bodyMap.get( ) ) );
+                simulation_setup::createFrameManager( bodyMap.getMap( ) ) );
 }
 
 //! Function to get the states of single body, w.r.t. some central body, at the requested time.
@@ -422,7 +422,7 @@ public:
 
         if( setIntegratedResult_ )
         {
-            frameManager_ = simulation_setup::createFrameManager( bodyMap.get( ) );
+            frameManager_ = simulation_setup::createFrameManager( bodyMap.getMap( ) );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
@@ -831,7 +831,7 @@ public:
             equationsOfMotionNumericalSolutionRaw_.clear( );
         }
 
-        for( auto bodyIterator : bodyMap_.get( )  )
+        for( auto bodyIterator : bodyMap_.getMap( )  )
         {
             bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
         }

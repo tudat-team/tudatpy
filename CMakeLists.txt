@@ -156,10 +156,10 @@ if (TUDAT_DOWNLOAD_AND_BUILD_BOOST OR (TUDAT_BOOST_VERSION AND TUDAT_BOOST_SHA1)
     message(STATUS "Downloading Boost Version ${BoostVersion}")
     include(cmake_modules/add_boost.cmake)
     message(STATUS "Downloading Boost Version ${BoostVersion} - done")
-#    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-#    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
-#    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
-#    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(Boost_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/boost/stage/lib)
+    #    set(Boost_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/boost)
+    #    set(Boost_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boost)
 endif ()
 
 # Set cmake build-type. If it not supplied by the user (either directly as an argument of through
@@ -172,13 +172,57 @@ endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
+
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
-if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+
+#if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#    set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#endif ()
+include(TudatFindBoost)
+message(STATUS "Checking for _GLIBCXX_USE_CXX11_ABI definition...")
+if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+    if (_GLIBCXX_USE_CXX11_ABI)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=1")
+        set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=1")
+        message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=1 added to CMAKE_CXX_FLAGS!")
+    elseif (NOT _GLIBCXX_USE_CXX11_ABI)
+        message(Boost_VERSION_MAJOR: ${Boost_VERSION_MAJOR})
+        message(Boost_VERSION_MINOR: ${Boost_VERSION_MINOR})
+        message(TUDAT_BUILD_GNU: ${TUDAT_BUILD_GNU})
+        if ((${Boost_VERSION_MAJOR} LESS_EQUAL "1") AND (${Boost_VERSION_MINOR} LESS_EQUAL "67") AND ${TUDAT_BUILD_GNU})
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
+        elseif ((${Boost_VERSION_MAJOR} GREATER_EQUAL "1") AND (${Boost_VERSION_MINOR} GREATER_EQUAL "70") AND ${TUDAT_BUILD_GNU})
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
+        elseif (${TUDAT_BUILD_MSVC})
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
+        else ()
+            message(STATUS "_GLIBCXX_USE_CXX11_ABI was set as 0, but since the boost version is >=1.68|>1.70 [${Boost_VERSION}] and compiler_id is GNU, it's being ignored!")
+            add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+        endif ()
+    endif ()
+
+else ()
+    message(STATUS "_GLIBCXX_USE_CXX11_ABI was not found.")
 endif ()
+
+#if (NOT TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+#    if (Boost_MAJOR LESS_EQUAL 1)
+#        if (Boost_MINOR LESS 67)
+#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+#        endif ()
+#    endif ()
+#endif ()
 
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
@@ -188,7 +232,7 @@ include_directories(TudatResources_INCLUDE_DIRS)
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
-if (APPLE)
+if (APPLE OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
@@ -212,18 +256,18 @@ endif ()
 # Adds Boost_UNIT_TEST_FRAMEWORK_LIBRARY if required.
 # Configure Boost libraries.
 
-if (TUDAT_DOWNLOAD_AND_BUILD_BOOST)
-    include(TudatFindBoost)
-#    # Configure Boost libraries.
-#    set(Boost_USE_STATIC_LIBS ON)
-#    set(Boost_USE_MULTITHREADED ON)
-#    set(Boost_USE_STATIC_RUNTIME ON)
-#    # Find Boost libraries on local system.
-#    find_package(Boost ${BoostVersion} COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS} REQUIRED)
-else ()
-    include(TudatFindBoost)
-endif ()
-if (APPLE)
+#if (TUDAT_DOWNLOAD_AND_BUILD_BOOST)
+#    include(TudatFindBoost)
+#    #    # Configure Boost libraries.
+#    #    set(Boost_USE_STATIC_LIBS ON)
+#    #    set(Boost_USE_MULTITHREADED ON)
+#    #    set(Boost_USE_STATIC_RUNTIME ON)
+#    #    # Find Boost libraries on local system.
+#    #    find_package(Boost ${BoostVersion} COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS} REQUIRED)
+#else ()
+#    include(TudatFindBoost)
+#endif ()
+if (UNIX OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
@@ -245,10 +289,8 @@ else ()
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
-
 # TODO: add NRLMSISE back in
 add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
-
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
@@ -292,6 +334,7 @@ add_subdirectory(src/math)
 add_subdirectory(src/simulation)
 add_subdirectory(src/io)
 add_subdirectory(examples)
+
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests)
@@ -396,3 +439,4 @@ unset(RELATIVE_INSTALL_DATA_DIR)
 unset(RELATIVE_INSTALL_MAN_DIR)
 unset(RELATIVE_INSTALL_TESTS_DIR)
 unset(RELATIVE_INSTALL_CMAKE_DIR)
+

@@ -46,6 +46,7 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const std::string baseFrameOrientation )
 {
+    std::cout<<"default frame orientation: "<<baseFrameOrientation<<std::endl;
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< DirectSpiceEphemerisSettings >(
                 "SSB", baseFrameOrientation, false, false, false );
@@ -296,7 +297,7 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     else if( !( initialTime == initialTime ) )
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName );
+                    bodyName, baseFrameOrientation );
     }
     else
     {

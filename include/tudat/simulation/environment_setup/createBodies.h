@@ -98,6 +98,11 @@ public:
         return bodySettings_.at( bodyName );
     }
 
+    std::shared_ptr< BodySettings > get( const std::string& bodyName ) const
+    {
+        return at( bodyName );
+    }
+
     int count( const std::string& bodyName ) const
     {
         return bodySettings_.count( bodyName );
@@ -117,7 +122,7 @@ public:
 
     std::string getFrameOrientation( ) const { return frameOrientation_; }
 
-    std::map< std::string, std::shared_ptr< BodySettings > > get( ) const { return bodySettings_; }
+    std::map< std::string, std::shared_ptr< BodySettings > > getMap( ) const { return bodySettings_; }
 
 
 private:
