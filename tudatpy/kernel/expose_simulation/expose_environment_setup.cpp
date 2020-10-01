@@ -106,7 +106,7 @@ void expose_environment_setup(py::module &m) {
                  py::arg("frame_orientation") = "ECLIPJ2000",
                  py::arg("body_map") =
             std::unordered_map< std::string, std::shared_ptr< tss::Body > >( ) )
-            .def("get_body", &tss::NamedBodyMap::getBody)
+            .def("get", &tss::NamedBodyMap::get)
             .def("count", &tss::NamedBodyMap::count)
             .def("add_new_body", &tss::NamedBodyMap::addNewBody)
             .def("add_body", &tss::NamedBodyMap::addBody)
@@ -143,6 +143,7 @@ void expose_environment_setup(py::module &m) {
 				 py::arg("frame_origin"),
 				 py::arg("frame_orientation"))
 			.def("at", &tss::BodyListSettings::at)
+            .def("get", &tss::BodyListSettings::get)
 			.def("add_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
 				 py::arg("body_name"))
 			.def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
