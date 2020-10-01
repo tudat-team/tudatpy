@@ -286,6 +286,7 @@ int getTotalCountOfKernelsLoaded() {
 //! Clear all Spice kernels.
 void clearSpiceKernels() { kclear_c(); }
 
+//! Get all standard Spice kernels used in tudat.
 std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels) {
   std::vector<std::string> standardSpiceKernels;
 
