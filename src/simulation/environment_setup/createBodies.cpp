@@ -112,7 +112,7 @@ NamedBodyMap createBodies(
         const BodyListSettings& bodySettings )
 {
     std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
-            = determineBodyCreationOrder( bodySettings.get( ) );
+            = determineBodyCreationOrder( bodySettings.getMap( ) );
 
     // Declare map of bodies that is to be returned.
     NamedBodyMap bodyList = NamedBodyMap(
@@ -242,6 +242,7 @@ NamedBodyMap createBodies(
                      orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
         }
     }
+
     bodyList.processBodyFrameDefinitions( );
 
     return bodyList;

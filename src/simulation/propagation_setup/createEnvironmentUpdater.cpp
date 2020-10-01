@@ -893,7 +893,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
             std::vector< std::string > > singleAccelerationUpdateNeeds;
 
     // Iterate over all bodies.
-    for( auto bodyIterator : bodyMap.get( )  )
+    for( auto bodyIterator : bodyMap.getMap( )  )
     {
         singleAccelerationUpdateNeeds.clear( );
 

@@ -38,21 +38,16 @@ int main( )
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
 
     // Create body objects.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ) );
+    std::vector< std::string > bodiesToCreate{ "Earth" };
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+						Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    bodyMap.addNewBody( "Asterix" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -60,11 +55,8 @@ int main( )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
-
-    bodiesToPropagate.push_back( "Asterix" );
-    centralBodies.push_back( "Earth" );
+    std::vector< std::string > bodiesToPropagate{ "Asterix" };
+    std::vector< std::string > centralBodies{ "Earth" };
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
