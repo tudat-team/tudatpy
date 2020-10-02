@@ -55,14 +55,14 @@ def main():
     # Define accelerations acting on Delfi-C3.
     acceleration_settings_delfi_c3 = dict(
 
-        Earth=[propagation_setup.point_mass_gravity( ) ]
+        Earth=[propagation_setup.acceleration.point_mass_gravity( ) ]
     )
 
     # Create global accelerations dictionary.
     acceleration_settings = {"Delfi-C3": acceleration_settings_delfi_c3}
 
     # Create acceleration models.
-    acceleration_models = propagation_setup.create_acceleration_models_dict(
+    acceleration_models = propagation_setup.create_acceleration_models(
         bodies, acceleration_settings, bodies_to_propagate, central_bodies)
 
     ###########################################################################
@@ -74,8 +74,8 @@ def main():
     # Keplerian elements and later on converted to Cartesian elements.
 
     # Set Keplerian elements for Delfi-C3
-    earth_gravitational_parameter = bodies.get(
-        "Earth").gravity_field_model.get_gravitational_parameter()
+    earth_gravitational_parameter = environment_setup.get_body_gravitational_parameter( 
+	bodies, "Earth" )
 
     # REVISED CONTEMPORARY DESIGN.
     system_initial_state = elements.keplerian2cartesian(
@@ -97,7 +97,7 @@ def main():
         simulation_end_epoch
     )
     # Create numerical integrator settings.
-    integrator_settings = propagation_setup.runge_kutta_4(
+    integrator_settings = propagation_setup.integrator.runge_kutta_4(
         simulation_start_epoch,
         fixed_step_size
     )
