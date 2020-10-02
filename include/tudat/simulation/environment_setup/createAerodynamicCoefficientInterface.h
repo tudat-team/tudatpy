@@ -300,7 +300,7 @@ public:
             const double referenceArea,
             const Eigen::Vector3d& constantForceCoefficient,
             const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true ) :
+            const bool areCoefficientsInNegativeAxisDirection = true ):
         AerodynamicCoefficientSettings(
             constant_aerodynamic_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Zero( ),
@@ -339,7 +339,7 @@ private:
 
 };
 
-inline std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
+inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
         const double referenceArea,
         const Eigen::Vector3d& constantForceCoefficient,
         const bool areCoefficientsInAerodynamicFrame = true,
@@ -349,6 +349,7 @@ inline std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodyn
                 referenceArea, constantForceCoefficient,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
+
 
 //! Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
 /*!
