@@ -183,8 +183,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Vehicle", systemInitialState, "Earth" ) );
+    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
 
     std::vector< double > arcStartTimeList =
     { initialEphemerisTime, initialEphemerisTime + 0.33 * 86400.0, initialEphemerisTime + 0.66 * 86400.0 };

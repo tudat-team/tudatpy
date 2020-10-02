@@ -251,13 +251,15 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back(
-                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
-                        integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
+        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
+
+//        parameterNames.push_back(
+//                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+//                        multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
+//                        integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
+//        parameterNames.push_back(
+//                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+//                        singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
