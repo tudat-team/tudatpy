@@ -156,18 +156,20 @@ executeEarthMoonSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) +
-                    initialStateDifference.segment( 0, 6 ),
-                    centralBodies[ 0 ] ) );
-        parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) +
-                    initialStateDifference.segment( 6, 6 ),
-                    centralBodies[ 1 ] ) );
+        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
+
+//        parameterNames.push_back(
+//                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+//                        "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
+//                            "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+//                    initialStateDifference.segment( 0, 6 ),
+//                    centralBodies[ 0 ] ) );
+//        parameterNames.push_back(
+//                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+//                        "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
+//                            "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+//                    initialStateDifference.segment( 6, 6 ),
+//                    centralBodies[ 1 ] ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -768,10 +770,12 @@ executePhobosRotationSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
-        parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
-                                      "Phobos", unitRotationState, "ECLIPJ2000" ) );
-        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                      "Phobos", initialTranslationalState, "Mars" ) );
+        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
+
+//        parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+//                                      "Phobos", unitRotationState, "ECLIPJ2000" ) );
+//        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+//                                      "Phobos", initialTranslationalState, "Mars" ) );
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", mean_moment_of_inertia ) );
         parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(

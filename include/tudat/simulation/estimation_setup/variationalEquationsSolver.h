@@ -810,6 +810,22 @@ public:
         return variationalEquationsSolution_;
     }
 
+    std::map< double, Eigen::MatrixXd >& getStateTransitionMatrixSolution( )
+    {
+        return variationalEquationsSolution_[ 0 ];
+    }
+
+    std::map< double, Eigen::MatrixXd >& getSensitivityMatrixSolution( )
+    {
+        return variationalEquationsSolution_[ 1];
+    }
+
+    const std::map< double, Eigen::VectorXd >& getEquationsOfMotionSolution( )
+    {
+        return dynamicsSimulator_->getEquationsOfMotionNumericalSolution( );
+    }
+
+
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
     /*!
      * Function to return object used for numerically propagating and managing the solution of the equations of motion.

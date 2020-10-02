@@ -60,6 +60,7 @@ public:
 
 };
 
+
 //! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
 /*!
  * Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
@@ -717,6 +718,46 @@ public:
     std::vector< std::string > deformingBodies_;
 
 };
+
+
+inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock(
+        const std::string bodyName,
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                minimumDegree, minimumOrder, maximumDegree, maximumOrder,
+                bodyName, spherical_harmonics_cosine_coefficient_block );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlock(
+        const std::string bodyName,
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                minimumDegree, minimumOrder, maximumDegree, maximumOrder,
+                bodyName, spherical_harmonics_sine_coefficient_block );
+}
 
 
 } // namespace estimatable_parameters
