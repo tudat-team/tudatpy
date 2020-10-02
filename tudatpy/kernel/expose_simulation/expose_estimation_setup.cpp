@@ -26,40 +26,40 @@ namespace tni = tudat::numerical_integrators;
 
 namespace tudatpy {
 
-void expose_estimation_setup(py::module &m) {
+void expose_estimated_parameter_setup(py::module &m) {
 
     py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes")
-            .value("arc_wise_initial_body_state", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
-            .value("initial_body_state", tep::EstimatebleParametersEnum::initial_body_state)
-            .value("initial_rotational_body_state", tep::EstimatebleParametersEnum::initial_rotational_body_state)
-            .value("gravitational_parameter", tep::EstimatebleParametersEnum::gravitational_parameter)
-            .value("constant_drag_coefficient", tep::EstimatebleParametersEnum::constant_drag_coefficient)
-            .value("radiation_pressure_coefficient", tep::EstimatebleParametersEnum::radiation_pressure_coefficient)
-            .value("arc_wise_radiation_pressure_coefficient", tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient)
-            .value("spherical_harmonics_cosine_coefficient_block", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
-            .value("spherical_harmonics_sine_coefficient_block", tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block)
-            .value("constant_rotation_rate", tep::EstimatebleParametersEnum::constant_rotation_rate)
-            .value("rotation_pole_position", tep::EstimatebleParametersEnum::rotation_pole_position)
-            .value("constant_additive_observation_bias", tep::EstimatebleParametersEnum::constant_additive_observation_bias)
-            .value("arcwise_constant_additive_observation_bias", tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias)
-            .value("constant_relative_observation_bias", tep::EstimatebleParametersEnum::constant_relative_observation_bias)
-            .value("arcwise_constant_relative_observation_bias", tep::EstimatebleParametersEnum::arcwise_constant_relative_observation_bias)
-            .value("ppn_parameter_gamma", tep::EstimatebleParametersEnum::ppn_parameter_gamma)
-            .value("ppn_parameter_beta", tep::EstimatebleParametersEnum::ppn_parameter_beta)
-            .value("ground_station_position", tep::EstimatebleParametersEnum::ground_station_position)
-            .value("equivalence_principle_lpi_violation_parameter", tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter)
-            .value("empirical_acceleration_coefficients", tep::EstimatebleParametersEnum::empirical_acceleration_coefficients)
-            .value("arc_wise_empirical_acceleration_coefficients", tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients)
-            .value("full_degree_tidal_love_number", tep::EstimatebleParametersEnum::full_degree_tidal_love_number)
-            .value("single_degree_variable_tidal_love_number", tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number)
-            .value("direct_dissipation_tidal_time_lag", tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag)
-            .value("mean_moment_of_inertia", tep::EstimatebleParametersEnum::mean_moment_of_inertia)
-            .value("arc_wise_constant_drag_coefficient", tep::EstimatebleParametersEnum::arc_wise_constant_drag_coefficient)
-            .value("periodic_spin_variation", tep::EstimatebleParametersEnum::periodic_spin_variation)
-            .value("polar_motion_amplitude", tep::EstimatebleParametersEnum::polar_motion_amplitude)
-            .value("core_factor", tep::EstimatebleParametersEnum::core_factor)
-            .value("free_core_nutation_rate", tep::EstimatebleParametersEnum::free_core_nutation_rate)
-            .value("desaturation_delta_v_values", tep::EstimatebleParametersEnum::desaturation_delta_v_values)
+            .value("arc_wxise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
+            .value("initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state)
+            .value("initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state)
+            .value("gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter)
+            .value("constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient)
+            .value("radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient)
+            .value("arc_wise_radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient)
+            .value("spherical_harmonics_cosine_coefficient_block_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
+            .value("spherical_harmonics_sine_coefficient_block_type", tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block)
+            .value("constant_rotation_rate_type", tep::EstimatebleParametersEnum::constant_rotation_rate)
+            .value("rotation_pole_position_type", tep::EstimatebleParametersEnum::rotation_pole_position)
+            .value("constant_additive_observation_bias_type", tep::EstimatebleParametersEnum::constant_additive_observation_bias)
+            .value("arcwise_constant_additive_observation_bias_type", tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias)
+            .value("constant_relative_observation_bias_type", tep::EstimatebleParametersEnum::constant_relative_observation_bias)
+            .value("arcwise_constant_relative_observation_bias_type", tep::EstimatebleParametersEnum::arcwise_constant_relative_observation_bias)
+            .value("ppn_parameter_gamma_type", tep::EstimatebleParametersEnum::ppn_parameter_gamma)
+            .value("ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta)
+            .value("ground_station_position_type", tep::EstimatebleParametersEnum::ground_station_position)
+            .value("equivalence_principle_lpi_violation_parameter_type", tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter)
+            .value("empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::empirical_acceleration_coefficients)
+            .value("arc_wise_empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients)
+            .value("full_degree_tidal_love_number_type", tep::EstimatebleParametersEnum::full_degree_tidal_love_number)
+            .value("single_degree_variable_tidal_love_number_type", tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number)
+            .value("direct_dissipation_tidal_time_lag_type", tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag)
+            .value("mean_moment_of_inertia_type", tep::EstimatebleParametersEnum::mean_moment_of_inertia)
+            .value("arc_wise_constant_drag_coefficient_type", tep::EstimatebleParametersEnum::arc_wise_constant_drag_coefficient)
+            .value("periodic_spin_variation_type", tep::EstimatebleParametersEnum::periodic_spin_variation)
+            .value("polar_motion_amplitude_type", tep::EstimatebleParametersEnum::polar_motion_amplitude)
+            .value("core_factor_type", tep::EstimatebleParametersEnum::core_factor)
+            .value("free_core_nutation_rate_type", tep::EstimatebleParametersEnum::free_core_nutation_rate)
+            .value("desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values)
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
@@ -71,6 +71,25 @@ void expose_estimation_setup(py::module &m) {
                  py::arg("associated_body"),
                  py::arg("parameter_type"),
                  py::arg("point_on_body_id") = "");
+
+    m.def("initial_states",
+          &tss::getInitialStateParameterSettings< double >,
+          py::arg("propagator_settings"), py::arg("bodies") );
+
+    m.def("gravitation_parameter",
+          &tep::gravitationalParameter,
+          py::arg("body_name") );
+
+    m.def("constant_drag_coefficient",
+          &tep::constantDragCoefficient,
+          py::arg("body_name") );
+
+    m.def("radiationPressureCoefficient",
+          &tep::constantDragCoefficient,
+          py::arg("body_name") );
+}
+
+void expose_estimation_setup(py::module &m) {
 
     //TODO: Remove variationalOnlyIntegratorSettings
     py::class_<
@@ -102,12 +121,31 @@ void expose_estimation_setup(py::module &m) {
                  &tp::SingleArcVariationalEquationsSolver<double, double>::integrateVariationalAndDynamicalEquations,
                  py::arg("initial_states"),
                  py::arg("integrate_equations_concurrently"))
-            .def("get_numerical_variational_equations_solution",
+            .def("get_variational_equations_solution",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getNumericalVariationalEquationsSolution)
+            .def("get_state_transition_matrix_solution",
+                 &tp::SingleArcVariationalEquationsSolver<double, double>::getStateTransitionMatrixSolution)
+            .def("get_sensitivity_matrix_solution",
+                 &tp::SingleArcVariationalEquationsSolver<double, double>::getSensitivityMatrixSolution)
+            .def("get_equations_of_motion_solution",
+                 &tp::SingleArcVariationalEquationsSolver<double, double>::getEquationsOfMotionSolution)
             .def("get_dynamics_simulator",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getDynamicsSimulator)
             .def("reset_parameter_estimate",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate);
+
+    py::class_<tep::EstimatableParameterSet<double>,
+               std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
+
+    m.def("create_parameters_to_estimate",
+          &tss::createParametersToEstimate< double >,
+          py::arg("parameter_settings"),
+          py::arg("bodies"),
+          py::arg("propagator_settings") =
+            std::shared_ptr< tp::PropagatorSettings< double > >( ) );
+
+    auto parameter_setup = m.def_submodule("parameter");
+    expose_estimated_parameter_setup(parameter_setup);
 }
 
 }// namespace tudatpy

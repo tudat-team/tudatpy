@@ -403,7 +403,7 @@ void expose_environment_setup(py::module &m) {
             .def("processBodyFrameDefinitions", &tss::NamedBodyMap::processBodyFrameDefinitions);
 
 
-    m.def("get_body_gravitatibodyName, const bool processBodonal_parameter",
+    m.def("get_body_gravitational_parameter",
           &tss::getBodyGravitationalParameter,
           py::arg("body_collection"), py::arg("body_name"));
 
