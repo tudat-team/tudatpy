@@ -76,17 +76,83 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tss::getInitialStateParameterSettings< double >,
           py::arg("propagator_settings"), py::arg("bodies") );
 
-    m.def("gravitation_parameter",
+    m.def("gravitational_parameter",
           &tep::gravitationalParameter,
           py::arg("body_name") );
+
+    m.def("gravitational_parameter",
+          &tep::gravitationalParameter,
+          py::arg("body_name") );
+
+    .def("spherical_harmonics_c_coefficients",
+         py::overload_cast< const std::string,
+         const int,
+         const int,
+         const int,
+         const int >(&tep::sphericalHarmonicsCosineBlock),
+         py::arg("minimum_degree"),
+         py::arg("minimum_order"),
+         py::arg("maximum_degree"),
+         py::arg("maximum_order"),
+         py::arg("body_name") );
+
+    .def("spherical_harmonics_c_coefficients",
+         py::overload_cast< const std::string,
+         std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
+         py::arg("minimum_degree"),
+         py::arg("minimum_order"),
+         py::arg("maximum_degree"),
+         py::arg("maximum_order"),
+         py::arg("body_name") )
+
+    .def("spherical_harmonics_s_coefficients",
+         py::overload_cast< const std::string,
+         const int,
+         const int,
+         const int,
+         const int  >(&tep::sphericalHarmonicsSineBlock),
+         py::arg("minimum_degree"),
+         py::arg("minimum_order"),
+         py::arg("maximum_degree"),
+         py::arg("maximum_order"),
+         py::arg("body_name") );
+
+    .def("spherical_harmonics_s_coefficients",
+         py::overload_cast< const std::string,
+         std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
+         py::arg("minimum_degree"),
+         py::arg("minimum_order"),
+         py::arg("maximum_degree"),
+         py::arg("maximum_order"),
+         py::arg("body_name") );
+
 
     m.def("constant_drag_coefficient",
           &tep::constantDragCoefficient,
           py::arg("body_name") );
 
-    m.def("radiationPressureCoefficient",
-          &tep::constantDragCoefficient,
+    m.def("arcwise_radiation_pressure_coefficient",
+          &tep::arcwiseRadiationPressureCoefficient,
+          py::arg("body_name"),
+          py::arg("arc_initial_times") );
+
+    m.def("constant_rotation_rate",
+          &tep::constantRotationRate,
           py::arg("body_name") );
+
+    m.def("rotation_pole_position",
+          &tep::rotationPolePosition,
+          py::arg("body_name") );
+
+    m.def("rotation_pole_position",
+          &tep::rotationPolePosition,
+          py::arg("body_name") );
+
+    m.def("ppn_parameter_gamma",
+          &tep::ppnParameterGamma );
+
+    m.def("ppn_parameter_beta",
+          &tep::ppnParameterBeta );
 }
 
 void expose_estimation_setup(py::module &m) {
@@ -135,7 +201,7 @@ void expose_estimation_setup(py::module &m) {
                  &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate);
 
     py::class_<tep::EstimatableParameterSet<double>,
-               std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
+            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
 
     m.def("create_parameters_to_estimate",
           &tss::createParametersToEstimate< double >,
