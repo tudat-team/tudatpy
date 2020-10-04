@@ -747,6 +747,14 @@ inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineB
                 bodyName, spherical_harmonics_cosine_coefficient_block );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock(
+        const std::string bodyName,
+        const std::vector< std::pair< int, int > > blockIndices )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                blockIndices,  bodyName, spherical_harmonics_cosine_coefficient_block );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlock(
         const std::string bodyName,
         const int minimumDegree,
@@ -759,6 +767,44 @@ inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlo
                 bodyName, spherical_harmonics_sine_coefficient_block );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlock(
+        const std::string bodyName,
+        const std::vector< std::pair< int, int > > blockIndices )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                blockIndices,  bodyName, spherical_harmonics_sine_coefficient_block );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseRadiationPressureCoefficient(
+        std::string associatedBody,
+                    const std::vector< double > arcStartTimeList )
+{
+    return std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
+                associatedBody, arcStartTimeList );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > constantRotationRate(
+        std::string bodyName)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, constant_rotation_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
+        std::string bodyName)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
+{
+    return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_gamma );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
+{
+    return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
+}
 
 } // namespace estimatable_parameters
 
