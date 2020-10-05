@@ -16,6 +16,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#define TUDAT_NAN std::numeric_limits< double >::signaling_NaN()
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -316,20 +318,20 @@ void expose_integrator_setup(py::module &m) {
           py::arg("save_frequency") = 1,
           py::arg("assess_termination_on_minor_steps") = false);
 
-    m.def("runge_kutta_variable_step_size",
-		  &tni::rungeKuttaVariableStepSettings< double >,
-		  py::arg("initial_time"),
-		  py::arg("initial_time_step"),
-		  py::arg("coefficient_set"),
-		  py::arg("minimum_step_size"),
-		  py::arg("maximum_step_size"),
-		  py::arg("relative_error_tolerance"),
-		  py::arg("absolute_error_tolerance"),
-		  py::arg("save_frequency") = 1,
-		  py::arg("assess_termination_on_minor_steps") = false,
-		  py::arg("safety_factor_for_next_step_size") = 0.8,
-		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+//    m.def("runge_kutta_variable_step_size",
+//		  &tni::rungeKuttaVariableStepSettings< double >,
+//		  py::arg("initial_time"),
+//		  py::arg("initial_time_step"),
+//		  py::arg("coefficient_set"),
+//		  py::arg("minimum_step_size"),
+//		  py::arg("maximum_step_size"),
+//		  py::arg("relative_error_tolerance"),
+//		  py::arg("absolute_error_tolerance"),
+//		  py::arg("save_frequency") = 1,
+//		  py::arg("assess_termination_on_minor_steps") = false,
+//		  py::arg("safety_factor_for_next_step_size") = 0.8,
+//		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
+//		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
     // TODO: Add overload_cast
 	m.def("runge_kutta_variable_step_size_vector_tolerances",
@@ -397,7 +399,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("termination_settings"),
 		py::arg("propagator") = tp::cowell,
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("translational",
 		py::overload_cast<
@@ -416,7 +418,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("termination_settings"),
 		py::arg("propagator") = tp::cowell,
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("translational",
 		py::overload_cast<
@@ -435,7 +437,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("end_time"),
 		py::arg("propagator") = tp::cowell,
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("translational",
 		py::overload_cast<
@@ -454,7 +456,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("end_time"),
 		py::arg("propagator") = tp::cowell,
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("mass",
 		py::overload_cast<
@@ -469,7 +471,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("initial_body_masses"),
 		py::arg("termination_settings"),
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("mass",
 		py::overload_cast<
@@ -484,7 +486,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("initial_body_masses"),
 		py::arg("termination_settings"),
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 
   m.def("mass",
 		py::overload_cast<
@@ -499,7 +501,7 @@ void expose_propagator_setup(py::module &m)
 		py::arg("initial_body_masses"),
 		py::arg("termination_settings"),
 		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
-		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+		py::arg("print_interval") = TUDAT_NAN);
 }
 
 void expose_propagation_setup(py::module &m) {

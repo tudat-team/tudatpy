@@ -1,6 +1,6 @@
-from .kernel.simulation.propagation_setup import AvailableAcceleration
-from .kernel.simulation.propagation_setup import AccelerationSettings
-from .kernel.simulation.propagation_setup import SphericalHarmonicAccelerationSettings
+from .kernel.simulation.propagation_setup.acceleration import AvailableAcceleration
+from .kernel.simulation.propagation_setup.acceleration import AccelerationSettings
+from .kernel.simulation.propagation_setup.acceleration import SphericalHarmonicAccelerationSettings
 
 
 def modify_propagation_setup(propagation_setup):
