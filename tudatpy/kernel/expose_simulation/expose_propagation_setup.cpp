@@ -331,6 +331,7 @@ void expose_integrator_setup(py::module &m) {
 		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
 		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
+    // TODO: Add overload_cast
 	m.def("runge_kutta_variable_step_size_vector_tolerances",
 		  &tni::rungeKuttaVariableStepSettings< double, Eigen::VectorXd >,
 		  py::arg("initial_time"),
@@ -375,6 +376,130 @@ void expose_integrator_setup(py::module &m) {
 		  py::arg("save_frequency") = 1,
 		  py::arg("assess_termination_on_minor_steps") = false,
 		  py::arg("bandwidth") = 200.0 );
+}
+
+void expose_propagator_setup(py::module &m)
+{
+  m.def("translational",
+		py::overload_cast<
+				const std::vector< std::string >&,
+				const tba::AccelerationMap&,
+				const std::vector< std::string >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const std::shared_ptr<tp::PropagationTerminationSettings>,
+				const tp::TranslationalPropagatorType,
+				const std::shared_ptr<tp::DependentVariableSaveSettings>,
+				const double>(&tp::translationalStatePropagatorSettings<double>),
+		py::arg("central_bodies"),
+		py::arg("accelerations_map"),
+		py::arg("bodies_to_integrate"),
+		py::arg("initial_body_states"),
+		py::arg("termination_settings"),
+		py::arg("propagator") = tp::cowell,
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("translational",
+		py::overload_cast<
+				const std::vector< std::string >&,
+				const tss::SelectedAccelerationMap&,
+				const std::vector< std::string >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const std::shared_ptr<tp::PropagationTerminationSettings>,
+				const tp::TranslationalPropagatorType,
+				const std::shared_ptr<tp::DependentVariableSaveSettings>,
+				const double>(&tp::translationalStatePropagatorSettings<double>),
+		py::arg("central_bodies"),
+		py::arg("acceleration_settings_map"),
+		py::arg("bodies_to_integrate"),
+		py::arg("initial_body_states"),
+		py::arg("termination_settings"),
+		py::arg("propagator") = tp::cowell,
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("translational",
+		py::overload_cast<
+				const std::vector< std::string >&,
+				const tba::AccelerationMap&,
+				const std::vector< std::string >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const double,
+				const tp::TranslationalPropagatorType,
+				const std::shared_ptr<tp::DependentVariableSaveSettings>,
+				const double>(&tp::translationalStatePropagatorSettings<double>),
+		py::arg("central_bodies"),
+		py::arg("accelerations_map"),
+		py::arg("bodies_to_integrate"),
+		py::arg("initial_body_states"),
+		py::arg("end_time"),
+		py::arg("propagator") = tp::cowell,
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("translational",
+		py::overload_cast<
+				const std::vector< std::string >&,
+				const tss::SelectedAccelerationMap&,
+				const std::vector< std::string >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const double,
+				const tp::TranslationalPropagatorType,
+				const std::shared_ptr<tp::DependentVariableSaveSettings>,
+				const double>(&tp::translationalStatePropagatorSettings<double>),
+		py::arg("central_bodies"),
+		py::arg("acceleration_settings_map"),
+		py::arg("bodies_to_integrate"),
+		py::arg("initial_body_states"),
+		py::arg("end_time"),
+		py::arg("propagator") = tp::cowell,
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("mass",
+		py::overload_cast<
+				const std::vector< std::string >,
+				const std::map< std::string, std::shared_ptr< tba::MassRateModel > >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const std::shared_ptr< tp::PropagationTerminationSettings >,
+				const std::shared_ptr< tp::DependentVariableSaveSettings >,
+				const double >(&tp::massPropagatorSettings<double>),
+		py::arg("bodies_with_mass_to_propagate"),
+		py::arg("mass_rate_models"),
+		py::arg("initial_body_masses"),
+		py::arg("termination_settings"),
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("mass",
+		py::overload_cast<
+				const std::vector< std::string >,
+				const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > >&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const std::shared_ptr< tp::PropagationTerminationSettings >,
+				const std::shared_ptr< tp::DependentVariableSaveSettings >,
+				const double >(&tp::massPropagatorSettings<double>),
+		py::arg("bodies_with_mass_to_propagate"),
+		py::arg("mass_rate_models"),
+		py::arg("initial_body_masses"),
+		py::arg("termination_settings"),
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
+
+  m.def("mass",
+		py::overload_cast<
+				const std::vector< std::string >,
+				const tss::SelectedMassRateModelMap&,
+				const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+				const std::shared_ptr< tp::PropagationTerminationSettings >,
+				const std::shared_ptr< tp::DependentVariableSaveSettings >,
+				const double >(&tp::massPropagatorSettings<double>),
+		py::arg("bodies_with_mass_to_propagate"),
+		py::arg("mass_rate_settings"),
+		py::arg("initial_body_masses"),
+		py::arg("termination_settings"),
+		py::arg("dependent_variables_to_save") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+		py::arg("print_interval") = tudat::mathematical_constants::TUDAT_NAN);
 }
 
 void expose_propagation_setup(py::module &m) {
@@ -826,5 +951,8 @@ void expose_propagation_setup(py::module &m) {
 
   auto integrator_setup = m.def_submodule("integrator");
   expose_integrator_setup(integrator_setup);
+
+  auto propagator_setup = m.def_submodule("propagator");
+  expose_propagator_setup(propagator_setup);
 }
 }// namespace tudatpy
