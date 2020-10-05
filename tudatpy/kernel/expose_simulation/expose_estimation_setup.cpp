@@ -84,47 +84,41 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::gravitationalParameter,
           py::arg("body_name") );
 
-    .def("spherical_harmonics_c_coefficients",
+    m.def("spherical_harmonics_c_coefficients",
+          py::overload_cast< const std::string,
+          const int,
+          const int,
+          const int,
+          const int >(&tep::sphericalHarmonicsCosineBlock),
+          py::arg("body_name"),
+          py::arg("minimum_degree"),
+          py::arg("minimum_order"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order") );
+
+    m.def("spherical_harmonics_c_coefficients",
+          py::overload_cast< const std::string,
+          std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
+          py::arg("body_name"),
+          py::arg("block_indices") );
+
+    m.def("spherical_harmonics_s_coefficients",
          py::overload_cast< const std::string,
          const int,
          const int,
          const int,
-         const int >(&tep::sphericalHarmonicsCosineBlock),
+         const int  >(&tep::sphericalHarmonicsSineBlock),
+         py::arg("body_name"),
          py::arg("minimum_degree"),
          py::arg("minimum_order"),
          py::arg("maximum_degree"),
-         py::arg("maximum_order"),
-         py::arg("body_name") );
+         py::arg("maximum_order") );
 
-    .def("spherical_harmonics_c_coefficients",
-         py::overload_cast< const std::string,
-         std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
-         py::arg("minimum_degree"),
-         py::arg("minimum_order"),
-         py::arg("maximum_degree"),
-         py::arg("maximum_order"),
-         py::arg("body_name") )
-
-            .def("spherical_harmonics_s_coefficients",
-                 py::overload_cast< const std::string,
-                 const int,
-                 const int,
-                 const int,
-                 const int  >(&tep::sphericalHarmonicsSineBlock),
-                 py::arg("minimum_degree"),
-                 py::arg("minimum_order"),
-                 py::arg("maximum_degree"),
-                 py::arg("maximum_order"),
-                 py::arg("body_name") );
-
-    .def("spherical_harmonics_s_coefficients",
-         py::overload_cast< const std::string,
-         std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
-         py::arg("minimum_degree"),
-         py::arg("minimum_order"),
-         py::arg("maximum_degree"),
-         py::arg("maximum_order"),
-         py::arg("body_name") );
+    m.def("spherical_harmonics_s_coefficients",
+          py::overload_cast< const std::string,
+          std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
+          py::arg("body_name"),
+          py::arg("block_indices") );
 
 
     m.def("constant_drag_coefficient",
