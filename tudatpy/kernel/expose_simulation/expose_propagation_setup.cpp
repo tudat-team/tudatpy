@@ -316,6 +316,35 @@ void expose_integrator_setup(py::module &m) {
           py::arg("save_frequency") = 1,
           py::arg("assess_termination_on_minor_steps") = false);
 
+    m.def("runge_kutta_variable_step_size",
+		  &tni::rungeKuttaVariableStepSettings< double >,
+		  py::arg("initial_time"),
+		  py::arg("initial_time_step"),
+		  py::arg("coefficient_set"),
+		  py::arg("minimum_step_size"),
+		  py::arg("maximum_step_size"),
+		  py::arg("relative_error_tolerance"),
+		  py::arg("absolute_error_tolerance"),
+		  py::arg("save_frequency") = 1,
+		  py::arg("assess_termination_on_minor_steps") = false,
+		  py::arg("safety_factor_for_next_step_size") = 0.8,
+		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
+		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+
+	m.def("runge_kutta_variable_step_size_vector_tolerances",
+		  &tni::rungeKuttaVariableStepSettings< double, Eigen::VectorXd >,
+		  py::arg("initial_time"),
+		  py::arg("initial_time_step"),
+		  py::arg("coefficient_set"),
+		  py::arg("minimum_step_size"),
+		  py::arg("maximum_step_size"),
+		  py::arg("relative_error_tolerance"),
+		  py::arg("absolute_error_tolerance"),
+		  py::arg("save_frequency") = 1,
+		  py::arg("assess_termination_on_minor_steps") = false,
+		  py::arg("safety_factor_for_next_step_size") = 0.8,
+		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
+		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
     m.def("bulirsch_stoer",
           &tni::bulirschStoerIntegratorSettings< double >,
@@ -325,13 +354,27 @@ void expose_integrator_setup(py::module &m) {
             py::arg("maximum_number_of_steps"),
             py::arg("minimum_step_size"),
             py::arg("maximum_step_size"),
-            py::arg("relative_errorPtolerance") = 1.0E-12,
-            py::arg("absolute_errorPtolerance") = 1.0E-12,
+            py::arg("relative_error_tolerance") = 1.0E-12,
+            py::arg("absolute_error_tolerance") = 1.0E-12,
             py::arg("save_frequency") = 1,
             py::arg("check_termination_on_minor_steps") = 0,
             py::arg("safety_factor_for_next_step_size") = 0.7,
             py::arg("maximum_factor_increase_for_next_step_size") = 10.0,
             py::arg("miniimum_factor_increase_for_next_step_size") = 10.0 );
+
+	m.def("adams_bashforth_moulton",
+		&tni::adamsBashforthMoultonSettings< double >,
+		  py::arg("initial_time"),
+		  py::arg("initial_time_step"),
+		  py::arg("minimum_step_size"),
+		  py::arg("maximum_step_size"),
+		  py::arg("relative_error_tolerance") = 1.0E-12,
+		  py::arg("absolute_error_tolerance") = 1.0E-12,
+		  py::arg("minimum_order") = 6,
+		  py::arg("maximum_order") = 11,
+		  py::arg("save_frequency") = 1,
+		  py::arg("assess_termination_on_minor_steps") = false,
+		  py::arg("bandwidth") = 200.0 );
 }
 
 void expose_propagation_setup(py::module &m) {
