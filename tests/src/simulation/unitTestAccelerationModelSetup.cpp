@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
                                          sunStateInterpolaotor ) );
 
     // Update bodies to current state (normally done by numerical integrator).
-    for( auto bodyIterator : bodyMap.get( )  )
+    for( auto bodyIterator : bodyMap.getMap( )  )
     {
         bodyIterator.second->setStateFromEphemeris( 1.0E7 );
     }
