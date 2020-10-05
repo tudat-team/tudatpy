@@ -105,17 +105,17 @@ void expose_estimated_parameter_setup(py::module &m) {
          py::arg("maximum_order"),
          py::arg("body_name") )
 
-    .def("spherical_harmonics_s_coefficients",
-         py::overload_cast< const std::string,
-         const int,
-         const int,
-         const int,
-         const int  >(&tep::sphericalHarmonicsSineBlock),
-         py::arg("minimum_degree"),
-         py::arg("minimum_order"),
-         py::arg("maximum_degree"),
-         py::arg("maximum_order"),
-         py::arg("body_name") );
+            .def("spherical_harmonics_s_coefficients",
+                 py::overload_cast< const std::string,
+                 const int,
+                 const int,
+                 const int,
+                 const int  >(&tep::sphericalHarmonicsSineBlock),
+                 py::arg("minimum_degree"),
+                 py::arg("minimum_order"),
+                 py::arg("maximum_degree"),
+                 py::arg("maximum_order"),
+                 py::arg("body_name") );
 
     .def("spherical_harmonics_s_coefficients",
          py::overload_cast< const std::string,
@@ -136,6 +136,11 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body_name"),
           py::arg("arc_initial_times") );
 
+    m.def("arcwise_drag_coefficient",
+          &tep::arcwiseDragCoefficient,
+          py::arg("body_name"),
+          py::arg("arc_initial_times") );
+
     m.def("constant_rotation_rate",
           &tep::constantRotationRate,
           py::arg("body_name") );
@@ -153,6 +158,72 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("ppn_parameter_beta",
           &tep::ppnParameterBeta );
+
+
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::string,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("use_complex_love_number") = 0 );
+
+
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::string,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("use_complex_love_number") = 0 );
 }
 
 void expose_estimation_setup(py::module &m) {
