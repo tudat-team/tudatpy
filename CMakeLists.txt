@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.3)
 if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
-set(CMAKE_PREFIX_PATH "/home/dominic/anaconda3/envs/tudat-deps-env/")
+
 # Set cmake policy.
 cmake_policy(SET CMP0069 NEW)
 
@@ -51,6 +51,9 @@ option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
 
 # Build option: include default data suite.
 #option(TUDAT_FETCH_DATA_SUITE "Downloads default data suite during build." OFF)
+
+# Build with propagation tests.
+option(TUDAT_BUILD_WITH_PROPAGATION_TESTS "Build tudat with propagation tests. (>30 s propagations - Total test time > 10 minutes.)" OFF)
 
 # Build with estimation tools.
 option(TUDAT_BUILD_WITH_ESTIMATION_TOOLS "Build tudat with estimation tools." ON)
@@ -87,6 +90,11 @@ message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BU
 message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
+
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 # +============================================================================
 # INSTALL TREE CONFIGURATION (Project name independent)
 #  Offer the user the choice of overriding the installation directories.
