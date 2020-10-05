@@ -76,17 +76,148 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tss::getInitialStateParameterSettings< double >,
           py::arg("propagator_settings"), py::arg("bodies") );
 
-    m.def("gravitation_parameter",
+    m.def("gravitational_parameter",
           &tep::gravitationalParameter,
           py::arg("body_name") );
+
+    m.def("gravitational_parameter",
+          &tep::gravitationalParameter,
+          py::arg("body_name") );
+
+    m.def("spherical_harmonics_c_coefficients",
+          py::overload_cast< const std::string,
+          const int,
+          const int,
+          const int,
+          const int >(&tep::sphericalHarmonicsCosineBlock),
+          py::arg("body_name"),
+          py::arg("minimum_degree"),
+          py::arg("minimum_order"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order") );
+
+    m.def("spherical_harmonics_c_coefficients",
+          py::overload_cast< const std::string,
+          std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock),
+          py::arg("body_name"),
+          py::arg("block_indices") );
+
+    m.def("spherical_harmonics_s_coefficients",
+         py::overload_cast< const std::string,
+         const int,
+         const int,
+         const int,
+         const int  >(&tep::sphericalHarmonicsSineBlock),
+         py::arg("body_name"),
+         py::arg("minimum_degree"),
+         py::arg("minimum_order"),
+         py::arg("maximum_degree"),
+         py::arg("maximum_order") );
+
+    m.def("spherical_harmonics_s_coefficients",
+          py::overload_cast< const std::string,
+          std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock),
+          py::arg("body_name"),
+          py::arg("block_indices") );
+
 
     m.def("constant_drag_coefficient",
           &tep::constantDragCoefficient,
           py::arg("body_name") );
 
-    m.def("radiationPressureCoefficient",
-          &tep::constantDragCoefficient,
+    m.def("arcwise_radiation_pressure_coefficient",
+          &tep::arcwiseRadiationPressureCoefficient,
+          py::arg("body_name"),
+          py::arg("arc_initial_times") );
+
+    m.def("arcwise_drag_coefficient",
+          &tep::arcwiseDragCoefficient,
+          py::arg("body_name"),
+          py::arg("arc_initial_times") );
+
+    m.def("constant_rotation_rate",
+          &tep::constantRotationRate,
           py::arg("body_name") );
+
+    m.def("rotation_pole_position",
+          &tep::rotationPolePosition,
+          py::arg("body_name") );
+
+    m.def("rotation_pole_position",
+          &tep::rotationPolePosition,
+          py::arg("body_name") );
+
+    m.def("ppn_parameter_gamma",
+          &tep::ppnParameterGamma );
+
+    m.def("ppn_parameter_beta",
+          &tep::ppnParameterBeta );
+
+
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::string,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_invariant_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const bool >(&tep::orderInvariantKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("use_complex_love_number") = 0 );
+
+
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::string,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_body"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const std::vector< std::string >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("deforming_bodies"),
+          py::arg("use_complex_love_number") = 0 );
+
+    m.def("order_varying_k_love_number",
+          py::overload_cast< const std::string&,
+          const int,
+          const std::vector< int >&,
+          const bool >(&tep::orderVaryingKLoveNumber),
+          py::arg("deformed_body"),
+          py::arg("degree"),
+          py::arg("orders"),
+          py::arg("use_complex_love_number") = 0 );
 }
 
 void expose_estimation_setup(py::module &m) {
@@ -135,7 +266,7 @@ void expose_estimation_setup(py::module &m) {
                  &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate);
 
     py::class_<tep::EstimatableParameterSet<double>,
-               std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
+            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
 
     m.def("create_parameters_to_estimate",
           &tss::createParametersToEstimate< double >,
