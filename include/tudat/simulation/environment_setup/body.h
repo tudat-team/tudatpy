@@ -1545,6 +1545,11 @@ public:
         return frameOrientation_;
     }
 
+    std::unordered_map< std::string, std::shared_ptr< Body > > getMap( )
+    {
+        return bodyMap_;
+    }
+
 private:
 
     std::string frameOrigin_;
