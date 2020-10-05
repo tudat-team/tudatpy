@@ -778,9 +778,17 @@ inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlo
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseRadiationPressureCoefficient(
         std::string associatedBody,
-                    const std::vector< double > arcStartTimeList )
+        const std::vector< double > arcStartTimeList )
 {
     return std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
+                associatedBody, arcStartTimeList );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragCoefficient(
+        std::string associatedBody,
+        const std::vector< double > arcStartTimeList )
+{
+    return std::make_shared< ArcWiseDragCoefficientEstimatableParameterSettings >(
                 associatedBody, arcStartTimeList );
 }
 
@@ -804,6 +812,71 @@ inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
 inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
 {
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::string deformingBody,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, deformingBody, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< std::string >& deformingBodies,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, deformingBodies, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, std::vector< std::string >( ), useComplexValue );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const std::string deformingBody,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, deformingBody, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const std::vector< std::string >& deformingBodies,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, deformingBodies, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
 } // namespace estimatable_parameters
