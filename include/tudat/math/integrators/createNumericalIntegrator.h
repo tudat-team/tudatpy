@@ -647,7 +647,7 @@ std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIn
 }
 
 template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultoSettings(
+std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const IndependentVariableType minimumStepSize,
