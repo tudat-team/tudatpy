@@ -129,7 +129,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
 
 
     // Define body to propagate.
-    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.createBody( nameBodyToPropagate );
     bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -175,7 +175,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.createBody( nameBodyToPropagate );
     bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -185,7 +185,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
     for ( unsigned int i = 0 ; i < nameTransferBodies.size( ) ; i ++ )
     {
 
-        bodyMap.addNewBody( nameTransferBodies[ i ] );
+        bodyMap.createBody( nameTransferBodies[ i ] );
         bodyMap.at( nameTransferBodies[ i ] )->setEphemeris( ephemerisVectorTransferBodies[ i ] );
         bodyMap.at( nameTransferBodies[ i ] )->setGravityFieldModel( simulation_setup::createGravityFieldModel(
                                                                       std::make_shared< simulation_setup::CentralGravityFieldSettings >( gravitationalParametersTransferBodies[ i ] ),

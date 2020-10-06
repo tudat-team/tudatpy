@@ -103,7 +103,7 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
     simulation_setup::NamedBodyMap bodyMap = createBodies(
                 setupBodySettingsCR3BP( distancePrimarySecondary, namePrimaryBody, nameSecondaryBody, frameOrientation,
                                         primaryGravitationalParameter, secondaryGravitationalParameter ) );
-    bodyMap.addNewBody( nameBodyToPropagate );
+    bodyMap.createBody( nameBodyToPropagate );
     bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
