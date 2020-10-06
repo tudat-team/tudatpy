@@ -799,6 +799,22 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromTLE(
 			interpolator, observerName, referenceFrameName );
 }
 
+inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
+        const Eigen::Vector6d& initialStateInKeplerianElements,
+                         const double epochOfInitialState,
+                         const double centralBodyGravitationalParameter,
+                         const std::string& referenceFrameOrigin = "SSB",
+                         const std::string& referenceFrameOrientation = "ECLIPJ2000",
+                         const double rootFinderAbsoluteTolerance =
+        200.0 * std::numeric_limits< double >::epsilon( ),
+                         const double rootFinderMaximumNumberOfIterations = 1000.0 )
+{
+    return std::make_shared< KeplerEphemerisSettings >(
+                initialStateInKeplerianElements, epochOfInitialState, centralBodyGravitationalParameter,
+                referenceFrameOrigin, referenceFrameOrientation, rootFinderAbsoluteTolerance,
+                rootFinderMaximumNumberOfIterations );
+}
+
 //! Function to create a ephemeris model.
 /*!
  *  Function to create a ephemeris model based on model-specific settings for the ephemeris.
