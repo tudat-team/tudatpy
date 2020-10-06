@@ -396,10 +396,13 @@ void expose_environment_setup(py::module &m) {
             std::unordered_map< std::string, std::shared_ptr< tss::Body > >( ) )
             .def("get", &tss::NamedBodyMap::get)
             .def("count", &tss::NamedBodyMap::count)
-            .def("add_new_body", &tss::NamedBodyMap::addNewBody,
-            py::arg("body_name"),
-            py::arg("process_body") = 1 )
-            .def("add_body", &tss::NamedBodyMap::addBody)
+            .def("create_body", &tss::NamedBodyMap::createBody,
+                 py::arg("body_name"),
+                 py::arg("process_body") = 1 )
+            .def("add_body", &tss::NamedBodyMap::addBody,
+                 py::arg("body_to_add"),
+                 py::arg("body_name"),
+                 py::arg("process_body") = 1 )
             .def("processBodyFrameDefinitions", &tss::NamedBodyMap::processBodyFrameDefinitions);
 
 
