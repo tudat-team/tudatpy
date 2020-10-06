@@ -384,8 +384,8 @@ void expose_environment_setup(py::module &m) {
             .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
             .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"));
 
-    py::class_<tss::NamedBodyMap,
-            std::shared_ptr<tss::NamedBodyMap> >(m, "NamedBodyMap")
+    py::class_<tss::SystemOfBodies,
+            std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies")
             .def(py::init<//ctor 1
                  const std::string,
                  const std::string,
@@ -394,16 +394,16 @@ void expose_environment_setup(py::module &m) {
                  py::arg("frame_orientation") = "ECLIPJ2000",
                  py::arg("body_map") =
             std::unordered_map< std::string, std::shared_ptr< tss::Body > >( ) )
-            .def("get", &tss::NamedBodyMap::get)
-            .def("count", &tss::NamedBodyMap::count)
-            .def("create_body", &tss::NamedBodyMap::createBody,
+            .def("get", &tss::SystemOfBodies::get)
+            .def("count", &tss::SystemOfBodies::count)
+            .def("create_body", &tss::SystemOfBodies::createBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1 )
-            .def("add_body", &tss::NamedBodyMap::addBody,
+            .def("add_body", &tss::SystemOfBodies::addBody,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1 )
-            .def("processBodyFrameDefinitions", &tss::NamedBodyMap::processBodyFrameDefinitions);
+            .def("processBodyFrameDefinitions", &tss::SystemOfBodies::processBodyFrameDefinitions);
 
 
     m.def("get_body_gravitational_parameter",

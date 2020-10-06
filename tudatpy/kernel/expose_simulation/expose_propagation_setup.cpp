@@ -599,7 +599,7 @@ void expose_propagation_setup(py::module &m) {
   // createAccelerationModels.cpp
   //////////////////////////////////////////////////////////////////////////////
   m.def("create_acceleration_models",// overload [1/2]
-        py::overload_cast<const tss::NamedBodyMap &,
+        py::overload_cast<const tss::SystemOfBodies &,
                           const tss::SelectedAccelerationMap &,
                           const std::vector<std::string> &,
                           const std::vector<std::string> &>(
@@ -610,7 +610,7 @@ void expose_propagation_setup(py::module &m) {
         py::arg("central_bodies"));
 
   m.def("create_acceleration_models",// overload [2/2]
-        py::overload_cast<const tss::NamedBodyMap &,
+        py::overload_cast<const tss::SystemOfBodies &,
                           const tss::SelectedAccelerationMap &,
                           const std::map<std::string, std::string> &>(
             &tss::createAccelerationModelsMap),
@@ -624,7 +624,7 @@ void expose_propagation_setup(py::module &m) {
   //  m.def("get_initial_state_of_bodies",// overload [1/2]
   //        py::overload_cast<const std::vector<std::string> &,
   //                          const std::vector<std::string> &,
-  //                          const tss::NamedBodyMap &,
+  //                          const tss::SystemOfBodies &,
   //                          const double,
   //                          std::shared_ptr<te::ReferenceFrameManager>>(
   //            &tp::getInitialStatesOfBodies<>));
@@ -632,7 +632,7 @@ void expose_propagation_setup(py::module &m) {
   m.def("get_initial_state_of_bodies",// overload [2/2]
         py::overload_cast<const std::vector<std::string> &,
                           const std::vector<std::string> &,
-                          const tss::NamedBodyMap &,
+                          const tss::SystemOfBodies &,
                           const double>(
             &tp::getInitialStatesOfBodies<>),
         py::arg("bodies_to_propagate"),
@@ -644,7 +644,7 @@ void expose_propagation_setup(py::module &m) {
       tp::SingleArcDynamicsSimulator<double, double>,
       std::shared_ptr<tp::SingleArcDynamicsSimulator<double, double>>>(m, "SingleArcDynamicsSimulator")
       .def(py::init<
-               const tudat::simulation_setup::NamedBodyMap &,
+               const tudat::simulation_setup::SystemOfBodies &,
                const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<double>>,
                const std::shared_ptr<tp::PropagatorSettings<double>>,
                const bool,
