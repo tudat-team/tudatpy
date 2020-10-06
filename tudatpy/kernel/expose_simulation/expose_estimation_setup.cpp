@@ -227,7 +227,7 @@ void expose_estimation_setup(py::module &m) {
             tp::SingleArcVariationalEquationsSolver<double, double>,
             std::shared_ptr<tp::SingleArcVariationalEquationsSolver<double, double>>>(m, "SingleArcVariationalEquationsSolver")
             .def(py::init<
-                 const tudat::simulation_setup::NamedBodyMap&,
+                 const tudat::simulation_setup::SystemOfBodies&,
                  const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings<double>>,
                  const std::shared_ptr< tp::PropagatorSettings<double>>,
                  const std::shared_ptr< tep::EstimatableParameterSet< double > >,
