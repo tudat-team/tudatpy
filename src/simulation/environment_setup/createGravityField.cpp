@@ -214,7 +214,7 @@ std::pair< double, double  > readGravityFieldFile(
 std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
 {
     using namespace tudat::gravitation;
@@ -280,14 +280,14 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         else
         {
             std::function< void( ) > inertiaTensorUpdateFunction;
-            if( bodyMap.count( body ) == 0 )
+            if( bodies.count( body ) == 0 )
             {
                 inertiaTensorUpdateFunction = std::function< void( ) >( );
             }
             else
             {
                 inertiaTensorUpdateFunction =
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( body ), true );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( body ), true );
             }
 
             // Check consistency of cosine and sine coefficients.
@@ -317,7 +317,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 }
                 else
                 {
-                    if( bodyMap.at( body )->getGravityFieldModel( ) != nullptr )
+                    if( bodies.at( body )->getGravityFieldModel( ) != nullptr )
                     {
                         std::string errorMessage = "Warning when making time-dependent gravity field model for body " + body +
                                 " existing gravity field is not empty but overwritten in Body! ";

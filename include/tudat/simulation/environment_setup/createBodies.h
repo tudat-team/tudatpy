@@ -73,12 +73,12 @@ struct BodySettings
 };
 
 void addAerodynamicCoefficientInterface(
-        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
 
 
 void addRadiationPressureInterface(
-        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
 
 class BodyListSettings
@@ -138,7 +138,7 @@ void setSimpleRotationSettingsFromSpice(
         const BodyListSettings& bodySettings, const std::string& bodyName, const double  spiceEvaluation );
 
 void addEmptyTabulateEphemeris(
-        const NamedBodyMap& bodyMap, const std::string& bodyName, const std::string& ephemerisOrigin = "" );
+        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin = "" );
 
 //! Function that determines the order in which bodies are to be created
 /*!
@@ -158,7 +158,7 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
  *  pointers to an object of class BodySettings
  *  \return List of bodies created according to settings in bodySettings.
  */
-NamedBodyMap createBodies(
+SystemOfBodies createBodies(
         const BodyListSettings& bodySettings );
 
 

@@ -29,32 +29,32 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
+//! Function to setup a system of bodies corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central, departure and arrival bodies.
 /*!
- * Function to setup Lambert targeter map. The body map contains the central body, the body to be propagated and the departure and
+ * Function to setup Lambert targeter map. The system of bodies contains the central body, the body to be propagated and the departure and
  * arrival bodies. The positions of the departure and arrival bodies are directly retrived from ephemerides.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies.
  * \return Body map for the Lambert targeter
  */
-simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
+simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& departureAndArrivalBodies );
 
 
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
+simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& departureAndArrivalBodies,
         const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies);
 
-//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
+//! Function to setup a system of bodies corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
 /*!
- * Function to setup a Lambert targeter map. The body map contains the central, departure and arrival bodies and the body to be propagated.
+ * Function to setup a Lambert targeter map. The system of bodies contains the central, departure and arrival bodies and the body to be propagated.
  * The positions of the departure and arrival bodies are defined by the user and provided as inputs.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
@@ -63,7 +63,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForLambertT
  * \param cartesianPositionAtArrival Vector containing the position coordinates of the arrival body [m].
  * \return Body map for the Lambert targeter.
  */
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
+simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& departureAndArrivalBodies,
@@ -77,13 +77,13 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTarget
  * on the body to be propagated.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
- * \param bodyMap Body map for the Lambert targeter.
+ * \param bodies Body map for the Lambert targeter.
  * \return Acceleration map for the Lambert targeter.
  */
 basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 
 
@@ -110,7 +110,7 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
  * propagation are directly provided as inputs.
  * \param timeOfFlight Time of flight [s].
  * \param initialTime Initial time of the propagation [s].
- * \param bodyMap Body map.
+ * \param bodies Body map.
  * \param centralBody Name of the central body for the Lambert targeter.
  * \param propagatorSettings Propagator settings for the full problem.
  * \param integratorSettings Integrator settings for the propagation.
@@ -121,12 +121,12 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
  * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
+ * the system of bodies.
  */
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& centralBody,
         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
@@ -148,7 +148,7 @@ void propagateLambertTargeterAndFullProblem(
  * the function from the propagator type and dependent variables to save provided as inputs.
  * \param timeOfFlight Time of flight [s].
  * \param initialTime Initial time of the propagation [s].
- * \param bodyMap Body map.
+ * \param bodies Body map.
  * \param accelerationModelMap Acceleration map.
  * \param bodyToPropagate Name of the body to be propagated.
  * \param centralBody Name of the central body for the Lambert targeter.
@@ -162,18 +162,18 @@ void propagateLambertTargeterAndFullProblem(
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
  * \param departureBodyGravitationalParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
+ * the system of bodies.
  * \param arrivalBodyGravitationalParameter Gravitational parameter of the arrival body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
+ * the system of bodies.
  * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
+ * the system of bodies.
  * \param dependentVariablesToSave List of dependent variables to be saved during the full problem propagation.
  * \param propagator Type of propagator to be used for the propagation of the full dynamics problem.
  */
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
@@ -202,7 +202,7 @@ void propagateLambertTargeterAndFullProblem(
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
  * \param timeOfFlight Time of flight [s].
  * \param initialTime Initial time of the propagation [s].
- * \param bodyMap Body map.
+ * \param bodies Body map.
  * \param accelerationModelMap Acceleration map.
  * \param bodyToPropagate Names of the body to be propagated.
  * \param centralBody  Names of the central body of propagation
@@ -217,7 +217,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
         const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,

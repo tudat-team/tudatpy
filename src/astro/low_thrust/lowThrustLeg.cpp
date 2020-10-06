@@ -18,14 +18,14 @@ namespace low_thrust_trajectories
 
 //! Retrieve acceleration model (thrust).
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::getLowThrustAccelerationSettings(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::function< double( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double timeOffset )
 {
 
-    std::shared_ptr< simulation_setup::Body > vehicle = bodyMapTest.at( bodyToPropagate );
+    std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
 
     // Define thrust magnitude function from the shaped trajectory.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
@@ -86,7 +86,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
 }
 
 std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAccelerationModel(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::function< double( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -96,8 +96,8 @@ std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAcce
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
             createThrustAcceleratioModel(
-                getLowThrustAccelerationSettings( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings, timeOffset ),
-                bodyMapTest, bodyToPropagate );
+                getLowThrustAccelerationSettings( bodies, bodyToPropagate, specificImpulseFunction, integratorSettings, timeOffset ),
+                bodies, bodyToPropagate );
 
     return lowThrustAccelerationModel;
 
@@ -112,22 +112,22 @@ double LowThrustLeg::computeCurrentMass(
         const std::function< double ( const double ) > specificImpulseFunction,
         const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    simulation_setup::NamedBodyMap bodyMapTest;
+    simulation_setup::SystemOfBodies bodies;
     std::string bodyToPropagate = "Vehicle";
-    bodyMapTest.createBody( bodyToPropagate );
-    bodyMapTest.at( bodyToPropagate )->setConstantBodyMass( massInitialEpoch );
+    bodies.createBody( bodyToPropagate );
+    bodies.at( bodyToPropagate )->setConstantBodyMass( massInitialEpoch );
 
 
     // Retrieve acceleration map.
     basic_astrodynamics::AccelerationMap accelerationMap;
     accelerationMap[ bodyToPropagate ][ bodyToPropagate ].push_back( getLowThrustAccelerationModel(
-                                                                         bodyMapTest, bodyToPropagate,  specificImpulseFunction, integratorSettings ) );
+                                                                         bodies, bodyToPropagate,  specificImpulseFunction, integratorSettings ) );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = createMassRateModel(
                 bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                bodyMapTest, accelerationMap );
+                bodies, accelerationMap );
 
     // Define mass propagator settings.
     std::shared_ptr< propagators::PropagatorSettings< double > > massPropagatorSettings =
@@ -142,7 +142,7 @@ double LowThrustLeg::computeCurrentMass(
 
     // Create dynamics simulation object.
     propagators::SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMapTest, integratorSettings, massPropagatorSettings, true, false, false );
+                bodies, integratorSettings, massPropagatorSettings, true, false, false );
 
     // Propagate spacecraft mass.
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second[ 0 ];
@@ -255,7 +255,7 @@ getThrustAccelerationProfile(
 
 
 void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
         std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
@@ -273,7 +273,7 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
     integratorSettings->initialTime_ = timeOfFlight_ / 2.0;
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodyMapTest, integratorSettings, propagatorSettings.first );
+    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards( bodies, integratorSettings, propagatorSettings.first );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation = dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
 
@@ -295,7 +295,7 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
 
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards(
-                bodyMapTest, integratorSettings, propagatorSettings.second );
+                bodies, integratorSettings, propagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
             dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
@@ -321,7 +321,7 @@ void LowThrustLeg::computeSemiAnalyticalAndFullPropagation(
 //! Define appropriate propagator settings for the full propagation.
 std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
 std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::createLowThrustPropagatorSettings(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::function< double( const double ) > specificImpulseFunction,
@@ -341,12 +341,12 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
     terminationConditions.first = std::make_shared< propagators::PropagationTimeTerminationSettings >( 0.0, true );
     terminationConditions.second = std::make_shared< propagators::PropagationTimeTerminationSettings >( timeOfFlight_, true );
 
-    // Re-initialise spacecraft mass in body map.
-    bodyMapTest.at( bodyToPropagate )->setConstantBodyMass( initialMass_ );
+    // Re-initialise spacecraft mass in system of bodies.
+    bodies.at( bodyToPropagate )->setConstantBodyMass( initialMass_ );
 
     // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
     basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations = retrieveLowThrustAccelerationMap(
-                bodyMapTest, bodyToPropagate, centralBody, specificImpulseFunction, integratorSettings );
+                bodies, bodyToPropagate, centralBody, specificImpulseFunction, integratorSettings );
 
     // Add perturbing accelerations given as input.
     basic_astrodynamics::AccelerationMap accelerationModelMap = perturbingAccelerationsMap;
@@ -371,7 +371,7 @@ std::shared_ptr< propagators::PropagatorSettings< double > > > LowThrustLeg::cre
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel(
-                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodyMapTest, accelerationModelMap );
+                bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodies, accelerationModelMap );
 
     // Define backward mass propagation settings.
     massPropagatorSettings.first = std::make_shared< propagators::MassPropagatorSettings< double > >(

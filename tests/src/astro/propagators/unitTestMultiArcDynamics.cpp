@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
 
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         
 
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         systemInitialStates.resize( numberOfIntegrationArcs );
         initialKeplerElements.resize( numberOfIntegrationArcs );
 
-        double earthGravitationalParameter =  bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter =  bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         for(  unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
         {
             systemInitialStates[ j ]  = spice_interface::getBodyCartesianStateAtEpoch(
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         }
 
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
         for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                     std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, initialEphemerisTime, 120.0 );
             MultiArcDynamicsSimulator< > dynamicsSimulator(
-                        bodyMap, integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
+                        bodies, integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ), integrationArcStarts );
         }
         // For case 1: test multi-arc estimation with different integration settings object for each arc
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                                                   ( rungeKutta4, integrationArcStarts.at( i ), 120.0 ) );
             }
             MultiArcDynamicsSimulator< > dynamicsSimulator(
-                        bodyMap, integratorSettingsList, std::make_shared< MultiArcPropagatorSettings< double > >(
+                        bodies, integratorSettingsList, std::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ) );
         }
         // For case 0: test multi-arc estimation with same integration settings for each arc, and arc initial state interpolated
@@ -167,12 +167,12 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                     std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, initialEphemerisTime, 120.0 );
             MultiArcDynamicsSimulator< > dynamicsSimulator(
-                        bodyMap, integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
+                        bodies, integratorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList, true ), integrationArcStarts );
         }
 
 
-        std::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
+        std::shared_ptr< Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );
 
         double testStartTime, testEndTime;
         double testTimeStep = 10000.0;

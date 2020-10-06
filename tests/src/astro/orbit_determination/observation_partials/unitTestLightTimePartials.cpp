@@ -53,14 +53,14 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations );
+        SystemOfBodies bodies = setupEnvironment( groundStations );
 
         double ephemerisEvaluationTime = basic_astrodynamics::calculateJulianDaySinceEpoch< double >(
                     boost::gregorian::date( 2002, 8, 10 ), 0.0 ) * physical_constants::JULIAN_DAY;
 
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Earth" )->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( "Earth" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
-        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap.at( "Mars" )->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( "Mars" )->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
 
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         std::shared_ptr< OneWayRangeObservationModel< double, double > > oneWayRangeModel =
                 std::dynamic_pointer_cast< OneWayRangeObservationModel< double, double > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, observationSettings, bodyMap ) );
+                        linkEnds, observationSettings, bodies ) );
 
 
         // Create parameters for which partials are to be computed
@@ -89,11 +89,11 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         parameterSettings.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
                                          "global_metric", ppn_parameter_gamma ) );
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate( parameterSettings, bodyMap );
+                createParametersToEstimate( parameterSettings, bodies );
 
         // Create partial objects.
         std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > partialList =
-                createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate,
+                createOneWayRangePartials( linkEnds, bodies, parametersToEstimate,
                                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.65E7 );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.65E7 );
 
 
         // Set link ends for observation model
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 ObservationSettings >( one_way_range, lightTimeCorrections );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, observationSettings, bodyMap  );
+                    linkEnds, observationSettings, bodies  );
 
         std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
         oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                                       "global_metric", ppn_parameter_gamma ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodyMap );
+                createParametersToEstimate< double >( parameterNames, bodies );
         std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
                 std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
                 observationPartialCreator->createObservationPartials(
-                    one_way_range, oneWayRangeModelMap, bodyMap, parametersToEstimate ).begin( )->second;
+                    one_way_range, oneWayRangeModelMap, bodies, parametersToEstimate ).begin( )->second;
 
         std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 

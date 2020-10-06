@@ -45,7 +45,7 @@ namespace observation_partials
  *  \tparam ParameterType Type of parameter (double for size 1, VectorXd for larger size).
  *  \param oneWayDopplerLinkEnds Link ends (transmitter and receiever) for which one-way doppler partials are to be calculated
  *  (i.e. for which  one-way doppler observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way doppler partial.
+ *  \param bodies List of all bodies, for creating one-way doppler partial.
  *  \param parameterToEstimate Object of current parameter that is to be estimated.
  *  \param oneWayDopplerScaler Object scale position partials to one-way doppler partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -54,7 +54,7 @@ namespace observation_partials
 template< typename ParameterType >
 std::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParameter(
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
         const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -69,7 +69,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParamete
 
     {
         std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-                createCartesianStatePartialsWrtParameter( oneWayDopplerLinkEnds, bodyMap, parameterToEstimate );
+                createCartesianStatePartialsWrtParameter( oneWayDopplerLinkEnds, bodies, parameterToEstimate );
 
         // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
         std::shared_ptr< OneWayDopplerPartial > testOneWayDopplerPartial  = std::make_shared< OneWayDopplerPartial >(
@@ -94,7 +94,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParamete
  *  transmitter and receiever  linkEndType).
  *  \param oneWayDopplerLinkEnds Link ends (transmitter and receiever) for which one-way doppler partials are to be calculated
  *  (i.e. for which one-way doppler observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way doppler partial.
+ *  \param bodies List of all bodies, for creating one-way doppler partial.
  *  \param bodyToEstimate Name of body wrt position of which a partial is to be created.
  *  \param oneWayDopplerScaler Object scale position partials to one-way doppler partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -102,7 +102,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParamete
  */
 std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -131,7 +131,7 @@ std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTi
  *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
  *  \param oneWayDopplerLinkEnds Link ends (transmitter and receiever) for which one-way doppler partials are to be calculated
  *  (i.e. for which one-way doppler observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way doppler partials.
+ *  \param bodies List of all bodies, for creating one-way doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param transmitterDopplerProperTimeInterface Proper time rate calculator for transmitter
@@ -145,7 +145,7 @@ std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTi
 template< typename ParameterType >
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createOneWayDopplerPartials(
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > transmitterDopplerProperTimeInterface,
         const std::shared_ptr< observation_models::DopplerProperTimeRateInterface > receiverDopplerProperTimeInterface,
@@ -162,12 +162,12 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     std::function< Eigen::Vector6d( const double )> transmitterNumericalStateDerivativeFunction =
             std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
                          observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
-                             oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodyMap ), std::placeholders::_1, 100.0,
+                             oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodies ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
     std::function< Eigen::Vector6d( const double )> receiverNumericalStateDerivativeFunction =
             std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
                          observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
-                             oneWayDopplerLinkEnds.at( observation_models::receiver ), bodyMap ), std::placeholders::_1, 100.0,
+                             oneWayDopplerLinkEnds.at( observation_models::receiver ), bodies ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
 
     // Create scaling object, to be used for all one-way doppler partials in current link end.
@@ -214,7 +214,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
         // Create position one-way doppler partial for current body
         std::shared_ptr< ObservationPartial< 1 > > currentDopplerPartialWrtPosition = createOneWayDopplerPartialWrtBodyState(
-                    oneWayDopplerLinkEnds, bodyMap, acceleratedBody, oneWayDopplerScaling, lightTimeCorrectionPartialObjects );
+                    oneWayDopplerLinkEnds, bodies, acceleratedBody, oneWayDopplerScaling, lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current body)
         if( currentDopplerPartialWrtPosition != nullptr )
@@ -237,7 +237,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
         // Create position one-way doppler partial for current parameter
         std::shared_ptr< ObservationPartial< 1 > > currentDopplerPartial = createOneWayDopplerPartialWrtParameter(
-                    oneWayDopplerLinkEnds, bodyMap, parameterIterator->second,
+                    oneWayDopplerLinkEnds, bodies, parameterIterator->second,
                     oneWayDopplerScaling, lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)
@@ -262,7 +262,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {
             currentDopplerPartial = createOneWayDopplerPartialWrtParameter(
-                        oneWayDopplerLinkEnds, bodyMap, parameterIterator->second, oneWayDopplerScaling,
+                        oneWayDopplerLinkEnds, bodies, parameterIterator->second, oneWayDopplerScaling,
                         lightTimeCorrectionPartialObjects );
         }
         else
@@ -294,7 +294,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
  *  that are to be used.
  *  \param observationModelList List of all observation models (must be one-way Doppler) for which partials are to be created,
  *  with map key being the link ends
- *  \param bodyMap List of all bodies, for creating one-way doppler partials.
+ *  \param bodies List of all bodies, for creating one-way doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
@@ -306,7 +306,7 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 std::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
         const std::map< observation_models::LinkEnds,
         std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > > observationModelList,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const bool useBiasPartials = true )
 {
@@ -343,7 +343,7 @@ std::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
 
         // Create doppler partials for current link ends
         dopplerPartials[ linkIterator.first ] = createOneWayDopplerPartials< ObservationScalarType >(
-                    linkIterator.first, bodyMap, parametersToEstimate,
+                    linkIterator.first, bodies, parametersToEstimate,
                     dopplerObservationModel->getTransmitterProperTimeRateCalculator( ),
                     dopplerObservationModel->getReceiverProperTimeRateCalculator( ),
                     singleLinkLightTimeCorrections, useBiasPartials );
@@ -366,7 +366,7 @@ std::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
  *  \param twoWayDopplerLinkEnds Link ends (transmitter and receiever) for which tow-way Doppler partials are to be calculated
  *  (i.e. for which tow-way Doppler observations are to be processed).
  *  \param twoWayObservationModel Observation model for two-way Doppler for which partials are to be created
- *  \param bodyMap List of all bodies, for creating tow-way Doppler partials.
+ *  \param bodies List of all bodies, for creating tow-way Doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
@@ -380,7 +380,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         const observation_models::LinkEnds& twoWayDopplerLinkEnds,
         const std::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >
         twoWayObservationModel,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
@@ -442,10 +442,10 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         // Create one-way Doppler partials for current link
         constituentOneWayDopplerPartials.push_back(
                     createOneWayDopplerPartials(
-                        currentLinkEnds, bodyMap, parametersToEstimate, transmitterDopplerProperTimeInterface,
+                        currentLinkEnds, bodies, parametersToEstimate, transmitterDopplerProperTimeInterface,
                         receiverDopplerProperTimeInterface, currentLightTimeCorrections, false ) );
         constituentOneWayRangePartials.push_back(
-                    createOneWayRangePartials( currentLinkEnds, bodyMap, parametersToEstimate,
+                    createOneWayRangePartials( currentLinkEnds, bodies, parametersToEstimate,
                                                currentLightTimeCorrections ) );
     }
 
@@ -571,7 +571,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
  *  The two-way Doppler partials are built from one-way range partials of the constituent links
  *  \param observationModelList List of all two-way Doppler models (as a function of LinkEnds) for which partials are to be
  *  created.
- *  \param bodyMap List of all bodies, for creating two-way Doppler partials.
+ *  \param bodies List of all bodies, for creating two-way Doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction used (empty by default). First vector entry is
@@ -584,7 +584,7 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 createTwoWayDopplerPartials(
         const std::map< observation_models::LinkEnds,
         std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
@@ -613,7 +613,7 @@ createTwoWayDopplerPartials(
         // Create two-way Doppler partials for current LinkEnds
         partialMap[ modelIterator->first ] = createTwoWayDopplerPartials< ParameterType, TimeType >(
                     modelIterator->first, std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel<
-                    ParameterType, TimeType > >( modelIterator->second ), bodyMap, parametersToEstimate,
+                    ParameterType, TimeType > >( modelIterator->second ), bodies, parametersToEstimate,
                     currentLightTimeCorrections );
     }
 

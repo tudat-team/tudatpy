@@ -1256,10 +1256,10 @@ private:
 
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
-//typedef std::unordered_map< std::string, std::shared_ptr< Body > > NamedBodyMap;
+//typedef std::unordered_map< std::string, std::shared_ptr< Body > > SystemOfBodies;
 
 std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
-        const std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap );
+        const std::unordered_map< std::string, std::shared_ptr< Body > > bodies );
 
 //! Function to define the global origin and orientation of the reference frame
 /*!
@@ -1271,12 +1271,12 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
  * of the Body objects, which provide a time-dependent translation of the global origin to the
  * body's ephemeris origin. In case of an inconsistency in the current and requried frames, this
  * function throws an error.
- * \param bodyMap List of body objects that constitute the environment.
+ * \param bodies List of body objects that constitute the environment.
  * \param globalFrameOrigin Global reference frame origin.
  * \param globalFrameOrientation Global referencef frame orientation.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap,
+void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::shared_ptr< Body > > bodies,
                                     const std::string& globalFrameOrigin,
                                     const std::string& globalFrameOrientation )
 {
@@ -1290,7 +1290,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
     // Get chain of ephemeris frame origins of global frame origin (if it is not SSB
     if( globalFrameOrigin != "SSB" )
     {
-        if( bodyMap.count( globalFrameOrigin ) == 0 )
+        if( bodies.count( globalFrameOrigin ) == 0 )
         {
             throw std::runtime_error(
                         "Error, body non-barycentric global frame origin selected, but this body " + globalFrameOrigin +
@@ -1302,7 +1302,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
             while( currentOrigin != "SSB" )
             {
                 std::shared_ptr< ephemerides::Ephemeris > currentEphemeris =
-                        bodyMap.at( currentOrigin )->getEphemeris( );
+                        bodies.at( currentOrigin )->getEphemeris( );
                 if( currentEphemeris == nullptr )
                 {
                     throw std::runtime_error(
@@ -1338,7 +1338,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
     }
 
     // Iterate over all bodies
-    for( auto bodyIterator : bodyMap )
+    for( auto bodyIterator : bodies )
     {
         // Check id body contains an ephemeris
         if( bodyIterator.second->getEphemeris( ) != nullptr )
@@ -1353,7 +1353,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                 if( globalFrameOrigin == "SSB" )
                 {
                     // Check if correction can be made
-                    if( bodyMap.count( ephemerisFrameOrigin ) == 0 )
+                    if( bodies.count( ephemerisFrameOrigin ) == 0 )
                     {
                         throw std::runtime_error(
                                     "Error, body " + bodyIterator.first + " has ephemeris in frame " +
@@ -1364,7 +1364,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     {
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                             bodyMap.at( ephemerisFrameOrigin ), std::placeholders::_1 );
+                                             bodies.at( ephemerisFrameOrigin ), std::placeholders::_1 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                     ephemerisFrameOrigin, stateFunction );
@@ -1378,7 +1378,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     if( globalFrameOrigin == bodyIterator.first )
                     {
                         std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager =
-                                createFrameManager( bodyMap );
+                                createFrameManager( bodies );
                         frameManager->getEphemeris( globalFrameOrigin, "SSB" );
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
@@ -1397,7 +1397,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                std::bind( &Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
-                                             bodyMap.at( globalFrameOrigin ), std::placeholders::_1 );
+                                             bodies.at( globalFrameOrigin ), std::placeholders::_1 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                     globalFrameOrigin, stateFunction, true );
@@ -1406,7 +1406,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                     else
                     {
                         // Check if correction can be made
-                        if( bodyMap.count( ephemerisFrameOrigin ) == 0 )
+                        if( bodies.count( ephemerisFrameOrigin ) == 0 )
                         {
                             throw std::runtime_error(
                                         "Error, body " + bodyIterator.first + " has ephemeris in frame " +
@@ -1418,7 +1418,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
                             // Set correction function from ephemeris origin to global frame origin
                             std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                     std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                 bodyMap.at( ephemerisFrameOrigin ), std::placeholders::_1 );
+                                                 bodies.at( ephemerisFrameOrigin ), std::placeholders::_1 );
                             std::shared_ptr< BaseStateInterface > baseStateInterface =
                                     std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                         ephemerisFrameOrigin, stateFunction, false );
@@ -1470,7 +1470,7 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
     }
 
     // Set body state-dependent environment variables
-    for( auto bodyIterator : bodyMap  )
+    for( auto bodyIterator : bodies  )
     {
         bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
     }
@@ -1478,10 +1478,10 @@ void setGlobalFrameBodyEphemerides( const std::unordered_map< std::string, std::
 }
 
 
-class NamedBodyMap
+class SystemOfBodies
 {
 public:
-    NamedBodyMap( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000",
+    SystemOfBodies( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000",
                   const std::unordered_map< std::string, std::shared_ptr< Body > >& bodyMap =
             std::unordered_map< std::string, std::shared_ptr< Body > >( ) ):
         frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ), bodyMap_( bodyMap ){ }
@@ -1530,7 +1530,7 @@ public:
         for( auto bodyIterator : bodyMap_ )
         {
             bodyIterator.second->setBaseFrameFunction(
-                        std::bind( &NamedBodyMap::processBodyFrameDefinitions, this ) );
+                        std::bind( &SystemOfBodies::processBodyFrameDefinitions, this ) );
         }
     }
 
@@ -1560,24 +1560,24 @@ private:
 
 };
 
-double getBodyGravitationalParameter( const NamedBodyMap& bodyMap, const std::string bodyName );
+double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::string bodyName );
 
 //! Function ot retrieve the common global translational state origin of the environment
 /*!
  * Function ot retrieve the common global translational state origin of the environment. This function throws an exception
  * if multiple bodies are found as the frame origin
- * \param bodyMap List of body objects.
+ * \param bodies List of body objects.
  * \return Global translational state origin of the environment
  */
-std::string getGlobalFrameOrigin(const NamedBodyMap &bodyMap);
+std::string getGlobalFrameOrigin(const SystemOfBodies &bodies);
 
 //! Function to set whether the bodies are currently being propagated, or not
 /*!
  * Function to set whether the bodies are currently being propagated, or not
- * \param bodyMap List of body objects.
+ * \param bodies List of body objects.
  * \param areBodiesInPropagation Boolean defining whether the bodies are currently being propagated, or not
  */
-void setAreBodiesInPropagation(const NamedBodyMap &bodyMap,
+void setAreBodiesInPropagation(const SystemOfBodies &bodies,
                                const bool areBodiesInPropagation);
 
 //! Function to compute the acceleration of a body, using its ephemeris and finite differences

@@ -88,7 +88,7 @@ public:
             const std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustAccelerationSettings(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::function< double( const double ) > specificImpulseFunction,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -96,7 +96,7 @@ public:
 
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::function< double( const double ) > specificImpulseFunction,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -104,7 +104,7 @@ public:
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     virtual basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody,
             const std::function< double ( const double ) > specificImpulseFunction,
@@ -141,7 +141,7 @@ public:
 
     //! Full propagation.
     void computeSemiAnalyticalAndFullPropagation(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
                     std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
@@ -152,7 +152,7 @@ public:
     //! Define appropriate propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
     std::shared_ptr< propagators::PropagatorSettings< double > > > createLowThrustPropagatorSettings(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody,
             const std::function< double( const double ) > specificImpulseFunction,

@@ -22,7 +22,7 @@ namespace propagators
 //! possible with the existing environment.
 void checkValidityOfRequiredEnvironmentUpdates(
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
-        requestedUpdates, const simulation_setup::NamedBodyMap& bodyMap )
+        requestedUpdates, const simulation_setup::SystemOfBodies& bodies )
 {
     using namespace propagators;
 
@@ -39,7 +39,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
             if( updateIterator->second.at( i ) != "" )
             {
                 // Check if body exists.
-                if( bodyMap.count( updateIterator->second.at( i ) ) == 0 )
+                if( bodies.count( updateIterator->second.at( i ) ) == 0 )
                 {
                     throw std::runtime_error(
                                 "Error when making environment model update settings, could not find body "
@@ -51,7 +51,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                 case body_translational_state_update:
                 {
-                    if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == nullptr )
+                    if( bodies.at( updateIterator->second.at( i ) )->getEphemeris( ) == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find ephemeris of body "
@@ -61,9 +61,9 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case body_rotational_state_update:
                 {
-                    if( ( bodyMap.at( updateIterator->second.at( i ) )->
+                    if( ( bodies.at( updateIterator->second.at( i ) )->
                           getRotationalEphemeris( ) == nullptr ) &&
-                            ( bodyMap.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
+                            ( bodies.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
@@ -76,7 +76,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     std::shared_ptr< gravitation::SphericalHarmonicsGravityField >
                             gravityFieldModel =
                             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                                bodyMap.at( updateIterator->second.at( i ) )->getGravityFieldModel( ) );
+                                bodies.at( updateIterator->second.at( i ) )->getGravityFieldModel( ) );
                     if( gravityFieldModel == nullptr )
                     {
                         throw std::runtime_error(
@@ -87,7 +87,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case vehicle_flight_conditions_update:
                 {
-                    std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at(
+                    std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodies.at(
                                 updateIterator->second.at( i ) )->getFlightConditions( );
                     if( flightConditions == nullptr )
                     {
@@ -100,7 +100,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 case radiation_pressure_interface_update:
                 {
                     std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > >
-                            radiationPressureInterfaces = bodyMap.at(
+                            radiationPressureInterfaces = bodies.at(
                                 updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
                     if( radiationPressureInterfaces.size( ) == 0 )
                     {
@@ -111,7 +111,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     break;
                 }
                 case body_mass_update:
-                    if( bodyMap.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
+                    if( bodies.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, no body mass function of body "
@@ -199,7 +199,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
 //! Get list of required environment model update settings from torque models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap )
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies )
 {
     using namespace basic_astrodynamics;
 
@@ -267,7 +267,7 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     using namespace basic_astrodynamics;
     using namespace propagators;
@@ -498,7 +498,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     using namespace basic_astrodynamics;
     using namespace propagators;
@@ -544,29 +544,29 @@ createMassPropagationEnvironmentUpdaterSettings(
 void checkAndModifyEnvironmentForDependentVariableSaving(
         const EnvironmentModelsToUpdate updateType,
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     switch( updateType )
     {
     case vehicle_flight_conditions_update:
-        if( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == nullptr )
+        if( bodies.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == nullptr )
         {
-            if( ( bodyMap.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != nullptr &&
-                    ( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != nullptr ) )
+            if( ( bodies.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != nullptr &&
+                    ( bodies.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != nullptr ) )
             {
-                bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
+                bodies.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
                             simulation_setup::createAtmosphericFlightConditions(
-                                bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
-                                bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
+                                bodies.at( dependentVariableSaveSettings->associatedBody_ ),
+                                bodies.at( dependentVariableSaveSettings->secondaryBody_ ),
                                 dependentVariableSaveSettings->associatedBody_,
                                 dependentVariableSaveSettings->secondaryBody_ ) );
             }
             else
             {
-                bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
+                bodies.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
                             simulation_setup::createFlightConditions(
-                                bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
-                                bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
+                                bodies.at( dependentVariableSaveSettings->associatedBody_ ),
+                                bodies.at( dependentVariableSaveSettings->secondaryBody_ ),
                                 dependentVariableSaveSettings->associatedBody_,
                                 dependentVariableSaveSettings->secondaryBody_ ) );
             }
@@ -581,7 +581,7 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >  variablesToUpdate;
     switch( dependentVariableSaveSettings->dependentVariableType_ )
@@ -805,7 +805,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     if( variablesToUpdate.count( vehicle_flight_conditions_update ) > 0 )
     {
         checkAndModifyEnvironmentForDependentVariableSaving(
-                    vehicle_flight_conditions_update, dependentVariableSaveSettings, bodyMap );
+                    vehicle_flight_conditions_update, dependentVariableSaveSettings, bodies );
     }
 
     return variablesToUpdate;
@@ -814,7 +814,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 //! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
@@ -825,7 +825,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > currentEnvironmentModelsToUpdate =
-                    createEnvironmentUpdaterSettingsForDependentVariables( dependentVariableList.at( i ), bodyMap );
+                    createEnvironmentUpdaterSettingsForDependentVariables( dependentVariableList.at( i ), bodies );
             addEnvironmentUpdates( environmentModelsToUpdate, currentEnvironmentModelsToUpdate );
         }
     }
@@ -835,7 +835,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 //! Create environment update settings for termination settings
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
     switch( terminationSettings->terminationType_ )
@@ -851,7 +851,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
                 environmentModelsToUpdateForSingleTerminationSetting =
                 createEnvironmentUpdaterSettingsForDependentVariables(
-                    dependentVariableTerminationSettings->dependentVariableSettings_, bodyMap );
+                    dependentVariableTerminationSettings->dependentVariableSettings_, bodies );
         addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForSingleTerminationSetting );
         break;
     }
@@ -863,7 +863,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
                     environmentModelsToUpdateForSingleTerminationSetting = createEnvironmentUpdaterSettings(
-                        hybridTerminationSettings->terminationSettings_.at( i ), bodyMap );
+                        hybridTerminationSettings->terminationSettings_.at( i ), bodies );
             addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForSingleTerminationSetting );
         }
         break;
@@ -880,7 +880,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 //! Function to create 'brute-force' update settings, in which each environment model is updated.
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createFullEnvironmentUpdaterSettings(
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     using namespace basic_astrodynamics;
     using namespace electromagnetism;
@@ -893,7 +893,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
             std::vector< std::string > > singleAccelerationUpdateNeeds;
 
     // Iterate over all bodies.
-    for( auto bodyIterator : bodyMap.getMap( )  )
+    for( auto bodyIterator : bodies.getMap( )  )
     {
         singleAccelerationUpdateNeeds.clear( );
 
@@ -942,7 +942,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         singleAccelerationUpdateNeeds[ body_mass_update ].push_back( bodyIterator.first );
 
         // Check whether requested updates are possible.
-        checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
+        checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodies );
 
         // Add requested updates of current acceleration model to full list of environment updates.
         addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
@@ -951,26 +951,26 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
 }
 template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation );
 
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation );
 #endif
 } // namespace propagators

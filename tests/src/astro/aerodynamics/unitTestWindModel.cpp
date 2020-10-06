@@ -74,18 +74,18 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     defaultBodySettings.at( "Earth" )->atmosphereSettings->setWindSettings(
                 std::make_shared< CustomWindModelSettings >(
                     std::bind( &getCustomWindVector, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     // Create vehicle object.
     double vehicleMass = 5.0E3;
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Set aerodynamic coefficients.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ), 1, 1 );
-    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     // Define acceleration model settings.
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set variables to save
     std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::VectorXd > numericalSolution =
@@ -163,9 +163,9 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
     toPropagationFrameTransformation =
             reference_frames::getAerodynamicForceTransformationFunction(
-                bodyMap.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                 reference_frames::aerodynamic_frame,
-                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( "Earth" ) ),
+                std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( "Earth" ) ),
                 reference_frames::inertial_frame );
 
     // Iterate over all time steps and compute test quantities
@@ -173,9 +173,9 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
          dataIterator != dependentVariableOutput.end( ); dataIterator++ )
     {
         // Update environment
-        bodyMap.at( "Vehicle" )->setState( numericalSolution.at( dataIterator->first ) );
-        bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( dataIterator->first );
-        bodyMap.at( "Vehicle" )->getFlightConditions( )->updateConditions( dataIterator->first );
+        bodies.at( "Vehicle" )->setState( numericalSolution.at( dataIterator->first ) );
+        bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( dataIterator->first );
+        bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( dataIterator->first );
 
         // Retrieve dependent variables
         double altitude = dataIterator->second( 0 );

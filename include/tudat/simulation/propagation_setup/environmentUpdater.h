@@ -59,7 +59,7 @@ public:
      * the body that is integrated.
      */
     EnvironmentUpdater(
-            const simulation_setup::NamedBodyMap& bodyList,
+            const simulation_setup::SystemOfBodies& bodyList,
             const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings,
             const std::map< IntegratedStateType,
             std::vector< std::pair< std::string, std::string > > >& integratedStates =
@@ -660,7 +660,7 @@ private:
     }
 
     //! List of body objects, this list encompasses all environment object in the simulation.
-    simulation_setup::NamedBodyMap bodyList_;
+    simulation_setup::SystemOfBodies bodyList_;
 
 
     //! list of identifiers for the numerically integrated states

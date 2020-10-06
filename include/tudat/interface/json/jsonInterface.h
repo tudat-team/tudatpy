@@ -376,22 +376,22 @@ public:
         return bodySettingsMap_;
     }
 
-    //! Get body map.
-    simulation_setup::NamedBodyMap getBodyMap( ) const
+    //! Get system of bodies.
+    simulation_setup::SystemOfBodies getBodyMap( ) const
     {
-        return bodyMap_;
+        return bodies_;
     }
 
     //! Add a body named \p bodyName.
     void addBody( const std::string& bodyName )
     {
-        bodyMap.addNewBody( bodyName );
+        bodies.addNewBody( bodyName );
     }
 
     //! Get body named \p bodyName.
     std::shared_ptr< simulation_setup::Body > getBody( const std::string& bodyName ) const
     {
-        return bodyMap_.at( bodyName );
+        return bodies_.at( bodyName );
     }
 
     //! Get propagator settings.
@@ -464,7 +464,7 @@ protected:
         }
     }
 
-    //! Reset bodySettingsMap_ and bodyMap_ from the current jsonObject_.
+    //! Reset bodySettingsMap_ and bodies_ from the current jsonObject_.
     /*!
      * @copybrief resetBodies
      */
@@ -472,7 +472,7 @@ protected:
     {
         globalFrameOrigin_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
         globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
-        updateBodiesFromJSON( jsonObject_, bodyMap_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_,
+        updateBodiesFromJSON( jsonObject_, bodies_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_,
                               spiceSettings_, integratorSettings_ );
 
         if ( profiling )
@@ -504,7 +504,7 @@ protected:
     /*!
      * @copybrief resetPropagatorSettings
      * Tries to infer the initial states from the body ephemeris if not provided.
-     * Creates the integrated state models using bodyMap_
+     * Creates the integrated state models using bodies_
      */
     virtual void
     resetPropagatorSettings( )
@@ -512,7 +512,7 @@ protected:
         // Update jsonObject_ by determining initial states if not provided directly to the propagator settings:
         // * By obtaining the initial states from body properties (and transforming to Cartesian if necessary)
         // * By infering initial states from body ephemeris
-        determineInitialStates< TimeType, StateScalarType >( jsonObject_, bodyMap_, integratorSettings_ );
+        determineInitialStates< TimeType, StateScalarType >( jsonObject_, bodies_, integratorSettings_ );
 
         if ( profiling )
         {
@@ -537,7 +537,7 @@ protected:
         }
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
-        propagatorSettings_->resetIntegratedStateModels( bodyMap_ );
+        propagatorSettings_->resetIntegratedStateModels( bodies_ );
 
         if ( profiling )
         {
@@ -581,7 +581,7 @@ protected:
         }
     }
 
-    //! Reset dynamicsSimulator_ for the current bodyMap_, integratorSettings_ and propagatorSettings_.
+    //! Reset dynamicsSimulator_ for the current bodies_, integratorSettings_ and propagatorSettings_.
     /*!
      * @copybrief resetDynamicsSimulator
      */
@@ -589,7 +589,7 @@ protected:
     {
         dynamicsSimulator_ =
                 std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
+                    bodies_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
 
         if ( profiling )
         {
@@ -617,7 +617,7 @@ protected:
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
 
     //! Body map.
-    simulation_setup::NamedBodyMap bodyMap_;
+    simulation_setup::SystemOfBodies bodies_;
 
     //! Propagation settings.
     std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;

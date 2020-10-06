@@ -42,12 +42,12 @@ namespace simulation_setup
 //! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
 /*!
  * Function to create a list of objects that can be used to compute partials of tidal gravity field variations
- * \param bodyMap List of all body objects
+ * \param bodies List of all body objects
  * \param acceleratingBodyName Name of body for which tidal gravity field variation objects are to be created
  * \return List of tidal gravity field variation objects, one for each such field variation object of bodyacceleratingBodyName
  */
 std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& acceleratingBodyName );
 
 //! Function to create a single acceleration partial derivative object.
@@ -56,7 +56,7 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
  *  \param accelerationModel Acceleration model for which a partial derivative is to be computed.
  *  \param acceleratedBody Pair of name and object of body undergoing acceleration
  *  \param acceleratingBody Pair of name and object of body exerting acceleration
- *  \param bodyMap List of all body objects
+ *  \param bodies List of all body objects
  *  \param parametersToEstimate List of parameters that are to be estimated. Empty by default, only required for selected
  *  types of partials (e.g. spherical harmonic acceleration w.r.t. rotational parameters).
  *  \return Single acceleration partial derivative object.
@@ -66,7 +66,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
@@ -166,14 +166,14 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                     std::dynamic_pointer_cast< CentralGravitationPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
-                            acceleratedBody, acceleratingBody, bodyMap, parametersToEstimate ) );
+                            acceleratedBody, acceleratingBody, bodies, parametersToEstimate ) );
             std::shared_ptr< CentralGravitationPartial > accelerationPartialForCentralBody =
                     std::dynamic_pointer_cast< CentralGravitationPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
                             std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
-                                            bodyMap.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
-                            acceleratingBody, bodyMap, parametersToEstimate ) );
+                                            bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                            acceleratingBody, bodies, parametersToEstimate ) );
 
             // Create partial-calculating object.
             accelerationPartial = std::make_shared< ThirdBodyGravityPartial< CentralGravitationPartial > >(
@@ -199,7 +199,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
                     std::shared_ptr< observation_partials::RotationMatrixPartial > >
                     rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
-                        parametersToEstimate, acceleratingBody.first, bodyMap );
+                        parametersToEstimate, acceleratingBody.first, bodies );
 
             // If body has gravity field variations, create partial objects
             std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
@@ -207,7 +207,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             if( acceleratingBody.second->getGravityFieldVariationSet( ) != nullptr )
             {
                 currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
-                            bodyMap, acceleratingBody.first );
+                            bodies, acceleratingBody.first );
             }
 
             // Create partial-calculating object.
@@ -235,14 +235,14 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                     std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
-                            acceleratedBody, acceleratingBody, bodyMap, parametersToEstimate ) );
+                            acceleratedBody, acceleratingBody, bodies, parametersToEstimate ) );
             std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
                     std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
                             std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
-                                            bodyMap.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
-                            acceleratingBody, bodyMap, parametersToEstimate  ) );
+                                            bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                            acceleratingBody, bodies, parametersToEstimate  ) );
 
             // Create partial-calculating object.
             accelerationPartial = std::make_shared< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
@@ -268,12 +268,12 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                     std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             mutualSphericalHarmonicAcceleration->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( ),
-                            acceleratedBody, acceleratingBody,bodyMap, parametersToEstimate ) );
+                            acceleratedBody, acceleratingBody,bodies, parametersToEstimate ) );
             std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyUndergoingAcceleration =
                     std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             mutualSphericalHarmonicAcceleration->getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( ),
-                            acceleratingBody, acceleratedBody, bodyMap, parametersToEstimate ) );
+                            acceleratingBody, acceleratedBody, bodies, parametersToEstimate ) );
             accelerationPartial = std::make_shared< MutualSphericalHarmonicsGravityPartial >(
                         accelerationPartialOfShExpansionOfBodyExertingAcceleration,
                         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration, acceleratedBody.first, acceleratingBody.first,
@@ -298,14 +298,14 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                     std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
-                            acceleratedBody, acceleratingBody, bodyMap, parametersToEstimate  ) );
+                            acceleratedBody, acceleratingBody, bodies, parametersToEstimate  ) );
             std::shared_ptr< MutualSphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
                     std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >(
                         createAnalyticalAccelerationPartial(
                             thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
                             std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
-                                            bodyMap.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
-                            acceleratingBody, bodyMap, parametersToEstimate ) );
+                                            bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                            acceleratingBody, bodies, parametersToEstimate ) );
             accelerationPartial = std::make_shared< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
                         accelerationPartialForBodyUndergoingAcceleration,
                         accelerationPartialForCentralBody, acceleratedBody.first, acceleratingBody.first,
@@ -431,7 +431,7 @@ extern template std::shared_ptr< acceleration_partials::AccelerationPartial > cr
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
@@ -439,7 +439,7 @@ extern template std::shared_ptr< acceleration_partials::AccelerationPartial > cr
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
         parametersToEstimate );
 #endif
@@ -451,14 +451,14 @@ extern template std::shared_ptr< acceleration_partials::AccelerationPartial > cr
  *  a standardized type for communicating such lists of these objects.
  *  \param accelerationMap Map of maps containing list of acceleration models, identifying which acceleration acts on which
  *   body.
- *  \param bodyMap List of body objects constituting environment for calculations.
+ *  \param bodies List of body objects constituting environment for calculations.
  *  \param parametersToEstimate List of parameters which are to be estimated.
  *  \return List of acceleration-partial-calculating objects in StateDerivativePartialsMap type.
  */
 template< typename InitialStateParameterType >
 orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
         const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate )
 {
@@ -487,7 +487,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                 {
                     // Get object for body undergoing acceleration
                     const std::string acceleratedBody = accelerationIterator->first;
-                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodyMap.at( acceleratedBody );
+                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodies.at( acceleratedBody );
 
                     // Retrieve list of accelerations acting on current body.
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationVector =
@@ -506,7 +506,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                         std::shared_ptr< simulation_setup::Body > acceleratingBodyObject;
                         if( acceleratingBody != "" )
                         {
-                            acceleratingBodyObject = bodyMap.at( acceleratingBody );
+                            acceleratingBodyObject = bodies.at( acceleratingBody );
                         }
 
                         for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -517,7 +517,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                                         innerAccelerationIterator->second[ j ],
                                         std::make_pair( acceleratedBody, acceleratedBodyObject ),
                                         std::make_pair( acceleratingBody, acceleratingBodyObject ),
-                                        bodyMap, parametersToEstimate );
+                                        bodies, parametersToEstimate );
 
                             accelerationPartialVector.push_back( currentAccelerationPartial );
                             accelerationPartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
@@ -538,14 +538,14 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
 
 extern template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
 const basic_astrodynamics::AccelerationMap& accelerationMap,
-const simulation_setup::NamedBodyMap& bodyMap,
+const simulation_setup::SystemOfBodies& bodies,
 const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
 parametersToEstimate );
 
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
 const basic_astrodynamics::AccelerationMap& accelerationMap,
-const simulation_setup::NamedBodyMap& bodyMap,
+const simulation_setup::SystemOfBodies& bodies,
 const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
 parametersToEstimate );
 #endif

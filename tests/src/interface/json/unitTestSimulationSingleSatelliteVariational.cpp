@@ -80,13 +80,13 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
                 Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Asterix" );
+    bodies.addNewBody( "Asterix" );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          ////////////////////////////////////////////////
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.4084;
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcVariationalEquationsSolver< > > variationalEquationsSolver =
             std::make_shared< SingleArcVariationalEquationsSolver< > >(
-                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, true, nullptr, false, true, false );
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate, true, nullptr, false, true, false );
 
     const std::map< double, Eigen::VectorXd > states = variationalEquationsSolver->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     const std::map< double, Eigen::MatrixXd > stateTransition = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];

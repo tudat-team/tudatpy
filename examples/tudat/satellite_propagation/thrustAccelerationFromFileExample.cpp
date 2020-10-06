@@ -45,12 +45,12 @@ int main( )
     bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
     double vehicleMass = 2000.0;
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+    bodies[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -60,12 +60,12 @@ int main( )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Vehicle" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ int main( )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -128,7 +128,7 @@ int main( )
     vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 15.0 );
 
     // Convert vehicle state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements,
                                                                               earthGravitationalParameter );
 
@@ -144,7 +144,7 @@ int main( )
     // Crete mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap, accelerationModelMap );
+                                                       bodies, accelerationModelMap );
 
     // Create settings for propagating the mass of the vehicle
     std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
@@ -183,7 +183,7 @@ int main( )
 
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

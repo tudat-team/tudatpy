@@ -86,15 +86,15 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            ///////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Asterix" );
-    bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
+    bodies.addNewBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap.at( "Asterix" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -117,13 +117,13 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap.at( "Asterix" )->setRadiationPressureInterface(
+    bodies.at( "Asterix" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                    asterixRadiationPressureSettings, "Asterix", bodies ) );
 
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          ////////////////////////////////////////////////
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.4084;
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

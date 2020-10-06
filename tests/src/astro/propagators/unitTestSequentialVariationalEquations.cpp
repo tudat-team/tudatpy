@@ -76,10 +76,10 @@ integrateEquations( const bool performIntegrationsSequentially )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    NamedBodyMap bodyMap =
+    SystemOfBodies bodies =
             createBodies( bodySettings );
     std::shared_ptr< Body > lageos = std::make_shared< Body >( );
-    bodyMap.addBody( lageos, "LAGEOS" );
+    bodies.addBody( lageos, "LAGEOS" );
 
     // Create  body initial state
     Eigen::Vector6d lageosKeplerianElements;
@@ -122,7 +122,7 @@ integrateEquations( const bool performIntegrationsSequentially )
         centralBodyMap[ bodiesToIntegrate[ i ] ] = centralBodies[ i ];
     }
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
 
     // Define propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -138,7 +138,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Moon", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
+            createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< > > matrixTypeIntegratorSettings =
@@ -154,7 +154,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     {
         // Propagate
         variationalEquationSolver = std::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
-                    bodyMap, matrixTypeIntegratorSettings,
+                    bodies, matrixTypeIntegratorSettings,
                     propagatorSettings, parametersToEstimate );
     }
     else
@@ -167,13 +167,13 @@ integrateEquations( const bool performIntegrationsSequentially )
 
         // Propagate
         variationalEquationSolver = std::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
-                    bodyMap, vectorTypeIntegratorSettings,
+                    bodies, vectorTypeIntegratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
                     matrixTypeIntegratorSettings );
     }
 
     return std::make_pair( variationalEquationSolver->getStateTransitionMatrixInterface( ),
-                           bodyMap.at( "LAGEOS" )->getEphemeris( ) );
+                           bodies.at( "LAGEOS" )->getEphemeris( ) );
 }
 
 //! Test whether concurrent and sequential propagation of variational equations gives same results.

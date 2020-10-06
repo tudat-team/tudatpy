@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer,
                                          "SSB", "J2000" );
 
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -123,26 +123,26 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
         {
             systemInitialState.segment( i * 6 , 6 ) =
-                    bodyMap.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
-                    bodyMap.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
+                    bodies.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
+                    bodies.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
 
         // Avoid degradation of performance in Kepler element conversions
         Eigen::Vector6d earthInitialKeplerElements =
                 convertCartesianToKeplerianElements(
-                    Eigen::Vector6d( systemInitialState.segment( 0, 6 ) ), bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodyMap.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+                    Eigen::Vector6d( systemInitialState.segment( 0, 6 ) ), bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                    bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
 
         earthInitialKeplerElements( 2 ) = mathematical_constants::PI - earthInitialKeplerElements( 2 );
         earthInitialKeplerElements( 4 ) = earthInitialKeplerElements( 4 ) - 0.4;
         systemInitialState.segment( 0, 6 ) =
                 convertKeplerianToCartesianElements(
-                    earthInitialKeplerElements, bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodyMap.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+                    earthInitialKeplerElements, bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                    bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
 
         // Create acceleratiuon models.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, centralBodyMap );
+                    bodies, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime;
@@ -167,18 +167,18 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > cowellIntegrationResults;
-        bodyMap.at( "Earth" )->recomputeStateOnNextCall( );
-        bodyMap.at( "Mars" )->recomputeStateOnNextCall( );
-        bodyMap.at( "Venus" )->recomputeStateOnNextCall( );
+        bodies.at( "Earth" )->recomputeStateOnNextCall( );
+        bodies.at( "Mars" )->recomputeStateOnNextCall( );
+        bodies.at( "Venus" )->recomputeStateOnNextCall( );
 
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Gauss method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Gauss integration at given times.
         currentTestTime = initialTestTime;
@@ -207,11 +207,11 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             gaussIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             gaussIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             gaussIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Venus" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -309,20 +309,20 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                 bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
                 bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
             }
-            NamedBodyMap bodyMap = createBodies( bodySettings );
+            SystemOfBodies bodies = createBodies( bodySettings );
 
             // Create spacecraft object.
-            bodyMap.addNewBody( "Vehicle" );
-            bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-            bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+            bodies.addNewBody( "Vehicle" );
+            bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+            bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                     std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                     < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
             std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                     std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                         "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
-            bodyMap.at( "Vehicle" )->setRadiationPressureInterface(
+            bodies.at( "Vehicle" )->setRadiationPressureInterface(
                         "Sun", createRadiationPressureInterface(
-                            vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
+                            vehicleRadiationPressureSettings, "Vehicle", bodies ) );
 
             // Define propagator settings variables.
             SelectedAccelerationMap accelerationMap;
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             bodiesToPropagate.push_back( "Vehicle" );
             centralBodies.push_back( "Earth" );
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                        bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
             // Set Keplerian elements for Vehicle.
             Eigen::Vector6d vehicleInitialStateInKeplerianElements;
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                     = unit_conversions::convertDegreesToRadians( 23.4 );
             vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-            double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+            double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
             const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                         vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
 
             // Propagate orbit with Cowell method
             SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                        bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                        bodies, integratorSettings, propagatorSettings, true, false, true );
 
             // Define ephemeris interrogation settings.
             double initialTestTime = simulationStartEpoch;
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             while( currentTestTime < finalTestTime )
             {
                 cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                        bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
+                        bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
 
                 currentTestTime += testTimeStep;
             }
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
 
             // Propagate orbit with Gauss method
             SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                        bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                        bodies, integratorSettings, propagatorSettings, true, false, true );
 
             // Get resutls of Gauss integration at given times.
             currentTestTime = initialTestTime;
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             while( currentTestTime < finalTestTime )
             {
                 gaussIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                        bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
+                        bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
                 currentTestTime += testTimeStep;
             }
 

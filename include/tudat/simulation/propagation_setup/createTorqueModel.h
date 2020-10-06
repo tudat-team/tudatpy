@@ -105,7 +105,7 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 /*!
  *  Function to create torque models from a map of bodies and torque model settings.
  *  The return type can be used to identify both the body undergoing and exerting torque.
- *  \param bodyMap List of pointers to bodies required for the creation of the torque model
+ *  \param bodies List of pointers to bodies required for the creation of the torque model
  *  objects.
  *  \param selectedTorquePerBody List identifying which bodies exert which type of
  *  torque(s) on which bodies.
@@ -113,7 +113,7 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
  *  \return Torque models for the input map of bodies, based on the torque model settings.
  */
 basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         SelectedTorqueMap selectedTorquePerBody,
         const std::vector< std::string >& propagatedBodies );
 

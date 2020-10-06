@@ -255,14 +255,14 @@ Eigen::Vector6d SimsFlanagan::computeCurrentStateVector( const double currentTim
 
 //! Retrieve acceleration map (thrust and central gravity accelerations).
 basic_astrodynamics::AccelerationMap SimsFlanagan::retrieveLowThrustAccelerationMap(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::function< double ( const double ) > specificImpulseFunction,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
     basic_astrodynamics::AccelerationMap SimsFlanaganAccelerationMap = simsFlanaganModel_->getLowThrustTrajectoryAccelerationMap(
-                bodyMapTest, bodyToPropagate, centralBody );
+                bodies, bodyToPropagate, centralBody );
     return SimsFlanaganAccelerationMap;
 }
 

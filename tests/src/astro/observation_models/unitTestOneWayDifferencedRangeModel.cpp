@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     
 
@@ -81,14 +81,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             OneWayDifferencedRangeRateObservationSettings >( std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, rangeRateObservableSettings, bodyMap );
+                linkEnds, rangeRateObservableSettings, bodies );
 
     // Create range rate observation settings and model
     std::shared_ptr< ObservationSettings > rangeObservableSettings = std::make_shared< ObservationSettings >
             ( one_way_range );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, rangeObservableSettings, bodyMap );
+                linkEnds, rangeObservableSettings, bodies );
 
     // Test observable for both fixed link ends
     for( unsigned testCase = 0; testCase < 2; testCase++ )

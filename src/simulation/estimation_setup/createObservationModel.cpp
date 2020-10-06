@@ -238,7 +238,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 
 //! Function to create an object to check if a minimum elevation angle condition is met for an observation
 std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
@@ -264,7 +264,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
         groundStationNameToUse = stationName;
     }
 
-    if( bodyMap.count( observationViabilitySettings->getAssociatedLinkEnd( ).first ) == 0 )
+    if( bodies.count( observationViabilitySettings->getAssociatedLinkEnd( ).first ) == 0 )
     {
         throw std::runtime_error( "Error when making minimum elevation angle calculator, body " +
                                   observationViabilitySettings->getAssociatedLinkEnd( ).first + " not found." );
@@ -272,7 +272,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
 
     // Retrieve pointing angles calculator
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
-            bodyMap.at( observationViabilitySettings->getAssociatedLinkEnd( ).first )->
+            bodies.at( observationViabilitySettings->getAssociatedLinkEnd( ).first )->
             getGroundStation( groundStationNameToUse )->getPointingAnglesCalculator( );
 
     // Create check object
@@ -285,7 +285,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
 
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
@@ -295,7 +295,7 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
         throw std::runtime_error( "Error when making body avoidance angle calculator, inconsistent input" );
     }
 
-    if( bodyMap.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
+    if( bodies.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
     {
         throw std::runtime_error( "Error when making body avoidance angle calculator, body " +
                                   observationViabilitySettings->getStringParameter( ) + " not found." );
@@ -304,7 +304,7 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
     // Create state function of body to be avoided.
     std::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
             std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
+                         bodies.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
     double bodyAvoidanceAngle = observationViabilitySettings->getDoubleParameter( );
@@ -316,7 +316,7 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
 
 //! Function to create an object to check if a body occultation condition is met for an observation
 std::shared_ptr< OccultationCalculator > createOccultationCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
@@ -326,7 +326,7 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
         throw std::runtime_error( "Error when making occultation calculator, inconsistent input" );
     }
 
-    if( bodyMap.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
+    if( bodies.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
     {
         throw std::runtime_error( "Error when making occultation calculator, body " +
                                   observationViabilitySettings->getStringParameter( ) + " not found." );
@@ -335,16 +335,16 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
     // Create state function of occulting body.
     std::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
             std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
+                         bodies.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
-    if( bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( ) == nullptr )
+    if( bodies.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( ) == nullptr )
     {
         throw std::runtime_error( "Error when makig occultation calculator, no shape model found for " +
                                   observationViabilitySettings->getStringParameter( ) );
     }
     double occultingBodyRadius =
-            bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
+            bodies.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
     return std::make_shared< OccultationCalculator >(
                 getLinkEndIndicesForObservationViability(
                     linkEnds, observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
@@ -353,7 +353,7 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
 
 //! Function to create an list of obervation viability conditions for a single set of link ends
 std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
@@ -389,7 +389,7 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
             {
                 linkViabilityCalculators.push_back(
                             createMinimumElevationAngleCalculator(
-                                bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ),
+                                bodies, linkEnds, observationType, relevantObservationViabilitySettings.at( i ),
                                 listOfGroundStations.at( j ) ) );
             }
             break;
@@ -398,13 +398,13 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
 
             linkViabilityCalculators.push_back(
                         createBodyAvoidanceAngleCalculator(
-                            bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+                            bodies, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
         case body_occultation:
 
             linkViabilityCalculators.push_back(
                         createOccultationCalculator(
-                            bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+                            bodies, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
         default:
             throw std::runtime_error(
@@ -421,7 +421,7 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
 //! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
 std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
 createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< LinkEnds > linkEnds,
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
@@ -432,7 +432,7 @@ createObservationViabilityCalculators(
     {
         viabilityCalculators[ linkEnds.at( i ) ] =
                 createObservationViabilityCalculators(
-                    bodyMap, linkEnds.at( i ), observationType, observationViabilitySettings );
+                    bodies, linkEnds.at( i ), observationType, observationViabilitySettings );
     }
 
     return viabilityCalculators;
@@ -441,7 +441,7 @@ createObservationViabilityCalculators(
 //! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
 PerObservableObservationViabilityCalculatorList
 createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
 {
@@ -454,7 +454,7 @@ createObservationViabilityCalculators(
         {
             viabilityCalculators[ observableIterator->first ][ observableIterator->second.at( i ) ] =
                     createObservationViabilityCalculators(
-                        bodyMap, observableIterator->second.at( i ), observableIterator->first, observationViabilitySettings );
+                        bodies, observableIterator->second.at( i ), observableIterator->first, observationViabilitySettings );
         }
     }
 

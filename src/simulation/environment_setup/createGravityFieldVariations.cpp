@@ -26,7 +26,7 @@ namespace simulation_setup
 //! Function to create a set of gravity field variations, stored in the associated interface class
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >&
             gravityFieldVariationSettings )
 {
@@ -50,7 +50,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
 
         // Set current variation object in list.
         variationObjects.push_back( createGravityFieldVariationsModel(
-                                        gravityFieldVariationSettings.at( i ), body, bodyMap  ) );
+                                        gravityFieldVariationSettings.at( i ), body, bodies  ) );
 
         if( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) == basic_solid_body )
         {
@@ -92,14 +92,14 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
                 createInterpolators, initialTimes, finalTimes, timeSteps );
 
     if( std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) ) == nullptr )
+                bodies.at( body )->getGravityFieldModel( ) ) == nullptr )
     {
         throw std::runtime_error( "Error when making gravity field variations of body " + body +
                                   ", base type is not time dependent" );
     }
 
     std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
+                bodies.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
 
     return fieldVariationsSet;
 }
@@ -108,7 +108,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     using namespace tudat::gravitation;
     
@@ -143,7 +143,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
             {
                 // Check if perturbing body exists.
-                if( bodyMap.count( deformingBodies[ i ] ) == 0 )
+                if( bodies.count( deformingBodies[ i ] ) == 0 )
                 {
                     throw std::runtime_error( "Error when making basic solid body gravity field variation, " +
                                                deformingBodies[ i ] + " deforming body not found." );
@@ -156,16 +156,16 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                     deformingBodyStateFunctions.push_back(
                                 std::bind(
                                     &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                    bodyMap.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
+                                    bodies.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
                 }
                 else
                 {
                     deformingBodyStateFunctions.push_back(
-                                std::bind( &Body::getState, bodyMap.at( deformingBodies[ i ] ) ) );
+                                std::bind( &Body::getState, bodies.at( deformingBodies[ i ] ) ) );
                 }
 
                 // Get gravitational parameter of perturbing bodies.
-                if( bodyMap.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
+                if( bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
                 {
                     throw std::runtime_error(
                                 "Error, could not find gravity field model in body " + deformingBodies[ i ] +
@@ -175,7 +175,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                 {
                     gravitionalParametersOfDeformingBodies.push_back(
                                 std::bind( &GravityFieldModel::getGravitationalParameter,
-                                             bodyMap.at( deformingBodies[ i ] )
+                                             bodies.at( deformingBodies[ i ] )
                                              ->getGravityFieldModel( ) ) );
                 }
             }
@@ -184,23 +184,23 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
             {
                 deformedBodyStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                         bodyMap.at( body ), std::placeholders::_1 );
+                                                         bodies.at( body ), std::placeholders::_1 );
                 deformedBodyOrientationFunction = std::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                            bodyMap.at( body )->getRotationalEphemeris( ), std::placeholders::_1 );
+                            bodies.at( body )->getRotationalEphemeris( ), std::placeholders::_1 );
             }
             else
             {
-                deformedBodyStateFunction = std::bind( &Body::getState, bodyMap.at( body ) );
+                deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
                 deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame,
-                                                               bodyMap.at( body ) );
+                                                               bodies.at( body ) );
 
                 
             }
 
             std::function< double( ) > gravitionalParameterOfDeformedBody =
                     std::bind( &GravityFieldModel::getGravitationalParameter,
-                                 bodyMap.at( body )->getGravityFieldModel( ) );
+                                 bodies.at( body )->getGravityFieldModel( ) );
             
             // Create basic tidal variation object.
             gravityFieldVariationModel

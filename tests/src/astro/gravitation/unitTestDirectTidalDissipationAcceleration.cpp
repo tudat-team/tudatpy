@@ -51,7 +51,7 @@ double computeEccentricityRateDueToTideRaisedOnPlanet(
 
 
 std::pair< double, double > computeKeplerElementRatesDueToDissipation(
-        const NamedBodyMap& bodyMap, const std::string& satelliteToPropagate, const bool usePlanetDissipation,
+        const SystemOfBodies& bodies, const std::string& satelliteToPropagate, const bool usePlanetDissipation,
         const double k2LoveNumber, const double tidalTimeLag, const double initialTime, const double finalTime,
         double& meanMotion, Eigen::Vector6d& intialKeplerElements  )
 {
@@ -82,7 +82,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
                                                       k2LoveNumber, tidalTimeLag, false, usePlanetDissipation ) );
         accelerationMap[ satelliteToPropagate ] = accelerationsOfIo;
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
         // Save dependent variables
@@ -106,7 +106,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime, cowell,
+                      bodiesToPropagate, centralBodies, bodies, initialTime ), finalTime, cowell,
                   dependentVariableSaveSettings );
 
 
@@ -115,7 +115,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
         integrationResultWithDissipation = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = integrationResultWithDissipation.begin( );
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     
 
     // Define propagation settings.
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
         Eigen::Vector6d intialKeplerElements;
         double meanMotion;
         std::pair< double, double > elementRates = computeKeplerElementRatesDueToDissipation(
-                    bodyMap, galileanSatellites.at( i ), true, jupiterLoveNumber, jupiterTimeLag, initialTime, finalTime, meanMotion, intialKeplerElements );
+                    bodies, galileanSatellites.at( i ), true, jupiterLoveNumber, jupiterTimeLag, initialTime, finalTime, meanMotion, intialKeplerElements );
 
         double orbitalPeriod = 2.0 * mathematical_constants::PI / meanMotion;
         double jupiterForcingTime = 9.925 * 3600.0 * orbitalPeriod / ( 2.0 * std::fabs( orbitalPeriod - 9.925 * 3600.0 ) );
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
         Eigen::Vector6d intialKeplerElements;
         double meanMotion;
         std::pair< double, double > elementRates = computeKeplerElementRatesDueToDissipation(
-                    bodyMap, galileanSatellites.at( i ), false, satelliteLoveNumber, satelliteTimeLag, initialTime, finalTime, meanMotion, intialKeplerElements );
+                    bodies, galileanSatellites.at( i ), false, satelliteLoveNumber, satelliteTimeLag, initialTime, finalTime, meanMotion, intialKeplerElements );
 
         double orbitalPeriod = 2.0 * mathematical_constants::PI / meanMotion;
         double satelliteQualityFactor = 1.0 / std::sin( 2.0 * mathematical_constants::PI * satelliteTimeLag / orbitalPeriod );

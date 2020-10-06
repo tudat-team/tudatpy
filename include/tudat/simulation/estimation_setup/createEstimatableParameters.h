@@ -308,7 +308,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
 template< typename InitialStateParameterType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > initialStateParameterSettings;
 
@@ -333,7 +333,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 {
                     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >
                             singleTypeinitialStateParameterSettings =  getInitialStateParameterSettings< InitialStateParameterType >(
-                                propIterator.second.at( i ), bodyMap );
+                                propIterator.second.at( i ), bodies );
                     initialStateParameterSettings.insert(
                                 initialStateParameterSettings.end( ),
                                 singleTypeinitialStateParameterSettings.begin( ),
@@ -358,7 +358,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                             std::make_shared< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings<
                             InitialStateParameterType > >(
                                 propagatedBodies.at( i ), initialStates.segment( i * 6, 6 ), centralBodies.at( i ),
-                                bodyMap.getFrameOrientation( ) ) );
+                                bodies.getFrameOrientation( ) ) );
             }
             break;
 
@@ -377,7 +377,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 initialStateParameterSettings.push_back(
                             std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings<
                             InitialStateParameterType > >(
-                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ), bodyMap.getFrameOrientation( ) ) );
+                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ), bodies.getFrameOrientation( ) ) );
             }
             break;
         }
@@ -413,14 +413,14 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 //! Function to create interface object for estimating parameters representing an initial dynamical state.
 /*!
  *  Function to create interface object for estimating parameters representing an initial dynamical state.
- *  \param bodyMap Map of body objects containing the fll simulation environment.
+ *  \param bodies Map of body objects containing the fll simulation environment.
  *  \param parameterSettings Object defining the parameter interface that is to be created.
  *  \return Interface object for estimating an initial state.
  */
 template< typename InitialStateParameterType = double >
 std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
 < InitialStateParameterType, Eigen::Dynamic, 1 > > > createInitialDynamicalStateParameterToEstimate(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& parameterSettings )
 {
     using namespace tudat::estimatable_parameters;
@@ -474,7 +474,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                     initialTranslationalState = propagators::getInitialStateOfBody
                             < double, InitialStateParameterType >(
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->centralBody_,
-                                bodyMap, initialStateSettings->initialTime_ );
+                                bodies, initialStateSettings->initialTime_ );
 
                 }
 
@@ -517,7 +517,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
                                 propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
                                     initialStateSettings->parameterType_.second.first,
-                                    initialStateSettings->centralBodies_, bodyMap,
+                                    initialStateSettings->centralBodies_, bodies,
                                     initialStateSettings->arcStartTimes_ ),
                                 initialStateSettings->centralBodies_, initialStateSettings->frameOrientation_ );
                 }
@@ -554,7 +554,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                     initialRotationalState = propagators::getInitialRotationalStateOfBody
                             < double, InitialStateParameterType >(
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->baseOrientation_,
-                                bodyMap, initialStateSettings->initialTime_ );
+                                bodies, initialStateSettings->initialTime_ );
 
                 }
 
@@ -563,7 +563,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                         std::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first, initialRotationalState,
                             std::bind( &Body::getBodyInertiaTensor,
-                                       bodyMap.at( initialStateSettings->parameterType_.second.first ) ),
+                                       bodies.at( initialStateSettings->parameterType_.second.first ) ),
                             initialStateSettings->baseOrientation_ );
             }
             break;
@@ -581,7 +581,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
 /*!
  * Function to create an interface object for estimating a parameter defined by a single double value
  * \param doubleParameterName Object defining the parameter interface that is to be created.
- * \param bodyMap Map of body objects containing the fll simulation environment.
+ * \param bodies Map of body objects containing the fll simulation environment.
  * \param propagatorSettings Object defining all settigns for the propagator; empty by default (only required for
  * selected parameters).
  * \return Interface object for estimating parameter.
@@ -589,7 +589,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
 template< typename InitialStateParameterType = double >
 std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > createDoubleParameterToEstimate(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& doubleParameterName,
-        const NamedBodyMap& bodyMap, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
+        const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
         std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
 {
     using namespace simulation_setup;
@@ -615,16 +615,16 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         std::string currentBodyName = doubleParameterName->parameterType_.second.first;
         std::shared_ptr< Body > currentBody;
 
-        if( ( currentBodyName != "global_metric" ) && ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
+        if( ( currentBodyName != "global_metric" ) && ( currentBodyName != "" ) && ( bodies.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Error when creating parameters to estimate, body " +
-                    currentBodyName + "  not in body map " +
+                    currentBodyName + "  not in system of bodies " +
                     std::to_string( doubleParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
         else if( ( currentBodyName != "" ) && ( currentBodyName != "global_metric" ) )
         {
-            currentBody = bodyMap.at( currentBodyName );
+            currentBody = bodies.at( currentBodyName );
         }
 
         // Identify parameter type.
@@ -818,7 +818,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
 /*!
  * Function to create an interface object for estimating a parameter defined by a list of single double values
  * \param vectorParameterName Object defining the parameter interface that is to be created.
- * \param bodyMap Map of body objects containing the fll simulation environment.
+ * \param bodies Map of body objects containing the fll simulation environment.
  * \param propagatorSettings Object defining all settigns for the propagator; empty by default (only required for
  * selected parameters).
  * \return Interface object for estimating parameter.
@@ -826,7 +826,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
 template< typename InitialStateParameterType = double >
 std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > createVectorParameterToEstimate(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& vectorParameterName,
-        const NamedBodyMap& bodyMap, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
+        const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
         std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
 {
     using namespace simulation_setup;
@@ -850,15 +850,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         // Check if body associated with parameter exists.
         std::string currentBodyName = vectorParameterName->parameterType_.second.first;
         std::shared_ptr< Body > currentBody;
-        if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
+        if( ( currentBodyName != "" ) && ( bodies.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Warning when creating parameters to estimate, body " +
-                    currentBodyName  + "not in body map " + std::to_string( vectorParameterName->parameterType_.first );
+                    currentBodyName  + "not in system of bodies " + std::to_string( vectorParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
         else if( ( currentBodyName != "" ) )
         {
-            currentBody = bodyMap.at( currentBodyName );
+            currentBody = bodies.at( currentBodyName );
         }
 
         // Identify parameter type.
@@ -1452,7 +1452,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
  *  environmental parameters and initial dynamical states. The types of parameters are defined by the parameterNames m
  *  input variables
  *  \param parameterNames List of objects defining the parameters that are to be estimated.
- *  \param bodyMap Map of body objects containing the fll simulation environment.
+ *  \param bodies Map of body objects containing the fll simulation environment.
  * \param propagatorSettings Object defining all settigns for the propagator; empty by default (only required for
  * selected parameters).
  *  \return Interface object for estimating a set of parameters.
@@ -1460,7 +1460,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 template< typename InitialStateParameterType = double >
 std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > createParametersToEstimate(
         const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
-        const NamedBodyMap& bodyMap, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
+        const SystemOfBodies& bodies, const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
         std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
 
 {
@@ -1479,19 +1479,19 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         {
             initialDynamicalParametersToEstimate.push_back(
                         createInitialDynamicalStateParameterToEstimate< InitialStateParameterType >(
-                            bodyMap, parameterNames.at( i ) ) );
+                            bodies, parameterNames.at( i ) ) );
         }
         // Create parameters defined by single double value
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == true )
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate(
-                                                      parameterNames[ i ], bodyMap, propagatorSettings ) );
+                                                      parameterNames[ i ], bodies, propagatorSettings ) );
         }
         // Create parameters defined by list of double values
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == false )
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate(
-                                                      parameterNames[ i ], bodyMap, propagatorSettings ) );
+                                                      parameterNames[ i ], bodies, propagatorSettings ) );
         }
         else
         {

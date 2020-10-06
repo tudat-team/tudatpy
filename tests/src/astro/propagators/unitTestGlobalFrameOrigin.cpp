@@ -101,7 +101,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Venus" )->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -129,14 +129,14 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
                   bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", initialEphemerisTime ).
                 template cast< StateScalarType >( );
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }

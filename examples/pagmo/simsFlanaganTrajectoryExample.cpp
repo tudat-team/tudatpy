@@ -86,19 +86,19 @@ int main( )
     bodySettings[ centralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+    // Create system of bodies.
+    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
 
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodies.at( bodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+    setGlobalFrameBodyEphemerides( bodies, frameOrigin, frameOrientation );
 
     // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
 
 
@@ -173,7 +173,7 @@ int main( )
     std::shared_ptr< shape_based_methods::HodographicShaping > hodographicShaping =
             std::make_shared< shape_based_methods::HodographicShaping >(
                 cartesianStateDepartureBody, cartesianStateArrivalBody, timeOfFlight, numberOfRevolutions,
-                bodyMap, bodyToPropagate, centralBody, radialVelocityFunctionComponents, normalVelocityFunctionComponents,
+                bodies, bodyToPropagate, centralBody, radialVelocityFunctionComponents, normalVelocityFunctionComponents,
                 axialVelocityFunctionComponents, freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
                 freeCoefficientsAxialVelocityFunction );
 
@@ -213,7 +213,7 @@ int main( )
 
 
 
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     std::shared_ptr< ShapeBasedMethod > shapeBased = std::dynamic_pointer_cast< ShapeBasedMethod >( hodographicShaping );
 
@@ -248,7 +248,7 @@ int main( )
     }
 
 
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220() };
@@ -258,7 +258,7 @@ int main( )
 
     SimsFlanagan simsFlanagan = SimsFlanagan(
                 cartesianStateDepartureBody, cartesianStateArrivalBody, maximumThrust, specificImpulseFunction, numberSegments,
-                timeOfFlight, bodyMap, bodyToPropagate, centralBody, optimisationSettings );
+                timeOfFlight, bodies, bodyToPropagate, centralBody, optimisationSettings );
 
 
     std::map< double, Eigen::Vector6d > SimsFlanaganTrajectory;

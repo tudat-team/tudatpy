@@ -45,15 +45,15 @@ int main( )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - environmentTimeBuffer,
                                     simulationEndEpoch + environmentTimeBuffer,  "Earth", "J2000" );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap.createBody( "Asterix" );
-    bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface
     double referenceArea = 4.0;
@@ -62,7 +62,7 @@ int main( )
             constantAerodynamicCoefficientSettings(
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
     addAerodynamicCoefficientInterface(
-                bodyMap, "Asterix", aerodynamicCoefficientSettings );
+                bodies, "Asterix", aerodynamicCoefficientSettings );
 
     // Create and add radiation pressure interace
     double referenceAreaRadiation = 4.0;
@@ -72,7 +72,7 @@ int main( )
             cannonBallRadiationPressureSettings(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
     addRadiationPressureInterface(
-                bodyMap, "Asterix", asterixRadiationPressureSettings );
+                bodies, "Asterix", asterixRadiationPressureSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ int main( )
     std::vector< std::string > centralBodies = { "Earth" };
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationSettingsList, bodiesToPropagate, centralBodies );
+                bodies, accelerationSettingsList, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -122,7 +122,7 @@ int main( )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = getBodyGravitationalParameter( bodyMap, "Earth" );
+    double earthGravitationalParameter = getBodyGravitationalParameter( bodies, "Earth" );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -141,7 +141,7 @@ int main( )
 
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
 

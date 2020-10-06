@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     // Create radiation pressure settings
@@ -90,11 +90,11 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap.at( "Vehicle" )->setRadiationPressureInterface(
+    bodies.at( "Vehicle" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+                    asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
     Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
+    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
     std::vector< double > arcStartTimeList =
     { initialEphemerisTime, initialEphemerisTime + 0.33 * 86400.0, initialEphemerisTime + 0.66 * 86400.0 };
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > dependentVariableData =

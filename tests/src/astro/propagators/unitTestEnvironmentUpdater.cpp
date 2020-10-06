@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                 "IAU_Earth" );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     
 
     // Define variables used in tests.
@@ -126,15 +126,15 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Create accelerations
             AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                        bodyMap, accelerationSettingsMap, centralBodies );
+                        bodies, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
             std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
-                            "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
+                            "Moon", centralBodies[ "Moon" ], bodies, initialTime ), finalTime );
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
-                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodyMap );
+                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
             // Test update settings
             BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 1 );
@@ -144,44 +144,44 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Create and call updater.
             std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                     createEnvironmentUpdaterForDynamicalEquations< double, double >(
-                        propagatorSettings, bodyMap );
+                        propagatorSettings, bodies );
             updater->updateEnvironment( testTime, integratedStateToSet );
 
             // Test if Earth, Sun and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Earth" )->getState( ),
+                        bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Sun" )->getState( ),
+                        bodies.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Moon" )->getState( ), testState,
+                        bodies.at( "Moon" )->getState( ), testState,
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Mars is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
+                        bodies.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
                         0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ), { translational_state } );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
+                        bodies.at( "Earth" )->getState( ),
+                        bodies.at( "Earth" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
+                        bodies.at( "Sun" )->getState( ),
+                        bodies.at( "Sun" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Moon" )->getState( ),
-                        bodyMap.at( "Moon" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
+                        bodies.at( "Moon" )->getState( ),
+                        bodies.at( "Moon" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
+                        bodies.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
         }
 
@@ -205,15 +205,15 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Create accelerations
             AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                        bodyMap, accelerationSettingsMap, centralBodies );
+                        bodies, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
             std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
-                            "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
+                            "Moon", centralBodies[ "Moon" ], bodies, initialTime ), finalTime );
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
-                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodyMap );
+                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
             // Test update settings
             BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 1 );
@@ -223,29 +223,29 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Create and call updater.
             std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                     createEnvironmentUpdaterForDynamicalEquations< double, double >(
-                        propagatorSettings, bodyMap );
+                        propagatorSettings, bodies );
             updater->updateEnvironment( testTime, integratedStateToSet );
 
             // Test if Earth, Sun, Mars and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Earth" )->getState( ),
+                        bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Sun" )->getState( ),
+                        bodies.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Moon" )->getState( ), testState,
+                        bodies.at( "Moon" )->getState( ), testState,
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ),
-                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Mars" )->getState( ),
+                        bodies.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Venus is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
+                        bodies.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Update environment to new time, and state from environment.
@@ -276,15 +276,15 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Create accelerations
             AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                        bodyMap, accelerationSettingsMap, centralBodies );
+                        bodies, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
             std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
-                            "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
+                            "Moon", centralBodies[ "Moon" ], bodies, initialTime ), finalTime );
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
-                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodyMap );
+                    createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
             // Test update settings
             BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 3 );
@@ -297,61 +297,61 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Create and call updater.
             std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                     createEnvironmentUpdaterForDynamicalEquations< double, double >(
-                        propagatorSettings, bodyMap );
+                        propagatorSettings, bodies );
             updater->updateEnvironment( testTime, integratedStateToSet );
 
             // Test if Earth, Sun, Mars and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Earth" )->getState( ),
+                        bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Sun" )->getState( ),
+                        bodies.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Moon" )->getState( ), testState,
+                        bodies.at( "Moon" )->getState( ), testState,
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ),
-                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
+                        bodies.at( "Mars" )->getState( ),
+                        bodies.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Venus is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
+                        bodies.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Earth rotation is updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
-                        bodyMap.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
+                        bodies.at( "Earth" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
+                        bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
-                        bodyMap.at( "Earth" )->getRotationalEphemeris( )->getRotationToTargetFrame( testTime ).toRotationMatrix( ),
+                        bodies.at( "Earth" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
+                        bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToTargetFrame( testTime ).toRotationMatrix( ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getCurrentRotationMatrixDerivativeToGlobalFrame( ),
-                        bodyMap.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ),
+                        bodies.at( "Earth" )->getCurrentRotationMatrixDerivativeToGlobalFrame( ),
+                        bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Earth" )->getCurrentRotationMatrixDerivativeToLocalFrame( ),
-                        bodyMap.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToTargetFrame( testTime ),
+                        bodies.at( "Earth" )->getCurrentRotationMatrixDerivativeToLocalFrame( ),
+                        bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToTargetFrame( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Mars rotation is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
+                        bodies.at( "Mars" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
                         Eigen::Matrix3d::Identity( ), std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
+                        bodies.at( "Mars" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
                         Eigen::Matrix3d::Identity( ), std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getCurrentRotationMatrixDerivativeToGlobalFrame( ),
+                        bodies.at( "Mars" )->getCurrentRotationMatrixDerivativeToGlobalFrame( ),
                         Eigen::Matrix3d::Zero( ), std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getCurrentRotationMatrixDerivativeToLocalFrame( ),
+                        bodies.at( "Mars" )->getCurrentRotationMatrixDerivativeToLocalFrame( ),
                         Eigen::Matrix3d::Zero( ), std::numeric_limits< double >::epsilon( ) );
 
             // Update environment to new time, and state from environment.
@@ -397,18 +397,18 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 getApolloCoefficientInterface( ) );
-    bodyMap.at( "Vehicle" )->setBodyMassFunction( &getBodyMass );
+    bodies.at( "Vehicle" )->setBodyMassFunction( &getBodyMass );
     
 
 
     // Define test time and state.
     double testTime = 2.0 * 86400.0;
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
-    Eigen::VectorXd testState = 1.1 * bodyMap.at( "Vehicle" )->getEphemeris( )->getCartesianState( testTime ) +
-            bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime );
+    Eigen::VectorXd testState = 1.1 * bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( testTime ) +
+            bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testTime );
     integratedStateToSet[ translational_state ] = testState;
 
     {
@@ -427,15 +427,15 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         // Create accelerations
         AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                    bodyMap, accelerationSettingsMap, centralBodies );
+                    bodies, accelerationSettingsMap, centralBodies );
 
         // Create environment update settings.
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
-                        "Vehicle", centralBodies[ "Vehicle" ], bodyMap, initialTime ), finalTime );
+                        "Vehicle", centralBodies[ "Vehicle" ], bodies, initialTime ), finalTime );
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
-                createEnvironmentUpdaterSettings< double >( propagatorSettings, bodyMap );
+                createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 3 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_translational_state_update ), 1 );
@@ -448,20 +448,20 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                 createEnvironmentUpdaterForDynamicalEquations< double, double >(
-                    propagatorSettings, bodyMap );
+                    propagatorSettings, bodies );
 
         updater->updateEnvironment( testTime, integratedStateToSet );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Sun" )->getState( ),
-                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
+                    bodies.at( "Sun" )->getState( ),
+                    bodies.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Vehicle" )->getState( ), testState,
+                    bodies.at( "Vehicle" )->getState( ), testState,
                     std::numeric_limits< double >::epsilon( ) );
 
         BOOST_CHECK_CLOSE_FRACTION(
-                    bodyMap.at( "Vehicle" )->getBodyMass( ), getBodyMass( testTime ),
+                    bodies.at( "Vehicle" )->getBodyMass( ), getBodyMass( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
 
 
@@ -487,13 +487,13 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         // Create accelerations
         AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                    bodyMap, accelerationSettingsMap, centralBodies );
+                    bodies, accelerationSettingsMap, centralBodies );
 
 
         // Define orientation angles.
         std::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleFlightConditions =
                 std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                    bodyMap.at( "Vehicle" )->getFlightConditions( ) );
+                    bodies.at( "Vehicle" )->getFlightConditions( ) );
         double angleOfAttack = 35.0 * mathematical_constants::PI / 180.0;
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;
@@ -505,9 +505,9 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
-                        "Vehicle", centralBodies[ "Vehicle" ], bodyMap, initialTime ), finalTime );
+                        "Vehicle", centralBodies[ "Vehicle" ], bodies, initialTime ), finalTime );
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
-                createEnvironmentUpdaterSettings< double >( propagatorSettings, bodyMap );
+                createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
         // Test update settings
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 5 );
@@ -525,35 +525,35 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         // Create and call updater.
         std::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
                 createEnvironmentUpdaterForDynamicalEquations< double, double >(
-                    propagatorSettings, bodyMap );
+                    propagatorSettings, bodies );
         updater->updateEnvironment( testTime, integratedStateToSet );
 
         // Test if Earth, Sun and Vehicle states are updated.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Earth" )->getState( ),
-                    bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
+                    bodies.at( "Earth" )->getState( ),
+                    bodies.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Sun" )->getState( ),
-                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
+                    bodies.at( "Sun" )->getState( ),
+                    bodies.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Vehicle" )->getState( ), testState,
+                    bodies.at( "Vehicle" )->getState( ), testState,
                     std::numeric_limits< double >::epsilon( ) );
 
         // Test if Earth rotation is updated.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Earth" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
-                    bodyMap.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
+                    bodies.at( "Earth" )->getCurrentRotationToGlobalFrame( ).toRotationMatrix( ),
+                    bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ).toRotationMatrix( ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    bodyMap.at( "Earth" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
-                    bodyMap.at( "Earth" )->getRotationalEphemeris( )->getRotationToTargetFrame( testTime ).toRotationMatrix( ),
+                    bodies.at( "Earth" )->getCurrentRotationToLocalFrame( ).toRotationMatrix( ),
+                    bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToTargetFrame( testTime ).toRotationMatrix( ),
                     std::numeric_limits< double >::epsilon( ) );
 
         // Test if body mass is updated
         BOOST_CHECK_CLOSE_FRACTION(
-                    bodyMap.at( "Vehicle" )->getBodyMass( ), getBodyMass( testTime ),
+                    bodies.at( "Vehicle" )->getBodyMass( ), getBodyMass( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
 
         // Check if flight conditions update has been called
@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         // Check if radiation pressure update is updated.
         std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface =
-                bodyMap.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
+                bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
         BOOST_CHECK_EQUAL(
                     ( radiationPressureInterface->getCurrentTime( ) == radiationPressureInterface->getCurrentTime( ) ), 1 );
         BOOST_CHECK_EQUAL(
@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                 radiationPressureInterface->getCurrentRadiationPressure( ) ), 1 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     radiationPressureInterface->getCurrentSolarVector( ),
-                    ( bodyMap.at( "Sun" )->getPosition( ) - bodyMap.at( "Vehicle" )->getPosition( ) ),
+                    ( bodies.at( "Sun" )->getPosition( ) - bodies.at( "Vehicle" )->getPosition( ) ),
                     std::numeric_limits< double >::epsilon( ) );
 
         updater->updateEnvironment(

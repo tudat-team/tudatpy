@@ -394,13 +394,13 @@ private:
 /*!
  * Function to create propagation termination conditions from associated settings
  * \param terminationSettings Settings for propagation termination conditions
- * \param bodyMap List of body objects that contains all environment models
+ * \param bodies List of body objects that contains all environment models
  * \param initialTimeStep Time step at first call of numerical integration.
  * \return Object used to check whether propagation is to be stopped or not.
  */
 std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const double initialTimeStep );
 
 //! Class for storing details on the propagation termination

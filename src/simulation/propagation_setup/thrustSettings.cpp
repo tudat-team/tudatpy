@@ -341,7 +341,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration (constant specific impulse).
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -352,7 +352,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 
     std::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
             std::make_shared< AccelerationLimitedThrottleGuidance >(
-                bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
+                bodies, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
                thrustMagnitudeInterpolator, maximumAcceleration );
     return createParameterizedThrustMagnitudeSettings(
                 thrustGuidance, thrustMagnitudeInterpolator, thrustIndependentVariables, specificImpulse );
@@ -361,7 +361,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration (constant specific impulse).
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::string thrustMagnitudeDataFile,
@@ -370,7 +370,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
         const std::string nameOfCentralBody )
 {
     return createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-                bodyMap, nameOfBodyWithGuidance, maximumAcceleration,
+                bodies, nameOfBodyWithGuidance, maximumAcceleration,
                 readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile ),
                 thrustIndependentVariables, specificImpulse, nameOfCentralBody );
 }
@@ -378,7 +378,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration.
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -390,7 +390,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 
     std::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
             std::make_shared< AccelerationLimitedThrottleGuidance >(
-                bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
+                bodies, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
                thrustMagnitudeInterpolator, maximumAcceleration );
     return createParameterizedThrustMagnitudeSettings(
                 thrustGuidance, thrustMagnitudeInterpolator, thrustIndependentVariables,
@@ -400,7 +400,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration.
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::string thrustMagnitudeDataFile,
@@ -410,7 +410,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
         const std::string nameOfCentralBody  )
 {
     return createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-                bodyMap, nameOfBodyWithGuidance, maximumAcceleration,
+                bodies, nameOfBodyWithGuidance, maximumAcceleration,
                 readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile ),
                 thrustIndependentVariables,
                 readCoefficientInterpolatorFromFile( specificImpulseDataFile ),

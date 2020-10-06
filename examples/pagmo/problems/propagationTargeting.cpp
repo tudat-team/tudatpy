@@ -68,10 +68,10 @@ PropagationTargetingProblem::PropagationTargetingProblem(const double altitudeOf
     bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
 
 
-    //Create bodyMap and add the satellite as an empty body
-    bodyMap_ = simulation_setup::createBodies( bodySettings );
-    bodyMap_["Satellite"] = std::make_shared<Body>();
-    setGlobalFrameBodyEphemerides( bodyMap_, "Earth", "J2000" );
+    //Create bodies and add the satellite as an empty body
+    bodies_ = simulation_setup::createBodies( bodySettings );
+    bodies_["Satellite"] = std::make_shared<Body>();
+    setGlobalFrameBodyEphemerides( bodies_, "Earth", "J2000" );
 }
 
 
@@ -130,7 +130,7 @@ std::vector<double> PropagationTargetingProblem::fitness(const std::vector<doubl
         accelerationMap[ "Satellite" ] = accelerationsOfSatellite;
     }
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap_, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies_, accelerationMap, bodiesToPropagate, centralBodies );
 
     //Setup propagator (cowell) and integrator (RK4 fixed stepsize)
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -142,7 +142,7 @@ std::vector<double> PropagationTargetingProblem::fitness(const std::vector<doubl
 
     //Start simulation
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap_, integratorSettings, propagatorSettings, true, false, false );
+                bodies_, integratorSettings, propagatorSettings, true, false, false );
 
     //Retrieve results
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
     }
 }
 
-NamedBodyMap getTestBodyMap( )
+SystemOfBodies getTestBodyMap( )
 {
     // Create central, departure and arrival bodies.
     std::vector< std::string > bodiesToCreate;
@@ -273,16 +273,16 @@ NamedBodyMap getTestBodyMap( )
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
 
-    // Create body map.
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    // Create system of bodies.
+    SystemOfBodies bodies = createBodies( bodySettings );
 
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
 
-    return bodyMap;
+    return bodies;
 
 }
 
@@ -317,9 +317,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
-    // Create body map
-    NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap.at( "Vehicle" )->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
+    // Create system of bodies
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( "Vehicle" )->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
 
 
     // Define integrator settings
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
     // Create complete propagation settings (backward and forward propagations).
     basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap =
             sphericalShaping.retrieveLowThrustAccelerationMap(
-                bodyMap, "Vehicle", "Sun", specificImpulseFunction, integratorSettings );
+                bodies, "Vehicle", "Sun", specificImpulseFunction, integratorSettings );
     std::pair< std::shared_ptr< PropagatorSettings< double > >,
             std::shared_ptr< PropagatorSettings< double > > > propagatorSettings =
             sphericalShaping.createLowThrustTranslationalStatePropagatorSettings(
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 
     // Compute shaped trajectory and propagated trajectory.
     sphericalShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, propagatorSettings,
+                bodies, integratorSettings, propagatorSettings,
                 fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
     // Check difference between full propagation and shaping method at arrival
@@ -423,9 +423,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
     std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
-    // Create body map
-    NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( initialMass );
+    // Create system of bodies
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( "Vehicle" )->setConstantBodyMass( initialMass );
 
 
     // Define integrator settings
@@ -455,11 +455,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< PropagatorSettings< double > >,
             std::shared_ptr< PropagatorSettings< double > > > propagatorSettings = sphericalShaping.createLowThrustPropagatorSettings(
-                bodyMap, "Vehicle", "Sun", specificImpulseFunction, basic_astrodynamics::AccelerationMap( ), integratorSettings, dependentVariablesToSave );
+                bodies, "Vehicle", "Sun", specificImpulseFunction, basic_astrodynamics::AccelerationMap( ), integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
     sphericalShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, propagatorSettings,
+                bodies, integratorSettings, propagatorSettings,
                 fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
 

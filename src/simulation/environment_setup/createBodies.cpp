@@ -29,28 +29,28 @@ using namespace ephemerides;
 using namespace gravitation;
 
 void addAerodynamicCoefficientInterface(
-        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings )
 {
-    if( bodyMap.count( bodyName ) == 0 )
+    if( bodies.count( bodyName ) == 0 )
     {
-        throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in body map" );
+        throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in system of bodies" );
     }
-    bodyMap.at( bodyName )->setAerodynamicCoefficientInterface(
+    bodies.at( bodyName )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
 }
 
 void addRadiationPressureInterface(
-        const NamedBodyMap& bodyMap, const std::string bodyName,
+        const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
 {
-    if( bodyMap.count( bodyName ) == 0 )
+    if( bodies.count( bodyName ) == 0 )
     {
-        throw std::runtime_error( "Error when setting radiation pressure interface for body "+ bodyName + ", body is not found in body map" );
+        throw std::runtime_error( "Error when setting radiation pressure interface for body "+ bodyName + ", body is not found in system of bodies" );
     }
-    bodyMap.at( bodyName )->setRadiationPressureInterface(
+    bodies.at( bodyName )->setRadiationPressureInterface(
                 radiationPressureSettings->getSourceBody( ), createRadiationPressureInterface(
-                    radiationPressureSettings, bodyName, bodyMap ) );
+                    radiationPressureSettings, bodyName, bodies ) );
 }
 
 void setSimpleRotationSettingsFromSpice(
@@ -76,16 +76,16 @@ void setSimpleRotationSettingsFromSpice(
 }
 
 void addEmptyTabulateEphemeris(
-        const NamedBodyMap& bodyMap, const std::string& bodyName, const std::string& ephemerisOrigin )
+        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin )
 {
-    if( bodyMap.count( bodyName ) ==  0 )
+    if( bodies.count( bodyName ) ==  0 )
     {
         throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
     }
-    std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodyMap.getFrameOrigin( ) : ephemerisOrigin;
-    bodyMap.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodies.getFrameOrigin( ) : ephemerisOrigin;
+    bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodyMap.getFrameOrientation( ) ) );
+                                            < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
 }
 
 
@@ -108,14 +108,14 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
 
 
 //! Function to create a map of bodies objects.
-NamedBodyMap createBodies(
+SystemOfBodies createBodies(
         const BodyListSettings& bodySettings )
 {
     std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
             = determineBodyCreationOrder( bodySettings.getMap( ) );
 
     // Declare map of bodies that is to be returned.
-    NamedBodyMap bodyList = NamedBodyMap(
+    SystemOfBodies bodyList = SystemOfBodies(
                 bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
 
     // Create empty body objects.

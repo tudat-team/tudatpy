@@ -42,15 +42,15 @@ int main() {
   std::map<std::string, std::shared_ptr<BodySettings>> bodySettings =
       getDefaultBodySettings(bodiesToCreate);
 
-  NamedBodyMap bodyMap = createBodies(bodySettings);
+  SystemOfBodies bodies = createBodies(bodySettings);
 
   // Create vehicle objects.
   double vehicleMass = 5.0E3;
-  bodyMap["Vehicle"] = std::make_shared<simulation_setup::Body>();
-  bodyMap["Vehicle"]->setConstantBodyMass(vehicleMass);
+  bodies["Vehicle"] = std::make_shared<simulation_setup::Body>();
+  bodies["Vehicle"]->setConstantBodyMass(vehicleMass);
 
   // Finalize body creation.
-  setGlobalFrameBodyEphemerides(bodyMap, "SSB", "ECLIPJ2000");
+  setGlobalFrameBodyEphemerides(bodies, "SSB", "ECLIPJ2000");
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
@@ -86,7 +86,7 @@ int main() {
 
   // Create acceleration models and propagation settings.
   basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-      bodyMap, accelerationMap, bodiesToPropagate, centralBodies);
+      bodies, accelerationMap, bodiesToPropagate, centralBodies);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -111,7 +111,7 @@ int main() {
       std::make_shared<FromThrustMassModelSettings>(true);
   std::map<std::string, std::shared_ptr<basic_astrodynamics::MassRateModel>> massRateModels;
   massRateModels["Vehicle"] = createMassRateModel(
-      "Vehicle", massRateModelSettings, bodyMap, accelerationModelMap);
+      "Vehicle", massRateModelSettings, bodies, accelerationModelMap);
 
   // Create settings for propagating the mass of the vehicle.
   std::vector<std::string> bodiesWithMassToPropagate;
@@ -143,7 +143,7 @@ int main() {
 
   // Create simulation object and propagate dynamics.
   SingleArcDynamicsSimulator<> dynamicsSimulator(
-      bodyMap, integratorSettings, propagatorSettings, true, false, false);
+      bodies, integratorSettings, propagatorSettings, true, false, false);
 
   // Retrieve numerical solutions for state and dependent variables
   std::map<double, Eigen::Matrix<double, Eigen::Dynamic, 1>> numericalSolution =

@@ -76,16 +76,16 @@ int main( )
     bodySettings[ "Mercury" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
                 ephemerides::ApproximatePlanetPositionsBase::mars, false );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "TeslaRoadster" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "TeslaRoadster" ] = std::make_shared< simulation_setup::Body >( );
 
-    bodyMap[ "TeslaRoadster" ]->setConstantBodyMass( 1500.0 );
+    bodies[ "TeslaRoadster" ]->setConstantBodyMass( 1500.0 );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 8.0;
@@ -96,13 +96,13 @@ int main( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "TeslaRoadster" ]->setRadiationPressureInterface(
+    bodies[ "TeslaRoadster" ]->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodyMap ) );
+                    teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodies ) );
 
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ int main( )
     centralBodies.push_back( "Sun" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -203,7 +203,7 @@ int main( )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

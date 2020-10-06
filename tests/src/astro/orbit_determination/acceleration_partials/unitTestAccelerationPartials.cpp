@@ -69,9 +69,9 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     std::shared_ptr< Body > earth = std::make_shared< Body >( );
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( earth, "Earth" );
-    bodyMap.addBody( sun, "Sun" );
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     // Create central gravity partial.
     std::shared_ptr< AccelerationPartial > centralGravitationPartial =
             createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Earth", earth ),
-                                                 std::make_pair( "Sun", sun ), bodyMap );
+                                                 std::make_pair( "Sun", sun ), bodies );
 
     // Create gravitational parameter object.
     std::shared_ptr< EstimatableParameter< double > > sunGravitationalParameterParameter = std::make_shared<
@@ -181,9 +181,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     vehicle->setConstantBodyMass( 400.0 );
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( vehicle, "Vehicle" );
-    bodyMap.addBody( sun, "Sun" );
+    SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );
+    bodies.addBody( sun, "Sun" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     // Create radiation pressure properties of vehicle
     std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
             createRadiationPressureInterface( std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                                                  "Sun", mathematical_constants::PI * 0.3 * 0.3, 1.2 ), "Vehicle", bodyMap );
+                                                  "Sun", mathematical_constants::PI * 0.3 * 0.3, 1.2 ), "Vehicle", bodies );
     radiationPressureInterface->updateInterface( 0.0 );
     vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     // Create partial-calculating object.
     std::shared_ptr< AccelerationPartial > accelerationPartial =
             createAnalyticalAccelerationPartial( accelerationModel, std::make_pair( "Vehicle", vehicle ),
-                                                 std::make_pair( "Sun", sun ), bodyMap );
+                                                 std::make_pair( "Sun", sun ), bodies );
 
     // Create parameter object
     std::string vehicleName = "Vehicle";
@@ -379,10 +379,10 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
     std::shared_ptr< Body > moon = std::make_shared< Body >( );
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( earth, "Earth" );
-    bodyMap.addBody( sun, "Sun" );
-    bodyMap.addBody( moon, "Moon" );
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
+    bodies.addBody( moon, "Moon" );
 
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     // Create central gravity partial.
     std::shared_ptr< AccelerationPartial > thirdBodyGravitationPartial =
             createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Moon", moon ),
-                                                 std::make_pair( "Sun", sun ), bodyMap );
+                                                 std::make_pair( "Sun", sun ), bodies );
 
     // Create gravitational parameter object.
     std::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = std::make_shared<
@@ -532,12 +532,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             getDefaultBodySettings( { "Earth" } );
     defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
     bool areCoefficientsInAerodynamicFrame = 1;
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                 areCoefficientsInAerodynamicFrame, 1 );
-    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
 
@@ -570,25 +570,25 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
                 vehicleSphericalEntryState );
 
-    bodyMap.at( "Earth" )->setStateFromEphemeris( 0.0 );
-    bodyMap.at( "Vehicle" )->setState( systemInitialState );
+    bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Vehicle" )->setState( systemInitialState );
 
 
     std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
             simulation_setup::createAerodynamicAcceleratioModel(
-                bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ), "Vehicle", "Earth" );
-    bodyMap.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
+                bodies.at( "Vehicle" ), bodies.at( "Earth" ), "Vehicle", "Earth" );
+    bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
     accelerationModel->updateMembers( 0.0 );
 
     std::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
             createAnalyticalAccelerationPartial(
-                accelerationModel, std::make_pair( "Vehicle", bodyMap.at( "Vehicle" ) ),
-            std::make_pair( "Earth", bodyMap.at( "Earth" ) ), bodyMap );
+                accelerationModel, std::make_pair( "Vehicle", bodies.at( "Vehicle" ) ),
+            std::make_pair( "Earth", bodies.at( "Earth" ) ), bodies );
 
     // Create gravitational parameter object.
     std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = std::make_shared<
             ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                                           bodyMap.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
+                                           bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
 
     // Calculate analytical partials.
     aerodynamicAccelerationPartial->update( 0.0 );
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
 
     std::function< void( ) > environmentUpdateFunction =
-            std::bind( &updateFlightConditionsWithPerturbedState, bodyMap.at( "Vehicle" )->getFlightConditions( ), 0.0 );
+            std::bind( &updateFlightConditionsWithPerturbedState, bodies.at( "Vehicle" )->getFlightConditions( ), 0.0 );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -621,26 +621,26 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            std::bind( &Body::setState, bodyMap.at( "Vehicle" ), std::placeholders::_1 );
+            std::bind( &Body::setState, bodies.at( "Vehicle" ), std::placeholders::_1 );
     std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            std::bind( &Body::setState, bodyMap.at( "Earth" ), std::placeholders::_1 );
+            std::bind( &Body::setState, bodies.at( "Earth" ), std::placeholders::_1 );
     std::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
-            std::bind( &Body::getState, bodyMap.at( "Vehicle" ) );
+            std::bind( &Body::getState, bodies.at( "Vehicle" ) );
     std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
-            std::bind( &Body::getState, bodyMap.at( "Earth" ) );
+            std::bind( &Body::getState, bodies.at( "Earth" ) );
 
     // Calculate numerical partials.
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
-                vehicleStateSetFunction, accelerationModel, bodyMap.at( "Vehicle" )->getState( ), positionPerturbation, 0,
+                vehicleStateSetFunction, accelerationModel, bodies.at( "Vehicle" )->getState( ), positionPerturbation, 0,
                 environmentUpdateFunction);
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
-                vehicleStateSetFunction, accelerationModel, bodyMap.at( "Vehicle" )->getState( ), velocityPerturbation, 3,
+                vehicleStateSetFunction, accelerationModel, bodies.at( "Vehicle" )->getState( ), velocityPerturbation, 3,
                 environmentUpdateFunction );
     testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, accelerationModel, bodyMap.at( "Earth" )->getState( ), positionPerturbation, 0,
+                earthStateSetFunction, accelerationModel, bodies.at( "Earth" )->getState( ), positionPerturbation, 0,
                 environmentUpdateFunction );
     testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, accelerationModel, bodyMap.at( "Earth" )->getState( ), velocityPerturbation, 3,
+                earthStateSetFunction, accelerationModel, bodies.at( "Earth" )->getState( ), velocityPerturbation, 3,
                 environmentUpdateFunction );
 
     Eigen::Vector3d testPartialWrtDragCoefficient = calculateAccelerationWrtParameterPartials(
@@ -689,14 +689,14 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
                                                                                  getBodyGravitationalParameter( "Earth" ) ) );
 
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( vehicle, "Vehicle" );;
-    bodyMap.addBody( earth, "Earth" );
+    SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );;
+    bodies.addBody( earth, "Earth" );
 
     // Create gravity field.
     std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
     std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
-            createGravityFieldModel( gravityFieldSettings, "Earth", bodyMap );
+            createGravityFieldModel( gravityFieldSettings, "Earth", bodies );
     earth->setGravityFieldModel( earthGravityField );
 
     // Create acceleration model.
@@ -816,14 +816,14 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
                                                                                  getBodyGravitationalParameter( "Earth" ) ) );
 
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( vehicle, "Vehicle" );;
-    bodyMap.addBody( earth, "Earth" );
+    SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );;
+    bodies.addBody( earth, "Earth" );
 
     // Create gravity field.
     std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
     std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
-            createGravityFieldModel( gravityFieldSettings, "Earth", bodyMap );
+            createGravityFieldModel( gravityFieldSettings, "Earth", bodies );
     earth->setGravityFieldModel( earthGravityField );
 
     // Create rotation model
@@ -1047,9 +1047,9 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                       getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ) ) );
 
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( io, "Io" );
-    bodyMap.addBody( jupiter, "Jupiter" );
+    SystemOfBodies bodies;
+    bodies.addBody( io, "Io" );
+    bodies.addBody( jupiter, "Jupiter" );
 
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
@@ -1061,7 +1061,7 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
             ( getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ),
               cosineCoefficients, sineCoefficients, "IAU_Jupiter" );
     std::shared_ptr< gravitation::GravityFieldModel > jupiterGravityField =
-            createGravityFieldModel( jupiterGravityFieldSettings, "Jupiter", bodyMap );
+            createGravityFieldModel( jupiterGravityFieldSettings, "Jupiter", bodies );
     jupiter->setGravityFieldModel( jupiterGravityField );
 
     // Create io gravity field.
@@ -1069,7 +1069,7 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
             ( getBodyGravitationalParameter( "Io" ), getAverageRadius( "Io" ),
               cosineCoefficients, sineCoefficients, "IAU_Io" );
     std::shared_ptr< gravitation::GravityFieldModel > ioGravityField =
-            createGravityFieldModel( ioGravityFieldSettings, "Io", bodyMap );
+            createGravityFieldModel( ioGravityFieldSettings, "Io", bodies );
     io->setGravityFieldModel( ioGravityField );
 
     // Create rotation model
@@ -1189,9 +1189,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     double vehicleMass = 400.0;
     vehicle->setConstantBodyMass( vehicleMass );
     std::shared_ptr< Body > sun = std::make_shared< Body >( );
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( vehicle, "Vehicle" );;
-    bodyMap.addBody( sun, "Sun" );
+    SystemOfBodies bodies;
+    bodies.addBody( vehicle, "Vehicle" );;
+    bodies.addBody( sun, "Sun" );
 
     // Load spice kernels.
     tudat::spice_interface::loadStandardSpiceKernels( );
@@ -1255,7 +1255,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
             std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
                 createRadiationPressureInterface( std::make_shared< PanelledRadiationPressureInterfaceSettings >(
-                        "Sun", areas, emissivities, diffuseReflectionCoefficients, panelSurfaceNormals ), "Vehicle", bodyMap ) );
+                        "Sun", areas, emissivities, diffuseReflectionCoefficients, panelSurfaceNormals ), "Vehicle", bodies ) );
 
     radiationPressureInterface->updateInterface( 0.0 );
     vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
@@ -1283,7 +1283,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterSettingsVector;
     //    parameterSettingsVector.push_back( panelEmissivitiesSettings );
     //    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatableParameters = createParametersToEstimate(
-    //                parameterSettingsVector, bodyMap );
+    //                parameterSettingsVector, bodies );
     //    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
     //            estimatableParameters->getVectorParameters( ).begin( )->second;
 

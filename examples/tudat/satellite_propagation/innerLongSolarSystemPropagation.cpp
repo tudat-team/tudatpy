@@ -55,8 +55,8 @@ int main( )
     // Create bodies needed in simulation
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     // Run simulation for 2 different central body settings (barycentric and hierarchical)
     {
@@ -107,7 +107,7 @@ int main( )
 
         // Create acceleration models and propagation settings.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -121,7 +121,7 @@ int main( )
 
         // Get initial state vector as input to integration.
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                    bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+                    bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -142,7 +142,7 @@ int main( )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

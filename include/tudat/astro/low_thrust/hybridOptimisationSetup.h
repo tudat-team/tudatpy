@@ -44,7 +44,7 @@ struct HybridMethodProblem
                          const double maximumThrust,
                          const double specificImpulse,
                          const double timeOfFlight,
-                         simulation_setup::NamedBodyMap bodyMap,
+                         simulation_setup::SystemOfBodies bodies,
                          const std::string bodyToPropagate,
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -98,7 +98,7 @@ private:
     double timeOfFlight_;
 
     //! Body map.
-    mutable simulation_setup::NamedBodyMap bodyMap_;
+    mutable simulation_setup::SystemOfBodies bodies_;
 
     //! Name of the body to be propagated.
     const std::string bodyToPropagate_;

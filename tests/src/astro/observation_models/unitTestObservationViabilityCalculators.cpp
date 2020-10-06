@@ -42,7 +42,7 @@ std::vector< double > getBodyLinkElevationAngles(
         const std::string referenceBody,
         const std::vector< Eigen::Vector6d > linkEndStates,
         const std::vector< double > linkEndTimes,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     std::shared_ptr< ground_stations::PointingAnglesCalculator > currentPointingAnglesCalculator;
     std::vector< double > elevationAngles;
@@ -52,7 +52,7 @@ std::vector< double > getBodyLinkElevationAngles(
     {
         if( linkEnds.at( transmitter ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( transmitter ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -60,7 +60,7 @@ std::vector< double > getBodyLinkElevationAngles(
         }
         else if( linkEnds.at( receiver ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( receiver ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -71,7 +71,7 @@ std::vector< double > getBodyLinkElevationAngles(
     {
         if( linkEnds.at( transmitter ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( transmitter ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -79,7 +79,7 @@ std::vector< double > getBodyLinkElevationAngles(
         }
         else if( linkEnds.at( receiver ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( receiver ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -90,7 +90,7 @@ std::vector< double > getBodyLinkElevationAngles(
     {
         if( linkEnds.at( transmitter ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( transmitter ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -98,7 +98,7 @@ std::vector< double > getBodyLinkElevationAngles(
         }
         else if( linkEnds.at( receiver ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( receiver ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -109,7 +109,7 @@ std::vector< double > getBodyLinkElevationAngles(
     {
         if( linkEnds.at( transmitter ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( transmitter ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -119,7 +119,7 @@ std::vector< double > getBodyLinkElevationAngles(
         }
         else if( linkEnds.at( receiver ).first == referenceBody )
         {
-            currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                         linkEnds.at( receiver ).second )->getPointingAnglesCalculator( );
             elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngle(
                                            ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -136,7 +136,7 @@ std::vector< double > getBodyLinkElevationAngles(
         {
             if( linkEndIterator->second.first == referenceBody )
             {
-                currentPointingAnglesCalculator = bodyMap.at( referenceBody )->getGroundStation(
+                currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
                             linkEndIterator->second.second )->getPointingAnglesCalculator( );
                 if( linkEndIndex != 0 )
                 {
@@ -177,7 +177,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
         const std::string bodyToAvoid,
         const std::vector< Eigen::Vector6d > linkEndStates,
         const std::vector< double > linkEndTimes,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     std::vector< double > cosineAvoidanceAngles;
     switch( observableType )
@@ -189,7 +189,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
         }
@@ -198,7 +198,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
         }
@@ -211,7 +211,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
         }
@@ -220,7 +220,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
         }
@@ -233,7 +233,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
         }
@@ -242,7 +242,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
         }
@@ -255,13 +255,13 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 3 ) - linkEndStates.at( 2 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 2 ).segment( 0, 3 ) ) ) );
         }
@@ -270,13 +270,13 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
             cosineAvoidanceAngles.push_back(
                         linear_algebra::computeCosineOfAngleBetweenVectors(
                             ( ( linkEndStates.at( 2 ) - linkEndStates.at( 3 ) ).segment( 0, 3 ) ), (
-                                bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                     ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
                                 linkEndStates.at( 3 ).segment( 0, 3 ) ) ) );
         }
@@ -296,7 +296,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
                                 linear_algebra::computeCosineOfAngleBetweenVectors(
                                     ( ( linkEndStates.at( 2 * ( linkEndIndex - 1 ) ) -
                                         linkEndStates.at( 2 * ( linkEndIndex - 1 ) + 1 ) ).segment( 0, 3 ) ), (
-                                        bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                        bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                             ( linkEndTimes.at( 2 * ( linkEndIndex - 1 ) + 1  ) +
                                               linkEndTimes.at( 2 * ( linkEndIndex - 1 ) ) ) / 2.0 ).segment( 0, 3 ) -
                                         linkEndStates.at( 2 * ( linkEndIndex - 1 ) + 1 ).segment( 0, 3 ) ) ) );
@@ -308,7 +308,7 @@ std::vector< double > getBodyCosineAvoidanceAngles(
                                 linear_algebra::computeCosineOfAngleBetweenVectors(
                                     ( linkEndStates.at( 2 * linkEndIndex + 1 ) -
                                       linkEndStates.at( 2 * linkEndIndex ) ).segment( 0, 3 ), (
-                                        bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                        bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
                                             ( linkEndTimes.at( 2 * linkEndIndex + 1  ) +
                                               linkEndTimes.at( 2 * linkEndIndex  ) ) / 2.0 ).segment( 0, 3 ) -
                                         linkEndStates.at( 2 * linkEndIndex ).segment( 0, 3 ) ) ) );
@@ -332,7 +332,7 @@ std::vector< double > getDistanceBetweenLineOfSightVectorAndPoint(
         const std::string bodyToAnalyze,
         const std::vector< Eigen::Vector6d > linkEndStates,
         const std::vector< double > linkEndTimes,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     std::vector< double > pointDistances;
     for( unsigned int i = 0; i < linkEndStates.size( ); i += 2 )
@@ -340,7 +340,7 @@ std::vector< double > getDistanceBetweenLineOfSightVectorAndPoint(
         Eigen::Vector3d linkEnd1Position = linkEndStates.at( i ).segment( 0, 3 );
         Eigen::Vector3d linkEnd2Position = linkEndStates.at( i + 1 ).segment( 0, 3 );
 
-        Eigen::Vector3d pointPosition = bodyMap.at( bodyToAnalyze )->getStateInBaseFrameFromEphemeris< double, double >(
+        Eigen::Vector3d pointPosition = bodies.at( bodyToAnalyze )->getStateInBaseFrameFromEphemeris< double, double >(
                     ( linkEndTimes.at( i ) + linkEndTimes.at( i ) ) / 2.0 ).segment( 0, 3 );
 
         pointDistances.push_back( ( ( linkEnd2Position - pointPosition ).cross( linkEnd1Position - pointPosition ) ).norm( ) /
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     bodySettings.at( "Moon" )->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( moonRadius );
 
     // Create list of body objects
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     
 
     // Create ground stations
@@ -397,13 +397,13 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     std::pair< std::string, std::string > earthStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation1 = std::pair< std::string, std::string >( "Mars", "MarsStation1" );
     std::pair< std::string, std::string > mslStation2 = std::pair< std::string, std::string >( "Mars", "MarsStation2" );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation1", ( Eigen::Vector3d( ) << 100.0, 0.2, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation1", ( Eigen::Vector3d( ) << 100.0, 0.2, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation2", ( Eigen::Vector3d( ) << -2000.0, -0.4, 0.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation2", ( Eigen::Vector3d( ) << -2000.0, -0.4, 0.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation1", ( Eigen::Vector3d( ) << 800.0, 0.12, 5.3 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "EarthStation1", ( Eigen::Vector3d( ) << 800.0, 0.12, 5.3 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << 100.0, 0.15, 0.0 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << 100.0, 0.15, 0.0 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     // Define one-way range/one-way Doppler/angular position/one-way differenced range link ends
@@ -526,11 +526,11 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     // Create observation viability calculators
     PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
-                bodyMap, testLinkEndsList, observationViabilitySettings );
+                bodies, testLinkEndsList, observationViabilitySettings );
 
     // Create osbervation simulatos
     std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
-            createObservationSimulators( observationSettingsMap , bodyMap );
+            createObservationSimulators( observationSettingsMap , bodies );
 
     // Simulate observations without constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
                 // Manually recompute mars elevation angle condition
                 std::vector< double > marsElevationAngles = getBodyLinkElevationAngles(
-                            currentLinkEnds, currentObservable, "Mars", linkEndStates, linkEndTimes, bodyMap );
+                            currentLinkEnds, currentObservable, "Mars", linkEndStates, linkEndTimes, bodies );
                 bool computedViability = true;
                 for( unsigned int l = 0; l < marsElevationAngles.size( ); l++ )
                 {
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
                 // Manually recompute earth elevation angle condition
                 std::vector< double > earthElevationAngles = getBodyLinkElevationAngles(
-                            currentLinkEnds, currentObservable, "Earth", linkEndStates, linkEndTimes, bodyMap );
+                            currentLinkEnds, currentObservable, "Earth", linkEndStates, linkEndTimes, bodies );
                 for( unsigned int l = 0; l < earthElevationAngles.size( ); l++ )
                 {
                     if( earthElevationAngles.at( l ) < earthMinimumElevationAngle )
@@ -718,7 +718,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
                 // Manually recompute earth-Sun avoidance angle condition
                 std::vector< double > earthSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
-                            currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodyMap );
+                            currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodies );
                 for( unsigned int l = 0; l < earthSunCosineAvoidanceAngles.size( ); l++ )
                 {
                     if( earthSunCosineAvoidanceAngles.at( l ) > std::cos( earthSunAvoidanceAngle ) )
@@ -729,7 +729,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
                 // Manually recompute mars-Sun avoidance angle condition
                 std::vector< double > marsSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
-                            currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodyMap );
+                            currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodies );
                 for( unsigned int l = 0; l < marsSunCosineAvoidanceAngles.size( ); l++ )
                 {
                     if( marsSunCosineAvoidanceAngles.at( l ) > std::cos( marsSunAvoidanceAngle ) )
@@ -740,7 +740,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
                 // Manually recompute occultataion consition
                 std::vector< double > moonLineOfSightDistances = getDistanceBetweenLineOfSightVectorAndPoint(
-                            "Moon", linkEndStates, linkEndTimes, bodyMap );
+                            "Moon", linkEndStates, linkEndTimes, bodies );
                 for( unsigned int l = 0; l < moonLineOfSightDistances.size( ); l++ )
                 {
                     if( moonLineOfSightDistances.at( l ) < moonRadius )

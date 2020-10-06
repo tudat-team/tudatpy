@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
         // Test partials with constant ephemerides (allows test of position partials)
         {
             // Create environment
-            NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
             // Generate n-way range model
             std::vector< std::string > perturbingBodies;
@@ -116,22 +116,22 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodyMap  );
+                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                    createEstimatableParameters( bodyMap, 1.1E7 );
+                    createEstimatableParameters( bodies, 1.1E7 );
 
             // Test observation partials
             testObservationPartials< 1 >(
-                        nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, true, true, 1.0,
+                        nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, true, true, 1.0,
                         ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
         {
             // Create environment
-            NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
             // Generate n-way range model
             std::vector< std::string > perturbingBodies;
@@ -147,15 +147,15 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodyMap  );
+                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                    createEstimatableParameters( bodyMap, 1.1E7 );
+                    createEstimatableParameters( bodies, 1.1E7 );
 
             // Test observation partials
             testObservationPartials< 1 >(
-                        nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, false, true, 1.0,
+                        nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, false, true, 1.0,
                         ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ) );
         }
     }

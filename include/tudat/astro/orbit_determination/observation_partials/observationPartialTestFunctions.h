@@ -46,7 +46,7 @@ using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
 //! Function to create environment for general observation partial tests.
-NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
+SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double initialEphemerisTime = 1.0E7,
                                const double finalEphemerisTime = 1.2E7,
                                const double stateEvaluationTime = 0.0,
@@ -56,32 +56,32 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 //! Function to create estimated parameters for general observation partial tests.
 std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
-        const NamedBodyMap& bodyMap, const double initialTime,
+        const SystemOfBodies& bodies, const double initialTime,
         const bool useEquivalencePrincipleParameter = false,
         const bool useRotationalStateAsParameter = false );
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
-        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
+        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyPositionVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime, const int observableSize );
 
 //! Function to compute numerical partials w.r.t. constant body orientation for general observation partial tests.
 Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
-        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector4d& bodyQuaternionVariation,
+        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector4d& bodyQuaternionVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize,
         std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation );
 
 //! Function to compute numerical partials w.r.t. constant body angular velocity for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngularVelocityVector(
-        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyRotationVariation,
+        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyRotationVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize );
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
-        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
+        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyVelocityVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize );
 
@@ -134,7 +134,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 template< int ObservableSize = 1 >
 void testObservationPartials(
         const std::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
-        NamedBodyMap& bodyMap,
+        SystemOfBodies& bodies,
         const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
         const LinkEnds& linkEnds, const ObservableType observableType,
         const double tolerance = 1.0E-6,
@@ -174,7 +174,7 @@ void testObservationPartials(
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >,
             std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
-                observableType, observationModelList, bodyMap, fullEstimatableParameterSet ).begin( )->second;
+                observableType, observationModelList, bodies, fullEstimatableParameterSet ).begin( )->second;
     std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
 
@@ -267,7 +267,7 @@ void testObservationPartials(
                 // Compute numerical position partial
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
                         calculatePartialWrtConstantBodyState(
-                            bodiesWithEstimatedTranslationalState[ i ], bodyMap, bodyPositionVariation,
+                            bodiesWithEstimatedTranslationalState[ i ], bodies, bodyPositionVariation,
                             observationFunction, observationTime, ObservableSize );
 
                 // Set total analytical partial
@@ -310,13 +310,13 @@ void testObservationPartials(
             // Compute numerical position partial
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtAngularVelocityVector =
                     calculatePartialWrtConstantBodyAngularVelocityVector(
-                        bodiesWithEstimatedRotationalState[ i ], bodyMap, angularVelocityVariation,
+                        bodiesWithEstimatedRotationalState[ i ], bodies, angularVelocityVariation,
                         observationFunction, observationTime, ObservableSize );
 
             std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
             Eigen::MatrixXd changeDueToQuaternionChange =
                     calculateChangeDueToConstantBodyOrientation(
-                        bodiesWithEstimatedRotationalState[ i ], bodyMap, quaternionVariation,
+                        bodiesWithEstimatedRotationalState[ i ], bodies, quaternionVariation,
                         observationFunction, observationTime, ObservableSize, appliedQuaternionPerturbation );
 
             int indexToUse = i + numberOfBodiesWithEstimatedTranslationalState;
@@ -438,7 +438,7 @@ void testObservationPartials(
 
 extern template void testObservationPartials< 1 >(
 const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
-NamedBodyMap& bodyMap,
+SystemOfBodies& bodies,
 const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
 const LinkEnds& linkEnds, const ObservableType observableType,
 const double tolerance,
@@ -449,7 +449,7 @@ const Eigen::VectorXd parameterPerturbationMultipliers );
 
 extern template void testObservationPartials< 2 >(
 const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
-NamedBodyMap& bodyMap,
+SystemOfBodies& bodies,
 const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
 const LinkEnds& linkEnds, const ObservableType observableType,
 const double tolerance,

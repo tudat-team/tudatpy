@@ -44,32 +44,32 @@ using namespace tudat::orbit_determination;
 
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_estimation )
 
-//! Create body map to be used in estimation test
-NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
+//! Create system of bodies to be used in estimation test
+SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
                              const bool useSymmetricEquator = 0 )
 {
-    NamedBodyMap bodyMap = NamedBodyMap( "Mars", "ECLIPJ2000" );
+    SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
 
     // Create Mars object
-    bodyMap.createBody( "Mars", false );
-    bodyMap.at( "Mars" )->setEphemeris( createBodyEphemeris(
+    bodies.createBody( "Mars", false );
+    bodies.at( "Mars" )->setEphemeris( createBodyEphemeris(
                                          getDefaultEphemerisSettings( "Mars" ), "Mars" ) );
     std::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsGravityFieldSettings =
             std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
                 getDefaultGravityFieldSettings( "Mars", TUDAT_NAN, TUDAT_NAN ) );
     marsGravityFieldSettings->resetGravitationalParameter( spice_interface::getBodyGravitationalParameter( "Mars" ) );
-    bodyMap.at( "Mars" )->setGravityFieldModel(
-                createGravityFieldModel( marsGravityFieldSettings, "Mars", bodyMap ) );
-    bodyMap.at( "Mars" )->setRotationalEphemeris(
+    bodies.at( "Mars" )->setGravityFieldModel(
+                createGravityFieldModel( marsGravityFieldSettings, "Mars", bodies ) );
+    bodies.at( "Mars" )->setRotationalEphemeris(
                 createRotationModel( getDefaultRotationModelSettings( "Mars", TUDAT_NAN, TUDAT_NAN ), "Mars" ) );
 
     // Create Mars object
-    bodyMap.createBody( "Earth" );
-    bodyMap.at( "Earth" )->setEphemeris( createBodyEphemeris(
+    bodies.createBody( "Earth" );
+    bodies.at( "Earth" )->setEphemeris( createBodyEphemeris(
                                           getDefaultEphemerisSettings( "Earth" ), "Earth" ) );
 
     // Create Phobos object
-    bodyMap.createBody( "Phobos" );
+    bodies.createBody( "Phobos" );
 
     // Set Phobos inertia
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -83,10 +83,10 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     double phobosReferenceRadius = 11.27E3;
     double phobosMass = 1.0659E16;
     phobosInertiaTensor *= (phobosReferenceRadius * phobosReferenceRadius * phobosMass );
-    bodyMap.at( "Phobos" )->setBodyInertiaTensor( phobosInertiaTensor );
+    bodies.at( "Phobos" )->setBodyInertiaTensor( phobosInertiaTensor );
 
     // Set Phobos shape
-    bodyMap.at( "Phobos" )->setShapeModel(
+    bodies.at( "Phobos" )->setShapeModel(
                 std::make_shared< SphericalBodyShapeModel >( 15.0E3 ) );
 
     // Compute and set Phobos gravity field
@@ -97,11 +97,11 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
-    bodyMap.at( "Phobos" )->setGravityFieldModel(
+    bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true ) ) );
 
 
     // Set Phobos dummy rotational ephemeris
@@ -118,20 +118,20 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     // Set Phobos on Kepler orbit
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
-    bodyMap.at( "Phobos" )->setEphemeris(
+    bodies.at( "Phobos" )->setEphemeris(
                 ephemerides::getTabulatedEphemeris(
                     std::make_shared< ephemerides::KeplerEphemeris >(
                         phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                         "Mars", "ECLIPJ2000" ), -3600.0, 120.0 * 86400.0 + 3600.0, 120.0,
                     std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) );
 
-    return bodyMap;
+    return bodies;
 }
 
 //! Test if Phobos rotational dynamics is correctly estimation from lander tracking data
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     spice_interface::loadStandardSpiceKernels( );
 
     // Retrieve list of body objects.
-    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
-    createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3, 0 );
+    createGroundStation( bodies.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
     systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
-//    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
+//    Eigen::Matrix3d phobosInertiaTensor = bodies.at( "Phobos" )->getBodyInertiaTensor( );
 
     // Create torque models
     std::vector< std::string > bodiesToIntegrate;
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     SelectedTorqueMap torqueMap;
     torqueMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap, bodiesToIntegrate );
+                bodies, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
     double timeStep = 240.0;
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                   blockIndices, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
     printEstimatableParameterEntries( parametersToEstimate );
 
     // Create observation settings
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Create orbit determination object
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     // Deifne observation times
@@ -353,8 +353,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     spice_interface::loadStandardSpiceKernels( );
 
     // Retrieve list of body objects.
-    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
-    createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
+    SystemOfBodies bodies = getTestBodyMap( 9376.0E3, 0 );
+    createGroundStation( bodies.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
     systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
 
-    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
+    Eigen::Matrix3d phobosInertiaTensor = bodies.at( "Phobos" )->getBodyInertiaTensor( );
 
     // Create torque models
     SelectedTorqueMap torqueMap;
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     bodiesToIntegrate.push_back( "Phobos" );
 
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap, bodiesToIntegrate );
+                bodies, torqueMap, bodiesToIntegrate );
 
     // Define acceleration model settings.
     SelectedAccelerationMap accelerationMap;
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
+                bodies, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
 
     // Define integrator settings.
     double timeStep = 240.0;
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     Eigen::VectorXd initialTranslationalState =
             propagators::getInitialStatesOfBodies(
-                translationalBodiesToPropagate, translationalCentralBodies, bodyMap, initialEphemerisTime );
+                translationalBodiesToPropagate, translationalCentralBodies, bodies, initialEphemerisTime );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( translationalCentralBodies, accelerationModelMap, translationalBodiesToPropagate,
@@ -456,7 +456,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
                                   blockIndices, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
     printEstimatableParameterEntries( parametersToEstimate );
 
     // Create observation settings
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Create orbit determination object
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     // Deifne observation times
