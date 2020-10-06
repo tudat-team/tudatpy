@@ -81,27 +81,27 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,
+                                    globalFrameOrigin, "ECLIPJ2000" );
 
     if( std::is_same< long double, StateScalarType >::value )
     {
         std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
-                    bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
+                    bodySettings.at( "Moon" )->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
     // Change ephemeris origins to test full functionality
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( moonEphemerisOrigin );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Earth" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Earth" )->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Mars" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Mars" )->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Venus" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Venus" )->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -129,14 +129,14 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
                   bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", initialEphemerisTime ).
                 template cast< StateScalarType >( );
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }

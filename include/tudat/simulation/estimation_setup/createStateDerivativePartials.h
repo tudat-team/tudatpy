@@ -29,7 +29,7 @@ namespace simulation_setup
 /*!
  *  Function to create a set of state derivative partial objects for any propagated state types.
  *  \param stateDerivativeModels List of state derivative models, ordered by state type (key)
- *  \param bodyMap List of boy objects storing environment models of simulation
+ *  \param bodies List of boy objects storing environment models of simulation
  *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and
  *  values.
  *  return List partials of state derivative models from. The key is the type of dynamics for which partials are taken,
@@ -40,7 +40,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >
         stateDerivativeModels,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
         parametersToEstimate )
 {
@@ -72,7 +72,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
                             stateDerivativeIterator->second.at( 0 ) )->getFullAccelerationsMap( );
                 stateDerivativePartials[ propagators::translational_state ] =
                         createAccelerationPartialsMap< StateScalarType >(
-                            accelerationModelList, bodyMap, parametersToEstimate );
+                            accelerationModelList, bodies, parametersToEstimate );
             }
             break;
         }
@@ -91,7 +91,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
                             stateDerivativeIterator->second.at( 0 ) )->getTorquesMap( );
                 stateDerivativePartials[ propagators::rotational_state ] =
                         createTorquePartialsMap< StateScalarType >(
-                            torqueModelList, bodyMap, parametersToEstimate );
+                            torqueModelList, bodies, parametersToEstimate );
             }
             break;
         }
@@ -109,7 +109,7 @@ extern template std::map< propagators::IntegratedStateType, orbit_determination:
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, double > > > >
         stateDerivativeModels,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
 
@@ -118,21 +118,21 @@ extern template std::map< propagators::IntegratedStateType, orbit_determination:
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, double > > > >
         stateDerivativeModels,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
         parametersToEstimate );
 extern template std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials< double, Time >(
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< double, Time > > > >
         stateDerivativeModels,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
 extern template std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials< long double, Time >(
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, Time > > > >
         stateDerivativeModels,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
         parametersToEstimate );
 #endif

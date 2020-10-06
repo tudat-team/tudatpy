@@ -38,96 +38,76 @@ int main( )
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+    const double environmentTimeBuffer = 300.0;
 
-    // Define body settings for simulation.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Sun" );
-    bodiesToCreate.push_back( "Earth" );
-    bodiesToCreate.push_back( "Moon" );
-    bodiesToCreate.push_back( "Mars" );
-    bodiesToCreate.push_back( "Venus" );
-
-    // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
-    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
-    {
-        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-    }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    // Create bodies in simulation
+    std::vector< std::string > bodiesToCreate = { "Sun", "Earth", "Moon", "Mars", "Venus" };
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - environmentTimeBuffer,
+                                    simulationEndEpoch + environmentTimeBuffer,  "Earth", "J2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
-    // Create aerodynamic coefficient interface settings.
+    // Create and add aerodynamic coefficient interface
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            std::make_shared< ConstantAerodynamicCoefficientSettings >(
+            constantAerodynamicCoefficientSettings(
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+    addAerodynamicCoefficientInterface(
+                bodies, "Asterix", aerodynamicCoefficientSettings );
 
-    // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
-
-    // Create radiation pressure settings
+    // Create and add radiation pressure interace
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
-    std::vector< std::string > occultingBodies;
-    occultingBodies.push_back( "Earth" );
+    std::vector< std::string > occultingBodies = { "Earth" };
     std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+            cannonBallRadiationPressureSettings(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    addRadiationPressureInterface(
+                bodies, "Asterix", asterixRadiationPressureSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Define propagator settings variables.
-    SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
-
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
 
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
+    using namespace tudat::basic_astrodynamics;
+    accelerationsOfAsterix[ "Earth" ] = {
+            sphericalHarmonicAcceleration( 5, 5 ),
+            aerodynamicAcceleration() };
 
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ] = {
+            pointMassGravityAcceleration( ),
+            cannonBallRadiationPressureAcceleration( ) };
 
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Mars" ] = {
+            pointMassGravityAcceleration( ) };
 
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationsOfAsterix[ "Venus" ] = {
+            pointMassGravityAcceleration( ) };
 
-    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
-    bodiesToPropagate.push_back( "Asterix" );
-    centralBodies.push_back( "Earth" );
+    accelerationsOfAsterix[ "Moon" ] = {
+            pointMassGravityAcceleration( ) };
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationSettingsList;
+    accelerationSettingsList[ "Asterix" ] = accelerationsOfAsterix;
+
+    std::vector< std::string > bodiesToPropagate = { "Asterix" };
+    std::vector< std::string > centralBodies = { "Earth" };
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationSettingsList, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -142,10 +122,9 @@ int main( )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = getBodyGravitationalParameter( bodies, "Earth" );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
-
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -162,7 +141,7 @@ int main( )
 
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
 

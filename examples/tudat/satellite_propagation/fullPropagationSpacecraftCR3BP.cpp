@@ -54,7 +54,7 @@ int main( )
             std::make_shared < numerical_integrators::IntegratorSettings < > >
             ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
 
-    // Create body map.
+    // Create system of bodies.
     std::vector < std::string > bodiesCR3BP;
     bodiesCR3BP.push_back( "Sun" );
     bodiesCR3BP.push_back( "Jupiter" );
@@ -75,7 +75,7 @@ int main( )
     double finalTime = tudat::circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
                 29.2386 * ( 2.0 * mathematical_constants::PI ), gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter);
 
-    NamedBodyMap idealBodyMap = propagators::setupBodyMapCR3BP(
+    SystemOfBodies idealBodyMap = propagators::setupBodyMapCR3BP(
                 distanceSunJupiter, "Sun", "Jupiter", "Spacecraft" );
 
     std::map< double, Eigen::Vector6d> fullPropagation;
@@ -111,7 +111,7 @@ int main( )
         std::string frameOrigin = "SSB";
         std::string frameOrientation = "ECLIPJ2000";
 
-        NamedBodyMap perturbedBodyMap;
+        SystemOfBodies perturbedBodyMap;
 
 
         std::vector< std::string > additionalBodies = { "Earth", "Mars", "Venus", "Saturn" };

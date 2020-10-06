@@ -35,7 +35,7 @@ namespace simulation_setup
  *  adjusted w.r.t. the nominal case. In the orbit determination, only the initial states of the N bodies are estimated. As such,
  *  this function provides the degree to which a change (e.g. uncertainty) in the environment can be mimicked by a change in the
  *  bodies initial conditions.
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param perturbedParameterSettings Type of parameter that is to be adjusted in analysis.
@@ -48,7 +48,7 @@ namespace simulation_setup
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
@@ -96,12 +96,12 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
 
     // Create initial state estimation objects
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
-            createParametersToEstimate< StateScalarType >( initialStateParameterNames, bodyMap );
+            createParametersToEstimate< StateScalarType >( initialStateParameterNames, bodies );
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodyMap, initialStateParametersToEstimate, observationSettingsMap,
+                bodies, initialStateParametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
@@ -109,7 +109,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
 
     // Get range over which observations are to be simulated.
     std::pair< double, double > dataTimeInterval =
-            getTabulatedEphemerisSafeInterval( bodyMap.at( observedBodies.at( 0 ) )->getEphemeris( ) );
+            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ) );
     double startTime = dataTimeInterval.first;
     double endTime = dataTimeInterval.second;
 
@@ -146,7 +146,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     std::vector< std::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
     perturbedParameterSettingsList.push_back( perturbedParameterSettings );
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > perturbedParameters =
-            createParametersToEstimate< StateScalarType >( perturbedParameterSettingsList, bodyMap );
+            createParametersToEstimate< StateScalarType >( perturbedParameterSettingsList, bodies );
 
     // Perturb parameters by required amount
     Eigen::VectorXd parameterVectorToPerturb = perturbedParameters->template getFullParameterValues< double >( );

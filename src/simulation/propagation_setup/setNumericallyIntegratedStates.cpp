@@ -21,24 +21,23 @@ namespace propagators
 //! Function checking feasibility of resetting the translational dynamics
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     // Check feasibility of epheme                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ris origins.
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( auto bodyIterator : bodies.getMap( )  )
     {
-        if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator->first ) ==
+        if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator.first ) ==
                 bodiesToIntegrate.end( ) )
         {
             std::string ephemerisOrigin
-                    = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
+                    = bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( );
 
             if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
                     != bodiesToIntegrate.end( ) )
             {
                 std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin" +
-                             bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
-                             bodyIterator->first << std::endl;
+                             bodyIterator.second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
+                             bodyIterator.first << std::endl;
             }
         }
 
@@ -49,14 +48,14 @@ void checkTranslationalStatesFeasibility(
     {
         std::string bodyToIntegrate = bodiesToIntegrate.at( i );
 
-        if( bodyMap.count( bodyToIntegrate ) == 0 )
+        if( bodies.count( bodyToIntegrate ) == 0 )
         {
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
                                           bodyToIntegrate + " no such body found" );
         }
         else
         {
-            if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+            if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
             {
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
                                           bodyToIntegrate + " no ephemeris found" );

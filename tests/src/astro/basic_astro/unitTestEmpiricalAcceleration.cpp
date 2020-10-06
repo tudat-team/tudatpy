@@ -67,22 +67,18 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         const double fixedStepSize = 15.0;
 
         // Define body settings for simulation.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-        bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        BodyListSettings bodySettings = BodyListSettings(
+                    std::map< std::string, std::shared_ptr< BodySettings > >( ), "SSB", "J2000" );
+        bodySettings.addSettings( "Earth" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
+        bodies.createBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -121,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Asterix.
         Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -135,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
@@ -161,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

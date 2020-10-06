@@ -39,7 +39,7 @@ namespace observation_partials
  *  transmitter and receiever  linkEndType).
  *  \param angularPositionLinkEnds Link ends (transmitter and receiever) for which partials are to be calculated
  *  (i.e. for which angular position observation observations are to be processed).
- *  \param bodyMap List of all bodies, for creating angular position partial.
+ *  \param bodies List of all bodies, for creating angular position partial.
  *  \param bodyToEstimate Name of body wrt position of which a partial is to be created.
  *  \param angularPositionScaler Object scale position partials to angular position partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -47,7 +47,7 @@ namespace observation_partials
  */
 std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPosition(
         const observation_models::LinkEnds angularPositionLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -61,7 +61,7 @@ std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPos
  *  \tparam ParameterType Type of parameter (double for size 1, VectorXd for larger size).
  *  \param angularPositionLinkEnds Link ends (transmitter and receiever) for which angular position partials are to be
  *  calculated (i.e. for which  angular position observations are to be processed).
- *  \param bodyMap List of all bodies, for creating angular position partial.
+ *  \param bodies List of all bodies, for creating angular position partial.
  *  \param parameterToEstimate Object of current parameter that is to be estimated.
  *  \param angularPositionScaler Object scale position partials to angular position partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -70,7 +70,7 @@ std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPos
 template< typename ParameterType >
 std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParameter(
         const observation_models::LinkEnds angularPositionLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
         const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -81,7 +81,7 @@ std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParamet
 
     {
         std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-                createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
+                createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodies, parameterToEstimate );
 
         std::shared_ptr< AngularPositionPartial > testAngularPositionPartial = std::make_shared< AngularPositionPartial >(
                     angularPositionScaler, positionPartials, parameterToEstimate->getParameterName( ),
@@ -103,7 +103,7 @@ std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParamet
  *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
  *  \param angularPositionLinkEnds Link ends (transmitter and receiever) for which angular position partials are to be
  *  calculated (i.e. for which angular position observations are to be processed).
- *  \param bodyMap List of all bodies, for creating angular position partials.
+ *  \param bodies List of all bodies, for creating angular position partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
@@ -116,7 +116,7 @@ std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial<
 std::shared_ptr< PositionPartialScaling > >
 createAngularPositionPartials(
         const observation_models::LinkEnds angularPositionLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
         std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >( ) )
@@ -163,7 +163,7 @@ createAngularPositionPartials(
 
         // Create position angular position partial for current body
         std::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtBodyPosition(
-                    angularPositionLinkEnds, bodyMap, acceleratedBody, angularPositionScaling,
+                    angularPositionLinkEnds, bodies, acceleratedBody, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current angular position and current body)
@@ -187,7 +187,7 @@ createAngularPositionPartials(
     {
         // Create position angular position partial for current parameter
         std::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
-                    angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
+                    angularPositionLinkEnds, bodies, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
         if( currentAngularPositionPartial != nullptr )
@@ -212,7 +212,7 @@ createAngularPositionPartials(
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {
             currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
-                        angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
+                        angularPositionLinkEnds, bodies, parameterIterator->second, angularPositionScaling,
                         lightTimeCorrectionPartialObjects );
         }
         else
@@ -242,7 +242,7 @@ createAngularPositionPartials(
  *  that are to be used.
  *  \param linkEnds Vector of all link ends for which angular position partials are to be calculated (i.e. for which one-way
  *  angular position observations are  to be processed).
- *  \param bodyMap List of all bodies, for creating angular position partials.
+ *  \param bodies List of all bodies, for creating angular position partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
@@ -255,7 +255,7 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationTwoParti
 std::shared_ptr< PositionPartialScaling > > >
 createAngularPositionPartials(
         const std::vector< observation_models::LinkEnds > linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
@@ -290,7 +290,7 @@ createAngularPositionPartials(
 
         // Create angular position partials for current link ends
         angularPositionPartials[ linkEnds[ i ] ] = createAngularPositionPartials(
-                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections );
+                    linkEnds[ i ], bodies, parametersToEstimate, singleLinkLightTimeCorrections );
     }
     return angularPositionPartials;
 }

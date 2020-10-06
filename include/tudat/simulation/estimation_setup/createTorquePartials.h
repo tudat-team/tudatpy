@@ -48,7 +48,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
  *  \param acceleratedBody Pair of name and object of body undergoing torque
  *  \param acceleratingBody Pair of name and object of body exerting torque
  *  \param torqueVector List of torques exerted on body
- *  \param bodyMap List of all body objects
+ *  \param bodies List of all body objects
  *  \param parametersToEstimate List of parameters that are to be estimated. Empty by default, only required for selected
  *  types of partials (e.g. spherical harmonic torque w.r.t. rotational parameters).
  *  \return Single torque partial derivative object.
@@ -59,7 +59,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector = basic_astrodynamics::SingleBodyTorqueModelMap( ),
-        const simulation_setup::NamedBodyMap& bodyMap = simulation_setup::NamedBodyMap( ),
+        const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ),
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
@@ -115,7 +115,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                       std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
                           std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
                               torqueModel )->getSphericalHarmonicAcceleration( ), acceleratingBody, acceleratedBody,
-                          bodyMap, parametersToEstimate ) ),
+                          bodies, parametersToEstimate ) ),
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
@@ -166,14 +166,14 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
  *  a standardized type for communicating such lists of these objects.
  *  \param torqueMap Map of maps containing list of torque models, identifying which torque acts on which
  *   body.
- *  \param bodyMap List of body objects constituting environment for calculations.
+ *  \param bodies List of body objects constituting environment for calculations.
  *  \param parametersToEstimate List of parameters which are to be estimated.
  *  \return List of torque-partial-calculating objects in StateDerivativePartialsMap type.
  */
 template< typename InitialStateParameterType >
 orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
         const basic_astrodynamics::TorqueModelMap& torqueMap,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate )
 {
@@ -197,7 +197,7 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                 {
                     // Get object for body undergoing torque
                     const std::string acceleratedBody = torqueIterator->first;
-                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodyMap.at( acceleratedBody );
+                    std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodies.at( acceleratedBody );
 
                     // Retrieve list of torques acting on current body.
                     basic_astrodynamics::SingleBodyTorqueModelMap torqueVector =
@@ -219,7 +219,7 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                         std::shared_ptr< simulation_setup::Body > acceleratingBodyObject;
                         if( acceleratingBody != "" )
                         {
-                            acceleratingBodyObject = bodyMap.at( acceleratingBody );
+                            acceleratingBodyObject = bodies.at( acceleratingBody );
                         }
 
                         for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
@@ -230,7 +230,7 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                                         innerTorqueIterator->second[ j ],
                                         std::make_pair( acceleratedBody, acceleratedBodyObject ),
                                         std::make_pair( acceleratingBody, acceleratingBodyObject ),
-                                        torqueVector, bodyMap, parametersToEstimate );
+                                        torqueVector, bodies, parametersToEstimate );
 
                             torquePartialVector.push_back( currentTorquePartial );
                         }

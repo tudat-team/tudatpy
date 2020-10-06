@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    NamedBodyMap bodyMap = createBodies(
+    SystemOfBodies bodies = createBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Retrieve Earth state/rotation objects
-    std::shared_ptr< Ephemeris > earthEphemeris = bodyMap.at( "Earth" )->getEphemeris( );
-    std::shared_ptr< RotationalEphemeris > rotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
+    std::shared_ptr< Ephemeris > earthEphemeris = bodies.at( "Earth" )->getEphemeris( );
+    std::shared_ptr< RotationalEphemeris > rotationModel = bodies.at( "Earth" )->getRotationalEphemeris( );
 
     // Create reference point CompositeEphemeris objects (double and long double state scalars).
     std::shared_ptr< Ephemeris > ephemeris1 = createReferencePointEphemeris< double, double >(

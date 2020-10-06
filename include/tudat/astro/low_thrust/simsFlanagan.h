@@ -190,7 +190,7 @@ public:
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody,
             const std::function< double ( const double ) > specificImpulseFunction,

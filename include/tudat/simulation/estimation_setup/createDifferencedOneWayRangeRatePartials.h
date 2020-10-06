@@ -50,7 +50,7 @@ splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
  *  arc end links The set of parameters and bodies that are to be estimated, as well as the set of link ends (each of which must
  *  contain a transmitter and receiever linkEndType) that are to be used.
  *  \param linkEnds Vector of all link ends for which  partials are to be calculated
- *  \param bodyMap List of all bodies that consitute the environment
+ *  \param bodies List of all bodies that consitute the environment
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
@@ -62,7 +62,7 @@ std::map< observation_models::LinkEnds,
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
 createDifferencedOneWayRangeRatePartials(
         const std::vector< observation_models::LinkEnds > linkEnds,
-        const simulation_setup::NamedBodyMap bodyMap,
+        const simulation_setup::SystemOfBodies bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const PerLinkEndPerLightTimeSolutionCorrections& lightTimeCorrections =
         PerLinkEndPerLightTimeSolutionCorrections( ) )
@@ -80,12 +80,12 @@ createDifferencedOneWayRangeRatePartials(
     // Create one way range partials for link at start of arc.
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > arcStartPartials
-            = createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate, splitLightTimeCorrections.first );
+            = createOneWayRangePartials( linkEnds, bodies, parametersToEstimate, splitLightTimeCorrections.first );
 
     // Create one way range partials for link at end of arc.
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList , std::shared_ptr< PositionPartialScaling > > > arcEndPartials
-            = createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate, splitLightTimeCorrections.second );
+            = createOneWayRangePartials( linkEnds, bodies, parametersToEstimate, splitLightTimeCorrections.second );
 
     // Check output consistency
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )

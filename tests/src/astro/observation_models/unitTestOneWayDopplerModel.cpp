@@ -68,11 +68,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     // Create ground station
     const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
-    createGroundStation( bodyMap.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
+    createGroundStation( bodies.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
 
     // Create Spacecraft
     Eigen::Vector6d spacecraftOrbitalElements;
@@ -84,14 +84,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spacecraftOrbitalElements( longitudeOfAscendingNodeIndex )
             = convertDegreesToRadians( 23.4 );
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodyMap[ "Spacecraft" ] = std::make_shared< Body >( );
-    bodyMap[ "Spacecraft" ]->setEphemeris(
+    bodies[ "Spacecraft" ] = std::make_shared< Body >( );
+    bodies[ "Spacecraft" ]->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     // Define link ends for observations.
     LinkEnds linkEnds;
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     // Create observation model.
     std::shared_ptr< ObservationModel< 1, double, double> > observationModel =
            ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, observableSettings, bodyMap );
+                linkEnds, observableSettings, bodies );
 
     std::shared_ptr< OneWayDopplerObservationModel< double, double> > dopplerObservationModel =
             std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Creare independent light time calculator object
         std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
-                createLightTimeCalculator( linkEnds[ transmitter ], linkEnds[ receiver ], bodyMap );
+                createLightTimeCalculator( linkEnds[ transmitter ], linkEnds[ receiver ], bodies );
         Eigen::Vector6d transmitterState, receiverState;        
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         // Create observation model
         std::shared_ptr< ObservationModel< 1, double, double> > biasedObservationModel =
                 ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEnds, biasedObservableSettings, bodyMap );
+                    linkEnds, biasedObservableSettings, bodies );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrections =
                ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
+                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodies );
 
         // Create observation settings
         std::shared_ptr< ObservationSettings > observableSettingsWithCorrections =
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
                ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEndsStationSpacecraft, observableSettingsWithCorrections, bodyMap );
+                    linkEndsStationSpacecraft, observableSettingsWithCorrections, bodies );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
@@ -232,13 +232,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                     observationTime, receiver ).x( );
 
         std::shared_ptr< RotationalEphemeris > earthRotationModel =
-                bodyMap.at( "Earth" )->getRotationalEphemeris( );
+                bodies.at( "Earth" )->getRotationalEphemeris( );
         Eigen::Vector3d groundStationVelocityVector =
                 earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
                 ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
 
         std::shared_ptr< Ephemeris > spacecraftEphemeris =
-                bodyMap.at( "Spacecraft" )->getEphemeris( );
+                bodies.at( "Spacecraft" )->getEphemeris( );
         Eigen::Vector6d spacecraftState =
                 spacecraftEphemeris->getCartesianState( observationTime );
 

@@ -55,17 +55,17 @@ inline std::string getAssociatedKey( const propagators::IntegratedStateType inte
 /*!
  * Determine initial states for the propagator object contained in \p jsonObject (if not provided).
  * The initial states can be inferred either from the state properties of the body settings (e.g. body.initialState,
- * body.mass, etc.) or from the ephemeris of the body objects in \p bodyMap at the initial time determined from
+ * body.mass, etc.) or from the ephemeris of the body objects in \p bodies at the initial time determined from
  * \p integratorSettings. If the initial states cannot be inferred, the initialStates of the propagators in \p
  * jsonObject won't be updated.
  * \param jsonObject The root `json` object to be updated with the inferred initial states (returned by reference).
- * \param bodyMap Body map containing only bodies to be propagated with valid ephemeris.
+ * \param bodies Body map containing only bodies to be propagated with valid ephemeris.
  * \param integratorSettings Integrator settings containing the initial epoch for the ephemeris to be used.
  */
 template< typename TimeType, typename StateScalarType >
 void determineInitialStates(
         nlohmann::json& jsonObject,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace propagators;
@@ -124,7 +124,7 @@ void determineInitialStates(
                             {
                                 stateToAdd = getInitialStateOfBody< TimeType, StateScalarType >(
                                             initialStateOrigin, centralBodyName,
-                                            bodyMap, integratorSettings->initialTime_ );
+                                            bodies, integratorSettings->initialTime_ );
                             }
                         }
                         catch( ... )
@@ -133,13 +133,13 @@ void determineInitialStates(
                         }
 
                         std::shared_ptr< simulation_setup::Body > stateOriginBody;
-                        if( bodyMap.count( initialStateOrigin ) == 0 )
+                        if( bodies.count( initialStateOrigin ) == 0 )
                         {
                             stateOriginBody = nullptr;
                         }
                         else
                         {
-                            stateOriginBody = bodyMap.at( initialStateOrigin );
+                            stateOriginBody = bodies.at( initialStateOrigin );
                         }
                         bodyState = getCartesianState< StateScalarType >(
                                     jsonObject, stateKeyPath, stateOriginBody,
@@ -159,7 +159,7 @@ void determineInitialStates(
                                 getInitialStateOfBody< TimeType, StateScalarType >(
                                     bodiesToPropagate.at( i ),
                                     getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ).at( i ),
-                                    bodyMap,
+                                    bodies,
                                     integratorSettings->initialTime_ );
                         jsonPropagator[ K::initialStates ] = initialStates;
                     }

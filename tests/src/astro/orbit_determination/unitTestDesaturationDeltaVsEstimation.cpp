@@ -75,16 +75,16 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
 
         // Create bodies needed in simulation
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodyNames );
-        bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Earth", spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
-        NamedBodyMap bodyMap = createBodies( bodySettings );
-        bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-        bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+        SystemOfBodies bodies = createBodies( bodySettings );
+        bodies.createBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                     referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+        bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
         // Create radiation pressure settings
@@ -107,16 +107,13 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+        bodies.at( "Vehicle" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
-                        asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+                        asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-        bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+        bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                                 std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
-
 
         // Create ground stations.
         std::vector< std::string > groundStationNames;
@@ -124,11 +121,11 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         groundStationNames.push_back( "Station2" );
         groundStationNames.push_back( "Station3" );
 
-        createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
+        createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
                              coordinate_conversions::geodetic_position );
-        createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
+        createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
                              coordinate_conversions::geodetic_position );
-        createGroundStation( bodyMap.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ),
+        createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ),
                              coordinate_conversions::geodetic_position );
 
         // Set accelerations on Vehicle that are to be taken into account.
@@ -159,7 +156,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Create acceleration models
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
         // Set Keplerian elements for Vehicle.
         Eigen::Vector6d initialStateInKeplerianElements;
@@ -172,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                 = unit_conversions::convertDegreesToRadians( 23.4 );
         initialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
         // Set (perturbed) initial state.
         Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
@@ -238,7 +235,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodyMap , propagatorSettings );
+                createParametersToEstimate< double >( parameterNames, bodies , propagatorSettings );
 
         printEstimatableParameterEntries( parametersToEstimate );
 
@@ -259,7 +256,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodyMap, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
 
         // Compute list of observation times.
         std::vector< double > baseTimeList;

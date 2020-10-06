@@ -69,14 +69,12 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
 
     double buffer = 10.0 * maximumTimeStep;
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
 
     // Create bodies needed in simulation
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -110,18 +108,18 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     }
 
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
 
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                   "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                                      "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
-                              centralBodyMap[ "Earth" ] ) );
+                                      "Earth", centralBodyMap.at( "Earth" ), bodies, initialEphemerisTime ),
+                              centralBodyMap.at( "Earth" ) ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
+            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
 
     // Define integrator settings.
@@ -191,7 +189,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
 
@@ -350,18 +348,18 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     TimeType finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -371,7 +369,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     // Create radiation pressure settings
@@ -384,15 +382,13 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+    bodies.at( "Vehicle" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+                    asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
 
     // Creatre ground stations: same position, but different representation
@@ -401,9 +397,9 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     groundStationNames.push_back( "Station2" );
     groundStationNames.push_back( "Station3" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -429,7 +425,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -442,7 +438,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
@@ -519,7 +515,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     printEstimatableParameterEntries( parametersToEstimate );
 
@@ -562,7 +558,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     std::vector< TimeType > baseTimeList;
@@ -692,16 +688,14 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     biasPerArc.push_back( Eigen::Vector1d::Zero( ) );
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
 
     // Creatre ground stations: same position, but different representation
@@ -709,9 +703,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
                          geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
                          geodetic_position );
 
     // Set accelerations on Vehicle that are to be taken into account.
@@ -728,7 +722,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -740,7 +734,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -917,7 +911,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     printEstimatableParameterEntries( parametersToEstimate );
 
@@ -995,7 +989,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     std::vector< TimeType > baseTimeList;

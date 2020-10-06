@@ -22,7 +22,7 @@ HybridMethodProblem::HybridMethodProblem(
         const double maximumThrust,
         const double specificImpulse,
         const double timeOfFlight,
-        simulation_setup::NamedBodyMap bodyMap,
+        simulation_setup::SystemOfBodies bodies,
         const std::string bodyToPropagate,
         const std::string centralBody,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -34,7 +34,7 @@ HybridMethodProblem::HybridMethodProblem(
     maximumThrust_( maximumThrust ),
     specificImpulse_( specificImpulse ),
     timeOfFlight_( timeOfFlight ),
-    bodyMap_( bodyMap ),
+    bodies_( bodies ),
     bodyToPropagate_( bodyToPropagate ),
     centralBody_( centralBody ),
     integratorSettings_( integratorSettings ),
@@ -42,7 +42,7 @@ HybridMethodProblem::HybridMethodProblem(
     initialAndFinalMEEcostatesBounds_( initialAndFinalMEEcostatesBounds ),
     relativeToleranceConstraints_( relativeToleranceConstraints )
 {
-    initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+    initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass();
 
     // Retrieve initial guess.
     guessInitialAndFinalCostates_ = initialGuessThrustModel_.first;
@@ -111,7 +111,7 @@ std::pair< std::vector< double >, std::vector< double > > HybridMethodProblem::g
 std::vector< double > HybridMethodProblem::fitness( const std::vector< double > &designVariables ) const{
 
     // Re-initialise mass of the spacecraft.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
     // Transform vector of design variables into 3D vector of throttles.
     Eigen::VectorXd initialCostates; initialCostates.resize( 5 );
@@ -135,18 +135,18 @@ std::vector< double > HybridMethodProblem::fitness( const std::vector< double > 
     // Create hybrid method leg.
     low_thrust_trajectories::HybridMethodModel currentLeg = low_thrust_trajectories::HybridMethodModel(
                 stateAtDeparture_, stateAtArrival_, initialCostates, finalCostates, maximumThrust_,
-                specificImpulse_, timeOfFlight_, bodyMap_, bodyToPropagate_, centralBody_, integratorSettings_ );
+                specificImpulse_, timeOfFlight_, bodies_, bodyToPropagate_, centralBody_, integratorSettings_ );
 
     // Propagate until time of flight is reached.
     Eigen::Vector6d finalPropagatedState = currentLeg.propagateTrajectory( );
 
     // Convert final propagated state to MEE.
     Eigen::Vector6d finalPropagatedMEEstate = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
-                finalPropagatedState, bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
+                finalPropagatedState, bodies_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
 
     // Convert targeted final state to MEE.
     Eigen::Vector6d finalTargetedMEEstate = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
-                stateAtArrival_, bodyMap_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
+                stateAtArrival_, bodies_[ centralBody_ ]->getGravityFieldModel()->getGravitationalParameter() );
 
 
     // Fitness

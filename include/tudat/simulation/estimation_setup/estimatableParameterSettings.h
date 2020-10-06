@@ -60,6 +60,7 @@ public:
 
 };
 
+
 //! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
 /*!
  * Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
@@ -411,10 +412,10 @@ public:
     InitialRotationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, 7, 1 > initialStateValue,
-            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::string& baseOrientation = "SSB" ):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( TUDAT_NAN ),
         initialStateValue_( initialStateValue ),
-        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+        baseOrientation_( baseOrientation ){ }
 
     //! Constructor, without initial value of rotational state.
     /*!
@@ -428,9 +429,9 @@ public:
     InitialRotationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const double initialTime,
-            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::string& baseOrientation = "SSB"):
         EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( initialTime ),
-        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+        baseOrientation_( baseOrientation ){ }
 
     //! Time at which initial state is defined (NaN for user-defined initial state value).
     double initialTime_;
@@ -440,9 +441,6 @@ public:
 
     //! Orientation w.r.t. which the initial state is to be estimated.
     std::string baseOrientation_;
-
-    //! Orientation of the frame in which the state is defined.
-    std::string frameOrientation_;
 
 };
 
@@ -721,6 +719,165 @@ public:
 
 };
 
+
+inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock(
+        const std::string bodyName,
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                minimumDegree, minimumOrder, maximumDegree, maximumOrder,
+                bodyName, spherical_harmonics_cosine_coefficient_block );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock(
+        const std::string bodyName,
+        const std::vector< std::pair< int, int > > blockIndices )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                blockIndices,  bodyName, spherical_harmonics_cosine_coefficient_block );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlock(
+        const std::string bodyName,
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                minimumDegree, minimumOrder, maximumDegree, maximumOrder,
+                bodyName, spherical_harmonics_sine_coefficient_block );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsSineBlock(
+        const std::string bodyName,
+        const std::vector< std::pair< int, int > > blockIndices )
+{
+    return std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                blockIndices,  bodyName, spherical_harmonics_sine_coefficient_block );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseRadiationPressureCoefficient(
+        std::string associatedBody,
+        const std::vector< double > arcStartTimeList )
+{
+    return std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
+                associatedBody, arcStartTimeList );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragCoefficient(
+        std::string associatedBody,
+        const std::vector< double > arcStartTimeList )
+{
+    return std::make_shared< ArcWiseDragCoefficientEstimatableParameterSettings >(
+                associatedBody, arcStartTimeList );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > constantRotationRate(
+        std::string bodyName)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, constant_rotation_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
+        std::string bodyName)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
+{
+    return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_gamma );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
+{
+    return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::string deformingBody,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, deformingBody, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< std::string >& deformingBodies,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, deformingBodies, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderInvariantKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, std::vector< std::string >( ), useComplexValue );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const std::string deformingBody,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, deformingBody, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const std::vector< std::string >& deformingBodies,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, deformingBodies, useComplexValue );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
+        const std::string& associatedBody,
+        const int degree,
+        const std::vector< int >& orders,
+        const bool useComplexValue = 0 )
+{
+    return std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
+}
 
 } // namespace estimatable_parameters
 

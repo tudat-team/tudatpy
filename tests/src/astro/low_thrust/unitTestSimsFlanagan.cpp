@@ -361,40 +361,35 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_pykep )
 
 }
 
-NamedBodyMap getTestBodyMap( )
+SystemOfBodies getTestBodyMap( )
 {
 
     // Create central, departure and arrival bodies.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Sun" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
-
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
 
     // Define central body ephemeris settings.
-    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
-    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
+    // Create system of bodies.
+    SystemOfBodies bodies = createBodies( bodySettings );
 
-    // Create body map.
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-    bodyMap.at( "Vehicle" )->setSuppressDependentOrientationCalculatorWarning( true );
+    bodies.at( "Vehicle" )->setSuppressDependentOrientationCalculatorWarning( true );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-    return bodyMap;
+    return bodies;
 }
 
 //! Test Sims-Flanagan implementation by comparing it with trajectory obtained with successive impulsive shots applied at times corresponding to
@@ -512,8 +507,8 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
     }
 
     // Create list of bodies
-    NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleInitialMass );
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleInitialMass );
 
     // Defined acceleration settings
     std::string bodyToPropagate = "Vehicle";
@@ -531,7 +526,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap =
-            createAccelerationModelsMap( bodyMap, accelerationMap,
+            createAccelerationModelsMap( bodies, accelerationMap,
                                          std::vector< std::string >{ bodyToPropagate },
                                          std::vector< std::string >{ centralBody } );
 
@@ -564,7 +559,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
             propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
 
             // Propagate current leg
-            SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettingsImpulsiveDeltaV );
             currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().rbegin( )->second;
 
             // Retrieve Sims-Flanagan and numerical states
@@ -595,7 +590,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
                     stateAtArrival, terminationSettings, cowell );
 
         // Reset body mass for backwards propagatiom
-        bodyMap[ bodyToPropagate ]->setConstantBodyMass( massAtTimeOfFlight );
+        bodies.at( bodyToPropagate )->setConstantBodyMass( massAtTimeOfFlight );
 
         currentState = stateAtArrival;
         for ( int i = 0 ; i < numberSegmentsBackwardPropagation ; i++ )
@@ -607,7 +602,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
             propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
 
             // Propagate current leg
-            SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettingsImpulsiveDeltaV );
             currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution().begin()->second;
 
             // Retrieve Sims-Flanagan and numerical states
@@ -695,10 +690,10 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     std::string bodyToPropagate = "Vehicle";
     std::string centralBody = "Sun";
 
-    // Create body map.
-    NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
-    bodyMap.at( bodyToPropagate )->setConstantBodyMass( vehicleInitialMass );
+    // Create system of bodies.
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( bodyToPropagate )->setSuppressDependentOrientationCalculatorWarning( true );
+    bodies.at( bodyToPropagate )->setConstantBodyMass( vehicleInitialMass );
 
     ///! Set-up Sims-Flanagan full propagation.
     // Create termination conditions settings.
@@ -720,7 +715,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     std::pair< std::shared_ptr< PropagatorSettings< double > >,
             std::shared_ptr< PropagatorSettings< double > > > propagatorSettings =
             simsFlanagan.createLowThrustPropagatorSettings(
-                bodyMap, bodyToPropagate, centralBody, specificImpulseFunction, perturbingAccelerationsMap,
+                bodies, bodyToPropagate, centralBody, specificImpulseFunction, perturbingAccelerationsMap,
                 integratorSettings, dependentVariablesToSave );
 
     // Compute full propagation.
@@ -728,7 +723,7 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     std::map< double, Eigen::Vector6d > simsFlanaganResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
     simsFlanagan.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, propagatorSettings, fullPropagationResults,
+                bodies, integratorSettings, propagatorSettings, fullPropagationResults,
                 simsFlanaganResults, dependentVariablesHistory );
 
     // Check consistency between Sims-Flanagan semi-analytical results and full propagation, at departure and arrival.
@@ -768,12 +763,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
     // Retrieve low-thrust trajectory nominal accelerations (thrust + central gravity accelerations).
     basic_astrodynamics::AccelerationMap lowThrustTrajectoryAccelerations =
             simsFlanagan.retrieveLowThrustAccelerationMap(
-                bodyMap, bodyToPropagate, centralBody, specificImpulseFunction, integratorSettings );
+                bodies, bodyToPropagate, centralBody, specificImpulseFunction, integratorSettings );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = createMassRateModel( bodyToPropagate, std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                                             bodyMap, lowThrustTrajectoryAccelerations );
+                                                             bodies, lowThrustTrajectoryAccelerations );
 
     // Define list of dependent variables to save.
     dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
@@ -818,10 +813,10 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
-        bodyMap[ bodyToPropagate ]->setConstantBodyMass( vehicleInitialMass );
+        bodies.at( bodyToPropagate )->setConstantBodyMass( vehicleInitialMass );
 
         // Perform the backward propagation.
-        SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+        SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

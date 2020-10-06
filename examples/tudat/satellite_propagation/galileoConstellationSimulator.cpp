@@ -65,18 +65,18 @@ int main( )
     bodySettings[ "Earth" ]->shapeModelSettings = NULL;
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Set accelerations for each satellite.
     std::string currentSatelliteName;
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         currentSatelliteName =  "Satellite" + boost::lexical_cast< std::string >( i );
-        bodyMap[ currentSatelliteName ] = std::make_shared< simulation_setup::Body >( );
+        bodies[ currentSatelliteName ] = std::make_shared< simulation_setup::Body >( );
     }
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE CONSTELLATION INITIAL STATES      ///////////////////////////////////////////////////
@@ -146,7 +146,7 @@ int main( )
     // Convert initial conditions to Cartesian elements.
     Eigen::MatrixXd initialConditions( sizeOfState, numberOfSatellites );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         Eigen::Vector6d initKepl = initialConditionsInKeplerianElements.col( i ).cast< double >();
@@ -186,7 +186,7 @@ int main( )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -203,7 +203,7 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Retrieve numerically integrated state for each satellite.
