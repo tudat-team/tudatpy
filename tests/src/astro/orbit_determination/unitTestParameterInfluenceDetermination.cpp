@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         }
 
         // Create bodies
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         
         
@@ -154,9 +154,9 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                    bodiesToPropagate, centralBodies, bodyMap, simulationStartEpoch );
+                    bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         // Generate fit for observations with J2 to model without J2
         std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
                 determinePostfitParameterInfluence(
-                    bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
+                    bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                     6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
 
         // Get pre- and postfit residuals with RMS
@@ -262,21 +262,21 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Retrieve Earth J2
     double earthC20 =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                bodyMap.at( "Earth" )->getGravityFieldModel( ) )->getCosineCoefficients( )( 2, 0 );
+                bodies.at( "Earth" )->getGravityFieldModel( ) )->getCosineCoefficients( )( 2, 0 );
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Apollo" );
-    bodyMap.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies.addNewBody( "Apollo" );
+    bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
-    bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+    bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
     
     // Define propagator settings variables.
@@ -295,11 +295,11 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define constant 25 degree angle of attack
     double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
-    bodyMap.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 [ & ]( ){ return constantAngleOfAttack; } );
 
     // Set initial spherical elements for Apollo.
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
                 apolloSphericalEntryState );
     std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
-            bodyMap.at( "Earth" )->getRotationalEphemeris( );
+            bodies.at( "Earth" )->getRotationalEphemeris( );
     systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
     // Define termination conditions
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     // Generate fit for observations with J2 to model without J2
     std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
-                bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
+                bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                 1.0, { -earthC20 }, { 0 } );
 
     // Get pre- and postfit residuals with RMS

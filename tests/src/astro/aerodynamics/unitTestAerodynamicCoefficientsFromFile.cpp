@@ -76,16 +76,16 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
 
         // Create Earth object
-        simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create vehicle objects.
-        bodyMap.addNewBody( "SpacePlane" );
-        bodyMap.at( "SpacePlane" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
-        bodyMap.at( "SpacePlane" )->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
+        bodies.addNewBody( "SpacePlane" );
+        bodies.at( "SpacePlane" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+        bodies.at( "SpacePlane" )->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
 
         // Create vehicle  coefficients
         std::map< int, std::string > forceCoefficientFiles;
@@ -125,10 +125,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                         "TestSurface" );
         }
 
-        bodyMap.at( "SpacePlane" )->setAerodynamicCoefficientInterface(
+        bodies.at( "SpacePlane" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
 
-        bodyMap.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
+        bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create acceleration models
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-        setTrimmedConditions( bodyMap.at( "SpacePlane" ) );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        setTrimmedConditions( bodies.at( "SpacePlane" ) );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Iterate over results for dependent variables, and check against manually retrieved values.
         std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
-                bodyMap.at( "SpacePlane" )->getAerodynamicCoefficientInterface( );
+                bodies.at( "SpacePlane" )->getAerodynamicCoefficientInterface( );
 
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > cdMuliArray =

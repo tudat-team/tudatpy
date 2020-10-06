@@ -21,7 +21,7 @@ namespace simulation_setup
 //! Function to create the object determining the direction of the thrust acceleration.
 std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
         const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
@@ -44,14 +44,14 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
         {
             // Retrieve state function of body for which thrust is to be computed.
             std::function< Eigen::Vector6d( ) > bodyStateFunction =
-                    std::bind( &Body::getState, bodyMap.at( nameOfBodyWithGuidance ) );
+                    std::bind( &Body::getState, bodies.at( nameOfBodyWithGuidance ) );
             std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
             // Retrieve state function of central body (or set to zero if inertial)
             if( thrustDirectionFromStateGuidanceSettings->relativeBody_ != "SSB" &&
                     thrustDirectionFromStateGuidanceSettings->relativeBody_ != "" )
             {
-                centralBodyStateFunction = std::bind( &Body::getState, bodyMap.at(
+                centralBodyStateFunction = std::bind( &Body::getState, bodies.at(
                                                             thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
                 magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
                             thrustDirectionFromStateGuidanceSettings->relativeBody_ );
@@ -90,7 +90,7 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
     }
     case thrust_direction_from_existing_body_orientation:
     {
-        std::shared_ptr< Body > bodyWithGuidance = bodyMap.at( nameOfBodyWithGuidance );
+        std::shared_ptr< Body > bodyWithGuidance = bodies.at( nameOfBodyWithGuidance );
 
         std::function< Eigen::Quaterniond( const double ) > rotationFunction;
 
@@ -177,17 +177,17 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
         else
         {
             // Check whether all required environment properties exist
-            if( bodyMap.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
+            if( bodies.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
                                           meeCostateBasedThrustSettings->relativeBody_ + " not found." );
             }
-            else if( bodyMap.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
+            else if( bodies.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
                                           meeCostateBasedThrustSettings->vehicleName_ + " not found." );
             }
-            else if( bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
+            else if( bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == nullptr )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
                                           meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
@@ -197,13 +197,13 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
                 // Retrieve required functions and create guidance object
                 std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
                         std::bind( &simulation_setup::Body::getState,
-                                     bodyMap.at( meeCostateBasedThrustSettings->vehicleName_ ) );
+                                     bodies.at( meeCostateBasedThrustSettings->vehicleName_ ) );
                 std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
                         std::bind( &simulation_setup::Body::getState,
-                                     bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ ) );
+                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ ) );
                 std::function< double( ) > centralBodyGravitationalParameterFunction =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+                                     bodies.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
 
                 thrustGuidance =  std::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
                             thrustingBodyStateFunction, centralBodyStateFunction,
@@ -239,7 +239,7 @@ Eigen::Vector3d getCombinedThrustDirection(
 //! Function to create a function that returns the thrust direction in the body-fixed frame.
 std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string bodyName )
 {
     std::function< Eigen::Vector3d( ) > thrustDirectionFunction;
@@ -271,7 +271,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         {
             throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, input is inconsistent" );
         }
-        if( bodyMap.at( bodyName )->getVehicleSystems( ) == nullptr )
+        if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no vehicle systems found" );
 
@@ -281,7 +281,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
         {
             // Check if engine model exists
-            if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).count(
+            if( ( bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).count(
                       thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
             {
                 throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no engine of right ID found" );
@@ -290,7 +290,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
             {
                 thrustDirectionFunction =
                         std::bind( &system_models::EngineModel::getBodyFixedThrustDirection,
-                                     bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).at(
+                                     bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).at(
                                          thrustMagnitudeSettings->thrustOriginId_ ) );
             }
 
@@ -299,7 +299,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         else
         {
             // Print warning if there are no engines (zero thrust)
-            if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
+            if( ( bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
                 std::cerr << "Warning when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust" << std::endl;
             }
@@ -309,7 +309,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
             std::vector< std::function< double( )> > thrustMagnitudes;
 
             std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModels =
-                    bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( );
+                    bodies.at( bodyName )->getVehicleSystems( )->getEngineModels( );
 
             for( std::map< std::string, std::shared_ptr< system_models::EngineModel > >::const_iterator engineIterator =
                  engineModels.begin( ); engineIterator != engineModels.end( ); engineIterator++ )
@@ -384,7 +384,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
 //! Function to create a wrapper object that computes the thrust magnitude
 std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
 {
@@ -418,7 +418,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         {
             throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
         }
-        if( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == nullptr )
+        if( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no vehicle systems found" );
 
@@ -427,7 +427,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         // Retrieve single engine thrust
         if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
         {
-            if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
+            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
                       thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
             {
                 throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
@@ -435,20 +435,20 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
             else
             {
                 thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
-                            bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
+                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
                                 thrustMagnitudeSettings->thrustOriginId_ ) );
             }
         }
         // Retrieve total engine thrust
         else
         {
-            if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
+            if( ( bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
                 std::cerr << "Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust" << std::endl;
             }
             thrustMagnitudeWrapper = std::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
                         utilities::createVectorFromMapValues< std::shared_ptr< system_models::EngineModel >, std::string >(
-                            bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
+                            bodies.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
         }
         break;
 
@@ -483,11 +483,11 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         // Create indpendent variable functions
         std::vector< std::function< double( ) > > thrustInputVariableFunctions =
                 getPropulsionInputVariables(
-                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
+                    bodies.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->thrustGuidanceInputVariables_ );
         std::vector< std::function< double( ) > > specificInputVariableFunctions =
                 getPropulsionInputVariables(
-                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
+                    bodies.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseGuidanceInputVariables_ );
 
         // Create thrust magnitude wrapper
@@ -515,17 +515,17 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         else
         {
             // Check whether all required environment properties exist
-            if( bodyMap.count( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) == 0 )
+            if( bodies.count( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) == 0 )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
                                           fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ + " not found." );
             }
-            else if( bodyMap.count( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) == 0 )
+            else if( bodies.count( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) == 0 )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
                                           fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ + " not found." );
             }
-            else if( bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
+            else if( bodies.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
                                           fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ + " has no gravity field." );
@@ -535,16 +535,16 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
                 // Retrieve required functions and create guidance object
                 std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
                         std::bind( &simulation_setup::Body::getState,
-                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
+                                     bodies.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
                 std::function< double( ) > thrustingBodyMassFunction =
                         std::bind( &simulation_setup::Body::getBodyMass,
-                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
+                                     bodies.at( fromMeeCostatesBangBangThrustMagnitudeSettings->vehicleName_ ) );
                 std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
                         std::bind( &simulation_setup::Body::getState,
-                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) );
+                                     bodies.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ ) );
                 std::function< double( ) > centralBodyGravitationalParameterFunction =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     bodyMap.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) );
+                                     bodies.at( fromMeeCostatesBangBangThrustMagnitudeSettings->centralBodyName_ )->getGravityFieldModel( ) );
 
                 // Create thrust magnitude wrapper
                 thrustMagnitudeWrapper = std::make_shared< propulsion::MeeCostatesBangBangThrustMagnitudeWrapper >(

@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE ACCELERATIONS            /////////////////////////////////////////////
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 
@@ -254,8 +254,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE ACCELERATIONS            /////////////////////////////////////////////
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

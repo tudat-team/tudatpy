@@ -326,21 +326,21 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 getDefaultBodySettings( std::vector< std::string >{ "Earth" }, -1.0E6, 1.0E6 );
         defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
-        NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+        SystemOfBodies bodies = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodyMap.addNewBody( "Vehicle" );
+        bodies.addNewBody( "Vehicle" );
 
-        bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodyMap.at( "Vehicle" )->setEphemeris(
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+        bodies.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
         {
-            bodyMap.at( "Vehicle" )->setRotationalEphemeris(
+            bodies.at( "Vehicle" )->setRotationalEphemeris(
                         std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
         }
 
@@ -369,7 +369,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                     areCoefficientsInAerodynamicFrame, 1 );
-        bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+        bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
         Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
 
@@ -433,7 +433,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         std::shared_ptr< DummyAngleCalculator > testAngles =
                 std::make_shared< DummyAngleCalculator >( );
@@ -442,12 +442,12 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         {
             if( !setAngleGuidanceManually )
             {
-                setGuidanceAnglesFunctions( testAngles, bodyMap.at( "Vehicle" ) );
+                setGuidanceAnglesFunctions( testAngles, bodies.at( "Vehicle" ) );
             }
             else
             {
                 std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                        bodyMap.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+                        bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( );
                 angleCalculator->setOrientationAngleFunctions(
                             std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
                             std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
@@ -501,14 +501,14 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
                 dynamicsSimulator.getDependentVariableHistory( );
 
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
-                bodyMap.at( "Vehicle" )->getRotationalEphemeris( );
+                bodies.at( "Vehicle" )->getRotationalEphemeris( );
 
         double thrustAcceleration = thrustMagnitude / vehicleMass;
         Eigen::Matrix3d matrixDifference;

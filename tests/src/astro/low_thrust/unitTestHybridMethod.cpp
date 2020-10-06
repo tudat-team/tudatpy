@@ -67,21 +67,21 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
 
 
     // Create spacecraft object.
-    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
 
     std::string bodyToPropagate = "Vehicle";
     std::string centralBody = "Earth";
 
     // Set vehicle mass.
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     // Initial and final states in keplerian elements.
     Eigen::Vector6d initialKeplerianElements = ( Eigen::Vector6d( ) << 24505.9e3, 0.725, 7.0 * mathematical_constants::PI / 180.0,
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     // Initial and final states in cartesian coordinates.
     Eigen::Vector6d stateAtDeparture = orbital_element_conversions::convertKeplerianToCartesianElements(
-                initialKeplerianElements, bodyMap[ "Earth" ]->getGravityFieldModel()->getGravitationalParameter() );
+                initialKeplerianElements, bodies[ "Earth" ]->getGravityFieldModel()->getGravitationalParameter() );
     Eigen::Vector6d stateAtArrival = orbital_element_conversions::convertKeplerianToCartesianElements(
-                finalKeplerianElements, bodyMap[ "Earth" ]->getGravityFieldModel()->getGravitationalParameter() );
+                finalKeplerianElements, bodies[ "Earth" ]->getGravityFieldModel()->getGravitationalParameter() );
 
     // Define integrator settings.
     double stepSize = ( timeOfFlight ) / static_cast< double >( 40000 );
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
 
     // Create hybrid method trajectory.
     HybridMethod hybridMethod = HybridMethod( stateAtDeparture, stateAtArrival, maximumThrust, specificImpulse,
-                                              timeOfFlight, bodyMap, bodyToPropagate, centralBody, integratorSettings,
+                                              timeOfFlight, bodies, bodyToPropagate, centralBody, integratorSettings,
                                               optimisationSettings );
 
 
@@ -184,19 +184,19 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
                                                                     basic_astrodynamics::central_gravity ) );
     bodyToPropagateAccelerations[ bodyToPropagate ].push_back( thrustAccelerationSettings );
 
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ bodyToPropagate ] = bodyToPropagateAccelerations;
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
+                bodies, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ bodyToPropagate ] = simulation_setup::createMassRateModel( bodyToPropagate, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap, accelerationModelMap );
+                                                       bodies, accelerationModelMap );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
@@ -253,10 +253,10 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings = std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
-        bodyMap[ bodyToPropagate ]->setConstantBodyMass( currentMass );
+        bodies[ bodyToPropagate ]->setConstantBodyMass( currentMass );
 
         // Perform propagation.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     /// Test the computeSemiAnalyticalAndFullPropagation function
     /// (the difference between hybrid method and full propagation results should be integration errors only)
 
-    bodyMap[ bodyToPropagate ]->setConstantBodyMass( mass );
+    bodies[ bodyToPropagate ]->setConstantBodyMass( mass );
 
     // Create termination conditions settings.
     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,

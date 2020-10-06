@@ -124,16 +124,16 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         bodySettings.at( "Phobos" )->gravityFieldSettings = getPhobosGravityFieldSettings( );
 
         // Create body objects
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
         
 
         // Create links to set and get state functions of bodies.
-        std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+        std::shared_ptr< Body > mars = bodies.at( "Mars" );
         std::function< void( Eigen::Vector6d ) > marsStateSetFunction = std::bind( &Body::setState, mars, std::placeholders::_1  );
         std::function< Eigen::Vector6d( ) > marsStateGetFunction = std::bind( &Body::getState, mars );
         mars->setStateFromEphemeris( 1.0E6 );
 
-        std::shared_ptr< Body > phobos = std::dynamic_pointer_cast< Body >( bodyMap.at( "Phobos" ) );
+        std::shared_ptr< Body > phobos = std::dynamic_pointer_cast< Body >( bodies.at( "Phobos" ) );
         std::function< void( Eigen::Vector6d ) > phobosStateSetFunction = std::bind( &Body::setState, phobos, std::placeholders::_1  );
         std::function< Eigen::Vector6d( ) > phobosStateGetFunction = std::bind( &Body::getState, phobos );
         phobos->setStateFromEphemeris( 1.0E6 );
@@ -164,11 +164,11 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         // Retrieve gravity fields
         std::shared_ptr< SphericalHarmonicsGravityField > marsGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
-                    bodyMap.at( "Mars" )->getGravityFieldModel( ) );
+                    bodies.at( "Mars" )->getGravityFieldModel( ) );
 
         std::shared_ptr< SphericalHarmonicsGravityField > phobosGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
-                    bodyMap.at( "Phobos" )->getGravityFieldModel( ) );
+                    bodies.at( "Phobos" )->getGravityFieldModel( ) );
 
         // Create gravitational parameter estimation settings.
         std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterObject = std::make_shared<
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial > (
                     createAnalyticalAccelerationPartial(
                         accelerationModel, std::make_pair( "Phobos", phobos ),
-                        std::make_pair( "Mars", mars ), bodyMap, parameterSet ) );
+                        std::make_pair( "Mars", mars ), bodies, parameterSet ) );
 
 
         // Calculate analytical partials.

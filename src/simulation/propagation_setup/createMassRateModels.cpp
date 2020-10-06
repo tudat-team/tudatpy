@@ -22,7 +22,7 @@ std::shared_ptr< basic_astrodynamics::MassRateModel >
 createMassRateModel(
         const std::string& bodyWithMassRate,
         const std::shared_ptr< MassRateModelSettings > massRateModelSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
     std::shared_ptr< basic_astrodynamics::MassRateModel > massRateModel;
@@ -122,7 +122,7 @@ createMassRateModel(
 
 //! Function to create a list of mass rate models for a list of bodies.
 basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
@@ -135,7 +135,7 @@ basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         for( unsigned int i = 0; i < settingsIterator->second.size( ); i++ )
         {
             massRateModels[ settingsIterator->first ].push_back(
-                        createMassRateModel( settingsIterator->first, settingsIterator->second.at( i ), bodyMap,
+                        createMassRateModel( settingsIterator->first, settingsIterator->second.at( i ), bodies,
                                              accelerationModels ) );
         }
     }

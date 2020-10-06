@@ -73,14 +73,14 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap.addNewBody( "Vehicle" )
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+    bodies.addNewBody( "Vehicle" )
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE ACCELERATIONS            /////////////////////////////////////////////
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
             std::make_shared< FromThrustMassModelSettings >( true );
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = createMassRateModel(
-                "Vehicle", massRateModelSettings, bodyMap, accelerationModelMap );
+                "Vehicle", massRateModelSettings, bodies, accelerationModelMap );
 
     // Create settings for propagating the mass of the vehicle.
     std::vector< std::string > bodiesWithMassToPropagate;
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

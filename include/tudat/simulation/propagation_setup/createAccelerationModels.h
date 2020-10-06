@@ -349,7 +349,7 @@ createSolarSailAccelerationModel(const std::shared_ptr< Body > bodyUndergoingAcc
  *  Function to create a thrust acceleration model. Creates all required
  *  links to environment models, vehicle properies and frame conversions.
  *  \param accelerationSettings Settings of thrust acceleration model.
- *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  \param bodies List of pointers to bodies required for the creation of the acceleration model
  *  objects.
  *  \param nameOfBodyUndergoingThrust Name of body that is undergoing the thrust acceleration
  *  \return Pointer to object for calculating thrust acceleration.
@@ -357,7 +357,7 @@ createSolarSailAccelerationModel(const std::shared_ptr< Body > bodyUndergoingAcc
 std::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& nameOfBodyUndergoingThrust );
 
 //! Function to create a direct tidal acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
@@ -404,7 +404,7 @@ std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > creat
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
  *  \param accelerationSettings Settings for the acceleration model.
- *  \param bodyMap List of pointers to bodies that comprise the full environment.
+ *  \param bodies List of pointers to bodies that comprise the full environment.
  *  \return Pointer to object for calculating relativistic correction acceleration.
  */
 std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
@@ -413,7 +413,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
-        const NamedBodyMap& bodyMap );
+        const SystemOfBodies& bodies );
 
 //! Function to create empirical acceleration model.
 /*!
@@ -447,7 +447,7 @@ std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcc
  *  calculated (optional, only relevant for third body accelerations).
  *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
  *  be calculated (optional, only relevant for third body accelerations).
- *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  \param bodies List of pointers to bodies required for the creation of the acceleration model
  *  objects.
  *  \return Acceleration model pointer.
  */
@@ -460,7 +460,7 @@ createAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< Body > centralBody = std::shared_ptr< Body >( ),
         const std::string& nameOfCentralBody = "",
-        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
+        const SystemOfBodies& bodies = SystemOfBodies( ) );
 
 //! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
 /*!
@@ -474,7 +474,7 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
 /*!
  *  Function to create acceleration models from a map of bodies and acceleration model types.
  *  The return type can be used to identify both the body undergoing and exerting acceleration.
- *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  \param bodies List of pointers to bodies required for the creation of the acceleration model
  *  objects.
  *  \param selectedAccelerationPerBody List identifying which bodies exert which type of
  *  acceleration(s) on which bodies.
@@ -482,7 +482,7 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
 basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );
 
@@ -490,7 +490,7 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 /*!
  *  Function to create acceleration models from a map of bodies and acceleration model types.
  *  The return type can be used to identify both the body undergoing and exerting acceleration.
- *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  \param bodies List of pointers to bodies required for the creation of the acceleration model
  *  objects.
  *  \param selectedAccelerationPerBody List identifying which bodies exert which type of
  *  acceleration(s) on which bodies.
@@ -499,7 +499,7 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
 basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::vector< std::string >& propagatedBodies,
         const std::vector< std::string >& centralBodies );

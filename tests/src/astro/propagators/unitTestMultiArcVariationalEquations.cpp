@@ -95,7 +95,7 @@ executeMultiArcEarthMoonSimulation(
     bodySettings.at( "Earth" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
 
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     
 
 
@@ -128,7 +128,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -162,7 +162,7 @@ executeMultiArcEarthMoonSimulation(
         if( forcedArcInitialStates.size( ) == 0 )
         {
             systemInitialStates.push_back( getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                               bodiesToIntegrate, centralBodies, bodyMap, arcStartTimes.at( i ) ) );
+                                               bodiesToIntegrate, centralBodies, bodies, arcStartTimes.at( i ) ) );
         }
         else
         {
@@ -221,7 +221,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
@@ -236,7 +236,7 @@ executeMultiArcEarthMoonSimulation(
         // Create dynamics simulator
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
+                    bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -255,9 +255,9 @@ executeMultiArcEarthMoonSimulation(
             double testEpoch = arcEndTimes.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
-            testStates.block( 0, 0, 6, 1 ) = bodyMap.at( "Moon" )->getStateInBaseFrameFromEphemeris( testEpoch );
+            testStates.block( 0, 0, 6, 1 ) = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
-            testStates.block( 6, 0, 6, 1 ) = bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( testEpoch );
+            testStates.block( 6, 0, 6, 1 ) = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
             if( propagateVariationalEquations )
             {

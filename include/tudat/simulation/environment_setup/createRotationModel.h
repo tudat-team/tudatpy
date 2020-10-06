@@ -394,13 +394,13 @@ Eigen::Vector6d getStateFromSelectedStateFunction(
 //! Function to create a state function for a body, valid both during propagation, and outside propagation
 /*!
  * Function to create a state function for a body, valid both during propagation, and outside propagation
- * \param bodyMap List of body objects
+ * \param bodies List of body objects
  * \param orbitingBody Body for which state function is to be created
  * \param centralBody Central body w.r.t. which state function is to be created
  * \return Required state function
  */
 std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string orbitingBody,
         const std::string centralBody );
 
@@ -611,13 +611,13 @@ private:
 //! Function to create a state function for a body, valid both during propagation, and outside propagation
 /*!
  * Function to create a state function for a body, valid both during propagation, and outside propagation
- * \param bodyMap List of body objects
+ * \param bodies List of body objects
  * \param orbitingBody Body for which state function is to be created
  * \param centralBody Central body w.r.t. which state function is to be created
  * \return Required state function
  */
 std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string orbitingBody,
         const std::string centralBody );
 
@@ -627,13 +627,13 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  *  \param rotationModelSettings Settings for the rotation model that is to be created, defined
  *  a pointer to an object of class (derived from) RotationSettings.
  *  \param body Name of the body for which the rotation model is to be created.
- * \param bodyMap List of body objects
+ * \param bodies List of body objects
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
-        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
+        const SystemOfBodies& bodies = SystemOfBodies( ) );
 
 } // namespace simulation_setup
 

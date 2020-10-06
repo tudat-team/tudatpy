@@ -77,7 +77,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
 
 basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerSegment(
         const unsigned int indexSegment,
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody )
 {
@@ -98,7 +98,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerS
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
+                bodies, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
     return accelerationModelMap;
 
@@ -106,7 +106,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerS
 
 
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganModel::getThrustAccelerationSettingsFullLeg(
-        const simulation_setup::NamedBodyMap& bodyMapTest )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     // Define thrust magnitude function.
     std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
@@ -140,7 +140,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
 }
 
 basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAccelerationMap(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody )
 {
@@ -152,7 +152,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAc
                                                         basic_astrodynamics::central_gravity ) );
 
     // Retrieve thrust acceleration settings.
-    accelerationsSettings[ bodyToPropagate ].push_back( getThrustAccelerationSettingsFullLeg( bodyMapTest ) );
+    accelerationsSettings[ bodyToPropagate ].push_back( getThrustAccelerationSettingsFullLeg( bodies ) );
 
     // Create acceleration map.
     simulation_setup::SelectedAccelerationMap accelerationMap;
@@ -160,7 +160,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAc
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
+                bodies, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
     return accelerationModelMap;
 }

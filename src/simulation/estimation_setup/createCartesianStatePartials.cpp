@@ -21,7 +21,7 @@ namespace observation_partials
 //! Function to return partial(s) of position of ground station(s) w.r.t. state of a single body.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate )
 {
     // Declare data map to return.
@@ -50,7 +50,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 //! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
         const observation_models::LinkEnds& linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToEstimate )
 {
     // Declare data map to return.
@@ -67,7 +67,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         currentBodyName = linkEndIterator->second.first;
         if( bodyToEstimate == currentBodyName )
         {
-            std::shared_ptr< simulation_setup::Body > currentBody = bodyMap.at( currentBodyName );
+            std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( currentBodyName );
 
             if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
             {
@@ -96,7 +96,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate )
 {
     using namespace ephemerides;
@@ -118,7 +118,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.first;
-            currentBody = bodyMap.at( currentBodyName );
+            currentBody = bodies.at( currentBodyName );
 
             // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
@@ -132,7 +132,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                            createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ),
+                            createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ),
                             groundStationPositionFunction );
             }
             else
@@ -176,7 +176,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 //! Function to return partial(s) of position of ground station(s) w.r.t. a (vector) parameter.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
 {
     using namespace ephemerides;
@@ -198,7 +198,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.first;
-            currentBody = bodyMap.at( currentBodyName );
+            currentBody = bodies.at( currentBodyName );
 
             // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
@@ -219,7 +219,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                            createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ),
+                            createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ),
                             groundStationPositionFunction );
             }
             else
@@ -306,7 +306,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslat
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate )
 {
     using namespace simulation_setup;
@@ -316,7 +316,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
 
     // Get body for rotation of which partial is to be created.
-    std::shared_ptr< Body > currentBody = bodyMap.at( parameterToEstimate->getParameterName( ).second.first );
+    std::shared_ptr< Body > currentBody = bodies.at( parameterToEstimate->getParameterName( ).second.first );
 
     // Check for which rotation model parameter the partial object is to be created.
     switch( parameterToEstimate->getParameterName( ).first )
@@ -379,7 +379,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 
 //! Function to create partial object(s) of rotation matrix wrt a (vector) parameter.
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
 
 {
@@ -390,7 +390,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
 
     // Get body for rotation of which partial is to be created.
-    std::shared_ptr< Body > currentBody = bodyMap.at( parameterToEstimate->getParameterName( ).second.first );
+    std::shared_ptr< Body > currentBody = bodies.at( parameterToEstimate->getParameterName( ).second.first );
 
     // Check for which rotation model parameter the partial object is to be created.
     switch( parameterToEstimate->getParameterName( ).first )
@@ -466,12 +466,12 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 //! the position of a body.
 std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
         const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< PositionObservationScaling > positionObservableScaler )
 {
     std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
     std::shared_ptr< PositionObervationPartial > positionObervationPartial;
 
     if( positionPartials.size( ) > 0 )
@@ -488,12 +488,12 @@ std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtP
 //! the Velocity of a body.
 std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
         const  observation_models::LinkEnds linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
 {
     std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, bodyToEstimate );
     std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
 
     if( velocityPartials.size( ) > 0 )

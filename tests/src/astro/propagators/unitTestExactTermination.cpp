@@ -108,12 +108,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     bodySettings =
                             getDefaultBodySettings( bodiesToCreate, simulationEndEpoch - 300.0, simulationStartEpoch + 300.0 );
                 }
-                NamedBodyMap bodyMap = createBodies( bodySettings );
+                SystemOfBodies bodies = createBodies( bodySettings );
 
                 // Create spacecraft object.
-                bodyMap.addNewBody( "Vehicle" );
-                bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-                bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                bodies.addNewBody( "Vehicle" );
+                bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+                bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                         < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
 
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 bodiesToPropagate.push_back( "Vehicle" );
                 centralBodies.push_back( "Earth" );
                 basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                            bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                            bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
                 // Set Keplerian elements for Vehicle.
                 Eigen::Vector6d vehicleInitialStateInKeplerianElements;
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                         = unit_conversions::convertDegreesToRadians( 23.4 );
                 vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-                double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+                double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
                 const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                             vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
                 // Propagate orbit with Cowell method
                 SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                            bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                            bodies, integratorSettings, propagatorSettings, true, false, false );
                 std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

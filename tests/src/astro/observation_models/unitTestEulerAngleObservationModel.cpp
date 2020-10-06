@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     // Create observation model.
     std::shared_ptr< ObservationModel< 3, double, double > > observationModel =
            ObservationModelCreator< 3, double, double >::createObservationModel(
-                linkEnds, observableSettings, bodyMap );
+                linkEnds, observableSettings, bodies );
     std::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
     // Check biased observable
-    Eigen::Quaterniond currentRotationToBodyFixedFrame = bodyMap.at( "Earth" )->getRotationalEphemeris( )->
+    Eigen::Quaterniond currentRotationToBodyFixedFrame = bodies.at( "Earth" )->getRotationalEphemeris( )->
                 getRotationToTargetFrame( observationTime );
 
     Eigen::Vector3d currentBias =

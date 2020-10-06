@@ -45,7 +45,7 @@ void createGroundStation(
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 void createGroundStations(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition,
         const coordinate_conversions::PositionElementTypes positionElementType )
 {
@@ -53,9 +53,9 @@ void createGroundStations(
          stationIterator = groundStationsWithPosition.begin( );
          stationIterator != groundStationsWithPosition.end( ); stationIterator++ )
     {
-        if( bodyMap.count( stationIterator->first.first ) > 0 )
+        if( bodies.count( stationIterator->first.first ) > 0 )
         {
-            createGroundStation( bodyMap.at( stationIterator->first.first ), stationIterator->first.second,
+            createGroundStation( bodies.at( stationIterator->first.first ), stationIterator->first.second,
                                  stationIterator->second, positionElementType );
         }
     }

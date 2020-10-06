@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     
 
@@ -83,11 +83,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
     std::pair< std::string, std::string > earthStationStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -141,13 +141,13 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        uplinkLinkEnds, uplinkObservableSettings, bodyMap );
+                        uplinkLinkEnds, uplinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > downlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        downlinkLinkEnds, downlinkObservableSettings, bodyMap );
+                        downlinkLinkEnds, downlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        twoWayLinkEnds, twoWayObservableSettings, bodyMap );
+                        twoWayLinkEnds, twoWayObservableSettings, bodies );
 
             // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > uplinkLinkEndTimes;
@@ -296,19 +296,19 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        firstlinkLinkEnds, firstlinkObservableSettings, bodyMap );
+                        firstlinkLinkEnds, firstlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > secondlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        secondlinkLinkEnds, secondlinkObservableSettings, bodyMap );
+                        secondlinkLinkEnds, secondlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > thirdlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        thirdlinkLinkEnds, thirdlinkObservableSettings, bodyMap );
+                        thirdlinkLinkEnds, thirdlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > fourthlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        fourthlinkLinkEnds, fourthlinkObservableSettings, bodyMap );
+                        fourthlinkLinkEnds, fourthlinkObservableSettings, bodies );
             std::shared_ptr< ObservationModel< 1, double, double > > fourWayObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                        fourWayLinkEnds, fourWayObservableSettings, bodyMap );
+                        fourWayLinkEnds, fourWayObservableSettings, bodies );
 
             // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > firstlinkLinkEndTimes;

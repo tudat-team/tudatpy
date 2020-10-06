@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_arc_dynamics )
 
 //! Reset Mats ephemeris to tabulated ephemeris from default settings
 void resetMarsEphemeris(
-        const NamedBodyMap& bodyMap, const double ephemerisStartTime, const double ephemerisEndTime )
+        const SystemOfBodies& bodies, const double ephemerisStartTime, const double ephemerisEndTime )
 {
     std::shared_ptr< Ephemeris > marsEphemeris =
             createBodyEphemeris( getDefaultEphemerisSettings( "Mars", ephemerisStartTime, ephemerisEndTime ), "Mars" );
@@ -47,7 +47,7 @@ void resetMarsEphemeris(
             std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
 
     std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                bodyMap.at( "Mars" )->getEphemeris( ) )->resetInterpolator( defaultMarsStateInterpolator );
+                bodies.at( "Mars" )->getEphemeris( ) )->resetInterpolator( defaultMarsStateInterpolator );
 }
 
 //! Test if hybrid-arc orbit propagation is done correctly (single-arc Mars w.r.t. SSB and multi-arc orbiter w.r.t. Mars)
@@ -75,12 +75,12 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         bodyNames.push_back( "Earth" );
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create orbiter
-        bodyMap.addNewBody( "Orbiter" );
-        bodyMap.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
-        bodyMap.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
+        bodies.addNewBody( "Orbiter" );
+        bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
+        bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                 std::map< double, std::shared_ptr< Ephemeris > >( ),
                                                 "Mars", "ECLIPJ2000" ) );
 
@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-        bodyMap.at( "Orbiter" )->setRadiationPressureInterface(
+        bodies.at( "Orbiter" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
-                        orbiterRadiationPressureSettings, "Orbiter", bodyMap ) );
+                        orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
 
         
@@ -113,11 +113,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         singleArcCentralBodies.push_back( "SSB" );
 
         AccelerationMap singleArcAccelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
+                    bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
 
         // Create single-arc propagator settings for Mars
         Eigen::VectorXd singleArcInitialStates = getInitialStatesOfBodies(
-                    singleArcBodiesToIntegrate, singleArcCentralBodies, bodyMap, initialEphemerisTime );
+                    singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
         std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< > >(
                     singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         multiArcCentralBodies.push_back( "Mars" );
 
         AccelerationMap multiArcAccelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
+                    bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
 
         // Creater arc times for orbiter
         std::vector< double > integrationArcStarts, integrationArcEnds;
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         multiArcSystemInitialStates.resize( numberOfIntegrationArcs );
 
         // Define (quasi-arbitrary) arc Orbiter initial states
-        double marsGravitationalParameter =  bodyMap.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double marsGravitationalParameter =  bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
         for( unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
         {
             Eigen::Vector6d orbiterInitialStateInKeplerianElements;
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         std::map< double, Eigen::VectorXd > singleArcSolution;
         {
             SingleArcDynamicsSimulator< > singleArcDynamicsSimulator(
-                        bodyMap, singleArcIntegratorSettings, singleArcPropagatorSettings, true, false, true );
+                        bodies, singleArcIntegratorSettings, singleArcPropagatorSettings, true, false, true );
             singleArcSolution = singleArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         }
 
@@ -243,19 +243,19 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution;
         {
             MultiArcDynamicsSimulator< > multiArcDynamicsSimulator(
-                        bodyMap, multiArcIntegratorSettings, multiArcPropagatorSettings, integrationArcStarts, true, false, false );
+                        bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, integrationArcStarts, true, false, false );
             multiArcSolution = multiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         }
 
         // Perform hybrid arc propagation
-        resetMarsEphemeris( bodyMap, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+        resetMarsEphemeris( bodies, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
         std::map< double, Eigen::VectorXd > singleArcSolutionFromHybrid;
         std::vector< std::map< double, Eigen::VectorXd > > multiArcSolutionFromHybrid;
         {
             singleArcIntegratorSettings->initialTime_ = initialEphemerisTime;
 
             HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
-                        bodyMap, singleArcIntegratorSettings, multiArcIntegratorSettings, std::make_shared< HybridArcPropagatorSettings< > >(
+                        bodies, singleArcIntegratorSettings, multiArcIntegratorSettings, std::make_shared< HybridArcPropagatorSettings< > >(
                             singleArcPropagatorSettings, multiArcPropagatorSettings ), integrationArcStarts );
 
             singleArcSolutionFromHybrid = hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->

@@ -58,14 +58,14 @@ int main( )
     bodySettings[ "Earth" ]->shapeModelSettings = NULL;
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Obelix" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Obelix" ] = std::make_shared< simulation_setup::Body >( );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
@@ -91,7 +91,7 @@ int main( )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -126,7 +126,7 @@ int main( )
 
     // Convert initial states from Keplerian to Cartesian elements.
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
@@ -157,7 +157,7 @@ int main( )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Retrieve numerically integrated states of vehicles.

@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     bodiesCR3BP.push_back( "Sun" );
     bodiesCR3BP.push_back( "Earth" );
 
-    simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BP(
+    simulation_setup::SystemOfBodies bodies = setupBodyMapCR3BP(
                 physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft" );
 
     // Spacecraft properties
-    bodyMap.at( "Spacecraft" )->setConstantBodyMass( 100.0 );
+    bodies.at( "Spacecraft" )->setConstantBodyMass( 100.0 );
 
     // Initialization of the spacecraft state
     Eigen::Vector6d initialState;
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     centralBodies.push_back( "SSB" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = setupAccelerationMapCR3BP(
-                "Sun", "Earth", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), bodyMap );
+                "Sun", "Earth", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), bodies );
 
 
     // Create integrator settings
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     // calculate the difference between CR3BP and full problem
     Eigen::Vector6d stateDifference = getFinalStateDifferenceFullPropagationWrtCR3BP(
                 initialTime, finalTime, initialState, integratorSettings, accelerationModelMap,
-                bodiesToPropagate, centralBodies,bodyMap, bodiesCR3BP );
+                bodiesToPropagate, centralBodies,bodies, bodiesCR3BP );
 
     for( int i = 0; i < 3; i++ )
     {

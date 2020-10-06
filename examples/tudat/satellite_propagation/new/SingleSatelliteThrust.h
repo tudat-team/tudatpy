@@ -225,7 +225,7 @@ class SingleSatelliteThrust {
 
   std::vector<std::string> _central_bodies;
   std::vector<std::string> _bodies_to_propagate;
-  NamedBodyMap _body_system;
+  SystemOfBodies _body_system;
   std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings>>> _base_accelerations_vehicle;
 };
 

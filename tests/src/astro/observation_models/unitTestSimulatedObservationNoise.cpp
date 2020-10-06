@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     
 
@@ -80,9 +80,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     groundStationNames.push_back( "Station2" );
     groundStationNames.push_back( "Station3" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     // Create observation simulators
     std::map< ObservableType,
             std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
-            createObservationSimulators( observationSettingsMap, bodyMap );
+            createObservationSimulators( observationSettingsMap, bodies );
 
     // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
     std::vector< double > baseTimeList;
