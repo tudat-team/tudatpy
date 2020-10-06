@@ -345,7 +345,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     int numberOfVehicles = vehicleNames.size( );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        bodies.addNewBody( vehicleNames.at( i ) );
+        bodies.createBody( vehicleNames.at( i ) );
         bodies.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                            std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
     }

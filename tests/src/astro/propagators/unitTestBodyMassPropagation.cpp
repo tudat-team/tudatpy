@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 {
     // Crate bodies
     SystemOfBodies bodies;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
 
     // Create mass rate model.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -88,9 +88,9 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 {
     // Crate bodies
     SystemOfBodies bodies;
-    bodies.addNewBody( "Earth" );
-    bodies.addNewBody( "Vehicle1" );
-    bodies.addNewBody( "Vehicle2" );
+    bodies.createBody( "Earth" );
+    bodies.createBody( "Vehicle1" );
+    bodies.createBody( "Vehicle2" );
 
     // Create mass rate models.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;

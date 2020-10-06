@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
     bodies.at( "Vehicle" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         double vehicleMass = 5.0E3;
         double dryVehicleMass = 2.0E3;
 
-        bodies.addNewBody( "Vehicle" );
+        bodies.createBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
         bodies.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -411,14 +411,14 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodies.addNewBody( "Earth" );
+        bodies.createBody( "Earth" );
 
         bodies.at( "Earth" )->setEphemeris(
                     std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
         bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
                                                       spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
-        bodies.addNewBody( "Vehicle" );
+        bodies.createBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
         bodies.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -585,14 +585,14 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     simulation_setup::SystemOfBodies bodies;
 
     // Create vehicle objects.
-    bodies.addNewBody( "Earth" );
+    bodies.createBody( "Earth" );
     bodies.at( "Earth" )->setEphemeris(
                 std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
     bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
                                                   spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
     double vehicleMass = 5.0E3;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
     bodies.at( "Vehicle" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -740,7 +740,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
         // Create vehicle objects.
-        bodies.addNewBody( "Apollo" );
+        bodies.createBody( "Apollo" );
         double vehicleMass = 5.0E3;
         bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
@@ -1011,7 +1011,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
     // Create spacecraft object.
     double bodyMass = 1.0;
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( bodyMass );
 
 
@@ -1275,7 +1275,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Apollo" );
+    bodies.createBody( "Apollo" );
     double vehicleMass = 5.0E5;
     bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
@@ -1622,7 +1622,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Apollo" );
+    bodies.createBody( "Apollo" );
     double vehicleMass = 5.0E5;
     bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
@@ -1798,7 +1798,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
     simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
 
     
     double vehicleMass = 5.0E5;
@@ -1977,7 +1977,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Create vehicle objects.
     simulation_setup::SystemOfBodies bodies;
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
 
     
     

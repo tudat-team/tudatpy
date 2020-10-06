@@ -69,13 +69,13 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
                              const bool useSymmetricEquator = 0 )
 {
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.addNewBody( "Mars", false );
+    bodies.createBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodies.addNewBody( "Phobos" );
+    bodies.createBody( "Phobos" );
 
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Apollo" );
+    bodies.createBody( "Apollo" );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
     // Create vehicle aerodynamic coefficients

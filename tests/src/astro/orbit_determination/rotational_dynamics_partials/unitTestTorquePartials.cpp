@@ -63,13 +63,13 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     // Create bodies
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.addNewBody( "Mars", false );
+    bodies.createBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodies.addNewBody( "Phobos" );
+    bodies.createBody( "Phobos" );
     std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
     std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
@@ -321,13 +321,13 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
     // Create bodies
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.addNewBody( "Mars", false );
+    bodies.createBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodies.addNewBody( "Phobos" );
+    bodies.createBody( "Phobos" );
     std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
     std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
@@ -633,13 +633,13 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     spice_interface::loadStandardSpiceKernels( );
 
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.addNewBody( "Mars", false );
+    bodies.createBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodies.addNewBody( "Phobos" );
+    bodies.createBody( "Phobos" );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;

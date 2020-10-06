@@ -91,7 +91,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
     SystemOfBodies bodies = createBodies( bodySettings );
 
-    bodies.addNewBody( "Orbiter" );
+    bodies.createBody( "Orbiter" );
     bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
     bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
@@ -520,7 +520,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
 
     // Create bodies needed in simulation
     SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.addNewBody( "Spacecraft" );
+    bodies.createBody( "Spacecraft" );
     bodies.at( "Spacecraft" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                std::map< double, std::shared_ptr< Ephemeris > >( ), "Jupiter", "ECLIPJ2000" ) );
 

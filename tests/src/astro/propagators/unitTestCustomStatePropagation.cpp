@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );

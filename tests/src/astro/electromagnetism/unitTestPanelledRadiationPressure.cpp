@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
 
     // Create vehicle
     double vehicleMass = 2500.0;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Put vehicle on circular orbit around Sun
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
@@ -701,7 +701,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 

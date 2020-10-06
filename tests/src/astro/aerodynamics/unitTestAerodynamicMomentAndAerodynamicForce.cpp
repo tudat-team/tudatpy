@@ -330,7 +330,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodies.addNewBody( "Vehicle" );
+        bodies.createBody( "Vehicle" );
 
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
         bodies.at( "Vehicle" )->setEphemeris(
