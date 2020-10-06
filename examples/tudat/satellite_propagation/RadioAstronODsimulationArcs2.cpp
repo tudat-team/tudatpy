@@ -151,9 +151,9 @@ int main( )
     }
 
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "RA" ] = std::make_shared< Body >( );
-    bodyMap[ "RA" ]->setConstantBodyMass( 3600.0 );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies[ "RA" ] = std::make_shared< Body >( );
+    bodies[ "RA" ]->setConstantBodyMass( 3600.0 );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 100.0;
@@ -165,19 +165,19 @@ int main( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "RA" ]->setRadiationPressureInterface(
+    bodies[ "RA" ]->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    RARadiationPressureSettings, "RA", bodyMap ) );
+                    RARadiationPressureSettings, "RA", bodies ) );
 
-    bodyMap[ "RA" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodies[ "RA" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                        std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "J2000" ) );
 
-//    bodyMap[ "RA" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+//    bodies[ "RA" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
 //                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
 //                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE GROUND STATIONS               //////////////////////////////////////////////////////
@@ -190,11 +190,11 @@ int main( )
 //    groundStationNames.push_back( "Station2Y" );
 //    groundStationNames.push_back( "Station3H" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1M",
+    createGroundStation( bodies.at( "Earth" ), "Station1M",
                          ( Eigen::Vector3d( ) << 2892607.149, 1311813.079,  5512598.659 ).finished( ), cartesian_position );
-//    createGroundStation( bodyMap.at( "Earth" ), "Station2Y",
+//    createGroundStation( bodies.at( "Earth" ), "Station2Y",
 //                         ( Eigen::Vector3d( ) << -2389008, 5043332,  -3078526 ).finished( ), cartesian_position );
-//    createGroundStation( bodyMap.at( "Earth" ), "Station3H",
+//    createGroundStation( bodies.at( "Earth" ), "Station3H",
 //                         ( Eigen::Vector3d( ) << 5085401.135, 2668330.108, -2768688.865 ).finished( ), cartesian_position );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ int main( )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -244,7 +244,7 @@ int main( )
 //            = unit_conversions::convertDegreesToRadians( 23.4 );
 //    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
     Eigen::Matrix< double, 6, 1 > systemInitialState = MikhailData.block( row1, 5, 1, 6 ).transpose();
@@ -421,7 +421,7 @@ int main( )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap, accelerationModelMap );
+            createParametersToEstimate( parameterNames, bodies, accelerationModelMap );
 
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
@@ -604,7 +604,7 @@ int main( )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     input_output::writeDataMapToTextFile(
@@ -668,7 +668,7 @@ int main( )
                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
                                                 5.0 * mathematical_constants::PI / 180.0 ) );
     PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
-                bodyMap, linkEndsPerObservable, observationViabilitySettings );
+                bodies, linkEndsPerObservable, observationViabilitySettings );
 
 
 

@@ -39,8 +39,8 @@ namespace tudat
             
             spice_interface::loadStandardSpiceKernels( );
             
-            NamedBodyMap bodyMap;
-            bodyMap[ "Mars" ] = std::make_shared< Body >( );
+            SystemOfBodies bodies;
+            bodies.createBody( "Mars" );
             
             std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
                     getHighAccuracyMarsRotationModel( initialTime, finalTime );

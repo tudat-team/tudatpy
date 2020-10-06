@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
     {
 
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( std::vector< std::pair< std::string, std::string > >( ),
+        SystemOfBodies bodies = setupEnvironment( std::vector< std::pair< std::string, std::string > >( ),
                                                  1.0E7, 1.2E7, 1.1E7, false, 1.0, true );
 
         // Set link ends for observation model
@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
         std::shared_ptr< ObservationModel< 3 > > eulerAngleModel =
                 observation_models::ObservationModelCreator< 3, double, double >::createObservationModel(
                     linkEnds, std::make_shared< observation_models::ObservationSettings >(
-                        euler_angle_313_observable ), bodyMap  );
+                        euler_angle_313_observable ), bodies  );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodyMap, 1.1E7, false, true );
+                createEstimatableParameters( bodies, 1.1E7, false, true );
 
         testObservationPartials< 3 >(
-                    eulerAngleModel, bodyMap, fullEstimatableParameterSet, linkEnds, euler_angle_313_observable, 1.0E-6, false, false );
+                    eulerAngleModel, bodies, fullEstimatableParameterSet, linkEnds, euler_angle_313_observable, 1.0E-6, false, false );
     }
 }
 

@@ -141,18 +141,18 @@ void performSimulation( const int testType )
 
 
     // Define simulation body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                    simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                                    simulationEndEpoch + 10.0 * fixedStepSize, "SSB", "J2000"  );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings =
+    bodySettings.at( "Earth" )->gravityFieldSettings =
             std::make_shared< simulation_setup::GravityFieldSettings >(
                 central_spice );
-    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -160,15 +160,13 @@ void performSimulation( const int testType )
     std::vector< std::string > centralBodies;
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodies.createBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+    bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
@@ -184,7 +182,7 @@ void performSimulation( const int testType )
 
     // Create acceleration models and propagation settings, using current test case to retrieve stop settings..
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
@@ -195,7 +193,7 @@ void performSimulation( const int testType )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
             dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -219,7 +217,7 @@ void performSimulation( const int testType )
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
         std::shared_ptr< AtmosphericFlightConditions > flightConditions =
-                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Apollo" )->getFlightConditions( ) );
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         stateDerivativeModel->computeStateDerivative(
                     (--( numericalSolution.end( ) ) )->first, (--( numericalSolution.end( ) ) )->second );
@@ -236,7 +234,7 @@ void performSimulation( const int testType )
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
-        std::shared_ptr< FlightConditions > flightConditions = bodyMap.at( "Apollo" )->getFlightConditions( );
+        std::shared_ptr< FlightConditions > flightConditions = bodies.at( "Apollo" )->getFlightConditions( );
         double secondToLastAltitude = flightConditions->getCurrentAltitude( );
         stateDerivativeModel->computeStateDerivative(
                     (--( numericalSolution.end( ) ) )->first, (--( numericalSolution.end( ) ) )->second );
@@ -254,7 +252,7 @@ void performSimulation( const int testType )
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
         std::shared_ptr< AtmosphericFlightConditions > flightConditions =
-                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Apollo" )->getFlightConditions( ) );
         double secondToLastDensity = flightConditions->getCurrentDensity( );
         stateDerivativeModel->computeStateDerivative(
                     (--( numericalSolution.end( ) ) )->first, (--( numericalSolution.end( ) ) )->second );
@@ -272,7 +270,7 @@ void performSimulation( const int testType )
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
         std::shared_ptr< AtmosphericFlightConditions > flightConditions =
-                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Apollo" )->getFlightConditions( ) );
 
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         double secondToLastAltitude = flightConditions->getCurrentAltitude( );
@@ -300,7 +298,7 @@ void performSimulation( const int testType )
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
         std::shared_ptr< AtmosphericFlightConditions > flightConditions =
-                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+                std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Apollo" )->getFlightConditions( ) );
 
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         double secondToLastAltitude = flightConditions->getCurrentAltitude( );
@@ -356,15 +354,15 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Asterix" );
+    
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -381,7 +379,7 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -399,7 +397,7 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 180.0 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
 
@@ -417,7 +415,7 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, 0.0, 10.0 );
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings );
+                bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
 

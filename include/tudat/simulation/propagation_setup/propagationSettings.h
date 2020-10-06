@@ -114,15 +114,15 @@ public:
      * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
      *
      * Derived classes must provide an implementation for this method. This function will use the provided
-     * body map and the member containing the acceleration/torque/mass-rate settings to create the
+     * system of bodies and the member containing the acceleration/torque/mass-rate settings to create the
      * actual models and assign them to the corresponding model map members.
      *
      * The implementation for MultiArc and MultiType (hybrid state) propagations will call the
      * `resetIntegratedStateModels` method of each of the fundamental propagators that they contain.
      *
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap ) = 0;
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) = 0;
 
 protected:
 
@@ -389,16 +389,16 @@ public:
     /*!
      * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) for
      * each fo the propagators existing in each propagation arc.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
         for ( std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings :
               singleArcSettings_ )
         {
             if ( singleArcSettings )
             {
-                singleArcSettings->resetIntegratedStateModels( bodyMap );
+                singleArcSettings->resetIntegratedStateModels( bodies );
             }
         }
     }
@@ -553,12 +553,12 @@ public:
     //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
     /*!
      * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) from associated settings objects.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
-        singleArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
-        multiArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
+        singleArcPropagatorSettings_->resetIntegratedStateModels( bodies );
+        multiArcPropagatorSettings_->resetIntegratedStateModels( bodies );
     }
 
 protected:
@@ -740,21 +740,21 @@ public:
     //! Function to create the acceleration models.
     /*!
      * Function to create the acceleration models.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
         accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
-                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
+                    bodies, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
     }
 
     void resetAccelerationModelsMap(
             const simulation_setup::SelectedAccelerationMap accelerationSettingsMap,
-            const simulation_setup::NamedBodyMap& bodyMap )
+            const simulation_setup::SystemOfBodies& bodies )
     {
         accelerationSettingsMap_ = accelerationSettingsMap;
         accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
-                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
+                    bodies, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
     }
 
     //! Function to get the acceleration settings map.
@@ -813,6 +813,77 @@ private:
 
 };
 
+template< typename StateScalarType = double >
+inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+        translationalStatePropagatorSettings(
+				const std::vector< std::string >& centralBodies,
+				const basic_astrodynamics::AccelerationMap& accelerationsMap,
+				const std::vector< std::string >& bodiesToIntegrate,
+				const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+				const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+				const TranslationalPropagatorType propagator = cowell,
+				const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+				std::shared_ptr< DependentVariableSaveSettings >( ),
+				const double printInterval = TUDAT_NAN )
+{
+		return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+				centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates,
+				terminationSettings, propagator, dependentVariablesToSave, printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+translationalStatePropagatorSettings(
+		const std::vector< std::string >& centralBodies,
+		const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+		const std::vector< std::string >& bodiesToIntegrate,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const TranslationalPropagatorType propagator = cowell,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+			centralBodies, accelerationSettingsMap, bodiesToIntegrate, initialBodyStates,
+			terminationSettings, propagator, dependentVariablesToSave, printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+translationalStatePropagatorSettings(
+		const std::vector< std::string >& centralBodies,
+		const basic_astrodynamics::AccelerationMap& accelerationsMap,
+		const std::vector< std::string >& bodiesToIntegrate,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+		const double endTime,
+		const TranslationalPropagatorType propagator = cowell,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+			centralBodies, accelerationsMap, bodiesToIntegrate, initialBodyStates,
+			endTime, propagator, dependentVariablesToSave, printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+translationalStatePropagatorSettings(
+		const std::vector< std::string >& centralBodies,
+		const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+		const std::vector< std::string >& bodiesToIntegrate,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+		const double endTime,
+		const TranslationalPropagatorType propagator = cowell,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+			centralBodies, accelerationSettingsMap, bodiesToIntegrate, initialBodyStates,
+			endTime, propagator, dependentVariablesToSave, printInterval );
+}
 
 //! Class for defining settings for propagating rotational dynamics.
 template< typename StateScalarType = double >
@@ -884,11 +955,11 @@ public:
     //! Function to create the torque models.
     /*!
      * Function to create the torque models.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
-        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_, bodiesToIntegrate_ );
+        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodies, torqueSettingsMap_, bodiesToIntegrate_ );
     }
 
     //! Function to get the torque settings map.
@@ -1029,24 +1100,24 @@ public:
     /*!
      * Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up
      * mass-rate models determined from thrust accelerations.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      * \param accelerationMap Map of accelerations in the propagation.
      */
     void resetIntegratedStateModels(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const basic_astrodynamics::AccelerationMap& accelerationMap )
     {
-        massRateModels_ = simulation_setup::createMassRateModelsMap( bodyMap, massRateSettingsMap_, accelerationMap );
+        massRateModels_ = simulation_setup::createMassRateModelsMap( bodies, massRateSettingsMap_, accelerationMap );
     }
 
     //! Function to create the mass-rate models.
     /*!
      * Function to create the mass-rate models.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
-        resetIntegratedStateModels( bodyMap, basic_astrodynamics::AccelerationMap( ) );
+        resetIntegratedStateModels( bodies, basic_astrodynamics::AccelerationMap( ) );
     }
 
     //! Function to get the mass-rate settings map.
@@ -1084,6 +1155,52 @@ private:
     basic_astrodynamics::MassRateModelMap massRateModels_;
 
 };
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+		const std::vector< std::string > bodiesWithMassToPropagate,
+		const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+			  massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
+			  printInterval);
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+		const std::vector< std::string > bodiesWithMassToPropagate,
+		const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+				massRateModels,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+				std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+			 massRateModels, initialBodyMasses, terminationSettings, dependentVariablesToSave,
+			 printInterval);
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+		const std::vector< std::string > bodiesWithMassToPropagate,
+		const simulation_setup::SelectedMassRateModelMap& massRateSettings,
+		const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+				std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+			 massRateSettings, initialBodyMasses, terminationSettings, dependentVariablesToSave,
+			 printInterval);
+}
 
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
 /*!
@@ -1181,9 +1298,9 @@ public:
     /*!
      * Function to create the integrated state models. This method always throws a `runtime_error` because
      * the integrated state models cannot be created automatically for `CustomStatePropagatorSettings`.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
         throw std::runtime_error( "Could not create integrated state models for custom state propagator." );
     }
@@ -1507,9 +1624,9 @@ public:
     /*!
      * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) for
      * each fo the propagators state types contained in `propagatorSettingsMap_`.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
         std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > >
                 vectorOfTranslationalSettings;
@@ -1548,11 +1665,11 @@ public:
                                                       "or provide no translational propagator settings at all." );
                         }
                         massPropagatorSettings->resetIntegratedStateModels(
-                                    bodyMap, vectorOfTranslationalSettings.at( i )->getAccelerationsMap( ) );
+                                    bodies, vectorOfTranslationalSettings.at( i )->getAccelerationsMap( ) );
                     }
                     else
                     {
-                        singleArcSettings->resetIntegratedStateModels( bodyMap );
+                        singleArcSettings->resetIntegratedStateModels( bodies );
                     }
                 }
             }
@@ -1560,6 +1677,31 @@ public:
     }
 
 };
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings(
+		const std::map< IntegratedStateType,
+		std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > > propagatorSettingsMap,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+			propagatorSettingsMap, terminationSettings, dependentVariablesToSave, printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings(
+		const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsVector,
+		const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+		const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+		std::shared_ptr< DependentVariableSaveSettings >( ),
+		const double printInterval = TUDAT_NAN )
+{
+	return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+			propagatorSettingsVector, terminationSettings, dependentVariablesToSave, printInterval );
+}
 
 extern template class PropagatorSettings< double >;
 extern template class SingleArcPropagatorSettings< double >;

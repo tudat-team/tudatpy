@@ -44,7 +44,7 @@ public:
     {
 
         // Store initial spacecraft mass.
-        initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+        initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass();
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the hybrid method.
         if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
@@ -80,7 +80,7 @@ public:
             finalCostates[ i ] = championDesignVariables_[ i + 5 ];
         }
 
-        bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+        bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
         // Create Sims-Flanagan leg from the best optimisation individual.
         hybridMethodModel_ = std::make_shared< HybridMethodModel >(
@@ -173,7 +173,7 @@ public:
 
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody,
             const std::function< double ( const double ) > specificImpulseFunction,

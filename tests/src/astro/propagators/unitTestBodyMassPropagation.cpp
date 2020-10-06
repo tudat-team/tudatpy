@@ -34,23 +34,23 @@ using namespace tudat::numerical_integrators;
 BOOST_AUTO_TEST_SUITE( test_body_mass_propagation )
 
 double getDummyMassRate1(
-        const NamedBodyMap bodyMap )
+        const SystemOfBodies bodies )
 {
-    return ( bodyMap.at( "Vehicle1" )->getBodyMass( ) + 2.0 * bodyMap.at( "Vehicle2" )->getBodyMass( ) ) / 1.0E4;
+    return ( bodies.at( "Vehicle1" )->getBodyMass( ) + 2.0 * bodies.at( "Vehicle2" )->getBodyMass( ) ) / 1.0E4;
 }
 
 double getDummyMassRate2(
-        const NamedBodyMap bodyMap )
+        const SystemOfBodies bodies )
 {
-    return ( 3.0 * bodyMap.at( "Vehicle1" )->getBodyMass( ) + 2.0 * bodyMap.at( "Vehicle2" )->getBodyMass( ) ) / 1.0E4;
+    return ( 3.0 * bodies.at( "Vehicle1" )->getBodyMass( ) + 2.0 * bodies.at( "Vehicle2" )->getBodyMass( ) ) / 1.0E4;
 }
 
 // Test mass rate of single body, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    // Crate bodies
+    SystemOfBodies bodies;
+    bodies.createBody( "Vehicle" );
 
     // Create mass rate model.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -86,24 +86,24 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 // workings of the mass propagation to be more rigorously tested.
 BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle1" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle2" ] = std::make_shared< Body >( );
+    // Crate bodies
+    SystemOfBodies bodies;
+    bodies.createBody( "Earth" );
+    bodies.createBody( "Vehicle1" );
+    bodies.createBody( "Vehicle2" );
 
     // Create mass rate models.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle1" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                std::bind( &getDummyMassRate1, bodyMap ) );
+                std::bind( &getDummyMassRate1, bodies ) );
     massRateModels[ "Vehicle2" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                std::bind( &getDummyMassRate2, bodyMap ) );
-    bodyMap[ "Earth" ] = std::make_shared< Body >( );
-    bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                std::bind( &getDummyMassRate2, bodies ) );
+    bodies.at( "Earth" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                           [ ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Vehicle1" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    bodies.at( "Vehicle1" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                           [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
-    bodyMap[ "Vehicle2" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                          [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
+    bodies.at( "Vehicle2" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                                         [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -138,12 +138,12 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                               9.0 * std::exp( 4.0 * stateIterator->first / 1E4 ) ), 1.0E-13 );
 
         // Test reset mass solution of vehicles.
-        bodyMap[ "Vehicle1" ]->updateMass( stateIterator->first );
-        bodyMap[ "Vehicle2" ]->updateMass( stateIterator->first );
+        bodies.at( "Vehicle1" )->updateMass( stateIterator->first );
+        bodies.at( "Vehicle2" )->updateMass( stateIterator->first );
 
-        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ), bodyMap[ "Vehicle1" ]->getBodyMass( ),
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ), bodies.at( "Vehicle1" )->getBodyMass( ),
                 std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 1 ), bodyMap[ "Vehicle2" ]->getBodyMass( ),
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 1 ), bodies.at( "Vehicle2" )->getBodyMass( ),
                 std::numeric_limits< double >::epsilon( ) );
     }
 }

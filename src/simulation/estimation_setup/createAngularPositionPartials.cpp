@@ -25,7 +25,7 @@ namespace observation_partials
 //! Function to generate angular position partial wrt a position of a body.
 std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPosition(
         const observation_models::LinkEnds angularPositionLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -33,7 +33,7 @@ std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPos
 {
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( angularPositionLinkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( angularPositionLinkEnds, bodies, bodyToEstimate );
 
     // Create angular position partials if any position partials are created (i.e. if any dependency exists).
     std::shared_ptr< AngularPositionPartial > angularPositionPartial;

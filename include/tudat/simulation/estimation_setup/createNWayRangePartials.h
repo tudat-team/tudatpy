@@ -40,7 +40,7 @@ namespace observation_partials
  *  The n-way range partials are built from one-way range partials of the constituent links
  *  \param nWayRangeLinkEnds Link ends (transmitter and receiever) for which n-way range partials are to be calculated
  *  (i.e. for which n-way range observations are to be processed).
- *  \param bodyMap List of all bodies, for creating n-way range partials.
+ *  \param bodies List of all bodies, for creating n-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
@@ -52,7 +52,7 @@ namespace observation_partials
 template< typename ParameterType >
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createNWayRangePartials(
         const observation_models::LinkEnds& nWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
@@ -89,7 +89,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
         // Create onw-way range partials for current link
         constituentOneWayRangePartials[ i ] =
-                createOneWayRangePartials( currentLinkEnds, bodyMap, parametersToEstimate, currentLightTimeCorrections, false );
+                createOneWayRangePartials( currentLinkEnds, bodies, parametersToEstimate, currentLightTimeCorrections, false );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
@@ -169,7 +169,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
  *  that are to be used.
  *  The n-way range partials are built from one-way range partials of the constituent links
  *  \param linkEnds List of all n-way link ends sets with observation models for which partials are to be created
- *  \param bodyMap List of all bodies, for creating n-way range partials.
+ *  \param bodies List of all bodies, for creating n-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
@@ -181,7 +181,7 @@ template< typename ParameterType >
 std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
 createNWayRangePartials(
         const std::vector< observation_models::LinkEnds >& linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
@@ -214,7 +214,7 @@ createNWayRangePartials(
 
         // Create n-way range partials for current LinkEnds
         partialMap[ linkEnds.at( i ) ] = createNWayRangePartials< ParameterType >(
-                    linkEnds.at( i ), bodyMap, parametersToEstimate, currentLightTimeCorrections );
+                    linkEnds.at( i ), bodies, parametersToEstimate, currentLightTimeCorrections );
 
     }
 

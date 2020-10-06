@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        NamedBodyMap bodyMap = createBodies(
+        SystemOfBodies bodies = createBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -131,13 +131,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
         {
             systemInitialState.segment( i * 6 , 6 ) =
-                    bodyMap[ bodiesToPropagate[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
-                    bodyMap[ centralBodies[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
+                    bodies.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
+                    bodies.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
 
         // Create acceleratiuon models.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, centralBodyMap );
+                    bodies, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -165,11 +165,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -188,11 +188,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             enckeIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             enckeIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+                    bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -268,31 +268,24 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         bodiesToCreate.push_back( "Venus" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
-        for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
-        {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-        }
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                        "SSB", "J2000" );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
-        bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+        bodies.createBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+        bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                 std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
-        bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+        bodies.at( "Vehicle" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
-                        vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
+                        vehicleRadiationPressureSettings, "Vehicle", bodies ) );
 
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -334,7 +327,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         bodiesToPropagate.push_back( "Vehicle" );
         centralBodies.push_back( "Earth" );
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Vehicle.
         Eigen::Vector6d vehicleInitialStateInKeplerianElements;
@@ -347,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 = unit_conversions::convertDegreesToRadians( 23.4 );
         vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                     vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -364,7 +357,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -377,7 +370,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                    bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -388,7 +381,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -396,7 +389,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
+                    bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
@@ -450,22 +443,17 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
         const double fixedStepSize = 15.0;
 
         // Define body settings for simulation.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-        bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+        BodyListSettings bodySettings = BodyListSettings( "SSB", "J2000" );
+        bodySettings.addSettings( "Earth" );
+        bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
+        bodies.createBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -482,7 +470,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Asterix.
         Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -496,7 +484,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
@@ -511,10 +499,9 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
                 ( 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
-
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         // Check if orbit is properly propagated

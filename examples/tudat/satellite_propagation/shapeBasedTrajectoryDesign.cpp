@@ -33,7 +33,7 @@ using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
 using namespace tudat::shape_based_methods;
 
-NamedBodyMap getBetBodyMap( )
+SystemOfBodies getBetBodyMap( )
 {
     // Create central, departure and arrival bodies.
     std::vector< std::string > bodiesToCreate;
@@ -57,12 +57,12 @@ NamedBodyMap getBetBodyMap( )
     bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+    // Create system of bodies.
+    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
 
-    bodyMap[ "Borzi" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap.at( "Borzi" )->setSuppressDependentOrientationCalculatorWarning( true );
-    bodyMap.at( "Borzi" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies[ "Borzi" ] = std::make_shared< simulation_setup::Body >( );
+    bodies.at( "Borzi" )->setSuppressDependentOrientationCalculatorWarning( true );
+    bodies.at( "Borzi" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
@@ -76,13 +76,13 @@ NamedBodyMap getBetBodyMap( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Borzi" ]->setRadiationPressureInterface(
+    bodies[ "Borzi" ]->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Borzi", bodyMap ) );
+                    asterixRadiationPressureSettings, "Borzi", bodies ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+    setGlobalFrameBodyEphemerides( bodies, frameOrigin, frameOrientation );
 
-    return bodyMap;
+    return bodies;
 }
 
 int main( )
@@ -212,8 +212,8 @@ int main( )
 
 
     // Set vehicle mass.
-    NamedBodyMap bodyMap = getBetBodyMap( );
-    bodyMap[ "Borzi" ]->setConstantBodyMass( vehicleInitialMass );
+    SystemOfBodies bodies = getBetBodyMap( );
+    bodies[ "Borzi" ]->setConstantBodyMass( vehicleInitialMass );
 
 
     // Define body to propagate and central body.
@@ -253,12 +253,12 @@ int main( )
     // Create propagator settings for hodographic shaping.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
             hodographicShapingPropagatorSettings = hodographicShaping.createLowThrustPropagatorSettings(
-                bodyMap, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
+                bodies, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
                 basic_astrodynamics::AccelerationMap( ), integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
     hodographicShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, hodographicShapingPropagatorSettings, hodographicShapingPropagationUnperturbedCase,
+                bodies, integratorSettings, hodographicShapingPropagatorSettings, hodographicShapingPropagationUnperturbedCase,
                 hodographicShapingAnalyticalResults, hodographicShapingDependentVariablesHistory );
 
 
@@ -269,12 +269,12 @@ int main( )
     // Create propagator settings for spherical shaping.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
             sphericalShapingPropagatorSettings = sphericalShaping.createLowThrustPropagatorSettings(
-                bodyMap, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
+                bodies, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
                 basic_astrodynamics::AccelerationMap( ), integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
     sphericalShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, sphericalShapingPropagatorSettings, sphericalShapingPropagationUnperturbedCase,
+                bodies, integratorSettings, sphericalShapingPropagatorSettings, sphericalShapingPropagationUnperturbedCase,
                 sphericalShapingAnalyticalResults, sphericalShapingDependentVariablesHistory );
 
     input_output::writeDataMapToTextFile( hodographicShapingAnalyticalResults,
@@ -376,7 +376,7 @@ int main( )
     centralBodies.push_back( "Sun" );
 
     basic_astrodynamics::AccelerationMap perturbingAccelerationsMapPertubedProblem = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////         PROPAGATE THE FULLY PERTURBED PROBLEM           /////////////////////////////////////
@@ -393,23 +393,23 @@ int main( )
     // Create propagator settings for hodographic shaping.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
             hodographicShapingPropagatorSettingsPerturbedCase = hodographicShaping.createLowThrustPropagatorSettings(
-                bodyMap, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
+                bodies, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
                 perturbingAccelerationsMapPertubedProblem, integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
     hodographicShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, hodographicShapingPropagatorSettingsPerturbedCase, hodographicShapingPropagationPerturbedCase,
+                bodies, integratorSettings, hodographicShapingPropagatorSettingsPerturbedCase, hodographicShapingPropagationPerturbedCase,
                 hodographicShapingAnalyticalResultsPerturbedCase, hodographicShapingDependentVariablesHistoryPerturbedCase );
 
     // Create propagator settings for spherical shaping.
     std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
             sphericalShapingPropagatorSettingsPerturbedCase = sphericalShaping.createLowThrustPropagatorSettings(
-                bodyMap, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
+                bodies, bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), specificImpulseFunction,
                 perturbingAccelerationsMapPertubedProblem, integratorSettings, dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
     sphericalShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, sphericalShapingPropagatorSettingsPerturbedCase, sphericalShapingPropagationPerturbedCase,
+                bodies, integratorSettings, sphericalShapingPropagatorSettingsPerturbedCase, sphericalShapingPropagationPerturbedCase,
                 sphericalShapingAnalyticalResultsPerturbedCase, sphericalShapingDependentVariablesHistoryPerturbedCase );
 
 

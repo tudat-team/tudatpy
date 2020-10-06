@@ -117,7 +117,7 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 //! Function to create propagation termination conditions from associated settings
 std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const double initialTimeStep )
 {
     std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
@@ -155,7 +155,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(
-                        dependentVariableTerminationSettings->dependentVariableSettings_, bodyMap );
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies );
         }
         else
         {
@@ -194,7 +194,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
             propagationTerminationConditionList.push_back(
                         createPropagationTerminationConditions(
                             hybridTerminationSettings->terminationSettings_.at( i ),
-                            bodyMap, initialTimeStep ) );
+                            bodies, initialTimeStep ) );
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,

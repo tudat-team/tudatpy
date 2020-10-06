@@ -145,6 +145,15 @@ private:
     double radiationPressureCoefficient_;
 };
 
+inline std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(
+        const std::string& sourceBody, const double area, const double radiationPressureCoefficient,
+        const std::vector< std::string >& occultingBodies )
+{
+    return std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                sourceBody, area, radiationPressureCoefficient, occultingBodies );
+}
+
+
 class PanelledRadiationPressureInterfaceSettings: public RadiationPressureInterfaceSettings
 {
 public:
@@ -474,7 +483,7 @@ private:
 //! Function to obtain (by reference) the position functions and radii of occulting bodies
 /*!
  * Function to obtain (by reference) the position functions and radii of occulting bodies.
- * \param bodyMap List of body objects.
+ * \param bodies List of body objects.
  * \param occultingBodies List of bodies causing occultation.
  * \param occultingBodyPositions List of position functions of occulting bodies (return by reference
  * output variable).
@@ -482,7 +491,7 @@ private:
  * output variable).
  */
 void getOccultingBodiesInformation(
-        const NamedBodyMap& bodyMap, const std::vector< std::string >& occultingBodies,
+        const SystemOfBodies& bodies, const std::vector< std::string >& occultingBodies,
         std::vector< std::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
         std::vector< double >& occultingBodyRadii );
 
@@ -490,13 +499,13 @@ void getOccultingBodiesInformation(
 //! Function to obtain (by reference) the position functions and velocity of the central body.
 /*!
  * Function to obtain (by reference) the position functions and velocity of the central body.
- * \param bodyMap List of body objects.
+ * \param bodies List of body objects.
  * \param centralBody Name of the central body.
  * \param centralBodyPosition Central body's position function (return by reference output variable).
  * \param centralBodyVelocity Central body's velocity function (return by reference output variable).
  */
 void getCentralBodyInformation(
-    const NamedBodyMap& bodyMap, const std::string& centralBody,
+    const SystemOfBodies& bodies, const std::string& centralBody,
     std::function< Eigen::Vector3d( ) >& centralBodyPosition,
     std::function< Eigen::Vector3d( ) >& centralBodyVelocity);
 
@@ -505,12 +514,12 @@ void getCentralBodyInformation(
  *  Function to create a radiation pressure interface.
  *  \param radiationPressureInterfaceSettings Settings for the radiation pressure interface.
  *  \param bodyName Name of body for which radiation pressure interface.
- *  \param bodyMap List of body objects to use for creation of radiation pressure interface.
+ *  \param bodies List of body objects to use for creation of radiation pressure interface.
  *  \return Radiation pressure interface pointer of requested type and settings.
  */
 std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationPressureInterface(
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
-        const std::string& bodyName, const NamedBodyMap& bodyMap );
+        const std::string& bodyName, const SystemOfBodies& bodies );
 
 
 

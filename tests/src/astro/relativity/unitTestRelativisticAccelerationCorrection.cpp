@@ -19,6 +19,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/math/statistics/basicStatistics.h"
+
 namespace tudat
 {
 
@@ -222,17 +223,17 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Sun" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodies.createBody( "Asterix" );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
+    
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -271,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -295,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
@@ -317,7 +318,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings );
+                    bodies, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 

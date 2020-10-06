@@ -99,20 +99,20 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         double initialTime = 1.0E6 - 1.0E5;
 
         // Retrieve body settings
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings(
+        BodyListSettings bodySettings = getDefaultBodySettings(
                     bodyList, 1.0E6 - 1.0E5, 1.0E6 + 1.0E5 );
-        bodySettings[ "Phobos" ] = std::make_shared< BodySettings >( );
-        bodySettings[ "Phobos" ]->ephemerisSettings = getDefaultEphemerisSettings(
+        bodySettings.addSettings( "Phobos" );
+        bodySettings.at( "Phobos" )->ephemerisSettings = getDefaultEphemerisSettings(
                     "Phobos" );
 
         // Update rotation models
-        bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Mars",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Mars", initialTime ),
                     initialTime, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-        bodySettings[ "Phobos" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        bodySettings.at( "Phobos" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Phobos",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Phobos", initialTime ),
@@ -120,20 +120,20 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     ( physical_constants::JULIAN_DAY / 4.0 ) );
 
         // Update gravity field settings.
-        bodySettings[ "Mars" ]->gravityFieldSettings = getMarsGravityFieldSettings( );
-        bodySettings[ "Phobos" ]->gravityFieldSettings = getPhobosGravityFieldSettings( );
+        bodySettings.at( "Mars" )->gravityFieldSettings = getMarsGravityFieldSettings( );
+        bodySettings.at( "Phobos" )->gravityFieldSettings = getPhobosGravityFieldSettings( );
 
         // Create body objects
-        NamedBodyMap bodyMap = createBodies( bodySettings );
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        SystemOfBodies bodies = createBodies( bodySettings );
+        
 
         // Create links to set and get state functions of bodies.
-        std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+        std::shared_ptr< Body > mars = bodies.at( "Mars" );
         std::function< void( Eigen::Vector6d ) > marsStateSetFunction = std::bind( &Body::setState, mars, std::placeholders::_1  );
         std::function< Eigen::Vector6d( ) > marsStateGetFunction = std::bind( &Body::getState, mars );
         mars->setStateFromEphemeris( 1.0E6 );
 
-        std::shared_ptr< Body > phobos = std::dynamic_pointer_cast< Body >( bodyMap.at( "Phobos" ) );
+        std::shared_ptr< Body > phobos = std::dynamic_pointer_cast< Body >( bodies.at( "Phobos" ) );
         std::function< void( Eigen::Vector6d ) > phobosStateSetFunction = std::bind( &Body::setState, phobos, std::placeholders::_1  );
         std::function< Eigen::Vector6d( ) > phobosStateGetFunction = std::bind( &Body::getState, phobos );
         phobos->setStateFromEphemeris( 1.0E6 );
@@ -164,11 +164,11 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         // Retrieve gravity fields
         std::shared_ptr< SphericalHarmonicsGravityField > marsGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
-                    bodyMap.at( "Mars" )->getGravityFieldModel( ) );
+                    bodies.at( "Mars" )->getGravityFieldModel( ) );
 
         std::shared_ptr< SphericalHarmonicsGravityField > phobosGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
-                    bodyMap.at( "Phobos" )->getGravityFieldModel( ) );
+                    bodies.at( "Phobos" )->getGravityFieldModel( ) );
 
         // Create gravitational parameter estimation settings.
         std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterObject = std::make_shared<
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial > (
                     createAnalyticalAccelerationPartial(
                         accelerationModel, std::make_pair( "Phobos", phobos ),
-                        std::make_pair( "Mars", mars ), bodyMap, parameterSet ) );
+                        std::make_pair( "Mars", mars ), bodies, parameterSet ) );
 
 
         // Calculate analytical partials.

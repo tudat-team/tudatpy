@@ -62,16 +62,16 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
+    bodies.createBody( "Mars", false );
+    bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
-    std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
-    std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+    bodies.createBody( "Phobos" );
+    std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
+    std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
     // Set inertia tensor
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     phobosInertiaTensor( 2, 2 ) = 0.5024;
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodies.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     // Create gravity field
@@ -93,11 +93,11 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true ) ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -112,19 +112,17 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodies.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
 
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Update Phobos and Mars to current state
     double testTime = 1000.0;
@@ -141,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     // Create torque due to mars on phobos.
     std::shared_ptr< SecondDegreeGravitationalTorqueModel > gravitationalTorque =
-            createSecondDegreeGravitationalTorqueModel( bodyMap.at( "Phobos" ), bodyMap.at( "Mars" ), "Phobos", "Mars" );
+            createSecondDegreeGravitationalTorqueModel( bodies.at( "Phobos" ), bodies.at( "Mars" ), "Phobos", "Mars" );
 
     // Create torque partial.
     std::shared_ptr< TorquePartial > torquePartial =
@@ -157,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                   1, 1, 3, 3, "Phobos", spherical_harmonics_sine_coefficient_block ) );
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterParameter =
             parameterSet->getEstimatedDoubleParameters( ).at( 0 );
@@ -262,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     Eigen::Vector3d testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
                 phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
     std::function< void( ) > updateFunction = &emptyFunction;
-            //boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true );
+            //boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateTorqueWrtParameterPartials(
                 phobosCosineCoefficientsParameter, gravitationalTorque,
                 Eigen::VectorXd::Constant( phobosCosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ), updateFunction );
@@ -322,16 +320,16 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
+    bodies.createBody( "Mars", false );
+    bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
-    std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
-    std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+    bodies.createBody( "Phobos" );
+    std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
+    std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
     // Set inertia tensor
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -340,7 +338,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     phobosInertiaTensor( 2, 2 ) = 0.5024;
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodies.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     // Create gravity field
@@ -354,7 +352,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
@@ -375,17 +373,15 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodies.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Update Phobos and Mars to current state
     double testTime = 1000.0;
@@ -405,7 +401,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
     // Create torque due to mars on phobos.
     std::shared_ptr< InertialTorqueModel > inertialTorqueModel =
-            createInertialTorqueModel( bodyMap.at( "Phobos" ), "Phobos" );
+            createInertialTorqueModel( bodies.at( "Phobos" ), "Phobos" );
     inertialTorqueModel->updateMembers( 0.0 );
 
     SingleBodyTorqueModelMap torqueList;
@@ -428,7 +424,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                                   1, 1, 3, 3, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterParameter =
             parameterSet->getEstimatedDoubleParameters( ).at( 0 );
@@ -526,7 +522,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
 
     std::function< void( ) > updateFunction = //&emptyFunction;
-            std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true );
+            std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
                 phobosGravitationalParameterParameter, inertialTorqueModel, 1.0E8, updateFunction );
     Eigen::MatrixXd testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
@@ -636,14 +632,14 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
+    bodies.createBody( "Mars", false );
+    bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodies.createBody( "Phobos" );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
@@ -652,7 +648,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodies.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
@@ -665,11 +661,11 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true ) ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -687,7 +683,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
 
@@ -696,15 +692,14 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
 
-    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+    bodies.at( "Phobos" )->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                            phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                            "Mars", "ECLIPJ2000" ) );
 
 
     // Create empty bodies, phobos and mars.
-    std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
-    std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
+    std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
+    std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
     double testTime = 1000.0;
     phobos->setStateFromEphemeris( testTime );
@@ -726,9 +721,9 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
     // Create acceleration due to mars on phobos.
     std::shared_ptr< SecondDegreeGravitationalTorqueModel > gravitationalTorque =
-            createSecondDegreeGravitationalTorqueModel( bodyMap.at( "Phobos" ), bodyMap.at( "Mars" ), "Phobos", "Mars" );
+            createSecondDegreeGravitationalTorqueModel( bodies.at( "Phobos" ), bodies.at( "Mars" ), "Phobos", "Mars" );
     std::shared_ptr< InertialTorqueModel > inertialTorqueModel =
-            createInertialTorqueModel( bodyMap.at( "Phobos" ), "Phobos" );
+            createInertialTorqueModel( bodies.at( "Phobos" ), "Phobos" );
     gravitationalTorque->updateMembers( 0.0 );
     inertialTorqueModel->updateMembers( 0.0 );
 
@@ -738,13 +733,13 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
     std::shared_ptr< EffectiveTorqueModel > effectiveTorqueModel =
             std::make_shared< EffectiveTorqueModel >(
-                std::bind( &Body::getBodyInertiaTensor, bodyMap.at( "Phobos" ) ), torqueList );
+                std::bind( &Body::getBodyInertiaTensor, bodies.at( "Phobos" ) ), torqueList );
     effectiveTorqueModel->updateMembers( 0.0 );
 
     // Create central gravity partial.
     std::shared_ptr< TorquePartial > torquePartial =
             createConstantTorqueRotationalDynamicsPartial(
-                std::make_pair( "Phobos", bodyMap.at( "Phobos" ) ), torqueList );
+                std::make_pair( "Phobos", bodies.at( "Phobos" ) ), torqueList );
 
     // Create gravitational parameter object.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -757,7 +752,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
                                   1, 1, 3, 3, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
     std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterParameter =
             parameterSet->getEstimatedDoubleParameters( ).at( 0 );
@@ -856,7 +851,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
 
     std::function< void( ) > updateFunction = &emptyFunction;
-           // std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true );
+           // std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
                 phobosGravitationalParameterParameter, effectiveTorqueModel, 1.0E2, updateFunction );
     Eigen::MatrixXd testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
@@ -929,7 +924,4 @@ BOOST_AUTO_TEST_SUITE_END( )
 } // namespace unit_tests
 
 } // namespace tudat
-
-
-
 

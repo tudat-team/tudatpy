@@ -116,7 +116,7 @@ void integrateForwardWithDissipationAndBackwardsWithout(
  *  in time without this damping. The process is repeated for an ever increasing value of the dissipation time. Using this
  *  function, the numerical state and dependent variables at each of the iterations is returned (by reference) by the function.
  *  Additionally, the results can be written to files after each iteration.
- *  \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+ *  \param bodies Map of bodies in the propagation, with keys the names of the bodies.
  *  \param integratorSettings Settings for the numerical integration scheme
  *  \param propagatorSettings Settings for the propagator, must include rotational dynamics of only a single body, but may also
  *  include translational dynamics.
@@ -134,7 +134,7 @@ void integrateForwardWithDissipationAndBackwardsWithout(
  */
 template< typename TimeType, typename StateScalarType >
 Eigen::VectorXd getZeroProperModeRotationalState(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const double bodyMeanRotationRate,
@@ -195,11 +195,11 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     }
 
     //Retrieve body inertia tensor and create synthetic dissipation model
-    Eigen::Matrix3d inertiaTensor = bodyMap.at( torqueModelMap.begin( )->first )->getBodyInertiaTensor( );
+    Eigen::Matrix3d inertiaTensor = bodies.at( torqueModelMap.begin( )->first )->getBodyInertiaTensor( );
     std::shared_ptr< basic_astrodynamics::DissipativeTorqueModel > dissipativeTorque =
             std::make_shared< basic_astrodynamics::DissipativeTorqueModel >(
                 std::bind( &simulation_setup::Body::getCurrentAngularVelocityVectorInLocalFrame,
-                           bodyMap.at( torqueModelMap.begin( )->first ) ),
+                           bodies.at( torqueModelMap.begin( )->first ) ),
                 [ = ]( ){ return Eigen::Matrix3d::Zero( ); },
                 bodyMeanRotationRate );
     torqueModelMap[ torqueModelMap.begin( )->first ][ torqueModelMap.begin( )->first ].push_back(
@@ -209,7 +209,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     // Create object to propagate dynamics
     std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator =
             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodyMap, integratorSettings, propagatorSettings, 0, 0, 0 );
+                bodies, integratorSettings, propagatorSettings, 0, 0, 0 );
 
     // Propagate nominal dynamics forward and backward (without dissipation) if required
     if( propagateNominal )
@@ -302,7 +302,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
  *  Function to determine the initial rotational state for which the free mode is fully damped, using the approach of
  *  Rambaux et al. (2012). Using this method, the dynamics is propagated forward in time with an artificial damping, and backwards
  *  in time without this damping. The process is repeated for an ever increasing value of the dissipation time
- *  \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+ *  \param bodies Map of bodies in the propagation, with keys the names of the bodies.
  *  \param integratorSettings Settings for the numerical integration scheme
  *  \param propagatorSettings Settings for the propagator, must include rotational dynamics of only a single body, but may also
  *  include translational dynamics.
@@ -313,7 +313,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
  */
 template< typename TimeType, typename StateScalarType >
 Eigen::VectorXd getZeroProperModeRotationalState(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const double bodyMeanRotationRate,
@@ -325,7 +325,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > propagatedStates;
     std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
             std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > dependentVariables;
-    return getZeroProperModeRotationalState( bodyMap, integratorSettings, propagatorSettings, bodyMeanRotationRate, dissipationTimes,
+    return getZeroProperModeRotationalState( bodies, integratorSettings, propagatorSettings, bodyMeanRotationRate, dissipationTimes,
                                              propagatedStates, dependentVariables );//, propagateNominal );
 }
 

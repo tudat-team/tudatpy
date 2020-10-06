@@ -44,15 +44,15 @@ Eigen::Vector6d getStateFromSelectedStateFunction(
 
 //! Function to create a state function for a body, valid both during propagation, and outside propagation
 std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string orbitingBody,
         const std::string centralBody )
 {
     // Retrieve state functions for relevant bodies (obtained from current state of body objects)
     std::function< Eigen::Vector6d( const double ) > bodyInertialStateFunction =
-            std::bind( &Body::getState, bodyMap.at( orbitingBody ) );
+            std::bind( &Body::getState, bodies.at( orbitingBody ) );
     std::function< Eigen::Vector6d( const double ) > centralBodyInertialStateFunction =
-            std::bind( &Body::getState, bodyMap.at(  centralBody ) );
+            std::bind( &Body::getState, bodies.at(  centralBody ) );
 
     // Define relative state function from body object
     std::function< Eigen::Vector6d( const double ) > fromBodyStateFunction =
@@ -63,19 +63,19 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
     // Define state function from ephemeris
     std::function< Eigen::Vector6d( const double ) > fromEphemerisStateFunction;
 
-    if( bodyMap.at( orbitingBody )->getEphemeris( )->getReferenceFrameOrigin( ) == centralBody )
+    if( bodies.at( orbitingBody )->getEphemeris( )->getReferenceFrameOrigin( ) == centralBody )
     {
         fromEphemerisStateFunction = std::bind( &ephemerides::Ephemeris::getCartesianState,
-                                                bodyMap.at( orbitingBody )->getEphemeris( ), std::placeholders::_1 );
+                                                bodies.at( orbitingBody )->getEphemeris( ), std::placeholders::_1 );
 
     }
     else
     {
         std::function< Eigen::Vector6d( const double ) > ephemerisInertialStateFunction =
-                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( orbitingBody ),
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( orbitingBody ),
                            std::placeholders::_1 );
         std::function< Eigen::Vector6d( const double ) > ephemerisCentralBodyInertialStateFunction =
-                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( centralBody ),
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( centralBody ),
                            std::placeholders::_1 );
         fromEphemerisStateFunction = std::bind(
                     &ephemerides::getDifferenceBetweenStates,
@@ -91,7 +91,7 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
-        const NamedBodyMap& bodyMap )
+        const SystemOfBodies& bodies )
 {
     using namespace tudat::ephemerides;
 
@@ -274,19 +274,19 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         else
         {
-            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
+            if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
             {
-                if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
+                if( bodies.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
                         synchronousRotationSettings->getOriginalFrame( ) )
                 {
                     throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
-                                              bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
+                                              bodies.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
                                               " frame when making synchronous rotation model, expected " +
                                               synchronousRotationSettings->getOriginalFrame( ) + " frame." );
                 }
             }
             std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationalEphemeris = std::make_shared< SynchronousRotationalEphemeris >(
-                        createRelativeStateFunction( bodyMap, body, synchronousRotationSettings->getCentralBodyName( ) ),
+                        createRelativeStateFunction( bodies, body, synchronousRotationSettings->getCentralBodyName( ) ),
                         synchronousRotationSettings->getCentralBodyName( ),
                         synchronousRotationSettings->getOriginalFrame( ),
                         synchronousRotationSettings->getTargetFrame( ) );

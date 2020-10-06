@@ -239,7 +239,7 @@
 
      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
      set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-     set(CMAKE_CXX_FLAGS_DEBUG "-Og")
+     set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
 
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
 

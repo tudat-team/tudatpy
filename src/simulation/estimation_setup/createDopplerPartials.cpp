@@ -27,7 +27,7 @@ using namespace ephemerides;
 //! Function to generate one-way doppler partial wrt an initial position of a body.
 std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -40,7 +40,7 @@ std::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState(
 
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodies, bodyToEstimate );
 
     // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
     std::shared_ptr< OneWayDopplerPartial > oneWayDopplerPartial;
