@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create vehicle objects.
-        bodies.addNewBody( "SpacePlane" );
+        bodies.createBody( "SpacePlane" );
         bodies.at( "SpacePlane" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
         bodies.at( "SpacePlane" )->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
 

@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
 
     // Create bodies
     SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     
 
     // Define propagator settings variables.

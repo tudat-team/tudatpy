@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Apollo" );
+    bodies.createBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(

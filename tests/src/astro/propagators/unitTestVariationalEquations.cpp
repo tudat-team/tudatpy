@@ -368,7 +368,7 @@ executeOrbiterSimulation(
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
     SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -620,7 +620,7 @@ executePhobosRotationSimulation(
     int numberOfParametersToEstimate = 8;
 
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.addNewBody( "Mars", false );
+    bodies.createBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setRotationalEphemeris(
@@ -632,7 +632,7 @@ executePhobosRotationSimulation(
                         "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars", bodies ) );
     double marsGravitationalParameter = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodies.addNewBody( "Phobos" );
+    bodies.createBody( "Phobos" );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;

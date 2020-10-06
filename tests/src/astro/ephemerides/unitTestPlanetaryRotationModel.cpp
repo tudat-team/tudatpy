@@ -40,7 +40,7 @@ namespace tudat
             spice_interface::loadStandardSpiceKernels( );
             
             SystemOfBodies bodies;
-            bodies.addNewBody( "Mars" );
+            bodies.createBody( "Mars" );
             
             std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
                     getHighAccuracyMarsRotationModel( initialTime, finalTime );

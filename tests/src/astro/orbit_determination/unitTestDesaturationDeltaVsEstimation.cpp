@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
         SystemOfBodies bodies = createBodies( bodySettings );
-        bodies.addNewBody( "Vehicle" );
+        bodies.createBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.

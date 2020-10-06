@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Create system of bodies
     SystemOfBodies bodies;
-    bodies.addNewBody( "Earth" );
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Earth" );
+    bodies.createBody( "Vehicle" );
 
     // Set constant state for Earth and Vehicle
     Eigen::Vector6d dummyEarthState =

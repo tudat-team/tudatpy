@@ -385,7 +385,7 @@ public:
     //! Add a body named \p bodyName.
     void addBody( const std::string& bodyName )
     {
-        bodies.addNewBody( bodyName );
+        bodies.createBody( bodyName );
     }
 
     //! Get body named \p bodyName.

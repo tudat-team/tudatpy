@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create orbiter
-        bodies.addNewBody( "Orbiter" );
+        bodies.createBody( "Orbiter" );
         bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
         bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                 std::map< double, std::shared_ptr< Ephemeris > >( ),

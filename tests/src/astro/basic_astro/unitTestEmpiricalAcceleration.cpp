@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         SystemOfBodies bodies = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodies.addNewBody( "Asterix" );
+        bodies.createBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;

@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.

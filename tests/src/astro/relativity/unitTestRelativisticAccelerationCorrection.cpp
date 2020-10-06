@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodies.addNewBody( "Asterix" );
+    bodies.createBody( "Asterix" );
 
     
     
