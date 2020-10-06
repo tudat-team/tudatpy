@@ -78,7 +78,7 @@ Eigen::VectorXd  executeParameterEstimation(
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create orbiter
-    bodyMap.addNewBody( "Orbiter" );
+    bodyMap.createBody( "Orbiter" );
     bodyMap.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
     bodyMap.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),

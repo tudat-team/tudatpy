@@ -358,7 +358,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 ( physical_constants::JULIAN_DAY ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.createBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -692,7 +692,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.createBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );

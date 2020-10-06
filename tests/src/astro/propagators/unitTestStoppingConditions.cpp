@@ -160,7 +160,7 @@ void performSimulation( const int testType )
     std::vector< std::string > centralBodies;
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Apollo" );
+    bodyMap.createBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
     bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(

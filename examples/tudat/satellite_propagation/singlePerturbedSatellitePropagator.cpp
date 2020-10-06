@@ -52,7 +52,7 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Asterix" );
+    bodyMap.createBody( "Asterix" );
     bodyMap.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface

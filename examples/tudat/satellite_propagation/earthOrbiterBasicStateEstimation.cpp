@@ -59,7 +59,7 @@ int main( )
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Vehicle" );
+    bodyMap.createBody( "Vehicle" );
     bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface

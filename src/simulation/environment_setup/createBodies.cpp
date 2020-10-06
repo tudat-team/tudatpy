@@ -121,7 +121,7 @@ NamedBodyMap createBodies(
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        bodyList.addNewBody( orderedBodySettings.at( i ).first, false );
+        bodyList.createBody( orderedBodySettings.at( i ).first, false );
     }
 
     // Define constant mass for each body (if required).
