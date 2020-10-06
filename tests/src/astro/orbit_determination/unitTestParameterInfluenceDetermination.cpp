@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 bodies.at( "Earth" )->getGravityFieldModel( ) )->getCosineCoefficients( )( 2, 0 );
 
     // Create vehicle objects.
-    bodies.addNewBody( "Apollo" );
+    bodies.createBody( "Apollo" );
     bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );

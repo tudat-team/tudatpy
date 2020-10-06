@@ -276,7 +276,7 @@ SystemOfBodies getTestBodyMap( )
     // Create system of bodies.
     SystemOfBodies bodies = createBodies( bodySettings );
 
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );

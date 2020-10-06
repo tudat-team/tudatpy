@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
     // Create vehicle object.
     double vehicleMass = 5.0E3;
-    bodies.addNewBody( "Vehicle" );
+    bodies.createBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Set aerodynamic coefficients.
