@@ -513,6 +513,14 @@ public:
 
 };
 
+inline std::shared_ptr< DependentVariableSaveSettings > createDependentVariableSaveSettings(
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+        const bool printDependentVariableTypes = true )
+{
+    return std::make_shared< DependentVariableSaveSettings >(
+                dependentVariables, printDependentVariableTypes );
+}
+
 //! Function to get a string representing a 'named identification' of a variable type.
 /*!
  *  Function to get a string representing a 'named identification' of a variable type.
