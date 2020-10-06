@@ -35,7 +35,6 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
-
 namespace tudat
 {
 
@@ -79,16 +78,14 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
-    bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
-    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+    BodyListSettings bodySettings = getDefaultBodySettings(
+                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Mars" )->ephemerisSettings->resetFrameOrigin( "Earth" );
+    bodySettings.at( "Earth" )->ephemerisSettings->resetFrameOrigin( "Sun" );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Earth" );
 
+    SystemOfBodies bodies = createBodies( bodySettings );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
@@ -141,18 +138,18 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
     std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Define new central bodies (hierarchical system)
@@ -166,11 +163,11 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     }
 
     systemInitialState = getInitialStatesOfBodies(
-                bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
 
     // Create new acceleration models and propagation settings.
     AccelerationMap accelerationModelMap2 = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
@@ -179,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create new simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator2(
-                bodyMap, integratorSettings, propagatorSettings2, true, false, true );
+                bodies, integratorSettings, propagatorSettings2, true, false, true );
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
 
     // Create integration and propagation settings for reverse in time propagation
@@ -194,7 +191,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create new simulation object and propagate dynamics backwards in time.
     SingleArcDynamicsSimulator< > dynamicsSimulator3(
-               bodyMap, integratorSettings2, propagatorSettings3, true, false, false );
+               bodies, integratorSettings2, propagatorSettings3, true, false, false );
     std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
 
     // Create interpolators from three numerical solutions (first one is inertial; second and third are non-inertial)
@@ -222,10 +219,10 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     Eigen::VectorXd stateDifference = Eigen::VectorXd::Zero( 6 * numberOfNumericalBodies );
 
     // Test numerical output against results with SSB as origin for ech body,
-    std::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodyMap[ "Sun" ]->getEphemeris( );
-    std::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
-    std::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
-    std::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodies.at( "Sun" )->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodies.at( "Earth" )->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodies.at( "Mars" )->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );
 
     std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
 
@@ -355,23 +352,23 @@ void testCowellPropagationOfKeplerOrbit( )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings(
+                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,"SSB", "ECLIPJ2000" );
 
     if( std::is_same< long double, StateScalarType >::value )
     {
         std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
-                    bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
+                    bodySettings.at( "Moon" )->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
     // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -397,13 +394,13 @@ void testCowellPropagationOfKeplerOrbit( )
         if( testCase == 0 )
         {
             effectiveGravitationalParameter =
-                    bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                    bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
         }
         else
         {
             effectiveGravitationalParameter =
-                    bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         }
 
         // Define central bodies for integration.
@@ -413,15 +410,15 @@ void testCowellPropagationOfKeplerOrbit( )
         if( testCase == 0 )
         {
             effectiveGravitationalParameter =
-                    bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                    bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
             centralBodies.push_back( "Earth" );
 
         }
         else
         {
             effectiveGravitationalParameter =
-                    bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
             centralBodies.push_back( "SSB" );
         }
         centralBodyMap[ bodiesToIntegrate[ 0 ] ] = centralBodies[ 0 ];
@@ -440,14 +437,14 @@ void testCowellPropagationOfKeplerOrbit( )
 
         // Create acceleration models and propagation settings.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                    bodies, integratorSettings, propagatorSettings, true, false, true );
 
         Eigen::Matrix< StateScalarType, 6, 1  > initialKeplerElements =
             orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -455,7 +452,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
 
         // Compare numerical state and kepler orbit at each time step.
-        std::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
+        std::shared_ptr< Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );
         double currentTime = initialEphemerisTime + buffer;
         while( currentTime < finalEphemerisTime - buffer )
         {

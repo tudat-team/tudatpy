@@ -28,26 +28,26 @@ namespace propagators
  */
 std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::string >& bodyNames );
 
-//! Function to setup a body map corresponding to the assumptions of a patched conics trajectory,
+//! Function to setup a system of bodies corresponding to the assumptions of a patched conics trajectory,
 //! using default ephemerides for the central and transfer bodies.
 /*!
- * Function to setup a body map for the patched conics trajectory. The body map contains the central body, the transfer
+ * Function to setup a system of bodies for the patched conics trajectory. The system of bodies contains the central body, the transfer
  * bodies and the body to be propagated. The positions of the central and transfer bodies are directly retrieved from ephemerides.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
  * \param nameTransferBodies Vector containing the names of the transfer bodies.
  * \return Body map for the patched conics trajectory.
  */
-simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajectory(
+simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForPatchedConicsTrajectory(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies );
 
 
-//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
+//! Function to setup a system of bodies corresponding to the assumptions of the patched conics trajectory,
 //! the ephemerides of the transfer bodies being provided as inputs.
 /*!
- * Function to setup a body map for the patched conics trajectory. The body map contains the central body, the transfer
+ * Function to setup a system of bodies for the patched conics trajectory. The system of bodies contains the central body, the transfer
  * bodies and the body to be propagated. Default ephemeris is used for the central body but the ephemerides of the transfer
  * bodies need to be provided as inputs.
  * \param nameCentralBody Name of the central body.
@@ -57,7 +57,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
  * \param gravitationalParametersTransferBodies Vector containing the gravitational parameters of the transfer bodies [m^3 s^-2].
  * \return Body map for the patched conics trajectory.
  */
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
+simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies,
@@ -73,20 +73,20 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
  * \param numberOfLegs Number of legs of the patched conics trajectory.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \return Acceleration map for the patched conics trajectory.
  */
 std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
         const double numberOfLegs,
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 
-//! Function to create the trajectory from the body map.
+//! Function to create the trajectory from the system of bodies.
 /*!
- * Function to create the trajectory from the body map.
- * \param bodyMap Body map from which the trajectory is to be defined.
+ * Function to create the trajectory from the system of bodies.
+ * \param bodies Body map from which the trajectory is to be defined.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
  * \param transferLegTypes Vector containing the leg types.
@@ -98,10 +98,10 @@ std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatched
  * \param includeArrivalDeltaV Boolean denoting whether to include the Delta V at arrival.
  * \param arrivalSemiMajorAxis Semi-major axis of the arrival leg.
  * \param arrivalEccentricity Eccentricity of the arrival leg.
- * \return Trajectory defined from the body map.
+ * \return Trajectory defined from the system of bodies.
  */
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::vector< transfer_trajectories::TransferLegType >& transferLegTypes,
@@ -117,7 +117,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 //! Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
 /*!
  * Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
- * \param bodyMap Body map for the patched conics leg.
+ * \param bodies Body map for the patched conics leg.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
  * \param centralBody Name of the central body of the patched conics trajectory.
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
@@ -130,7 +130,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
  * \param fullProblemResult propagation results of the full problem over the leg.
  */
 void propagateMgaWithoutDsmAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string centralBody,
         const Eigen::Vector3d cartesianPositionAtDeparture,
@@ -148,7 +148,7 @@ void propagateMgaWithoutDsmAndFullProblem(
 /*!
  * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
  * conics leg with DSM is calculated using the velocity formulation.
- * \param bodyMap Body map for the patched conics leg.
+ * \param bodies Body map for the patched conics leg.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
  * \param dsm Name of the DSM.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -176,7 +176,7 @@ void propagateMgaWithoutDsmAndFullProblem(
  * to arrival body).
  */
 void propagateMga1DsmVelocityAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
@@ -210,7 +210,7 @@ void propagateMga1DsmVelocityAndFullProblem(
 /*!
  * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
  * conics leg with DSM is calculated using the position formulation.
- * \param bodyMap bodyMap Body map for the patched conics leg.
+ * \param bodies bodies Body map for the patched conics leg.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
  * \param dsm Name of the DSM.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -239,7 +239,7 @@ void propagateMga1DsmVelocityAndFullProblem(
  * to arrival body).
  */
 void propagateMga1DsmPositionAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
@@ -269,7 +269,7 @@ void propagateMga1DsmPositionAndFullProblem(
         std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival );
 
 std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartSphereOfInfluenceTerminationSettings(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::string& departureBody,
@@ -281,7 +281,7 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
 
 std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
 std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSphereOfInfluenceTerminationSettings(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::string& departureBody,
@@ -293,7 +293,7 @@ std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSph
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
 std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > getPatchedConicPropagatorSettings(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
@@ -314,7 +314,7 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
  * Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
  * \param timeOfFlight Time of flight during which the body has to be propagated [s]
  * \param initialTime Initial time [s].
- * \param bodyMap Body map defining the problem.
+ * \param bodies Body map defining the problem.
  * \param centralBody Name of the central body of the keplerian trajectory.
  * \param departureAndArrivalBodies Name of the departure and arrival bodies of the leg.
  * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
@@ -324,14 +324,14 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
  * \param keplerianOrbitResult Keplerian orbit solution.
  * \param fullProblemResult propagation results of the full problem.
  * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved
- * from the body map.
+ * from the system of bodies.
  * \param cartesianPositionAtDeparture Cartesian position of the body to the propagated at the leg departure [m]. If not provided as input, it
  * is retrieved from the ephemerides.
  */
 void propagateKeplerianOrbitLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& centralBody,
         const std::vector<std::string>& departureAndArrivalBodies,
         const Eigen::Vector3d& velocityAfterDeparture,
@@ -348,7 +348,7 @@ void propagateKeplerianOrbitLegAndFullProblem(
 /*!
  * Function to calculate the patched conics trajectory and to propagate the corresponding full problem. The propagator settings to be used
  * for the propagation of the full dynamics problem are directly provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param patchedConicCentralBody Name of the central body of the patched conics trajectory.
  * \param legTypeVector Vector containing the leg types.
@@ -363,7 +363,7 @@ void propagateKeplerianOrbitLegAndFullProblem(
  * \param fullProblemResultForEachLeg Full problem propagation results along each leg.
  */
 void fullPropagationPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& patchedConicCentralBody,
         const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
@@ -385,7 +385,7 @@ void fullPropagationPatchedConicsTrajectory(
  * Function to calculate the patched conics trajectory and to propagate the corresponding full problem. The propagator settings for the
  * full problem propagation are defined inside the function from the propagator type and dependent variables to save
  * which are provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param accelerationMap Vector of acceleration maps for each leg to propagate the full problem.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -404,7 +404,7 @@ void fullPropagationPatchedConicsTrajectory(
  * \param propagator Type of propagator to be used for the full problem propagation.
  */
 void fullPropagationPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
@@ -431,7 +431,7 @@ void fullPropagationPatchedConicsTrajectory(
  * Function to calculate the patched conics trajectory and to propagate the corresponding full problem with the same acceleration map for
  * every leg. The propagator settings for the full problem propagation are defined inside the function from the propagator type and
  * dependent variables to save provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param accelerationMap Acceleration map (to be used for every leg) to propagate the full problem.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -450,7 +450,7 @@ void fullPropagationPatchedConicsTrajectory(
  * \param propagator Type of propagator to be used for the full problem propagation.
  */
 void fullPropagationPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
@@ -475,7 +475,7 @@ void fullPropagationPatchedConicsTrajectory(
  * Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem, at both
  * departure and arrival positions for each leg. The propagator settings to be used for the propagation of the full dynamics
  * problem are directly provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
  * \param legTypeVector Vector containing the leg types.
@@ -490,7 +490,7 @@ void fullPropagationPatchedConicsTrajectory(
  * at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
@@ -511,7 +511,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem, at both
  * departure and arrival positions for each leg. The propagator settings for the full problem propagation are defined inside the
  * function from the propagator type and dependent variables to save provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param accelerationMap Vector of acceleration maps for each leg, to be used to propagate the full problem.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -530,7 +530,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
@@ -554,7 +554,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem, at both departure
  * and arrival positions for each leg when using the same accelerations for each leg. The propagator settings for the full problem
  * propagation are defined inside the function from the propagator type and dependent variables to save provided as inputs.
- * \param bodyMap Body map for the patched conics trajectory.
+ * \param bodies Body map for the patched conics trajectory.
  * \param accelerationMap Acceleration map (to be used for every leg) to propagate the full problem.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
  * \param centralBody Name of the central body of the patched conics trajectory.
@@ -573,7 +573,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,

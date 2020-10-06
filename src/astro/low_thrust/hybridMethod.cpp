@@ -83,7 +83,7 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustForce(
     std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
-                thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+                thrustMagnitudeSettings, bodies_, bodyToPropagate_ );
 
     std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ] ( )
     {
@@ -97,10 +97,10 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustForce(
 
     std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
     {
-        return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+        return bodies_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
     };
 
-    std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+    std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodies_.at( bodyToPropagate_ ) );
 
 
     propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
@@ -130,7 +130,7 @@ void HybridMethod::getThrustForceProfile(
     std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings = hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
 
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = simulation_setup::getBodyFixedThrustDirection(
-                thrustMagnitudeSettings, bodyMap_, bodyToPropagate_ );
+                thrustMagnitudeSettings, bodies_, bodyToPropagate_ );
 
     std::map< double, Eigen::Vector6d > trajectory;
     getTrajectory( epochsVector, trajectory );
@@ -157,10 +157,10 @@ void HybridMethod::getThrustForceProfile(
 
         std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( )
         {
-            return bodyMap_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
+            return bodies_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
         };
 
-        std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodyMap_.at( bodyToPropagate_ ) );
+        std::function< double( ) > thrustingBodyMassFunction = std::bind( &simulation_setup::Body::getBodyMass, bodies_.at( bodyToPropagate_ ) );
 
 
         propulsion::MeeCostatesBangBangThrustMagnitudeWrapper thrustMagnitudeWrapper = propulsion::MeeCostatesBangBangThrustMagnitudeWrapper(
@@ -262,7 +262,7 @@ Eigen::Vector6d HybridMethod::computeCurrentStateVector( const double currentTim
 
 //! Retrieve acceleration map (thrust and central gravity accelerations).
 basic_astrodynamics::AccelerationMap HybridMethod::retrieveLowThrustAccelerationMap(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::function< double ( const double ) > specificImpulseFunction,

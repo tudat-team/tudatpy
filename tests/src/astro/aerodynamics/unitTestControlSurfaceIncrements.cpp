@@ -228,20 +228,20 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
                 getBodyGravitationalParameter( "Earth" ) );
 
     // Define simulation body settings.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
                                     simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings[ "Earth" ]->gravityFieldSettings =
+    bodySettings.at( "Earth" )->gravityFieldSettings =
             std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodies.createBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
     std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
             std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
@@ -249,20 +249,17 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
                 std::vector< AerodynamicCoefficientsIndependentVariables >{ angle_of_attack_dependent, control_surface_deflection_dependent } );
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
     controlSurfaceList[ "TestSurface" ] = controlSurfaceInterface;
-    bodyMap[ "Apollo" ]->getAerodynamicCoefficientInterface( )->setControlSurfaceIncrements( controlSurfaceList );
+    bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( )->setControlSurfaceIncrements( controlSurfaceList );
 
 
-    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
-    bodyMap[ "Apollo" ]->setEphemeris(
+    bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+    bodies.at( "Apollo" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "Earth" ) );
     std::shared_ptr< system_models::VehicleSystems > apolloSystems = std::make_shared< system_models::VehicleSystems >( );
-    bodyMap[ "Apollo" ]->setVehicleSystems( apolloSystems );
+    bodies.at( "Apollo" )->setVehicleSystems( apolloSystems );
 
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -306,12 +303,12 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set update function for body orientation and control surface deflections
     std::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = std::make_shared< DummyGuidanceSystem >(
                 std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, std::placeholders::_1, std::placeholders::_2 ),
-            bodyMap[ "Apollo" ]->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+            bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
 
     // Create propagation and integrtion settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -325,7 +322,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -347,7 +344,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
     // Iterate over saved variables and compare to expected values
     std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
-            bodyMap[ "Apollo" ]->getAerodynamicCoefficientInterface( );
+            bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
          variableIterator != dependentVariableSolution.end( ); variableIterator++ )
     {

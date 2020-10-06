@@ -81,16 +81,16 @@ int main( )
     }
     bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( ggm02s );
     bodySettings[ "Earth" ]->atmosphereSettings = std::make_shared< ExponentialAtmosphereSettings >( aerodynamics::earth );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object
-    bodyMap[ "Satellite" ] = std::make_shared< Body >( );
+    bodies[ "Satellite" ] = std::make_shared< Body >( );
     const double satelliteMass = 1000.0;
-    bodyMap[ "Satellite" ]->setConstantBodyMass( satelliteMass );
+    bodies[ "Satellite" ]->setConstantBodyMass( satelliteMass );
 
     // Set constant aerodynamic drag coefficient
     const double referenceAreaAerodynamic = 37.5;
@@ -98,7 +98,7 @@ int main( )
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >( referenceAreaAerodynamic, aerodynamicCoefficients, true, true );
 
-    bodyMap[ "Satellite" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Satellite" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Satellite" ) );
 
     // Create radiation pressure settings
@@ -111,11 +111,11 @@ int main( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Satellite" ]->setRadiationPressureInterface( "Sun", createRadiationPressureInterface(
-                                                               SatelliteRadiationPressureSettings, "Satellite", bodyMap ) );
+    bodies[ "Satellite" ]->setRadiationPressureInterface( "Sun", createRadiationPressureInterface(
+                                                               SatelliteRadiationPressureSettings, "Satellite", bodies ) );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ int main( )
     centralBodies.push_back( "Earth" );
 
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE INITIAL CONDITIONS              ////////////////////////////////////////////
@@ -170,7 +170,7 @@ int main( )
     satelliteInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
 
     // Convert to Cartesian elements
-    double mainGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double mainGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d satelliteInitialState = convertKeplerianToCartesianElements(
                 satelliteInitialStateInKeplerianElements, mainGravitationalParameter );
 
@@ -243,7 +243,7 @@ int main( )
             ///////////////////////     PROPAGATE ORBIT                     ////////////////////////////////////////////
 
             // Simulate orbit and output computation time
-            SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings,
+            SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings,
                                                              true, false, false, false );
 
             // Retrieve results

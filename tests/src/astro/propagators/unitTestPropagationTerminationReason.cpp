@@ -53,22 +53,23 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                    "SSB", "J2000" );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -78,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -91,13 +92,9 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+    bodies.at( "Asterix" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
-
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+                    asterixRadiationPressureSettings, "Asterix", bodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -126,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -143,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -163,7 +160,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodies, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -214,22 +211,23 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                    "SSB", "J2000" );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -239,7 +237,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -252,13 +250,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+    bodies.at( "Asterix" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                    asterixRadiationPressureSettings, "Asterix", bodies ) );
 
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -287,7 +282,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -304,7 +299,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -345,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodies, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
@@ -396,30 +391,31 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                    "SSB", "J2000" );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
 
     std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     std::vector< AtmosphereDependentVariables > dependentVariables =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere };
-    bodySettings[ "Earth" ]->atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
+    bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
                 tabulatedAtmosphereFile, dependentVariables,
                 physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, interpolators::extrapolate_at_boundary );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -429,7 +425,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -442,12 +438,9 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+    bodies.at( "Asterix" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+                    asterixRadiationPressureSettings, "Asterix", bodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -476,7 +469,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -493,7 +486,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -513,7 +506,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodies, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );

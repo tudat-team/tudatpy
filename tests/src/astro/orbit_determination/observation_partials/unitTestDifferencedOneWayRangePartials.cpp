@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -79,21 +79,21 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                     linkEnds, std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
                         [ ]( const double ){ return 60.0; },
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-         perturbingBodies ) ), bodyMap  );
+         perturbingBodies ) ), bodies  );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodyMap, 1.1E7 );
+                createEstimatableParameters( bodies, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDifferencedRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds,
+                    oneWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
                     one_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers );
     }
 
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -108,14 +108,14 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                     linkEnds, std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
                         [ ]( const double ){ return 60.0; },
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-         perturbingBodies ) ), bodyMap  );
+         perturbingBodies ) ), bodies  );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodyMap, 1.1E7 );
+                createEstimatableParameters( bodies, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDifferencedRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds,
+                    oneWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
                     one_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers );
     }
 }

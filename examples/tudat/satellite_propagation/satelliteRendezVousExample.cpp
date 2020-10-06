@@ -74,19 +74,19 @@ int main( )
     bodySettings[ "Earth" ]->shapeModelSettings = NULL;
 
     // Create Earth object for first simulation
-    simulation_setup::NamedBodyMap bodyMap_1 = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies_1 = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects for first simulation.
-    bodyMap_1[ "Target" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap_1[ "Chaser" ] = std::make_shared< simulation_setup::Body >( );
+    bodies_1[ "Target" ] = std::make_shared< simulation_setup::Body >( );
+    bodies_1[ "Chaser" ] = std::make_shared< simulation_setup::Body >( );
 
     // Set initial body mass of chaser (Space shuttle weight without
     // payload and rendez vous + de-orbit fuel )
     double chaserMass = 90116.4; //kg
-    bodyMap_1[ "Chaser" ]->setConstantBodyMass( chaserMass );
+    bodies_1[ "Chaser" ]->setConstantBodyMass( chaserMass );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap_1, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies_1, "SSB", "J2000" );
 
     // Define propagator settings variables for first simulation.
     SelectedAccelerationMap accelerationMap_1;
@@ -125,7 +125,7 @@ int main( )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap_1 = createAccelerationModelsMap(
-                bodyMap_1, accelerationMap_1, bodiesToPropagate_1, centralBodies_1 );
+                bodies_1, accelerationMap_1, bodiesToPropagate_1, centralBodies_1 );
 
     // Set initial Keplerian elements for target (ISS)
     Eigen::Vector6d targetInitialStateInKeplerianElements;
@@ -151,7 +151,7 @@ int main( )
 
 
     // Convert initial states from Keplerian to Cartesian elements.
-    double earthGravitationalParameter = bodyMap_1.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies_1.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Convert target state from Keplerian elements to Cartesian elements.
     const Eigen::Vector6d targetInitialState = convertKeplerianToCartesianElements(
@@ -202,7 +202,7 @@ int main( )
             std::make_shared< FromThrustMassModelSettings >( 1 );
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Chaser" ] = createMassRateModel(
-            "Chaser", massRateModelSettings, bodyMap_1, accelerationModelMap_1 );
+            "Chaser", massRateModelSettings, bodies_1, accelerationModelMap_1 );
 
     // Create mass propagator settings for the chaser
     std::vector< std::string > bodiesWithMassToPropagate;
@@ -232,7 +232,7 @@ int main( )
     // Create dynamics simulator for first simulation
     std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator_1
             = std::make_shared< SingleArcDynamicsSimulator< > >(
-                bodyMap_1, integratorSettings_1, propagatorSettings_1, false, false, false );
+                bodies_1, integratorSettings_1, propagatorSettings_1, false, false, false );
 
     // Set the simulation time as decision variable, with boundaries +-5 seconds from
     // the estimated burn time.
@@ -271,14 +271,14 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create Earth object for second simulation
-    simulation_setup::NamedBodyMap bodyMap_2 = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies_2 = simulation_setup::createBodies( bodySettings );
 
     // Create target and chaser bodies for second simulation
-    bodyMap_2[ "Target" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap_2[ "Chaser" ] = std::make_shared< simulation_setup::Body >( );
+    bodies_2[ "Target" ] = std::make_shared< simulation_setup::Body >( );
+    bodies_2[ "Chaser" ] = std::make_shared< simulation_setup::Body >( );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap_2, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies_2, "SSB", "J2000" );
 
     // Define propagator settings variables for second simulation
     SelectedAccelerationMap accelerationMap_2;
@@ -302,7 +302,7 @@ int main( )
 
     // Create acceleration model for second simulation.
     basic_astrodynamics::AccelerationMap accelerationModelMap_2 = createAccelerationModelsMap(
-                bodyMap_2, accelerationMap_2, bodiesToPropagate_2, centralBodies_2 );
+                bodies_2, accelerationMap_2, bodiesToPropagate_2, centralBodies_2 );
 
     // Create dependent variable save settings to retrieve
     // the distance between the two spacecraft
@@ -340,7 +340,7 @@ int main( )
 
     // Create dynamics simulator for second simulation
     std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator_2 =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap_2, integratorSettings_2,
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies_2, integratorSettings_2,
                     propagatorSettings_2, false );
 
     // Use the minimum separation between spacecraft as objective function

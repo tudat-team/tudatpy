@@ -83,7 +83,7 @@ basic_astrodynamics::AccelerationMap HybridMethodModel::getLowThrustTrajectoryAc
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+                bodies_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
 
     return accelerationModelMap;
 }
@@ -104,7 +104,7 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime, doub
     // Re-initialise integrator settings.
     integratorSettings_->initialTime_ = initialTime;
 
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
+    bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
@@ -117,13 +117,13 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime, doub
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
+                bodies_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
 
 
     // Create mass rate models
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModel;
     massRateModel[ bodyToPropagate_ ] = createMassRateModel( bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ),
-                                                       bodyMap_, accelerationModelMap );
+                                                       bodies_, accelerationModelMap );
 
     // Ensure that the propagation stops when the required time of flight is required.
     std::shared_ptr< propagators::PropagationTimeTerminationSettings > terminationSettings
@@ -140,7 +140,7 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime, doub
         std::shared_ptr< propagators::MassPropagatorSettings< double > > massPropagatorSettings
                 = std::make_shared< propagators::MassPropagatorSettings< double > >(
                     std::vector< std::string >{ bodyToPropagate_ }, massRateModel,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << bodyMap_[ bodyToPropagate_ ]->getBodyMass( ) ).finished( ),
+                    ( Eigen::Matrix< double, 1, 1 >( ) << bodies_[ bodyToPropagate_ ]->getBodyMass( ) ).finished( ),
                     terminationSettings );
 
         // Create list of propagation settings.
@@ -155,7 +155,7 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime, doub
         integratorSettings_->initialTime_ = initialTime;
 
         // Propagate the trajectory.
-        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap_, integratorSettings_, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodies_, integratorSettings_, propagatorSettings );
         Eigen::VectorXd propagationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 
 
@@ -179,7 +179,7 @@ std::map< double, Eigen::Vector6d > HybridMethodModel::propagateTrajectory(
     Eigen::Vector6d propagatedState = stateAtDeparture_;
 
     // Initialise mass of the spacecraft at departure.
-    bodyMap_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialSpacecraftMass_ );
     double currentMass = initialSpacecraftMass_;
 
 
@@ -206,20 +206,20 @@ std::map< double, Eigen::Vector6d > HybridMethodModel::propagateTrajectory(
             if ( currentTime > 0.0 )
             {
                 propagatedState = propagateTrajectory( 0.0, currentTime, propagatedState, currentMass );
-                currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
+                currentMass = bodies_[ bodyToPropagate_ ]->getBodyMass( );
             }
             propagatedTrajectory[ currentTime ] = propagatedState;
         }
         else
         {
             propagatedState = propagateTrajectory( epochs[ epochIndex - 1 ], currentTime, propagatedState, currentMass );
-            currentMass = bodyMap_[ bodyToPropagate_ ]->getBodyMass( );
+            currentMass = bodies_[ bodyToPropagate_ ]->getBodyMass( );
             propagatedTrajectory[ currentTime ] = propagatedState;
         }
 
     }
 
-    bodyMap_[ centralBody_ ]->setConstantBodyMass( initialSpacecraftMass_ );
+    bodies_[ centralBody_ ]->setConstantBodyMass( initialSpacecraftMass_ );
 
     return propagatedTrajectory;
 }

@@ -479,7 +479,7 @@ public:
  *  Function to create the proper time rate calculator for use in one-way Doppler
  *  \param properTimeRateSettings Settings for proper time rate model
  *  \param linkEnds Link ends of one-way Doppler observation  model
- *  \param bodyMap List of body objects that constitutes the environment
+ *  \param bodies List of body objects that constitutes the environment
  *  \param linkEndForCalculator Link end for which the proper time rate is to be computed
  *  \return Proper time rate calculator for use in one-way Doppler
  */
@@ -487,7 +487,7 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeCalculator(
         std::shared_ptr< DopplerProperTimeRateSettings > properTimeRateSettings,
         const LinkEnds& linkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap,
+        const simulation_setup::SystemOfBodies &bodies,
         const LinkEndType linkEndForCalculator )
 {
     std::shared_ptr< DopplerProperTimeRateInterface > properTimeRateInterface;
@@ -512,7 +512,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
         }
         else
         {
-            if( bodyMap.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
+            if( bodies.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
             {
                 throw std::runtime_error( "Error when making DirectFirstOrderDopplerProperTimeRateInterface, no gravity field found for " +
                                           directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ );
@@ -522,7 +522,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                 // Retrieve gravitational parameter
                 std::function< double( ) > gravitationalParameterFunction =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                   bodyMap.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->
+                                   bodies.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->
                                    getGravityFieldModel( ) );
 
                 // Create calculation object.
@@ -535,7 +535,7 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                                 linkEndForCalculator, gravitationalParameterFunction,
                                 directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
                                 getLinkEndCompleteEphemerisFunction< double, double >(
-                                    std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodyMap ) );
+                                    std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodies ) );
                 }
                 else
                 {
@@ -591,7 +591,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
  *  \param linkEnds Observation link ends for which the bias is to be created.
  *  \param observableType Observable type for which bias is to be created
  *  \param biasSettings Settings for the observation bias that is to be created.
- *  \param bodyMap List of body objects that comprises the environment.
+ *  \param bodies List of body objects that comprises the environment.
  *  \return Object that computes an observation bias according to requested settings.
  */
 template< int ObservationSize = 1 >
@@ -599,7 +599,7 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
         const LinkEnds linkEnds,
         const ObservableType observableType,
         const std::shared_ptr< ObservationBiasSettings > biasSettings,
-        const simulation_setup::NamedBodyMap &bodyMap )
+        const simulation_setup::SystemOfBodies &bodies )
 {
     std::shared_ptr< ObservationBias< ObservationSize > > observationBias;
     switch( biasSettings->observationBiasType_ )
@@ -733,7 +733,7 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
         for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
         {
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
-                                               linkEnds, observableType, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
+                                               linkEnds, observableType, multiBiasSettings->biasSettingsList_.at( i ) , bodies ) );
         }
 
         // Create combined bias object
@@ -768,14 +768,14 @@ public:
      * Function to create an observation model.
      * \param linkEnds Link ends for observation model that is to be created
      * \param observationSettings Settings for observation model that is to be created.
-     * \param bodyMap List of body objects that comprises the environment
+     * \param bodies List of body objects that comprises the environment
      * \return Observation model of required settings.
      */
     static std::shared_ptr< observation_models::ObservationModel<
     ObservationSize, ObservationScalarType, TimeType > > createObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< ObservationSettings > observationSettings,
-            const simulation_setup::NamedBodyMap &bodyMap );
+            const simulation_setup::SystemOfBodies &bodies );
 };
 
 //! Interface class for creating observation models of size 1.
@@ -789,14 +789,14 @@ public:
      * Function to create an observation model of size 1.
      * \param linkEnds Link ends for observation model that is to be created
      * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
-     * \param bodyMap List of body objects that comprises the environment
+     * \param bodies List of body objects that comprises the environment
      * \return Observation model of required settings.
      */
     static std::shared_ptr< observation_models::ObservationModel<
     1, ObservationScalarType, TimeType > > createObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< ObservationSettings > observationSettings,
-            const simulation_setup::NamedBodyMap &bodyMap )
+            const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
 
@@ -830,7 +830,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             // Create observation model
@@ -838,7 +838,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
 
             break;
@@ -867,7 +867,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             if( std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings ) == nullptr )
@@ -877,7 +877,7 @@ public:
                         ObservationScalarType, TimeType > >(
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, observationSettings->lightTimeCorrectionsList_ ),
                             observationBias );
             }
             else
@@ -889,11 +889,11 @@ public:
                         ObservationScalarType, TimeType > >(
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, observationSettings->lightTimeCorrectionsList_ ),
                             createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodyMap, transmitter ),
+                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter ),
                             createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodyMap, receiver ),
+                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodies, receiver ),
                             observationBias );
             }
 
@@ -930,7 +930,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             // Create observation model
@@ -953,11 +953,11 @@ public:
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     uplinkLinkEnds, std::make_shared< ObservationSettings >(
-                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     downlinkLinkEnds, std::make_shared< ObservationSettings >(
-                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
                             observationBias );
             }
             else
@@ -966,10 +966,10 @@ public:
                         ObservationScalarType, TimeType > >(
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                                    uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodyMap ) ),
+                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
                             observationBias );
             }
 
@@ -1006,7 +1006,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             // Create observation model
@@ -1014,10 +1014,10 @@ public:
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, observationSettings->lightTimeCorrectionsList_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, observationSettings->lightTimeCorrectionsList_ ),
                         rangeRateObservationSettings->integrationTimeFunction_,
                         observationBias );
 
@@ -1066,7 +1066,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
@@ -1107,7 +1107,7 @@ public:
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
-                                    bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
+                                    bodies, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
                                     lightTimeCorrectionsList_ ) );
                 }
                 else
@@ -1115,7 +1115,7 @@ public:
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
-                                    bodyMap, observationSettings->lightTimeCorrectionsList_ ) );
+                                    bodies, observationSettings->lightTimeCorrectionsList_ ) );
                 }
 
                 transmitterIterator++;
@@ -1152,14 +1152,14 @@ public:
      * Function to create an observation model of size 2.
      * \param linkEnds Link ends for observation model that is to be created
      * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
-     * \param bodyMap List of body objects that comprises the environment
+     * \param bodies List of body objects that comprises the environment
      * \return Observation model of required settings.
      */
     static std::shared_ptr< observation_models::ObservationModel<
     2, ObservationScalarType, TimeType > > createObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< ObservationSettings > observationSettings,
-            const simulation_setup::NamedBodyMap &bodyMap )
+            const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
@@ -1193,7 +1193,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 2 >(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
             // Create observation model
@@ -1201,7 +1201,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
 
             break;
@@ -1230,14 +1230,14 @@ public:
      * Function to create an observation model of size 3.
      * \param linkEnds Link ends for observation model that is to be created
      * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
-     * \param bodyMap List of body objects that comprises the environment
+     * \param bodies List of body objects that comprises the environment
      * \return Observation model of required settings.
      */
     static std::shared_ptr< observation_models::ObservationModel<
     3, ObservationScalarType, TimeType > > createObservationModel(
             const LinkEnds linkEnds,
             const std::shared_ptr< ObservationSettings > observationSettings,
-            const simulation_setup::NamedBodyMap &bodyMap )
+            const simulation_setup::SystemOfBodies &bodies )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
@@ -1276,7 +1276,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
 
@@ -1285,7 +1285,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                    ObservationScalarType, TimeType >,
-                                   bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1320,11 +1320,11 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
             std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction;
-            if( bodyMap.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ) == nullptr )
+            if( bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ) == nullptr )
             {
                 throw std::runtime_error( "Error, cannot euler angle observable; no rotation model found" );
             }
@@ -1332,7 +1332,7 @@ public:
             {
                 toBodyFixedFrameFunction = std::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrameTemplated< TimeType >,
-                            bodyMap.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ),
+                            bodies.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ),
                             std::placeholders::_1 );
             }
 
@@ -1374,7 +1374,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
             }
 
 
@@ -1383,7 +1383,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                      ObservationScalarType, TimeType >,
-                                     bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                     bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1405,14 +1405,14 @@ public:
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
  *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
  *  for each required set of link ends (each settings object must be consistent with observableType).
- *  \param bodyMap Map of Body objects that comprise the environment
+ *  \param bodies Map of Body objects that comprise the environment
  *  \return Object that simulates the observables according to the provided settings.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
         const ObservableType observableType,
         const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap )
+        const simulation_setup::SystemOfBodies &bodies )
 {
     std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModels;
@@ -1423,7 +1423,7 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
     {
         observationModels[ settingIterator->first ] = ObservationModelCreator<
                 ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
-                    settingIterator->first, settingIterator->second, bodyMap );
+                    settingIterator->first, settingIterator->second, bodies );
     }
 
     return std::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
@@ -1436,14 +1436,14 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
  *  \param observationSettingsMap Map of settings for the observation models that are to be created in the simulator object: first
  *  map key is observable type, second is link ends for observation. One observation settings object must be given
  *  for each required set of link ends/observable (each settings object must be consistent with observable type in first entry).
- *  \param bodyMap Map of Body objects that comprise the environment
+ *  \param bodies Map of Body objects that comprise the environment
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
         observation_models::SortedObservationSettingsMap observationSettingsMap,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< ObservableType,
             std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
@@ -1461,19 +1461,19 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
         case 1:
         {
             observationSimulators[ settingsIterator->first ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodyMap );
+                        settingsIterator->first, settingsIterator->second, bodies );
             break;
         }
         case 2:
         {
             observationSimulators[ settingsIterator->first ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodyMap );
+                        settingsIterator->first, settingsIterator->second, bodies );
             break;
         }
         case 3:
         {
             observationSimulators[ settingsIterator->first ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        settingsIterator->first, settingsIterator->second, bodyMap );
+                        settingsIterator->first, settingsIterator->second, bodies );
             break;
         }
         default:
@@ -1490,17 +1490,17 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
  *  observation settings not sorted by observable type.
  *  \param observationSettingsMap Multi-map of settings for the observation models that are to be created in the simulator object
  *  map key is link ends for observation.
- *  \param bodyMap Map of Body objects that comprise the environment
+ *  \param bodies Map of Body objects that comprise the environment
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
         observation_models::ObservationSettingsMap observationSettingsMap,
-        const simulation_setup::NamedBodyMap &bodyMap )
+        const simulation_setup::SystemOfBodies &bodies )
 {
     return createObservationSimulators< ObservationScalarType, TimeType >(
-                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodyMap );
+                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
 }
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
@@ -1532,7 +1532,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 //! Function to create an object to check if a minimum elevation angle condition is met for an observation
 /*!
  * Function to create an object to check if a minimum elevation angle condition is met for an observation
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEnds Link ends for which viability check object is to be made
  * \param observationType Type of observable for which viability check object is to be made
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
@@ -1543,7 +1543,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
  * \return Object to check if a minimum elevation angle condition is met for an observation
  */
 std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
@@ -1552,7 +1552,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 /*!
  * Function to create an object to check if a body avoidance angle condition is met for an observation
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEnds Link ends for which viability check object is to be made
  * \param observationType Type of observable for which viability check object is to be made
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
@@ -1562,7 +1562,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
  * \return Object to check if a body avoidance angle condition is met for an observation
  */
 std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
@@ -1570,7 +1570,7 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
 //! Function to create an object to check if a body occultation condition is met for an observation
 /*!
  * Function to create an object to check if a body occultation condition is met for an observation
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEnds Link ends for which viability check object is to be made
  * \param observationType Type of observable for which viability check object is to be made
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
@@ -1580,7 +1580,7 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
  * \return Object to check if a body occultation condition is met for an observation
  */
 std::shared_ptr< OccultationCalculator > createOccultationCalculator(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
@@ -1588,14 +1588,14 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
 //! Function to create an list of obervation viability conditions for a single set of link ends
 /*!
  * Function to create an list of obervation viability conditions for a single set of link ends
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEnds Link ends for which viability check object is to be made
  * \param observationType Type of observable for which viability check object is to be made
  * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
  * \return List of obervation viability conditions for a single set of link ends
  */
 std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
@@ -1603,14 +1603,14 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
 //! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
 /*!
  * Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEnds List of link ends for which viability check object is to be made
  * \param observationType Type of observable for which viability check object is to be made
  * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
  * \return List of obervation viability conditions for a number of sets of link ends, for a single observable type
  */
 std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< LinkEnds > linkEnds,
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
@@ -1618,14 +1618,14 @@ std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator
 //! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
 /*!
  * Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
- * \param bodyMap Map of body objects that constitutes the environment
+ * \param bodies Map of body objects that constitutes the environment
  * \param linkEndsPerObservable List of link ends, for each observable type, for which viability check object is to be made
  * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
  * \return List of obervation viability conditions for any number of sets of link ends and observable types
  */
 PerObservableObservationViabilityCalculatorList
 createObservationViabilityCalculators(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 

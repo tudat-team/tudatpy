@@ -35,7 +35,6 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
-
 namespace tudat
 {
 
@@ -118,12 +117,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     double buffer = 3600.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer,
+                                    "Earth", "ECLIPJ2000" );
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -152,18 +151,18 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                     bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", initialEphemerisTime ).
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, true, true );
+                    bodies, integratorSettings, propagatorSettings, true, true, true );
     }
 
     double testTime = initialEphemerisTime + ( finalEphemerisTime - initialEphemerisTime ) / 2.0;
-    Eigen::Vector6d forwardState = bodyMap.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );
+    Eigen::Vector6d forwardState = bodies.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );
 
     // Re-define settings for numerical integrator.
     integratorSettings = getIntegrationSettings< TimeType >( integratorCase, finalEphemerisTime, false );
@@ -176,17 +175,17 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                     bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", finalEphemerisTime ).
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, true, true );
+                    bodies, integratorSettings, propagatorSettings, true, true, true );
     }
 
-    Eigen::Vector6d backwardState = bodyMap.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );
+    Eigen::Vector6d backwardState = bodies.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );
 
     return forwardState - backwardState;
 }

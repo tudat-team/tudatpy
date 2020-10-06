@@ -84,26 +84,26 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( { "Earth" } );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-    bodySettings[ "Earth" ]->atmosphereSettings = nullptr;
-    bodySettings[ "Earth" ]->shapeModelSettings = nullptr;
+    bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
+    bodySettings.at( "Earth" )->atmosphereSettings = nullptr;
+    bodySettings.at( "Earth" )->shapeModelSettings = nullptr;
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Set accelerations for each satellite.
     std::string currentSatelliteName;
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         currentSatelliteName =  "Satellite" + std::to_string( i );
-        bodyMap[ currentSatelliteName ] = std::make_shared< simulation_setup::Body >( );
-    }
+        bodies.addNewBody( currentSatelliteName );
+     }
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE CONSTELLATION INITIAL STATES      /////////////////////////////////////////////
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     // Convert initial conditions to Cartesian elements.
     Eigen::MatrixXd initialConditions( sizeOfState, numberOfSatellites );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         Eigen::Vector6d initKepl = initialConditionsInKeplerianElements.col( i ).cast< double >();
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

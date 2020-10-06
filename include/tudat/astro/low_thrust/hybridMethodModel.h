@@ -44,7 +44,7 @@ public:
         totalDeltaV_ = 0.0;
 
         // Retrieve initial mass of the spacecraft.
-        initialSpacecraftMass_ = bodyMap_[ bodyToPropagate_ ]->getBodyMass();
+        initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass();
 
         // Define function returning the current MEE costates.
         costatesFunction_ = [ = ]( const double currentTime )

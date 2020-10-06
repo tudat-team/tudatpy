@@ -38,21 +38,16 @@ int main( )
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
 
     // Create body objects.
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ) );
+    std::vector< std::string > bodiesToCreate{ "Earth" };
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+						Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    bodies.createBody( "Asterix" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -60,11 +55,8 @@ int main( )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
-
-    bodiesToPropagate.push_back( "Asterix" );
-    centralBodies.push_back( "Earth" );
+    std::vector< std::string > bodiesToPropagate{ "Asterix" };
+    std::vector< std::string > centralBodies{ "Earth" };
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
@@ -74,7 +66,7 @@ int main( )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -96,7 +88,7 @@ int main( )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
@@ -118,7 +110,7 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

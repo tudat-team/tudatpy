@@ -30,7 +30,7 @@ public:
     using JsonSimulationManager< TimeType, StateScalarType >::jsonObject_;
     using JsonSimulationManager< TimeType, StateScalarType >::initialClockTime_;
     using JsonSimulationManager< TimeType, StateScalarType >::dynamicsSimulator_;
-    using JsonSimulationManager< TimeType, StateScalarType >::bodyMap_;
+    using JsonSimulationManager< TimeType, StateScalarType >::bodies_;
     using JsonSimulationManager< TimeType, StateScalarType >::integratorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::propagatorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::exportAsJson;
@@ -65,7 +65,7 @@ public:
     {
         variationalEquationsSolver_ =
                 std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
+                    bodies_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, false, false );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
 
@@ -82,7 +82,7 @@ public:
     {
         updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
         parametersToEstimate_ = simulation_setup::createParametersToEstimate< StateScalarType >(
-                    parameterSettings_, bodyMap_, propagatorSettings_  );
+                    parameterSettings_, bodies_, propagatorSettings_  );
 
         if ( profiling )
         {

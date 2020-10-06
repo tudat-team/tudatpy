@@ -72,25 +72,25 @@ Eigen::VectorXd  executeParameterEstimation(
 
     double buffer = 10.0 * maximumTimeStep;
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    bodySettings[ "Earth" ]->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
-    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
-    bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+    bodySettings.at( "Earth" )->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
+    bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
+    bodySettings.at( "Mars" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
 
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -122,7 +122,7 @@ Eigen::VectorXd  executeParameterEstimation(
     }
 
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
 
     std::vector< double > integrationArcStartTimes;
@@ -158,7 +158,7 @@ Eigen::VectorXd  executeParameterEstimation(
                                ( "Mars", rotation_pole_position ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
+            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
 
     // Define links in simulation.
@@ -186,7 +186,7 @@ Eigen::VectorXd  executeParameterEstimation(
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
                 getInitialStateOfBody< TimeType, StateScalarType>(
-                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodyMap, integrationArcStartTimes.at( i ) );
+                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
         propagatorSettingsList.push_back(
                     std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
@@ -199,7 +199,7 @@ Eigen::VectorXd  executeParameterEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                bodyMap, parametersToEstimate,
+                bodies, parametersToEstimate,
                 observationSettingsMap, integratorSettings, propagatorSettings );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
@@ -335,22 +335,21 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0 );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0,
+                                    "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // CReate vehicles
     std::vector< std::string > vehicleNames = { "Borzi1", "Borzi2" };
     int numberOfVehicles = vehicleNames.size( );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        bodyMap[ vehicleNames.at( i ) ] = std::make_shared< Body >( );
-        bodyMap[ vehicleNames.at( i ) ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+        bodies.createBody( vehicleNames.at( i ) );
+        bodies.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                            std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
     }
 
-    // Finalize environment creation
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -374,7 +373,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
 
     // Define integration arc limits
@@ -433,7 +432,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
             Eigen::Vector6d currentInitialStateInKeplerianElements = nominalInitialStateInKeplerianElements;
             currentInitialStateInKeplerianElements( inclinationIndex ) = 10.0 * static_cast< double >( i );
             currentInitialStateInKeplerianElements( trueAnomalyIndex ) = 10.0 * static_cast< double >( j );
-            double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+            double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
             const Eigen::Vector6d currentInitialState = convertKeplerianToCartesianElements(
                         currentInitialStateInKeplerianElements, earthGravitationalParameter );
             allBodiesPerArcInitialStates[ j ].segment( i * 6, 6 ) = currentInitialState;
@@ -469,7 +468,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
                                       vehicleNames.at( i ), singleBodyForAllArcsInitialStates.at( i ), integrationArcStartTimes, "Earth" ) );
     }
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
+            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
 
     // Define links and observations in simulation.
@@ -487,7 +486,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                bodyMap, parametersToEstimate,
+                bodies, parametersToEstimate,
                 observationSettingsMap, integratorSettings, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );

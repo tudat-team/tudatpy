@@ -106,14 +106,14 @@ private:
 /*!
  * Function to create object that computes a single (type of) correction to the light-time
  * \param correctionSettings User-defined settings for the light-time correction that is to be created
- * \param bodyMap List of body objects that constitutes the environment
+ * \param bodies List of body objects that constitutes the environment
  * \param transmitter Id of transmitting body/reference point (first/second)
  * \param receiver Id of receiving body/reference point (first/second)
  * \return Object for computing required light-time correction
  */
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::pair< std::string, std::string >& transmitter,
         const std::pair< std::string, std::string >& receiver );
 

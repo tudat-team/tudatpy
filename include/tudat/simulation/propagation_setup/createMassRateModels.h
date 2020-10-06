@@ -117,14 +117,14 @@ typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModelSettin
  * Function to create a mass rate model, from specific settings and the full set of environment models.
  * \param bodyWithMassRate Name of body for which a mass rate model is to be created.
  * \param massRateModelSettings Settings for the mass rate model that is to be created.
- * \param bodyMap List of pointers to body objects; defines the full simulation environment.
+ * \param bodies List of pointers to body objects; defines the full simulation environment.
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate model that is to be used during numerical propagation.
  */
 std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
         const std::string& bodyWithMassRate,
         const std::shared_ptr< MassRateModelSettings > massRateModelSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 
 
@@ -132,13 +132,13 @@ std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
 /*!
  * Function to create a list of mass rate models for a list of bodies, from specific settings and the full set of
  * environment models.
- * \param bodyMap List of pointers to body objects; defines the full simulation environment.
+ * \param bodies List of pointers to body objects; defines the full simulation environment.
  * \param massRateModelSettings Settings for the mass rate models that are to be created (key is body id).
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate models that are to be used during numerical propagation (key is body id)..
  */
 basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 

@@ -57,17 +57,16 @@ int main( )
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
-
-    bodyMap[ "Asterix" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Asterix" ]->setConstantBodyMass( 400.0 );
+    bodies[ "Asterix" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
@@ -79,7 +78,7 @@ int main( )
                 referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Asterix" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
@@ -92,13 +91,13 @@ int main( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+    bodies[ "Asterix" ]->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                    asterixRadiationPressureSettings, "Asterix", bodies ) );
 
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -131,7 +130,7 @@ int main( )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -146,7 +145,7 @@ int main( )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -175,7 +174,7 @@ int main( )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
@@ -186,7 +185,7 @@ int main( )
 
     // Create simulation object and propagate dynamics.
     SingleArcVariationalEquationsSolver< > variationalEquationsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, true,
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate, true,
                 std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
 
     std::map< double, Eigen::MatrixXd > stateTransitionResult =

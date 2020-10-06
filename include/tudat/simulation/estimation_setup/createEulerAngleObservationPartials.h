@@ -46,7 +46,7 @@ std::shared_ptr< ObservationPartial< 3 > > createEulerAngleObservablePartialWrtC
 /*!
  *  Function to compute Euler angle observation partial objects for a single set of link ends
  *  \param eulerAngleLinkEnds Link ends (observed_body only) for which Euler angle partials are to be calculated
- *  \param bodyMap List of all bodies, for creating Euler angle partials.
+ *  \param bodies List of all bodies, for creating Euler angle partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
@@ -56,7 +56,7 @@ template< typename ParameterType >
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > >
 createEulerAngleObservablePartials(
         const observation_models::LinkEnds eulerAngleLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 
 {
@@ -136,7 +136,7 @@ createEulerAngleObservablePartials(
 /*!
  *  Function to compute Euler angle observation partial objects for multiple sets of link ends
  *  \param linkEnds List of link ends (observed_body only) for which Euler angle partials are to be calculated
- *  \param bodyMap List of all bodies, for creating Euler angle partials.
+ *  \param bodies List of all bodies, for creating Euler angle partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
@@ -147,7 +147,7 @@ std::map< observation_models::LinkEnds,
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > > >
 createEulerAngleObservablePartials(
         const std::vector<  observation_models::LinkEnds > linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 {
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationThreePartialList,
@@ -161,7 +161,7 @@ createEulerAngleObservablePartials(
         }
 
         eulerAnlgeObservablePartials[ linkEnds[ i ] ] = createEulerAngleObservablePartials(
-                    linkEnds[ i ], bodyMap, parametersToEstimate );
+                    linkEnds[ i ], bodies, parametersToEstimate );
     }
     return eulerAnlgeObservablePartials;
 }

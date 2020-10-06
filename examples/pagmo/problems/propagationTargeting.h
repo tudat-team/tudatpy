@@ -77,7 +77,7 @@ private:
 
     mutable std::map< double, Eigen::VectorXd > previousStateHistory_;
     mutable Eigen::VectorXd previousFinalState_;
-    mutable tudat::simulation_setup::NamedBodyMap bodyMap_;
+    mutable tudat::simulation_setup::SystemOfBodies bodies_;
     mutable std::map< double, Eigen::VectorXd > previousDependentVariablesHistory_;
     mutable Eigen::VectorXd previousDependentVariablesFinalValues_;
 

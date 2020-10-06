@@ -71,8 +71,8 @@ double getDummyCustomState4(
 // Test custom state propagation, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
+    // Crate bodies
+    SystemOfBodies bodies;
 
     // Create settings for propagation
     double initialCustomState = 500.0;
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 // Test custom state propagation, quadratically decreasing with time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
+    // Crate bodies
+    SystemOfBodies bodies;
 
     // Create settings for propagation
     double initialCustomState = 500.0;
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
 // Test custom state propagation, exponentially decreasing with time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
+    // Crate bodies
+    SystemOfBodies bodies;
 
     // Create settings for propagation
     double initialCustomState = 500.0;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
 // Test custom state propagation, exponentially decreasing with square of time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
 {
-    // Crate bodyMap
-    NamedBodyMap bodyMap;
+    // Crate bodies
+    SystemOfBodies bodies;
 
     // Create settings for propagation
     double initialCustomState = 500.0;
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -218,23 +218,20 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     const double fixedStepSize = 10.0;
 
     // Define body settings for simulation.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    BodyListSettings bodySettings = BodyListSettings( "SSB", "J2000" );
+    bodySettings.addSettings( "Earth" );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -251,7 +248,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
     // Set Keplerian elements for Asterix.
@@ -266,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
@@ -314,7 +311,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

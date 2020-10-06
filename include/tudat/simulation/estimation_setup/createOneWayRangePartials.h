@@ -42,7 +42,7 @@ namespace observation_partials
  *  \tparam ParameterType Type of parameter (double for size 1, VectorXd for larger size).
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which  one-way range observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way range partial.
+ *  \param bodies List of all bodies, for creating one-way range partial.
  *  \param parameterToEstimate Object of current parameter that is to be estimated.
  *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -51,7 +51,7 @@ namespace observation_partials
 template< typename ParameterType >
 std::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParameter(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
         const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -62,7 +62,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParameter(
 
     {
         std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-                createCartesianStatePartialsWrtParameter( oneWayRangeLinkEnds, bodyMap, parameterToEstimate );
+                createCartesianStatePartialsWrtParameter( oneWayRangeLinkEnds, bodies, parameterToEstimate );
 
         // Create one-range partials if any position partials are created (i.e. if any dependency exists).
         std::shared_ptr< OneWayRangePartial > testOneWayRangePartial  = std::make_shared< OneWayRangePartial >(
@@ -84,7 +84,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParameter(
  *  transmitter and receiever  linkEndType).
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way range partial.
+ *  \param bodies List of all bodies, for creating one-way range partial.
  *  \param bodyToEstimate Name of body wrt position of which a partial is to be created.
  *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -92,7 +92,7 @@ std::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParameter(
  */
 std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -105,7 +105,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
  *  transmitter and receiever  linkEndType).
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way range partial.
+ *  \param bodies List of all bodies, for creating one-way range partial.
  *  \param bodyToEstimate Name of body wrt rotational state of which a partial is to be created.
  *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
@@ -113,7 +113,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
  */
 std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalState(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -127,7 +127,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalS
  *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
- *  \param bodyMap List of all bodies, for creating one-way range partials.
+ *  \param bodies List of all bodies, for creating one-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
  *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
@@ -138,7 +138,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalS
 template< typename ParameterType >
 std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createOneWayRangePartials(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
         std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >( ),
@@ -175,7 +175,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
             // Create position one-way range partial for current body
             std::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyPosition(
-                        oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
+                        oneWayRangeLinkEnds, bodies, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
 
             // Check if partial is non-null (i.e. whether dependency exists between current range and current body)
             if( currentRangePartial != nullptr )
@@ -194,7 +194,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 
             // Create position one-way range partial for current body
             std::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyRotationalState(
-                        oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
+                        oneWayRangeLinkEnds, bodies, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
 
             // Check if partial is non-null (i.e. whether dependency exists between current range and current body)
             if( currentRangePartial != nullptr )
@@ -223,7 +223,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
         // Create position one-way range partial for current parameter
         std::shared_ptr< ObservationPartial< 1 > > currentRangePartial = createOneWayRangePartialWrtParameter(
-                    oneWayRangeLinkEnds, bodyMap, parameterIterator->second,
+                    oneWayRangeLinkEnds, bodies, parameterIterator->second,
                     oneWayRangeScaling, lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current range and current parameter)
@@ -249,7 +249,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {
             currentRangePartial = createOneWayRangePartialWrtParameter(
-                    oneWayRangeLinkEnds, bodyMap, parameterIterator->second, oneWayRangeScaling,
+                    oneWayRangeLinkEnds, bodies, parameterIterator->second, oneWayRangeScaling,
                     lightTimeCorrectionPartialObjects );
         }
         else
@@ -280,7 +280,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
  *  that are to be used.
  *  \param linkEnds Vector of all link ends for which one-way range partials are to be calculated (i.e. for which one-way
  *  range observations are  to be processed).
- *  \param bodyMap List of all bodies, for creating one-way range partials.
+ *  \param bodies List of all bodies, for creating one-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
@@ -292,7 +292,7 @@ template< typename ParameterType >
 std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
 std::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         const std::vector< observation_models::LinkEnds >& linkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
@@ -331,7 +331,7 @@ std::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
 
         // Create range partials for current link ends
         rangePartials[ linkEnds[ i ] ] = createOneWayRangePartials< ParameterType >(
-                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections, useBiasPartials );
+                    linkEnds[ i ], bodies, parametersToEstimate, singleLinkLightTimeCorrections, useBiasPartials );
     }
 
     // Return complete set of link ends.

@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 450.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -722,7 +722,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    hodographicShaping = HodographicShaping(
 //                cartesianStateDepartureBody, cartesianStateArrivalBody,
 //                timeOfFlight * physical_constants::JULIAN_DAY, numberOfRevolutions,
-//                bodyMap, "Vehicle", "Sun",
+//                bodies, "Vehicle", "Sun",
 //                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
 //                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
 //                integratorSettings );
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 190.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -813,7 +813,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    hodographicShaping = HodographicShaping(
 //                cartesianStateDepartureBody, cartesianStateArrivalBody,
 //                timeOfFlight * physical_constants::JULIAN_DAY, numberOfRevolutions,
-//                bodyMap, "Vehicle", "Sun",
+//                bodies, "Vehicle", "Sun",
 //                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
 //                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
 //                integratorSettings );
@@ -854,7 +854,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 190.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -902,7 +902,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    hodographicShaping = HodographicShaping(
 //                cartesianStateDepartureBody, cartesianStateArrivalBody,
 //                timeOfFlight * physical_constants::JULIAN_DAY, numberOfRevolutions,
-//                bodyMap, "Vehicle", "Sun",
+//                bodies, "Vehicle", "Sun",
 //                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
 //                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
 //                integratorSettings );
@@ -943,7 +943,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    timeOfFlight = 160.0;
 
 //    // Set vehicle mass.
-//    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+//    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
 //    // Define integrator settings.
 //    integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< double > > (
@@ -991,7 +991,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 //    hodographicShaping = HodographicShaping(
 //                cartesianStateDepartureBody, cartesianStateArrivalBody,
 //                timeOfFlight * physical_constants::JULIAN_DAY, numberOfRevolutions,
-//                bodyMap, "Vehicle", "Sun",
+//                bodies, "Vehicle", "Sun",
 //                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
 //                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction,
 //                integratorSettings );
@@ -1023,7 +1023,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
 //}
 
-NamedBodyMap getTestBodyMap( )
+SystemOfBodies getTestBodyMap( )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -1034,32 +1034,30 @@ NamedBodyMap getTestBodyMap( )
     bodiesToCreate.push_back( "Mars" );
     bodiesToCreate.push_back( "Jupiter" );
 
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
 
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
 
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
+
+
 
     // Define central body ephemeris settings.
-    bodySettings[ "Sun" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
-    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
+    // Create system of bodies.
+    SystemOfBodies bodies = createBodies( bodySettings );
 
-    // Create body map.
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
 
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-    return bodyMap;
+    return bodies;
 }
 
 //! Test.
@@ -1185,11 +1183,11 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
     // Create environment
-    NamedBodyMap bodyMap = getTestBodyMap( );
+    SystemOfBodies bodies = getTestBodyMap( );
 
     // Define mass function of the vehicle.
     std::function< double( const double ) > newMassFunction = [ = ]( const double ){ return 2000.0; }; // - 50.0 / ( timeOfFlight * physical_constants::JULIAN_DAY ) * currentTime ;
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( newMassFunction );
+    bodies.at( "Vehicle" )->setBodyMassFunction( newMassFunction );
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
@@ -1213,7 +1211,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ){ return 3000.0; };
     basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap =
             hodographicShaping.retrieveLowThrustAccelerationMap(
-                bodyMap, "Vehicle", "Sun", specificImpulseFunction, integratorSettings );
+                bodies, "Vehicle", "Sun", specificImpulseFunction, integratorSettings );
 
     std::pair< std::shared_ptr< PropagatorSettings< double > >,
             std::shared_ptr< PropagatorSettings< double > > > propagatorSettings =
@@ -1225,7 +1223,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
     std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
     hodographicShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, propagatorSettings,
+                bodies, integratorSettings, propagatorSettings,
                 fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
     // Check that boundary conditions are still fulfilled when free parameters are added.
@@ -1377,8 +1375,8 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
                 initialBodyMass );
 
     // Create environment
-    NamedBodyMap bodyMap = getTestBodyMap( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( initialBodyMass );
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( "Vehicle" )->setConstantBodyMass( initialBodyMass );
 
     // Define integrator settings.
     double stepSize = ( timeOfFlight * physical_constants::JULIAN_DAY ) / static_cast< double >( 50 );
@@ -1406,7 +1404,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
     // Create complete propagation settings (backward and forward propagations).
     std::pair< std::shared_ptr< PropagatorSettings< double > >,
             std::shared_ptr< PropagatorSettings< double > > > propagatorSettings = hodographicShaping.createLowThrustPropagatorSettings(
-                bodyMap, "Vehicle", "Sun", specificImpulseFunction, basic_astrodynamics::AccelerationMap( ), integratorSettings,
+                bodies, "Vehicle", "Sun", specificImpulseFunction, basic_astrodynamics::AccelerationMap( ), integratorSettings,
                 dependentVariablesToSave );
 
     // Compute shaped trajectory and propagated trajectory.
@@ -1414,7 +1412,7 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation_mass_propagation
     std::map< double, Eigen::Vector6d > shapingMethodResults;
     std::map< double, Eigen::VectorXd > dependentVariablesHistory;
     hodographicShaping.computeSemiAnalyticalAndFullPropagation(
-                bodyMap, integratorSettings, propagatorSettings,
+                bodies, integratorSettings, propagatorSettings,
                 fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
 
     // Check that boundary conditions are still fulfilled when free parameters are added.

@@ -99,15 +99,15 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     for( unsigned int testCase = 0; testCase < maximumTestCase; testCase++ )
     {
         // Define simulation body settings.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+        BodyListSettings bodySettings =
                 getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                        simulationEndEpoch + 10.0 * fixedStepSize );
-        bodySettings[ "Earth" ]->gravityFieldSettings =
+                                        simulationEndEpoch + 10.0 * fixedStepSize, "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Earth" )->gravityFieldSettings =
                 std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
         if( testCase >= 2 )
         {
-            bodySettings[ "Earth" ]->atmosphereSettings =
+            bodySettings.at( "Earth" )->atmosphereSettings =
                     std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
         }
 
@@ -118,22 +118,22 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         if( testCase% 2 == 0 )
         {
             isOblateSpheroidUsed = 1;
-            bodySettings[ "Earth" ]->shapeModelSettings =
+            bodySettings.at( "Earth" )->shapeModelSettings =
                     std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >(
                         oblateSpheroidEquatorialRadius, oblateSpheroidFlattening );
         }
 
         // Create Earth object
-        simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
         // Create vehicle objects.
-        bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+        bodies.createBody( "Apollo" );
 
         // Create vehicle aerodynamic coefficients
-        bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+        bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
-        bodyMap[ "Apollo" ]->setEphemeris(
+        bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+        bodies.at( "Apollo" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
@@ -145,11 +145,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         vehicleSystems->setNoseRadius( noseRadius );
         vehicleSystems->setWallEmissivity( wallEmissivity );
 
-        bodyMap[ "Apollo" ]->setVehicleSystems( vehicleSystems );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+        bodies.at( "Apollo" )->setVehicleSystems( vehicleSystems );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -266,9 +262,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-        setTrimmedConditions( bodyMap.at( "Apollo" ) );
+        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -281,7 +277,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -293,14 +289,14 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         Eigen::Vector6d currentStateDerivative;
         Eigen::Vector3d manualCentralGravity;
         std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationModel =
-                bodyMap.at( "Earth" )->getRotationalEphemeris( );
+                bodies.at( "Earth" )->getRotationalEphemeris( );
         std::shared_ptr< aerodynamics::AtmosphereModel > earthAtmosphereModel =
-                bodyMap.at( "Earth" )->getAtmosphereModel( );
+                bodies.at( "Earth" )->getAtmosphereModel( );
         std::shared_ptr< aerodynamics::AtmosphericFlightConditions > apolloFlightConditions =
                 std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                    bodyMap.at( "Apollo" )->getFlightConditions( ) );
+                    bodies.at( "Apollo" )->getFlightConditions( ) );
         std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
-                bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+                bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
@@ -346,7 +342,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
             // Manually compute central gravity.
             manualCentralGravity =
-                    -bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) *
+                    -bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) *
                     relativePosition /
                     std::pow( relativePosition.norm( ), 3 );
 
@@ -537,12 +533,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( bodiesToCreate );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Earth", "ECLIPJ2000" );
 
     // Create Body objects
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Asterix" );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -560,7 +555,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -574,7 +569,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
@@ -614,7 +609,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings );
+                bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -663,10 +658,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     bodyNames[ 3 ] = "Sun";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+
 
     SelectedAccelerationMap accelerationMap;
     accelerationMap[ "Earth" ][ "Moon" ].push_back(
@@ -682,7 +677,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Specify initial time
     double initialEphemerisTime = 0.0;
@@ -690,7 +685,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
@@ -723,7 +718,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     std::map< double, Eigen::VectorXd > stateResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
@@ -747,7 +742,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                     "Moon", "SSB", "ECLIPJ2000", "None", variableIterator->first ) -
                 stateResult.at( variableIterator->first );
         Eigen::Vector6d moonRelativeEarthFixedCartesianState = ephemerides::transformStateToTargetFrame(
-                    moonRelativeCartesianState, variableIterator->first, bodyMap.at( "Earth" )->getRotationalEphemeris( ) );
+                    moonRelativeCartesianState, variableIterator->first, bodies.at( "Earth" )->getRotationalEphemeris( ) );
         Eigen::Vector3d moonSphericalPosition = tudat::coordinate_conversions::convertCartesianToSpherical< double >(
                     Eigen::Vector3d( moonRelativeEarthFixedCartesianState.segment( 0, 3 ) ) );
 
@@ -832,16 +827,14 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     double finalEphemerisTime = initialEphemerisTime + 3000.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings[ "Earth" ]->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames,  "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
-
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -861,7 +854,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Set Keplerian and Cartesian elements for spacecraft.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -873,7 +866,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -915,7 +908,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -931,7 +924,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
                     basic_astrodynamics::spherical_harmonic_gravity ).at( 0 ) );
     std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
             std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( "Earth" )->getGravityFieldModel( ) );
+                bodies.at( "Earth" )->getGravityFieldModel( ) );
 
 
     // Iterate over results for dependent variables, and check against manually retrieved values.
@@ -1008,14 +1001,13 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     double finalEphemerisTime = initialEphemerisTime + 300.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations on Vehicle that are to be taken into account.
     for( int test = 0; test < 3; test++ )
@@ -1050,7 +1042,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Create acceleration models
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
         // Set Keplerian and Cartesian elements for spacecraft.
         Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -1062,7 +1054,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
                 = unit_conversions::convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -1121,7 +1113,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate( parameterNames, bodyMap );
+                createParametersToEstimate( parameterNames, bodies );
 
         // Print identifiers and indices of parameters to terminal.
         printEstimatableParameterEntries( parametersToEstimate );
@@ -1133,7 +1125,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
 
         // Create simulation object and propagate dynamics.
         SingleArcVariationalEquationsSolver< > variationalEquationsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, true,
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate, true,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
 
 

@@ -65,22 +65,22 @@ int main( )
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodies[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create vehicle aerodynamic coefficients
-    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Apollo" ]->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+    bodies[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
 
     // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE ACCELERATIONS            ///////////////////////////////////////////////////
@@ -102,11 +102,11 @@ int main( )
 
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define constant 30 degree angle of attack
     double constantAngleOfAttack = 30.0 * mathematical_constants::PI / 180.0;
-    bodyMap.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 [=]( ){ return constantAngleOfAttack; } );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ int main( )
 
     // Convert the state to the global (inertial) frame.
     std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
-            bodyMap.at( "Earth" )->getRotationalEphemeris( );
+            bodies.at( "Earth" )->getRotationalEphemeris( );
     systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
     // Define list of dependent variables to save.
@@ -171,7 +171,7 @@ int main( )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings );
+                bodies, integratorSettings, propagatorSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////

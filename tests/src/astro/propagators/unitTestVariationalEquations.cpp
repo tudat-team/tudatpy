@@ -85,11 +85,11 @@ executeEarthMoonSimulation(
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -121,7 +121,7 @@ executeEarthMoonSimulation(
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, centralBodyMap );
+                bodies, accelerationMap, centralBodyMap );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -135,7 +135,7 @@ executeEarthMoonSimulation(
     // Set (perturbed) initial state.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialTranslationalState;
     initialTranslationalState = getInitialStatesOfBodies< TimeType, StateScalarType >(
-                bodiesToIntegrate, centralBodies, bodyMap, initialIntegrationTime );
+                bodiesToIntegrate, centralBodies, bodies, initialIntegrationTime );
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
@@ -156,16 +156,18 @@ executeEarthMoonSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
+//        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
         parameterNames.push_back(
                     std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+                            "Moon", centralBodies[ 0 ], bodies, TimeType( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 0, 6 ),
                     centralBodies[ 0 ] ) );
         parameterNames.push_back(
                     std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+                            "Earth", centralBodies[ 1 ], bodies, TimeType( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 6, 6 ),
                     centralBodies[ 1 ] ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
@@ -176,7 +178,7 @@ executeEarthMoonSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
@@ -191,7 +193,7 @@ executeEarthMoonSimulation(
         // Create dynamics simulator
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
 
         // Propagate requested equations.
@@ -208,8 +210,8 @@ executeEarthMoonSimulation(
         double testEpoch = 1.4E7;
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
-        testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-        testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+        testStates.block( 0, 0, 6, 1 ) = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( testEpoch );
+        testStates.block( 6, 0, 6, 1 ) = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testEpoch );
 
         if( propagateVariationalEquations )
         {
@@ -363,11 +365,11 @@ executeOrbiterSimulation(
     TimeType finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -377,7 +379,7 @@ executeOrbiterSimulation(
                 referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     // Create radiation pressure settings
@@ -390,15 +392,15 @@ executeOrbiterSimulation(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+    bodies.at( "Vehicle" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+                    asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
 
 
     // Set accelerations on Vehicle that are to be taken into account.
@@ -427,7 +429,7 @@ executeOrbiterSimulation(
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -445,7 +447,7 @@ executeOrbiterSimulation(
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
     Eigen::Matrix< StateScalarType, 6, 1 > initialTranslationalState = convertKeplerianToCartesianElements(
@@ -477,7 +479,7 @@ executeOrbiterSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
@@ -493,7 +495,7 @@ executeOrbiterSimulation(
         // Create dynamics simulator
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
 
         // Propagate requested equations.
@@ -510,7 +512,7 @@ executeOrbiterSimulation(
         double testEpoch = initialEphemerisTime + 3.5 * 3600.0;
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
-        testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( testEpoch );
+        testStates.block( 0, 0, 6, 1 ) = bodies.at( "Vehicle" )->getEphemeris( )->getCartesianState( testEpoch );
 
         if( propagateVariationalEquations )
         {
@@ -617,20 +619,20 @@ executePhobosRotationSimulation(
     double finalEphemerisTime = 86400.0;
     int numberOfParametersToEstimate = 8;
 
-    NamedBodyMap bodyMap;
-    bodyMap[ "Mars" ] = std::make_shared< Body >( );
-    bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+    SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
+    bodies.createBody( "Mars", false );
+    bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-    bodyMap[ "Mars" ]->setRotationalEphemeris(
+    bodies.at( "Mars" )->setRotationalEphemeris(
                 simulation_setup::createRotationModel( simulation_setup::getDefaultRotationModelSettings(
                                                            "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );
-    bodyMap[ "Mars" ]->setGravityFieldModel(
+    bodies.at( "Mars" )->setGravityFieldModel(
                 simulation_setup::createGravityFieldModel(
                     simulation_setup::getDefaultGravityFieldSettings(
-                        "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars", bodyMap ) );
-    double marsGravitationalParameter = bodyMap.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
+                        "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars", bodies ) );
+    double marsGravitationalParameter = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+    bodies.createBody( "Phobos" );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
@@ -639,7 +641,7 @@ executePhobosRotationSimulation(
 
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+    bodies.at( "Phobos" )->setBodyInertiaTensor(
                 phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
 
     double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
@@ -652,18 +654,18 @@ executePhobosRotationSimulation(
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
                 phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
-    bodyMap[ "Phobos" ]->setGravityFieldModel(
+    bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true ) ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
     phobosKeplerElements( 2 ) = 0.1;
 
-    bodyMap[ "Phobos" ]->setEphemeris(
+    bodies.at( "Phobos" )->setEphemeris(
                 tudat::ephemerides::getTabulatedEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                                                phobosKeplerElements, 0.0, marsGravitationalParameter ),
                                                            initialEphemerisTime - 3600.0,
@@ -698,13 +700,12 @@ executePhobosRotationSimulation(
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-    bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+    bodies.at( "Phobos" )->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
     // Create empty bodies, phobos and mars.
-    std::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
-    std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
-    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
+    std::shared_ptr< Body > phobos = bodies.at( "Phobos" );
+    std::shared_ptr< Body > mars = bodies.at( "Mars" );
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
@@ -719,7 +720,7 @@ executePhobosRotationSimulation(
 
 
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, translationalBodiesToIntegrate, translationalCentralBodies );
+                bodies, accelerationMap, translationalBodiesToIntegrate, translationalCentralBodies );
 
 
     SelectedTorqueMap torqueMap;
@@ -732,7 +733,7 @@ executePhobosRotationSimulation(
 
     // Create torque models
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap, bodiesToIntegrate );
+                bodies, torqueMap, bodiesToIntegrate );
 
 
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
@@ -742,7 +743,7 @@ executePhobosRotationSimulation(
 
     Eigen::VectorXd initialTranslationalState;
     initialTranslationalState = getInitialStatesOfBodies(
-                translationalBodiesToIntegrate, translationalCentralBodies, bodyMap, initialEphemerisTime );
+                translationalBodiesToIntegrate, translationalCentralBodies, bodies, initialEphemerisTime );
 
     initialTranslationalState += initialStateDifference.segment( 0, 6 );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > translationalPropagatorSettings =
@@ -769,6 +770,8 @@ executePhobosRotationSimulation(
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
+//        parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
         parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                                       "Phobos", unitRotationState, "ECLIPJ2000" ) );
         parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
@@ -783,7 +786,7 @@ executePhobosRotationSimulation(
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
@@ -817,7 +820,7 @@ executePhobosRotationSimulation(
         // Create dynamics simulator
         propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
 
         // Propagate requested equations.
@@ -841,8 +844,8 @@ executePhobosRotationSimulation(
         double testEpoch = initialEphemerisTime + 15.0 * 3600.0;
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 13 );
-        testStates.segment( 6, 7 ) = bodyMap[ "Phobos" ]->getRotationalEphemeris( )->getRotationStateVector( testEpoch );
-        testStates.segment( 0, 6 ) = bodyMap[ "Phobos" ]->getEphemeris( )->getCartesianState( testEpoch );
+        testStates.segment( 6, 7 ) = bodies.at( "Phobos" )->getRotationalEphemeris( )->getRotationStateVector( testEpoch );
+        testStates.segment( 0, 6 ) = bodies.at( "Phobos" )->getEphemeris( )->getCartesianState( testEpoch );
 
         if( propagateVariationalEquations )
         {

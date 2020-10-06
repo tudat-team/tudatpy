@@ -46,7 +46,7 @@ namespace ephemerides
 		// Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
 		// Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
 		// therefore needs to be converted to an intermediate standard reference frame.
-    const Eigen::Vector6d cartesianStateAtEpochTEME =
+        const Eigen::Vector6d cartesianStateAtEpochTEME =
                 spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 
 		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
@@ -171,7 +171,7 @@ namespace ephemerides
 			epochYear += 1900;
 		}
 		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
-		boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
+		//boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
 		epoch_ = ( epochYear - 2000 ) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );

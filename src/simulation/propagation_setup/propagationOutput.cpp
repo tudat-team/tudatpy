@@ -402,19 +402,19 @@ int getDependentVariableSize(
 
 template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
         const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
 
 //template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
 //        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const simulation_setup::SystemOfBodies& bodies,
 //        const std::unordered_map< IntegratedStateType,
 //        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
 
 //template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
 //        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const simulation_setup::SystemOfBodies& bodies,
 //        const std::unordered_map< IntegratedStateType,
 //        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
 

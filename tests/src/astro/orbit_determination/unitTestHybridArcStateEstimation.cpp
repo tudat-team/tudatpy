@@ -73,14 +73,14 @@ Eigen::VectorXd  executeParameterEstimation(
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Jupiter" );
     bodyNames.push_back( "Earth" );
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create orbiter
-    bodyMap[ "Orbiter" ] = std::make_shared< Body >( );
-    bodyMap[ "Orbiter" ]->setConstantBodyMass( 5.0E3 );
-    bodyMap[ "Orbiter" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodies.createBody( "Orbiter" );
+    bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
+    bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
 
@@ -92,18 +92,18 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    bodyMap[ "Orbiter" ]->setRadiationPressureInterface(
+    bodies.at( "Orbiter" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    orbiterRadiationPressureSettings, "Orbiter", bodyMap ) );
+                    orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
 
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.push_back( grazStation );
@@ -121,11 +121,11 @@ Eigen::VectorXd  executeParameterEstimation(
     singleArcBodiesToIntegrate.push_back( "Mars" );
     singleArcCentralBodies.push_back( "SSB" );
     AccelerationMap singleArcAccelerationModelMap = createAccelerationModelsMap(
-                bodyMap, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
+                bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
 
     // Define and perturb Mars initial states
     Eigen::VectorXd singleArcInitialStates = getInitialStatesOfBodies(
-                singleArcBodiesToIntegrate, singleArcCentralBodies, bodyMap, initialEphemerisTime );
+                singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
     singleArcInitialStates += initialStateDifference.segment(
                 0, singleArcInitialStates.rows( ) );
 
@@ -148,7 +148,7 @@ Eigen::VectorXd  executeParameterEstimation(
     multiArcBodiesToIntegrate.push_back( "Orbiter" );
     multiArcCentralBodies.push_back( "Mars" );
     AccelerationMap multiArcAccelerationModelMap = createAccelerationModelsMap(
-                bodyMap, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
+                bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
 
 
     // Creater orbiter arc times
@@ -176,7 +176,7 @@ Eigen::VectorXd  executeParameterEstimation(
     multiArcSystemInitialStates.resize( numberOfIntegrationArcs );
 
     // Define and perturb (quasi-arbitrary) arc initial states
-    double marsGravitationalParameter =  bodyMap.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double marsGravitationalParameter =  bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
     if( forcedMultiArcInitialStates.size( ) == 0 )
     {
         for( unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
@@ -241,7 +241,7 @@ Eigen::VectorXd  executeParameterEstimation(
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
-            createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
+            createParametersToEstimate< StateScalarType >( parameterNames, bodies );
 
 
     // Define links and observables in simulation.
@@ -272,7 +272,7 @@ Eigen::VectorXd  executeParameterEstimation(
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                bodyMap, parametersToEstimate,
+                bodies, parametersToEstimate,
                 observationSettingsMap, integratorSettings, hybridArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );

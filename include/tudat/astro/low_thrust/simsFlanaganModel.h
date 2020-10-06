@@ -134,7 +134,7 @@ public:
     double getTotalDeltaV( );
 
     basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap(
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody );
 
@@ -168,7 +168,7 @@ public:
     int convertTimeToLegSegment( double currentTime );
 
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg(
-            const simulation_setup::NamedBodyMap& bodyMapTest );
+            const simulation_setup::SystemOfBodies& bodies );
 
     double getMassAtSegment( const int segment )
     {
@@ -182,7 +182,7 @@ protected:
 
     basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment(
             const unsigned int indexSegment,
-            const simulation_setup::NamedBodyMap& bodyMapTest,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody );
 

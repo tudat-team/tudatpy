@@ -231,7 +231,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -247,7 +247,7 @@ public:
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate );
 };
@@ -263,7 +263,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -279,7 +279,7 @@ public:
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
             observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
@@ -290,26 +290,26 @@ public:
         {
         case observation_models::one_way_range:
             observationPartialList = createOneWayRangePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         case observation_models::one_way_doppler:
             observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
-                        observationModelList, bodyMap, parametersToEstimate );
+                        observationModelList, bodies, parametersToEstimate );
             break;
         case observation_models::two_way_doppler:
             observationPartialList = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
-                        observationModelList, bodyMap, parametersToEstimate,
+                        observationModelList, bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         case observation_models::one_way_differenced_range:
             observationPartialList = createDifferencedOneWayRangeRatePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         case observation_models::n_way_range:
             observationPartialList = createNWayRangePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
@@ -334,7 +334,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -349,7 +349,7 @@ public:
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
@@ -361,7 +361,7 @@ public:
         {
         case observation_models::angular_position:
             observationPartialList = createAngularPositionPartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
@@ -386,7 +386,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -402,7 +402,7 @@ public:
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
             observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
@@ -414,16 +414,16 @@ public:
         {
         case observation_models::position_observable:
             observationPartialList = createPositionObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
             break;
         case observation_models::euler_angle_313_observable:
             observationPartialList = createEulerAngleObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
             break;
 
         case observation_models::velocity_observable:
             observationPartialList = createVelocityObservablePartials< ObservationScalarType >(
-                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
+                        utilities::createVectorFromMapKeys( observationModelList ), bodies, parametersToEstimate );
             break;
         default:
             std::string errorMessage =
@@ -446,7 +446,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -462,7 +462,7 @@ public:
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
             observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
@@ -494,7 +494,7 @@ public:
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
      * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
-     * \param bodyMap Map of body objects that comprises the environment
+     * \param bodies Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
@@ -510,7 +510,7 @@ public:
             const std::map< observation_models::LinkEnds,
             std::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
             observationModelList,
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {

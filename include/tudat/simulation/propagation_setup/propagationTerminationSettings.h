@@ -258,6 +258,18 @@ public:
 
 };
 
+inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVariableTerminationSettings(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const double limitValue,
+        const bool useAsLowerLimit,
+        const bool terminateExactlyOnFinalCondition = false,
+        const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr )
+{
+    return std::make_shared< PropagationDependentVariableTerminationSettings >(
+                dependentVariableSettings, limitValue, useAsLowerLimit, terminateExactlyOnFinalCondition,
+                terminationRootFinderSettings );
+}
+
 } // namespace propagators
 
 } // namespace tudat

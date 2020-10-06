@@ -13,21 +13,21 @@
 #include "tudat/simulation/simulation.h"
 #include <boost/test/unit_test.hpp>
 
-//! Test for the setting assessPropagationTerminationConditionDuringIntegrationSubsteps.
+//! Test for the setting assessTerminationOnMinorSteps.
 BOOST_AUTO_TEST_SUITE( test_assess_propagation_termination_condition_during_integration_substeps )
 
 //! Unit test description:
 //! - Use a "simple" termination condition, only limited by end epoch.
 //! - Use constant step-size integrator (RK4).
 //! - Check that the propagation stops after (before) reaching the termination condition when
-//!   `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off (on).
+//!   `assessTerminationOnMinorSteps` is off (on).
 //!
 //! For example: initial epoch = 0, step-size = 50 s, end epoch = 1020 s.
 //! Expected outcome:
-//! - Final epoch 1050 s when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off.
-//! - Final epoch 1000 s when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is on
+//! - Final epoch 1050 s when `assessTerminationOnMinorSteps` is off.
+//! - Final epoch 1000 s when `assessTerminationOnMinorSteps` is on
 //!   (because epoch will be 1025 > 1020 when computing k2).
-BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegrationSubstepsRKFixedStepSize )
+BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            USING STATEMENTS              ///////////////////////////////////////////////
@@ -63,22 +63,23 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                        "SSB", "J2000" );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            //////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+        bodies.createBody( "Asterix" );
+        bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+        bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
         // Create radiation pressure settings
@@ -101,13 +102,9 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+        bodies.at( "Asterix" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
-                        asterixRadiationPressureSettings, "Asterix", bodyMap ) );
-
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+                        asterixRadiationPressureSettings, "Asterix", bodies ) );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          ///////////////////////////////////////////
@@ -136,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         centralBodies.push_back( "Earth" );
 
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            /////////////////////////////////
@@ -153,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                 = unit_conversions::convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -172,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
 
         // Create simulation object (but do not propagate dynamics).
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution().end() )->first;
         BOOST_CHECK( finalPropagatedEpoch == ( assessDuringSubsteps ? 1000.0 : 1050.0 ) );
@@ -184,13 +181,13 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
 //! - Use a termination condition based on altitude (and time limit sufficiently large so that it's not reached).
 //! - Use variable step-size integrator (RK78).
 //! - Check that the propagation stops after (before) reaching the termination condition when
-//!   `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off (on).
+//!   `assessTerminationOnMinorSteps` is off (on).
 //!
 //! For example: altitude limit 100 km.
 //! Expected outcome:
-//! - Final altitude below 100 km when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is off.
-//! - Final altitude above 100 km when `assessPropagationTerminationConditionDuringIntegrationSubsteps` is on.
-BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegrationSubstepsRKVariableStepSize )
+//! - Final altitude below 100 km when `assessTerminationOnMinorSteps` is off.
+//! - Final altitude above 100 km when `assessTerminationOnMinorSteps` is on.
+BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            USING STATEMENTS              //////////////////////////////////////////////////////
@@ -226,22 +223,23 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
+                                         "SSB", "J2000" );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
-            bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-            bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
+            bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
-        NamedBodyMap bodyMap = createBodies( bodySettings );
+        SystemOfBodies bodies = createBodies( bodySettings );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ "Asterix" ]->setConstantBodyMass( 400.0 );
+        bodies.createBody( "Asterix" );
+        bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
         double referenceArea = 4.0;
@@ -251,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
         // Create and set aerodynamic coefficients object
-        bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+        bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
         // Create radiation pressure settings
@@ -264,13 +262,11 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
-        bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+        bodies.at( "Asterix" )->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
-                        asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                        asterixRadiationPressureSettings, "Asterix", bodies ) );
 
 
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -299,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         centralBodies.push_back( "Earth" );
 
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -316,7 +312,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
                 = unit_conversions::convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -373,7 +369,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
 
         // Create simulation object (but do not propagate dynamics).
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory().end() )->second( 0 );
         BOOST_CHECK( assessDuringSubsteps ? finalAltitude > 100.0E+3 : finalAltitude < 100.0E+3 );

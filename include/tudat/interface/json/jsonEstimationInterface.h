@@ -43,7 +43,7 @@ public:
     using JsonSimulationManager< TimeType, StateScalarType >::initialClockTime_;
     using JsonSimulationManager< TimeType, StateScalarType >::inputFilePath_;
     using JsonSimulationManager< TimeType, StateScalarType >::dynamicsSimulator_;
-    using JsonSimulationManager< TimeType, StateScalarType >::bodyMap_;
+    using JsonSimulationManager< TimeType, StateScalarType >::bodies_;
     using JsonSimulationManager< TimeType, StateScalarType >::integratorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::propagatorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::exportAsJson;
@@ -140,7 +140,7 @@ protected:
     }
 
 
-    //! Reset dynamicsSimulator_ for the current bodyMap_, integratorSettings_ and propagatorSettings_.
+    //! Reset dynamicsSimulator_ for the current bodies_, integratorSettings_ and propagatorSettings_.
     /*!
      * @copybrief resetDynamicsSimulator
      */
@@ -158,7 +158,7 @@ protected:
     {
         orbitDeterminationManager_ =
                 std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
-                    bodyMap_, parametersToEstimate_, observation_models::convertUnsortedToSortedObservationSettingsMap(
+                    bodies_, parametersToEstimate_, observation_models::convertUnsortedToSortedObservationSettingsMap(
                         observationSettingsMap_ ), integratorSettings_, propagatorSettings_,
                     false );
         variationalEquationsSolver_ =

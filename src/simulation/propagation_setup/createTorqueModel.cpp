@@ -238,7 +238,7 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 
 //! Function to create torque models from a map of bodies and torque model settings.
 basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         SelectedTorqueMap selectedTorquePerBody,
         const std::vector< std::string >& propagatedBodies )
 {
@@ -256,7 +256,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
     for( SelectedTorqueMap::const_iterator acceleratedBodyIterator = selectedTorquePerBody.begin( );
          acceleratedBodyIterator != selectedTorquePerBody.end( ); acceleratedBodyIterator++ )
     {
-        if( bodyMap.count( acceleratedBodyIterator->first ) == 0 )
+        if( bodies.count( acceleratedBodyIterator->first ) == 0 )
         {
             throw std::runtime_error(
                         "Error, could not find body " + acceleratedBodyIterator->first + " when making torque model map." );
@@ -265,7 +265,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         {
             torqueModelMap[ acceleratedBodyIterator->first ][ acceleratedBodyIterator->first ].push_back(
                         createTorqueModel(
-                        bodyMap.at( acceleratedBodyIterator->first ), bodyMap.at( acceleratedBodyIterator->first ),
+                        bodies.at( acceleratedBodyIterator->first ), bodies.at( acceleratedBodyIterator->first ),
                         std::make_shared< TorqueSettings >( basic_astrodynamics::inertial_torque ),
                         acceleratedBodyIterator->first, acceleratedBodyIterator->first ) );
 
@@ -273,7 +273,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
                  acceleratingBodyIterator = acceleratedBodyIterator->second.begin( );
                  acceleratingBodyIterator != acceleratedBodyIterator->second.end( ); acceleratingBodyIterator++ )
             {
-                if( bodyMap.count( acceleratingBodyIterator->first ) == 0 )
+                if( bodies.count( acceleratingBodyIterator->first ) == 0 )
                 {
                     throw std::runtime_error(
                                 "Error, could not find body " + acceleratingBodyIterator->first + " when making torque model map." );
@@ -283,7 +283,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
                 {
                     torqueModelMap[ acceleratedBodyIterator->first ][ acceleratingBodyIterator->first ].push_back(
                                 createTorqueModel(
-                                bodyMap.at( acceleratedBodyIterator->first ), bodyMap.at( acceleratingBodyIterator->first ),
+                                bodies.at( acceleratedBodyIterator->first ), bodies.at( acceleratingBodyIterator->first ),
                                 acceleratingBodyIterator->second.at( i ),
                                 acceleratedBodyIterator->first, acceleratingBodyIterator->first ) );
                 }

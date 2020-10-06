@@ -254,7 +254,7 @@ public:
 /*!
  * Function to create the object determining the direction of the thrust acceleration.
  * \param thrustDirectionGuidanceSettings Settings for thrust direction gudiance.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param bodies List of pointers to body objects defining the full simulation environment.
  * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
  * \param bodyFixedThrustOrientation Thrust direction in body-fixed frame.
  * \param magnitudeUpdateSettings Settings for the required updates to the environment during propagation. List is
@@ -263,7 +263,7 @@ public:
  */
 std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
         const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
@@ -733,7 +733,7 @@ public:
     //! Constructor.
     /*!
      * Constructor
-     * \param bodyMap List of pointers to body objects defining the full simulation environment.
+     * \param bodies List of pointers to body objects defining the full simulation environment.
      * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
      * \param nameOfCentralBody Name of body w.r.t. which thrust guidance is computed (e.g. Earth if the altitude from Earth
      * is used as an independent variable of the thrust).
@@ -743,13 +743,13 @@ public:
      * \param maximumAcceleration Maxmum allowable acceleration due to the thrust force.
      */
     AccelerationLimitedThrottleGuidance(
-            const NamedBodyMap& bodyMap,
+            const SystemOfBodies& bodies,
             const std::string nameOfBodyWithGuidance,
             const std::string nameOfCentralBody,
             const std::vector< propulsion::ThrustIndependentVariables > independentVariables,
             const std::shared_ptr< interpolators::Interpolator< double, double > > thrustInterpolator,
             const double maximumAcceleration ): ThrustInputParameterGuidance( 1, 0, true, 0 ),
-        bodyWithGuidance_( bodyMap.at( nameOfBodyWithGuidance ) ), thrustInterpolator_( thrustInterpolator ),
+        bodyWithGuidance_( bodies.at( nameOfBodyWithGuidance ) ), thrustInterpolator_( thrustInterpolator ),
         maximumAcceleration_( maximumAcceleration )
     {
         // Split independent variables into environmental/guidance.
@@ -782,7 +782,7 @@ public:
         {
             bodyWithGuidance_->setFlightConditions(
                         createAtmosphericFlightConditions( bodyWithGuidance_,
-                                                bodyMap.at( nameOfCentralBody ),
+                                                bodies.at( nameOfCentralBody ),
                                                 nameOfBodyWithGuidance,
                                                 nameOfCentralBody ) );
         }
@@ -1077,7 +1077,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
 /*!
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param bodies List of pointers to body objects defining the full simulation environment.
  * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
  * \param maximumAcceleration Maxmum allowable acceleration due to the thrust force.
  * \param thrustMagnitudeInterpolator Interpolator that computes the maximum thrust as a function of the independent
@@ -1090,7 +1090,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
  * \return Thrust magnitude settings according to input.
  */
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -1103,7 +1103,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 /*!
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param bodies List of pointers to body objects defining the full simulation environment.
  * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
  * \param maximumAcceleration Maxmum allowable acceleration due to the thrust force.
  * \param thrustMagnitudeDataFile File containing table with maximum thrust values.
@@ -1115,7 +1115,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
  * \return Thrust magnitude settings according to input.
  */
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::string thrustMagnitudeDataFile,
@@ -1128,7 +1128,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 /*!
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param bodies List of pointers to body objects defining the full simulation environment.
  * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
  * \param maximumAcceleration Maxmum allowable acceleration due to the thrust force.
  * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
@@ -1144,7 +1144,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
  * \return Thrust magnitude settings according to input.
  */
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -1158,7 +1158,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
 /*!
  * Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
  * maximum allowed axial acceleration.
- * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param bodies List of pointers to body objects defining the full simulation environment.
  * \param nameOfBodyWithGuidance Name of body for which thrust guidance is to be created.
  * \param maximumAcceleration Maxmum allowable acceleration due to the thrust force.
  * \param thrustMagnitudeDataFile File containing data for the thrust (or maximum thrust if
@@ -1173,7 +1173,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
  * \return Thrust magnitude settings according to input.
  */
 std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
         const std::string thrustMagnitudeDataFile,

@@ -93,39 +93,68 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
     }
 }
 
+double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::string bodyName )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", no such body is found" );
+    }
+    else if( bodies.at( bodyName )->getGravityFieldModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", body has not gravity field" );
+    }
+    return  bodies.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
+}
+
 
 //! Function ot retrieve the common global translational state origin of the environment
-std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
+std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
-        if( bodyIterator->second->getIsBodyGlobalFrameOrigin( ) == -1 )
+        if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
-            throw std::runtime_error( "Error, body " + bodyIterator->first + " does not have global frame origin set" );
+            throw std::runtime_error( "Error, body " + bodyIterator.first + " does not have global frame origin set" );
         }
-        else if( bodyIterator->second->getIsBodyGlobalFrameOrigin( ) == 1 )
+        else if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == 1 )
         {
             if( globalFrameOrigin != "SSB" )
             {
-                throw std::runtime_error( "Error, body " + bodyIterator->first + " found as global frame origin, but body " +
+                throw std::runtime_error( "Error, body " + bodyIterator.first + " found as global frame origin, but body " +
                                           globalFrameOrigin + " has already been detected as global frame origin." );
             }
             else
             {
-               globalFrameOrigin = bodyIterator->first;
+               globalFrameOrigin = bodyIterator.first;
             }
         }
     }
     return globalFrameOrigin;
 }
 
+std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
+        const std::unordered_map< std::string, std::shared_ptr< Body > > bodies )
+{
+    // Get ephemerides from bodies
+    std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
+    for( auto bodyIterator : bodies  )
+    {
+        if( bodyIterator.second->getEphemeris( ) != nullptr )
+        {
+            ephemerides[ bodyIterator.first ] = bodyIterator.second->getEphemeris( );
+        }
+    }
+    return std::make_shared< ephemerides::ReferenceFrameManager >(
+                ephemerides );
+}
+
 //! Function to set whether the bodies are currently being propagated, or not
-void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
+void setAreBodiesInPropagation( const SystemOfBodies& bodies,
                                 const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator : bodyMap  )
+    for( auto bodyIterator : bodies.getMap( )  )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }

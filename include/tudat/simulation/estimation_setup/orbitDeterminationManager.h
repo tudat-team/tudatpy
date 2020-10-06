@@ -111,7 +111,7 @@ public:
     //! Constructor
     /*!
      *  Constructor
-     *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
+     *  \param bodies Map of body objects with names of bodies, storing all environment models used in simulation.
      *  \param parametersToEstimate Container object for all parameters that are to be estimated
      *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
      *  per observable type for which measurement data is to be provided in orbit determination process
@@ -122,7 +122,7 @@ public:
      *  true)
      */
     OrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
+            const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
@@ -131,12 +131,12 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, { integratorSettings }, propagatorSettings,
+        initializeOrbitDeterminationManager( bodies, observationSettingsMap, { integratorSettings }, propagatorSettings,
                                              propagateOnCreation );
     }
 
     OrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
+            const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
@@ -145,14 +145,14 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings,
+        initializeOrbitDeterminationManager( bodies, observationSettingsMap, integratorSettings, propagatorSettings,
                                              propagateOnCreation );
     }
 
     //! Constructor
     /*!
      *  Constructor
-     *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
+     *  \param bodies Map of body objects with names of bodies, storing all environment models used in simulation.
      *  \param parametersToEstimate Container object for all parameters that are to be estimated
      *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
      *  for which measurement data is to be provided in orbit determination process
@@ -163,7 +163,7 @@ public:
      *  true)
      */
     OrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
+            const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
@@ -172,13 +172,13 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
+        initializeOrbitDeterminationManager( bodies, observation_models::convertUnsortedToSortedObservationSettingsMap(
                                                  observationSettingsMap ), { integratorSettings }, propagatorSettings,
                                              propagateOnCreation );
     }
 
     OrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
+            const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
@@ -187,7 +187,7 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
+        initializeOrbitDeterminationManager( bodies, observation_models::convertUnsortedToSortedObservationSettingsMap(
                                                  observationSettingsMap ), integratorSettings, propagatorSettings,
                                              propagateOnCreation );
     }
@@ -762,7 +762,7 @@ protected:
     //! Function called by either constructor to initialize the object.
     /*!
      *  Function called by either constructor to initialize the object.
-     *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
+     *  \param bodies Map of body objects with names of bodies, storing all environment models used in simulation.
      *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
      *  for which measurement data is to be provided in orbit determination process
      *  (through estimateParameters function)
@@ -772,7 +772,7 @@ protected:
      *  true)
      */
     void initializeOrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
+            const SystemOfBodies &bodies,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
@@ -800,7 +800,7 @@ protected:
         {
             variationalEquationsSolver_ =
                     simulation_setup::createVariationalEquationsSolver(
-                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
+                        bodies, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
                         std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, propagateOnCreation );
         }
 
@@ -825,7 +825,7 @@ protected:
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
                     createObservationManagerBase< ObservationScalarType, TimeType >(
-                        observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate_,
+                        observablesIterator->first, observablesIterator->second, bodies, parametersToEstimate_,
                         stateTransitionAndSensitivityMatrixInterface_ );
         }
 

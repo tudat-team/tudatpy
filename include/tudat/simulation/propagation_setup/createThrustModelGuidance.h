@@ -43,20 +43,20 @@ Eigen::Vector3d getCombinedThrustDirection(
 /*!
  * Function to create a function that returns the thrust direction in the body-fixed frame.
  * \param thrustMagnitudeSettings Settings for the thrust magnitude
- * \param bodyMap List of body objects that comprises the environment
+ * \param bodies List of body objects that comprises the environment
  * \param bodyName Name of body for which thrust is to be created.
  * \return Function that returns the thrust direction in the body-fixed frame.
  */
 std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string bodyName );
 
 //! Function to create a wrapper object that computes the thrust magnitude
 /*!
  * Function to create a wrapper object that computes the thrust magnitude
  * \param thrustMagnitudeSettings Settings for the thrust magnitude
- * \param bodyMap List of body objects that comprises the environment
+ * \param bodies List of body objects that comprises the environment
  * \param nameOfBodyWithGuidance Name of body for which thrust is to be created.
  * \param magnitudeUpdateSettings environment update settings that are required to compute the thrust direction (updated
  * by function as needed).
@@ -64,7 +64,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
  */
 std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 

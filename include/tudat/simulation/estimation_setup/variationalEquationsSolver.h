@@ -56,18 +56,18 @@ public:
     /*!
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and
      *  equations of motion.
-     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param bodies Map of bodies (with names) of all bodies in integration.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
      *  settings and values.
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      */
     VariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool clearNumericalSolution = 1 ):
         parametersToEstimate_( parametersToEstimate ),
-        bodyMap_( bodyMap ),
+        bodies_( bodies ),
         stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
         parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ),
         clearNumericalSolution_( clearNumericalSolution )
@@ -192,7 +192,7 @@ protected:
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_ ;
 
     //! Map of bodies (with names) of all bodies in integration.
-    simulation_setup::NamedBodyMap bodyMap_;
+    simulation_setup::SystemOfBodies bodies_;
 
     //! Size (rows and columns are equal) of state transition matrix.
     int stateTransitionMatrixSize_;
@@ -572,7 +572,7 @@ public:
 
     //! Base class using statements
     using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodies_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
@@ -581,7 +581,7 @@ public:
     /*!
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and
      *  equations of motion.
-     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param bodies Map of bodies (with names) of all bodies in integration.
      *  \param integratorSettings Settings for numerical integrator of combined propagation of variational equations
      *  and equations of motion.
      *  \param propagatorSettings Settings for propagation of equations of motion.
@@ -599,7 +599,7 @@ public:
      *  ephemerides (default true).
      */
     SingleArcVariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -610,7 +610,7 @@ public:
             const bool integrateEquationsOnCreation = true,
             const bool setIntegratedResult = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodyMap, parametersToEstimate, clearNumericalSolution ),
+            bodies, parametersToEstimate, clearNumericalSolution ),
         integratorSettings_( integratorSettings ),
         propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >(propagatorSettings ) ),
         variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings )
@@ -631,14 +631,14 @@ public:
         {
 
             std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels =
-                    createStateDerivativeModels( propagatorSettings_, bodyMap, integratorSettings_->initialTime_ );
+                    createStateDerivativeModels( propagatorSettings_, bodies, integratorSettings_->initialTime_ );
 
             // Create state derivative partials
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
                     stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials
                     < StateScalarType, TimeType >(
-                        getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodyMap, parametersToEstimate );
+                        getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodies, parametersToEstimate );
 
             // Create simulation object for dynamics only.
             if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
@@ -647,7 +647,7 @@ public:
             }
 
             dynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, setIntegratedResult, false,
+                        bodies, integratorSettings, propagatorSettings_, false, clearNumericalSolution, setIntegratedResult, false,
                         std::chrono::steady_clock::now( ),
                         stateDerivativeModels );
 
@@ -736,7 +736,7 @@ public:
             std::map< TimeType, MatrixType > rawNumericalSolution;
             std::map< TimeType, double > cumulativeComputationTimeHistory;
 
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
+            simulation_setup::setAreBodiesInPropagation( bodies_, true );
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
@@ -746,7 +746,7 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
+            simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution;
@@ -780,13 +780,13 @@ public:
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
             std::map< double, double > cumulativeComputationTimeHistory;
 
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
+            simulation_setup::setAreBodiesInPropagation( bodies_, true );
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cumulativeComputationTimeHistory );
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
+            simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
             setVariationalEquationsSolution< double, double >(
                         rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
@@ -809,6 +809,22 @@ public:
     {
         return variationalEquationsSolution_;
     }
+
+    std::map< double, Eigen::MatrixXd >& getStateTransitionMatrixSolution( )
+    {
+        return variationalEquationsSolution_[ 0 ];
+    }
+
+    std::map< double, Eigen::MatrixXd >& getSensitivityMatrixSolution( )
+    {
+        return variationalEquationsSolution_[ 1];
+    }
+
+    const std::map< double, Eigen::VectorXd >& getEquationsOfMotionSolution( )
+    {
+        return dynamicsSimulator_->getEquationsOfMotionNumericalSolution( );
+    }
+
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
     /*!
@@ -1020,7 +1036,7 @@ public:
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
 
     using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodies_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
@@ -1028,7 +1044,7 @@ public:
     //! Constructor
     /*!
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
-     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param bodies Map of bodies (with names) of all bodies in integration.
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
@@ -1045,7 +1061,7 @@ public:
      *  propagation (default true).
      */
     MultiArcVariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -1057,7 +1073,7 @@ public:
             const bool integrateEquationsOnCreation = false,
             const bool resetMultiArcDynamicsAfterPropagation = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodyMap, parametersToEstimate, clearNumericalSolution ),
+            bodies, parametersToEstimate, clearNumericalSolution ),
         propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         resetMultiArcDynamicsAfterPropagation_( resetMultiArcDynamicsAfterPropagation )
     {
@@ -1074,7 +1090,7 @@ public:
                                         estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate ) );
 
         dynamicsSimulator_ =  std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap, integratorSettings, propagatorSettings, arcStartTimes,
+                    bodies, integratorSettings, propagatorSettings, arcStartTimes,
                     false, clearNumericalSolution, resetMultiArcDynamicsAfterPropagation_ );
 
 
@@ -1092,7 +1108,7 @@ public:
             // Create variational equations objects.
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials< StateScalarType, TimeType >(
-                        dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
+                        dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), bodies, parametersToEstimate );
             std::shared_ptr< VariationalEquations > variationalEquationsObject_ =
                     std::make_shared< VariationalEquations >(
                         stateDerivativePartials, parametersToEstimate_, dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ),
@@ -1288,7 +1304,7 @@ public:
 
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
+                simulation_setup::setAreBodiesInPropagation( bodies_, true );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
@@ -1301,7 +1317,7 @@ public:
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
+                simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
@@ -1380,15 +1396,16 @@ public:
                         template cast< StateScalarType >( );
 
                 // Integrate variational equations for current arc
+
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
+                simulation_setup::setAreBodiesInPropagation( bodies_, true );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dummyDependentVariableHistorySolution, dummyCumulativeComputationTimeHistorySolution );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
+                simulation_setup::setAreBodiesInPropagation( bodies_, false );
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(
@@ -1615,7 +1632,7 @@ public:
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
 
     using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodies_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
@@ -1623,7 +1640,7 @@ public:
     //! Constructor
     /*!
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
-     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param bodies Map of bodies (with names) of all bodies in integration.
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
@@ -1636,7 +1653,7 @@ public:
      *  end of this contructor.
      */
     HybridArcVariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -1645,17 +1662,17 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodyMap, parametersToEstimate, clearNumericalSolution ),
+            bodies, parametersToEstimate, clearNumericalSolution ),
         singleArcIntegratorSettings_( integratorSettings ),
         multiArcIntegratorSettings_( integratorSettings ),
         arcStartTimes_( arcStartTimes )
     {
         initializeHybridArcVariationalEquationsSolver(
-                    bodyMap, propagatorSettings, integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation );
+                    bodies, propagatorSettings, integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation );
     }
 
     HybridArcVariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -1665,17 +1682,17 @@ public:
             const bool clearNumericalSolution = true,
             const bool integrateEquationsOnCreation = false ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodyMap, parametersToEstimate, clearNumericalSolution ),
+            bodies, parametersToEstimate, clearNumericalSolution ),
         singleArcIntegratorSettings_( singleArcIntegratorSettings ),
         multiArcIntegratorSettings_( multiArcIntegratorSettings ),
         arcStartTimes_( arcStartTimes )
     {
         initializeHybridArcVariationalEquationsSolver(
-                    bodyMap, propagatorSettings, integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation );
+                    bodies, propagatorSettings, integrateDynamicalAndVariationalEquationsConcurrently, integrateEquationsOnCreation );
     }
 
     void initializeHybridArcVariationalEquationsSolver(
-            const simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool integrateDynamicalAndVariationalEquationsConcurrently,
             const bool integrateEquationsOnCreation )
@@ -1712,7 +1729,7 @@ public:
 
         // Create multi-arc solver with original parameter set
         originalMultiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, multiArcIntegratorSettings_, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
+                    bodies, multiArcIntegratorSettings_, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     originalMultiArcParametersToEstimate_, arcStartTimes_, integrateDynamicalAndVariationalEquationsConcurrently,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                     false, false, false );
@@ -1720,12 +1737,12 @@ public:
         // Create variational equations solvers for single- and multi-arc
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
         singleArcSolver_ = std::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, singleArcIntegratorSettings_, propagatorSettings_->getSingleArcPropagatorSettings( ),
+                    bodies, singleArcIntegratorSettings_, propagatorSettings_->getSingleArcPropagatorSettings( ),
                     singleArcParametersToEstimate_, integrateDynamicalAndVariationalEquationsConcurrently,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                     false, false );
         multiArcSolver_ = std::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, multiArcIntegratorSettings_, extendedMultiArcSettings,
+                    bodies, multiArcIntegratorSettings_, extendedMultiArcSettings,
                     multiArcParametersToEstimate_, arcStartTimes_, integrateDynamicalAndVariationalEquationsConcurrently,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                     false, false, false );
@@ -1749,7 +1766,7 @@ public:
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,
                     singleArcPropagationSettings->centralBodies_,
-                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap ) );
+                    bodies, std::placeholders::_1, createFrameManager( bodies.getMap( ) ) );
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )

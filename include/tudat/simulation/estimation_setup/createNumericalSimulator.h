@@ -25,7 +25,7 @@ namespace simulation_setup
 //! Function to create single-arc dynamics simulator object
 /*!
  *  Function to create single-arc dynamics simulator object
- *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+ *  \param bodies Map of bodies (with names) of all bodies in integration.
  *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
@@ -38,7 +38,7 @@ namespace simulation_setup
  */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > createSingleArcDynamicsSimulator(
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated = true,
@@ -46,7 +46,7 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
         const bool setIntegratedResult = true )
 {
     return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodyMap,
+                bodies,
                 integratorSettings, propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
                 setIntegratedResult );
 }
@@ -54,7 +54,7 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
 //! Function to create single-arc variational equations solver object
 /*!
  *  Function to create single-arc variational equations solver object
- *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+ *  \param bodies Map of bodies (with names) of all bodies in integration.
  *  \param integratorSettings Settings for numerical integrator of combined propagation of variational equations
  *  and equations of motion.
  *  \param propagatorSettings Settings for propagation of equations of motion.
@@ -73,7 +73,7 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createSingleArcVariationalEquationsSolver(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  StateScalarType > > parametersToEstimate,
@@ -84,7 +84,7 @@ createSingleArcVariationalEquationsSolver(
         const bool integrateEquationsOnCreation = 1 )
 {
     return std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
                 integrateDynamicalAndVariationalEquationsConcurrently, variationalOnlyIntegratorSettings,
                 clearNumericalSolution, integrateEquationsOnCreation );
 }
@@ -92,7 +92,7 @@ createSingleArcVariationalEquationsSolver(
 //! Function to create multi-arc variational equations solver object
 /*!
  *  Function to create multi-arc variational equations solver object
- *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+ *  \param bodies Map of bodies (with names) of all bodies in integration.
  *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
@@ -109,7 +109,7 @@ createSingleArcVariationalEquationsSolver(
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createMultiArcVariationalEquationsSolver(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  StateScalarType > > parametersToEstimate,
@@ -122,7 +122,7 @@ createMultiArcVariationalEquationsSolver(
     std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                 parametersToEstimate, true );
     return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, arcStartTimes,
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate, arcStartTimes,
                 integrateDynamicalAndVariationalEquationsConcurrently, variationalOnlyIntegratorSettings,
                 clearNumericalSolution, integrateEquationsOnCreation );
 }
@@ -131,7 +131,7 @@ createMultiArcVariationalEquationsSolver(
 //! Function to create hybrid-arc variational equations solver object
 /*!
  *  Function to create hybrid-arc variational equations solver object
- *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+ *  \param bodies Map of bodies (with names) of all bodies in integration.
  *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
@@ -148,7 +148,7 @@ createMultiArcVariationalEquationsSolver(
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createHybridArcVariationalEquationsSolver(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  StateScalarType > > parametersToEstimate,
@@ -163,14 +163,14 @@ createHybridArcVariationalEquationsSolver(
     if( integratorSettings.size( ) == 1 )
     {
         return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, arcStartTimes,
+                    bodies, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, arcStartTimes,
                     integrateDynamicalAndVariationalEquationsConcurrently,
                     clearNumericalSolution, integrateEquationsOnCreation );
     }
     else
     {
         return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, integratorSettings.at( 0 ), integratorSettings.at( 1 ), propagatorSettings, parametersToEstimate, arcStartTimes,
+                    bodies, integratorSettings.at( 0 ), integratorSettings.at( 1 ), propagatorSettings, parametersToEstimate, arcStartTimes,
                     integrateDynamicalAndVariationalEquationsConcurrently,
                     clearNumericalSolution, integrateEquationsOnCreation );
     }
@@ -179,7 +179,7 @@ createHybridArcVariationalEquationsSolver(
 //! Function to create variational equations solver object
 /*!
 *  Function to create variational equations solver object
-*  \param bodyMap Map of bodies (with names) of all bodies in integration.
+*  \param bodies Map of bodies (with names) of all bodies in integration.
 *  \param integratorSettings Settings for numerical integrator.
 *  \param propagatorSettings Settings for propagator.
 *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
@@ -196,7 +196,7 @@ createHybridArcVariationalEquationsSolver(
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType > >
 createVariationalEquationsSolver(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  StateScalarType > > parametersToEstimate,
@@ -213,7 +213,7 @@ createVariationalEquationsSolver(
             throw std::runtime_error( "Error when making single-arc variational equations, found multiple integrator settings" );
         }
         return createSingleArcVariationalEquationsSolver(
-                    bodyMap, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
+                    bodies, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
                     variationalOnlyIntegratorSettings, clearNumericalSolution, integrateEquationsOnCreation );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
@@ -223,13 +223,13 @@ createVariationalEquationsSolver(
             throw std::runtime_error( "Error when making multi-arc variational equations, found multiple integrator settings" );
         }
         return createMultiArcVariationalEquationsSolver(
-                    bodyMap, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
+                    bodies, integratorSettings.at( 0 ), propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
                     variationalOnlyIntegratorSettings, clearNumericalSolution, integrateEquationsOnCreation );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return createHybridArcVariationalEquationsSolver(
-                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
+                    bodies, integratorSettings, propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
                     variationalOnlyIntegratorSettings, clearNumericalSolution, integrateEquationsOnCreation );
     }
     else
@@ -285,7 +285,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
 
 extern template std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< double, double > >
 createSingleArcVariationalEquationsSolver< double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -296,7 +296,7 @@ createSingleArcVariationalEquationsSolver< double, double >(
 
 extern template std::shared_ptr< propagators::SingleArcDynamicsSimulator< double, double > >
 createSingleArcDynamicsSimulator< double, double >(
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated,
@@ -305,7 +305,7 @@ createSingleArcDynamicsSimulator< double, double >(
 
 extern template std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< double, double > >
 createMultiArcVariationalEquationsSolver< double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -316,7 +316,7 @@ createMultiArcVariationalEquationsSolver< double, double >(
 
 extern template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< double, double > >
 createHybridArcVariationalEquationsSolver< double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -328,7 +328,7 @@ createHybridArcVariationalEquationsSolver< double, double >(
 
 extern template std::shared_ptr< propagators::VariationalEquationsSolver< double, double > >
 createVariationalEquationsSolver< double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -342,7 +342,7 @@ createVariationalEquationsSolver< double, double >(
 
 extern template std::shared_ptr< propagators::SingleArcDynamicsSimulator< double, Time > >
 createSingleArcDynamicsSimulator< double, Time >(
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated,
@@ -351,7 +351,7 @@ createSingleArcDynamicsSimulator< double, Time >(
 
 extern template std::shared_ptr< propagators::SingleArcDynamicsSimulator< long double, double > >
 createSingleArcDynamicsSimulator< long double, double >(
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated,
@@ -360,7 +360,7 @@ createSingleArcDynamicsSimulator< long double, double >(
 
 extern template std::shared_ptr< propagators::SingleArcDynamicsSimulator< long double, Time > >
 createSingleArcDynamicsSimulator< long double, Time >(
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const  simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated,
@@ -369,7 +369,7 @@ createSingleArcDynamicsSimulator< long double, Time >(
 
 extern template std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< double, Time > >
 createSingleArcVariationalEquationsSolver< double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -380,7 +380,7 @@ createSingleArcVariationalEquationsSolver< double, Time >(
 
 extern template std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< long double, Time > >
 createSingleArcVariationalEquationsSolver< long double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -391,7 +391,7 @@ createSingleArcVariationalEquationsSolver< long double, Time >(
 
 extern template std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< long double, double > >
 createSingleArcVariationalEquationsSolver< long double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -404,7 +404,7 @@ createSingleArcVariationalEquationsSolver< long double, double >(
 
 extern template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< double, Time > >
 createHybridArcVariationalEquationsSolver< double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -415,7 +415,7 @@ createHybridArcVariationalEquationsSolver< double, Time >(
 
 extern template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< long double, Time > >
 createHybridArcVariationalEquationsSolver< long double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time> > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -426,7 +426,7 @@ createHybridArcVariationalEquationsSolver< long double, Time >(
 
 extern template std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< long double, double > >
 createHybridArcVariationalEquationsSolver< long double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -439,7 +439,7 @@ createHybridArcVariationalEquationsSolver< long double, double >(
 
 extern template std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< double, Time > >
 createMultiArcVariationalEquationsSolver< double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -450,7 +450,7 @@ createMultiArcVariationalEquationsSolver< double, Time >(
 
 extern template std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< long double, Time > >
 createMultiArcVariationalEquationsSolver< long double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -461,7 +461,7 @@ createMultiArcVariationalEquationsSolver< long double, Time >(
 
 extern template std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< long double, double > >
 createMultiArcVariationalEquationsSolver< long double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -475,7 +475,7 @@ createMultiArcVariationalEquationsSolver< long double, double >(
 
 extern template std::shared_ptr< propagators::VariationalEquationsSolver< double, Time > >
 createVariationalEquationsSolver< double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  double > > parametersToEstimate,
@@ -486,7 +486,7 @@ createVariationalEquationsSolver< double, Time >(
 
 extern template std::shared_ptr< propagators::VariationalEquationsSolver< long double, Time > >
 createVariationalEquationsSolver< long double, Time >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,
@@ -497,7 +497,7 @@ createVariationalEquationsSolver< long double, Time >(
 
 extern template std::shared_ptr< propagators::VariationalEquationsSolver< long double, double > >
 createVariationalEquationsSolver< long double, double >(
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< double > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< long double > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  long double > > parametersToEstimate,

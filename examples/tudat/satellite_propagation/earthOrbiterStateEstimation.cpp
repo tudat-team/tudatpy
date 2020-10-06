@@ -63,9 +63,9 @@ int main( )
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies[ "Vehicle" ] = std::make_shared< Body >( );
+    bodies[ "Vehicle" ]->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
@@ -75,7 +75,7 @@ int main( )
                 referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Vehicle" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     // Create radiation pressure settings
@@ -88,14 +88,14 @@ int main( )
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+    bodies[ "Vehicle" ]->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+                    asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
-    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+    bodies[ "Vehicle" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                             std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE GROUND STATIONS               //////////////////////////////////////////////////////
@@ -107,11 +107,11 @@ int main( )
     groundStationNames.push_back( "Station2" );
     groundStationNames.push_back( "Station3" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1",
+    createGroundStation( bodies.at( "Earth" ), "Station1",
                          ( Eigen::Vector3d( ) << 0.0, 1.25, 0.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station2",
+    createGroundStation( bodies.at( "Earth" ), "Station2",
                          ( Eigen::Vector3d( ) << 0.0, -1.55, 2.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station3",
+    createGroundStation( bodies.at( "Earth" ), "Station3",
                          ( Eigen::Vector3d( ) << 0.0, 0.8, 4.0 ).finished( ), geodetic_position );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ int main( )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -161,7 +161,7 @@ int main( )
     vehicleInitialKeplerianState( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     vehicleInitialKeplerianState( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Define arc length
     double arcDuration = 3.01 * 86400.0;
@@ -273,7 +273,7 @@ int main( )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap, propagatorSettings );
+            createParametersToEstimate( parameterNames, bodies, propagatorSettings );
 
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
@@ -316,7 +316,7 @@ int main( )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,7 +365,7 @@ int main( )
                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
                                                 unit_conversions::convertDegreesToRadians( 5.0 ) ) );
     PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
-                bodyMap, linkEndsPerObservable, observationViabilitySettings );
+                bodies, linkEndsPerObservable, observationViabilitySettings );
 
     // Set typedefs for POD input (observation types, observation link ends, observation values, associated times with
     // reference link ends.

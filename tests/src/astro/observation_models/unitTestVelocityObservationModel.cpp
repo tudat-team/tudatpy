@@ -55,14 +55,14 @@ BOOST_AUTO_TEST_CASE( testVelocityObsevableModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+    BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    
 
     // Define link ends for observations.
     LinkEnds linkEnds;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testVelocityObsevableModel )
     // Create observation model.
     std::shared_ptr< ObservationModel< 3, double, double > > observationModel =
            ObservationModelCreator< 3, double, double >::createObservationModel(
-                linkEnds, observableSettings, bodyMap );
+                linkEnds, observableSettings, bodies );
     std::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
@@ -98,13 +98,13 @@ BOOST_AUTO_TEST_CASE( testVelocityObsevableModel )
 
     // Check link end state/time.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
                 linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
     // Check biased observable
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 3, 3 ) +
+                ( bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 3, 3 ) +
                 observationBias->getObservationBias(
                       std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ) ),
                 observation, std::numeric_limits< double >::epsilon( ) );
@@ -117,10 +117,10 @@ BOOST_AUTO_TEST_CASE( testVelocityObsevableModel )
     observation2 = observationModel->computeIdealObservationsWithLinkEndData(
                 observationTime, observed_body, linkEndTimes, linkEndStates );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
                 linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 3, 3 ),
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 3, 3 ),
                 observation, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 observation, observation2, std::numeric_limits< double >::epsilon( ) );
