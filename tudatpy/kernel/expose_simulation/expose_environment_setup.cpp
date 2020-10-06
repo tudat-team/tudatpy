@@ -71,6 +71,22 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
 
 }
 
+void expose_atmosphere_setup(py::module &m) {
+
+    /////////////////////////////////////////////////////////////////////////////
+    py::class_<tss::AtmosphereSettings,
+            std::shared_ptr<tss::AtmosphereSettings>>
+            AtmosphereSettings(m, "AtmosphereSettings",
+                                            "<no doc>");
+    m.def("exponential",
+          &tss::exponentialAtmosphereSettings,
+          py::arg("scale_height"),
+          py::arg("surface_density"),
+          py::arg("constant_temperature"),
+          py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+          py::arg("ratio_of_specific_heats") = 1.4 );
+}
+
 void expose_radiation_pressure_setup(py::module &m) {
 
     /////////////////////////////////////////////////////////////////////////////
@@ -313,6 +329,16 @@ void expose_ephemeris_setup(py::module &m) {
                  &tss::TabulatedEphemerisSettings::getUseLongDoubleStates)
             .def("set_use_long_double_states",
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
+
+    m.def("keplerian",
+          &tss::keplerEphemerisSettings,
+          py::arg( "initial_keplerian_state" ),
+          py::arg( "initial_state_epoch" ),
+          py::arg( "central_body_gravitational_parameter" ),
+          py::arg( "frame_origin" ) = "SSB" ,
+          py::arg( "frame_orientation" ) = "ECLIPJ2000" ,
+          py::arg( "root_finder_absolute_tolerance" ) = 200.0 * std::numeric_limits< double >::epsilon( ),
+          py::arg( "root_finder_maximum_iterations" ) = 1000.0 );
 }
 
 void expose_environment_setup(py::module &m) {
