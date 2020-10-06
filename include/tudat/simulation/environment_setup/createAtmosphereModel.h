@@ -799,6 +799,18 @@ private:
 
 };
 
+inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
+        const double densityScaleHeight,
+        const double constantTemperature,
+        const double densityAtZeroAltitude,
+        const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+        const double ratioOfSpecificHeats = 1.4 )
+{
+    return std::make_shared< ExponentialAtmosphereSettings >(
+                densityScaleHeight, constantTemperature, densityAtZeroAltitude, specificGasConstant,
+                ratioOfSpecificHeats );
+}
+
 //! Function to create a wind model.
 /*!
  *  Function to create a wind model based on model-specific settings for the wind model.
