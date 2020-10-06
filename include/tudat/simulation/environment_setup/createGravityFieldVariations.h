@@ -282,13 +282,13 @@ private:
  * Function to create a set of gravity field variations, stored in the associated interface class of
  * type GravityFieldVariationsSet
  * \param body Body for which gravity field variations are createad
- * \param bodyMap List of body objects in simulations.
+ * \param bodies List of body objects in simulations.
  * \param gravityFieldVariationSettings List of settings for gravity field variations
  * \return Interface class containing list of GravityFieldVariations.
  */
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >&
             gravityFieldVariationSettings );
 
@@ -300,13 +300,13 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
  * harmonic corrections are calculated a priori and handled by an interpolator during propagation,
  * or they are directly calculated from the current state during numerical propagation.
  * \param body Body for which gravity field variations are createad
- * \param bodyMap List of body objects in simulations.
+ * \param bodies List of body objects in simulations.
  * \return Single gravity field variation object.
  */
 std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const NamedBodyMap& bodyMap );
+        const SystemOfBodies& bodies );
 
 } // namespace simulation_setup
 } // namespace tudat

@@ -107,20 +107,20 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
 /*!
  *  Function to create a state function of a link end, expressed in base frame.
  *  \param linkEndId Name of the reference point for which state function is to be created.
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \return Requested state function.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
-        const std::pair< std::string, std::string > linkEndId, const simulation_setup::NamedBodyMap& bodyMap )
+        const std::pair< std::string, std::string > linkEndId, const simulation_setup::SystemOfBodies& bodies )
 {
-    if( bodyMap.count( linkEndId.first ) == 0  )
+    if( bodies.count( linkEndId.first ) == 0  )
     {
         std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
                 linkEndId.second + ", body not found.";
         throw std::runtime_error( errorMessage );
     }
-    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodyMap.at( linkEndId.first ), linkEndId );
+    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.first ), linkEndId );
 }
 
 //! Function to create a light-time calculation object
@@ -129,7 +129,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
  *  state functions.
  *  \param transmitterCompleteEphemeris Function returning the transmitter Cartesian state as a function of time.
  *  \param receiverCompleteEphemeris Function returning the receiver Cartesian state as a function of time.
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \param lightTimeCorrections List of light time corrections (w.r.t. Euclidean distance) that are applied when computing
  *  light time.
  *  \param transmittingLinkEnd Identifier for transmitting link end.
@@ -140,7 +140,7 @@ std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType,
 createLightTimeCalculator(
         const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
         const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd )
@@ -153,7 +153,7 @@ createLightTimeCalculator(
 
         lightTimeCorrectionFunctions.push_back(
                     createLightTimeCorrections(
-                        lightTimeCorrections[ i ], bodyMap, transmittingLinkEnd, receivingLinkEnd ) );
+                        lightTimeCorrections[ i ], bodies, transmittingLinkEnd, receivingLinkEnd ) );
     }
 
     // Create light time calculator.
@@ -167,7 +167,7 @@ createLightTimeCalculator(
  *  identifiers.
  *  \param transmittingLinkEnd Identifier for transmitting link end.
  *  \param receivingLinkEnd Identifier for receiving link end.
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \param lightTimeCorrections List of light time corrections (w.r.t. Euclidean distance) that are applied when computing
  *  light time.
  */
@@ -176,7 +176,7 @@ std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType,
 createLightTimeCalculator(
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) )
 {
@@ -184,10 +184,10 @@ createLightTimeCalculator(
     // Get link end state functions and create light time calculator.
     return createLightTimeCalculator< ObservationScalarType, TimeType >(
                 getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
-                    transmittingLinkEnd, bodyMap ),
+                    transmittingLinkEnd, bodies ),
                 getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
-                    receivingLinkEnd, bodyMap ),
-                bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
+                    receivingLinkEnd, bodies ),
+                bodies, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
 }
 
 } // namespace observation_models

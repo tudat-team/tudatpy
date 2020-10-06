@@ -26,7 +26,7 @@ using namespace ephemerides;
 //! Function to generate one-way range partial wrt an initial position of a body.
 std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -34,7 +34,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
 {
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayRangeLinkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( oneWayRangeLinkEnds, bodies, bodyToEstimate );
 
     // Create one-range partials if any position partials are created (i.e. if any dependency exists).
     std::shared_ptr< OneWayRangePartial > oneWayRangePartial;
@@ -53,7 +53,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
 //! Function to generate one-way range partial wrt an initial position of a body.
 std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalState(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string bodyToEstimate,
         const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
         const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
@@ -61,7 +61,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalS
 {
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyRotationalState( oneWayRangeLinkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyRotationalState( oneWayRangeLinkEnds, bodies, bodyToEstimate );
 
     // Create one-range partials if any position partials are created (i.e. if any dependency exists).
     std::shared_ptr< OneWayRangePartial > oneWayRangePartial;

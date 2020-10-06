@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createBodies( defaultBodySettings );
 
     
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Create observation model.
     std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
            ObservationModelCreator< 2, double, double >::createObservationModel(
-                linkEnds, observableSettings, bodyMap );
+                linkEnds, observableSettings, bodies );
     std::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
-                lightTimeCorrectionSettings.at( 0 ), bodyMap, linkEnds[ transmitter ], linkEnds[ receiver ] );
+                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter ], linkEnds[ receiver ] );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
 
@@ -114,10 +114,10 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 
     // Check consistency of link end states and time.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates.at( 0 ), bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 0 ) ),
+                linkEndStates.at( 0 ), bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 0 ) ),
                 std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates.at( 1 ), bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 1 ) ),
+                linkEndStates.at( 1 ), bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 1 ) ),
                 std::numeric_limits< double >::epsilon( ) );
 
     // Check that reception time is kept fixed.
@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 
     // Check consistency of link end states and time.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates2.at( 0 ), bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 0 ) ),
+                linkEndStates2.at( 0 ), bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 0 ) ),
                 std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates2.at( 1 ), bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 1 ) ),
+                linkEndStates2.at( 1 ), bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 1 ) ),
                 std::numeric_limits< double >::epsilon( ) );
 }
 

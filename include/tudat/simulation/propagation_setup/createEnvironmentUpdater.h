@@ -26,16 +26,16 @@ namespace propagators
 /*!
  * Function to check whether the requested environment updates are
  * possible with the existing environment, i.e. if all
- * environment models that are to be updated exist in the bodyMap. The
+ * environment models that are to be updated exist in the bodies. The
  * function throws an error if environment cannot
  * be updated as requested.,
  * \param requestedUpdates List of environment updates that are required
- * \param bodyMap List of body objects used in the simulations.
+ * \param bodies List of body objects used in the simulations.
  */
 void checkValidityOfRequiredEnvironmentUpdates(
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
         requestedUpdates,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Function that removes propagated states from the updated environment variables
 /*!
@@ -52,36 +52,36 @@ void removePropagatedStatesFomEnvironmentUpdates(
 /*!
  * Get list of required environment model update settings from torque models.
  * \param torqueModels List of torque models used in simulation.
- * \param bodyMap List of body objects used in the simulations.
+ * \param bodies List of body objects used in the simulations.
  * \return List of required environment model update settings.
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap );
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies );
 
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
  * Get list of required environment model update settings from translational acceleration models.
  * \param translationalAccelerationModels List of acceleration models used in simulation.
- * \param bodyMap List of body objects used in the simulations.
+ * \param bodies List of body objects used in the simulations.
  * \return List of required environment model update settings.
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Get list of required environment model update settings from mass rate models.
 /*!
  * Get list of required environment model update settings from mass rate models.
  * \param massRateModels List of mass rate models used in simulation.
- * \param bodyMap List of body objects used in the simulations.
+ * \param bodies List of body objects used in the simulations.
  * \return List of required environment model update settings.
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Function to update environment to allow all required updates to be made
 /*!
@@ -89,48 +89,48 @@ createMassPropagationEnvironmentUpdaterSettings(
  * be updated, and creates a FlightConditions object for the associated body if it is not.
  * \param updateType List of environment models that are to be updated
  * \param dependentVariableSaveSettings Dependent variables that are to be saved
- * \param bodyMap List of body objects that comprises the environment (updated by function if needed).
+ * \param bodies List of body objects that comprises the environment (updated by function if needed).
  */
 void checkAndModifyEnvironmentForDependentVariableSaving(
         const EnvironmentModelsToUpdate updateType,
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Function to create environment update settings for a single dependent variable
 /*!
  * Function to create environment update settings for a single dependent variable
  * \param dependentVariableSaveSettings Settings for single dependent variable
- * \param bodyMap List of body objects that comprises the environment
+ * \param bodies List of body objects that comprises the environment
  * \return List of required environment model updates.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Create environment update settings for dependent variables
 /*!
  *  Create environment update settings for dependent variables
  *  \param dependentVariableSaveSettings Settings for dependent variables
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \return List of required environment model updates.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Create environment update settings for termination settings
 /*!
  *  Create environment update settings for termination settings
  *  \param terminationSettings Settings for propagation termination
- *  \param bodyMap List of body objects that comprises the environment
+ *  \param bodies List of body objects that comprises the environment
  *  \return List of required environment model updates.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 
 //! Get list of required environment model update settings from a list of propagation settings.
@@ -138,7 +138,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
 * Get list of required environment model update settings from a list of propagation settings.
 * \param propagatorSettings Object providing the full settings for the
 * dynamics that are to be propagated.
-* \param bodyMap List of body objects used in the simulations.
+* \param bodies List of body objects used in the simulations.
 * \param isPartOfMultiTypePropagation Boolean denoting whether propagation uses multiple types of dynamics
 * \return List of updates required when propagating dynamics defined by propagatorSettings.
 */
@@ -146,7 +146,7 @@ template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation = false )
 {
     std::map< propagators::EnvironmentModelsToUpdate,
@@ -175,7 +175,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
                 if( typeIterator->first != hybrid )
                 {
                     singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType >(
-                                typeIterator->second.at( i ), bodyMap, true );
+                                typeIterator->second.at( i ), bodies, true );
 
                     // Add single model environment model update settings to full list
                     addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
@@ -196,14 +196,14 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast<
                     TranslationalStatePropagatorSettings< StateScalarType > >(
                         propagatorSettings )->getAccelerationsMap( ),
-                    bodyMap );
+                    bodies );
         break;
     }
     case rotational_state:
     {
         environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->getTorqueModelsMap( ),
-                    bodyMap );
+                    bodies );
         break;
     }
         // Retrieve environment model settings for mass rate model
@@ -212,7 +212,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast<
                     MassPropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->getMassRateModelsMap( ), bodyMap );
+                        propagatorSettings )->getMassRateModelsMap( ), bodies );
         break;
     }
     case custom_state:
@@ -228,12 +228,12 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
 
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdateForDependentVariables =
-            createEnvironmentUpdaterSettings( propagatorSettings->getDependentVariablesToSave( ), bodyMap );
+            createEnvironmentUpdaterSettings( propagatorSettings->getDependentVariablesToSave( ), bodies );
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForDependentVariables );
 
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdateForTerminationConditions =
-            createEnvironmentUpdaterSettings( propagatorSettings->getTerminationSettings( ), bodyMap );
+            createEnvironmentUpdaterSettings( propagatorSettings->getTerminationSettings( ), bodies );
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
 
     // Remove variables from environment updates that are numerically propagated.
@@ -241,7 +241,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     {
         removePropagatedStatesFomEnvironmentUpdates(
                     environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
-        checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
+        checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
     }
 
 
@@ -254,27 +254,27 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
  * Function to create 'brute-force' update settings, in which each
  * environment model (i.e. each member of the Body
  * objects that can be updated) is updated.
- * \param bodyMap List of body objects used in the simulations.
+ * \param bodies List of body objects used in the simulations.
  * \return List of environment model updates, so that each updatable model is updated.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createFullEnvironmentUpdaterSettings(
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Create environment updater from a list of propagation settings.
 /*!
 * Get environment updater from a list of propagation settings.
 * \param propagatorSettings Object providing the full settings for the
 * dynamics that are to be propagated.
-* \param bodyMap List of body objects used in the simulations.
-* \return Object that updates the environment in bodyMap, as per thhe
+* \param bodies List of body objects used in the simulations.
+* \return Object that updates the environment in bodies, as per thhe
 * requirements set by propagatorSettings.
 */
 template< typename StateScalarType, typename TimeType >
 std::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > >
 createEnvironmentUpdaterForDynamicalEquations(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
     // Create environment update settings.
     std::map< IntegratedStateType,
@@ -283,35 +283,35 @@ createEnvironmentUpdaterForDynamicalEquations(
 
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdate =
-            createEnvironmentUpdaterSettings< StateScalarType >( propagatorSettings, bodyMap );
+            createEnvironmentUpdaterSettings< StateScalarType >( propagatorSettings, bodies );
 
     // Create and return environment updater object.
     return std::make_shared< EnvironmentUpdater< StateScalarType, TimeType > >(
-                bodyMap, environmentModelsToUpdate, integratedTypeAndBodyList );
+                bodies, environmentModelsToUpdate, integratedTypeAndBodyList );
 }
 
 extern template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 
 extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation );
 
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 extern template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 extern template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::SystemOfBodies& bodies );
 extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const bool isPartOfMultiTypePropagation );
 #endif
 } // namespace propagators

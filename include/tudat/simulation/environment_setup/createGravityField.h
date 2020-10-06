@@ -427,7 +427,7 @@ std::pair< double, double > readGravityFieldFile(
  *  \param gravityFieldSettings Settings for the gravity field model that is to be created, defined
  *  a pointer to an object of class (derived from) GravityFieldSettings.
  *  \param body Name of the body for which the gravity field model is to be created.
- *  \param bodyMap List of body objects, as currently created (used when setting
+ *  \param bodies List of body objects, as currently created (used when setting
  *  gravityFieldVariationSettings)
  *  \param gravityFieldVariationSettings List of settings for the variations of the gravity field
  *  that are to be used (but not immediately set!) by current body under consideration.
@@ -436,7 +436,7 @@ std::pair< double, double > readGravityFieldFile(
 std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
-        const NamedBodyMap& bodyMap = NamedBodyMap( ),
+        const SystemOfBodies& bodies = SystemOfBodies( ),
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
         std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 

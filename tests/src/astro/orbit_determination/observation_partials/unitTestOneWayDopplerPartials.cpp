@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         double nominalEvaluationTime = 1.1E7;
 
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -103,9 +103,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         // Create transmitter/receriver state functions
         std::function< Eigen::Vector6d( const double ) > transmitterStateFunction =
-                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodyMap );
+                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodies );
         std::function< Eigen::Vector6d( const double ) > receiverStateFunction =
-                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodyMap );
+                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodies );
 
         // Define (independent!) transmission/reception times
         double transmissionTime = nominalEvaluationTime;
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::one_way_doppler,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ), bodyMap  );
+                                    perturbingBodies ) ), bodies  );
             }
             else
             {
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             (  std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodyMap  );
+                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodies  );
             }
 
             // Create parameter objects.
@@ -246,16 +246,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
             if( estimationCase < 2 )
             {
-                fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
             }
             else
             {
-                fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7, true );
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
                 parameterPerturbationMultipliers( 2 ) = 1.0E-4;
             }
 
             testObservationPartials< 1 >(
-                        oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
+                        oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
                         true, true, 10.0, parameterPerturbationMultipliers );
             std::cout << "Case " << estimationCase << std::endl;
 
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::one_way_doppler,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ), bodyMap  );
+                                    perturbingBodies ) ), bodies  );
             }
             else
             {
@@ -296,23 +296,23 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             (  std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodyMap  );
+                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodies  );
             }
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
             if( estimationCase < 2 )
             {
-                fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
             }
             else
             {
-                fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7, true );
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
                 parameterPerturbationMultipliers( 2 ) = 1.0E-4;
             }
 
             testObservationPartials< 1 >(
-                        oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
+                        oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
                         1.0, parameterPerturbationMultipliers );
         }
     }
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1000000.0 );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1000000.0 );
 
         // Set link ends for observation model (Mars to Earth)
         LinkEnds linkEnds;
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                         linkEnds, std::make_shared< OneWayDopplerObservationSettings >
                         (  std::shared_ptr< LightTimeCorrectionSettings >( ),
                            std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                           std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ), bodyMap ) );
+                           std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ), bodies ) );
 
 
         // Extract proper time calculators
@@ -347,13 +347,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodyMap, 1.1E7 );
+                createEstimatableParameters( bodies, 1.1E7 );
 
         // Create partials for Doppler with proper time rates
         std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > observationModelList;
         observationModelList[ linkEnds ] = oneWayDopplerModel;
         std::map< LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > dopplerPartials =
-                createOneWayDopplerPartials( observationModelList, bodyMap, fullEstimatableParameterSet );
+                createOneWayDopplerPartials( observationModelList, bodies, fullEstimatableParameterSet );
 
         // Retrieve  scaling objects and partials with proper time
         std::shared_ptr< OneWayDopplerScaling > partialScalingObject =
@@ -395,16 +395,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                  linkEndTimes, linkEndStates, referenceLinkEnd );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtMarsPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Earth", bodyMap, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+                        "Earth", bodies, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Mars", bodyMap, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+                        "Mars", bodies, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtMarsVelocity =
                     calculatePartialWrtConstantBodyVelocity(
-                        "Earth", bodyMap, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+                        "Earth", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthVelocity =
                     calculatePartialWrtConstantBodyVelocity(
-                        "Mars", bodyMap, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+                        "Mars", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
@@ -425,16 +425,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                  linkEndTimes, linkEndStates, referenceLinkEnd );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Earth", bodyMap, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Earth", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Mars", bodyMap, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Mars", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsVelocity =
                     calculatePartialWrtConstantBodyVelocity(
-                        "Earth", bodyMap, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Earth", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthVelocity =
                     calculatePartialWrtConstantBodyVelocity(
-                        "Mars", bodyMap, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Mars", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
@@ -456,13 +456,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 std::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, std::make_shared< ObservationSettings >
-                        (  one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ) ), bodyMap ) );
+                        (  one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ) ), bodies ) );
 
         // Create partials for Doppler without proper time rates
         observationModelList.clear( );
         observationModelList[ linkEnds ] = oneWayDopplerModelWithoutProperTime;
         std::map< LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > dopplerPartialsWithoutProperTime =
-                createOneWayDopplerPartials( observationModelList, bodyMap, fullEstimatableParameterSet );
+                createOneWayDopplerPartials( observationModelList, bodies, fullEstimatableParameterSet );
 
         // Retrieve partial object without proper time
         std::shared_ptr< OneWayDopplerScaling > partialScalingObjectWithoutProperTime =

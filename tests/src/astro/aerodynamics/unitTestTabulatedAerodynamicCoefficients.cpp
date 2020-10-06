@@ -78,16 +78,16 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     // MOON
     bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Vehicle" );
+    bodies.addNewBody( "Vehicle" );
 
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
     double referenceArea = 10.0;
 
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -121,10 +121,10 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
 
 <<<<<<< HEAD:tests/src/astro/aerodynamics/unitTestTabulatedAerodynamicCoefficients.cpp
     // aerodynamics interface
-    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+    bodies[ "Vehicle" ]->setAerodynamicCoefficientInterface(
 =======
     // Aerodynamics interface
-    bodyMap.at( "Vehicle" )->setAerodynamicCoefficientInterface(
+    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
 >>>>>>> dominic-origin/BodyMapRefactoring:Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap =
-            createAccelerationModelsMap( bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = eccentricity;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = mathematical_constants::PI / 180.0 * 23.4;
 
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                 vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 

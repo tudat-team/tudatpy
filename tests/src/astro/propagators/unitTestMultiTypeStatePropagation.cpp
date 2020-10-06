@@ -71,11 +71,11 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap.createBody( "Asterix" );
-    bodyMap.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies.createBody( "Asterix" );
+    bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                 < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
@@ -95,7 +95,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
     // Set Keplerian elements for Asterix.
@@ -110,7 +110,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements,
                 earthGravitationalParameter );
@@ -161,7 +161,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
     // Return propagated dynamics (if simulationCase < 3) or interpolated dynamics (else)
     if( simulationCase < 3 )
@@ -182,18 +182,18 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
             // Interpolate propagated dynamics type
             if( simulationCase == 3 )
             {
-                returnMap[ currentTime ] = bodyMap.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
+                returnMap[ currentTime ] = bodies.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
             }
             else if( simulationCase == 4 )
             {
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 1 );
-                returnMap[ currentTime ]( 0 ) = bodyMap.at( "Asterix" )->getBodyMassFunction( )( currentTime );
+                returnMap[ currentTime ]( 0 ) = bodies.at( "Asterix" )->getBodyMassFunction( )( currentTime );
             }
             else if( simulationCase == 5 )
             {
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 7 );
-                returnMap[ currentTime ].segment( 0, 6 ) = bodyMap.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
-                returnMap[ currentTime ]( 6 ) = bodyMap.at( "Asterix" )->getBodyMassFunction( )( currentTime );
+                returnMap[ currentTime ].segment( 0, 6 ) = bodies.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
+                returnMap[ currentTime ]( 6 ) = bodies.at( "Asterix" )->getBodyMassFunction( )( currentTime );
 
             }
 

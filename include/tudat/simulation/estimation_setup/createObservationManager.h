@@ -284,7 +284,7 @@ void performObservationParameterEstimationClosure(
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
  *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
  *  for each required set of link ends (each settings object must be consistent with observableType).
- *  \param bodyMap Map of Body objects that comprise the environment
+ *  \param bodies Map of Body objects that comprise the environment
  *  \param parametersToEstimate Object containing the list of all parameters that are to be estimated
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
  *  \return Object that simulates the observations of a given type and associated partials
@@ -293,7 +293,7 @@ template< int ObservationSize = 1, typename ObservationScalarType, typename Time
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
         const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap,
+        const simulation_setup::SystemOfBodies &bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
         parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
@@ -305,7 +305,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     // Create observation simulator
     std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator =
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
-                observableType, settingsPerLinkEnds, bodyMap );
+                observableType, settingsPerLinkEnds, bodies );
 
     performObservationParameterEstimationClosure(
                 observationSimulator, parametersToEstimate );
@@ -320,7 +320,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     {
         observationPartialsAndScaler =
                 observationPartialCreator->createObservationPartials(
-                    observableType, observationSimulator->getObservationModels( ), bodyMap, parametersToEstimate );
+                    observableType, observationSimulator->getObservationModels( ), bodies, parametersToEstimate );
     }
 
     // Split position partial scaling and observation partial objects.
@@ -342,7 +342,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
  *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
  *  for each required set of link ends (each settings object must be consistent with observableType).
- *  \param bodyMap Map of Body objects that comprise the environment
+ *  \param bodies Map of Body objects that comprise the environment
  *  \param parametersToEstimate Object containing the list of all parameters that are to be estimated
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
  *  \return Object that simulates the observations of a given type and associated partials
@@ -351,7 +351,7 @@ template< typename ObservationScalarType, typename TimeType >
 std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
         const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap,
+        const simulation_setup::SystemOfBodies &bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface )
 {
@@ -360,47 +360,47 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     {
     case one_way_range:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case n_way_range:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case one_way_doppler:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case two_way_doppler:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case one_way_differenced_range:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case angular_position:
         observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case position_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case euler_angle_313_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     case velocity_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    observableType, settingsPerLinkEnds, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
     default:
@@ -414,28 +414,28 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
 //extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 1, double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 2, double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 3, double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
@@ -444,76 +444,76 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
 //extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 3, double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 3, long double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 3, long double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 2, double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 2, long double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 2, long double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 1, double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 1, long double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 1, long double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 
 //extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManagerBase< double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManagerBase< long double, double >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 //extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManagerBase< long double, Time >(
 //        const ObservableType observableType,
 //        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const simulation_setup::SystemOfBodies &bodies,
 //        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
 //        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
 

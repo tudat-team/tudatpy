@@ -50,15 +50,15 @@ std::shared_ptr< simulation_setup::BodySettings > createBodySettings( const nloh
  */
 void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& bodySettings, const nlohmann::json& jsonObject );
 
-//! Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
+//! Update \p bodies and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
 //! initial time from \p integratorSettings).
 /*!
- * Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
+ * Update \p bodies and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
  * initial time from \p integratorSettings).
  * \param jsonObject The root `json` object containing all the relevant fields ("bodies" mandatory, "finalEpoch"
  * mandatory if Spice kernels should be preloaded, "globalFrameOrigin" and "globalFrameOrientation" optional).
- * \param bodyMap The named body map to be updated (returned by reference).
- * \param bodySettingsMap The map of body settings created from \p jsonObject and used to create \p bodyMap
+ * \param bodies The named system of bodies to be updated (returned by reference).
+ * \param bodySettingsMap The map of body settings created from \p jsonObject and used to create \p bodies
  * (returned by reference).
  * \param globalFrameOrigin Name of the global frame origin.
  * \param globalFrameOrientation Name of the global frame orientation.
@@ -70,7 +70,7 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
 template< typename TimeType = double >
 void updateBodiesFromJSON(
         const nlohmann::json& jsonObject,
-        simulation_setup::NamedBodyMap& bodyMap,
+        simulation_setup::SystemOfBodies& bodies,
         simulation_setup::BodyListSettings& bodySettingsMap,
         const std::string globalFrameOrigin,
         const std::string globalFrameOrientation,
@@ -160,10 +160,10 @@ void updateBodiesFromJSON(
     }
 
     // Create bodies.
-    bodyMap = createBodies( bodySettingsMap );
+    bodies = createBodies( bodySettingsMap );
 
     
-    setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
+    setGlobalFrameBodyEphemerides( bodies, globalFrameOrigin, globalFrameOrientation );
 }
 
 } // namespace json_interface

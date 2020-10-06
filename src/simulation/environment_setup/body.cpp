@@ -93,26 +93,26 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
     }
 }
 
-double getBodyGravitationalParameter( const NamedBodyMap& bodyMap, const std::string bodyName )
+double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::string bodyName )
 {
-    if( bodyMap.count( bodyName ) == 0 )
+    if( bodies.count( bodyName ) == 0 )
     {
         throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", no such body is found" );
     }
-    else if( bodyMap.at( bodyName )->getGravityFieldModel( ) == nullptr )
+    else if( bodies.at( bodyName )->getGravityFieldModel( ) == nullptr )
     {
         throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", body has not gravity field" );
     }
-    return  bodyMap.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
+    return  bodies.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
 }
 
 
 //! Function ot retrieve the common global translational state origin of the environment
-std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
+std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( auto bodyIterator : bodyMap.getMap( ) )
+    for( auto bodyIterator : bodies.getMap( ) )
     {
         if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
@@ -135,11 +135,11 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
 }
 
 std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
-        const std::unordered_map< std::string, std::shared_ptr< Body > > bodyMap )
+        const std::unordered_map< std::string, std::shared_ptr< Body > > bodies )
 {
     // Get ephemerides from bodies
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
-    for( auto bodyIterator : bodyMap  )
+    for( auto bodyIterator : bodies  )
     {
         if( bodyIterator.second->getEphemeris( ) != nullptr )
         {
@@ -151,10 +151,10 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 }
 
 //! Function to set whether the bodies are currently being propagated, or not
-void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
+void setAreBodiesInPropagation( const SystemOfBodies& bodies,
                                 const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator : bodyMap.getMap( )  )
+    for( auto bodyIterator : bodies.getMap( )  )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }

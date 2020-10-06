@@ -474,10 +474,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             getEarthGravityFieldVariationSettings( );
 
 
-    NamedBodyMap bodyMap;
-    bodyMap.addBody( earth, "Earth" );
-    bodyMap.addBody( vehicle, "Vehicle" );;
-    bodyMap.addBody( createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( vehicle, "Vehicle" );;
+    bodies.addBody( createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
 
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
             std::make_shared< ephemerides::SimpleRotationalEphemeris >(
@@ -490,12 +490,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     std::shared_ptr< tudat::gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
             std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField  >(
                 tudat::simulation_setup::createGravityFieldModel(
-                    earthGravityFieldSettings, "Earth", bodyMap, gravityFieldVariationSettings ) );
+                    earthGravityFieldSettings, "Earth", bodies, gravityFieldVariationSettings ) );
     earth->setGravityFieldModel( earthGravityField );
-    bodyMap.at( "Earth" )->setGravityFieldVariationSet(
+    bodies.at( "Earth" )->setGravityFieldVariationSet(
                 createGravityFieldModelVariationsSet(
-                    "Earth", bodyMap, gravityFieldVariationSettings ) );
-    bodyMap.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
+                    "Earth", bodies, gravityFieldVariationSettings ) );
+    bodies.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
 
     
 
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     double testTime = 1.0E6;
     earth->setState( Eigen::Vector6d::Zero( ) );
     earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodyMap.at( "Moon" ) ->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000" ,"None", testTime ) );
+    bodies.at( "Moon" ) ->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000" ,"None", testTime ) );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -580,7 +580,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                   "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Check if incompatible tidal parameters correctly throw an error
     {
@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         try
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodyMap );
+                    createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error )
         {
@@ -610,7 +610,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         try
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodyMap );
+                    createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error )
         {
@@ -624,7 +624,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         try
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodyMap );
+                    createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error )
         {
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         try
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodyMap );
+                    createParametersToEstimate( wrongParameterNames, bodies );
         }
         catch( std::runtime_error )
         {
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial > (
                 createAnalyticalAccelerationPartial(
                     gravitationalAcceleration, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Earth", earth ),
-                    bodyMap, parameterSet ) );
+                    bodies, parameterSet ) );
 
     accelerationPartial->update( testTime );
 
@@ -837,9 +837,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     bodySettings.at( "Earth" )->rotationModelSettings =
             std::make_shared< SynchronousRotationModelSettings >(
                 "Moon", "ECLIPJ2000", "IAU_Earth" );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    std::shared_ptr< tudat::simulation_setup::Body > earth = bodyMap.at( "Earth" );
-    std::shared_ptr< tudat::simulation_setup::Body > moon = bodyMap.at( "Moon" );
+    SystemOfBodies bodies = createBodies( bodySettings );
+    std::shared_ptr< tudat::simulation_setup::Body > earth = bodies.at( "Earth" );
+    std::shared_ptr< tudat::simulation_setup::Body > moon = bodies.at( "Moon" );
     std::dynamic_pointer_cast< tudat::ephemerides::SynchronousRotationalEphemeris >(
                 earth->getRotationalEphemeris( ) )->setIsBodyInPropagation( 1 );
 
@@ -890,7 +890,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                                   "Moon", 0.0, "ECLIPJ2000" ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
 
     // Create acceleration partial object.
@@ -898,7 +898,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
             std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial > (
                 createAnalyticalAccelerationPartial(
                     gravitationalAcceleration, std::make_pair( "Moon", moon ), std::make_pair( "Earth", earth ),
-                    bodyMap, parameterSet ) );
+                    bodies, parameterSet ) );
     accelerationPartial->update( testTime );
 
     // Calculate analytical partials.
@@ -916,7 +916,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
 
     // Calculate numerical partials.
     std::function< void( ) > updateFunction =
-            std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, bodyMap.at( "Earth" ), testTime );
+            std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, bodies.at( "Earth" ), testTime );
 
     testPartialWrtMoonPosition = calculateAccelerationWrtStatePartials(
                 moonStateSetFunction, gravitationalAcceleration, moon->getState( ), positionPerturbation, 0,

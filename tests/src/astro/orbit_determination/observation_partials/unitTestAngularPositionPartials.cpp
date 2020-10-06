@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -77,13 +77,13 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
                 observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
                     linkEnds, std::make_shared< observation_models::ObservationSettings >(
                         observation_models::angular_position, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                            perturbingBodies ) ), bodyMap  );
+                            perturbingBodies ) ), bodies  );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodyMap, 1.1E7 );
+                createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
                                  true, true, 1.0, parameterPerturbationMultipliers );
     }
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 //    {
 //        std::cout << "Test 1" << std::endl;
 //        // Create environment
-//        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
 //        // Set link ends for observation model
 //        LinkEnds linkEnds;
@@ -103,13 +103,13 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 //        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
 //                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
 //                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
-//                        observation_models::angular_position ), bodyMap  );
+//                        observation_models::angular_position ), bodies  );
 
 //        // Create parameter objects.
 //        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-//                createEstimatableParameters( bodyMap, 1.1E7 );
+//                createEstimatableParameters( bodies, 1.1E7 );
 
-//        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+//        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
 //        false, true, 1.0, parameterPerturbationMultipliers );
 
 //    }

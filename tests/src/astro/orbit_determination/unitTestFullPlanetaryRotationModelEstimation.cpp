@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( initialEphemerisTime, finalEphemerisTime );    
-    NamedBodyMap bodyMap = createBodies( bodySettings );    
+    SystemOfBodies bodies = createBodies( bodySettings );
     
     
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );    
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
     
     // Set accelerations between bodies that are to be taken into account.
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     
     // Define propagator settings.
     std::vector< std::string > centralBodies; centralBodies.push_back( "SSB" );
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
     Eigen::VectorXd initialState = getInitialStateOfBody< double, double>(
-                bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodyMap, initialEphemerisTime );
+                bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, initialEphemerisTime );
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialState,
@@ -168,11 +168,11 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodyMap );
+                createParametersToEstimate< double >( parameterNames, bodies );
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodyMap, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );        
+                    bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
         
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =

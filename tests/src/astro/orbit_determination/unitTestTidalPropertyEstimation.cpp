@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         }
     }
 
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     
 
@@ -124,13 +124,13 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         centralBodies.push_back( "Jupiter" );
         centralBodies.push_back( "Jupiter" );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToEstimate, centralBodies );
+                    bodies, accelerationMap, bodiesToEstimate, centralBodies );
 
 
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToEstimate,
-                  getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodyMap, initialEphemerisTime ),
+                  getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodies, initialEphemerisTime ),
                   finalEphemerisTime );
 
         // Set parameters that are to be estimated.
@@ -138,11 +138,11 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         parameterNames.push_back(
                     std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
                         "Io", propagators::getInitialStateOfBody(
-                            "Io", "Jupiter", bodyMap, initialEphemerisTime ), "Jupiter" ) );
+                            "Io", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
         parameterNames.push_back(
                     std::make_shared< InitialTranslationalStateEstimatableParameterSettings< > >(
                         "Europa", propagators::getInitialStateOfBody(
-                            "Europa", "Jupiter", bodyMap, initialEphemerisTime ), "Jupiter" ) );
+                            "Europa", "Jupiter", bodies, initialEphemerisTime ), "Jupiter" ) );
         parameterNames.push_back(
                     std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
                         "Io", "" ) );
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                             "Jupiter", "Europa" ) );
         }
         std::shared_ptr< tudat::estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
+                createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
 
 
         // Define links in simulation.
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager =
                 OrbitDeterminationManager< double, double >(
-                    bodyMap, parametersToEstimate,
+                    bodies, parametersToEstimate,
                     observationSettingsMap, integratorSettings, propagatorSettings );
 
         Eigen::VectorXd initialParameterEstimate =
@@ -352,9 +352,9 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000"  );
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+    SystemOfBodies bodies = createBodies( bodySettings );
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Set Keplerian and Cartesian elements for spacecraft.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Define observation settings
     observation_models::ObservationSettingsMap observationSettingsMap;
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     // Create orbit determination object.
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     // define observation simulation times

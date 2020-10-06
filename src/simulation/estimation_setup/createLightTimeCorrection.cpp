@@ -22,7 +22,7 @@ namespace observation_models
 //! Function to create object that computes a single (type of) correction to the light-time
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::pair< std::string, std::string >& transmitter,
         const std::pair< std::string, std::string >& receiver )
 {
@@ -51,7 +51,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             // Retrieve mass and state functions for each perturbing body.
             for( unsigned int i = 0; i < perturbingBodies.size( ); i++ )
             {
-                if( bodyMap.count( perturbingBodies[ i ] ) == 0 )
+                if( bodies.count( perturbingBodies[ i ] ) == 0 )
                 {
                     throw std::runtime_error(
                                 "Error when making 1st order relativistic light time correction, could not find body " +
@@ -62,12 +62,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     // Set state function.
                     perturbingBodyStateFunctions.push_back(
                                 std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                                         bodyMap.at( perturbingBodies[ i ] ), std::placeholders::_1 ) );
+                                                                         bodies.at( perturbingBodies[ i ] ), std::placeholders::_1 ) );
 
                     // Set gravitational parameter function.
                     perturbingBodyGravitationalParameterFunctions.push_back(
                                 std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                             bodyMap.at( perturbingBodies[ i ] )->
+                                             bodies.at( perturbingBodies[ i ] )->
                                              getGravityFieldModel( ) ) );
                 }
             }

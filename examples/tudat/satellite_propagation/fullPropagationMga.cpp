@@ -122,7 +122,7 @@ int main( )
 
     /// Ideal case
 
-    // Create body map.
+    // Create system of bodies.
     std::vector< double > gravitationalParametersTransferBodies;
     gravitationalParametersTransferBodies.push_back( 3.9860119e14 );
     gravitationalParametersTransferBodies.push_back( 3.9860119e14 );
@@ -142,14 +142,14 @@ int main( )
     ephemerisVectorTransferBodies.push_back( std::make_shared< ephemerides::ApproximatePlanetPositions>(
                 ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury) );
 
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
+    simulation_setup::SystemOfBodies bodies = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
             centralBody[0], bodyToPropagate, transferBodyTrajectory,
             ephemerisVectorTransferBodies, gravitationalParametersTransferBodies, "ECLIPJ2000" );
 
 
     // Create acceleration map.
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
-                transferBodyTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
+                transferBodyTrajectory.size(), centralBody[0], bodyToPropagate, bodies);
 
     // Calculate the patched conics solution and the propagation results of the associated full dynamics problem for each leg.
     std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsTrajectory;
@@ -157,7 +157,7 @@ int main( )
     std::map< int, std::map< double, Eigen::VectorXd > > dependentVariablesTrajectory;
 
     propagators::fullPropagationPatchedConicsTrajectory(
-                bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate,
+                bodies, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate,
             legTypeVector, variableVector, minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings,
             patchedConicsTrajectory, fullProblemTrajectory, dependentVariablesTrajectory, false );
 
@@ -191,7 +191,7 @@ int main( )
 
     // Create the acceleration map.
     basic_astrodynamics::AccelerationMap accelerationModelMapPerturbedCase = simulation_setup::createAccelerationModelsMap(
-                bodyMap, accelerationMapPerturbedCase, {bodyToPropagate}, {centralBody} );
+                bodies, accelerationMapPerturbedCase, {bodyToPropagate}, {centralBody} );
     std::vector<  basic_astrodynamics::AccelerationMap > accelerationMapVectorPerturbedCase;
     for (int i = 0 ; i < numberOfLegs ; i++){
         accelerationMapVectorPerturbedCase.push_back( accelerationModelMapPerturbedCase );
@@ -203,7 +203,7 @@ int main( )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemTrajectoryPerturbedCase;
     std::map< int, std::map< double, Eigen::VectorXd > > dependentVariablesPerturbedCase;
 
-    propagators::fullPropagationPatchedConicsTrajectory( bodyMap, accelerationMapVectorPerturbedCase,
+    propagators::fullPropagationPatchedConicsTrajectory( bodies, accelerationMapVectorPerturbedCase,
             transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
             semiMajorAxes, eccentricities, integratorSettings, patchedConicsTrajectoryPerturbedCase,
             fullProblemTrajectoryPerturbedCase, dependentVariablesPerturbedCase, true );

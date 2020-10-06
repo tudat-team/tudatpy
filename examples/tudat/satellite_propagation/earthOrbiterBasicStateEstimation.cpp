@@ -56,11 +56,11 @@ int main( )
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0,finalEphemerisTime + 3600.0 );
     setSimpleRotationSettingsFromSpice( bodySettings, "Earth", initialEphemerisTime );
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap.createBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+    bodies.createBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface
     double referenceArea = 4.0;
@@ -69,7 +69,7 @@ int main( )
             constantAerodynamicCoefficientSettings(
                 referenceArea, ( Eigen::Vector3d( ) << aerodynamicDragCoefficient, -0.01, 0.1 ).finished( ), 1, 1 );
     addAerodynamicCoefficientInterface(
-                bodyMap, "Vehicle", aerodynamicCoefficientSettings );
+                bodies, "Vehicle", aerodynamicCoefficientSettings );
 
     // Create and add radiation pressure interace
     double referenceAreaRadiation = 4.0;
@@ -79,8 +79,8 @@ int main( )
             cannonBallRadiationPressureSettings(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
     addRadiationPressureInterface(
-                bodyMap, "Vehicle", vehicleRadiationPressureSettings );
-    addEmptyTabulateEphemeris( bodyMap, "Vehicle", "Earth" );
+                bodies, "Vehicle", vehicleRadiationPressureSettings );
+    addEmptyTabulateEphemeris( bodies, "Vehicle", "Earth" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE GROUND STATIONS               //////////////////////////////////////////////////////
@@ -92,11 +92,11 @@ int main( )
     groundStationNames.push_back( "Station2" );
     groundStationNames.push_back( "Station3" );
 
-    createGroundStation( bodyMap.at( "Earth" ), "Station1",
+    createGroundStation( bodies.at( "Earth" ), "Station1",
                          ( Eigen::Vector3d( ) << 0.0, 1.25, 0.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station2",
+    createGroundStation( bodies.at( "Earth" ), "Station2",
                          ( Eigen::Vector3d( ) << 0.0, -1.55, 2.0 ).finished( ), geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "Station3",
+    createGroundStation( bodies.at( "Earth" ), "Station3",
                          ( Eigen::Vector3d( ) << 0.0, 0.8, 4.0 ).finished( ), geodetic_position );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ int main( )
 
     // Create acceleration models
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationSettingsList, bodiesToIntegrate, centralBodies );
+                bodies, accelerationSettingsList, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -141,7 +141,7 @@ int main( )
     vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Set initial state.
-    double earthGravitationalParameter = getBodyGravitationalParameter( bodyMap, "Earth" );
+    double earthGravitationalParameter = getBodyGravitationalParameter( bodies, "Earth" );
     Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
                 vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
@@ -215,7 +215,7 @@ int main( )
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodyMap );
+    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
@@ -225,7 +225,7 @@ int main( )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodyMap );
+            createParametersToEstimate( parameterNames, bodies );
 
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
@@ -237,7 +237,7 @@ int main( )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

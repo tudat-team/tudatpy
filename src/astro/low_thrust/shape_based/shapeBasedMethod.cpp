@@ -18,7 +18,7 @@ namespace shape_based_methods
 
 
 basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelerationMap(
-        const simulation_setup::NamedBodyMap& bodyMapTest,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::function< double ( const double ) > specificImpulseFunction,
@@ -27,7 +27,7 @@ basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelera
 
     // Create low thrust acceleration model.
     std::shared_ptr< propulsion::ThrustAcceleration > lowThrustAccelerationModel =
-            getLowThrustAccelerationModel( bodyMapTest, bodyToPropagate, specificImpulseFunction, integratorSettings );
+            getLowThrustAccelerationModel( bodies, bodyToPropagate, specificImpulseFunction, integratorSettings );
 
     // Acceleration from the central body.
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > accelerationSettingsMap;
@@ -38,7 +38,7 @@ basic_astrodynamics::AccelerationMap ShapeBasedMethod::retrieveLowThrustAccelera
     accelerationMap[ bodyToPropagate ] = accelerationSettingsMap;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMapTest, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
+                bodies, accelerationMap, std::vector< std::string >{ bodyToPropagate }, std::vector< std::string >{ centralBody } );
 
     accelerationModelMap[ bodyToPropagate ][ bodyToPropagate ].push_back( lowThrustAccelerationModel );
 

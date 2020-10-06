@@ -227,10 +227,10 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
             getDefaultBodySettings( bodiesToCreate );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap.addNewBody( "Asterix" );
+    bodies.addNewBody( "Asterix" );
 
     
     
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings );
+                    bodies, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 

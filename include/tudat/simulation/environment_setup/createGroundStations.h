@@ -86,13 +86,13 @@ void createGroundStation(
 //! Function to create a set of ground stations and add them to the corresponding Body objects
 /*!
  * Function to create a set of ground stations and add them to the corresponding Body objects
- * \param bodyMap List of body objects to which the ground stations are to be added
+ * \param bodies List of body objects to which the ground stations are to be added
  * \param groundStationsWithPosition List of ground station positions, key is first: associated body; second: ground station
  * name
  * \param positionElementType Element type (e.g. Cartesian, spherical, etc.) of Vector3d in groundStationsWithPosition.
  */
 void createGroundStations(
-        const NamedBodyMap& bodyMap,
+        const SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition,
         const coordinate_conversions::PositionElementTypes positionElementType =
         coordinate_conversions::cartesian_position );

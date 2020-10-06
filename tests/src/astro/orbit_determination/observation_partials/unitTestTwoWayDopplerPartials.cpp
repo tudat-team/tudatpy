@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                             linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::two_way_doppler,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ), bodyMap  );
+                                    perturbingBodies ) ), bodies  );
             }
             else
             {
@@ -130,18 +130,18 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodies );
             }
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
-            fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
+            fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
             printEstimatableParameterEntries( fullEstimatableParameterSet );
 
             testObservationPartials< 1 >(
-                        twoWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-5,
+                        twoWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-5,
                         true, true, 10.0, parameterPerturbationMultipliers );
 
         }
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
-        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                             linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::two_way_doppler,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ), bodyMap  );
+                                    perturbingBodies ) ), bodies  );
             }
             else
             {
@@ -188,17 +188,17 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodies );
             }
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
-            fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
+            fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
             printEstimatableParameterEntries( fullEstimatableParameterSet );
 
             testObservationPartials< 1 >(
-                        twoWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-4, false, true,
+                        twoWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-4, false, true,
                         1.0, parameterPerturbationMultipliers );
         }
     }

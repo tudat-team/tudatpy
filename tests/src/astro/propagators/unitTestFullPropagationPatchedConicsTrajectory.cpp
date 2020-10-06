@@ -120,13 +120,13 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     ephemerisVectorTransferBodies.push_back( ephemerisSaturn );
 
 
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(centralBody[0],
+    // Create system of bodies.
+    simulation_setup::SystemOfBodies bodies = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(centralBody[0],
             bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies, "ECLIPJ2000" );
 
     // Create acceleration map.
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
-                nameBodiesTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
+                nameBodiesTrajectory.size(), centralBody[0], bodyToPropagate, bodies);
 
     // Create departure and capture variables.
     std::vector< double > semiMajorAxes;
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
         std::map< int, std::map< double, Eigen::VectorXd > > dependentVariableResultForEachLeg;
 
         propagators::fullPropagationPatchedConicsTrajectory(
-                    bodyMap, accelerationMap, nameBodiesTrajectory,
+                    bodies, accelerationMap, nameBodiesTrajectory,
                     centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                 semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg,
                 dependentVariableResultForEachLeg, static_cast< bool >( terminationType ) );
@@ -257,14 +257,14 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     std::string bodyToPropagate = "spacecraft";
 
 
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromEphemeridesForPatchedConicsTrajectory(centralBody[0],
+    // Create system of bodies.
+    simulation_setup::SystemOfBodies bodies = propagators::setupBodyMapFromEphemeridesForPatchedConicsTrajectory(centralBody[0],
             bodyToPropagate, transferBodyTrajectory);
 
 
     // Create acceleration map.
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
-                transferBodyTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
+                transferBodyTrajectory.size(), centralBody[0], bodyToPropagate, bodies);
 
 
     // Create variable vector.
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
         //    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
         tudat::propagators::fullPropagationPatchedConicsTrajectory(
-                    bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
+                    bodies, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
                 minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg,
                 fullProblemResultForEachLeg, dependentVariableResultForEachLeg,
                 static_cast< bool >( terminationType ) );

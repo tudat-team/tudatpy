@@ -60,13 +60,13 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                     "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
         bodySettings.at( bodiesToTest.at( i ) )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
     
 
     // Test rotation model when body is in propagation, and outside of propagation
     for( unsigned int areBodiesInPropagation = 0; areBodiesInPropagation < 2; areBodiesInPropagation++ )
     {
-        setAreBodiesInPropagation( bodyMap, areBodiesInPropagation );
+        setAreBodiesInPropagation( bodies, areBodiesInPropagation );
 
         // Test different bodies
         for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
             // Get synchronous rotation model and ephemeris
             std::shared_ptr< SynchronousRotationalEphemeris > currentRotationalEphemeris =
                     std::dynamic_pointer_cast< SynchronousRotationalEphemeris >(
-                        bodyMap.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
-            std::shared_ptr< Ephemeris > currentEphemeris = bodyMap.at( bodiesToTest.at( i ) )->getEphemeris( );
+                        bodies.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
+            std::shared_ptr< Ephemeris > currentEphemeris = bodies.at( bodiesToTest.at( i ) )->getEphemeris( );
 
             // Test for various times (and anomalies)
             for( int j = 0; j < 100; j ++ )
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                 }
                 else
                 {
-                    bodyMap.at( bodiesToTest.at( i ) )->setStateFromEphemeris( testTime );
-                    bodyMap.at( "Jupiter" )->setStateFromEphemeris( testTime );
-                    currentSatelliteState = bodyMap.at( bodiesToTest.at( i ) )->getState( ) -
-                             bodyMap.at( "Jupiter" )->getState(  );
+                    bodies.at( bodiesToTest.at( i ) )->setStateFromEphemeris( testTime );
+                    bodies.at( "Jupiter" )->setStateFromEphemeris( testTime );
+                    currentSatelliteState = bodies.at( bodiesToTest.at( i ) )->getState( ) -
+                             bodies.at( "Jupiter" )->getState(  );
                 }
 
                 // Retrieve rotation matrix

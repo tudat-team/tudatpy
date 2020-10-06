@@ -89,8 +89,8 @@ simulation_setup::BodyListSettings setupBodySettingsCR3BP(
     return bodySettings;
 }
 
-//! Function to directly setup CR3BP bodyMap
-simulation_setup::NamedBodyMap setupBodyMapCR3BP(
+//! Function to directly setup CR3BP bodies
+simulation_setup::SystemOfBodies setupBodyMapCR3BP(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
@@ -99,16 +99,16 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
         const double primaryGravitationalParameter,
         const double secondaryGravitationalParameter )
 {
-    // Create body map
-    simulation_setup::NamedBodyMap bodyMap = createBodies(
+    // Create system of bodies
+    simulation_setup::SystemOfBodies bodies = createBodies(
                 setupBodySettingsCR3BP( distancePrimarySecondary, namePrimaryBody, nameSecondaryBody, frameOrientation,
                                         primaryGravitationalParameter, secondaryGravitationalParameter ) );
-    bodyMap.createBody( nameBodyToPropagate );
-    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodies.createBody( nameBodyToPropagate );
+    bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
 
-    return bodyMap;
+    return bodies;
 
 }
 
@@ -119,7 +119,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
         const std::string& nameSecondaryBody,
         const std::string& nameBodyToPropagate,
         const std::string& centralBody,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::SystemOfBodies& bodies )
 {
 
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
@@ -131,7 +131,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
     accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, { nameBodyToPropagate }, { centralBody } );
+                bodies, accelerationMap, { nameBodyToPropagate }, { centralBody } );
 
     return accelerationModelMap;
 
@@ -145,7 +145,7 @@ void propagateCR3BPFromEnvironment(
         const double finalPropagationTime,
         const Eigen::Vector6d& initialState,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector < std::string >& bodiesCR3BP,
         std::map< double, Eigen::Vector6d >& stateHistory,
         const bool outputInNormalizedCoordinates )
@@ -156,19 +156,19 @@ void propagateCR3BPFromEnvironment(
     Eigen::Vector6d initialStatePrimary;
     Eigen::Vector6d initialStateSecondary;
 
-    if( bodyMap.at( bodiesCR3BP.at( 0 ) )->getBodyMass( ) > bodyMap.at( bodiesCR3BP.at( 1 ) )->getBodyMass( ) )
+    if( bodies.at( bodiesCR3BP.at( 0 ) )->getBodyMass( ) > bodies.at( bodiesCR3BP.at( 1 ) )->getBodyMass( ) )
     {
-        gravitationalParameterPrimary = bodyMap.at( bodiesCR3BP.at( 0 ) )->getGravityFieldModel( )->getGravitationalParameter( );
-        initialStatePrimary = bodyMap.at( bodiesCR3BP.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime );
-        gravitationalParameterSecondary = bodyMap.at( bodiesCR3BP.at( 1 ) )->getGravityFieldModel( )->getGravitationalParameter( );
-        initialStateSecondary = bodyMap.at( bodiesCR3BP.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime );
+        gravitationalParameterPrimary = bodies.at( bodiesCR3BP.at( 0 ) )->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStatePrimary = bodies.at( bodiesCR3BP.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime );
+        gravitationalParameterSecondary = bodies.at( bodiesCR3BP.at( 1 ) )->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStateSecondary = bodies.at( bodiesCR3BP.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime );
     }
     else
     {
-        gravitationalParameterPrimary = bodyMap.at( bodiesCR3BP.at( 1 ) )->getGravityFieldModel( )->getGravitationalParameter( );
-        initialStatePrimary = bodyMap.at( bodiesCR3BP.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime );
-        gravitationalParameterSecondary = bodyMap.at( bodiesCR3BP.at( 0 ) )->getGravityFieldModel( )->getGravitationalParameter( );
-        initialStateSecondary = bodyMap.at( bodiesCR3BP.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime );
+        gravitationalParameterPrimary = bodies.at( bodiesCR3BP.at( 1 ) )->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStatePrimary = bodies.at( bodiesCR3BP.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime );
+        gravitationalParameterSecondary = bodies.at( bodiesCR3BP.at( 0 ) )->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStateSecondary = bodies.at( bodiesCR3BP.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime );
     }
 
 
@@ -225,14 +225,14 @@ void propagateCR3BPAndFullDynamicsProblem(
         const double initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector < std::string >& bodiesCR3BP,
         std::map< double, Eigen::Vector6d >& directPropagationResult,
         std::map< double, Eigen::Vector6d >& cr3bpPropagationResult,
         std::map< double, Eigen::VectorXd >& dependentVariableValues )
 {
     // Propagate the full problem
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
 
 
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -244,7 +244,7 @@ void propagateCR3BPAndFullDynamicsProblem(
 
     cr3bpPropagationResult.clear( );
     propagateCR3BPFromEnvironment(
-                initialTime, finalPropagationTime, propagatorSettings->getInitialStates( ), integratorSettings, bodyMap,
+                initialTime, finalPropagationTime, propagatorSettings->getInitialStates( ), integratorSettings, bodies,
                 bodiesCR3BP, cr3bpPropagationResult, false );
 }
 
@@ -257,7 +257,7 @@ void propagateCR3BPAndFullDynamicsProblem(
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::vector< std::string >& bodiesToPropagate,
         const std::vector< std::string >& centralBodies,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector < std::string >& bodiesCR3BP,
         std::map< double, Eigen::Vector6d >& directPropagationResult,
         std::map< double, Eigen::Vector6d >& cr3bpPropagationResult )
@@ -269,7 +269,7 @@ void propagateCR3BPAndFullDynamicsProblem(
 
     std::map< double, Eigen::VectorXd > dependentVariableValues;
     propagateCR3BPAndFullDynamicsProblem(
-            initialTime, integratorSettings, propagatorSettings, bodyMap, bodiesCR3BP, directPropagationResult,
+            initialTime, integratorSettings, propagatorSettings, bodies, bodiesCR3BP, directPropagationResult,
             cr3bpPropagationResult, dependentVariableValues );
 
 }
@@ -283,14 +283,14 @@ Eigen::Vector6d getFinalStateDifferenceFullPropagationWrtCR3BP(
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::vector< std::string >& bodiesToPropagate,
         const std::vector< std::string >& centralBodies,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::vector < std::string >& bodiesCR3BP )
 {
     std::map< double, Eigen::Vector6d > directPropagationResult;
     std::map< double, Eigen::Vector6d > cr3bpPropagationResult;
     propagateCR3BPAndFullDynamicsProblem(
                 initialTime, finalTime, initialState, integratorSettings, accelerationModelMap, bodiesToPropagate, centralBodies,
-                bodyMap, bodiesCR3BP, directPropagationResult, cr3bpPropagationResult );
+                bodies, bodiesCR3BP, directPropagationResult, cr3bpPropagationResult );
 
     Eigen::Vector6d finalPropagatedStateFullProblem = directPropagationResult.rbegin( )->second;
     Eigen::Vector6d finalPropagatedStateCR3BP = cr3bpPropagationResult.rbegin( )->second;

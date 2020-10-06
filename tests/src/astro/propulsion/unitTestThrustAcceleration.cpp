@@ -54,13 +54,13 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     using namespace basic_astrodynamics;
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap;
+    simulation_setup::SystemOfBodies bodies;
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodyMap.at( "Vehicle" )->setEphemeris(
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+    bodies.at( "Vehicle" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "SSB" ) );
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     {
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Vehicle" ] = (
                     createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                         bodyMap, accelerationModelMap ) );
+                                         bodies, accelerationModelMap ) );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -189,15 +189,15 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
     for( unsigned int i = 0; i < 4; i++ )
     {
         // Create Earth object
-        simulation_setup::NamedBodyMap bodyMap;
+        simulation_setup::SystemOfBodies bodies;
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
         double dryVehicleMass = 2.0E3;
 
-        bodyMap.addNewBody( "Vehicle" );
-        bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodyMap.at( "Vehicle" )->setEphemeris(
+        bodies.addNewBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+        bodies.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "SSB" ) );
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
                     [ & ]( ){ return specificImpulse2; }, [ & ]( ){ return massFlow2; } );
         vehicleSystems->setEngineModel( vehicleEngineModel1, "Engine1" );
         vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
-        bodyMap.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
+        bodies.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
 
         
         
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             massRateModels[ "Vehicle" ] = (
                         createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                             bodyMap, accelerationModelMap ) );
+                                             bodies, accelerationModelMap ) );
             totalMassRate = massFlow1 + massFlow2;
             totalThrust = thrustMagnitude1 + thrustMagnitude2;
             break;
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             massRateModels[ "Vehicle" ] = (
                         createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
-                                             bodyMap, accelerationModelMap ) );
+                                             bodies, accelerationModelMap ) );
             totalMassRate = massFlow1;
             totalThrust = thrustMagnitude1;
             break;
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             massRateModels[ "Vehicle" ] = (
                         createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine2" ),
-                                             bodyMap, accelerationModelMap ) );
+                                             bodies, accelerationModelMap ) );
             totalMassRate = massFlow2;
             totalThrust = thrustMagnitude2;
             break;
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             massRateModels[ "Vehicle" ] = (
                         createMassRateModel( "Vehicle", std::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
-                                             bodyMap, accelerationModelMap ) );
+                                             bodies, accelerationModelMap ) );
             totalMassRate = massFlow1;
             totalThrust = thrustMagnitude1 + thrustMagnitude2;
             break;
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -407,20 +407,20 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
     for( unsigned int i = 0; i < 2; i++ )
     {
         // Create Earth object
-        simulation_setup::NamedBodyMap bodyMap;
+        simulation_setup::SystemOfBodies bodies;
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodyMap.addNewBody( "Earth" );
+        bodies.addNewBody( "Earth" );
 
-        bodyMap.at( "Earth" )->setEphemeris(
+        bodies.at( "Earth" )->setEphemeris(
                     std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
-        bodyMap.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
+        bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
                                                       spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
-        bodyMap.addNewBody( "Vehicle" );
-        bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-        bodyMap.at( "Vehicle" )->setEphemeris(
+        bodies.addNewBody( "Vehicle" );
+        bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+        bodies.at( "Vehicle" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
         if( i == 1 )
@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -582,23 +582,23 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     double specificImpulse = 250.0;
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap;
+    simulation_setup::SystemOfBodies bodies;
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Earth" );
-    bodyMap.at( "Earth" )->setEphemeris(
+    bodies.addNewBody( "Earth" );
+    bodies.at( "Earth" )->setEphemeris(
                 std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
-    bodyMap.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
+    bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
                                                   spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
     double vehicleMass = 5.0E3;
-    bodyMap.addNewBody( "Vehicle" );
-    bodyMap.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodyMap.at( "Vehicle" )->setEphemeris(
+    bodies.addNewBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+    bodies.at( "Vehicle" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "Earth" ) );
-    bodyMap.at( "Vehicle" )->setRotationalEphemeris(
+    bodies.at( "Vehicle" )->setRotationalEphemeris(
                 std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
     
 
@@ -633,7 +633,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
 
@@ -657,7 +657,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+                bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
          dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); outputIterator++ )
     {
-        rotationToInertialFrame = bodyMap.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame(
+        rotationToInertialFrame = bodies.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame(
                     outputIterator->first );
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -737,17 +737,17 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
         // Create Earth object
-        simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
         // Create vehicle objects.
-        bodyMap.addNewBody( "Apollo" );
+        bodies.addNewBody( "Apollo" );
         double vehicleMass = 5.0E3;
-        bodyMap.at( "Apollo" )->setConstantBodyMass( vehicleMass );
+        bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
         // Create vehicle aerodynamic coefficients
-        bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface(
+        bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                     unit_tests::getApolloCoefficientInterface( ) );
-        bodyMap.at( "Apollo" )->setEphemeris(
+        bodies.at( "Apollo" )->setEphemeris(
                     std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                         std::shared_ptr< interpolators::OneDimensionalInterpolator<
                         double, Eigen::Vector6d  > >( ), "Earth" ) );
@@ -785,10 +785,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set trim conditions for the vehicle.
-        setTrimmedConditions( bodyMap.at( "Apollo" ) );
+        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -845,7 +845,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -863,7 +863,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
 
         std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > vehicelCoefficientInterface =
-                bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+                bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
@@ -915,7 +915,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
 
             Eigen::Vector3d expectedAerodynamicAcceleration = 0.5 * currentDensity * currentAirspeed * currentAirspeed *
-                    bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( )->getReferenceArea( ) *
+                    bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( )->getReferenceArea( ) *
                     ( currentRotationFromInertialToAerodynamicFrame.inverse( ) ) *
                     currentAerodynamicForceCoefficients / vehicleMass;
 
@@ -1007,12 +1007,12 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    NamedBodyMap bodyMap = createBodies( bodySettings );
+    SystemOfBodies bodies = createBodies( bodySettings );
 
     // Create spacecraft object.
     double bodyMass = 1.0;
-    bodyMap.addNewBody( "Asterix" );
-    bodyMap.at( "Asterix" )->setConstantBodyMass( bodyMass );
+    bodies.addNewBody( "Asterix" );
+    bodies.at( "Asterix" )->setConstantBodyMass( bodyMass );
 
 
     
@@ -1071,7 +1071,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
 
 
@@ -1085,7 +1085,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
-        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
@@ -1122,7 +1122,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
@@ -1272,16 +1272,16 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Apollo" );
+    bodies.addNewBody( "Apollo" );
     double vehicleMass = 5.0E5;
-    bodyMap.at( "Apollo" )->setConstantBodyMass( vehicleMass );
+    bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap.at( "Apollo" )->setEphemeris(
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
+    bodies.at( "Apollo" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator<
                     double, Eigen::Vector6d  > >( ), "Earth" ) );
@@ -1433,10 +1433,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set trimmed conditions for body orientation.
-        setTrimmedConditions( bodyMap.at( "Apollo" ) );
+        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -1465,7 +1465,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                                          bodyMap, accelerationModelMap );
+                                                          bodies, accelerationModelMap );
 
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
@@ -1490,7 +1490,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -1619,16 +1619,16 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
             std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Apollo" );
+    bodies.addNewBody( "Apollo" );
     double vehicleMass = 5.0E5;
-    bodyMap.at( "Apollo" )->setConstantBodyMass( vehicleMass );
+    bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
     // Create vehicle aerodynamic coefficients
-    bodyMap.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodyMap.at( "Apollo" )->setEphemeris(
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
+    bodies.at( "Apollo" )->setEphemeris(
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator<
                     double, Eigen::Vector6d  > >( ), "Earth" ) );
@@ -1667,7 +1667,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
                     std::make_shared< ThrustDirectionGuidanceSettings >(
                         thrust_direction_from_existing_body_orientation, "Earth" ),
                     createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-                        bodyMap, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
+                        bodies, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
                         thrustFile, thrustDependencies,
                         specificImpulseFile, specificImpulseDependencies, "Earth" ) ) );
 
@@ -1682,9 +1682,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    setTrimmedConditions( bodyMap.at( "Apollo" ) );
+    setTrimmedConditions( bodies.at( "Apollo" ) );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -1701,7 +1701,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                                                      bodyMap, accelerationModelMap );
+                                                      bodies, accelerationModelMap );
 
     std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
@@ -1726,7 +1726,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -1795,10 +1795,10 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
             std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap.addNewBody( "Asterix" );
+    bodies.addNewBody( "Asterix" );
 
     
     double vehicleMass = 5.0E5;
@@ -1806,7 +1806,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
     // Run simulations for a single MEE costate not equal to zero, for each of the first 5 elements
     for( unsigned int i = 0; i < 5; i++ )
     {
-        bodyMap.at( "Asterix" )->setConstantBodyMass( vehicleMass );
+        bodies.at( "Asterix" )->setConstantBodyMass( vehicleMass );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -1841,7 +1841,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -1861,7 +1861,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
         massRateModels[ "Asterix" ] = createMassRateModel(
                     "Asterix", std::make_shared< FromThrustMassModelSettings >( 1 ),
-                    bodyMap, accelerationModelMap );
+                    bodies, accelerationModelMap );
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
                     std::vector< std::string >{ "Asterix" }, massRateModels,
@@ -1882,7 +1882,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve change in Modified Equinoctial Elements
         std::map< double, Eigen::VectorXd > dependentVariableSolution =
@@ -1976,15 +1976,15 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
 
     // Create vehicle objects.
-    simulation_setup::NamedBodyMap bodyMap;
-    bodyMap.addNewBody( "Asterix" );
+    simulation_setup::SystemOfBodies bodies;
+    bodies.addNewBody( "Asterix" );
 
     
     
 
     double vehicleMass = 5.0E5;
 
-    bodyMap.at( "Asterix" )->setConstantBodyMass( vehicleMass );
+    bodies.at( "Asterix" )->setConstantBodyMass( vehicleMass );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -2015,7 +2015,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -2046,11 +2046,11 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
+            createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
 
     // Create simulation object and propagate dynamics.
     SingleArcVariationalEquationsSolver< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
                 true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                 false, true, false );
 
