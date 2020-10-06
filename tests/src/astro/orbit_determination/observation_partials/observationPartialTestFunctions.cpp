@@ -44,10 +44,10 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
     // Create bodies.
     NamedBodyMap bodyMap = NamedBodyMap( "SSB", "ECLIPJ2000" );
-    bodyMap.addNewBody( "Earth" );
-    bodyMap.addNewBody( "Mars" );
-    bodyMap.addNewBody( "Moon" );
-    bodyMap.addNewBody( "Sun" );
+    bodyMap.createBody( "Earth" );
+    bodyMap.createBody( "Mars" );
+    bodyMap.createBody( "Moon" );
+    bodyMap.createBody( "Sun" );
 
     bodyMap.at( "Earth" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                            spice_interface::getAverageRadius( "Earth" ) ) );
