@@ -754,9 +754,9 @@ void expose_propagator_setup(py::module &m)
            py::arg("termination_root_finder_settings") = nullptr);
 
 
-  m.def("termination",
+  m.def("dependent_variable_termination",
         &tp::propagationDependentVariableTerminationSettings,
-        py::arg("dependent_variadble_settings"),
+        py::arg("dependent_variable_settings"),
         py::arg("limit_value"),
         py::arg("use_as_lower_limit"),
         py::arg("terminate_exactly_on_final_condition") = false,
