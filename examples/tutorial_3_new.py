@@ -95,7 +95,6 @@ def main():
         earth_rotational_ephemeris)
 
     # Define list of dependent variables to save.
-    # TODO: Revise design of dependent variable saves with Python class layer.
     dependent_variables_to_save = propagation_setup.dependent_variables.create(
         [
         propagation_setup.dependent_variables.mach_number(
@@ -119,8 +118,8 @@ def main():
     termination_variable = propagation_setup.dependent_variables.altitude(
         "Apollo", "Earth"
     )
-    termination_settings = propagation_setup.propagator.termination(
-        dependent_variadble_settings=termination_variable,
+    termination_settings = propagation_setup.propagator.dependent_variable_termination(
+        dependent_variable_settings=termination_variable,
         limit_value=25.0E3,
         use_as_lower_limit=True,
         terminate_exactly_on_final_condition=False
