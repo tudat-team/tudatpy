@@ -65,7 +65,7 @@ int main( )
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
     // Create vehicle objects.
     bodies[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );

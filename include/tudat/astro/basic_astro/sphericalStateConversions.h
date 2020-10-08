@@ -118,6 +118,20 @@ Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
     return cartesianState;
 }
 
+template< typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
+        const StateScalarType radialDistance,
+        const StateScalarType latitude,
+        const StateScalarType longitude,
+        const StateScalarType speed,
+        const StateScalarType flightPathAngle,
+        const StateScalarType headingAngle )
+{
+    return convertSphericalOrbitalToCartesianState< StateScalarType >(
+                ( Eigen::Matrix< StateScalarType, 6, 1 >( ) <<
+                      radialDistance, latitude, longitude, speed, flightPathAngle, headingAngle ).finished( ) );
+}
+
 } // namespace orbital_element_conversions
 
 } // namespace tudat

@@ -108,7 +108,7 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
 
 
 //! Function to create a map of bodies objects.
-SystemOfBodies createBodies(
+SystemOfBodies createSystemOfBodies(
         const BodyListSettings& bodySettings )
 {
     std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
@@ -121,7 +121,7 @@ SystemOfBodies createBodies(
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        bodyList.createBody( orderedBodySettings.at( i ).first, false );
+        bodyList.createEmptyBody( orderedBodySettings.at( i ).first, false );
     }
 
     // Define constant mass for each body (if required).

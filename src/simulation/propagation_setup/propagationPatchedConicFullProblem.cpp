@@ -125,11 +125,11 @@ simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForPatchedConicsTraj
 
 
     // Create system of bodies.
-    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
     // Define body to propagate.
-    bodies.createBody( nameBodyToPropagate );
+    bodies.createEmptyBody( nameBodyToPropagate );
     bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -173,9 +173,9 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForPatche
 
 
     // Create system of bodies.
-    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    bodies.createBody( nameBodyToPropagate );
+    bodies.createEmptyBody( nameBodyToPropagate );
     bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -185,7 +185,7 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForPatche
     for ( unsigned int i = 0 ; i < nameTransferBodies.size( ) ; i ++ )
     {
 
-        bodies.createBody( nameTransferBodies[ i ] );
+        bodies.createEmptyBody( nameTransferBodies[ i ] );
         bodies.at( nameTransferBodies[ i ] )->setEphemeris( ephemerisVectorTransferBodies[ i ] );
         bodies.at( nameTransferBodies[ i ] )->setGravityFieldModel( simulation_setup::createGravityFieldModel(
                                                                       std::make_shared< simulation_setup::CentralGravityFieldSettings >( gravitationalParametersTransferBodies[ i ] ),

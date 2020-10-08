@@ -65,9 +65,9 @@ simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForLambertTargeter(
 
 
     // Create system of bodies.
-    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    bodies.createBody( nameBodyToPropagate );
+    bodies.createEmptyBody( nameBodyToPropagate );
     bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -109,9 +109,9 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLamber
 
 
     // Create system of bodies.
-    simulation_setup::SystemOfBodies bodies = createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    bodies.createBody( nameBodyToPropagate );
+    bodies.createEmptyBody( nameBodyToPropagate );
     bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                          std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                          < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
@@ -121,7 +121,7 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLamber
     // Define ephemeris for the departure and arrival bodies.
     for ( unsigned int i = 0 ; i < departureAndArrivalBodies.size() ; i++){
 
-        bodies.createBody( departureAndArrivalBodies[i] );
+        bodies.createEmptyBody( departureAndArrivalBodies[i] );
         bodies.at( departureAndArrivalBodies[i] )->setEphemeris( ephemerisVectorDepartureAndArrivalBodies[i] );
 
     }

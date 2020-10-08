@@ -51,7 +51,7 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
 
     // Create Mars object
-    bodies.createBody( "Mars", false );
+    bodies.createEmptyBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( createBodyEphemeris(
                                          getDefaultEphemerisSettings( "Mars" ), "Mars" ) );
     std::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsGravityFieldSettings =
@@ -64,12 +64,12 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
                 createRotationModel( getDefaultRotationModelSettings( "Mars", TUDAT_NAN, TUDAT_NAN ), "Mars" ) );
 
     // Create Mars object
-    bodies.createBody( "Earth" );
+    bodies.createEmptyBody( "Earth" );
     bodies.at( "Earth" )->setEphemeris( createBodyEphemeris(
                                           getDefaultEphemerisSettings( "Earth" ), "Earth" ) );
 
     // Create Phobos object
-    bodies.createBody( "Phobos" );
+    bodies.createEmptyBody( "Phobos" );
 
     // Set Phobos inertia
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );

@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Define propagation settings.

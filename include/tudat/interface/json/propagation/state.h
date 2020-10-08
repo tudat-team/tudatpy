@@ -300,7 +300,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             {
                 epoch = getValue< StateScalarType >( jsonState, K::epoch );
             }
-            bodyState = tudat::ephemerides::transformStateToGlobalFrame< StateScalarType >(
+            bodyState = tudat::ephemerides::transformStateToInertialOrientation< StateScalarType >(
                         convertSphericalOrbitalToCartesianState( sphericalElements ),
                         epoch, centralBody->getRotationalEphemeris( ) );
 

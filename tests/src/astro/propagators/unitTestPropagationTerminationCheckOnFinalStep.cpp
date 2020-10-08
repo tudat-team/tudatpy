@@ -71,14 +71,14 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
             bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
             bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            //////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodies.createBody( "Asterix" );
+        bodies.createEmptyBody( "Asterix" );
         bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.
@@ -231,14 +231,14 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
             bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
             bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
         }
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create spacecraft object.
-        bodies.createBody( "Asterix" );
+        bodies.createEmptyBody( "Asterix" );
         bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
         // Create aerodynamic coefficient interface settings.

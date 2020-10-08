@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                     "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
         bodySettings.at( bodiesToTest.at( i ) )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Test rotation model when body is in propagation, and outside of propagation

@@ -879,6 +879,33 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+            basic_astrodynamics::constant_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
+        const std::string associatedBody,
+        const std::string centralBody,
+        const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate  )
+{
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+                associatedBody, centralBody, componentsToEstimate );
+}
+
 } // namespace estimatable_parameters
 
 } // namespace tudat

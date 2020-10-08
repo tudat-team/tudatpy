@@ -481,7 +481,7 @@ protected:
  *  \return stateInLocalFrame State in inertial frame (base frame of rotational ephemeris)
  */
 template< typename StateScalarType, typename TimeType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToInertialOrientation(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
         const TimeType currentTime,
         const std::shared_ptr< RotationalEphemeris > rotationalEphemeris )

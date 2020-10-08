@@ -82,7 +82,7 @@ Eigen::VectorXd  executeParameterEstimation(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     
 
@@ -338,14 +338,14 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - 86400.0, finalEphemerisTime + 86400.0,
                                     "Earth", "ECLIPJ2000" );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // CReate vehicles
     std::vector< std::string > vehicleNames = { "Borzi1", "Borzi2" };
     int numberOfVehicles = vehicleNames.size( );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
-        bodies.createBody( vehicleNames.at( i ) );
+        bodies.createEmptyBody( vehicleNames.at( i ) );
         bodies.at( vehicleNames.at( i ) )->setEphemeris( std::make_shared< MultiArcEphemeris >(
                                                            std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
     }

@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
 
     // Create bodies needed in simulation
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Set current state and rotation of bodies.

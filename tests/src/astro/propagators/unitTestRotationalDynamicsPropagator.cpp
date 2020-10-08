@@ -69,13 +69,13 @@ SystemOfBodies getTestBodyMap( const double phobosSemiMajorAxis,
                              const bool useSymmetricEquator = 0 )
 {
     SystemOfBodies bodies = SystemOfBodies( "Mars", "ECLIPJ2000" );
-    bodies.createBody( "Mars", false );
+    bodies.createEmptyBody( "Mars", false );
     bodies.at( "Mars" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Mars" )->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-    bodies.createBody( "Phobos" );
+    bodies.createEmptyBody( "Phobos" );
 
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -606,10 +606,10 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.createBody( "Apollo" );
+    bodies.createEmptyBody( "Apollo" );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
     // Create vehicle aerodynamic coefficients
@@ -685,7 +685,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                         apolloSphericalEntryState );
             std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
                     bodies.at( "Earth" )->getRotationalEphemeris( );
-            systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
+            systemInitialState = transformStateToInertialOrientation( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
 
             // Define initial rotational state

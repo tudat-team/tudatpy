@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Create bodies.
     SystemOfBodies bodies;
-    bodies.createBody( "Earth" );
-    bodies.createBody( "Moon" );
-    bodies.createBody( "Sun" );
-    bodies.createBody( "Mars" );
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Moon" );
+    bodies.createEmptyBody( "Sun" );
+    bodies.createEmptyBody( "Mars" );
 
     // Define properties of bodies
     bodies.at( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(

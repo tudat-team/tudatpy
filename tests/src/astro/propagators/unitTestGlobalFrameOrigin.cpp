@@ -101,7 +101,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Venus" )->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
