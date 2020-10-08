@@ -106,7 +106,7 @@ endif ()
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Tudat 2.8 REQUIRED)
+    find_package(Tudat 2.9 REQUIRED)
     add_definitions(${Tudat_DEFINITIONS})
 else ()
     set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
