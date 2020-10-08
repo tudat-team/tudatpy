@@ -18,6 +18,7 @@
 #include "expose_astro/expose_propagators.h"
 #include "expose_astro/expose_reference_frames.h"
 #include "expose_astro/expose_two_body_dynamics.h"
+#include "expose_astro/expose_shape.h"
 
 #include <pybind11/pybind11.h>
 
@@ -50,6 +51,9 @@ void expose_astro(py::module &m) {
 
   auto propagators = m.def_submodule("propagators");
   expose_propagators(propagators);
+
+  auto shape = m.def_submodule("shape");
+  expose_shape(shape);
 };
 
 };// namespace tudatpy
