@@ -68,7 +68,6 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
           py::arg("constant_force_coefficient"),
           py::arg("are_coefficients_in_aerodynamic_frame") = true,
           py::arg("are_coefficients_in_negative_axis_direction") = true);
-
 }
 
 void expose_atmosphere_setup(py::module &m) {
@@ -330,6 +329,10 @@ void expose_ephemeris_setup(py::module &m) {
             .def("set_use_long_double_states",
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
 
+    m.def("create_body_ephemeris", &tss::createBodyEphemeris,
+          py::arg("ephemeris_settings"), py::arg("body_name"));
+
+
     m.def("keplerian",
           &tss::keplerEphemerisSettings,
           py::arg( "initial_keplerian_state" ),
@@ -394,7 +397,9 @@ void expose_environment_setup(py::module &m) {
             .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
             .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
             .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
+            .def("get_shape_model", &tss::Body::getShapeModel)
             .def("set_gravity_field_model", &tss::Body::setGravityFieldModel)
+            .def("get_gravitational_parameter", &tss::Body::getGravitationalParameter)
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
@@ -420,9 +425,9 @@ void expose_environment_setup(py::module &m) {
                  py::arg("frame_orientation") = "ECLIPJ2000",
                  py::arg("body_map") =
             std::unordered_map< std::string, std::shared_ptr< tss::Body > >( ) )
-            .def("get", &tss::SystemOfBodies::get)
+            .def("get_body", &tss::SystemOfBodies::getBody)
             .def("count", &tss::SystemOfBodies::count)
-            .def("create_body", &tss::SystemOfBodies::createBody,
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
                  py::arg("body_name"),
                  py::arg("process_body") = 1 )
             .def("add_body", &tss::SystemOfBodies::addBody,
@@ -504,7 +509,7 @@ void expose_environment_setup(py::module &m) {
 
     m.def("get_global_frame_origin", &tss::getGlobalFrameOrigin);
 
-    m.def("create_bodies", &tss::createBodies);
+    m.def("create_system_of_bodies", &tss::createSystemOfBodies);
 
 
     // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
@@ -544,6 +549,14 @@ void expose_environment_setup(py::module &m) {
           py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
           py::arg("body_dict"));
 
+
+    m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
+          py::arg("body"),
+          py::arg("angle_of_attack_function") = std::function< double( ) >( ),
+          py::arg("sideslip_angle_function") = std::function< double( ) >( ),
+          py::arg("bank_angle_function") = std::function< double( ) >( ),
+          py::arg("update_function") = std::function< void( const double ) >( ) );
+
     auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
     expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
 
@@ -558,6 +571,10 @@ void expose_environment_setup(py::module &m) {
 
     auto ephemeris_setup = m.def_submodule("ephemeris");
     expose_ephemeris_setup(ephemeris_setup);
+
+    auto atmosphere_setup = m.def_submodule("atmosphere");
+    expose_atmosphere_setup(atmosphere_setup);
+
 }
 
 }// namespace tudatpy

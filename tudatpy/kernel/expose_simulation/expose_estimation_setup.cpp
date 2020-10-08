@@ -80,9 +80,6 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::gravitationalParameter,
           py::arg("body_name") );
 
-    m.def("gravitational_parameter",
-          &tep::gravitationalParameter,
-          py::arg("body_name") );
 
     m.def("spherical_harmonics_c_coefficients",
           py::overload_cast< const std::string,
@@ -125,6 +122,11 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::constantDragCoefficient,
           py::arg("body_name") );
 
+
+    m.def("radiation_pressure_coefficient",
+          &tep::radiationPressureCoefficient,
+          py::arg("body_name") );
+
     m.def("arcwise_radiation_pressure_coefficient",
           &tep::arcwiseRadiationPressureCoefficient,
           py::arg("body_name"),
@@ -137,10 +139,6 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("constant_rotation_rate",
           &tep::constantRotationRate,
-          py::arg("body_name") );
-
-    m.def("rotation_pole_position",
-          &tep::rotationPolePosition,
           py::arg("body_name") );
 
     m.def("rotation_pole_position",
@@ -218,6 +216,11 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("degree"),
           py::arg("orders"),
           py::arg("use_complex_love_number") = 0 );
+
+    m.def("constant_empirical_acceleration_terms",
+          &tep::constantEmpiricalAccelerationMagnitudes,
+          py::arg("body"),
+          py::arg("centralBody") );
 }
 
 void expose_estimation_setup(py::module &m) {
