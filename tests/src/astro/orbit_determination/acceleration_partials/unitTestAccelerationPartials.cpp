@@ -532,11 +532,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             getDefaultBodySettings( { "Earth" } );
     defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
-    SystemOfBodies bodies = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 

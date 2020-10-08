@@ -74,7 +74,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Sun" );
 
     // Create bodies needed in simulation
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -357,8 +357,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Vehicle" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -691,8 +691,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Vehicle" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );

@@ -235,10 +235,10 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
             std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
     // Create vehicle objects.
-    bodies.createBody( "Apollo" );
+    bodies.createEmptyBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(

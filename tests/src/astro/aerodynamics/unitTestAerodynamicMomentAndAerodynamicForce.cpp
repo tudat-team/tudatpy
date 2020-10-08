@@ -326,11 +326,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 getDefaultBodySettings( std::vector< std::string >{ "Earth" }, -1.0E6, 1.0E6 );
         defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
-        SystemOfBodies bodies = createBodies( defaultBodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodies.createBody( "Vehicle" );
+        bodies.createEmptyBody( "Vehicle" );
 
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
         bodies.at( "Vehicle" )->setEphemeris(

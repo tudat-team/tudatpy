@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
 
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         
 

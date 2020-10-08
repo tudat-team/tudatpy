@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     SystemOfBodies bodies;
     bodies.addBody( earth, "Earth" );
     bodies.addBody( vehicle, "Vehicle" );;
-    bodies.addBody( createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
+    bodies.addBody( createSystemOfBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
 
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
             std::make_shared< ephemerides::SimpleRotationalEphemeris >(
@@ -837,7 +837,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     bodySettings.at( "Earth" )->rotationModelSettings =
             std::make_shared< SynchronousRotationModelSettings >(
                 "Moon", "ECLIPJ2000", "IAU_Earth" );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     std::shared_ptr< tudat::simulation_setup::Body > earth = bodies.at( "Earth" );
     std::shared_ptr< tudat::simulation_setup::Body > moon = bodies.at( "Moon" );
     std::dynamic_pointer_cast< tudat::ephemerides::SynchronousRotationalEphemeris >(

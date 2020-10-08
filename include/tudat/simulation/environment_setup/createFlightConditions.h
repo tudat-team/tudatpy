@@ -108,6 +108,13 @@ void setGuidanceAnglesFunctions(
         const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
         const std::shared_ptr< simulation_setup::Body > bodyWithAngles );
 
+void setAerodynamicOrientationFunctions(
+        const std::shared_ptr< simulation_setup::Body > body,
+        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
+        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
+        const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
+        const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) );
+
 } // namespace simulation_setup
 
 } // namespace tudat

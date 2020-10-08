@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     bodySettings.at( "Moon" )->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( moonRadius );
 
     // Create list of body objects
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Create ground stations

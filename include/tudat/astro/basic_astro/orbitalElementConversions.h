@@ -201,6 +201,22 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements(
     return convertedCartesianElements_;
 }
 
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements(
+        const ScalarType semiMajorAxis,
+        const ScalarType eccentricity,
+        const ScalarType inclination,
+        const ScalarType argumentOfPeriapsis,
+        const ScalarType longitudeOfAscendingNode,
+        const ScalarType trueAnomaly,
+        const ScalarType centralBodyGravitationalParameter )
+{
+    return convertKeplerianToCartesianElements< ScalarType >(
+                ( Eigen::Matrix< ScalarType, 6, 1 >( ) <<
+                      semiMajorAxis, eccentricity, inclination, argumentOfPeriapsis, longitudeOfAscendingNode,
+                      trueAnomaly ).finished( ), centralBodyGravitationalParameter );
+}
+
 //! Convert Cartesian to Keplerian orbital elements.
 /*!
  * Converts Cartesian to Keplerian orbital elements.

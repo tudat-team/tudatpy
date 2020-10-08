@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        SystemOfBodies bodies = createBodies(
+        SystemOfBodies bodies = createSystemOfBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
         
 
@@ -271,10 +271,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
                                         "SSB", "J2000" );
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create spacecraft object.
-        bodies.createBody( "Vehicle" );
+        bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
         bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                 std::shared_ptr< interpolators::OneDimensionalInterpolator
@@ -450,10 +450,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
         bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create spacecraft object.
-        bodies.createBody( "Asterix" );
+        bodies.createEmptyBody( "Asterix" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;

@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         }
 
         // Create bodies
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         
         
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
     // Retrieve Earth J2
     double earthC20 =
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 bodies.at( "Earth" )->getGravityFieldModel( ) )->getCosineCoefficients( )( 2, 0 );
 
     // Create vehicle objects.
-    bodies.createBody( "Apollo" );
+    bodies.createEmptyBody( "Apollo" );
     bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 apolloSphericalEntryState );
     std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
             bodies.at( "Earth" )->getRotationalEphemeris( );
-    systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
+    systemInitialState = transformStateToInertialOrientation( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
     // Define termination conditions
     std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
