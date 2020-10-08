@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
             ephemerides::transformStateToTargetFrame(
                 stateOfMoonInJ2000, 1.0E7,  spiceRotationalEphemeris );
     Eigen::Vector6d computedStateOfMoonInJ2000 =
-            ephemerides::transformStateToGlobalFrame(
+            ephemerides::transformStateToInertialOrientation(
                 computedStateOfMoonWrtEarth, 1.0E7,  spiceRotationalEphemeris );
 
     for( unsigned int i = 0; i < 3; i++ )

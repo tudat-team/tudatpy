@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    SystemOfBodies bodies = createBodies(
+    SystemOfBodies bodies = createSystemOfBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
     
 

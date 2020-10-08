@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         }
 
         // Create bodies
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
 
         // Crate torque model
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
         }
 
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
 
         // Create two torque models

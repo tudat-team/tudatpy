@@ -568,7 +568,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         
 
@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
 
         // Update states.
@@ -644,7 +644,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
                             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
 
         // Create bodies
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         
 
@@ -780,7 +780,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
     bodySettings.at( "Europa" )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
     bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
@@ -901,7 +901,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
@@ -992,7 +992,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
                 Eigen::Vector3d::Zero( ), 1, 1 );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
@@ -1139,7 +1139,7 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
@@ -1215,7 +1215,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
                 std::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     
 
@@ -1312,7 +1312,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
 
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );

@@ -158,7 +158,7 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
  *  pointers to an object of class BodySettings
  *  \return List of bodies created according to settings in bodySettings.
  */
-SystemOfBodies createBodies(
+SystemOfBodies createSystemOfBodies(
         const BodyListSettings& bodySettings );
 
 

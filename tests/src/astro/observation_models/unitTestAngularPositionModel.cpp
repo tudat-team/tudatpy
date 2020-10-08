@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     
 

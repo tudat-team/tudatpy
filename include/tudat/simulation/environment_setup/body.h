@@ -793,6 +793,16 @@ class Body {
     return gravityFieldModel_;
   }
 
+  double getGravitationalParameter( )
+  {
+      if( gravityFieldModel_ == nullptr )
+      {
+          throw std::runtime_error( "Error when retrieveing gravitational parameter from body " + bodyName_ +
+                                    ", no gravity field model is defined" );
+      }
+      return gravityFieldModel_->getGravitationalParameter( );
+    }
+
   //! Function to get the ephemeris of the body.
   /*!
      *  Function to get the ephemeris of the body.
@@ -1491,7 +1501,7 @@ public:
         return bodyMap_.at( bodyName );
     }
 
-    std::shared_ptr< Body > get( const std::string& bodyName ) const
+    std::shared_ptr< Body > getBody( const std::string& bodyName ) const
     {
         return at( bodyName );
     }
@@ -1501,7 +1511,7 @@ public:
         return bodyMap_.count( bodyName );
     }
 
-    void createBody( const std::string bodyName, const bool processBody = true )
+    void createEmptyBody( const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = std::make_shared< Body >( );
         bodyMap_[ bodyName ]->setBodyName( bodyName );

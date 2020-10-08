@@ -124,10 +124,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         }
 
         // Create Earth object
-        simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
         // Create vehicle objects.
-        bodies.createBody( "Apollo" );
+        bodies.createEmptyBody( "Apollo" );
 
         // Create vehicle aerodynamic coefficients
         bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
@@ -536,8 +536,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Earth", "ECLIPJ2000" );
 
     // Create Body objects
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Asterix" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Asterix" );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -660,7 +660,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
     SelectedAccelerationMap accelerationMap;
@@ -830,8 +830,8 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames,  "Earth", "ECLIPJ2000" );
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Vehicle" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
@@ -1003,8 +1003,8 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Vehicle" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );

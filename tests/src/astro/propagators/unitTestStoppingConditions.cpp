@@ -152,7 +152,7 @@ void performSimulation( const int testType )
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
-    simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -160,7 +160,7 @@ void performSimulation( const int testType )
     std::vector< std::string > centralBodies;
 
     // Create vehicle objects.
-    bodies.createBody( "Apollo" );
+    bodies.createEmptyBody( "Apollo" );
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
@@ -360,8 +360,8 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
                 Eigen::Vector6d::Zero( ) );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Asterix" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Asterix" );
     
 
     // Define propagator settings variables.

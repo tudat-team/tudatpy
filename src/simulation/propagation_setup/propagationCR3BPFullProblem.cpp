@@ -100,10 +100,10 @@ simulation_setup::SystemOfBodies setupBodyMapCR3BP(
         const double secondaryGravitationalParameter )
 {
     // Create system of bodies
-    simulation_setup::SystemOfBodies bodies = createBodies(
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies(
                 setupBodySettingsCR3BP( distancePrimarySecondary, namePrimaryBody, nameSecondaryBody, frameOrientation,
                                         primaryGravitationalParameter, secondaryGravitationalParameter ) );
-    bodies.createBody( nameBodyToPropagate );
+    bodies.createEmptyBody( nameBodyToPropagate );
     bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                       < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );

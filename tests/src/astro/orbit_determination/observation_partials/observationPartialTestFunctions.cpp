@@ -44,10 +44,10 @@ SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
 
     // Create bodies.
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
-    bodies.createBody( "Earth" );
-    bodies.createBody( "Mars" );
-    bodies.createBody( "Moon" );
-    bodies.createBody( "Sun" );
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Mars" );
+    bodies.createEmptyBody( "Moon" );
+    bodies.createEmptyBody( "Sun" );
 
     bodies.at( "Earth" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                            spice_interface::getAverageRadius( "Earth" ) ) );

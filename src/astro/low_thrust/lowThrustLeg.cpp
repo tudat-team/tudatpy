@@ -114,7 +114,7 @@ double LowThrustLeg::computeCurrentMass(
 {
     simulation_setup::SystemOfBodies bodies;
     std::string bodyToPropagate = "Vehicle";
-    bodies.createBody( bodyToPropagate );
+    bodies.createEmptyBody( bodyToPropagate );
     bodies.at( bodyToPropagate )->setConstantBodyMass( massInitialEpoch );
 
 

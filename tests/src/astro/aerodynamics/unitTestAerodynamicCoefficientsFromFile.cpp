@@ -76,14 +76,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
 
         // Create Earth object
-        simulation_setup::SystemOfBodies bodies = simulation_setup::createBodies( bodySettings );
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create vehicle objects.
-        bodies.createBody( "SpacePlane" );
+        bodies.createEmptyBody( "SpacePlane" );
         bodies.at( "SpacePlane" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
         bodies.at( "SpacePlane" )->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
 

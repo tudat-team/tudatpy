@@ -44,10 +44,10 @@ int main( )
 						Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////

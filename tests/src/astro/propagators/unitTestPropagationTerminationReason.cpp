@@ -61,14 +61,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
         bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -219,14 +219,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
         bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
@@ -407,14 +407,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 tabulatedAtmosphereFile, dependentVariables,
                 physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, interpolators::extrapolate_at_boundary );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.

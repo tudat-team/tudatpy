@@ -77,7 +77,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     SystemOfBodies bodies =
-            createBodies( bodySettings );
+            createSystemOfBodies( bodySettings );
     std::shared_ptr< Body > lageos = std::make_shared< Body >( );
     bodies.addBody( lageos, "LAGEOS" );
 

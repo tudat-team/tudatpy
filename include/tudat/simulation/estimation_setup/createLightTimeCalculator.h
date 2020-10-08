@@ -47,7 +47,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
     std::map< int, std::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
-    stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToGlobalFrame
+    stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToInertialOrientation
                                                < StateScalarType, TimeType >, std::placeholders::_2, std::placeholders::_1, bodyRotationModel );
 
     // Create and return ephemeris

@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     
 

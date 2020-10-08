@@ -225,10 +225,10 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
     bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );

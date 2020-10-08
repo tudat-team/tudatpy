@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         bodySettings.at( "Phobos" )->gravityFieldSettings = getPhobosGravityFieldSettings( );
 
         // Create body objects
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
 
         // Create links to set and get state functions of bodies.

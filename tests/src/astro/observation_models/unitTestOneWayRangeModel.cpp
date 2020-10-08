@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
                 bodiesToCreate );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     
 

@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer,
                                         "SSB", "J2000" );
 
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -319,10 +319,10 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                 bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
                 bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
             }
-            SystemOfBodies bodies = createBodies( bodySettings );
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
             // Create spacecraft object.
-            bodies.createBody( "Vehicle" );
+            bodies.createEmptyBody( "Vehicle" );
             bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
             bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                     std::shared_ptr< interpolators::OneDimensionalInterpolator

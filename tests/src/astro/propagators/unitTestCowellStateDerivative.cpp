@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     bodySettings.at( "Earth" )->ephemerisSettings->resetFrameOrigin( "Sun" );
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Earth" );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
@@ -368,7 +368,7 @@ void testCowellPropagationOfKeplerOrbit( )
     bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         }
     }
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     
 
@@ -352,8 +352,8 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000"  );
     bodySettings.at( "Earth" )->gravityFieldVariationSettings = getEarthGravityFieldVariationSettings( );
-    SystemOfBodies bodies = createBodies( bodySettings );
-    bodies.createBody( "Vehicle" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
                                             std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );

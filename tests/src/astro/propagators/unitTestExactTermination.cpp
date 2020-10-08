@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     bodySettings =
                             getDefaultBodySettings( bodiesToCreate, simulationEndEpoch - 300.0, simulationStartEpoch + 300.0 );
                 }
-                SystemOfBodies bodies = createBodies( bodySettings );
+                SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
                 // Create spacecraft object.
-                bodies.createBody( "Vehicle" );
+                bodies.createEmptyBody( "Vehicle" );
                 bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
                 bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator

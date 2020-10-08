@@ -45,14 +45,14 @@ int main( )
     BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - environmentTimeBuffer,
                                     simulationEndEpoch + environmentTimeBuffer,  "Earth", "J2000" );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodies.createBody( "Asterix" );
+    bodies.createEmptyBody( "Asterix" );
     bodies.at( "Asterix" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface

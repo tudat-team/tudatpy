@@ -45,12 +45,12 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
     double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Sun" );
-    SystemOfBodies bodies = createBodies(
+    SystemOfBodies bodies = createSystemOfBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime, finalEphemerisTime ) );
 
     // Create vehicle
     double vehicleMass = 2500.0;
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
     // Put vehicle on circular orbit around Sun
@@ -282,12 +282,12 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
     double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Sun" );
-    SystemOfBodies bodies = createBodies(
+    SystemOfBodies bodies = createSystemOfBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime, finalEphemerisTime ) );
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 
@@ -696,12 +696,12 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
     double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Sun" );
-    SystemOfBodies bodies = createBodies(
+    SystemOfBodies bodies = createSystemOfBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime, finalEphemerisTime ) );
 
     // Create vehicle
     double vehicleMass = 2000.0;
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
 
 

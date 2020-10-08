@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                 "IAU_Earth" );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Define variables used in tests.
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
                 getApolloCoefficientInterface( ) );
     bodies.at( "Vehicle" )->setBodyMassFunction( &getBodyMass );

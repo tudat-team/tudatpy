@@ -249,8 +249,7 @@ inline std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisti
 		const bool calculateLenseThirringCorrection = false,
 		const bool calculateDeSitterCorrection = false,
 		const std::string primaryBody = "",
-		const Eigen::Vector3d centralBodyAngularMomentum = Eigen::Vector3d::Zero( )
-		)
+        const Eigen::Vector3d centralBodyAngularMomentum = Eigen::Vector3d::Zero( ) )
 {
 	return std::make_shared< RelativisticAccelerationCorrectionSettings >(
 			calculateSchwarzschildCorrection,

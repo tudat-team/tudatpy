@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     // Create ground station
     const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodies.createBody( "Spacecraft" );;
+    bodies.createEmptyBody( "Spacecraft" );;
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( defaultBodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     // Create ground stations
     const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    bodies.createBody( "Spacecraft" );;
+    bodies.createEmptyBody( "Spacecraft" );;
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );

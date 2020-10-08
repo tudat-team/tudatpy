@@ -56,10 +56,10 @@ int main( )
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0,finalEphemerisTime + 3600.0 );
     setSimpleRotationSettingsFromSpice( bodySettings, "Earth", initialEphemerisTime );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Create spacecraft object.
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
     // Create and add aerodynamic coefficient interface

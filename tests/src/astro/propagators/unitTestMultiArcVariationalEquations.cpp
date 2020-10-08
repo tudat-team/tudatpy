@@ -95,7 +95,7 @@ executeMultiArcEarthMoonSimulation(
     bodySettings.at( "Earth" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
 
 
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
 

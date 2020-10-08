@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
             std::make_shared< GravityFieldSettings >( central_spice );
     bodySettings.at( "Sun" )->gravityFieldSettings =
             std::make_shared< GravityFieldSettings >( central_spice );
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Defins state of Sun to be all zero.
@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Create system of bodies
     SystemOfBodies bodies;
-    bodies.createBody( "Earth" );
-    bodies.createBody( "Vehicle" );
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Vehicle" );
 
     // Set constant state for Earth and Vehicle
     Eigen::Vector6d dummyEarthState =
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Define settings for accelerations
@@ -412,7 +412,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 
         // Create body objects.
-        SystemOfBodies bodies = createBodies( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
 
         // Define settings for accelerations
@@ -440,9 +440,8 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         double bankAngle = 2.323432;
 
         // Retrieve flight conditions and define orientation angles.
-        std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-                bodies.at( "Vehicle" )->getFlightConditions( );
-        vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+        setAerodynamicOrientationFunctions(
+                    bodies.at( "Vehicle" ),
                     [ & ]( ){ return angleOfAttack; },
                     [ & ]( ){ return angleOfSideslip; },
                     [ & ]( ){ return bankAngle; } );
@@ -472,6 +471,8 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         bodies.at( "Vehicle" )->updateMass( testTime );
 
         // Update flight conditions.
+        std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+                bodies.at( "Vehicle" )->getFlightConditions( );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Check whether flight conditions object has been correctly automatically created
@@ -564,7 +565,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     bodySettings.addSettings( "Vehicle" );
 
     // Create body objects.
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Create vehicle aerodynamic coefficients
@@ -724,7 +725,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
 
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
 
@@ -874,7 +875,7 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureAcceleration )
 
 
     // Create bodies
-    SystemOfBodies bodies = createBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     
 
     // Define rotational ephemeris of the vehicle.

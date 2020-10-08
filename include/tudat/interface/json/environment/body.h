@@ -160,7 +160,7 @@ void updateBodiesFromJSON(
     }
 
     // Create bodies.
-    bodies = createBodies( bodySettingsMap );
+    bodies = createSystemOfBodies( bodySettingsMap );
 
     
     setGlobalFrameBodyEphemerides( bodies, globalFrameOrigin, globalFrameOrientation );

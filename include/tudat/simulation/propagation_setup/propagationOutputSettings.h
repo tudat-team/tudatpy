@@ -587,6 +587,38 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > densityDependentVa
                 local_density_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeSpeedDependentVariable(
+        const std::string& associatedBody,
+        const std::string& relativeBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                relative_speed_dependent_variable, associatedBody, relativeBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > relativePositionDependentVariable(
+        const std::string& associatedBody,
+        const std::string& relativeBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                relative_position_dependent_variable, associatedBody, relativeBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeDistanceDependentVariable(
+        const std::string& associatedBody,
+        const std::string& relativeBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                relative_distance_dependent_variable, associatedBody, relativeBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > relativeVelocityDependentVariable(
+        const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                relative_velocity_dependent_variable, associatedBody, bodyWithAtmosphere );
+}
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > keplerianStateDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -633,6 +665,34 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicA
     return std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                 bodyUndergoingAcceleration, bodyExertingAcceleration, componentIndices,
                 -1, true );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable(
+        const std::string& bodyUndergoingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                total_acceleration_dependent_variable, bodyUndergoingAcceleration );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationNormDependentVariable(
+        const std::string& bodyUndergoingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                total_acceleration_norm_dependent_variable, bodyUndergoingAcceleration );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCoefficientDependentVariable(
+        const std::string& associatedBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                aerodynamic_force_coefficients_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentCoefficientDependentVariable(
+        const std::string& associatedBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                aerodynamic_moment_coefficients_dependent_variable, associatedBody );
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > latitudeDependentVariable(
@@ -690,6 +750,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bankAngleDependent
 {
     return std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                 associatedBody, reference_frames::bank_angle, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureDependentVariable(
+        const std::string& associatedBody,
+        const std::string& radiatingBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+               radiation_pressure_dependent_variable, associatedBody, radiatingBody );
 }
 
 

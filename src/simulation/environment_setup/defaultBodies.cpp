@@ -327,7 +327,7 @@ BodyListSettings getDefaultBodySettings(
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), initialTime, finalTime, baseFrameOrientation, timeStep);
+                    bodies.at( i ), initialTime - 10.0 * timeStep, finalTime + 10.0 * timeStep, baseFrameOrientation, timeStep);
 
     }
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
