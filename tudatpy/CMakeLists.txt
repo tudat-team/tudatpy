@@ -69,6 +69,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_aerodynamics.cpp
         kernel/expose_astro/expose_propagators.cpp
         kernel/expose_astro/expose_reference_frames.cpp
+        kernel/expose_astro/expose_shape.cpp
 
 
         # kernel/constants
