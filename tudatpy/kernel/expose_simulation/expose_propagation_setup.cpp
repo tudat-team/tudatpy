@@ -1082,10 +1082,16 @@ void expose_propagation_setup(py::module &m) {
                  py::arg("initial_states"))
             .def("get_equations_of_motion_numerical_solution",
                  &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution)
+            .def_property_readonly("state_history",
+                                   &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolution)
             .def("get_equations_of_motion_numerical_solution_raw",
                  &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionRaw)
+            .def_property_readonly("unprocessed_state_history",
+                                   &tp::SingleArcDynamicsSimulator<double, double>::getEquationsOfMotionNumericalSolutionRaw)
             .def("get_dependent_variable_history",
                  &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableHistory)
+            .def_property_readonly("dependent_variable_history",
+                                   &tp::SingleArcDynamicsSimulator<double, double>::getDependentVariableHistory)
             .def("get_cumulative_computation_time_history",
                  &tp::SingleArcDynamicsSimulator<double, double>::getCumulativeComputationTimeHistory)
             .def("get_cumulative_number_of_function_evaluations",
@@ -1151,7 +1157,7 @@ void expose_propagation_setup(py::module &m) {
     auto propagator_setup = m.def_submodule("propagator");
     expose_propagator_setup(propagator_setup);
 
-    auto dependent_variable_setup = m.def_submodule("dependent_variables");
+    auto dependent_variable_setup = m.def_submodule("dependent_variable");
     expose_dependent_variable_setup(dependent_variable_setup);
 }
 }// namespace tudatpy

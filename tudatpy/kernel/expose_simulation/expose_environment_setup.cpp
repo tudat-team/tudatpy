@@ -398,22 +398,27 @@ void expose_environment_setup(py::module &m) {
             .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
             .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
             .def("get_shape_model", &tss::Body::getShapeModel)
+            .def("set_shape_model", &tss::Body::setShapeModel)
+            .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel)
             .def("set_gravity_field_model", &tss::Body::setGravityFieldModel)
             .def("get_gravitational_parameter", &tss::Body::getGravitationalParameter)
+            .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter)
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
             .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_body_mass", &tss::Body::getBodyMass)
-            .def("set_constant_body_mass", &tss::Body::setConstantBodyMass)
+            .def("set_constant_mass", &tss::Body::setConstantBodyMass)
             .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
             .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface)
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)
             .def("set_flight_conditions", &tss::Body::setFlightConditions, py::arg("aerodynamic_flight_conditions"))
-            .def("get_rotational_ephemeris", &tss::Body::getRotationalEphemeris)
-            .def("set_rotational_ephemeris", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"));
+            .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
+            .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
+            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris);
+
 
     py::class_<tss::SystemOfBodies,
             std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies")

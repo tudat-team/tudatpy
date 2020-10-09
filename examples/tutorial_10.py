@@ -43,7 +43,7 @@ def main():
 
     # Create vehicle objects.
     bodies.create_empty_body( "Delfi-C3" )
-    bodies.get_body( "Delfi-C3").set_constant_body_mass(400.0)
+    bodies.get_body( "Delfi-C3").set_constant_mass(400.0)
 
     ###########################################################################
     # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
@@ -114,7 +114,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get_body( "Earth" ).get_gravitational_parameter()
+    earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
     initial_state = conversion.keplerian_to_cartesian(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
@@ -160,9 +160,9 @@ def main():
         bodies, integrator_settings, propagator_settings, estimation_setup.create_parameters_to_estimate( parameter_settings, bodies ),
         integrate_on_creation=1 )
 
-    equations_of_motion_result = variational_equations_solver.get_equations_of_motion_solution()
-    state_transition_result = variational_equations_solver.get_state_transition_matrix_solution()
-    sensitivity_result = variational_equations_solver.get_sensitivity_matrix_solution()
+    states = variational_equations_solver.state_history
+    state_transition_matrices = variational_equations_solver.state_transition_matrix_history
+    sensitivity_matrices = variational_equations_solver.sensitivity_matrix_history
 
     ###########################################################################
     # PRINT INITIAL AND FINAL STATES ##########################################
@@ -172,11 +172,11 @@ def main():
         f"""
 
 Final Cartesian state: \n{
-        equations_of_motion_result[simulation_end_epoch]}
+        states[simulation_end_epoch]}
 Final State Transition Matrix: \n{
-        state_transition_result[simulation_end_epoch] }
+        state_transition_matrices[simulation_end_epoch] }
 Final Sensitivity Matrix: \n{
-        sensitivity_result[simulation_end_epoch] }
+        sensitivity_matrices[simulation_end_epoch] }
         """
     )
 

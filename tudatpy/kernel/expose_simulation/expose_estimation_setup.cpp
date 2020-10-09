@@ -259,9 +259,15 @@ void expose_estimation_setup(py::module &m) {
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getNumericalVariationalEquationsSolution)
             .def("get_state_transition_matrix_solution",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getStateTransitionMatrixSolution)
+            .def_property_readonly("state_transition_matrix_history",
+                                   &tp::SingleArcVariationalEquationsSolver<double, double>::getStateTransitionMatrixSolution)
             .def("get_sensitivity_matrix_solution",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getSensitivityMatrixSolution)
+            .def_property_readonly("sensitivity_matrix_history",
+                                   &tp::SingleArcVariationalEquationsSolver<double, double>::getSensitivityMatrixSolution)
             .def("get_equations_of_motion_solution",
+                 &tp::SingleArcVariationalEquationsSolver<double, double>::getEquationsOfMotionSolution)
+            .def_property_readonly("state_history",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getEquationsOfMotionSolution)
             .def("get_dynamics_simulator",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getDynamicsSimulator)
