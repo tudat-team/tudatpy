@@ -62,7 +62,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get_body( "Earth" ).get_gravitational_parameter()
+    earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
     initial_state = conversion.keplerian_to_cartesian(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
@@ -95,7 +95,7 @@ def main():
     # Create simulation object and propagate dynamics.
     dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings, True)
-    result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+    states = dynamics_simulator.state_history
 
     ###########################################################################
     # PRINT INITIAL AND FINAL STATES ##########################################
@@ -105,13 +105,13 @@ def main():
         f"""
 Single Earth-Orbiting Satellite Example.
 The initial position vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][:3] / 1E3} 
+        states[simulation_start_epoch][:3] / 1E3} 
 The initial velocity vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        states[simulation_start_epoch][3:] / 1E3}
 After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
-        result[simulation_end_epoch][:3] / 1E3}
+        states[simulation_end_epoch][:3] / 1E3}
 And the velocity vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        states[simulation_start_epoch][3:] / 1E3}
         """
     )
 

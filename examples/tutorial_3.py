@@ -37,7 +37,7 @@ def main():
 
     # Create vehicle object.
     bodies.create_empty_body( "Apollo" )
-    bodies.get_body( "Apollo" ).set_constant_body_mass(5.0E3)
+    bodies.get_body( "Apollo" ).set_constant_mass(5.0E3)
 
     # Add predefined aerodynamic coefficient database to the body
     bodies.get_body( "Apollo" ).set_aerodynamic_coefficient_interface(
@@ -75,7 +75,7 @@ def main():
     ###########################################################################
 
     # Set spherical elements for Apollo and convert to Cartesian.
-    initial_radial_distance = bodies.get_body("Earth").get_shape_model().get_average_radius() + 120.0E3
+    initial_radial_distance = bodies.get_body("Earth").shape_model.average_radius + 120.0E3
     initial_earth_fixed_state = conversion.spherical_to_cartesian(
         radial_distance=initial_radial_distance,
         latitude=np.deg2rad(0.0),
@@ -85,7 +85,7 @@ def main():
         heading_angle=np.deg2rad(34.37))
 
     # Convert the state from Earth-fixed to inertial frame
-    earth_rotation_model = bodies.get_body("Earth").get_rotational_ephemeris()
+    earth_rotation_model = bodies.get_body("Earth").rotation_model
     initial_state = conversion.transform_to_inertial_orientation(
         initial_earth_fixed_state,
         simulation_start_epoch,
@@ -93,22 +93,22 @@ def main():
 
     # Define list of dependent variables to save.
     dependent_variables_to_save = [
-        propagation_setup.dependent_variables.mach_number(
+        propagation_setup.dependent_variable.mach_number(
             "Apollo", "Earth"
         ),
-        propagation_setup.dependent_variables.altitude(
+        propagation_setup.dependent_variable.altitude(
             "Apollo", "Earth"
         ),
-        propagation_setup.dependent_variables.single_acceleration(
+        propagation_setup.dependent_variable.single_acceleration(
             propagation_setup.acceleration.aerodynamic_type, "Apollo", "Earth"
         ),
-	propagation_setup.dependent_variables.aerodynamic_force_coefficients(
+	propagation_setup.dependent_variable.aerodynamic_force_coefficients(
             "Apollo" 
 	)
         ]
 
     # Define termination conditions (once altitude goes below 25 km).
-    termination_variable = propagation_setup.dependent_variables.altitude(
+    termination_variable = propagation_setup.dependent_variable.altitude(
         "Apollo", "Earth"
     )
     termination_settings = propagation_setup.propagator.dependent_variable_termination(
@@ -143,9 +143,8 @@ def main():
     dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings
     )
-
-    state_solution=dynamics_simulator.get_equations_of_motion_numerical_solution()
-    dependent_variable_solution=dynamics_simulator.get_dependent_variable_history()
+    states = dynamics_simulator.state_history
+    dependent_variables = dynamics_simulator.dependent_variable_history
 
     # io.save2txt(
     #     solution=dynamics_simulator.get_equations_of_motion_numerical_solution(),

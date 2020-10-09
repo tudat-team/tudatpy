@@ -42,7 +42,7 @@ def main():
 
     # Create vehicle objects.
     bodies.create_empty_body( "Delfi-C3" )
-    bodies.get_body( "Delfi-C3").set_constant_body_mass(400.0)
+    bodies.get_body( "Delfi-C3").set_constant_mass(400.0)
 
     # Create aerodynamic coefficient interface settings, and add to vehicle
     reference_area = 4.0
@@ -110,8 +110,7 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = environment_setup.get_body_gravitational_parameter( 
-	bodies, "Earth" )
+    earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
     initial_state = conversion.keplerian_to_cartesian(
         gravitational_parameter=earth_gravitational_parameter,
         semi_major_axis=7500.0E3,
@@ -124,16 +123,16 @@ def main():
 
     # Define list of dependent variables to save.
     dependent_variables_to_save = [
-        propagation_setup.dependent_variables.total_acceleration(
+        propagation_setup.dependent_variable.total_acceleration(
             "Delfi-C3"
         ),
-	propagation_setup.dependent_variables.keplerian_state(
+	propagation_setup.dependent_variable.keplerian_state(
             "Delfi-C3", "Earth"
 	),
-	propagation_setup.dependent_variables.latitude(
+	propagation_setup.dependent_variable.latitude(
             "Delfi-C3", "Earth"
 	),
-	propagation_setup.dependent_variables.longitude(
+	propagation_setup.dependent_variable.longitude(
             "Delfi-C3", "Earth"
 	)
         ]
@@ -162,7 +161,8 @@ def main():
     # Create simulation object and propagate dynamics.
     dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
         bodies, integrator_settings, propagator_settings)
-    result = dynamics_simulator.get_equations_of_motion_numerical_solution()
+    states = dynamics_simulator.state_history
+    dependent_variables = dynamics_simulator.dependent_variable_history
 
     ###########################################################################
     # PRINT INITIAL AND FINAL STATES ##########################################
@@ -172,13 +172,13 @@ def main():
         f"""
 Single Earth-Orbiting Satellite Example.
 The initial position vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][:3] / 1E3}
+        states[simulation_start_epoch][:3] / 1E3}
 The initial velocity vector of Delfi-C3 is [km/s]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        states[simulation_start_epoch][3:] / 1E3}
 After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
-        result[simulation_end_epoch][:3] / 1E3}
+        states[simulation_end_epoch][:3] / 1E3}
 And the velocity vector of Delfi-C3 is [km/s]: \n{
-        result[simulation_end_epoch][3:] / 1E3}
+        states[simulation_end_epoch][3:] / 1E3}
         """
     )
 
