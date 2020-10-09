@@ -55,6 +55,16 @@ Eigen::Vector3d transformVectorFromQuaternionFunction(
     return rotation( ) * originalVector;
 }
 
+//! Wrapper function to transform a vector to a different frame from a single rotation function.
+void transformVectorReferenceFromQuaternionFunction(
+        Eigen::Vector3d& transformedVector,
+        const Eigen::Vector3d& originalVector,
+        const std::function< Eigen::Quaterniond( ) > rotation )
+{
+    transformedVector = rotation( ) * originalVector;
+}
+
+
 //! Wrapper function to transform a vector to a different frame from a single transformation function.
 Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
         const std::function< Eigen::Vector3d( ) > originalVector,
@@ -62,6 +72,14 @@ Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
 {
     Eigen::Vector3d original = originalVector( );
     return transformationFunction( original );
+}
+
+void transformVectorFunctionFromVectorReferenceFunctions(
+        Eigen::Vector3d& transformedVector,
+        const std::function< Eigen::Vector3d&( ) > originalVector,
+        std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > transformationFunction )
+{
+    transformationFunction( transformedVector, originalVector( ) );
 }
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
@@ -80,6 +98,23 @@ Eigen::Vector3d transformVectorFromVectorFunctions(
     }
     return currentVector;
 }
+
+void transformVectorReferenceFromVectorFunctions(
+        Eigen::Vector3d& transformedVector,
+        const Eigen::Vector3d& originalVector,
+        const std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
+{
+    transformedVector = originalVector;
+    Eigen::Vector3d newVector;
+
+    // Apply each of the required tranformations.
+    for( unsigned int i = 0; i < rotationsList.size( ); i++ )
+    {
+        newVector = rotationsList.at( i )( transformedVector );
+        transformedVector = newVector;
+    }
+}
+
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )

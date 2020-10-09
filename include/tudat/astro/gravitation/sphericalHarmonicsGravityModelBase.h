@@ -33,7 +33,7 @@ class SphericalHarmonicsGravitationalAccelerationModelBase
 protected:
 
     //! Typedef for a position-returning function.
-    typedef std::function< StateMatrix( ) > StateFunction;
+    typedef std::function< void( StateMatrix& ) > StateFunction;
 
 public:
 
@@ -113,8 +113,8 @@ public:
     void updateBaseMembers( )
     {
         this->gravitationalParameter = this->gravitationalParameterFunction( );
-        this->positionOfBodySubjectToAcceleration = std::move( this->subjectPositionFunction( ) );
-        this->positionOfBodyExertingAcceleration  = std::move( this->sourcePositionFunction( ) );
+        this->subjectPositionFunction( this->positionOfBodySubjectToAcceleration );
+        this->sourcePositionFunction( this->positionOfBodyExertingAcceleration );
     }
 
     //! Function to return the function returning the relevant gravitational parameter.
@@ -130,7 +130,7 @@ public:
      * Function to return the function returning position of body exerting acceleration.
      * \return Function returning position of body exerting acceleration.
      */
-    std::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
+    StateFunction getStateFunctionOfBodyExertingAcceleration( )
     { return sourcePositionFunction; }
 
     //! Function to return the function returning position of body subject to acceleration.
@@ -138,7 +138,7 @@ public:
      * Function to return the function returning position of body subject to acceleration.
      * \return Function returning position of body subject to acceleration.
      */
-    std::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
+    StateFunction getStateFunctionOfBodyUndergoingAcceleration( )
     { return subjectPositionFunction; }
 
     //! Function to return whether the mutual attraction is used.
