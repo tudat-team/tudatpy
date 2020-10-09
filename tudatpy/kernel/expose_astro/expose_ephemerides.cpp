@@ -138,12 +138,6 @@ void expose_ephemerides(py::module &m) {
              std::shared_ptr<te::RotationalEphemeris>>
       RotationalEphemeris_(m, "RotationalEphemeris");
 
-  m.def("transform_state_to_global_frame",
-        &te::transformStateToGlobalFrame<double, double>,
-        py::arg("state_in_local_frame"),
-        py::arg("current_time"),
-        py::arg("rotational_ephemeris"));
-
   //////////////////////////////////////////////////////////////////////////////
   // constantEphemeris.h
   //////////////////////////////////////////////////////////////////////////////

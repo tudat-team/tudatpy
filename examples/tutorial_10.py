@@ -2,38 +2,39 @@
 # IMPORT STATEMENTS ###########################################################
 ###############################################################################
 import numpy as np
+import time
+from tudatpy import elements
 from tudatpy.kernel import constants
 from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
+from tudatpy.kernel.simulation import estimation_setup
 from tudatpy.kernel.astro import conversion
 
 def main():
+
     # Load spice kernels.
     spice_interface.load_standard_kernels()
 
-    # Set simulation start and end epochs.
+    # Set simulation start epoch.
     simulation_start_epoch = 0.0
+
+    # Set simulation end epoch.
     simulation_end_epoch = constants.JULIAN_DAY
 
     ###########################################################################
     # CREATE ENVIRONMENT ######################################################
     ###########################################################################
 
-    # Create default body settings for selected celestial bodies
+    # Create body objects.
     bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
-    # Create default body settings for bodies_to_create, with "Earth"/"J2000" as 
-    # global frame origin and orientation. This environment will only be valid 
-    # in the indicated time range 
-    # [simulation_start_epoch --- simulation_end_epoch]
     body_settings = environment_setup.get_default_body_settings(
         bodies_to_create,
         simulation_start_epoch,
         simulation_end_epoch,
         "Earth","J2000")
 
-    # Create system of selected celestial bodies
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     ###########################################################################
@@ -44,18 +45,21 @@ def main():
     bodies.create_empty_body( "Delfi-C3" )
     bodies.get_body( "Delfi-C3").set_constant_mass(400.0)
 
-    # Create aerodynamic coefficient interface settings, and add to vehicle
+    ###########################################################################
+    # CREATE VEHICLE - ENVIRONMENT INTERFACE ##################################
+    ###########################################################################
+
+    # Create aerodynamic coefficient interface settings
     reference_area = 4.0
     drag_coefficient = 1.2
     aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
-        reference_area,[drag_coefficient,0,0],
-        are_coefficients_in_aerodynamic_frame=True,
-        are_coefficients_in_negative_axis_direction=True
+        reference_area,[drag_coefficient,0,0]
     )
     environment_setup.add_aerodynamic_coefficient_interface(
                 bodies, "Delfi-C3", aero_coefficient_settings );
 
-    # Create radiation pressure settings, and add to vehicle
+
+    # Create radiation pressure settings
     reference_area_radiation = 4.0
     radiation_pressure_coefficient = 1.2
     occulting_bodies = ["Earth"]
@@ -75,7 +79,7 @@ def main():
     # Define central bodies.
     central_bodies = ["Earth"]
 
-    # Define accelerations acting on Delfi-C3 by Sun and Earth.
+    # Define unique (Sun, Earth) accelerations acting on Delfi-C3.
     accelerations_settings_delfi_c3 = dict(
         Sun=
         [
@@ -88,12 +92,12 @@ def main():
             propagation_setup.acceleration.aerodynamic()
         ])
 
-    # Define point mass accelerations acting on Delfi-C3 by all other bodies.
+    # Define other point mass accelerations acting on Delfi-C3.
     for other in set(bodies_to_create).difference({"Sun", "Earth"}):
         accelerations_settings_delfi_c3[other] = [
             propagation_setup.acceleration.point_mass_gravity()]
 
-    # Create global accelerations settings dictionary.
+    # Create global accelerations dictionary.
     acceleration_settings = {"Delfi-C3": accelerations_settings_delfi_c3}
 
     # Create acceleration models.
@@ -120,33 +124,26 @@ def main():
         longitude_of_ascending_node=np.deg2rad(23.4),
         true_anomaly=np.deg2rad(139.87)
     )
-
-    # Define list of dependent variables to save.
-    dependent_variables_to_save = [
-        propagation_setup.dependent_variable.total_acceleration(
-            "Delfi-C3"
-        ),
-	propagation_setup.dependent_variable.keplerian_state(
-            "Delfi-C3", "Earth"
-	),
-	propagation_setup.dependent_variable.latitude(
-            "Delfi-C3", "Earth"
-	),
-	propagation_setup.dependent_variable.longitude(
-            "Delfi-C3", "Earth"
-	)
-        ]
-
-
     # Create propagation settings.
     propagator_settings = propagation_setup.propagator.translational(
         central_bodies,
         acceleration_models,
         bodies_to_propagate,
         initial_state,
-        simulation_end_epoch,
-        output_variables = dependent_variables_to_save
+        simulation_end_epoch
     )
+
+    # Create list of parameters for which the variational equations are to be
+    # propagated
+    parameter_settings = estimation_setup.parameter.initial_states(
+	propagator_settings, bodies )
+    parameter_settings.append( 
+	estimation_setup.parameter.gravitational_parameter( "Earth" ) )
+    parameter_settings.append( 
+	estimation_setup.parameter.constant_drag_coefficient( "Delfi-C3" ) )
+    parameter_settings.append( 
+	estimation_setup.parameter.radiation_pressure_coefficient( "Delfi-C3" ) )
+
     # Create numerical integrator settings.
     fixed_step_size = 10.0
     integrator_settings = propagation_setup.integrator.runge_kutta_4(
@@ -159,10 +156,13 @@ def main():
     ###########################################################################
 
     # Create simulation object and propagate dynamics.
-    dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
-        bodies, integrator_settings, propagator_settings)
-    states = dynamics_simulator.state_history
-    dependent_variables = dynamics_simulator.dependent_variable_history
+    variational_equations_solver = estimation_setup.SingleArcVariationalEquationsSolver(
+        bodies, integrator_settings, propagator_settings, estimation_setup.create_parameters_to_estimate( parameter_settings, bodies ),
+        integrate_on_creation=1 )
+
+    states = variational_equations_solver.state_history
+    state_transition_matrices = variational_equations_solver.state_transition_matrix_history
+    sensitivity_matrices = variational_equations_solver.sensitivity_matrix_history
 
     ###########################################################################
     # PRINT INITIAL AND FINAL STATES ##########################################
@@ -170,15 +170,13 @@ def main():
 
     print(
         f"""
-Single Earth-Orbiting Satellite Example.
-The initial position vector of Delfi-C3 is [km]: \n{
-        states[simulation_start_epoch][:3] / 1E3}
-The initial velocity vector of Delfi-C3 is [km/s]: \n{
-        states[simulation_start_epoch][3:] / 1E3}
-After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
-        states[simulation_end_epoch][:3] / 1E3}
-And the velocity vector of Delfi-C3 is [km/s]: \n{
-        states[simulation_end_epoch][3:] / 1E3}
+
+Final Cartesian state: \n{
+        states[simulation_end_epoch]}
+Final State Transition Matrix: \n{
+        state_transition_matrices[simulation_end_epoch] }
+Final Sensitivity Matrix: \n{
+        sensitivity_matrices[simulation_end_epoch] }
         """
     )
 
