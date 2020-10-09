@@ -236,27 +236,6 @@ public:
     }
 
 
-    //! Get solar sail acceleration.
-    /*!
-     * Returns the solar sail acceleration. No arguments are passed to this function.
-     * Instead, all data required for computation is to be obtained from pointers to functions/
-     * classes/structs, etc., which are to be set in a derived class and evaluated by the
-     * updateMembers() function below. This function is essentially a wrapper for the free
-     * function that computes the solar sail acceleration.
-     *
-     * \return Solar sail acceleration [m/s^2].
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return computeSolarSailAcceleration(
-                    currentFrontEmissivityCoefficient_, currentBackEmissivityCoefficient_,
-                    currentFrontLambertianCoefficient_, currentBackLambertianCoefficient_,
-                    currentReflectivityCoefficient_, currentSpecularReflectionCoefficient_,
-                    currentNormalizedVectorToSource_, currentNormalizedVelocityVector_,
-                    currentRadiationPressure_, currentArea_,
-                    currentConeAngle_, currentClockAngle_, currentMass_ );
-    }
-
     //! Update member variables used by the radiation pressure acceleration model.
     /*!
      * Updates member variables used by the acceleration model. This function evaluates all
@@ -284,6 +263,13 @@ public:
             currentMass_ = massFunction_( );
             currentDistanceToSource_ = ( sourcePositionFunction_( ) - acceleratedBodyPositionFunction_( ) ).norm();
             currentVelocityWrtSource_ = ( acceleratedBodyVelocityFunction_( ) - centralBodyVelocityFunction_( ) ).norm( );
+            currentAcceleration_ = computeSolarSailAcceleration(
+                        currentFrontEmissivityCoefficient_, currentBackEmissivityCoefficient_,
+                        currentFrontLambertianCoefficient_, currentBackLambertianCoefficient_,
+                        currentReflectivityCoefficient_, currentSpecularReflectionCoefficient_,
+                        currentNormalizedVectorToSource_, currentNormalizedVelocityVector_,
+                        currentRadiationPressure_, currentArea_,
+                        currentConeAngle_, currentClockAngle_, currentMass_ );
         }
 
     }
