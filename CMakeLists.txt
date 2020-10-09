@@ -11,14 +11,18 @@ project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 include_directories(include)
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}-Wl,--no-undefined")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
+    add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+endif ()
 
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -64,8 +68,7 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 add_definitions(-DTUDAT_BUILD_WITH_JSON_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-
-option(TUDATPY_CONDA_BUILD ON)
+add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
 if (DEFINED _GLIBCXX_USE_CXX11_ABI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
@@ -95,7 +98,7 @@ endif ()
 
 # Sofa dependency.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Sofa REQUIRED 1.0.0)
+    find_package(Sofa 1.0.0 REQUIRED)
 else ()
     set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
 endif ()
@@ -103,17 +106,8 @@ endif ()
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(Tudat 2.8 REQUIRED)
-
-    if (TUDATPY_CONDA_BUILD)
-        message(STATUS "Building conda-build build of tudat.")
-
-        # TODO: Should inherit this from Tudat definitions.
-        if (NOT APPLE)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-        endif (NOT APPLE)
-    endif ()
-
+    find_package(Tudat 2.9 REQUIRED)
+    add_definitions(${Tudat_DEFINITIONS})
 else ()
     set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
 endif ()
@@ -135,19 +129,8 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
-#find_package(pybind11 REQUIRED)
-
-
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(pybind11 REQUIRED)
-
-    if (TUDATPY_CONDA_BUILD)
-        message(STATUS "Building conda-build build of tudatpy.")
-
-        # TODO: Should inherit this from Tudat definitions.
-        #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-    endif ()
-
 else ()
     set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
     set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
