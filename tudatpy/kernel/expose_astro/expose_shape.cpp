@@ -23,7 +23,8 @@ void expose_shape(py::module &m) {
 
   py::class_<tba::BodyShapeModel,
              std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
-             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius);
+             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
+             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
 
 };
 
