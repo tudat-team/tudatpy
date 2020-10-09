@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
     // Declare spherical harmonics gravitational acceleration class object.
     SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity
             = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
-                [ & ]( ){ return position; }, gravitationalParameter, planetaryRadius,
+                [ & ]( Eigen::Vector3d& input ){ input = position; }, gravitationalParameter, planetaryRadius,
                 cosineCoefficients, sineCoefficients );
 
     // Compute resultant acceleration [m s^-2].
