@@ -78,12 +78,10 @@ void expose_atmosphere_setup(py::module &m) {
             AtmosphereSettings(m, "AtmosphereSettings",
                                             "<no doc>");
     m.def("exponential",
-          &tss::exponentialAtmosphereSettings,
+          py::overload_cast<const double, const double>(
+          &tss::exponentialAtmosphereSettings ),
           py::arg("scale_height"),
-          py::arg("surface_density"),
-          py::arg("constant_temperature"),
-          py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-          py::arg("ratio_of_specific_heats") = 1.4 );
+          py::arg("surface_density") );
 }
 
 void expose_radiation_pressure_setup(py::module &m) {
