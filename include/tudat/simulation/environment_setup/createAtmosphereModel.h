@@ -811,6 +811,14 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
                 ratioOfSpecificHeats );
 }
 
+inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
+        const double densityScaleHeight,
+        const double densityAtZeroAltitude )
+{
+    return std::make_shared< ExponentialAtmosphereSettings >(
+                densityScaleHeight, TUDAT_NAN, densityAtZeroAltitude, TUDAT_NAN, TUDAT_NAN );
+}
+
 //! Function to create a wind model.
 /*!
  *  Function to create a wind model based on model-specific settings for the wind model.
