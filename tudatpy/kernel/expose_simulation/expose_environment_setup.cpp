@@ -279,7 +279,7 @@ void expose_ephemeris_setup(py::module &m) {
 
     py::class_<tss::CustomEphemerisSettings,
             std::shared_ptr<tss::CustomEphemerisSettings>,
-            tss::EphemerisSettings>(m, "CustomEphemerisSettings")
+            tss::EphemerisSettings>(m, "CustomphemerisSettings")
             .def(py::init<const std::function<Eigen::Vector6d(const double)>,
                  const std::string &,
                  const std::string &>(),
@@ -390,6 +390,7 @@ void expose_environment_setup(py::module &m) {
             .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame)
             .def("get_state", &tss::Body::getState)
             .def("set_state", &tss::Body::setState)
+            .def("get_state_in_based_frame_from_ephemeris", &tss::Body::getStateInBaseFrameFromEphemeris<double,double>)
             .def("get_ephemeris", &tss::Body::getEphemeris)
             .def("set_ephemeris", &tss::Body::setEphemeris)
             .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
