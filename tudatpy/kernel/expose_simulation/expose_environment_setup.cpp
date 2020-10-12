@@ -279,7 +279,7 @@ void expose_ephemeris_setup(py::module &m) {
 
     py::class_<tss::CustomEphemerisSettings,
             std::shared_ptr<tss::CustomEphemerisSettings>,
-            tss::EphemerisSettings>(m, "CustomphemerisSettings")
+            tss::EphemerisSettings>(m, "CustomEphemerisSettings")
             .def(py::init<const std::function<Eigen::Vector6d(const double)>,
                  const std::string &,
                  const std::string &>(),
@@ -327,7 +327,7 @@ void expose_ephemeris_setup(py::module &m) {
             .def("set_use_long_double_states",
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
 
-    m.def("create_body_ephemeris", &tss::createBodyEphemeris,
+    m.def("create_ephemeris", &tss::createBodyEphemeris,
           py::arg("ephemeris_settings"), py::arg("body_name"));
 
 
