@@ -48,12 +48,10 @@ def main():
     reference_area = 4.0
     drag_coefficient = 1.2
     aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
-        reference_area,[drag_coefficient,0,0],
-        are_coefficients_in_aerodynamic_frame=True,
-        are_coefficients_in_negative_axis_direction=True
+        reference_area,[drag_coefficient,0,0]
     )
     environment_setup.add_aerodynamic_coefficient_interface(
-                bodies, "Delfi-C3", aero_coefficient_settings );
+                bodies, "Delfi-C3", aero_coefficient_settings )
 
     # Create radiation pressure settings, and add to vehicle
     reference_area_radiation = 4.0
@@ -63,7 +61,7 @@ def main():
         "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies
     )
     environment_setup.add_radiation_pressure_interface(
-                bodies, "Delfi-C3", radiation_pressure_settings );
+                bodies, "Delfi-C3", radiation_pressure_settings )
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -79,7 +77,7 @@ def main():
     accelerations_settings_delfi_c3 = dict(
         Sun=
         [
-            propagation_setup.acceleration.cannon_ball_radiation_pressure_(),
+            propagation_setup.acceleration.cannon_ball_radiation_pressure(),
             propagation_setup.acceleration.point_mass_gravity()
         ],
         Earth=

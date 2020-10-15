@@ -131,7 +131,7 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("central_body"));
 
-    m.def("altitude",
+    m.def("airspeed",
           &tp::airspeedDependentVariable,
           py::arg("body"),
           py::arg("body_with_atmosphere"));
@@ -192,11 +192,11 @@ void expose_dependent_variable_setup(py::module &m) {
 
     m.def("total_acceleration",
           &tp::totalAccelerationDependentVariable,
-          py::arg("body_exerting_acceleration"));
+          py::arg("body_undergoing_acceleration"));
 
     m.def("total_acceleration_norm",
           &tp::totalAccelerationNormDependentVariable,
-          py::arg("body_exerting_acceleration"));
+          py::arg("body_undergoing_acceleration"));
 
     m.def("aerodynamic_force_coefficients",
           &tp::aerodynamicForceCoefficientDependentVariable,
@@ -231,6 +231,7 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("radiating_body"));
 }
+
 void expose_acceleration_setup(py::module &m) {
 
     /*
@@ -243,7 +244,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("point_mass_gravity_type", tba::AvailableAcceleration::point_mass_gravity)
             .value("central_gravity_type", tba::AvailableAcceleration::central_gravity)
             .value("aerodynamic_type", tba::AvailableAcceleration::aerodynamic)
-            .value("cannon_ball_radiation_pressure_type", tba::AvailableAcceleration::cannon_ball_radiation_pressure)
+            .value("cannonball_radiation_pressure_type", tba::AvailableAcceleration::cannon_ball_radiation_pressure)
             .value("spherical_harmonic_gravity_type", tba::AvailableAcceleration::spherical_harmonic_gravity)
             .value("mutual_spherical_harmonic_gravity_type", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity)
             .value("third_body_point_mass_gravity_type", tba::AvailableAcceleration::third_body_point_mass_gravity)
@@ -270,7 +271,7 @@ void expose_acceleration_setup(py::module &m) {
 
     m.def("aerodynamic", &tss::aerodynamicAcceleration);
 
-    m.def("cannon_ball_radiation_pressure_", &tss::cannonBallRadiationPressureAcceleration);
+    m.def("cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration);
 
     m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration,
           py::arg( "maximum_degree" ),

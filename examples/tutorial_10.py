@@ -83,7 +83,7 @@ def main():
     accelerations_settings_delfi_c3 = dict(
         Sun=
         [
-            propagation_setup.acceleration.cannon_ball_radiation_pressure_(),
+            propagation_setup.acceleration.cannonball_radiation_pressure(),
             propagation_setup.acceleration.point_mass_gravity()
         ],
         Earth=
