@@ -91,7 +91,7 @@ void expose_radiation_pressure_setup(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType", "<no_doc>")
             .value(
-                "cannon_ball_radiation_pressure_interface",
+                "cannonball_radiation_pressure_interface",
                 tss::RadiationPressureType::cannon_ball_radiation_pressure_interface)
             .value("panelled_radiation_pressure_interface",
                    tss::RadiationPressureType::panelled_radiation_pressure_interface)
