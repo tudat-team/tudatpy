@@ -91,7 +91,7 @@ void expose_radiation_pressure_setup(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::RadiationPressureType>(m, "RadiationPressureType", "<no_doc>")
             .value(
-                "cannon_ball_radiation_pressure_interface",
+                "cannonball_radiation_pressure_interface",
                 tss::RadiationPressureType::cannon_ball_radiation_pressure_interface)
             .value("panelled_radiation_pressure_interface",
                    tss::RadiationPressureType::panelled_radiation_pressure_interface)
@@ -327,7 +327,7 @@ void expose_ephemeris_setup(py::module &m) {
             .def("set_use_long_double_states",
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
 
-    m.def("create_body_ephemeris", &tss::createBodyEphemeris,
+    m.def("create_ephemeris", &tss::createBodyEphemeris,
           py::arg("ephemeris_settings"), py::arg("body_name"));
 
 
@@ -390,6 +390,7 @@ void expose_environment_setup(py::module &m) {
             .def_property("ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame)
             .def("get_state", &tss::Body::getState)
             .def("set_state", &tss::Body::setState)
+            .def("get_state_in_based_frame_from_ephemeris", &tss::Body::getStateInBaseFrameFromEphemeris<double,double>)
             .def("get_ephemeris", &tss::Body::getEphemeris)
             .def("set_ephemeris", &tss::Body::setEphemeris)
             .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
