@@ -944,7 +944,12 @@ void expose_propagation_setup(py::module &m) {
             .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
             .export_values();
 
-
+	py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "CoefficientSets")
+	        .value("runge_kutta_fehlberg_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
+			.value("runge_kutta_fehlberg_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
+			.value("runge_kutta_fehlberg_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
+			.value("runge_kutta_dormand_prince_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
+			.export_values();
 
     py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences")
             .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
