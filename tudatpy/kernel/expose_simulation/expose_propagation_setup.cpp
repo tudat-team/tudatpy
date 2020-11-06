@@ -334,6 +334,15 @@ void expose_acceleration_setup(py::module &m) {
             .def(py::init<const int, const int>(), py::arg("maximum_degree"),
                  py::arg("maximum_order"));
 
+    py::class_<tss::MutualSphericalHarmonicAccelerationSettings,
+            std::shared_ptr<tss::MutualSphericalHarmonicAccelerationSettings>,
+            tss::AccelerationSettings>(m, "MutualSphericalHarmonicAccelerationSettings");
+
+    py::class_<tss::EmpiricalAccelerationSettings,
+            std::shared_ptr<tss::EmpiricalAccelerationSettings>,
+            tss::AccelerationSettings>(m, "EmpiricalAccelerationSettings");
+
+
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
             tss::AccelerationSettings>(m, "ThrustAccelerationSettings")
@@ -590,7 +599,7 @@ void expose_integrator_setup(py::module &m) {
           py::arg("check_termination_on_minor_steps") = 0,
           py::arg("safety_factor_for_next_step_size") = 0.7,
           py::arg("maximum_factor_increase_for_next_step_size") = 10.0,
-          py::arg("miniimum_factor_increase_for_next_step_size") = 10.0 );
+          py::arg("minimum_factor_increase_for_next_step_size") = 10.0 );
 
     m.def("adams_bashforth_moulton",
           &tni::adamsBashforthMoultonSettings< double >,
