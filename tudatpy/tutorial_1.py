@@ -110,7 +110,7 @@ def main():
     )
     # Create numerical integrator settings.
     integrator_settings = propagation_setup.IntegratorSettings(
-        propagation_setup.AvailableIntegrators.rungeKutta4,
+        propagation_setup.AvailableIntegrators.rk4,
         simulation_start_epoch,
         fixed_step_size
     )
@@ -127,20 +127,24 @@ def main():
     ###########################################################################
     # PRINT INITIAL AND FINAL STATES ##########################################
     ###########################################################################
+    
+    final_time_step=list(result.keys())[-1]
+    first_time_step=list(result.keys())[0]
 
     print(
         f"""
 Single Earth-Orbiting Satellite Example.
 The initial position vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][:3] / 1E3} 
+        result[first_time_step][:3] / 1E3}
 The initial velocity vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        result[first_time_step][3:] / 1E3}
 After {simulation_end_epoch} seconds the position vector of Delfi-C3 is [km]: \n{
-        result[simulation_end_epoch][:3] / 1E3}
+        result[final_time_step][:3] / 1E3}
 And the velocity vector of Delfi-C3 is [km]: \n{
-        result[simulation_start_epoch][3:] / 1E3}
+        result[final_time_step][3:] / 1E3}
         """
     )
+
 
     ###########################################################################
     # SAVE RESULTS ############################################################
