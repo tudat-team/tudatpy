@@ -815,6 +815,90 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
+inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
+		const ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData
+		bodyIdentifier,
+		const bool useCircularCoplanarApproximation )
+{
+	return std::make_shared< ApproximatePlanetPositionSettings >(
+			bodyIdentifier, useCircularCoplanarApproximation );
+}
+
+inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
+		const std::string frameOrigin = "SSB",
+		const std::string frameOrientation = "ECLIPJ2000",
+		const bool correctForStellarAberration = false,
+		const bool correctForLightTimeAberration = false,
+		const bool convergeLightTimeAberration = false,
+		const EphemerisType ephemerisType = direct_spice_ephemeris )
+{
+	return std::make_shared< DirectSpiceEphemerisSettings >(
+			frameOrigin, frameOrientation, correctForStellarAberration,
+			correctForLightTimeAberration, convergeLightTimeAberration, ephemerisType );
+}
+
+inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
+		double initialTime,
+		double finalTime,
+		double timeStep,
+		std::string frameOrigin = "SSB",
+		std::string frameOrientation = "ECLIPJ2000",
+		std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+		std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
+{
+	return std::make_shared< InterpolatedSpiceEphemerisSettings >(
+			initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings );
+}
+
+inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
+		const std::map< double, Eigen::Vector6d >& bodyStateHistory,
+		std::string frameOrigin = "SSB",
+		std::string frameOrientation = "ECLIPJ2000" )
+{
+	return std::make_shared< TabulatedEphemerisSettings >(
+			bodyStateHistory, frameOrigin, frameOrientation	);
+}
+
+inline std::shared_ptr< EphemerisSettings > constantEphemerisSettings(
+		const Eigen::Vector6d& constantState,
+		const std::string& frameOrigin = "SSB",
+		const std::string& frameOrientation = "ECLIPJ2000" )
+{
+	return std::make_shared< ConstantEphemerisSettings >(
+			constantState, frameOrigin, frameOrientation );
+}
+
+inline std::shared_ptr< EphemerisSettings > customEphemerisSettings(
+		const std::function< Eigen::Vector6d( const double ) > customStateFunction,
+		const std::string& frameOrigin = "SSB",
+		const std::string& frameOrientation = "ECLIPJ2000" )
+{
+	return std::make_shared< CustomEphemerisSettings >(
+			customStateFunction, frameOrigin, frameOrientation );
+}
+
+inline std::shared_ptr< EphemerisSettings > directTleEphemerisSettings(
+		std::shared_ptr< ephemerides::Tle > tle,
+		const std::string frameOrigin = "Earth",
+		const std::string frameOrientation = "J2000" )
+{
+	return std::make_shared< DirectTleEphemerisSettings >( tle, frameOrigin, frameOrientation );
+}
+
+inline std::shared_ptr< EphemerisSettings > interpolatedTleEphemerisSettings(
+		const double initialTime, const double finalTime,
+		const double timeStep, std::shared_ptr< ephemerides::Tle > tle,
+		std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+		std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ),
+		const bool useLongDoubleStates = false,
+		const std::string& frameOrigin = "Earth", const std::string& frameOrientation = "J2000" )
+{
+	return std::make_shared< InterpolatedTleEphemerisSettings >(
+			initialTime, finalTime, timeStep, tle, interpolatorSettings, useLongDoubleStates,
+			frameOrigin, frameOrientation );
+}
+
+
 //! Function to create a ephemeris model.
 /*!
  *  Function to create a ephemeris model based on model-specific settings for the ephemeris.
