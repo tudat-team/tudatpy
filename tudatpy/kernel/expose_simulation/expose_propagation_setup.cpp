@@ -569,9 +569,10 @@ void expose_integrator_setup(py::module &m) {
     //		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
     //		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
-    // TODO: Add overload_cast
-    m.def("runge_kutta_variable_step_size_vector_tolerances",
-          &tni::rungeKuttaVariableStepSettings< double, Eigen::VectorXd >,
+    m.def("runge_kutta_variable_step_size_scalar_tolerances",
+          py::overload_cast<const double, const double, const tni::RungeKuttaCoefficients::CoefficientSets,
+          const double, const double, const double&, const double&, const int, const bool,
+          const double, const double, const double>(&tni::rungeKuttaVariableStepSettings),
           py::arg("initial_time"),
           py::arg("initial_time_step"),
           py::arg("coefficient_set"),
@@ -584,6 +585,23 @@ void expose_integrator_setup(py::module &m) {
           py::arg("safety_factor_for_next_step_size") = 0.8,
           py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
           py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+
+	m.def("runge_kutta_variable_step_size_vector_tolerances",
+		  py::overload_cast<const double, const double, const tni::RungeKuttaCoefficients::CoefficientSets,
+				  const double, const double, const Eigen::VectorXd&, const Eigen::VectorXd&, const int, const bool,
+				  const double, const double, const double>(&tni::rungeKuttaVariableStepSettings),
+		  py::arg("initial_time"),
+		  py::arg("initial_time_step"),
+		  py::arg("coefficient_set"),
+		  py::arg("minimum_step_size"),
+		  py::arg("maximum_step_size"),
+		  py::arg("relative_error_tolerance"),
+		  py::arg("absolute_error_tolerance"),
+		  py::arg("save_frequency") = 1,
+		  py::arg("assess_termination_on_minor_steps") = false,
+		  py::arg("safety_factor_for_next_step_size") = 0.8,
+		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
+		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
     m.def("bulirsch_stoer",
           &tni::bulirschStoerIntegratorSettings< double >,
