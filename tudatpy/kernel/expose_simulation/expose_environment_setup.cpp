@@ -205,6 +205,23 @@ void expose_gravity_field_setup(py::module &m) {
 
 void expose_ephemeris_setup(py::module &m) {
 
+	/////////////////////////////////////////////////////////////////////////////
+	// approximatePlanetPositionsBase.h
+	/////////////////////////////////////////////////////////////////////////////
+
+	py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
+			m, "BodiesWithEphemerisData", "<no_doc>")
+			.value("mercury", te::ApproximatePlanetPositionsBase::mercury)
+			.value("venus", te::ApproximatePlanetPositionsBase::venus)
+			.value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
+			.value("mars", te::ApproximatePlanetPositionsBase::mars)
+			.value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
+			.value("saturn", te::ApproximatePlanetPositionsBase::saturn)
+			.value("uranus", te::ApproximatePlanetPositionsBase::uranus)
+			.value("neptune", te::ApproximatePlanetPositionsBase::neptune)
+			.value("pluto", te::ApproximatePlanetPositionsBase::pluto)
+			.export_values();
+
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
     /////////////////////////////////////////////////////////////////////////////
@@ -333,13 +350,54 @@ void expose_ephemeris_setup(py::module &m) {
 
     m.def("keplerian",
           &tss::keplerEphemerisSettings,
-          py::arg( "initial_keplerian_state" ),
-          py::arg( "initial_state_epoch" ),
-          py::arg( "central_body_gravitational_parameter" ),
-          py::arg( "frame_origin" ) = "SSB" ,
-          py::arg( "frame_orientation" ) = "ECLIPJ2000" ,
-          py::arg( "root_finder_absolute_tolerance" ) = 200.0 * std::numeric_limits< double >::epsilon( ),
-          py::arg( "root_finder_maximum_iterations" ) = 1000.0 );
+          py::arg("initial_keplerian_state"),
+          py::arg("initial_state_epoch"),
+          py::arg("central_body_gravitational_parameter"),
+          py::arg("frame_origin") = "SSB" ,
+          py::arg("frame_orientation") = "ECLIPJ2000" ,
+          py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
+          py::arg("root_finder_maximum_iterations") = 1000.0 );
+
+    m.def("approximate_planet_positions",
+		  &tss::approximatePlanetPositionsSettings,
+		  py::arg("body_identifier"),
+		  py::arg("use_circular_coplanar_approximation"));
+
+	m.def("direct_spice",
+		  &tss::directSpiceEphemerisSettings,
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000",
+		  py::arg("correct_for_stellar_aberration") = false,
+		  py::arg("correct_for_light_time_aberration") = false,
+		  py::arg("converge_light_time_aberration") = false,
+		  py::arg("ephemeris_type") = tss::EphemerisType::direct_spice_ephemeris);
+
+	m.def("interpolated_spice",
+		  &tss::interpolatedSpiceEphemerisSettings,
+		  py::arg("initial_time"),
+		  py::arg("final_time"),
+		  py::arg("time_step"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000",
+		  py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6));
+
+	m.def("tabulated",
+		  &tss::tabulatedEphemerisSettings,
+		  py::arg("body_state_history"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
+
+	m.def("constant",
+		  &tss::tabulatedEphemerisSettings,
+		  py::arg("constant_state"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
+
+	m.def("custom",
+		  &tss::tabulatedEphemerisSettings,
+		  py::arg("custom_state_function"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
 }
 
 void expose_environment_setup(py::module &m) {
