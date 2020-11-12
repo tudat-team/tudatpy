@@ -635,6 +635,37 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::string& body,
         const SystemOfBodies& bodies = SystemOfBodies( ) );
 
+inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
+		const std::string& originalFrame,
+		const std::string& targetFrame,
+		const Eigen::Quaterniond& initialOrientation,
+		const double initialTime,
+		const double rotationRate
+		)
+{
+	return std::make_shared< SimpleRotationModelSettings >(
+			originalFrame, targetFrame, initialOrientation, initialTime, rotationRate
+			);
+}
+
+inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
+		const std::string& originalFrame,
+		const std::string& targetFrame
+		)
+{
+	return std::make_shared< RotationModelSettings >(
+			spice_rotation_model, originalFrame, targetFrame );
+}
+
+inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
+		const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
+		const std::string baseFrameName = "GCRS" )
+{
+	return std::make_shared< GcrsToItrsRotationModelSettings >(
+			nutationTheory, baseFrameName
+	);
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat

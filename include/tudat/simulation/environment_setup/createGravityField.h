@@ -440,6 +440,34 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
         std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 
+inline std::shared_ptr< GravityFieldSettings > centralGravitySettings(
+		const double gravitationalParameter
+		)
+{
+	return std::make_shared< CentralGravityFieldSettings >( gravitationalParameter );
+}
+
+inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings(
+		)
+{
+	return std::make_shared< GravityFieldSettings >( central_spice );
+}
+
+inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
+		const double gravitationalParameter,
+		const double referenceRadius,
+		const Eigen::MatrixXd normalizedCosineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+		const Eigen::MatrixXd normalizedSineCoefficients,  // NOTE: entry (i,j) denotes coefficient at degree i and order j
+		const std::string associatedReferenceFrame
+		)
+{
+	return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+			gravitationalParameter, referenceRadius,
+			normalizedCosineCoefficients, normalizedSineCoefficients,
+			associatedReferenceFrame
+			);
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat

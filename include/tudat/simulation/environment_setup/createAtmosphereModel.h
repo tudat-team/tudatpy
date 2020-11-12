@@ -819,6 +819,31 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
                 densityScaleHeight, TUDAT_NAN, densityAtZeroAltitude, TUDAT_NAN, TUDAT_NAN );
 }
 
+inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
+{
+	return std::make_shared< AtmosphereSettings >( nrlmsise00 );
+}
+
+typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
+inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphereSettings(
+		const DensityFunction& densityFunction,
+		const double constantTemperature,
+		const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+		const double ratioOfSpecificHeats = 1.4
+		)
+{
+	return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
+			densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats
+			);
+}
+
+inline std::shared_ptr< WindModelSettings > customWindModelSettings(
+		const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction
+		)
+{
+	return std::make_shared< CustomWindModelSettings >( windFunction );
+}
+
 //! Function to create a wind model.
 /*!
  *  Function to create a wind model based on model-specific settings for the wind model.
