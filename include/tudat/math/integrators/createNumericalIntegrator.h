@@ -553,7 +553,7 @@ public:
 };
 
 template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const int saveFrequency = 1,
@@ -564,7 +564,7 @@ std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings(
 }
 
 template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Settings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Settings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const int saveFrequency = 1,
@@ -575,7 +575,7 @@ std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4Sett
 }
 
 //template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettings(
+inline std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettingsScalarTolerances(
         const double initialTime,
         const double initialTimeStep,
         const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
@@ -598,7 +598,7 @@ std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettings(
 }
 
 //template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
-std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettings(
+inline std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettingsVectorTolerances(
         const double initialTime,
         const double initialTimeStep,
         const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
@@ -621,7 +621,7 @@ std::shared_ptr< IntegratorSettings< double > > rungeKuttaVariableStepSettings(
 }
 
 template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const ExtrapolationMethodStepSequences extrapolationSequence,
@@ -647,7 +647,7 @@ std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIn
 }
 
 template< typename IndependentVariableType = double >
-std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettings(
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettings(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const IndependentVariableType minimumStepSize,
