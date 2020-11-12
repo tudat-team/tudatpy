@@ -570,9 +570,7 @@ void expose_integrator_setup(py::module &m) {
     //		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
     m.def("runge_kutta_variable_step_size_scalar_tolerances",
-          py::overload_cast<const double, const double, const tni::RungeKuttaCoefficients::CoefficientSets,
-          const double, const double, const double&, const double&, const int, const bool,
-          const double, const double, const double>(&tni::rungeKuttaVariableStepSettings),
+          &tni::rungeKuttaVariableStepSettingsScalarTolerances,
           py::arg("initial_time"),
           py::arg("initial_time_step"),
           py::arg("coefficient_set"),
@@ -587,9 +585,7 @@ void expose_integrator_setup(py::module &m) {
           py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
 	m.def("runge_kutta_variable_step_size_vector_tolerances",
-		  py::overload_cast<const double, const double, const tni::RungeKuttaCoefficients::CoefficientSets,
-				  const double, const double, const Eigen::VectorXd&, const Eigen::VectorXd&, const int, const bool,
-				  const double, const double, const double>(&tni::rungeKuttaVariableStepSettings),
+		  &tni::rungeKuttaVariableStepSettingsVectorTolerances,
 		  py::arg("initial_time"),
 		  py::arg("initial_time_step"),
 		  py::arg("coefficient_set"),
