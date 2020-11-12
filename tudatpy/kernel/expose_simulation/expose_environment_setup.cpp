@@ -24,6 +24,7 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
 
@@ -82,6 +83,30 @@ void expose_atmosphere_setup(py::module &m) {
           &tss::exponentialAtmosphereSettings ),
           py::arg("scale_height"),
           py::arg("surface_density") );
+
+	m.def("exponential",
+		  py::overload_cast< const double, const double, const double,
+		  const double, const double >(&tss::exponentialAtmosphereSettings),
+		  py::arg("scale_height"),
+		  py::arg("constant_temperature"),
+		  py::arg("surface_density"),
+		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+		  py::arg("ratio_specific_heats") = 1.4);
+
+    m.def("nrlmsise00",
+		  &tss::nrlmsise00AtmosphereSettings);
+
+    m.def("custom_constant_temperature",
+		  &tss::customConstantTemperatureAtmosphereSettings,
+		  py::arg("density_function"),
+		  py::arg("constant_temperature"),
+		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+		  py::arg("ratio_of_specific_heats") = 1.4);
+
+    m.def("custom_wind_model",
+		  &tss::customWindModelSettings,
+		  py::arg("wind_function"));
+
 }
 
 void expose_radiation_pressure_setup(py::module &m) {
@@ -130,7 +155,7 @@ void expose_rotation_model_setup(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
     /////////////////////////////////////////////////////////////////////////////
-    py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no doc>")
+    py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no_doc>")
             .value("simple_rotational_model",
                    tss::RotationModelType::simple_rotation_model)
             .value("spice_rotation_model",
@@ -141,6 +166,15 @@ void expose_rotation_model_setup(py::module &m) {
                    tss::RotationModelType::synchronous_rotation_model)
             .value("planetary_rotation_model",
                    tss::RotationModelType::planetary_rotation_model)
+            .export_values();
+
+    py::enum_<tba::IAUConventions>(m, "IAUConventions", "<no_doc>")
+            .value("iau_2000_a",
+				   tba::IAUConventions::iau_2000_a)
+            .value("iau_2000_b",
+				   tba::IAUConventions::iau_2000_b)
+            .value("iau_2006",
+				   tba::IAUConventions::iau_2006)
             .export_values();
 
     py::class_<tss::RotationModelSettings,
@@ -155,6 +189,28 @@ void expose_rotation_model_setup(py::module &m) {
             .def("get_target_frame", &tss::RotationModelSettings::getTargetFrame)
             .def("reset_original_frame",
                  &tss::RotationModelSettings::resetOriginalFrame);
+
+    m.def("simple",
+		  &tss::simpleRotationModelSettings,
+		  py::arg("original_frame"),
+		  py::arg("target_frame"),
+		  py::arg("initial_orientation"),
+		  py::arg("initial_time"),
+		  py::arg("rotation_rate")
+		  );
+
+    m.def("spice",
+		  &tss::spiceRotationModelSettings,
+		  py::arg("originalFrame"),
+		  py::arg("targetFrame")
+		  );
+
+    m.def("gcrs_to_itrs",
+		  &tss::gcrsToItrsRotationModelSettings,
+		  py::arg("precession_nutation_theory"),
+		  py::arg("original_frame")
+		  );
+
 }
 
 void expose_gravity_field_setup(py::module &m) {
@@ -201,6 +257,20 @@ void expose_gravity_field_setup(py::module &m) {
             .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
             .def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
             .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField);
+
+    m.def("central",
+		  &tss::centralGravitySettings);
+
+    m.def("central_spice",
+		  &tss::centralGravitySettings);
+
+    m.def("spherical_harmonic",
+		  &tss::sphericalHarmonicsGravitySettings,
+		  py::arg("gravitational_parameter"),
+		  py::arg("reference_radius"),
+		  py::arg("normalized_cosine_coefficients"),
+		  py::arg("normalized_sine_coefficients"),
+		  py::arg("associated_reference_frame"));
 }
 
 void expose_ephemeris_setup(py::module &m) {
