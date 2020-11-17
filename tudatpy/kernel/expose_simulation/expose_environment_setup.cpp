@@ -25,6 +25,7 @@ namespace tss = tudat::simulation_setup;
 namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
 namespace tba = tudat::basic_astrodynamics;
+namespace ta = tudat::aerodynamics;
 
 namespace tudatpy {
 
@@ -69,6 +70,50 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
           py::arg("constant_force_coefficient"),
           py::arg("are_coefficients_in_aerodynamic_frame") = true,
           py::arg("are_coefficients_in_negative_axis_direction") = true);
+
+    m.def("tabulated",
+		  py::overload_cast<
+				  const std::vector<double>,
+				  const std::vector<Eigen::Vector3d>,
+				  const std::vector<Eigen::Vector3d>,
+				  const double,
+				  const double,
+				  const double,
+				  const Eigen::Vector3d&,
+				  const ta::AerodynamicCoefficientsIndependentVariables,
+				  const bool,
+				  const bool,
+				  const std::shared_ptr<ti::InterpolatorSettings>>
+				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+		  py::arg("independent_variables"),
+		  py::arg("force_coefficients"),
+		  py::arg("moment_coefficients"),
+		  py::arg("reference_length"),
+		  py::arg("reference_area"),
+		  py::arg("lateral_reference_length"),
+		  py::arg("moment_reference_point"),
+		  py::arg("independent_variable_name"),
+		  py::arg("are_coefficients_in_aerodynamic_frame"),
+		  py::arg("are_coefficients_in_negative_axis_direction"),
+		  py::arg("interpolator_settings"));
+
+    m.def("tabulated",
+		  py::overload_cast<
+		          const std::vector<double>,
+		          const std::vector<Eigen::Vector3d>,
+				  const double,
+				  const ta::AerodynamicCoefficientsIndependentVariables,
+				  const bool,
+				  const bool,
+				  const std::shared_ptr<ti::InterpolatorSettings>>
+				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+		  py::arg("independent_variables"),
+		  py::arg("force_coefficients"),
+		  py::arg("reference_area"),
+		  py::arg("independent_variable_name"),
+		  py::arg("are_coefficients_in_aerodynamic_frame"),
+		  py::arg("are_coefficients_in_negative_axis_direction"),
+		  py::arg("interpolator_settings"));
 }
 
 void expose_atmosphere_setup(py::module &m) {
@@ -149,6 +194,16 @@ void expose_radiation_pressure_setup(py::module &m) {
           py::arg("source_body"), py::arg("reference_area"),
           py::arg("radiation_pressure_coefficient"),
           py::arg("occulting_bodies") = std::vector<std::string>());
+
+    m.def("panelled",
+		  &tss::panelledRadiationPressureInterfaceSettings,
+		  py::arg("source_body"),
+		  py::arg("emissivities"),
+		  py::arg("areas"),
+		  py::arg("diffusion_coefficients"),
+		  py::arg("surface_normals_in_body_fixed_frame"),
+		  py::arg("occulting_bodies") = std::vector< std::string >());
+
 }
 
 void expose_rotation_model_setup(py::module &m) {
@@ -470,6 +525,22 @@ void expose_ephemeris_setup(py::module &m) {
 		  py::arg("frame_orientation") = "ECLIPJ2000");
 }
 
+void expose_shape_setup(py::module &m){
+
+	m.def("spherical",
+	   &tss::sphericalBodyShapeSettings,
+	   py::arg("radius"));
+
+	m.def("spherical_spice",
+	   &tss::fromSpiceSphericalBodyShapeSettings);
+
+	m.def("oblate_spherical",
+	   &tss::oblateSphericalBodyShapeSettings,
+	   py::arg("equatorial_radius"),
+	   py::arg("flattening"));
+
+}
+
 void expose_environment_setup(py::module &m) {
 
     /*  This exposition module follows the structure of
@@ -706,6 +777,9 @@ void expose_environment_setup(py::module &m) {
 
     auto atmosphere_setup = m.def_submodule("atmosphere");
     expose_atmosphere_setup(atmosphere_setup);
+
+    auto shape_setup = m.def_submodule("shape");
+    expose_shape_setup(shape_setup);
 
 }
 
