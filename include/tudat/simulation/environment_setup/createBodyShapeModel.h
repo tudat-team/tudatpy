@@ -145,6 +145,22 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         const std::string& body );
 
 
+inline std::shared_ptr< BodyShapeSettings > sphericalBodyShapeSettings( const double radius )
+{
+	return std::make_shared< SphericalBodyShapeSettings >( radius );
+}
+
+inline std::shared_ptr< BodyShapeSettings > fromSpiceSphericalBodyShapeSettings( )
+{
+	return std::make_shared< BodyShapeSettings >( BodyShapeTypes::spherical_spice );
+}
+
+inline std::shared_ptr< BodyShapeSettings > oblateSphericalBodyShapeSettings( const double equatorialRadius,
+																			  const double flattening )
+{
+	return std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius, flattening );
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat
