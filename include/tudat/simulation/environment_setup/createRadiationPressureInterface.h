@@ -145,7 +145,7 @@ private:
     double radiationPressureCoefficient_;
 };
 
-inline std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(
+inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(
         const std::string& sourceBody, const double area, const double radiationPressureCoefficient,
         const std::vector< std::string >& occultingBodies )
 {
@@ -266,6 +266,19 @@ private:
 
 };
 
+inline std::shared_ptr< RadiationPressureInterfaceSettings > panelledRadiationPressureInterfaceSettings(
+		const std::string& sourceBody,
+		const std::vector< double >& emissivities,
+		const std::vector< double >& areas,
+		const std::vector< double >& diffusionCoefficients,
+		const std::vector< Eigen::Vector3d >& surfaceNormalsInBodyFixedFrame,
+		const std::vector< std::string >& occultingBodies = std::vector< std::string >( )
+		)
+{
+	return std::make_shared< PanelledRadiationPressureInterfaceSettings >(
+			sourceBody, emissivities, areas, diffusionCoefficients, surfaceNormalsInBodyFixedFrame,
+			occultingBodies );
+}
 
 //! Class providing settings for the creation of a solar sail radiation pressure interface.
 class SolarSailRadiationInterfaceSettings: public RadiationPressureInterfaceSettings
