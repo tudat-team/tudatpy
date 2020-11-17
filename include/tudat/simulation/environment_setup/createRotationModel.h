@@ -648,6 +648,16 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
 			);
 }
 
+inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
+		const std::string& originalFrame,
+		const std::string& targetFrame,
+		const Eigen::Quaterniond& initialOrientation,
+		const double initialTime )
+{
+	return std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation,
+														 initialTime, 0 );
+}
+
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame
