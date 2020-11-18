@@ -513,13 +513,13 @@ void expose_ephemeris_setup(py::module &m) {
 		  py::arg("frame_orientation") = "ECLIPJ2000");
 
 	m.def("constant",
-		  &tss::tabulatedEphemerisSettings,
+		  &tss::constantEphemerisSettings,
 		  py::arg("constant_state"),
 		  py::arg("frame_origin") = "SSB",
 		  py::arg("frame_orientation") = "ECLIPJ2000");
 
 	m.def("custom",
-		  &tss::tabulatedEphemerisSettings,
+		  &tss::customEphemerisSettings,
 		  py::arg("custom_state_function"),
 		  py::arg("frame_origin") = "SSB",
 		  py::arg("frame_orientation") = "ECLIPJ2000");
