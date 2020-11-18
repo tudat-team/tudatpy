@@ -273,9 +273,9 @@ void expose_gravity_field_setup(py::module &m) {
     // createGravityField.h
     /////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::GravityFieldType>(m, "GravityFieldType", "<no doc>")
-            .value("central", tss::GravityFieldType::central)
-            .value("central_spice", tss::GravityFieldType::central_spice)
-            .value("spherical_harmonic", tss::GravityFieldType::spherical_harmonic)
+            .value("central_gravity", tss::GravityFieldType::central)
+            .value("central_spice_gravity", tss::GravityFieldType::central_spice)
+            .value("spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic)
             .export_values();
 
     py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel", "<no doc>")
