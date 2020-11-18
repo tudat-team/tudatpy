@@ -172,7 +172,7 @@ private:
     double rotationRate_;
 };
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+#ifdef TUDAT_BUILD_WITH_SOFA_INTERFACE
 
 //! Struct that holds settings for EOP short-period variation
 struct EopCorrectionSettings
