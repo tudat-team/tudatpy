@@ -69,6 +69,7 @@ void expose_dependent_variable_setup(py::module &m) {
             .value("keplerian_state_type", tp::PropagationDependentVariables::keplerian_state_dependent_variable)
             .value("modified_equinocial_state_type", tp::PropagationDependentVariables::modified_equinocial_state_dependent_variable)
             .value("spherical_harmonic_acceleration_terms_type", tp::PropagationDependentVariables::spherical_harmonic_acceleration_terms_dependent_variable)
+            .value("spherical_harmonic_acceleration_norm_terms_type", tp::PropagationDependentVariables::spherical_harmonic_acceleration_norm_terms_dependent_variable)
             .value("body_fixed_relative_cartesian_position_type", tp::PropagationDependentVariables::body_fixed_relative_cartesian_position)
             .value("body_fixed_relative_spherical_position_type", tp::PropagationDependentVariables::body_fixed_relative_spherical_position)
             .value("total_gravity_field_variation_acceleration_type", tp::PropagationDependentVariables::total_gravity_field_variation_acceleration)
@@ -77,6 +78,9 @@ void expose_dependent_variable_setup(py::module &m) {
             .value("acceleration_partial_wrt_body_translational_state_type", tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state)
             .value("local_dynamic_pressure_type", tp::PropagationDependentVariables::local_dynamic_pressure_dependent_variable)
             .value("local_aerodynamic_heat_rate_type", tp::PropagationDependentVariables::local_aerodynamic_heat_rate_dependent_variable)
+            .value("euler_angles_to_body_fixed_type", tp::PropagationDependentVariables::euler_angles_to_body_fixed_313)
+            .value("current_body_mass_type", tp::PropagationDependentVariables::current_body_mass_dependent_variable)
+            .value("radiation_pressure_coefficient_type", tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable)
             .export_values();
 
 
@@ -226,10 +230,29 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("central_body"));
 
+    m.def("angle_of_attack",
+		  &tp::angleOfAttackDependentVariable,
+		  py::arg("body"),
+		  py::arg("central_body"));
+
+    m.def("sideslip_angle",
+		  &tp::sideslipAngleDependentVariable,
+		  py::arg("body"),
+		  py::arg("central_body"));
+
+	m.def("bank_angle",
+		  &tp::bankAngleDependentVariable,
+		  py::arg("body"),
+		  py::arg("central_body"));
+
     m.def("radiation_pressure",
           &tp::radiationPressureDependentVariable,
           py::arg("body"),
           py::arg("radiating_body"));
+
+//    m.def("total_aerodynamic_g_load",
+//		  &tp::total_aerodynamic_g_load_variable,
+//		  );
 }
 
 void expose_acceleration_setup(py::module &m) {
