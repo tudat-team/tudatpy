@@ -627,6 +627,16 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > keplerianStateDepe
                 keplerian_state_dependent_variable, associatedBody, centralBody );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > modifiedEquinoctialStateDependentVariable(
+		const std::string& associatedBody,
+		const std::string& centralBody
+		)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			modified_equinocial_state_dependent_variable,
+			associatedBody, centralBody);
+}
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAccelerationDependentVariable(
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
         const std::string& bodyUndergoingAcceleration,
@@ -703,6 +713,14 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > latitudeDependentV
                 associatedBody, reference_frames::latitude_angle, centralBody );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > geodeticLatitudeDependentVariable(
+		const std::string& associatedBody,
+		const std::string& centralBody )
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			geodetic_latitude_dependent_variable, associatedBody, centralBody );
+}
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > longitudeDependentVariable(
         const std::string& associatedBody,
         const std::string& centralBody )
@@ -752,12 +770,81 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bankAngleDependent
                 associatedBody, reference_frames::bank_angle, centralBody );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > controlSurfaceDeflectionDependentVariable(
+		const std::string& associatedBody,
+		const std::string& controlSurface )
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			control_surface_deflection_dependent_variable, associatedBody, controlSurface );
+}
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureDependentVariable(
         const std::string& associatedBody,
         const std::string& radiatingBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
                radiation_pressure_dependent_variable, associatedBody, radiatingBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDependentVariable(
+		const std::string& associatedBody
+		)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			local_temperature_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > localDynamicPressureDependentVariable(
+		const std::string& associatedBody
+)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			local_dynamic_pressure_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > localAerodynamicHeatRateDependentVariable(
+		const std::string& associatedBody
+)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			local_aerodynamic_heat_rate_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAerodynamicGLoadDependentVariable(
+		const std::string& associatedBody
+)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			total_aerodynamic_g_load_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > stagnationPointHeatFluxDependentVariable(
+		const std::string& associatedBody
+)
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			stagnation_point_heat_flux_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalMassRateDependentVariable(
+		const std::string& associatedBody )
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			total_mass_rate_dependent_variables, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueNormDependentVariable(
+		const std::string& associatedBody )
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			total_torque_norm_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueDependentVariable(
+		const std::string& associatedBody )
+{
+	return std::make_shared< SingleDependentVariableSaveSettings >(
+			total_torque_dependent_variable, associatedBody );
 }
 
 
