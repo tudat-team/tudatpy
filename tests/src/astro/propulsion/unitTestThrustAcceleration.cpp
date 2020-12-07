@@ -961,7 +961,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                 }
                 // Check thrust direction
                 BOOST_CHECK_SMALL( std::fabs( expectedThrustDirection( i ) - computedThrustDirection( i ) ),
-                                   20.0 * std::numeric_limits< double >::epsilon( ) );
+                                   25.0 * std::numeric_limits< double >::epsilon( ) );
 
                 BOOST_CHECK_SMALL( std::fabs( expectedAerodynamicAcceleration( i ) - currentAerodynamicAcceleration( i ) ),
                                    std::max( 10.0 * currentAerodynamicAcceleration.norm( ), 1.0 ) *
