@@ -234,27 +234,39 @@ protected:
 
 };
 
-inline std::shared_ptr< InterpolatorSettings > linearInterpolation( )
+inline std::shared_ptr< InterpolatorSettings > linearInterpolation(
+        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+        const BoundaryInterpolationType boundaryInterpolation = extrapolate_at_boundary_with_warning )
 {
-    return std::make_shared< InterpolatorSettings >( linear_interpolator );
+    return std::make_shared< InterpolatorSettings >(
+                linear_interpolator, selectedLookupScheme, false, boundaryInterpolation );
 }
 
-inline std::shared_ptr< InterpolatorSettings > cubicSplineInterpolation( )
+inline std::shared_ptr< InterpolatorSettings > cubicSplineInterpolation(
+        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+        const BoundaryInterpolationType boundaryInterpolation = extrapolate_at_boundary_with_warning )
 {
-    return std::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
+    return std::make_shared< InterpolatorSettings >(
+                cubic_spline_interpolator, selectedLookupScheme, false, boundaryInterpolation );
 }
 
 
 inline std::shared_ptr< InterpolatorSettings > piecewiseConstantInterpolation(
-        const int order )
+        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+        const BoundaryInterpolationType boundaryInterpolation = extrapolate_at_boundary_with_warning )
 {
-    return std::make_shared< InterpolatorSettings >( piecewise_constant_interpolator );
+    return std::make_shared< InterpolatorSettings >(
+                piecewise_constant_interpolator, selectedLookupScheme, false, boundaryInterpolation );
 }
 
 inline std::shared_ptr< InterpolatorSettings > lagrangeInterpolation(
-        const int order )
+        const int order,
+        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+        const BoundaryInterpolationType boundaryInterpolation = extrapolate_at_boundary_with_warning,
+        const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation )
 {
-    return std::make_shared< LagrangeInterpolatorSettings >( order );
+    return std::make_shared< LagrangeInterpolatorSettings >(
+                order, false, selectedLookupScheme, lagrangeBoundaryHandling, boundaryInterpolation );
 }
 
 //! Class defening the settings to be used to create a map of data (used for interpolation).
