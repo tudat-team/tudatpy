@@ -11,6 +11,7 @@
 #include "expose_two_body_dynamics.h"
 
 #include <tudat/astro/mission_segments.h>
+#include <tudat/astro/basic_astro.h>
 #include <docstrings/astro/two_body.hpp>
 
 #include <pybind11/eigen.h>
@@ -19,6 +20,7 @@
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace trf = tudat::root_finders;
+namespace toec = tudat::orbital_element_conversions;
 
 namespace tudatpy {
 
@@ -313,6 +315,19 @@ void expose_two_body_dynamics(py::module &m) {
       //        .def("NO_MAXIMUM_REVOLUTIONS", &tms::MultiRevolutionLambertTargeterIzzo::NO_MAXIMUM_REVOLUTIONS)
       .def("compute_for_revolutions_and_branch", &tms::MultiRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival)
       .def("get_max_n_revolutions", &tms::MultiRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival);
+
+  //////////////////////////////////////////////////////////////////////
+  //  keplerPropagator.h (complete)
+  /////////////////////////////////////////////////////////////////
+
+  m.def("propagate_kepler_orbit",
+        &toec::propagateKeplerOrbit< double >,
+        py::arg("initial_kepler_elements"),
+        py::arg("propagation_time"),
+        py::arg("gravitational_parameter"),
+        py::arg("root_finder") = trf::RootFinderPointer( ) );
+
+
 };
 
 }// namespace tudatpy
