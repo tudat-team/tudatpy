@@ -195,7 +195,7 @@ public:
             const bool useLongDoubleTimeStep = 0,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ) :
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep, boundaryHandling ),
         interpolatorOrder_( interpolatorOrder ),
         lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
@@ -233,6 +233,29 @@ protected:
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
 
 };
+
+inline std::shared_ptr< InterpolatorSettings > linearInterpolation( )
+{
+    return std::make_shared< InterpolatorSettings >( linear_interpolator );
+}
+
+inline std::shared_ptr< InterpolatorSettings > cubicSplineInterpolation( )
+{
+    return std::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
+}
+
+
+inline std::shared_ptr< InterpolatorSettings > piecewiseConstantInterpolation(
+        const int order )
+{
+    return std::make_shared< InterpolatorSettings >( piecewise_constant_interpolator );
+}
+
+inline std::shared_ptr< InterpolatorSettings > lagrangeInterpolation(
+        const int order )
+{
+    return std::make_shared< LagrangeInterpolatorSettings >( order );
+}
 
 //! Class defening the settings to be used to create a map of data (used for interpolation).
 /*!
