@@ -27,6 +27,38 @@ namespace ti = tudat::interpolators;
 namespace tba = tudat::basic_astrodynamics;
 namespace ta = tudat::aerodynamics;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettingsFromMatrix(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Matrix3d& initialOrientation,
+        const double initialTime,
+        const double rotationRate
+        )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+            originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate
+            );
+}
+
+inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings(
+        const std::string& centralBodyName,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation
+        )
+{
+    return std::make_shared< SynchronousRotationModelSettings >(
+            centralBodyName, baseFrameOrientation, targetFrameOrientation );
+}
+
+}
+
+}
 namespace tudatpy {
 
 void expose_aerodynamic_coefficient_setup(py::module &m) {
@@ -246,19 +278,27 @@ void expose_rotation_model_setup(py::module &m) {
                  &tss::RotationModelSettings::resetOriginalFrame);
 
     m.def("simple",
-		  &tss::simpleRotationModelSettings,
+          py::overload_cast< const std::string&, const std::string& ,
+            const Eigen:: Matrix3d&, const double, const double >( &tss::simpleRotationModelSettingsFromMatrix ),
 		  py::arg("original_frame"),
 		  py::arg("target_frame"),
 		  py::arg("initial_orientation"),
-		  py::arg("initial_time"),
-		  py::arg("rotation_rate")
-		  );
+          py::arg("initial_time"),
+          py::arg("rotation_rate")
+          );
+
+    m.def("synchronous",
+          &tss::synchronousRotationModelSettings,
+          py::arg("central_body_name"),
+          py::arg("original_frame"),
+          py::arg("target_frame")
+          );
 
     m.def("spice",
-		  &tss::spiceRotationModelSettings,
-		  py::arg("originalFrame"),
-		  py::arg("targetFrame")
-		  );
+          &tss::spiceRotationModelSettings,
+          py::arg("originalFrame"),
+          py::arg("targetFrame")
+          );
 
     m.def("gcrs_to_itrs",
 		  &tss::gcrsToItrsRotationModelSettings,
