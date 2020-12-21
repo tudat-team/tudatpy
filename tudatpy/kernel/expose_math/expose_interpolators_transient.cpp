@@ -17,8 +17,8 @@
 #include <type_traits>
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include <pybind11/stl.h>
 #include <variant>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -28,36 +28,67 @@ namespace tudatpy {
 
 namespace prototype {
 
-template<typename X, typename Y>
-std::function<std::map<X, Y>(std::vector<X>)> interp1d(std::map<X, Y> &stateMap,
-                                                       const std::string &kind = "linear",
-                                                       const int &interpolateOrder = 8) {
+// TODO: Make recommendation to add () operator to OneDimensionalInterpolator which calls OneDimensionalInterpolator.interpolate(x)
+// TODO: Add constructor for interpolate which interpolates a Eigen::VectorXd.
 
-  std::shared_ptr<ti::InterpolatorSettings> interpolatorSettings;
-  if (kind == "lagrange") {
-    interpolatorSettings = std::make_shared<ti::LagrangeInterpolatorSettings>(interpolateOrder);
-  } else if (kind == "linear") {
-    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::linear_interpolator);
-  } else if (kind == "piecewise_constant") {
-    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::piecewise_constant_interpolator);
-  } else if (kind == "cubic_spline") {
-    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::cubic_spline_interpolator);
-  } else if (kind == "hermite_spline") {
-    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::hermite_spline_interpolator);
-  } else {
-    throw std::invalid_argument("Argument for 'kind' is invalid.");
-  }
-  std::shared_ptr<ti::OneDimensionalInterpolator<X, Y>> interpolator =
-      ti::createOneDimensionalInterpolator(stateMap, interpolatorSettings);
+//template<typename DependentVariableType, typename IndependentVariableType, typename ReturnDataType>
+//std::function<ReturnDataType(std::vector<IndependentVariableType>)> interp1d(std::map<IndependentVariableType, DependentVariableType> &stateMap,
+//                                                                             const std::string &kind = "linear",
+//                                                                             const int &interpolateOrder = 8) {
+//
+//  std::shared_ptr<ti::InterpolatorSettings> interpolatorSettings;
+//  if (kind == "lagrange") {
+//    interpolatorSettings = std::make_shared<ti::LagrangeInterpolatorSettings>(interpolateOrder);
+//  } else if (kind == "linear") {
+//    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::linear_interpolator);
+//  } else if (kind == "piecewise_constant") {
+//    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::piecewise_constant_interpolator);
+//  } else if (kind == "cubic_spline") {
+//    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::cubic_spline_interpolator);
+//  } else if (kind == "hermite_spline") {
+//    interpolatorSettings = std::make_shared<ti::InterpolatorSettings>(ti::hermite_spline_interpolator);
+//  } else {
+//    throw std::invalid_argument("Argument for 'kind' is invalid.");
+//  }
+//  std::shared_ptr<ti::OneDimensionalInterpolator<double, Eigen::VectorXd>> interpolator =
+//      ti::createOneDimensionalInterpolator(stateMap, interpolatorSettings);
+//
+//  if (std::is_same<ReturnDataType, std::map<DependentVariableType, IndependentVariableType>>::value){
+//
+//  } else if (std::is_same<ReturnDataType, Eigen::MatrixXd>::value) {
+//
+//  } else if (std::is_same<ReturnDataType, Eigen::Tensor<>>)
+//
+//  return [=](std::vector<IndependentVariableType> x) {
+//    //  return [=](double x) {
+//    Eigen::MatrixXd interpolated(stateMap.begin()->second.size(), x.size());
+//    for (int i = 0; i < x.size(); ++i) { interpolated.row(i) = interpolator->interpolate(x(i)); }
+//    return interpolated;
+//  };
+//}
 
-  return [=](std::vector<X> x) {
-    std::map<X, Y> interpolated;
-    for (auto &x_i : x) {
-      interpolated.insert({x_i, interpolator->interpolate(x_i)});
-    }
-    return interpolated;
-  };
-}
+//interp1d<DependentVariableType, typename IndependentVariableType, typename ReturnDataType>;
+//interp1d<double, Eigen::MatrixXd, typename std::map<double, Eigen::MatrixXd>>;
+//interp1d<double, Eigen::VectorXd, typename std::map<double, Eigen::VectorXd>>;
+
+// overload y[m,n]
+//std::function<Eigen::MatrixXd(Eigen::VectorXd)> interp1d(const Eigen::VectorXd &x,
+//                                                         const Eigen::MatrixXd &y,
+//                                                         const std::string &kind = "linear",
+//                                                         const int axis = 0,
+//                                                         const int &interpolateOrder = 8) {
+//  std::map<double, Eigen::VectorXd> stateMap;
+//  if (axis == 0) {
+//    for (auto row = 0; row < y.rows(); ++row) { stateMap[x(row)] = y.row(row); }
+//  } else if (axis == 1) {
+//    for (auto col = 0; col < y.cols(); ++col) { stateMap[x(col)] = y.col(col).transpose(); }
+//  } else if (axis == -1) {
+//    for (auto col = 0; col < y.cols(); ++col) { stateMap[x(col)] = y.col(col).transpose(); }
+//  } else {
+//    throw std::invalid_argument("Provided 'axis' for interpolation along, is invalid for the provided y argument.");
+//  }
+//  return interp1d(stateMap, kind, interpolateOrder);
+//}
 
 }// namespace prototype
 
@@ -88,23 +119,17 @@ void expose_interpolators(py::module &m) {
              ti::OneDimensionalInterpolator<double, Eigen::VectorXd>>
       LinearInterpolator(m, "LinearInterpolator");
 
-  m.def("interp1d",
-        py::overload_cast<
-            std::map<double, Eigen::VectorXd> &,
-            const std::string &,
-            const int &>(&prototype::interp1d<double, Eigen::VectorXd>),
-        py::arg("variable_map"),
-        py::arg("kind") = "linear",
-        py::arg("order") = 8);
-
-  m.def("interp1d",
-        py::overload_cast<
-            std::map<double, Eigen::MatrixXd> &,
-            const std::string &,
-            const int &>(&prototype::interp1d<double, Eigen::MatrixXd>),
-        py::arg("variable_map"),
-        py::arg("kind") = "linear",
-        py::arg("order") = 8);
+//  m.def("interp1d", py::overload_cast<const Eigen::VectorXd &, const Eigen::MatrixXd &, const std::string &, const int &, const int &>(&prototype::interp1d),
+//        py::arg("x"),
+//        py::arg("y"),
+//        py::arg("kind") = "linear",
+//        py::arg("axis") = -1,
+//        py::arg("order") = 8);
+//
+//  m.def("interp1d", py::overload_cast<std::map<double, Eigen::VectorXd> &, const std::string &, const int &>(&prototype::interp1d),
+//        py::arg("result"),
+//        py::arg("kind") = "linear",
+//        py::arg("order") = 8);
 
   py::enum_<ti::BoundaryInterpolationType>(m, "BoundaryInterpolationType")
       .value("throw_exception_at_boundary", ti::BoundaryInterpolationType::throw_exception_at_boundary)

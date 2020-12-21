@@ -28,6 +28,223 @@ namespace tni = tudat::numerical_integrators;
 
 namespace tudatpy {
 
+namespace prototype {
+
+std::string getDependentVariableName( const tp::PropagationDependentVariables propagationDependentVariables )
+{
+  std::string variableName;
+  switch( propagationDependentVariables )
+  {
+    case tp::mach_number_dependent_variable:
+      variableName = "mach";
+      break;
+    case tp::altitude_dependent_variable:
+      variableName = "altitude";
+      break;
+    case tp::airspeed_dependent_variable:
+      variableName = "airspeed";
+      break;
+    case tp::local_density_dependent_variable:
+      variableName = "density";
+      break;
+    case tp::relative_speed_dependent_variable:
+      variableName = "relative_speed";
+      break;
+    case tp::relative_position_dependent_variable:
+      variableName = "relative_position";
+      break;
+    case tp::relative_distance_dependent_variable:
+      variableName = "relative_distance";
+      break;
+    case tp::relative_velocity_dependent_variable:
+      variableName = "relative_velocity";
+      break;
+    case tp::radiation_pressure_dependent_variable:
+      variableName = "relative_pressure";
+      break;
+    case tp::total_acceleration_norm_dependent_variable:
+      variableName = "total_acceleration_norm";
+      break;
+    case tp::single_acceleration_norm_dependent_variable:
+      variableName = "single_acceleration_norm";
+      break;
+    case tp::total_acceleration_dependent_variable:
+      variableName = "total_accel";
+      break;
+    case tp::single_acceleration_dependent_variable:
+      variableName = "single_accel";
+      break;
+    case tp::aerodynamic_force_coefficients_dependent_variable:
+      variableName = "aerodynamics_force_coefficients";
+      break;
+    case tp::aerodynamic_moment_coefficients_dependent_variable:
+      variableName = "aerodynamics_moment_coefficients";
+      break;
+    case tp::rotation_matrix_to_body_fixed_frame_variable:
+      variableName = "rotation_matrix_to_body_fixed";
+      break;
+    case tp::intermediate_aerodynamic_rotation_matrix_variable:
+      variableName = "rotatioan_matrix";
+      break;
+    case tp::relative_body_aerodynamic_orientation_angle_variable:
+      variableName = "orientation_angle";
+      break;
+    case tp::body_fixed_airspeed_based_velocity_variable:
+      variableName = "airspeed_velocity";
+      break;
+    case tp::body_fixed_groundspeed_based_velocity_variable:
+      variableName = "groundspeed_velocity";
+      break;
+    case tp::total_aerodynamic_g_load_variable:
+      variableName = "aerodynamics_g_load";
+      break;
+    case tp::stagnation_point_heat_flux_dependent_variable:
+      variableName = "stagnationan_point_heat_flux";
+      break;
+    case tp::local_temperature_dependent_variable:
+      variableName = "Local freestream temperature ";
+      break;
+    case tp::local_dynamic_pressure_dependent_variable:
+      variableName = "Local dynamic pressure ";
+      break;
+    case tp::local_aerodynamic_heat_rate_dependent_variable:
+      variableName = "Local aerodynamic heat rate ";
+      break;
+    case tp::geodetic_latitude_dependent_variable:
+      variableName = "geodetic_latitude";
+      break;
+    case tp::control_surface_deflection_dependent_variable:
+      variableName = "control_surface_deflection";
+      break;
+    case tp::total_mass_rate_dependent_variables:
+      variableName = "mass_rate";
+      break;
+    case tp::lvlh_to_inertial_frame_rotation_dependent_variable:
+      variableName = "LVLH_to_inertial_rotation_matrix";
+      break;
+    case tp::periapsis_altitude_dependent_variable:
+      variableName = "periapsis_altitude";
+      break;
+    case tp::single_torque_dependent_variable:
+      variableName = "single_torque";
+      break;
+    case tp::total_torque_dependent_variable:
+      variableName = "total_torque";
+      break;
+    case tp::single_torque_norm_dependent_variable:
+      variableName = "single_torque_norm";
+      break;
+    case tp::total_torque_norm_dependent_variable:
+      variableName = "total_torque_norm";
+      break;
+    case tp::keplerian_state_dependent_variable:
+      variableName = "keplerian";
+      break;
+    case tp::modified_equinocial_state_dependent_variable:
+      variableName = "MEE";
+      break;
+    case tp::spherical_harmonic_acceleration_norm_terms_dependent_variable:
+      variableName = "spherical_harmonic_accel_terms_norm";
+      break;
+    case tp::spherical_harmonic_acceleration_terms_dependent_variable:
+      variableName = "spherical_harmonic_accel_terms";
+      break;
+    case tp::body_fixed_relative_cartesian_position:
+      variableName = "body_fixed_relative_cartesian_position";
+      break;
+    case tp::body_fixed_relative_spherical_position:
+      variableName = "body_fixed_relative_spherical_position";
+      break;
+    case tp::euler_angles_to_body_fixed_313:
+      variableName = "313_Euler_to_body_fixed";
+      break;
+    case tp::total_gravity_field_variation_acceleration:
+      variableName = "Total time-variable gravity field acceleration correction ";
+      break;
+    case tp::single_gravity_field_variation_acceleration:
+      variableName = "Single-source time-variable gravity field acceleration correction ";
+      break;
+    case tp::single_gravity_field_variation_acceleration_terms:
+      variableName = "Single-source time-variable gravity field per-term acceleration correction ";
+      break;
+    case tp::acceleration_partial_wrt_body_translational_state:
+      variableName = "Acceleration partial w.r.t body state ";
+      break;
+    case tp::current_body_mass_dependent_variable:
+      variableName = "Current body mass ";
+      break;
+    case tp::radiation_pressure_coefficient_dependent_variable:
+      variableName = "Radiation pressure coefficient ";
+      break;
+    default:
+      std::string errorMessage = "Error, dependent variable " +
+                                 std::to_string( propagationDependentVariables ) +
+                                 "not found when retrieving parameter name ";
+      throw std::runtime_error( errorMessage );
+  }
+  return variableName;
+}
+
+
+
+//std::vector<std::string> getDependentVariableShortTags(const PropagationDependentVariables variable){
+//
+//
+//}
+
+////! Enum listing the dependent variables that can be saved during the propagation.
+//enum PropagationDependentVariables {
+//  mach_number_dependent_variable = 0,
+//  altitude_dependent_variable = 1,
+//  airspeed_dependent_variable = 2,
+//  local_density_dependent_variable = 3,
+//  relative_speed_dependent_variable = 4,
+//  relative_position_dependent_variable = 5,
+//  relative_distance_dependent_variable = 6,
+//  relative_velocity_dependent_variable = 7,
+//  radiation_pressure_dependent_variable = 8,
+//  total_acceleration_norm_dependent_variable = 9,
+//  single_acceleration_norm_dependent_variable = 10,
+//  total_acceleration_dependent_variable = 11,
+//  single_acceleration_dependent_variable = 12,
+//  aerodynamic_force_coefficients_dependent_variable = 13,
+//  aerodynamic_moment_coefficients_dependent_variable = 14,
+//  rotation_matrix_to_body_fixed_frame_variable = 15,
+//  intermediate_aerodynamic_rotation_matrix_variable = 16,
+//  relative_body_aerodynamic_orientation_angle_variable = 17,
+//  body_fixed_airspeed_based_velocity_variable = 18,
+//  total_aerodynamic_g_load_variable = 19,
+//  stagnation_point_heat_flux_dependent_variable = 20,
+//  local_temperature_dependent_variable = 21,
+//  geodetic_latitude_dependent_variable = 22,
+//  control_surface_deflection_dependent_variable = 23,
+//  total_mass_rate_dependent_variables = 24,
+//  lvlh_to_inertial_frame_rotation_dependent_variable = 25,
+//  periapsis_altitude_dependent_variable = 26,
+//  total_torque_norm_dependent_variable = 27,
+//  single_torque_norm_dependent_variable = 28,
+//  total_torque_dependent_variable = 29,
+//  single_torque_dependent_variable = 30,
+//  body_fixed_groundspeed_based_velocity_variable = 31,
+//  keplerian_state_dependent_variable = 32,
+//  modified_equinocial_state_dependent_variable = 33,
+//  spherical_harmonic_acceleration_terms_dependent_variable = 34,
+//  spherical_harmonic_acceleration_norm_terms_dependent_variable = 35,
+//  body_fixed_relative_cartesian_position = 36,
+//  body_fixed_relative_spherical_position = 37,
+//  total_gravity_field_variation_acceleration = 38,
+//  single_gravity_field_variation_acceleration = 39,
+//  single_gravity_field_variation_acceleration_terms = 40,
+//  acceleration_partial_wrt_body_translational_state = 41,
+//  local_dynamic_pressure_dependent_variable = 42,
+//  local_aerodynamic_heat_rate_dependent_variable = 43,
+//  euler_angles_to_body_fixed_313 = 44,
+//  current_body_mass_dependent_variable = 45,
+//  radiation_pressure_coefficient_dependent_variable = 46
+//};
+
+}// namespace prototype
+
 void expose_dependent_variable_setup(py::module &m) {
 
   py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables")

@@ -8,10 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_reference_frames.h"
+#include "expose_frames.h"
+#include "prototype/frames.h"
+
+#include <pybind11/pybind11.h>
 
 #include <tudat/astro/reference_frames.h>
-
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 
@@ -22,9 +24,24 @@ namespace py = pybind11;
 namespace tudatpy {
 
 void expose_frames(py::module &m) {
+  //////////////////////////////////////////////////////////////////////
+  // prototype [submodule] / frames
+  //////////////////////////////////////////////////////////////////////
+  py::class_<ReferenceFrame>(m, "ReferenceFrame")
+      .def(py::init<std::string, std::string>(),
+           py::arg("origin"),
+           py::arg("orientation"))
+      .def(py::init<>())
+      .def("__str__", &ReferenceFrame::getString)
+      .def_property_readonly("origin", &ReferenceFrame::getOrigin)
+      .def_property_readonly("orientation", &ReferenceFrame::getOrientation);
+
+  m.attr("SSB_J2000") = SSB_J2000();
+  m.attr("SSB_ECLIPJ2000") = SSB_ECLIPJ2000();
+
 
   py::class_<trf::AerodynamicAngleCalculator,
-             std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
+      std::shared_ptr<trf::AerodynamicAngleCalculator>>(m, "AerodynamicAngleCalculator")
       .def("set_orientation_angle_functions",
            py::overload_cast<
                const std::function<double()>,

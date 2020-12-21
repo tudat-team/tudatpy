@@ -8,17 +8,21 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
-#define TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#ifndef TUDATPY_CONSTANTS_H
+#define TUDATPY_CONSTANTS_H
 
-#include <pybind11/pybind11.h>
+namespace tudat {
 
-namespace py = pybind11;
+namespace constants {
 
-namespace tudatpy {
+namespace solar_system {
 
-void expose_two_body_dynamics(py::module &m);
+double
 
-}// namespace tudatpy
+}
 
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+}
+
+}
+
+#endif//TUDATPY_CONSTANTS_H

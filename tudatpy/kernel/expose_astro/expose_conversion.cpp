@@ -25,7 +25,6 @@ namespace tudatpy {
 
 void expose_conversion(py::module &m) {
 
-
     m.def("transform_to_inertial_orientation",
           &te::transformStateToInertialOrientation<double, double>,
           py::arg("state_in_body_fixed_frame"),
@@ -50,7 +49,6 @@ void expose_conversion(py::module &m) {
             .value("flight_path_index", toec::SphericalOrbitalStateElementIndices::flightPathIndex)
             .value("heading_angle_index", toec::SphericalOrbitalStateElementIndices::headingAngleIndex)
             .export_values();
-
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,

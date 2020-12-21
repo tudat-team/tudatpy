@@ -57,6 +57,7 @@ void expose_constants(py::module &m) {
   m.attr("SPEED_OF_LIGHT_LONG") = tpc::SPEED_OF_LIGHT_LONG;
   m.attr("GRAVITATIONAL_CONSTANT") = tpc::GRAVITATIONAL_CONSTANT;
   m.attr("ASTRONOMICAL_UNIT") = tpc::ASTRONOMICAL_UNIT;
+  m.attr("AU") = tpc::ASTRONOMICAL_UNIT;
   m.attr("SPECIFIC_GAS_CONSTANT_AIR") = tpc::SPECIFIC_GAS_CONSTANT_AIR;
   m.attr("MOLAR_GAS_CONSTANT") = tpc::MOLAR_GAS_CONSTANT;
   m.attr("PLANCK_CONSTANT") = tpc::PLANCK_CONSTANT;

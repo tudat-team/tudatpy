@@ -62,14 +62,32 @@ YACMA_PYTHON_MODULE(kernel
         # kernel/astro
         kernel/expose_astro.cpp
         kernel/expose_astro/expose_two_body_dynamics.cpp
+        kernel/expose_astro/expose_two_body/expose_state.cpp
+        kernel/expose_astro/expose_two_body/expose_iod.cpp
+
+        kernel/expose_astro/expose_frames.cpp
         kernel/expose_astro/expose_fundamentals.cpp
         kernel/expose_astro/expose_gravitation.cpp
         kernel/expose_astro/expose_conversion.cpp
         kernel/expose_astro/expose_ephemerides.cpp
         kernel/expose_astro/expose_aerodynamics.cpp
         kernel/expose_astro/expose_propagators.cpp
-        kernel/expose_astro/expose_reference_frames.cpp
         kernel/expose_astro/expose_shape.cpp
+
+        kernel/expose_bodies.cpp
+        kernel/expose_bodies/expose_default.cpp
+        kernel/expose_bodies/prototype/default.cpp
+        kernel/expose_bodies/prototype/simpleBody.cpp
+
+        # prototype
+        kernel/expose_astro/prototype/barycentricEphemeris.cpp
+        kernel/expose_astro/expose_two_body/prototype/auxilliary.cpp
+        kernel/expose_astro/expose_two_body/prototype/state.cpp
+#        kernel/expose_astro/expose_two_body/prototype/orbit.cpp
+        kernel/expose_astro/expose_two_body/prototype/planetaryDeparture.cpp
+        kernel/expose_astro/expose_two_body/prototype/gravityAssist.cpp
+        kernel/expose_astro/expose_two_body/prototype/planetaryRendezvous.cpp
+        kernel/expose_astro/prototype/frames.cpp
 
 
         # kernel/constants
@@ -158,3 +176,6 @@ file(COPY ../examples/tutorial_4.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 file(COPY ../examples/tutorial_5.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 file(COPY ../examples/tutorial_6.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 file(COPY ../examples/tutorial_10.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY ../examples/astrodynamics/mars-2020-lambert.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+file(COPY ../examples/astrodynamics/mars-2020-departure.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+#file(COPY ../examples/astrodynamics/mars-2020.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
