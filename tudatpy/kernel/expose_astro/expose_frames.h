@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
-#define TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#ifndef TUDATPY_EXPOSE_FRAMES_H
+#define TUDATPY_EXPOSE_FRAMES_H
 
 #include <pybind11/pybind11.h>
 
@@ -17,8 +17,8 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_two_body_dynamics(py::module &m);
+void expose_frames(py::module &m);
 
 }// namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#endif//TUDATPY_EXPOSE_FRAMES_H

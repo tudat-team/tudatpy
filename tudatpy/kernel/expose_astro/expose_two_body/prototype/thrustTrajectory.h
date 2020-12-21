@@ -8,17 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_FRAMES_H
-#define TUDATPY_EXPOSE_FRAMES_H
+#ifndef TUDATPY_THRUSTTRAJECTORY_H
+#define TUDATPY_THRUSTTRAJECTORY_H
 
-#include <pybind11/pybind11.h>
+class ThrustTrajectory {
 
-namespace py = pybind11;
 
-namespace tudatpy {
+};
 
-void expose_frames(py::module &m);
-
-}
-
-#endif//TUDATPY_EXPOSE_FRAMES_H
+#endif//TUDATPY_THRUSTTRAJECTORY_H

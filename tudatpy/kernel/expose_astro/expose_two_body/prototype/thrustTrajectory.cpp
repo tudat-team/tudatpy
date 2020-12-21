@@ -8,17 +8,4 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
-#define TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
-
-#include <pybind11/pybind11.h>
-
-namespace py = pybind11;
-
-namespace tudatpy {
-
-void expose_two_body_dynamics(py::module &m);
-
-}// namespace tudatpy
-
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#include "thrustTrajectory.h"

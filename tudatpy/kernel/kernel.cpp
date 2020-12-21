@@ -5,6 +5,7 @@
 #include "expose_astro.h"
 #include "expose_constants.h"
 #include "expose_example.h"
+#include "expose_bodies.h"
 #include "expose_interface.h"
 #include "expose_io.h"
 #include "expose_math.h"
@@ -30,6 +31,10 @@ PYBIND11_MODULE(kernel, m) {
   // math module
   auto math = m.def_submodule("math");
   tudatpy::expose_math(math);
+
+  // bodies module
+  auto bodies = m.def_submodule("bodies");
+  tudatpy::expose_bodies(bodies);
 
   // astro module
   auto astro = m.def_submodule("astro");

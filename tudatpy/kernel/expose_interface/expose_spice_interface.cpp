@@ -55,7 +55,29 @@ void expose_spice_interface(py::module &m) {
         py::arg("reference_frame_name"),
         py::arg("aberration_corrections"),
         py::arg("ephemeris_time"),
-        "Get Cartesian position of a body, as observed from another body.");
+        R"mydelimiter(
+Get the cartesian position of a body, as observed from another body.
+
+Parameters
+----------
+body_name: str
+    Body name which is used to lookup body data from the loaded spice kernels.
+observer_name: str
+    The observer name which is used to calculate the relative cartesian
+    position.
+frame_name: str
+    The reference frame name which is used to calculate the relative cartesian
+    position of the desired body.
+aberration_corrections: bool
+    Boolean which defines whether aberration corrections are taken into
+    account.
+ephemeris_time: float
+
+Returns
+-------
+cartesian_position: np.ndarray[3,]
+)mydelimiter"
+        );
 
   m.def("get_body_cartesian_state_at_epoch",
         &tudat::spice_interface::getBodyCartesianStateAtEpoch,
@@ -126,6 +148,7 @@ void expose_spice_interface(py::module &m) {
   // kernel pool related
   m.def("get_standard_kernels",
         &tudat::spice_interface::getStandardSpiceKernels,
+        py::arg("alternative_kernels") = std::vector<std::string>(),// <pybind11/stl.h>
         "Get all standard Spice kernels used in tudat.");
 
   m.def("load_standard_kernels",

@@ -165,11 +165,25 @@ void expose_ephemerides(py::module &m) {
   //////////////////////////////////////////////////////////////////////////////
   // keplerEphemeris.h
   //////////////////////////////////////////////////////////////////////////////
-
   py::class_<te::KeplerEphemeris,
              std::shared_ptr<te::KeplerEphemeris>,
              te::Ephemeris>(
-      m, "KeplerEphemeris");
+      m, "KeplerEphemeris")
+      .def(py::init<
+               const Eigen::Vector6d &,
+               const double,
+               const double,
+               const std::string &,
+               const std::string &,
+               const double,
+               const double>(),
+           py::arg("initial_keplerian_state"),
+           py::arg("initial_state_epoch"),
+           py::arg("gravitational_parameter"),
+           py::arg("frame_origin"),
+           py::arg("frame_orientation"),
+           py::arg("root_finder_absolute_tolerance"),
+           py::arg("root_finder_maximum_iterations"));
 
   //////////////////////////////////////////////////////////////////////////////
   // tleEphemeris.h / tleEphemeris.cpp
@@ -185,7 +199,6 @@ void expose_ephemerides(py::module &m) {
            py::arg("line_2"))
       .def("get_epoch", &te::Tle::getEpoch)
       .def("get_b_star", &te::Tle::getBStar)
-      .def("get_epoch", &te::Tle::getEpoch)
       .def("get_inclination", &te::Tle::getInclination)
       .def("get_right_ascension", &te::Tle::getRightAscension)
       .def("get_eccentricity", &te::Tle::getEccentricity)

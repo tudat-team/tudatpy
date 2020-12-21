@@ -8,17 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
-#define TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#ifndef TUDATPY_TRAJECTORY_H
+#define TUDATPY_TRAJECTORY_H
 
-#include <pybind11/pybind11.h>
+class Trajectory {
 
-namespace py = pybind11;
+  Trajectory(
+      std::shared_ptr<BaseState> referenceState,
+      std::shared_ptr<ReferenceFrame> referenceFrame,
+      double referenceEpoch = 0
+      );
 
-namespace tudatpy {
+  sample(int n_points)
 
-void expose_two_body_dynamics(py::module &m);
+};
 
-}// namespace tudatpy
-
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#endif//TUDATPY_TRAJECTORY_H
