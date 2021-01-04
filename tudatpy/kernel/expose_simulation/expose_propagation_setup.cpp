@@ -955,6 +955,10 @@ void expose_propagator_setup(py::module &m)
                  py::arg("terminate_exactly_on_final_condition") = false,
                  py::arg("termination_root_finder_settings") = nullptr);
 
+    m.def("time_termination",
+          &tp::propagationTimeTerminationSettings,
+          py::arg("termination_time"),
+          py::arg("terminate_exactly_on_final_condition") = false);
 
     m.def("dependent_variable_termination",
           &tp::propagationDependentVariableTerminationSettings,
@@ -963,6 +967,11 @@ void expose_propagator_setup(py::module &m)
           py::arg("use_as_lower_limit"),
           py::arg("terminate_exactly_on_final_condition") = false,
           py::arg("termination_root_finder_settings") = nullptr);
+
+    m.def("hybrid_termination",
+          &tp::propagationHybridTerminationSettings,
+          py::arg("termination_settings"),
+          py::arg("fulfill_single_condition") = false );
 }
 
 void expose_propagation_setup(py::module &m) {
