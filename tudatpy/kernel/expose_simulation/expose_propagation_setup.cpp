@@ -685,8 +685,8 @@ void expose_propagator_setup(py::module &m)
 
     py::class_<
             tp::PropagatorSettings<double>,
-            std::shared_ptr<tp::PropagatorSettings<double>>>
-            PropagatorSettings_(m, "PropagatorSettings");
+            std::shared_ptr<tp::PropagatorSettings<double>>>(m, "PropagatorSettings")
+            .def("reset_initial_states", &tp::PropagatorSettings<double>::resetInitialStates);
 
     py::class_<
             tp::SingleArcPropagatorSettings<double>,
