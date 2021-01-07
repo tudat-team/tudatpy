@@ -767,9 +767,12 @@ void expose_propagator_setup(py::module &m)
                  py::arg("propagator") = tp::cowell,
                  py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
                  py::arg("print_interval") = TUDAT_NAN)
-            .def("recreate_state_derivatives", &tp::TranslationalStatePropagatorSettings<double>::resetIntegratedStateModels)
-            .def("reset_and_recreate_state_derivatives", &tp::TranslationalStatePropagatorSettings<double>::resetAccelerationModelsMap)
-            .def("get_propagated_state_size", &tp::TranslationalStatePropagatorSettings<double>::getPropagatedStateSize);
+            .def("recreate_state_derivative_models", &tp::TranslationalStatePropagatorSettings<double>::resetIntegratedStateModels,
+                 py::arg("bodies") )
+            .def("get_propagated_state_size", &tp::TranslationalStatePropagatorSettings<double>::getPropagatedStateSize)
+            .def("reset_and_recreate_acceleration_models", &tp::TranslationalStatePropagatorSettings<double>::resetAccelerationModelsMap,
+                 py::arg("new_acceleration_settings"),
+                 py::arg("bodies") );
 
 
     m.def("translational",
