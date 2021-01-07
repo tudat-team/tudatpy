@@ -37,6 +37,7 @@
 namespace py = pybind11;
 
 namespace ta = tudat::aerodynamics;
+namespace tr = tudat::reference_frames;
 
 namespace tudatpy {
 
@@ -68,8 +69,10 @@ void expose_aerodynamics(py::module &m) {
                const std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
                const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
            py::arg("shape_model"),
-           py::arg("aerodynamic_angle_calculator") = std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>())
-      .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
+           py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
+      .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
+      .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
+
 };
 
 };// namespace tudatpy
