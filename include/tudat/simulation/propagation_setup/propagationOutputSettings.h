@@ -88,7 +88,7 @@ enum PropagationDependentVariables
     relative_body_aerodynamic_orientation_angle_variable = 17,
     body_fixed_airspeed_based_velocity_variable = 18,
     total_aerodynamic_g_load_variable = 19,
-    stagnation_point_heat_flux_dependent_variable = 20,
+    stagnation_point_heat_flux_dependent_variable = 20, // no interface function
     local_temperature_dependent_variable = 21,
     geodetic_latitude_dependent_variable = 22,
     control_surface_deflection_dependent_variable = 23,
@@ -111,7 +111,7 @@ enum PropagationDependentVariables
     single_gravity_field_variation_acceleration_terms = 40,
     acceleration_partial_wrt_body_translational_state = 41,
     local_dynamic_pressure_dependent_variable = 42,
-    local_aerodynamic_heat_rate_dependent_variable = 43,
+    local_aerodynamic_heat_rate_dependent_variable = 43, // no interface function
     euler_angles_to_body_fixed_313 = 44,
     current_body_mass_dependent_variable = 45,
     radiation_pressure_coefficient_dependent_variable = 46
@@ -677,6 +677,36 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > sphericalHarmonicA
                 -1, true );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > totalGravityFieldVariationAccelerationContributionVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                total_gravity_field_variation_acceleration, bodyUndergoingAcceleration, bodyExertingAcceleration );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityFieldVariationAccelerationContributionVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const gravitation::BodyDeformationTypes deformationType,
+        const std::string& identifier = "" )
+{
+    return std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+                bodyUndergoingAcceleration, bodyExertingAcceleration, deformationType, identifier );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const std::vector< std::pair< int, int > >& componentIndices,
+        const gravitation::BodyDeformationTypes deformationType,
+        const std::string& identifier = "" )
+{
+    return std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                bodyUndergoingAcceleration, bodyExertingAcceleration, componentIndices, deformationType,  identifier );
+}
+
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable(
         const std::string& bodyUndergoingAcceleration )
 {
@@ -703,6 +733,22 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentC
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 aerodynamic_moment_coefficients_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > rotationMatrixToBodyFixedFrameVariable(
+        const std::string& associatedBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                rotation_matrix_to_body_fixed_frame_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > intermediateAerodynamicRotationMatrixVariable(
+        const std::string& associatedBody,
+        const reference_frames::AerodynamicsReferenceFrames baseFrame,
+        const reference_frames::AerodynamicsReferenceFrames targetFrame )
+{
+    return std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                associatedBody, baseFrame, targetFrame );
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > latitudeDependentVariable(
@@ -770,6 +816,58 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bankAngleDependent
                 associatedBody, reference_frames::bank_angle, centralBody );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedAirspeedBasedVelocityVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                body_fixed_airspeed_based_velocity_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspeedBasedVelocityVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                body_fixed_groundspeed_based_velocity_variable, associatedBody );
+}
+
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > lvlhToInertialFrameRotationMatrixVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                lvlh_to_inertial_frame_rotation_dependent_variable, associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > periapsisAltitudeVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                periapsis_altitude_dependent_variable, associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
+        const basic_astrodynamics::AvailableTorque torqueModelType,
+        const std::string& bodyUndergoingTorque,
+        const std::string& bodyExertingTorque )
+{
+    return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                torqueModelType, bodyUndergoingTorque, bodyExertingTorque, true );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariable(
+        const basic_astrodynamics::AvailableTorque torqueModelType,
+        const std::string& bodyUndergoingTorque,
+        const std::string& bodyExertingTorque )
+{
+    return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
+}
+
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > controlSurfaceDeflectionDependentVariable(
 		const std::string& associatedBody,
 		const std::string& controlSurface )
@@ -787,8 +885,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureD
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDependentVariable(
-		const std::string& associatedBody
-		)
+        const std::string& associatedBody )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
 			local_temperature_dependent_variable, associatedBody );
@@ -845,6 +942,44 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > totalTorqueDepende
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
 			total_torque_dependent_variable, associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedSphericalPositionVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                body_fixed_relative_spherical_position,  associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedCartesianPositionVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                body_fixed_relative_cartesian_position,  associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > eulerAnglesToBodyFixed313Variable(
+        const std::string& associatedBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                euler_angles_to_body_fixed_313,  associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyMassVariable(
+        const std::string& associatedBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                current_body_mass_dependent_variable,  associatedBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureCoefficientVariable(
+        const std::string& associatedBody,
+        const std::string& emittingBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                radiation_pressure_coefficient_dependent_variable,  associatedBody, emittingBody );
 }
 
 
