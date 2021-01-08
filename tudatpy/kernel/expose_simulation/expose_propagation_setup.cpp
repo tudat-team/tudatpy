@@ -26,31 +26,6 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 
-// Temporary add to tudatpy for quick creation of conda package
-namespace tudat
-{
-
-namespace propagators
-{
-inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedSphericalPosition(
-        const std::string& associatedBody,
-        const std::string& centralBody )
-{
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-                body_fixed_relative_spherical_position,  associatedBody, centralBody );
-}
-
-inline std::shared_ptr< SingleDependentVariableSaveSettings > centralBodyFixedCartesianPosition(
-        const std::string& associatedBody,
-        const std::string& centralBody )
-{
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-                body_fixed_relative_cartesian_position,  associatedBody, centralBody );
-}
-
-}
-
-}
 namespace tudatpy {
 
 
@@ -277,12 +252,12 @@ void expose_dependent_variable_setup(py::module &m) {
 
 
     m.def("central_body_fixed_spherical_position",
-          &tp::centralBodyFixedSphericalPosition,
+          &tp::centralBodyFixedSphericalPositionVariable,
           py::arg("associatedBody"),
           py::arg("central_body"));
 
     m.def("central_body_fixed_cartesian_position",
-          &tp::centralBodyFixedCartesianPosition,
+          &tp::centralBodyFixedCartesianPositionVariable,
           py::arg("associatedBody"),
           py::arg("central_body"));
 
