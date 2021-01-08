@@ -772,7 +772,8 @@ void expose_propagator_setup(py::module &m)
             .def("get_propagated_state_size", &tp::TranslationalStatePropagatorSettings<double>::getPropagatedStateSize)
             .def("reset_and_recreate_acceleration_models", &tp::TranslationalStatePropagatorSettings<double>::resetAccelerationModelsMap,
                  py::arg("new_acceleration_settings"),
-                 py::arg("bodies") );
+                 py::arg("bodies") )
+            .def_property_readonly("acceleration_settings", &tp::TranslationalStatePropagatorSettings<double>::getAccelerationSettingsMap);
 
 
     m.def("translational",
