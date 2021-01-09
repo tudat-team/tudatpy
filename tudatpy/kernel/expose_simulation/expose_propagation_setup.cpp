@@ -555,6 +555,27 @@ void expose_acceleration_setup(py::module &m) {
 void expose_integrator_setup(py::module &m) {
 
 
+    py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
+            .value("euler_type", tni::AvailableIntegrators::euler)
+            .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
+            .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
+            .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer)
+            .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
+            .export_values();
+
+    py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets")
+            .value("runge_kutta_fehlberg_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
+            .value("runge_kutta_fehlberg_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
+            .value("runge_kutta_fehlberg_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
+            .value("runge_kutta_dormand_prince_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
+            .export_values();
+
+    py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences")
+            .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
+            .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
+            .export_values();
+
+
     py::class_<
             tni::IntegratorSettings<double>,
             std::shared_ptr<tni::IntegratorSettings<double>>>(m, "IntegratorSettings")
@@ -600,6 +621,23 @@ void expose_integrator_setup(py::module &m) {
     //		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
     //		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
 
+    //! Function defined twice (here with shorter name)
+    m.def("runge_kutta_variable_step_size",
+          &tni::rungeKuttaVariableStepSettingsScalarTolerances,
+          py::arg("initial_time"),
+          py::arg("initial_time_step"),
+          py::arg("coefficient_set"),
+          py::arg("minimum_step_size"),
+          py::arg("maximum_step_size"),
+          py::arg("relative_error_tolerance"),
+          py::arg("absolute_error_tolerance"),
+          py::arg("save_frequency") = 1,
+          py::arg("assess_termination_on_minor_steps") = false,
+          py::arg("safety_factor_for_next_step_size") = 0.8,
+          py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
+          py::arg("minimum_factor_increase_for_next_step_size") = 0.1 );
+
+
     m.def("runge_kutta_variable_step_size_scalar_tolerances",
           &tni::rungeKuttaVariableStepSettingsScalarTolerances,
           py::arg("initial_time"),
@@ -613,7 +651,7 @@ void expose_integrator_setup(py::module &m) {
           py::arg("assess_termination_on_minor_steps") = false,
           py::arg("safety_factor_for_next_step_size") = 0.8,
           py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-          py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+          py::arg("minimum_factor_increase_for_next_step_size") = 0.1 );
 
 	m.def("runge_kutta_variable_step_size_vector_tolerances",
 		  &tni::rungeKuttaVariableStepSettingsVectorTolerances,
@@ -993,27 +1031,6 @@ void expose_propagation_setup(py::module &m) {
             .value("inertial_thurst_frame", tss::ThrustFrames::inertial_thurst_frame)
             .value("lvlh_thrust_frame", tss::ThrustFrames::lvlh_thrust_frame)
             .export_values();
-
-    py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators")
-            .value("euler_type", tni::AvailableIntegrators::euler)
-            .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
-            .value("runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize)
-            .value("bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer)
-            .value("adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton)
-            .export_values();
-
-	py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "CoefficientSets")
-	        .value("runge_kutta_fehlberg_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
-			.value("runge_kutta_fehlberg_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
-			.value("runge_kutta_fehlberg_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
-			.value("runge_kutta_dormand_prince_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
-			.export_values();
-
-    py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences")
-            .value("bulirsch_stoer_sequence", tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence)
-            .value("deufelhard_sequence", tni::ExtrapolationMethodStepSequences::deufelhard_sequence)
-            .export_values();
-
     /*
    * propagation_setup
    *  ├── accelerationSettings.h
