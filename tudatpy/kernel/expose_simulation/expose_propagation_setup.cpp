@@ -564,10 +564,10 @@ void expose_integrator_setup(py::module &m) {
             .export_values();
 
     py::enum_<tni::RungeKuttaCoefficients::CoefficientSets>(m, "RKCoefficientSets")
-            .value("runge_kutta_fehlberg_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
-            .value("runge_kutta_fehlberg_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
-            .value("runge_kutta_fehlberg_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
-            .value("runge_kutta_dormand_prince_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
+            .value("rkf_45", tni::RungeKuttaCoefficients::rungeKuttaFehlberg45)
+            .value("rkf_56", tni::RungeKuttaCoefficients::rungeKuttaFehlberg56)
+            .value("rkf_78", tni::RungeKuttaCoefficients::rungeKuttaFehlberg78)
+            .value("rkdp_87", tni::RungeKuttaCoefficients::rungeKutta87DormandPrince)
             .export_values();
 
     py::enum_<tni::ExtrapolationMethodStepSequences>(m, "ExtrapolationMethodStepSequences")
@@ -617,9 +617,9 @@ void expose_integrator_setup(py::module &m) {
     //		  py::arg("absolute_error_tolerance"),
     //		  py::arg("save_frequency") = 1,
     //		  py::arg("assess_termination_on_minor_steps") = false,
-    //		  py::arg("safety_factor_for_next_step_size") = 0.8,
-    //		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-    //		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+    //		  py::arg("safety_factor") = 0.8,
+    //		  py::arg("maximum_factor_increase") = 4.0,
+    //		  py::arg("minimum_factor_increase") = 0.1);
 
     //! Function defined twice (here with shorter name)
     m.def("runge_kutta_variable_step_size",
@@ -633,9 +633,9 @@ void expose_integrator_setup(py::module &m) {
           py::arg("absolute_error_tolerance"),
           py::arg("save_frequency") = 1,
           py::arg("assess_termination_on_minor_steps") = false,
-          py::arg("safety_factor_for_next_step_size") = 0.8,
-          py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-          py::arg("minimum_factor_increase_for_next_step_size") = 0.1 );
+          py::arg("safety_factor") = 0.8,
+          py::arg("maximum_factor_increase") = 4.0,
+          py::arg("minimum_factor_increase") = 0.1 );
 
 
     m.def("runge_kutta_variable_step_size_scalar_tolerances",
@@ -649,9 +649,9 @@ void expose_integrator_setup(py::module &m) {
           py::arg("absolute_error_tolerance"),
           py::arg("save_frequency") = 1,
           py::arg("assess_termination_on_minor_steps") = false,
-          py::arg("safety_factor_for_next_step_size") = 0.8,
-          py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-          py::arg("minimum_factor_increase_for_next_step_size") = 0.1 );
+          py::arg("safety_factor") = 0.8,
+          py::arg("maximum_factor_increase") = 4.0,
+          py::arg("minimum_factor_increase") = 0.1 );
 
 	m.def("runge_kutta_variable_step_size_vector_tolerances",
 		  &tni::rungeKuttaVariableStepSettingsVectorTolerances,
@@ -664,9 +664,9 @@ void expose_integrator_setup(py::module &m) {
 		  py::arg("absolute_error_tolerance"),
 		  py::arg("save_frequency") = 1,
 		  py::arg("assess_termination_on_minor_steps") = false,
-		  py::arg("safety_factor_for_next_step_size") = 0.8,
-		  py::arg("maximum_factor_increase_for_next_step_size") = 4.0,
-		  py::arg("minimum_factor_increase_for_next_step_size") = 0.1);
+          py::arg("safety_factor") = 0.8,
+          py::arg("maximum_factor_increase") = 4.0,
+          py::arg("minimum_factor_increase") = 0.1);
 
     m.def("bulirsch_stoer",
           &tni::bulirschStoerIntegratorSettings< double >,
@@ -680,9 +680,9 @@ void expose_integrator_setup(py::module &m) {
           py::arg("absolute_error_tolerance") = 1.0E-12,
           py::arg("save_frequency") = 1,
           py::arg("check_termination_on_minor_steps") = 0,
-          py::arg("safety_factor_for_next_step_size") = 0.7,
-          py::arg("maximum_factor_increase_for_next_step_size") = 10.0,
-          py::arg("minimum_factor_increase_for_next_step_size") = 10.0 );
+          py::arg("safety_factor") = 0.7,
+          py::arg("maximum_factor_increase") = 10.0,
+          py::arg("minimum_factor_increase") = 10.0 );
 
     m.def("adams_bashforth_moulton",
           &tni::adamsBashforthMoultonSettings< double >,
