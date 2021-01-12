@@ -261,6 +261,10 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("associatedBody"),
           py::arg("central_body"));
 
+    m.def("body_mass",
+          &tp::bodyMassVariable,
+          py::arg("associatedBody"));
+
 }
 
 void expose_acceleration_setup(py::module &m) {
@@ -550,6 +554,51 @@ void expose_acceleration_setup(py::module &m) {
                  py::arg("use_all_engines"),
                  py::arg("thrust_origin"))
             .def_readonly("use_all_engines", &tss::FromBodyThrustMagnitudeSettings::useAllEngines_);
+
+    py::class_<
+            tss::FromFunctionThrustMagnitudeSettings,
+            std::shared_ptr<tss::FromFunctionThrustMagnitudeSettings>,
+            tss::ThrustMagnitudeSettings>(m, "FromFunctionThrustMagnitudeSettings")
+            .def(py::init<
+                 const std::function< double( const double ) >,
+                 const std::function< double( const double ) >,
+                 const std::function< bool( const double ) >,
+                 const std::function< Eigen::Vector3d( ) >,
+                 const std::function< void( const double ) > >(),
+                 py::arg("thrust_magnitude_function"),
+                 py::arg("specific_impulse_function"),
+                 py::arg("is_engine_on_function" ) = [ ]( const double ){ return true; },
+                 py::arg("body_fixed_thrust_direction" ) = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
+                 py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
+}
+
+void expose_mass_rate_setup(py::module &m)
+{
+    py::enum_<tba::AvailableMassRateModels>(m, "AvailableMassRateModels")
+            .value("undefined_mass_rate_type", tba::AvailableMassRateModels::undefined_mass_rate_model)
+            .value("custom_mass_rate_type", tba::AvailableMassRateModels::custom_mass_rate_model)
+            .value("from_thrust_mass_rate_type", tba::AvailableMassRateModels::from_thrust_mass_rate_model)
+            .export_values();
+
+    py::class_<tss::MassRateModelSettings,
+            std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings")
+            .def(py::init<const tudat::basic_astrodynamics::AvailableMassRateModels>(),
+                 py::arg("mass_rate_type"));
+
+    py::class_<tss::FromThrustMassModelSettings,
+            std::shared_ptr<tss::FromThrustMassModelSettings>,
+            tss::MassRateModelSettings>(m, "FromThrustMassModelSettings")
+            .def(py::init<const bool, const std::string&>(),
+                 py::arg("use_all_thrust_models") = 1,
+                 py::arg("associated_thrust_source") = "" );
+
+    m.def("custom", &tss::customMassRate,
+          py::arg( "mass_rate_function" ) );
+
+    m.def("from_thrust", &tss::fromThrustMassRate,
+          py::arg( "use_all_thrust_models" ) = 1,
+          py::arg( "associated_thrust_source" ) = "" );
+
 }
 
 void expose_integrator_setup(py::module &m) {
@@ -737,9 +786,10 @@ void expose_propagator_setup(py::module &m)
     py::class_<
             tp::SingleArcPropagatorSettings<double>,
             std::shared_ptr<tp::SingleArcPropagatorSettings<double>>,
-            tp::PropagatorSettings<double>>
-            SingleArcPropagatorSettings_(m, "SingleArcPropagatorSettings");
-
+            tp::PropagatorSettings<double>>(m, "SingleArcPropagatorSettings")
+            .def_property("termination_settings",
+                          &tp::SingleArcPropagatorSettings<double>::getTerminationSettings,
+                          &tp::SingleArcPropagatorSettings<double>::resetTerminationSettings);
     py::class_<
             tp::TranslationalStatePropagatorSettings<double>,
             std::shared_ptr<tp::TranslationalStatePropagatorSettings<double>>,
@@ -820,6 +870,17 @@ void expose_propagator_setup(py::module &m)
                  py::arg("new_acceleration_settings"),
                  py::arg("bodies") )
             .def_property_readonly("acceleration_settings", &tp::TranslationalStatePropagatorSettings<double>::getAccelerationSettingsMap);
+
+    py::class_<
+            tp::MultiTypePropagatorSettings<double>,
+            std::shared_ptr<tp::MultiTypePropagatorSettings<double>>,
+            tp::SingleArcPropagatorSettings<double>>(m, "MultiTypePropagatorSettings")
+            .def("reset_initial_states", &tp::MultiTypePropagatorSettings<double>::resetInitialStates)
+            .def("recreate_state_derivative_models", &tp::MultiTypePropagatorSettings<double>::resetIntegratedStateModels,
+                 py::arg("bodies") )
+            .def("single_type_settings", &tp::MultiTypePropagatorSettings<double>::getSingleTypePropagatorSettings,
+                 py::arg("state_type") );
+
 
 
     m.def("translational",
@@ -980,10 +1041,19 @@ void expose_propagator_setup(py::module &m)
           py::arg("mass_rate_settings"),
           py::arg("initial_body_masses"),
           py::arg("termination_settings"),
-          py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
+          py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>( ),
           py::arg("print_interval") = TUDAT_NAN);
 
-
+    m.def("multitype",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< double > > >,
+          const std::shared_ptr< tp::PropagationTerminationSettings >,
+          const std::shared_ptr< tp::DependentVariableSaveSettings >,
+          const double >( &tp::multiTypePropagatorSettings<double> ),
+          py::arg("propagator_settings_list"),
+          py::arg("termination_settings"),
+          py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>( ),
+          py::arg("print_interval") = TUDAT_NAN );
 
     py::class_<tp::PropagationTerminationSettings,
             std::shared_ptr<tp::PropagationTerminationSettings>>
@@ -1132,6 +1202,14 @@ void expose_propagation_setup(py::module &m) {
     //                          const double,
     //                          std::shared_ptr<te::ReferenceFrameManager>>(
     //            &tp::getInitialStatesOfBodies<>));
+
+    py::enum_<tp::IntegratedStateType>(m, "StateType")
+            .value("hybrid_type", tp::IntegratedStateType::hybrid)
+            .value("translational_type", tp::IntegratedStateType::translational_state)
+            .value("rotational_type", tp::IntegratedStateType::rotational_state)
+            .value("mass_type", tp::IntegratedStateType::body_mass_state)
+            .value("custom_type", tp::IntegratedStateType::custom_state)
+            .export_values();
 
     m.def("get_initial_state_of_bodies",// overload [2/2]
           py::overload_cast<const std::vector<std::string> &,
