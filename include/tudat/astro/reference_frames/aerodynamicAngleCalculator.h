@@ -189,6 +189,13 @@ public:
             const AerodynamicsReferenceFrames originalFrame,
             const AerodynamicsReferenceFrames targetFrame );
 
+    Eigen::Matrix3d getRotationMatrixBetweenFrames(
+            const AerodynamicsReferenceFrames originalFrame,
+            const AerodynamicsReferenceFrames targetFrame )
+    {
+        return getRotationQuaternionBetweenFrames( originalFrame, targetFrame ).toRotationMatrix( );
+    }
+
     //! Function to get a single orientation angle.
     /*!
      * Function to get a single orientation angle, as calculated by previous call to update( )

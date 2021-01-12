@@ -1661,6 +1661,24 @@ public:
 
     }
 
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > getSingleTypePropagatorSettings(
+              const IntegratedStateType stateType )
+      {
+          if( propagatorSettingsMap_.count( stateType ) == 0 )
+          {
+              throw std::runtime_error( "Error when requesting propagator settings of type " +
+                                        std::to_string( stateType ) + " from multi-type settings, no such settings found" );
+          }
+
+          if( propagatorSettingsMap_.count( stateType ) != 1 )
+          {
+              throw std::runtime_error( "Error when requesting propagator settings of type " +
+                                        std::to_string( stateType ) + " from multi-type settings, multiple settings of given type found" );
+          }
+
+          return propagatorSettingsMap_.at( stateType ).at( 0 );
+      }
+
     //! List of propagator settings to use
     /*!
      * List of propagator settings to use (state type as key). List of propagator settigns
