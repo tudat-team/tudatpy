@@ -57,6 +57,10 @@ void expose_frames(py::module &m) {
             .def("get_rotation_quaternion_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
                  py::arg("original_frame"),
+                 py::arg("target_frame" ) )
+            .def("get_rotation_matrix_between_frames",
+                 &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
+                 py::arg("original_frame"),
                  py::arg("target_frame" ) );
 
 

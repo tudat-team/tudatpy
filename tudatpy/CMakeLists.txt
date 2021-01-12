@@ -70,6 +70,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_propagators.cpp
         kernel/expose_astro/expose_reference_frames.cpp
         kernel/expose_astro/expose_shape.cpp
+        kernel/expose_astro/expose_shape_based_thrust.cpp
 
 
         # kernel/constants
@@ -89,6 +90,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_interpolators.cpp
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
+        kernel/expose_math/expose_geometry.cpp
 
         # kernel/simulation
         kernel/expose_simulation.cpp
