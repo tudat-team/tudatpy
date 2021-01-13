@@ -15,6 +15,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
 #define TUDAT_NAN std::numeric_limits< double >::signaling_NaN()
 
@@ -479,9 +480,16 @@ void expose_acceleration_setup(py::module &m) {
             .def_readonly("direction_is_opposite_to_vector", &tss::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_);
 
     py::class_<
+            tss::CustomThrustDirectionSettings,
+            std::shared_ptr<tss::CustomThrustDirectionSettings>,
+            tss::ThrustDirectionGuidanceSettings>(m, "CustomThrustDirectionSettings")
+            .def(py::init<const std::function<Eigen::Vector3d(const double)>>(),
+                 py::arg("thrust_direction_function") );
+
+    py::class_<
             tss::CustomThrustOrientationSettings,
             std::shared_ptr<tss::CustomThrustOrientationSettings>,
-            tss::ThrustDirectionGuidanceSettings>(m, "CustomThrustDirectionSettings")
+            tss::ThrustDirectionGuidanceSettings>(m, "CustomThrustOrientationSettings")
             .def(py::init<const std::function<Eigen::Quaterniond(const double)>>(),
                  py::arg("thrust_orientation_function"))
             .def_readonly("thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_);
@@ -567,8 +575,10 @@ void expose_acceleration_setup(py::module &m) {
                  const std::function< void( const double ) > >(),
                  py::arg("thrust_magnitude_function"),
                  py::arg("specific_impulse_function"),
-                 py::arg("is_engine_on_function" ) = [ ]( const double ){ return true; },
-                 py::arg("body_fixed_thrust_direction" ) = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
+                 py::arg("is_engine_on_function" ) =
+            std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
+                 py::arg("body_fixed_thrust_direction" ) =
+            std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
                  py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
 }
 
@@ -871,6 +881,7 @@ void expose_propagator_setup(py::module &m)
                  py::arg("bodies") )
             .def_property_readonly("acceleration_settings", &tp::TranslationalStatePropagatorSettings<double>::getAccelerationSettingsMap);
 
+
     py::class_<
             tp::MultiTypePropagatorSettings<double>,
             std::shared_ptr<tp::MultiTypePropagatorSettings<double>>,
@@ -882,6 +893,10 @@ void expose_propagator_setup(py::module &m)
                  py::arg("state_type") );
 
 
+    py::class_<
+            tp::MassPropagatorSettings<double>,
+            std::shared_ptr<tp::MassPropagatorSettings<double>>,
+            tp::SingleArcPropagatorSettings<double>>(m, "MassPropagatorSettings");
 
     m.def("translational",
           py::overload_cast<
@@ -1091,7 +1106,7 @@ void expose_propagator_setup(py::module &m)
     m.def("hybrid_termination",
           &tp::propagationHybridTerminationSettings,
           py::arg("termination_settings"),
-          py::arg("fulfill_single_condition") = false );
+          py::arg("fulfill_single_condition") );
 }
 
 void expose_propagation_setup(py::module &m) {
@@ -1324,6 +1339,9 @@ void expose_propagation_setup(py::module &m) {
 
     auto propagator_setup = m.def_submodule("propagator");
     expose_propagator_setup(propagator_setup);
+
+    auto mass_setup = m.def_submodule("mass");
+    expose_mass_rate_setup(mass_setup);
 
     auto dependent_variable_setup = m.def_submodule("dependent_variable");
     expose_dependent_variable_setup(dependent_variable_setup);
