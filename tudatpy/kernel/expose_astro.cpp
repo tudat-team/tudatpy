@@ -57,7 +57,7 @@ void expose_astro(py::module &m) {
   expose_shape(shape);
 
   auto shape_based_thrust = m.def_submodule("shape_based_thrust");
-  expose_shape(shape_based_thrust);
+  expose_shape_based_thrust(shape_based_thrust);
 };
 
 };// namespace tudatpy

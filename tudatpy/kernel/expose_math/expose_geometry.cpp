@@ -24,13 +24,13 @@ namespace tudatpy {
 
 void expose_geometry(py::module &m) {
 
-    py::class_<tgs::SurfaceGeometry,
-            std::shared_ptr<tgs::SurfaceGeometry>>(
+    py::class_<tudat::SurfaceGeometry,
+            std::shared_ptr<tudat::SurfaceGeometry>>(
                 m, "SurfaceGeometry");
 
     py::class_<tgs::CompositeSurfaceGeometry,
             std::shared_ptr<tgs::CompositeSurfaceGeometry>,
-            tgs::SurfaceGeometry>(
+            tudat::SurfaceGeometry>(
                 m, "CompositeSurfaceGeometry");
 
     py::class_<tgs::Capsule,

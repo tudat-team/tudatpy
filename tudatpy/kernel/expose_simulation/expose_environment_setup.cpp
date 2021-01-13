@@ -653,7 +653,7 @@ void expose_environment_setup(py::module &m) {
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)
             .def("set_flight_conditions", &tss::Body::setFlightConditions, py::arg("aerodynamic_flight_conditions"))
-            .def_property("flight_conditions", &tss::Body::setFlightConditions, &tss::Body::getFlightConditions)
+            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
             .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
             .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris);
