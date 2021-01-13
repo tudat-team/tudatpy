@@ -100,6 +100,10 @@ void expose_interpolators(py::module &m) {
           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning,
           py::arg( "lagrange_boundary_handling" ) = ti::lagrange_cubic_spline_boundary_interpolation );
 
+    m.def("create_one_dimensional_interpolator",
+          &ti::createOneDimensionalInterpolatorBasic< double, double >,
+          py::arg("data_to_interpolate"),
+          py::arg("interpolator_settings") );
 
     m.def("create_one_dimensional_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, Eigen::VectorXd >,
@@ -111,7 +115,15 @@ void expose_interpolators(py::module &m) {
           py::arg("data_to_interpolate"),
           py::arg("interpolator_settings") );
 
-
+    py::class_<
+            ti::OneDimensionalInterpolator<double, double>,
+            std::shared_ptr<ti::OneDimensionalInterpolator<double, double>>>(m, "OneDimensionalInterpolatorDouble")
+            .def("interpolate", py::overload_cast< const double >(
+                     &ti::OneDimensionalInterpolator<double, double>::interpolate ),
+                 py::arg("independent_variable_value") )
+            .def("interpolate", py::overload_cast< const std::vector< double >& >(
+                     &ti::OneDimensionalInterpolator<double, double>::interpolate ),
+                 py::arg("independent_variable_values") );
 
     py::class_<
             ti::OneDimensionalInterpolator<double, Eigen::VectorXd>,
