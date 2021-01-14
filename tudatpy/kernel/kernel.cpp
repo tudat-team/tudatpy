@@ -2,6 +2,8 @@
 
 #include <tudat/config.hpp>
 
+#include <pybind11/eigen.h>
+
 #include "expose_astro.h"
 #include "expose_constants.h"
 #include "expose_example.h"
