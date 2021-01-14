@@ -74,6 +74,22 @@ void expose_aerodynamics(py::module &m) {
       .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
       .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
 
+//  class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
+//  public:
+//      /* Inherit the constructors */
+//      using AerodynamicGuidance::AerodynamicGuidance;
+
+//      /* Trampoline (need one for each virtual function) */
+//      void updateGuidance( const double currentTime ) override {
+//          PYBIND11_OVERRIDE_PURE(
+//              void, /* Return type */
+//              AerodynamicGuidance,      /* Parent class */
+//              updateGuidance,          /* Name of function in C++ (must match Python name) */
+//              currentTime      /* Argument(s) */
+//          );
+//      }
+//  };
+
 };
 
 };// namespace tudatpy
