@@ -13,6 +13,7 @@
 #include "expose_simulation/expose_environment_setup.h"
 #include "expose_simulation/expose_estimation_setup.h"
 #include "expose_simulation/expose_propagation_setup.h"
+#include "expose_simulation/expose_shape_based_thrust.h"
 
 #include <pybind11/pybind11.h>
 
@@ -29,6 +30,9 @@ void expose_simulation(py::module &m) {
 
   auto estimation_setup = m.def_submodule("estimation_setup");
   expose_estimation_setup(estimation_setup);
+
+  auto shape_based_thrust = m.def_submodule("shape_based_thrust");
+  expose_shape_based_thrust(shape_based_thrust);
 };
 
 }// namespace tudatpy

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_aerodynamics.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicAcceleration.h>
@@ -33,11 +34,31 @@
 #include <tudat/astro/aerodynamics/windModel.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/cast.h>
 
 namespace py = pybind11;
 
 namespace ta = tudat::aerodynamics;
 namespace tr = tudat::reference_frames;
+
+namespace tudat
+{
+
+namespace aerodynamics
+{
+
+class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
+public:
+    /* Inherit the constructors */
+    using AerodynamicGuidance::AerodynamicGuidance;
+
+    void updateGuidance( const double currentTime ) override {
+        PYBIND11_OVERLOAD_PURE(void, AerodynamicGuidance, updateGuidance, currentTime ); }
+};
+
+}
+
+}
 
 namespace tudatpy {
 
@@ -50,18 +71,15 @@ void expose_aerodynamics(py::module &m) {
 //      AerodynamicAngleCalculator(m, "AerodynamicAngleCalculator");
 
   py::class_<ta::AerodynamicCoefficientInterface,
-             std::shared_ptr<ta::AerodynamicCoefficientInterface>>
-      AerodynamicCoefficientInterface_(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
+             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
 
   py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
              std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
-             ta::AerodynamicCoefficientInterface>
-      AerodynamicCoefficientGenerator36_(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
+             ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
 
   py::class_<ta::HypersonicLocalInclinationAnalysis,
              std::shared_ptr<ta::HypersonicLocalInclinationAnalysis>,
-             ta::AerodynamicCoefficientGenerator<3, 6>>
-      HypersonicLocalInclinationAnalysis_(m, "HypersonicLocalInclinationAnalysis");
+             ta::AerodynamicCoefficientGenerator<3, 6>>(m, "HypersonicLocalInclinationAnalysis");
 
   py::class_<ta::FlightConditions,
              std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")
@@ -74,22 +92,9 @@ void expose_aerodynamics(py::module &m) {
       .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
       .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
 
-//  class PyAerodynamicGuidance : public ta::AerodynamicGuidance {
-//  public:
-//      /* Inherit the constructors */
-//      using AerodynamicGuidance::AerodynamicGuidance;
-
-//      /* Trampoline (need one for each virtual function) */
-//      void updateGuidance( const double currentTime ) override {
-//          PYBIND11_OVERRIDE_PURE(
-//              void, /* Return type */
-//              AerodynamicGuidance,      /* Parent class */
-//              updateGuidance,          /* Name of function in C++ (must match Python name) */
-//              currentTime      /* Argument(s) */
-//          );
-//      }
-//  };
-
+  py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
+          std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
+      .def("updateGuidance", &ta::AerodynamicGuidance::updateGuidance, py::arg("current_time") );
 };
 
 };// namespace tudatpy
