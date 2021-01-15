@@ -27,6 +27,37 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 
+// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustDirectionSettingsPy(
+        const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
+{
+    return std::make_shared< CustomThrustDirectionSettings >( thrustDirectionFunction );
+}
+
+
+std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettingsPy(
+        const std::function< double( const double ) > thrustMagnitudeFunction,
+        const std::function< double( const double ) > specificImpulseFunction,
+        const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
+        const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
+        const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) )
+{
+    return std::make_shared< FromFunctionThrustMagnitudeSettings >(
+                thrustMagnitudeFunction, specificImpulseFunction, isEngineOnFunction, bodyFixedThrustDirection,
+                customThrustResetFunction );
+}
+
+}
+
+}
+
+
 namespace tudatpy {
 
 
@@ -580,6 +611,18 @@ void expose_acceleration_setup(py::module &m) {
                  py::arg("body_fixed_thrust_direction" ) =
             std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
                  py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
+
+    m.def("custom_thrust_direction", &tss::customThrustDirectionSettingsPy,
+          py::arg( "thrust_direction_function" ) );
+
+    m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettingsPy,
+          py::arg("thrust_magnitude_function"),
+          py::arg("specific_impulse_function"),
+          py::arg("is_engine_on_function" ) =
+     std::function< bool( const double ) >( [ ]( const double ){ return true; } ),
+          py::arg("body_fixed_thrust_direction" ) =
+     std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
+          py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
 }
 
 void expose_mass_rate_setup(py::module &m)
