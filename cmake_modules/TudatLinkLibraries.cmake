@@ -42,7 +42,12 @@ endif ()
 # endif( )
 
 
+
+
 list(APPEND Tudat_PROPAGATION_LIBRARIES
+        Tudat::tudat_shape_based_methods
+        Tudat::tudat_low_thrust_trajectories
+        Tudat::tudat_numerical_quadrature
         Tudat::tudat_propagation_setup
         Tudat::tudat_trajectory_design
         Tudat::tudat_environment_setup
