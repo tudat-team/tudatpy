@@ -34,7 +34,6 @@
 #include <tudat/astro/aerodynamics/windModel.h>
 
 #include <pybind11/pybind11.h>
-#include <pybind11/cast.h>
 
 namespace py = pybind11;
 
