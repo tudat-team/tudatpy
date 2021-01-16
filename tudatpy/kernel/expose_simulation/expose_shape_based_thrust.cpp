@@ -38,17 +38,20 @@ void expose_shape_based_thrust(py::module &m)
                   std::shared_ptr<tni::IntegratorSettings< double > > >( &tltt::LowThrustLeg::getThrustAccelerationProfile ),
                   py::arg("output_times"),
                   py::arg("specific_impulse_function"),
-                  py::arg("integrator_settings" ) )
+                  py::arg("integrator_settings" ) = nullptr )
             .def( "get_trajectory",
                   py::overload_cast<
                   std::vector< double >& >( &tltt::LowThrustLeg::getTrajectory ),
-                  py::arg("output_times") )
+                  py::arg("times") )
+            .def( "get_state",
+                  &tltt::LowThrustLeg::getStateAtEpoch,
+                  py::arg("time") )
             .def( "get_low_thrust_acceleration_settings",
                   &tltt::LowThrustLeg::getLowThrustAccelerationSettings,
                   py::arg("bodies"),
                   py::arg("body_to_propagate"),
-                  py::arg("specific_impulse_function"),
-                  py::arg("integrator_settings" ),
+                  py::arg("specific_impulse_function") = nullptr,
+                  py::arg("integrator_settings" ) = nullptr,
                   py::arg("time_offset" ) = 0.0 );
 
     py::class_<
@@ -90,6 +93,25 @@ void expose_shape_based_thrust(py::module &m)
                  py::arg("axial_free_coefficients"),
                  py::arg("initial_mass") = TUDAT_NAN
             );
+
+
+    m.def("recommended_radial_hodograph_functions",
+          py::overload_cast< const double >(
+              &tsbm::getRecommendedRadialVelocityBaseFunctions ),
+          py::arg("time_of_flight") );
+
+    m.def("recommended_normal_hodograph_functions",
+          py::overload_cast< const double >(
+              &tsbm::getRecommendedNormalBaseFunctions ),
+          py::arg("time_of_flight") );
+
+
+    m.def("recommended_axial_hodograph_functions",
+          py::overload_cast< const double, const int >(
+              &tsbm::getRecommendedAxialVelocityBaseFunctions ),
+          py::arg("time_of_flight"),
+          py::arg("number_of_revolutions") );
+
 
     m.def("hodograph_constant",
           &tsbm::hodographConstant );
