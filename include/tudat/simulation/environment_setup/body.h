@@ -1560,6 +1560,11 @@ public:
         return bodyMap_;
     }
 
+    void deleteBody( const std::string bodyName )
+    {
+        bodyMap_.at( bodyName ).reset( );
+
+    }
 private:
 
     std::string frameOrigin_;
