@@ -679,6 +679,8 @@ void expose_environment_setup(py::module &m) {
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1 )
+            .def("delete_body", &tss::SystemOfBodies::deleteBody,
+                 py::arg("body_name") )
             .def("processBodyFrameDefinitions", &tss::SystemOfBodies::processBodyFrameDefinitions);
 
 
