@@ -146,6 +146,7 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
 		  py::arg("are_coefficients_in_aerodynamic_frame"),
 		  py::arg("are_coefficients_in_negative_axis_direction"),
 		  py::arg("interpolator_settings"));
+
 }
 
 void expose_atmosphere_setup(py::module &m) {
@@ -793,6 +794,13 @@ void expose_environment_setup(py::module &m) {
           py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
           py::arg("body_dict"));
 
+    m.def("set_aerodynamic_guidance",
+          py::overload_cast<
+          const std::shared_ptr< ta::AerodynamicGuidance > ,
+          const std::shared_ptr< tss::Body > >
+                  (&tss::setGuidanceAnglesFunctions),
+          py::arg("aerodynamic_guidance"),
+          py::arg("body") );
 
     m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
           py::arg("body"),
