@@ -84,6 +84,13 @@ public:
        return propagatedTrajectory;
     }
 
+    Eigen::Vector6d getStateAtEpoch(
+            double epoch )
+    {
+        std::vector< double > epochs = { epoch };
+        return getTrajectory( epochs ).begin( )->second;
+    }
+
     //! Compute current mass of the spacecraft.
     double computeCurrentMass( const double independentVariable,
                                std::function< double ( const double ) > specificImpulseFunction,
