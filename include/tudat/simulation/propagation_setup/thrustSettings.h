@@ -63,7 +63,7 @@ std::vector< std::function< double( ) > > getPropulsionInputVariables(
         const std::shared_ptr< Body > bodyWithGuidance,
         const std::vector< propulsion::ThrustIndependentVariables > independentVariables,
         const std::vector< std::function< double( ) > > guidanceInputFunctions =
-         std::vector< std::function< double( ) > >( ) );
+        std::vector< std::function< double( ) > >( ) );
 
 //! Class defining settings for the thrust direction
 /*!
@@ -204,7 +204,7 @@ public:
             const std::string& centralBodyName,
             const std::function< Eigen::VectorXd( const double ) > costateFunction ):
         ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-    vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
+        vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
 
     //! Constructor with costate function
     /*!
@@ -221,8 +221,8 @@ public:
         vehicleName_( vehicleName ),
         costateFunction_(
             std::bind( static_cast< Eigen::VectorXd( interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::* )
-                         ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
-                         costateInterpolator, std::placeholders::_1 ) ){ }
+                       ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
+                       costateInterpolator, std::placeholders::_1 ) ){ }
 
     //! Constructor with costate function
     /*!
@@ -236,7 +236,7 @@ public:
             const std::string& centralBodyName,
             const Eigen::VectorXd constantCostates ):
         ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-    vehicleName_( vehicleName ), costateFunction_( [ = ]( const double ){ return constantCostates; } ){ }
+        vehicleName_( vehicleName ), costateFunction_( [ = ]( const double ){ return constantCostates; } ){ }
 
 
     //! Destructor.
@@ -249,6 +249,48 @@ public:
     std::function< Eigen::VectorXd( const double ) > costateFunction_;
 
 };
+
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionFromStateGuidanceSettings(
+        const std::string& centralBody,
+        const bool isColinearWithVelocity,
+        const bool directionIsOppositeToVector  )
+{
+    return std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
+                centralBody, isColinearWithVelocity, directionIsOppositeToVector );
+}
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientationSettings(
+        const std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction  )
+{
+    return std::make_shared< CustomThrustOrientationSettings >( thrustOrientationFunction );
+}
+
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustDirectionSettings(
+        const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
+{
+    return std::make_shared< CustomThrustDirectionSettings >( thrustDirectionFunction );
+}
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustDirectionSettings(
+        const std::string& vehicleName,
+        const std::string& centralBodyName,
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > costateInterpolator )
+{
+    return std::make_shared< MeeCostateBasedThrustDirectionSettings >(
+                vehicleName, centralBodyName, costateInterpolator );
+}
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustDirectionSettings(
+        const std::string& vehicleName,
+        const std::string& centralBodyName,
+        const Eigen::VectorXd constantCostates )
+{
+    return std::make_shared< MeeCostateBasedThrustDirectionSettings >(
+                vehicleName, centralBodyName, constantCostates );
+}
+
 
 //! Function to create the object determining the direction of the thrust acceleration.
 /*!
@@ -457,10 +499,10 @@ public:
             const std::string& centralBodyName,
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
-    ThrustMagnitudeSettings( bang_bang_thrust_magnitude_from_mee_costates, "" ),
-    maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
-    costatesFunction_( costatesFunction ), vehicleName_( vehicleName ), centralBodyName_( centralBodyName ),
-    bodyFixedThrustDirection_( bodyFixedThrustDirection ), customThrustResetFunction_( customThrustResetFunction ){ }
+        ThrustMagnitudeSettings( bang_bang_thrust_magnitude_from_mee_costates, "" ),
+        maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
+        costatesFunction_( costatesFunction ), vehicleName_( vehicleName ), centralBodyName_( centralBodyName ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ), customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Constructor with costate function
     /*!
@@ -510,11 +552,11 @@ public:
             const Eigen::VectorXd constantCostates,
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
-    ThrustMagnitudeSettings( bang_bang_thrust_magnitude_from_mee_costates, "" ),
-    maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
-    costatesFunction_( [ = ]( const double ){ return constantCostates; } ),
-    vehicleName_( vehicleName ), centralBodyName_( centralBodyName ), bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-    customThrustResetFunction_( customThrustResetFunction ) { }
+        ThrustMagnitudeSettings( bang_bang_thrust_magnitude_from_mee_costates, "" ),
+        maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
+        costatesFunction_( [ = ]( const double ){ return constantCostates; } ),
+        vehicleName_( vehicleName ), centralBodyName_( centralBodyName ), bodyFixedThrustDirection_( bodyFixedThrustDirection ),
+        customThrustResetFunction_( customThrustResetFunction ) { }
 
 
     //! Destructor.
@@ -542,15 +584,45 @@ public:
 };
 
 
+inline std::shared_ptr< ThrustMagnitudeSettings > constantThrustMagnitudeSettings(
+        const double thrustMagnitude,
+        const double specificImpulse,
+        const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) )
+{
+    return std::make_shared< ConstantThrustMagnitudeSettings >(
+                thrustMagnitude, specificImpulse, bodyFixedThrustDirection );
+}
+
+
+inline std::shared_ptr< ThrustMagnitudeSettings > fromBodyThrustMagnitudeSettings(
+        const bool useAllEngines = 1,
+        const std::string& thrustOrigin = "" )
+{
+    return std::make_shared< FromBodyThrustMagnitudeSettings >(
+                useAllEngines, thrustOrigin  );
+}
+
+inline std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings(
+        const std::function< double( const double ) > thrustMagnitudeFunction,
+        const std::function< double( const double ) > specificImpulseFunction,
+        const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
+        const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
+        const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) )
+{
+    return std::make_shared< FromFunctionThrustMagnitudeSettings >(
+                thrustMagnitudeFunction, specificImpulseFunction, isEngineOnFunction, bodyFixedThrustDirection,
+                customThrustResetFunction );
+}
+
 //! Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
 /*!
- * Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
- * \param maximumThrustFunction Function returning the maxumum thrust as a function of a number of independent variables
- * \param maximumThrustMultiplier Function returning a value by which the output of maximumThrustFunction is to be multiplied
- * to obtain the actual thrust.
- * \param maximumThrustIndependentVariables List of variables to be passed as input to maximumThrustFunction
- * \return
- */
+         * Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
+         * \param maximumThrustFunction Function returning the maxumum thrust as a function of a number of independent variables
+         * \param maximumThrustMultiplier Function returning a value by which the output of maximumThrustFunction is to be multiplied
+         * to obtain the actual thrust.
+         * \param maximumThrustIndependentVariables List of variables to be passed as input to maximumThrustFunction
+         * \return
+         */
 double multiplyMaximumThrustByScalingFactor(
         const std::function< double( const std::vector< double >& ) > maximumThrustFunction,
         const std::function< double( ) > maximumThrustMultiplier,
@@ -782,9 +854,9 @@ public:
         {
             bodyWithGuidance_->setFlightConditions(
                         createAtmosphericFlightConditions( bodyWithGuidance_,
-                                                bodies.at( nameOfCentralBody ),
-                                                nameOfBodyWithGuidance,
-                                                nameOfCentralBody ) );
+                                                           bodies.at( nameOfCentralBody ),
+                                                           nameOfBodyWithGuidance,
+                                                           nameOfCentralBody ) );
         }
         thrustInputFunctions_ = getPropulsionInputVariables(
                     bodyWithGuidance_, guidanceFreeIndependentVariables );
@@ -891,9 +963,9 @@ public:
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
+                                             thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               specificImpulseInterpolator, std::placeholders::_1 ) ),
+                                             specificImpulseInterpolator, std::placeholders::_1 ) ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
@@ -932,7 +1004,7 @@ public:
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
+                                             thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( [ = ]( const std::vector< double >& ){ return constantSpecificImpulse; } ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
