@@ -27,109 +27,6 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-using namespace tp;
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustDirectionSettingsPy(
-        const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
-{
-    return std::make_shared< CustomThrustDirectionSettings >( thrustDirectionFunction );
-}
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-std::shared_ptr< ThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettingsPy(
-        const std::function< double( const double ) > thrustMagnitudeFunction,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
-        const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-        const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) )
-{
-    return std::make_shared< FromFunctionThrustMagnitudeSettings >(
-                thrustMagnitudeFunction, specificImpulseFunction, isEngineOnFunction, bodyFixedThrustDirection,
-                customThrustResetFunction );
-}
-
-}
-
-namespace propagators
-{
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-template< typename StateScalarType = double >
-inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettingsPy(
-        const std::vector< std::string > bodiesWithMassToPropagate,
-        const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
-        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
-{
-    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
-              massRateModels, initialBodyMasses, terminationSettings, std::make_shared< tp::DependentVariableSaveSettings >( dependentVariablesToSave ),
-              printInterval);
-}
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-template< typename StateScalarType = double >
-inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettingsPy(
-        const std::vector< std::string > bodiesWithMassToPropagate,
-        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
-                massRateModels,
-        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
-{
-    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
-             massRateModels, initialBodyMasses, terminationSettings, std::make_shared< tp::DependentVariableSaveSettings >( dependentVariablesToSave ),
-             printInterval);
-}
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-template< typename StateScalarType = double >
-inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettingsPy(
-        const std::vector< std::string > bodiesWithMassToPropagate,
-        const simulation_setup::SelectedMassRateModelMap& massRateSettings,
-        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
-{
-    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
-             massRateSettings, initialBodyMasses, terminationSettings, std::make_shared< tp::DependentVariableSaveSettings >( dependentVariablesToSave ),
-             printInterval);
-}
-
-// TODO: Move this to tudat, right now in tudatpy for fast rebuild of package
-template< typename StateScalarType = double >
-inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettingsPy(
-        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsVector,
-        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-        const double printInterval = TUDAT_NAN )
-{
-    return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
-            propagatorSettingsVector, terminationSettings, std::make_shared< tp::DependentVariableSaveSettings >( dependentVariablesToSave ),
-                printInterval );
-}
-
-
-}
-
-}
-
-
 namespace tudatpy {
 
 
@@ -684,10 +581,10 @@ void expose_acceleration_setup(py::module &m) {
             std::function< Eigen::Vector3d( ) >( [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ),
                  py::arg("custom_thrust_reset_function" ) = std::function< void( const double ) >( ) );
 
-    m.def("custom_thrust_direction", &tss::customThrustDirectionSettingsPy,
+    m.def("custom_thrust_direction", &tss::customThrustDirectionSettings,
           py::arg( "thrust_direction_function" ) );
 
-    m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettingsPy,
+    m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
           py::arg("thrust_magnitude_function"),
           py::arg("specific_impulse_function"),
           py::arg("is_engine_on_function" ) =
@@ -1184,7 +1081,7 @@ void expose_propagator_setup(py::module &m)
                 const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
                 const std::shared_ptr< tp::PropagationTerminationSettings >,
                 const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                const double >(&tp::massPropagatorSettingsPy<double>),
+                const double >(&tp::massPropagatorSettings<double>),
                 py::arg("bodies_with_mass_to_propagate"),
                 py::arg("mass_rate_models"),
                 py::arg("initial_body_masses"),
@@ -1199,7 +1096,7 @@ void expose_propagator_setup(py::module &m)
                 const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
                 const std::shared_ptr< tp::PropagationTerminationSettings >,
                 const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                const double >(&tp::massPropagatorSettingsPy<double>),
+                const double >(&tp::massPropagatorSettings<double>),
                 py::arg("bodies_with_mass_to_propagate"),
                 py::arg("mass_rate_models"),
                 py::arg("initial_body_masses"),
@@ -1214,7 +1111,7 @@ void expose_propagator_setup(py::module &m)
                 const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
                 const std::shared_ptr< tp::PropagationTerminationSettings >,
                 const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                const double >(&tp::massPropagatorSettingsPy<double>),
+                const double >(&tp::massPropagatorSettings<double>),
                 py::arg("bodies_with_mass_to_propagate"),
                 py::arg("mass_rate_settings"),
                 py::arg("initial_body_masses"),
@@ -1243,7 +1140,7 @@ void expose_propagator_setup(py::module &m)
           const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< double > > >,
           const std::shared_ptr< tp::PropagationTerminationSettings >,
           const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-          const double >( &tp::multiTypePropagatorSettingsPy<double> ),
+          const double >( &tp::multiTypePropagatorSettings<double> ),
           py::arg("propagator_settings_list"),
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
