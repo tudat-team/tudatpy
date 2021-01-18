@@ -1251,6 +1251,52 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagat
 			 printInterval);
 }
 
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+              massRateModels, initialBodyMasses, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
+              printInterval);
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+                massRateModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+             massRateModels, initialBodyMasses, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
+             printInterval);
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings(
+        const std::vector< std::string > bodiesWithMassToPropagate,
+        const simulation_setup::SelectedMassRateModelMap& massRateSettings,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< MassPropagatorSettings< StateScalarType > >(bodiesWithMassToPropagate,
+             massRateSettings, initialBodyMasses, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
+             printInterval);
+}
+
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
 /*!
  *  Function to evaluate a floating point state-derivative function as though it was a vector state function.
@@ -1769,6 +1815,20 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTy
 	return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
 			propagatorSettingsVector, terminationSettings, dependentVariablesToSave, printInterval );
 }
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings(
+        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsVector,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+            propagatorSettingsVector, terminationSettings, std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ),
+                printInterval );
+}
+
 
 extern template class PropagatorSettings< double >;
 extern template class SingleArcPropagatorSettings< double >;
