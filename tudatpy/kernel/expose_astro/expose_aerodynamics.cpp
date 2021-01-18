@@ -66,41 +66,70 @@ namespace tudatpy {
 
 void expose_aerodynamics(py::module &m) {
 
-  // TODO: Note down that Pybind11 has types registered from detatched submodules.
-//  py::class_<// Forward declaration of AerodynamicAngleCalculator from "tudat/reference_frames.h"
-//      tudat::reference_frames::AerodynamicAngleCalculator,
-//      std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>
-//      AerodynamicAngleCalculator(m, "AerodynamicAngleCalculator");
+    // TODO: Note down that Pybind11 has types registered from detatched submodules.
+    //  py::class_<// Forward declaration of AerodynamicAngleCalculator from "tudat/reference_frames.h"
+    //      tudat::reference_frames::AerodynamicAngleCalculator,
+    //      std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>
+    //      AerodynamicAngleCalculator(m, "AerodynamicAngleCalculator");
 
-  py::class_<ta::AerodynamicCoefficientInterface,
-             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
+    py::class_<ta::AerodynamicCoefficientInterface,
+            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
 
-  py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
-             std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
-             ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
+    py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
+            std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
+            ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
 
-  py::class_<ta::HypersonicLocalInclinationAnalysis,
-             std::shared_ptr<ta::HypersonicLocalInclinationAnalysis>,
-             ta::AerodynamicCoefficientGenerator<3, 6>>(m, "HypersonicLocalInclinationAnalysis");
+    m.def("get_default_local_inclination_mach_points", &ta::getDefaultHypersonicLocalInclinationMachPoints,
+          py::arg( "mach_regime" ) = "Full" );
 
-  py::class_<ta::FlightConditions,
-             std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")
-      .def(py::init<
-               const std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
-               const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
-           py::arg("shape_model"),
-           py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
-      .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
-      .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
-      .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
 
-  py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
-          std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
-      .def(py::init<>())
-      .def("updateGuidance", &ta::AerodynamicGuidance::updateGuidance, py::arg("current_time") )
-      .def_readwrite("angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_)
-      .def_readwrite("bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_)
-      .def_readwrite("sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_);
+    m.def("get_default_local_inclination_angle_of_attack_points", &ta::getDefaultHypersonicLocalInclinationAngleOfAttackPoints );
+
+    m.def("get_default_local_inclination_sideslip_angle_points", &ta::getDefaultHypersonicLocalInclinationAngleOfSideslipPoints );
+
+    py::class_<ta::HypersonicLocalInclinationAnalysis,
+            std::shared_ptr<ta::HypersonicLocalInclinationAnalysis>,
+            ta::AerodynamicCoefficientGenerator<3, 6>>(m, "HypersonicLocalInclinationAnalysis" )
+            .def(py::init<
+                 const std::vector< std::vector< double > >&,
+                 const std::shared_ptr< tudat::SurfaceGeometry >,
+                 const std::vector< int >&,
+                 const std::vector< int >&,
+                 const std::vector< bool >&,
+                 const std::vector< std::vector< int > >&,
+                 const double,
+                 const double,
+                 const Eigen::Vector3d&,
+                 const bool >(),
+                 py::arg("independent_variable_points"),
+                 py::arg("body_shape"),
+                 py::arg("number_of_lines"),
+                 py::arg("number_of_points"),
+                 py::arg("invert_orders"),
+                 py::arg("selected_methods"),
+                 py::arg("reference_area"),
+                 py::arg("reference_length"),
+                 py::arg("moment_reference_point"),
+                 py::arg("save_pressure_coefficients") = false );
+
+    py::class_<ta::FlightConditions,
+            std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")
+            .def(py::init<
+                 const std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
+                 const std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>(),
+                 py::arg("shape_model"),
+                 py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
+            .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
+            .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
+            .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
+
+    py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
+            std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
+            .def(py::init<>())
+            .def("updateGuidance", &ta::AerodynamicGuidance::updateGuidance, py::arg("current_time") )
+            .def_readwrite("angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_)
+            .def_readwrite("bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_)
+            .def_readwrite("sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_);
 
 };
 
