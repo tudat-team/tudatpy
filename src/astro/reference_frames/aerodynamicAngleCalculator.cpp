@@ -121,7 +121,9 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
         if( windModel_ != nullptr )
         {
-            localWindVelocity = windModel_->getCurrentWindVelocity(
+            localWindVelocity = getRotationQuaternionBetweenFrames(
+                        windModel_->getAssociatedFrame( ), corotating_frame ) *
+                    windModel_->getCurrentBodyFixedCartesianWindVelocity(
                         shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) ),
                         currentAerodynamicAngles_[ longitude_angle ],
                         currentAerodynamicAngles_[ latitude_angle ],
@@ -130,15 +132,13 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
 
         // Compute airspeed-based velocity vector
         currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
-        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) += localWindVelocity;
+        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
 
         // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
         if( calculateVerticalToAerodynamicFrame_ )
         {
             Eigen::Vector3d verticalFrameVelocity =
-                    getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-                        currentAerodynamicAngles_.at( longitude_angle ),
-                        currentAerodynamicAngles_.at( latitude_angle ) ) *
+                    getRotationQuaternionBetweenFrames( corotating_frame, vertical_frame ) *
                     currentBodyFixedAirspeedBasedState_.segment( 3, 3 );
 
             currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );

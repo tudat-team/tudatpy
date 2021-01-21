@@ -553,19 +553,21 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
                                   ". Body <" + dependentVariableSaveSettings->associatedBody_ + "> does not exist" );
     }
 
-    if( ( dependentVariableSaveSettings->secondaryBody_ != "" ) &&
-          ( dependentVariableSaveSettings->secondaryBody_ != "SSB" ) &&
-            bodies.count( dependentVariableSaveSettings->secondaryBody_ ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting update for computation of dependent variable "+
-                                  getDependentVariableId( dependentVariableSaveSettings ) +
-                                  ". PROBLEM: Body <" + dependentVariableSaveSettings->secondaryBody_ + "> does not exist" );
-    }
+
     switch( updateType )
     {
     case vehicle_flight_conditions_update:
         if( bodies.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == nullptr )
         {
+            if( ( dependentVariableSaveSettings->secondaryBody_ != "" ) &&
+                  ( dependentVariableSaveSettings->secondaryBody_ != "SSB" ) &&
+                    bodies.count( dependentVariableSaveSettings->secondaryBody_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when setting update for computation of dependent variable "+
+                                          getDependentVariableId( dependentVariableSaveSettings ) +
+                                          ". PROBLEM: Body <" + dependentVariableSaveSettings->secondaryBody_ + "> does not exist" );
+            }
+
             if( ( bodies.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != nullptr &&
                     ( bodies.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != nullptr ) )
             {
