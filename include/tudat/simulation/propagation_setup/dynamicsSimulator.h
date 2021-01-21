@@ -426,8 +426,16 @@ public:
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodies_, frameManager_ );
         }
-        environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
+
+        try
+        {
+            environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodies_ );
+        }
+        catch( const std::runtime_error& error )
+        {
+            throw std::runtime_error( "Error when creating environment updater: "  + std::string( error.what( ) ) );
+        }
 
 
         if( stateDerivativeModels.size( ) == 0 )

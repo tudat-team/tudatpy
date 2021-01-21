@@ -236,6 +236,69 @@ private:
     controlSurfaceSettings_;
 };
 
+
+class ScaledAerodynamicCoefficientInterfaceSettings: public AerodynamicCoefficientSettings
+{
+public:
+    ScaledAerodynamicCoefficientInterfaceSettings(
+            const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
+            const Eigen::Vector3d forceScaling,
+            const Eigen::Vector3d momentScaling,
+            const bool isScalingAbsolute ):
+        AerodynamicCoefficientSettings(
+            scaled_coefficients, baseSettings->getReferenceLength( ), baseSettings->getReferenceArea( ),
+            baseSettings->getLateralReferenceLength( ), baseSettings->getMomentReferencePoint( ), baseSettings->getIndependentVariableNames( ),
+            baseSettings->getAreCoefficientsInAerodynamicFrame( ), baseSettings->getAreCoefficientsInNegativeAxisDirection(),
+            baseSettings->getInterpolatorSettings( ) ),
+        baseSettings_( baseSettings ),
+        forceScaling_( [=]( const double ){ return forceScaling; } ),
+        momentScaling_( [=]( const double ){ return momentScaling; } ),
+        isScalingAbsolute_( isScalingAbsolute ){ }
+
+    ScaledAerodynamicCoefficientInterfaceSettings(
+            const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
+            const std::function< Eigen::Vector3d( const double ) > forceScaling,
+            const std::function< Eigen::Vector3d( const double ) > momentScaling,
+            const bool isScalingAbsolute ):
+        AerodynamicCoefficientSettings(
+            scaled_coefficients, baseSettings->getReferenceLength( ), baseSettings->getReferenceArea( ),
+            baseSettings->getLateralReferenceLength( ), baseSettings->getMomentReferencePoint( ), baseSettings->getIndependentVariableNames( ),
+            baseSettings->getAreCoefficientsInAerodynamicFrame( ), baseSettings->getAreCoefficientsInNegativeAxisDirection(),
+            baseSettings->getInterpolatorSettings( ) ),
+        baseSettings_( baseSettings ), forceScaling_( forceScaling ), momentScaling_( momentScaling ),
+        isScalingAbsolute_( isScalingAbsolute ){ }
+
+    std::shared_ptr< AerodynamicCoefficientSettings > getBaseSettings( )
+    {
+        return baseSettings_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getForceScaling( )
+    {
+        return forceScaling_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getMomentScaling( )
+    {
+        return momentScaling_;
+    }
+
+    bool getIsScalingAbsolute( )
+    {
+        return isScalingAbsolute_;
+    }
+
+protected:
+
+    std::shared_ptr< AerodynamicCoefficientSettings > baseSettings_;
+
+    const std::function< Eigen::Vector3d( const double ) > forceScaling_;
+
+    const std::function< Eigen::Vector3d( const double ) > momentScaling_;
+
+    bool isScalingAbsolute_;
+};
+
 //! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
 class ConstantAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
@@ -348,6 +411,38 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoef
     return std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 referenceArea, constantForceCoefficient,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
+        const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
+        const double forceScaling,
+        const double momentScaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
+                baseSettings, Eigen::Vector3d::Constant( forceScaling ), Eigen::Vector3d::Constant( momentScaling ),
+                isScalingAbsolute );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
+        const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
+        const Eigen::Vector3d forceScaling,
+        const Eigen::Vector3d momentScaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
+                baseSettings, forceScaling, momentScaling, isScalingAbsolute );
+}
+
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
+        const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
+        const std::function< Eigen::Vector3d( const double ) > forceScaling,
+        const std::function< Eigen::Vector3d( const double ) > momentScaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
+                baseSettings, forceScaling, momentScaling, isScalingAbsolute );
 }
 
 
@@ -847,40 +942,40 @@ private:
 
 // 1-dimensional case
 inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
-		const std::vector< double > independentVariables,
-		const std::vector< Eigen::Vector3d > forceCoefficients,
-		const std::vector< Eigen::Vector3d > momentCoefficients,
-		const double referenceLength,
-		const double referenceArea,
-		const double lateralReferenceLength,
-		const Eigen::Vector3d& momentReferencePoint,
-		const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
-		const bool areCoefficientsInAerodynamicFrame = true,
-		const bool areCoefficientsInNegativeAxisDirection = true,
-		const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
-		)
+        const std::vector< double > independentVariables,
+        const std::vector< Eigen::Vector3d > forceCoefficients,
+        const std::vector< Eigen::Vector3d > momentCoefficients,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
+        )
 {
-	return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
-			independentVariables, forceCoefficients, momentCoefficients, referenceLength,
-			referenceArea, lateralReferenceLength, momentReferencePoint, independentVariableName,
-			areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
-			interpolatorSettings );
+    return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                independentVariables, forceCoefficients, momentCoefficients, referenceLength,
+                referenceArea, lateralReferenceLength, momentReferencePoint, independentVariableName,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
+                interpolatorSettings );
 }
 
 inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
-		const std::vector< double > independentVariables,
-		const std::vector< Eigen::Vector3d > forceCoefficients,
-		const double referenceArea,
-		const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
-		const bool areCoefficientsInAerodynamicFrame = true,
-		const bool areCoefficientsInNegativeAxisDirection = true,
-		const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
-		)
+        const std::vector< double > independentVariables,
+        const std::vector< Eigen::Vector3d > forceCoefficients,
+        const double referenceArea,
+        const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
+        )
 {
-	return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
-			independentVariables, forceCoefficients, referenceArea, independentVariableName,
-			areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
-			interpolatorSettings );
+    return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                independentVariables, forceCoefficients, referenceArea, independentVariableName,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
+                interpolatorSettings );
 }
 
 
@@ -1176,13 +1271,13 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
         forceInterpolator = createMultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions >(
                     independentVariables, forceCoefficients,
                     std::make_shared< InterpolatorSettings >( multi_linear_interpolator, huntingAlgorithm, false,
-                                                                std::vector< BoundaryInterpolationType >( NumberOfDimensions,
-                                                                                                          use_boundary_value ) ) );
+                                                              std::vector< BoundaryInterpolationType >( NumberOfDimensions,
+                                                                                                        use_boundary_value ) ) );
         momentInterpolator = createMultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions >(
                     independentVariables, momentCoefficients,
                     std::make_shared< InterpolatorSettings >( multi_linear_interpolator, huntingAlgorithm, false,
-                                                                std::vector< BoundaryInterpolationType >( NumberOfDimensions,
-                                                                                                          use_boundary_value ) ) );
+                                                              std::vector< BoundaryInterpolationType >( NumberOfDimensions,
+                                                                                                        use_boundary_value ) ) );
     }
     else
     {
@@ -1195,9 +1290,9 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     // Create aerodynamic coefficient interface.
     return std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 std::bind( &MultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, std::placeholders::_1 ),
+                           forceInterpolator, std::placeholders::_1 ),
                 std::bind( &MultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, std::placeholders::_1 ),
+                           momentInterpolator, std::placeholders::_1 ),
                 referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
                 independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );

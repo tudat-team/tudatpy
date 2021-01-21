@@ -37,6 +37,20 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
     // Check wind model type and create requested model
     switch( windSettings->getWindModelType( ) )
     {
+    case constant_wind_model:
+    {
+        // Check input consistency
+        std::shared_ptr< ConstantWindModelSettings > customWindModelSettings =
+                std::dynamic_pointer_cast< ConstantWindModelSettings >( windSettings );
+
+        if( customWindModelSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making constant wind model for body " + body + ", input is incompatible" );
+        }
+        windModel = std::make_shared< aerodynamics::ConstantWindModel >(
+                    customWindModelSettings->getConstantWindVelocity( ) );
+        break;
+    }
     case custom_wind_model:
     {
         // Check input consistency

@@ -66,11 +66,12 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
-                std::string inputName = bodyName;
+                std::string inputName = ( directEphemerisSettings->getBodyNameOverride( ) == "" ) ?
+                            bodyName : directEphemerisSettings->getBodyNameOverride( );
 
                 // Create corresponding ephemeris object.
                 ephemeris = std::make_shared< SpiceEphemeris >(
-                            bodyName,
+                            inputName,
                             directEphemerisSettings->getFrameOrigin( ),
                             directEphemerisSettings->getCorrectForStellarAberration( ),
                             directEphemerisSettings->getCorrectForLightTimeAberration( ),
@@ -94,8 +95,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             {
                 // Since only the barycenters of planetary systems are included in the standard DE
                 // ephemerides, append 'Barycenter' to body name.
-                std::string inputName = bodyName;
-
+                std::string inputName = ( interpolatedEphemerisSettings->getBodyNameOverride( ) == "" ) ?
+                            bodyName : interpolatedEphemerisSettings->getBodyNameOverride( );
                 // Create corresponding ephemeris object.
                 if( !interpolatedEphemerisSettings->getUseLongDoubleStates( ) )
                 {
@@ -345,6 +346,26 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 			}
 			break;
 		}
+        case scaled_ephemeris:
+        {
+            // Check consistency of type and class.
+            std::shared_ptr< ScaledEphemerisSettings > scaledEphemeriSettings =
+                    std::dynamic_pointer_cast< ScaledEphemerisSettings >(
+                        ephemerisSettings );
+            if( scaledEphemeriSettings == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error, expected scaled ephemeris settings for body " + bodyName );
+            }
+            else
+            {
+                std::shared_ptr< Ephemeris > baseEphemeris = createBodyEphemeris(
+                            scaledEphemeriSettings->getBaseSettings( ), bodyName );
+                ephemeris = std::make_shared< ScaledEphemeris >(
+                            baseEphemeris, scaledEphemeriSettings->getScaling( ), scaledEphemeriSettings->getIsScalingAbsolute( ) );
+            }
+            break;
+        }
         default:
         {
             throw std::runtime_error(
