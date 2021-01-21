@@ -26,6 +26,7 @@ namespace tp = tudat::propagators;
 namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
+namespace trf = tudat::reference_frames;
 
 namespace tudatpy {
 
@@ -265,6 +266,100 @@ void expose_dependent_variable_setup(py::module &m) {
     m.def("body_mass",
           &tp::bodyMassVariable,
           py::arg("associatedBody"));
+
+    m.def("total_gravity_field_variation_acceleration",
+          &tp::totalGravityFieldVariationAccelerationContributionVariable,
+          py::arg("body_undergoing_acceleration"),
+          py::arg("body_exerting_acceleration"));
+
+    m.def("single_gravity_field_variation_acceleration",
+          &tp::singleGravityFieldVariationAccelerationContributionVariable,
+          py::arg("body_undergoing_acceleration"),
+          py::arg("body_exerting_acceleration"),
+          py::arg("deformation_type"),
+          py::arg("identifier") = "" );
+
+    m.def("single_per_terms_gravity_field_variation_acceleration",
+          &tp::singleGravityFieldVariationSeparateTermsAccelerationContributionVariable,
+          py::arg("body_undergoing_acceleration"),
+          py::arg("body_exerting_acceleration"),
+          py::arg("component_indices"),
+          py::arg("deformation_type"),
+          py::arg("identifier") = "" );
+
+    m.def("rotation_matrix_to_body_fixed_frame",
+          &tp::rotationMatrixToBodyFixedFrameVariable,
+          py::arg("body") );
+
+    m.def("intermediate_aerodynamic_rotation_matrix_variable",
+          &tp::intermediateAerodynamicRotationMatrixVariable,
+          py::arg("body"),
+          py::arg("base_frame"),
+          py::arg("target_frame"));
+
+    m.def("body_fixed_airspeed_velocity",
+          &tp::bodyFixedAirspeedBasedVelocityVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("body_fixed_groundspeed_velocity",
+          &tp::bodyFixedGroundspeedBasedVelocityVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("lvlh_to_inertial_rotation_matrix",
+          &tp::lvlhToInertialFrameRotationMatrixVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("periapsis_altitude",
+          &tp::periapsisAltitudeVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("central_body_fixed_spherical_position",
+          &tp::centralBodyFixedSphericalPositionVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("central_body_fixed_cartesian_position",
+          &tp::centralBodyFixedCartesianPositionVariable,
+          py::arg("body"),
+          py::arg("central_body"));
+
+    m.def("inertial_to_body_fixed_313_euler_angles",
+          &tp::eulerAnglesToBodyFixed313Variable,
+          py::arg("body"));
+
+
+    m.def("body_mass",
+          &tp::bodyMassVariable,
+          py::arg("body"));
+
+    m.def("radiation_pressure_coefficient",
+          &tp::radiationPressureCoefficientVariable,
+          py::arg("body"),
+          py::arg("emitting_body") );
+
+
+//    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
+//            const basic_astrodynamics::AvailableTorque torqueModelType,
+//            const std::string& bodyUndergoingTorque,
+//            const std::string& bodyExertingTorque )
+//    {
+//        return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+//                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, true );
+//    }
+
+//    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariable(
+//            const basic_astrodynamics::AvailableTorque torqueModelType,
+//            const std::string& bodyUndergoingTorque,
+//            const std::string& bodyExertingTorque )
+//    {
+//        return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+//                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
+//    }
+
 
 }
 

@@ -66,6 +66,11 @@ void expose_frames(py::module &m) {
                  py::arg("target_frame" ) );
 
 
+    m.def("inertial_to_rsw_rotation_matrix",
+          &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
+          py::arg("inertial_cartesian_state") );
+
+
 }
 
 }// namespace tudatpy

@@ -27,9 +27,15 @@ template< typename IndependentVariableType, typename DependentVariableType >
 std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
 createOneDimensionalInterpolatorBasic(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
-        const std::shared_ptr< InterpolatorSettings > interpolatorSettings )
+        const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
+        const std::vector< DependentVariableType > firstDerivativesOfDataToIntepolate =
+        std::vector< DependentVariableType>( ) )
 {
-    return createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+    return createOneDimensionalInterpolator(
+                dataToInterpolate, interpolatorSettings,
+                std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
+                firstDerivativesOfDataToIntepolate );
 }
 
 }
@@ -40,45 +46,45 @@ namespace tudatpy {
 void expose_interpolators(py::module &m) {
 
     py::enum_<ti::BoundaryInterpolationType>(m, "BoundaryInterpolationType")
-         .value("throw_exception_at_boundary", ti::BoundaryInterpolationType::throw_exception_at_boundary)
-         .value("use_boundary_value", ti::BoundaryInterpolationType::use_boundary_value)
-         .value("use_boundary_value_with_warning", ti::BoundaryInterpolationType::use_boundary_value_with_warning)
-         .value("extrapolate_at_boundary", ti::BoundaryInterpolationType::extrapolate_at_boundary)
-         .value("extrapolate_at_boundary_with_warning", ti::BoundaryInterpolationType::extrapolate_at_boundary_with_warning)
-         .value("use_default_value", ti::BoundaryInterpolationType::use_default_value)
-         .value("use_default_value_with_warning", ti::BoundaryInterpolationType::use_default_value_with_warning)
-         .export_values();
+            .value("throw_exception_at_boundary", ti::BoundaryInterpolationType::throw_exception_at_boundary)
+            .value("use_boundary_value", ti::BoundaryInterpolationType::use_boundary_value)
+            .value("use_boundary_value_with_warning", ti::BoundaryInterpolationType::use_boundary_value_with_warning)
+            .value("extrapolate_at_boundary", ti::BoundaryInterpolationType::extrapolate_at_boundary)
+            .value("extrapolate_at_boundary_with_warning", ti::BoundaryInterpolationType::extrapolate_at_boundary_with_warning)
+            .value("use_default_value", ti::BoundaryInterpolationType::use_default_value)
+            .value("use_default_value_with_warning", ti::BoundaryInterpolationType::use_default_value_with_warning)
+            .export_values();
 
     py::enum_<ti::AvailableLookupScheme>(m, "AvailableLookupScheme")
-         .value("hunting_algorithm", ti::AvailableLookupScheme::huntingAlgorithm)
-         .value("binary_search", ti::AvailableLookupScheme::binarySearch)
-         .export_values();
+            .value("hunting_algorithm", ti::AvailableLookupScheme::huntingAlgorithm)
+            .value("binary_search", ti::AvailableLookupScheme::binarySearch)
+            .export_values();
 
     py::enum_<ti::LagrangeInterpolatorBoundaryHandling>(m, "LagrangeInterpolatorBoundaryHandling")
-         .value("lagrange_cubic_spline_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation)
-         .value("lagrange_no_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation)
-         .export_values();
+            .value("lagrange_cubic_spline_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation)
+            .value("lagrange_no_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation)
+            .export_values();
 
     py::class_<ti::InterpolatorSettings,
             std::shared_ptr<ti::InterpolatorSettings>>(m, "InterpolatorSettings");
 
     py::class_<
-          ti::LagrangeInterpolatorSettings,
-          std::shared_ptr<ti::LagrangeInterpolatorSettings>,
-          ti::InterpolatorSettings>(m,
-                                    "LagrangeInterpolatorSettings",
-                                    "Class for providing settings to creating a Lagrange interpolator.")
-          .def(py::init<
-                   const int,
-                   const bool,
-                   const ti::AvailableLookupScheme,
-                   const ti::LagrangeInterpolatorBoundaryHandling,
-                   const ti::BoundaryInterpolationType>(),
-               py::arg("interpolate_order"),
-               py::arg("use_long_double_time_step") = 0,
-               py::arg("selected_lookup_scheme") = ti::huntingAlgorithm,
-               py::arg("lagrange_boundary_handling") = ti::lagrange_cubic_spline_boundary_interpolation,
-               py::arg("boundary_handling") = ti::extrapolate_at_boundary);
+            ti::LagrangeInterpolatorSettings,
+            std::shared_ptr<ti::LagrangeInterpolatorSettings>,
+            ti::InterpolatorSettings>(m,
+                                      "LagrangeInterpolatorSettings",
+                                      "Class for providing settings to creating a Lagrange interpolator.")
+            .def(py::init<
+                 const int,
+                 const bool,
+                 const ti::AvailableLookupScheme,
+                 const ti::LagrangeInterpolatorBoundaryHandling,
+                 const ti::BoundaryInterpolationType>(),
+                 py::arg("interpolate_order"),
+                 py::arg("use_long_double_time_step") = 0,
+                 py::arg("selected_lookup_scheme") = ti::huntingAlgorithm,
+                 py::arg("lagrange_boundary_handling") = ti::lagrange_cubic_spline_boundary_interpolation,
+                 py::arg("boundary_handling") = ti::extrapolate_at_boundary);
 
 
 
@@ -100,20 +106,29 @@ void expose_interpolators(py::module &m) {
           py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning,
           py::arg( "lagrange_boundary_handling" ) = ti::lagrange_cubic_spline_boundary_interpolation );
 
+    m.def("hermiteinterpolation", &ti::hermiteInterpolation,
+          py::arg( "lookup_scheme" ) = ti::huntingAlgorithm,
+          py::arg( "boundary_interpolation" ) = ti::extrapolate_at_boundary_with_warning );
+
     m.def("create_one_dimensional_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, double >,
           py::arg("data_to_interpolate"),
-          py::arg("interpolator_settings") );
+          py::arg("interpolator_settings"),
+          py::arg("data_first_derivatives") = std::vector< double >( ) );
 
     m.def("create_one_dimensional_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, Eigen::VectorXd >,
           py::arg("data_to_interpolate"),
-          py::arg("interpolator_settings") );
+          py::arg("interpolator_settings"),
+          py::arg("data_first_derivatives") = std::vector< Eigen::VectorXd >( ) );
+
 
     m.def("create_one_dimensional_interpolator",
           &ti::createOneDimensionalInterpolatorBasic< double, Eigen::MatrixXd >,
           py::arg("data_to_interpolate"),
-          py::arg("interpolator_settings") );
+          py::arg("interpolator_settings"),
+          py::arg("data_first_derivatives") = std::vector< Eigen::MatrixXd >( ) );
+
 
     py::class_<
             ti::OneDimensionalInterpolator<double, double>,

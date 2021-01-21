@@ -42,19 +42,11 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettingsFromM
         )
 {
     return std::make_shared< SimpleRotationModelSettings >(
-            originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate
-            );
+                originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate
+                );
 }
 
-inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings(
-        const std::string& centralBodyName,
-        const std::string& baseFrameOrientation,
-        const std::string& targetFrameOrientation
-        )
-{
-    return std::make_shared< SynchronousRotationModelSettings >(
-            centralBodyName, baseFrameOrientation, targetFrameOrientation );
-}
+
 
 }
 
@@ -104,48 +96,79 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
           py::arg("are_coefficients_in_negative_axis_direction") = true);
 
     m.def("tabulated",
-		  py::overload_cast<
-				  const std::vector<double>,
-				  const std::vector<Eigen::Vector3d>,
-				  const std::vector<Eigen::Vector3d>,
-				  const double,
-				  const double,
-				  const double,
-				  const Eigen::Vector3d&,
-				  const ta::AerodynamicCoefficientsIndependentVariables,
-				  const bool,
-				  const bool,
-				  const std::shared_ptr<ti::InterpolatorSettings>>
-				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
-		  py::arg("independent_variables"),
-		  py::arg("force_coefficients"),
-		  py::arg("moment_coefficients"),
-		  py::arg("reference_length"),
-		  py::arg("reference_area"),
-		  py::arg("lateral_reference_length"),
-		  py::arg("moment_reference_point"),
-		  py::arg("independent_variable_name"),
-		  py::arg("are_coefficients_in_aerodynamic_frame"),
-		  py::arg("are_coefficients_in_negative_axis_direction"),
-		  py::arg("interpolator_settings"));
+          py::overload_cast<
+          const std::vector<double>,
+          const std::vector<Eigen::Vector3d>,
+          const std::vector<Eigen::Vector3d>,
+          const double,
+          const double,
+          const double,
+          const Eigen::Vector3d&,
+          const ta::AerodynamicCoefficientsIndependentVariables,
+          const bool,
+          const bool,
+          const std::shared_ptr<ti::InterpolatorSettings>>
+          (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+          py::arg("independent_variables"),
+          py::arg("force_coefficients"),
+          py::arg("moment_coefficients"),
+          py::arg("reference_length"),
+          py::arg("reference_area"),
+          py::arg("lateral_reference_length"),
+          py::arg("moment_reference_point"),
+          py::arg("independent_variable_name"),
+          py::arg("are_coefficients_in_aerodynamic_frame"),
+          py::arg("are_coefficients_in_negative_axis_direction"),
+          py::arg("interpolator_settings"));
 
     m.def("tabulated",
-		  py::overload_cast<
-		          const std::vector<double>,
-		          const std::vector<Eigen::Vector3d>,
-				  const double,
-				  const ta::AerodynamicCoefficientsIndependentVariables,
-				  const bool,
-				  const bool,
-				  const std::shared_ptr<ti::InterpolatorSettings>>
-				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
-		  py::arg("independent_variables"),
-		  py::arg("force_coefficients"),
-		  py::arg("reference_area"),
-		  py::arg("independent_variable_name"),
-		  py::arg("are_coefficients_in_aerodynamic_frame"),
-		  py::arg("are_coefficients_in_negative_axis_direction"),
-		  py::arg("interpolator_settings"));
+          py::overload_cast<
+          const std::vector<double>,
+          const std::vector<Eigen::Vector3d>,
+          const double,
+          const ta::AerodynamicCoefficientsIndependentVariables,
+          const bool,
+          const bool,
+          const std::shared_ptr<ti::InterpolatorSettings>>
+          (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+          py::arg("independent_variables"),
+          py::arg("force_coefficients"),
+          py::arg("reference_area"),
+          py::arg("independent_variable_name"),
+          py::arg("are_coefficients_in_aerodynamic_frame"),
+          py::arg("are_coefficients_in_negative_axis_direction"),
+          py::arg("interpolator_settings"));
+
+    m.def("scaled",
+          py::overload_cast<
+          const std::shared_ptr< tss::AerodynamicCoefficientSettings >,
+          const double, const double, const bool>
+          (&tss::scaledAerodynamicCoefficientSettings),
+          py::arg("unscaled_coefficient_settings"),
+          py::arg("force_scaling_constant"),
+          py::arg("moment_scaling_constant"),
+          py::arg("is_scaling_absolute") );
+
+    m.def("scaled",
+          py::overload_cast<
+          const std::shared_ptr< tss::AerodynamicCoefficientSettings >,
+          const Eigen::Vector3d, const Eigen::Vector3d, const bool >
+          (&tss::scaledAerodynamicCoefficientSettings),
+          py::arg("unscaled_coefficient_settings"),
+          py::arg("force_scaling_vector"),
+          py::arg("moment_scaling_vector"),
+          py::arg("is_scaling_absolute") );
+
+    m.def("scaled",
+          py::overload_cast<
+          const std::shared_ptr< tss::AerodynamicCoefficientSettings >,
+          const std::function< Eigen::Vector3d( const double ) >,
+          const std::function< Eigen::Vector3d( const double ) >, const bool >
+          (&tss::scaledAerodynamicCoefficientSettings),
+          py::arg("unscaled_coefficient_settings"),
+          py::arg("force_scaling_vector_function"),
+          py::arg("moment_scaling_vector_function"),
+          py::arg("is_scaling_absolute") );
 
 }
 
@@ -153,37 +176,45 @@ void expose_atmosphere_setup(py::module &m) {
 
     /////////////////////////////////////////////////////////////////////////////
     py::class_<tss::AtmosphereSettings,
-            std::shared_ptr<tss::AtmosphereSettings>>
-            AtmosphereSettings(m, "AtmosphereSettings",
-                                            "<no doc>");
+            std::shared_ptr<tss::AtmosphereSettings>>(m, "AtmosphereSettings")
+            .def_property("wind_settings", &tss::AtmosphereSettings::getWindSettings,
+                          &tss::AtmosphereSettings::setWindSettings );
+
+    py::class_<tss::WindModelSettings,
+            std::shared_ptr<tss::WindModelSettings>>(m, "WindModelSettings");
+
     m.def("exponential",
           py::overload_cast<const double, const double>(
-          &tss::exponentialAtmosphereSettings ),
+              &tss::exponentialAtmosphereSettings ),
           py::arg("scale_height"),
           py::arg("surface_density") );
 
-	m.def("exponential",
-		  py::overload_cast< const double, const double, const double,
-		  const double, const double >(&tss::exponentialAtmosphereSettings),
-		  py::arg("scale_height"),
-		  py::arg("constant_temperature"),
-		  py::arg("surface_density"),
-		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-		  py::arg("ratio_specific_heats") = 1.4);
+    m.def("exponential",
+          py::overload_cast< const double, const double, const double,
+          const double, const double >(&tss::exponentialAtmosphereSettings),
+          py::arg("scale_height"),
+          py::arg("constant_temperature"),
+          py::arg("surface_density"),
+          py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+          py::arg("ratio_specific_heats") = 1.4);
 
     m.def("nrlmsise00",
-		  &tss::nrlmsise00AtmosphereSettings);
+          &tss::nrlmsise00AtmosphereSettings);
 
     m.def("custom_constant_temperature",
-		  &tss::customConstantTemperatureAtmosphereSettings,
-		  py::arg("density_function"),
-		  py::arg("constant_temperature"),
-		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-		  py::arg("ratio_of_specific_heats") = 1.4);
+          &tss::customConstantTemperatureAtmosphereSettings,
+          py::arg("density_function"),
+          py::arg("constant_temperature"),
+          py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+          py::arg("ratio_of_specific_heats") = 1.4);
+
+    m.def("constant_wind_model",
+          &tss::constantWindModelSettings,
+          py::arg("wind_velocity") );
 
     m.def("custom_wind_model",
-		  &tss::customWindModelSettings,
-		  py::arg("wind_function"));
+          &tss::customWindModelSettings,
+          py::arg("wind_function") );
 
 }
 
@@ -229,13 +260,13 @@ void expose_radiation_pressure_setup(py::module &m) {
           py::arg("occulting_bodies") = std::vector<std::string>());
 
     m.def("panelled",
-		  &tss::panelledRadiationPressureInterfaceSettings,
-		  py::arg("source_body"),
-		  py::arg("emissivities"),
-		  py::arg("areas"),
-		  py::arg("diffusion_coefficients"),
-		  py::arg("surface_normals_in_body_fixed_frame"),
-		  py::arg("occulting_bodies") = std::vector< std::string >());
+          &tss::panelledRadiationPressureInterfaceSettings,
+          py::arg("source_body"),
+          py::arg("emissivities"),
+          py::arg("areas"),
+          py::arg("diffusion_coefficients"),
+          py::arg("surface_normals_in_body_fixed_frame"),
+          py::arg("occulting_bodies") = std::vector< std::string >());
 
 }
 
@@ -258,11 +289,11 @@ void expose_rotation_model_setup(py::module &m) {
 
     py::enum_<tba::IAUConventions>(m, "IAUConventions", "<no_doc>")
             .value("iau_2000_a",
-				   tba::IAUConventions::iau_2000_a)
+                   tba::IAUConventions::iau_2000_a)
             .value("iau_2000_b",
-				   tba::IAUConventions::iau_2000_b)
+                   tba::IAUConventions::iau_2000_b)
             .value("iau_2006",
-				   tba::IAUConventions::iau_2006)
+                   tba::IAUConventions::iau_2006)
             .export_values();
 
     py::class_<tss::RotationModelSettings,
@@ -280,12 +311,19 @@ void expose_rotation_model_setup(py::module &m) {
 
     m.def("simple",
           py::overload_cast< const std::string&, const std::string& ,
-            const Eigen:: Matrix3d&, const double, const double >( &tss::simpleRotationModelSettingsFromMatrix ),
-		  py::arg("original_frame"),
-		  py::arg("target_frame"),
-		  py::arg("initial_orientation"),
+          const Eigen::Matrix3d&, const double, const double >( &tss::simpleRotationModelSettings ),
+          py::arg("original_frame"),
+          py::arg("target_frame"),
+          py::arg("initial_orientation"),
           py::arg("initial_time"),
           py::arg("rotation_rate")
+          );
+
+    m.def("simple_from_spice",
+          &tss::simpleRotationModelFromSpiceSettings,
+          py::arg("original_frame"),
+          py::arg("target_frame"),
+          py::arg("initial_time")
           );
 
     m.def("synchronous",
@@ -302,10 +340,10 @@ void expose_rotation_model_setup(py::module &m) {
           );
 
     m.def("gcrs_to_itrs",
-		  &tss::gcrsToItrsRotationModelSettings,
-		  py::arg("precession_nutation_theory"),
-		  py::arg("original_frame")
-		  );
+          &tss::gcrsToItrsRotationModelSettings,
+          py::arg("precession_nutation_theory") = tba::iau_2006,
+          py::arg("original_frame") = "GCRS"
+            );
 
 }
 
@@ -355,38 +393,38 @@ void expose_gravity_field_setup(py::module &m) {
             .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField);
 
     m.def("central",
-		  &tss::centralGravitySettings);
+          &tss::centralGravitySettings);
 
     m.def("central_spice",
-		  &tss::centralGravitySettings);
+          &tss::centralGravitySettings);
 
     m.def("spherical_harmonic",
-		  &tss::sphericalHarmonicsGravitySettings,
-		  py::arg("gravitational_parameter"),
-		  py::arg("reference_radius"),
-		  py::arg("normalized_cosine_coefficients"),
-		  py::arg("normalized_sine_coefficients"),
-		  py::arg("associated_reference_frame"));
+          &tss::sphericalHarmonicsGravitySettings,
+          py::arg("gravitational_parameter"),
+          py::arg("reference_radius"),
+          py::arg("normalized_cosine_coefficients"),
+          py::arg("normalized_sine_coefficients"),
+          py::arg("associated_reference_frame"));
 }
 
 void expose_ephemeris_setup(py::module &m) {
 
-	/////////////////////////////////////////////////////////////////////////////
-	// approximatePlanetPositionsBase.h
-	/////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    // approximatePlanetPositionsBase.h
+    /////////////////////////////////////////////////////////////////////////////
 
-	py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
-			m, "BodiesWithEphemerisData", "<no_doc>")
-			.value("mercury", te::ApproximatePlanetPositionsBase::mercury)
-			.value("venus", te::ApproximatePlanetPositionsBase::venus)
-			.value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
-			.value("mars", te::ApproximatePlanetPositionsBase::mars)
-			.value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
-			.value("saturn", te::ApproximatePlanetPositionsBase::saturn)
-			.value("uranus", te::ApproximatePlanetPositionsBase::uranus)
-			.value("neptune", te::ApproximatePlanetPositionsBase::neptune)
-			.value("pluto", te::ApproximatePlanetPositionsBase::pluto)
-			.export_values();
+    py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
+                m, "BodiesWithEphemerisData", "<no_doc>")
+            .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
+            .value("venus", te::ApproximatePlanetPositionsBase::venus)
+            .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
+            .value("mars", te::ApproximatePlanetPositionsBase::mars)
+            .value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
+            .value("saturn", te::ApproximatePlanetPositionsBase::saturn)
+            .value("uranus", te::ApproximatePlanetPositionsBase::uranus)
+            .value("neptune", te::ApproximatePlanetPositionsBase::neptune)
+            .value("pluto", te::ApproximatePlanetPositionsBase::pluto)
+            .export_values();
 
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
@@ -524,61 +562,93 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
           py::arg("root_finder_maximum_iterations") = 1000.0 );
 
+    m.def("keplerian_from_spice",
+          &tss::keplerEphemerisFromSpiceSettings,
+          py::arg("body"),
+          py::arg("initial_state_epoch"),
+          py::arg("central_body_gravitational_parameter"),
+          py::arg("frame_origin") = "SSB" ,
+          py::arg("frame_orientation") = "ECLIPJ2000" ,
+          py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
+          py::arg("root_finder_maximum_iterations") = 1000.0 );
+
+
     m.def("approximate_planet_positions",
-		  &tss::approximatePlanetPositionsSettings,
-		  py::arg("body_identifier"),
-		  py::arg("use_circular_coplanar_approximation"));
+          &tss::approximatePlanetPositionsSettings,
+          py::arg("body_identifier"),
+          py::arg("use_circular_coplanar_approximation"));
 
-	m.def("direct_spice",
-		  &tss::directSpiceEphemerisSettings,
-		  py::arg("frame_origin") = "SSB",
-		  py::arg("frame_orientation") = "ECLIPJ2000",
-		  py::arg("correct_for_stellar_aberration") = false,
-		  py::arg("correct_for_light_time_aberration") = false,
-		  py::arg("converge_light_time_aberration") = false,
-		  py::arg("ephemeris_type") = tss::EphemerisType::direct_spice_ephemeris);
+    m.def("direct_spice",
+          py::overload_cast< const std::string, const std::string,  const std::string >(
+              &tss::directSpiceEphemerisSettings ),
+          py::arg("frame_origin") = "SSB",
+          py::arg("frame_orientation") = "ECLIPJ2000",
+          py::arg("body_name_to_use") = "" );
 
-	m.def("interpolated_spice",
-		  &tss::interpolatedSpiceEphemerisSettings,
-		  py::arg("initial_time"),
-		  py::arg("final_time"),
-		  py::arg("time_step"),
-		  py::arg("frame_origin") = "SSB",
-		  py::arg("frame_orientation") = "ECLIPJ2000",
-		  py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6));
+    m.def("interpolated_spice",
+          &tss::interpolatedSpiceEphemerisSettings,
+          py::arg("initial_time"),
+          py::arg("final_time"),
+          py::arg("time_step"),
+          py::arg("frame_origin") = "SSB",
+          py::arg("frame_orientation") = "ECLIPJ2000",
+          py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6),
+          py::arg("body_name_to_use") = "" );
 
-	m.def("tabulated",
-		  &tss::tabulatedEphemerisSettings,
-		  py::arg("body_state_history"),
-		  py::arg("frame_origin") = "SSB",
-		  py::arg("frame_orientation") = "ECLIPJ2000");
+    m.def("tabulated",
+          &tss::tabulatedEphemerisSettings,
+          py::arg("body_state_history"),
+          py::arg("frame_origin") = "SSB",
+          py::arg("frame_orientation") = "ECLIPJ2000");
 
-	m.def("constant",
-		  &tss::constantEphemerisSettings,
-		  py::arg("constant_state"),
-		  py::arg("frame_origin") = "SSB",
-		  py::arg("frame_orientation") = "ECLIPJ2000");
+    m.def("constant",
+          &tss::constantEphemerisSettings,
+          py::arg("constant_state"),
+          py::arg("frame_origin") = "SSB",
+          py::arg("frame_orientation") = "ECLIPJ2000");
 
-	m.def("custom",
-		  &tss::customEphemerisSettings,
-		  py::arg("custom_state_function"),
-		  py::arg("frame_origin") = "SSB",
-		  py::arg("frame_orientation") = "ECLIPJ2000");
+    m.def("scaled",
+          py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
+          const double, const bool >( &tss::scaledEphemerisSettings ),
+          py::arg("unscaled_ephemeris_settings"),
+          py::arg("scaling_constant"),
+          py::arg("is_scaling_absolute") );
+
+    m.def("scaled",
+          py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
+          const Eigen::Vector6d, const bool >( &tss::scaledEphemerisSettings ),
+          py::arg("unscaled_ephemeris_settings"),
+          py::arg("scaling_vector"),
+          py::arg("is_scaling_absolute") );
+
+    m.def("scaled",
+          py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
+          const std::function< Eigen::Vector6d( const double ) >, const bool >( &tss::scaledEphemerisSettings ),
+          py::arg("unscaled_ephemeris_settings"),
+          py::arg("scaling_vector_function"),
+          py::arg("is_scaling_absolute") );
+
+
+    m.def("custom",
+          &tss::customEphemerisSettings,
+          py::arg("custom_state_function"),
+          py::arg("frame_origin") = "SSB",
+          py::arg("frame_orientation") = "ECLIPJ2000");
 }
 
 void expose_shape_setup(py::module &m){
 
-	m.def("spherical",
-	   &tss::sphericalBodyShapeSettings,
-	   py::arg("radius"));
+    m.def("spherical",
+          &tss::sphericalBodyShapeSettings,
+          py::arg("radius"));
 
-	m.def("spherical_spice",
-	   &tss::fromSpiceSphericalBodyShapeSettings);
+    m.def("spherical_spice",
+          &tss::fromSpiceSphericalBodyShapeSettings);
 
-	m.def("oblate_spherical",
-	   &tss::oblateSphericalBodyShapeSettings,
-	   py::arg("equatorial_radius"),
-	   py::arg("flattening"));
+    m.def("oblate_spherical",
+          &tss::oblateSphericalBodyShapeSettings,
+          py::arg("equatorial_radius"),
+          py::arg("flattening"));
 
 }
 
@@ -800,7 +870,7 @@ void expose_environment_setup(py::module &m) {
           py::overload_cast<
           const std::shared_ptr< ta::AerodynamicGuidance > ,
           const std::shared_ptr< tss::Body > >
-                  (&tss::setGuidanceAnglesFunctions),
+          (&tss::setGuidanceAnglesFunctions),
           py::arg("aerodynamic_guidance"),
           py::arg("body") );
 
