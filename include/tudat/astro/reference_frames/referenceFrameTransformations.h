@@ -34,6 +34,28 @@ namespace tudat
 namespace reference_frames
 {
 
+
+//! Enum to define ids for various reference frames for calculating between inertial and body-fixed
+//! frame, using transformation chain via aerodynamic frame.
+enum AerodynamicsReferenceFrames
+{
+    inertial_frame = -1,
+    corotating_frame = 0,
+    vertical_frame = 1,
+    trajectory_frame = 2,
+    aerodynamic_frame = 3,
+    body_frame = 4
+};
+
+//! Function to get a string representing a 'named identification' of a reference frame.
+/*!
+ * Function to get a string representing a 'named identification' of a reference frame.
+ * \param frame Type of reference frame
+ * \return String with reference frame id.
+ */
+std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame );
+
+
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 /*!
  *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix

@@ -48,7 +48,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
             throw std::runtime_error( "Error when making constant wind model for body " + body + ", input is incompatible" );
         }
         windModel = std::make_shared< aerodynamics::ConstantWindModel >(
-                    customWindModelSettings->getConstantWindVelocity( ) );
+                    customWindModelSettings->getConstantWindVelocity( ),
+                    customWindModelSettings->getAssociatedFrame( ) );
         break;
     }
     case custom_wind_model:
@@ -62,7 +63,9 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
             throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
         }
         windModel = std::make_shared< aerodynamics::CustomWindModel >(
-                    customWindModelSettings->getWindFunction( ) );
+                    customWindModelSettings->getWindFunction( ),
+                    customWindModelSettings->getAssociatedFrame( ) );
+
         break;
     }
     default:
