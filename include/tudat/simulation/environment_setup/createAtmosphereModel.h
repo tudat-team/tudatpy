@@ -38,6 +38,7 @@ using namespace aerodynamics;
  */
 enum WindModelTypes
 {
+    constant_wind_model,
     custom_wind_model
 };
 
@@ -77,6 +78,26 @@ protected:
 
     //! Type of wind model that is to be created
     WindModelTypes windModelType_;
+
+};
+
+class ConstantWindModelSettings: public WindModelSettings
+{
+public:
+
+    ConstantWindModelSettings(
+        const Eigen::Vector3d constantWindVelocity ):
+    WindModelSettings( constant_wind_model ),
+    constantWindVelocity_( constantWindVelocity ){ }
+
+    Eigen::Vector3d getConstantWindVelocity( )
+    {
+        return constantWindVelocity_;
+    }
+
+private:
+
+     Eigen::Vector3d constantWindVelocity_;
 
 };
 
@@ -842,6 +863,12 @@ inline std::shared_ptr< WindModelSettings > customWindModelSettings(
 		)
 {
 	return std::make_shared< CustomWindModelSettings >( windFunction );
+}
+
+inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
+        const Eigen::Vector3d constantWindVelocity)
+{
+    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity );
 }
 
 //! Function to create a wind model.

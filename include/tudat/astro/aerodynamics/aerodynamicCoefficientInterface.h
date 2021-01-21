@@ -185,9 +185,9 @@ public:
         }
     }
 
-    //! Pure virtual function for calculating and returning aerodynamic force coefficients
+    //! Function for calculating and returning aerodynamic force coefficients
     /*!
-     *  Pure virtual function for calculating and returning aerodynamic force coefficients.
+     *  Function for calculating and returning aerodynamic force coefficients.
      *  \return Force coefficients at current independent variables
      */
     Eigen::Vector3d getCurrentForceCoefficients( )
@@ -195,9 +195,9 @@ public:
         return currentForceCoefficients_;
     }
 
-    //! Pure virtual function for calculating and returning aerodynamic moment coefficients
+    //! Function for calculating and returning aerodynamic moment coefficients
     /*!
-     *  Pure virtual function for calculating and returning aerodynamic moment coefficients.
+     *  Function for calculating and returning aerodynamic moment coefficients.
      *  \return Moment coefficients at current independent variables
      */
     Eigen::Vector3d getCurrentMomentCoefficients( )
@@ -458,6 +458,61 @@ protected:
     std::vector< std::string > controlSurfaceNames_;
 
 private:
+};
+
+class ScaledAerodynamicCoefficientInterface: public AerodynamicCoefficientInterface
+{
+public:
+    ScaledAerodynamicCoefficientInterface(
+            const std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface,
+            const std::function< Eigen::Vector3d( const double ) > forceCoefficientScalingFunction,
+            const std::function< Eigen::Vector3d( const double ) > momentCoefficientScalingFunction,
+            const bool isScalingRelative = true ):
+        AerodynamicCoefficientInterface(
+            baseCoefficientInterface->getReferenceLength( ),
+            baseCoefficientInterface->getReferenceArea( ),
+            baseCoefficientInterface->getLateralReferenceLength( ),
+            baseCoefficientInterface->getMomentReferencePoint( ),
+            baseCoefficientInterface->getIndependentVariableNames( ),
+            baseCoefficientInterface->getAreCoefficientsInAerodynamicFrame( ),
+            baseCoefficientInterface->getAreCoefficientsInNegativeAxisDirection( ) ),
+    baseCoefficientInterface_( baseCoefficientInterface ),
+    forceCoefficientScalingFunction_( forceCoefficientScalingFunction ),
+    momentCoefficientScalingFunction_( momentCoefficientScalingFunction ),
+    isScalingRelative_( isScalingRelative){ }
+
+    void updateCurrentCoefficients(
+            const std::vector< double >& independentVariables,
+            const double currentTime = TUDAT_NAN )
+    {
+        baseCoefficientInterface_->updateCurrentCoefficients( independentVariables, currentTime );
+
+        currentForceCoefficients_ = baseCoefficientInterface_->getCurrentForceCoefficients( );
+        currentMomentCoefficients_ = baseCoefficientInterface_->getCurrentMomentCoefficients( );
+
+        if( isScalingRelative_ )
+        {
+            currentForceCoefficients_.array() *= forceCoefficientScalingFunction_( currentTime ).array();
+            currentMomentCoefficients_.array() *= momentCoefficientScalingFunction_( currentTime ).array();
+        }
+        else
+        {
+            currentForceCoefficients_ += forceCoefficientScalingFunction_( currentTime );
+            currentMomentCoefficients_ += momentCoefficientScalingFunction_( currentTime );
+        }
+
+    }
+
+private:
+
+    std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface_;
+
+    std::function< Eigen::Vector3d( const double ) > forceCoefficientScalingFunction_;
+
+    std::function< Eigen::Vector3d( const double ) > momentCoefficientScalingFunction_;
+
+    bool isScalingRelative_;
+
 };
 
 //! Typedef for shared-pointer to AerodynamicCoefficientInterface object.

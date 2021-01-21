@@ -36,7 +36,8 @@ enum AerodynamicCoefficientTypes
 {
     constant_aerodynamic_coefficients,
     hypersonic_local_inclincation_coefficients,
-    tabulated_coefficients
+    tabulated_coefficients,
+    scaled_coefficients
 };
 
 //! Class for providing settings for aerodynamic coefficient model of control surfaces.
