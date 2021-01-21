@@ -86,6 +86,7 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/math
         kernel/expose_math.cpp
+        kernel/expose_math/expose_basic_functions.cpp
         kernel/expose_math/expose_interpolators.cpp
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
