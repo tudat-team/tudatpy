@@ -1563,6 +1563,7 @@ public:
     void deleteBody( const std::string bodyName )
     {
         bodyMap_.at( bodyName ).reset( );
+        bodyMap_.erase( bodyName );
 
     }
 private:

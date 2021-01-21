@@ -53,6 +53,26 @@ public:
             const double currentTime ) = 0;
 };
 
+class ConstantWindModel: public WindModel
+{
+public:
+    ConstantWindModel(
+            const Eigen::Vector3d constantWindVelocity ):
+    constantWindVelocity_( constantWindVelocity ){ }
+
+    Eigen::Vector3d getCurrentWindVelocity(
+            const double currentAltitude,
+            const double currentLongitude,
+            const double currentLatitude,
+            const double currentTime )
+    {
+        return constantWindVelocity_;
+    }
+
+private:
+    Eigen::Vector3d constantWindVelocity_;
+};
+
 //! Class for computing the wind velocity vector from a custom, user-defined function.
 class CustomWindModel: public WindModel
 {

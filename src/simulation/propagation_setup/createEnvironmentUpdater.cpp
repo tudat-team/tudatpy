@@ -546,6 +546,21 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
+    if( bodies.count( dependentVariableSaveSettings->associatedBody_ ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting update for computation of dependent variable: "+
+                                  getDependentVariableId( dependentVariableSaveSettings ) +
+                                  ". Body <" + dependentVariableSaveSettings->associatedBody_ + "> does not exist" );
+    }
+
+    if( ( dependentVariableSaveSettings->secondaryBody_ != "" ) &&
+          ( dependentVariableSaveSettings->secondaryBody_ != "SSB" ) &&
+            bodies.count( dependentVariableSaveSettings->secondaryBody_ ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting update for computation of dependent variable "+
+                                  getDependentVariableId( dependentVariableSaveSettings ) +
+                                  ". PROBLEM: Body <" + dependentVariableSaveSettings->secondaryBody_ + "> does not exist" );
+    }
     switch( updateType )
     {
     case vehicle_flight_conditions_update:
