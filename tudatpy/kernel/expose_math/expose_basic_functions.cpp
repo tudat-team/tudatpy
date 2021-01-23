@@ -29,6 +29,17 @@ void expose_basic_functions(py::module &m) {
           py::arg("degree"),
           py::arg("order") );
 
+    m.def("normalize_spherical_harmonic_coefficients",
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
+              &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
+          py::arg("unnormalized_cosine_coefficients"),
+          py::arg("unnormalized_sine_coefficients") );
+
+    m.def("unnormalize_spherical_harmonic_coefficients",
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
+              &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
+          py::arg("normalized_cosine_coefficients"),
+          py::arg("normalized_sine_coefficients") );
 
 };
 
