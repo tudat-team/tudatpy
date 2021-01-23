@@ -12,6 +12,7 @@
 
 #include "../docstrings.h"
 #include <tudat/simulation/environment_setup.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
 //#include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -26,6 +27,7 @@ namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
 namespace tba = tudat::basic_astrodynamics;
 namespace ta = tudat::aerodynamics;
+namespace trf = tudat::reference_frames;
 
 namespace tudat
 {
@@ -210,11 +212,13 @@ void expose_atmosphere_setup(py::module &m) {
 
     m.def("constant_wind_model",
           &tss::constantWindModelSettings,
-          py::arg("wind_velocity") );
+          py::arg("wind_velocity"),
+          py::arg("associated_reference_frame") = trf::vertical_frame );
 
     m.def("custom_wind_model",
           &tss::customWindModelSettings,
-          py::arg("wind_function") );
+          py::arg("wind_function"),
+          py::arg("associated_reference_frame") = trf::vertical_frame  );
 
 }
 
@@ -404,6 +408,16 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("reference_radius"),
           py::arg("normalized_cosine_coefficients"),
           py::arg("normalized_sine_coefficients"),
+          py::arg("associated_reference_frame"));
+
+    m.def("spherical_harmonic_triaxial_body",
+          &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
+          py::arg("axis_a"),
+          py::arg("axis_b"),
+          py::arg("axis_c"),
+          py::arg("density"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order"),
           py::arg("associated_reference_frame"));
 }
 
