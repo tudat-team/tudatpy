@@ -164,8 +164,8 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     // Define Love numbers ( constant for degree 2 only)
     std::complex< double > constantLoveNumber( 0.5, 0.5E-3 );
     std::vector< std::complex< double > > constantSingleDegreeLoveNumber( 3, constantLoveNumber );
-    std::vector< std::vector< std::complex< double > > >
-        loveNumbers( 1, constantSingleDegreeLoveNumber );
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ 2 ] = constantSingleDegreeLoveNumber;
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
     std::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
@@ -274,8 +274,8 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         // Define Love numbers ( constant for degree 2 only)
         std::complex< double > constantLoveNumber( 0.5, 0.5E-3 );
         std::vector< std::complex< double > > constantSingleDegreeLoveNumber( 3, constantLoveNumber );
-        std::vector< std::vector< std::complex< double > > >
-            loveNumbers( 1, constantSingleDegreeLoveNumber );
+        std::map< int, std::vector< std::complex< double > > > loveNumbers;
+        loveNumbers[ 2 ] = constantSingleDegreeLoveNumber;
 
         // Manually calculate tidal corrections directly.
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directIoTide =
@@ -310,6 +310,7 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         }
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

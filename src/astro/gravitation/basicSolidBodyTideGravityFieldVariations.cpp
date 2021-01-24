@@ -18,41 +18,6 @@ namespace tudat
 namespace gravitation
 {
 
-//! Function to create constant complex Love number list for a range of degrees and orders.
-std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
-        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder )
-{
-    // Define list of Love numbers
-    std::vector< std::vector< std::complex< double > > > fullLoveNumbersVector;
-    fullLoveNumbersVector.resize( maximumDegree - 1 );
-
-    // Iterate over all degrees and orders.
-    for( unsigned int i = 0; i <= static_cast< unsigned int >( maximumDegree ) - 2;i++ )
-    {
-        for( unsigned int j = 0; j <= ( i + 2 ); j++ )
-        {
-            // Set current Love numbers.
-            if( static_cast< int >( j ) <= maximumOrder  )
-            {
-                fullLoveNumbersVector[ i ].push_back( constantLoveNumber );
-            }
-            else
-            {
-                fullLoveNumbersVector[ i ].push_back( std::complex< double >( 0.0, 0.0 ) );
-            }
-        }
-    }
-
-    return fullLoveNumbersVector;
-}
-
-//! Function to create constant real Love number list for a range of degrees and orders.
-std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
-        const double constantLoveNumber, const int maximumDegree, const int maximumOrder )
-{
-    return getFullLoveNumbersVector( std::complex< double >( constantLoveNumber, 0.0 ), maximumDegree, maximumOrder );
-}
-
 //! Function to calculate solid body tide gravity field variation due to single body at single
 //! degree and order.
 std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
@@ -94,7 +59,7 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
 //! Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
 //! from perturbing body's Cartesian state.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-        const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
+        const std::map< int, std::vector< std::complex< double > > > loveNumbers, const double massRatio,
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree, const int maximumOrder )
 {
@@ -105,13 +70,14 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
     std::complex< double > currentCorrections;
 
     // Iterate over all requested degrees and orders
-    for( int n = 2; n <= maximumDegree; n++ )
+    for( auto loveNumberIt : loveNumbers )
     {
+        int n = loveNumberIt.first;
         for( int m = 0; ( m <= maximumOrder && m <= n ); m++ )
         {
             // Calculate and set corrections at current degree and order.
             currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                       loveNumbers.at( n - 2 ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
+                       loveNumbers.at( n ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
             cosineCorrections( n, m ) = currentCorrections.real( );
             if( m > 0 )
             {
@@ -190,16 +156,18 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
-    for( unsigned int n = 2; n < loveNumbers_.size( ) + 2; n++ )
+    for( auto loveNumberIt : loveNumbers_ )
     {
-        for( unsigned int m = 0; ( m <= n && m < loveNumbers_.at( n - 2 ).size( ) ); m++ )
+        int n = loveNumberIt.first;
+
+        for( int m = 0; ( m <= n && m < loveNumberIt.second.size( ) ); m++ )
         {
             updateTidalAmplitudeAndArgument( n, m );
 
             // Calculate and add coefficients.
             stokesCoefficientCorrection =
                     calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                        loveNumbers_[ n - 2 ][ m ], massRatio, radiusRatioPower, tideAmplitude,
+                        loveNumbers_[ n ][ m ], massRatio, radiusRatioPower, tideAmplitude,
                     tideArgument, n, m );
 
 
