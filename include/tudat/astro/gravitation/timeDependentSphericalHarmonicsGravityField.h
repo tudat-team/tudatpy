@@ -91,10 +91,11 @@ public:
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
             const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
-            const std::string& fixedReferenceFrame = "" ):
+            const std::string& fixedReferenceFrame = "",
+            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius,
-            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame ),
+            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame, updateInertiaTensor ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )

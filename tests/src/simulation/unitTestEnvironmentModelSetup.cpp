@@ -594,8 +594,10 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
     // Define settings for tidal variations.
     double loveNumber = 0.25;
-    std::vector< std::vector< std::complex< double > > > fullLoveNumberVector =
-            gravitation::getFullLoveNumbersVector( loveNumber, 3, 2 );
+    double loveNumberDegreeThree = 100.0;
+
+    std::map< int, std::vector< std::complex< double > > > fullLoveNumberVector =
+            getFullLoveNumbersVector( loveNumber, 3, 2 );
     double testTime = 0.5E7;
 
 
@@ -611,12 +613,10 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+                        deformingBodies, fullLoveNumberVector ) );
 
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
-        
 
         // Update states.
         bodies.at( "Earth" )->setStateFromEphemeris( testTime );
@@ -646,13 +646,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         deformingBodies.push_back( "Moon" );
         bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+                        deformingBodies, fullLoveNumberVector ) );
 
         deformingBodies.clear( );
         deformingBodies.push_back( "Sun" );
         bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+                        deformingBodies, fullLoveNumberVector ) );
 
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -684,7 +684,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         deformingBodies.push_back( "Sun" );
         bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
                     std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                        deformingBodies, fullLoveNumberVector, referenceRadius,
+                        deformingBodies, fullLoveNumberVector,
                         std::make_shared< ModelInterpolationSettings >(
                             0.25E7, 0.75E7, 600.0,
                             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
@@ -758,7 +758,139 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
             BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-18 );
         }
     }
+
+
+    //! Test combinations of factory functions, check if results are identical
+    std::vector< Eigen::MatrixXd > cosineCoefficientsFunctionTestDegreeTwo;
+    std::vector< Eigen::MatrixXd > sineCoefficientsFunctionTestDegreeTwo;
+
+    // Test for different factory functions
+    for( int functionTest = 0; functionTest < 4; functionTest++ )
+    {
+        std::vector< Eigen::MatrixXd > cosineCoefficientsBodyTest;
+        std::vector< Eigen::MatrixXd > sineCoefficientsBodyTest;
+
+        // Test for different degrees: TODO implement test
+        for( int degreeTest = 0; degreeTest < 3; degreeTest++ )
+        {
+            // Test for separate or joint deforming bodies
+            for( int bodyTest = 0; bodyTest < 3; bodyTest++ )
+            {
+                std::cout<<"Test: "<<functionTest<<" "<<bodyTest<<std::endl;
+
+                // Clear for current test
+                bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+
+                // Define deforming bodies (one or two)
+                std::vector< std::string > deformingBodies;
+                if( bodyTest == 0 || bodyTest == 2 )
+                { deformingBodies.push_back( "Moon" ); }
+                if( bodyTest == 1 || bodyTest == 2  )
+                { deformingBodies.push_back( "Sun" ); }
+
+                std::vector< int, double > loveNumbers;
+                if( degreeTest == 0 || degreeTest == 2 )
+                { loveNumbers[ 2 ] = loveNumber; }
+                else if( degreeTest == 1 || degreeTest == 2 )
+                { loveNumbers[ 3 ] = loveNumberDegreeThree; }
+
+                // Create settings for each deforming body
+                for( int i = 0; i < deformingBodies.size( ); i++ )
+                {
+                    if( functionTest == 0 )
+                    {
+                        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                    fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                        deformingBodies.at( i ), loveNumber, 2 ) );
+                    }
+                    else if( functionTest == 1 )
+                    {
+                        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                    fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                        deformingBodies.at( i ), std::complex< double >( loveNumber, 0.0 ), 2 ) );
+                    }
+                    else if( functionTest == 2 )
+                    {
+                        std::map< int, double > loveNumberMap;
+                        loveNumberMap[ 2 ] = 0.25;
+                        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                    fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                        deformingBodies.at( i ), loveNumberMap ) );
+                    }
+                    else if( functionTest == 3 )
+                    {
+                        std::map< int, std::complex< double > > loveNumberMap;
+                        loveNumberMap[ 2 ] = std::complex< double >( loveNumber, 0.0 );
+                        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                    fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                        deformingBodies.at( i ), loveNumberMap ) );
+                    }
+                }
+
+                // Create bodies
+                SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+                // Update states.
+                bodies.at( "Earth" )->setStateFromEphemeris( testTime );
+                bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+                bodies.at( "Sun" )->setStateFromEphemeris( testTime );
+                bodies.at( "Moon" )->setStateFromEphemeris( testTime );
+
+                // Update gravity field
+                std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                        std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                            bodies.at( "Earth" )->getGravityFieldModel( ) );
+                earthGravityField->update( testTime );
+
+                // Retrieve corrections.
+                cosineCoefficientsBodyTest.push_back(
+                            earthGravityField->getCosineCoefficients( ) - cosineCoefficients );
+                sineCoefficientsBodyTest.push_back(
+                            earthGravityField->getSineCoefficients( ) - sineCoefficients );
+            }
+        }
+
+        // Test whether corrections from separate bodies, or two bodies together, give identical results
+        Eigen::MatrixXd cosineDegreeTwoBodyDifference =
+                cosineCoefficientsBodyTest.at( 2 ) -
+                cosineCoefficientsBodyTest.at( 1 ) - cosineCoefficientsBodyTest.at( 0 );
+        Eigen::MatrixXd sineDegreeTwoBodyDifference =
+                sineCoefficientsBodyTest.at( 2 ) -
+                sineCoefficientsBodyTest.at( 1 ) - sineCoefficientsBodyTest.at( 0 );
+
+        for( unsigned int n = 2; n <= 2; n++ )
+        {
+            for( unsigned m = 0; m <=2; m++ )
+            {
+                BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+            }
+        }
+
+        // Check different function types for two-body case (most complex)
+        cosineCoefficientsFunctionTestDegreeTwo.push_back( cosineCoefficientsBodyTest.at( 2 ) );
+        sineCoefficientsFunctionTestDegreeTwo.push_back( sineCoefficientsBodyTest.at( 2 ) );
+        if( functionTest != 0 )
+        {
+            // Check if the four constant love number interfaces are the same
+            Eigen::MatrixXd cosineDegreeTwoBodyDifference =
+                    cosineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - cosineCoefficientsFunctionTestDegreeTwo.at( 0 );
+            Eigen::MatrixXd sineDegreeTwoBodyDifference =
+                    sineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - sineCoefficientsFunctionTestDegreeTwo.at( 0 );
+
+            for( unsigned int n = 2; n <= 2; n++ )
+            {
+                for( unsigned m = 0; m <=2; m++ )
+                {
+                    BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                    BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                }
+            }
+        }
+    }
+
 }
+
 
 
 
@@ -965,7 +1097,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 
     vehicleRadiationPressureInterface->updateInterface( testTime );
     double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-            segment( 0, 3 ) ).norm( );
+                              segment( 0, 3 ) ).norm( );
     double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
                 defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
 
@@ -1029,7 +1161,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Define body settings/
     BodyListSettings bodySettings;
     bodySettings.addSettings( getDefaultSingleBodySettings(
-                "Earth", 0.0, 1.0E7 ), "Earth" );
+                                  "Earth", 0.0, 1.0E7 ), "Earth" );
     bodySettings.addSettings( "Vehicle" );
     bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
@@ -1054,10 +1186,10 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Create flight conditions object.
     std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodies.at( "Vehicle" ), bodies.at( "Earth" ),
-                                    "Vehicle", "Earth",
-                                    [ & ]( ){ return angleOfAttack; },
-                                    [ & ]( ){ return angleOfSideslip; },
-                                    [ & ]( ){ return bankAngle; } );
+                                               "Vehicle", "Earth",
+                                               [ & ]( ){ return angleOfAttack; },
+    [ & ]( ){ return angleOfSideslip; },
+    [ & ]( ){ return bankAngle; } );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =
@@ -1070,7 +1202,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
             ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
                 bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
-            bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
+                bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
     bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
     bodies.at( "Vehicle" )->setState( vehicleInertialState );
     bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
@@ -1205,7 +1337,7 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     // Compute expected radiation pressure.
     vehicleRadiationPressureInterface->updateInterface( testTime );
     double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-            segment( 0, 3 ) ).norm( );
+                              segment( 0, 3 ) ).norm( );
 
     double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
                 defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
@@ -1220,13 +1352,13 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
     for ( int i = 0 ; i < 3 ; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )( )[ i ] -
-                           bodies.at( "Earth" )->getState()[ i + 3 ] ), 1.0E-15 );
+                                      bodies.at( "Earth" )->getState()[ i + 3 ] ), 1.0E-15 );
 
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentVelocityVector( )[ i ] -
-                           ( bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
+                                      ( bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
 
         BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentSolarVector( )[ i ] -
-                           ( - bodies.at( "Vehicle" )->getState( ) + bodies.at( "Sun" )->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
+                                      ( - bodies.at( "Vehicle" )->getState( ) + bodies.at( "Sun" )->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
 
     }
 
@@ -1378,7 +1510,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
     // Compute expected radiation pressure.
     vehicleRadiationPressureInterface->updateInterface( testTime );
     double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-            segment( 0, 3 ) ).norm( );
+                              segment( 0, 3 ) ).norm( );
 
     double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
                 defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
