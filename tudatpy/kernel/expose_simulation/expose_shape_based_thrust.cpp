@@ -16,6 +16,7 @@
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
@@ -52,19 +53,19 @@ void expose_shape_based_thrust(py::module &m)
                   py::arg("body_to_propagate"),
                   py::arg("specific_impulse_function") = nullptr,
                   py::arg("integrator_settings" ) = nullptr,
-                  py::arg("time_offset" ) = 0.0 );
+                  py::arg("time_offset" ) = 0.0 )
+            .def( "compute_delta_v",
+                  &tltt::LowThrustLeg::computeDeltaV );
 
     py::class_<
             tsbm::ShapeBasedMethod,
-            std::shared_ptr<tsbm::ShapeBasedMethod>
-            ,
+            std::shared_ptr<tsbm::ShapeBasedMethod>,
             tltt::LowThrustLeg
             >(m, "ShapeBasedMethod");
 
     py::class_<
             tsbm::HodographicShaping,
-            std::shared_ptr<tsbm::HodographicShaping>
-            ,
+            std::shared_ptr<tsbm::HodographicShaping>,
             tsbm::ShapeBasedMethod
             >(m, "HodographicShaping")
             .def(py::init<
@@ -94,6 +95,10 @@ void expose_shape_based_thrust(py::module &m)
                  py::arg("initial_mass") = TUDAT_NAN
             );
 
+    py::class_<
+            tsbm::BaseFunctionHodographicShaping,
+            std::shared_ptr<tsbm::BaseFunctionHodographicShaping>
+            >(m, "BaseFunctionHodographicShaping");
 
     m.def("recommended_radial_hodograph_functions",
           py::overload_cast< const double >(
