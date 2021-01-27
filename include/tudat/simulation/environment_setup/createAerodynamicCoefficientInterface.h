@@ -845,6 +845,45 @@ private:
 
 };
 
+// 1-dimensional case
+inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
+		const std::vector< double > independentVariables,
+		const std::vector< Eigen::Vector3d > forceCoefficients,
+		const std::vector< Eigen::Vector3d > momentCoefficients,
+		const double referenceLength,
+		const double referenceArea,
+		const double lateralReferenceLength,
+		const Eigen::Vector3d& momentReferencePoint,
+		const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
+		const bool areCoefficientsInAerodynamicFrame = true,
+		const bool areCoefficientsInNegativeAxisDirection = true,
+		const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
+		)
+{
+	return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+			independentVariables, forceCoefficients, momentCoefficients, referenceLength,
+			referenceArea, lateralReferenceLength, momentReferencePoint, independentVariableName,
+			areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
+			interpolatorSettings );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulatedAerodynamicCoefficientSettings(
+		const std::vector< double > independentVariables,
+		const std::vector< Eigen::Vector3d > forceCoefficients,
+		const double referenceArea,
+		const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
+		const bool areCoefficientsInAerodynamicFrame = true,
+		const bool areCoefficientsInNegativeAxisDirection = true,
+		const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
+		)
+{
+	return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+			independentVariables, forceCoefficients, referenceArea, independentVariableName,
+			areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection,
+			interpolatorSettings );
+}
+
+
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
  *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for

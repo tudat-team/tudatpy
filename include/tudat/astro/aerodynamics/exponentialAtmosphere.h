@@ -163,6 +163,15 @@ public:
     double getPressure( const double altitude, const double longitude = 0.0,
                         const double latitude = 0.0, const double time = 0.0 )
     {
+        if( constantTemperature_ != constantTemperature_ )
+        {
+            throw std::runtime_error( "Error, exponential atmosphere temperature not defined" );
+        }
+
+        if( specificGasConstant_ != specificGasConstant_ )
+        {
+            throw std::runtime_error( "Error, exponential atmosphere specific gas constant not defined" );
+        }
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
@@ -185,6 +194,10 @@ public:
     double getTemperature( const double altitude, const double longitude = 0.0,
                            const double latitude = 0.0, const double time = 0.0 )
     {
+        if( constantTemperature_ != constantTemperature_ )
+        {
+            throw std::runtime_error( "Error, exponential atmosphere temperature not defined" );
+        }
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -207,6 +220,16 @@ public:
     double getSpeedOfSound( const double altitude, const double longitude = 0.0,
                             const double latitude = 0.0, const double time = 0.0 )
     {
+        if( specificGasConstant_ != specificGasConstant_ )
+        {
+            throw std::runtime_error( "Error, exponential atmosphere specific gas constant not defined" );
+        }
+
+        if( ratioOfSpecificHeats_ != ratioOfSpecificHeats_ )
+        {
+            throw std::runtime_error( "Error, exponential atmosphere ratio of specific heats not defined" );
+        }
+
         return computeSpeedOfSound(
                     getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
                     specificGasConstant_ );

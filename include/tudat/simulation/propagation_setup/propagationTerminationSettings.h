@@ -270,6 +270,23 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVar
                 terminationRootFinderSettings );
 }
 
+inline std::shared_ptr< PropagationTerminationSettings > propagationTimeTerminationSettings(
+        const double terminationTime,
+        const bool terminateExactlyOnFinalCondition = false  )
+{
+    return std::make_shared< PropagationTimeTerminationSettings >(
+                terminationTime, terminateExactlyOnFinalCondition );
+}
+
+inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTerminationSettings(
+        const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
+        const bool fulfillSingleCondition = false )
+{
+    return std::make_shared< PropagationHybridTerminationSettings >(
+                terminationSettings, fulfillSingleCondition );
+}
+
+
 } // namespace propagators
 
 } // namespace tudat
