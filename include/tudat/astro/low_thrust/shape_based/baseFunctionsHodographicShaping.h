@@ -522,6 +522,84 @@ private:
     double scaleFactor_;
 };
 
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographConstant( )
+{
+    return std::make_shared< ConstantFunctionHodographicShaping >( );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographSine(  double frequency )
+{
+    return std::make_shared< SineFunctionHodographicShaping >( frequency );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographCosine(  double frequency )
+{
+    return std::make_shared< CosineFunctionHodographicShaping >( frequency );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponential(  double exponent )
+{
+    return std::make_shared< ExponentialFunctionHodographicShaping >( exponent );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponential(  double exponent, double scaleFactor )
+{
+    return std::make_shared< ScaledExponentialFunctionHodographicShaping >( exponent, scaleFactor );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponentialSine(  double exponentExponentialFunction, double frequencySineFunction )
+{
+    return std::make_shared< ExponentialSineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponentialSine(  double exponentExponentialFunction, double frequencySineFunction, double scaleFactor )
+{
+    return std::make_shared< ScaledExponentialSineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction, scaleFactor );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponentialCosine(  double exponentExponentialFunction, double frequencySineFunction )
+{
+    return std::make_shared< ExponentialCosineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponentialCosine(  double exponentExponentialFunction, double frequencyCosineFunction, double scaleFactor )
+{
+    return std::make_shared< ScaledExponentialCosineFunctionHodographicShaping >( exponentExponentialFunction, frequencyCosineFunction, scaleFactor );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPower( double exponent )
+{
+    return std::make_shared< PowerFunctionHodographicShaping >( exponent );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPower( double exponent, double scaleFactor )
+{
+    return std::make_shared< ScaledPowerFunctionHodographicShaping >( exponent, scaleFactor );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerSine(
+        double exponentPowerFunction, double frequencySineFunction )
+{
+    return std::make_shared< PowerSineFunctionHodographicShaping >( exponentPowerFunction, frequencySineFunction );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerSine(
+        double exponentPowerFunction, double frequencySineFunction, double scaleFactor )
+{
+    return std::make_shared< ScaledPowerSineFunctionHodographicShaping >( exponentPowerFunction, frequencySineFunction, scaleFactor );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerCosine(
+        double exponentPowerFunction, double frequencyCosineFunction )
+{
+    return std::make_shared< PowerCosineFunctionHodographicShaping >( exponentPowerFunction, frequencyCosineFunction );
+}
+
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerCosine(
+        double exponentPowerFunction, double frequencyCosineFunction, double scaleFactor )
+{
+    return std::make_shared< ScaledPowerCosineFunctionHodographicShaping >( exponentPowerFunction, frequencyCosineFunction, scaleFactor );
+}
 
 } // namespace shape_based_methods
 } // namespace tudat
