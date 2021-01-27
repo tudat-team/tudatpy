@@ -275,6 +275,27 @@ createAerodynamicCoefficientInterface(
         }
         break;
     }
+    case scaled_coefficients:
+    {
+        // Check consistency of type and class.
+        std::shared_ptr< ScaledAerodynamicCoefficientInterfaceSettings > scaledCoefficientSettings =
+                std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterfaceSettings >(
+                    coefficientSettings );
+        if( scaledCoefficientSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected scaled aerodynamic coefficient settings for body " + body );
+        }
+        else
+        {
+            std::shared_ptr< AerodynamicCoefficientInterface > baseInterface = createAerodynamicCoefficientInterface(
+                        scaledCoefficientSettings->getBaseSettings( ), body );
+            coefficientInterface = std::make_shared< ScaledAerodynamicCoefficientInterface >(
+                        baseInterface, scaledCoefficientSettings->getForceScaling( ),
+                        scaledCoefficientSettings->getMomentScaling( ), scaledCoefficientSettings->getIsScalingAbsolute( ) );
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
