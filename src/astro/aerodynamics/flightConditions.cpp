@@ -52,6 +52,7 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
 //! Function to update all flight conditions.
 void FlightConditions::updateConditions( const double currentTime )
 {
+
     if( !( currentTime == currentTime_ ) )
     {
         currentTime_ = currentTime;

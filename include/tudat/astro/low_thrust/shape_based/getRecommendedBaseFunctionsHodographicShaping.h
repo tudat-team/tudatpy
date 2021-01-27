@@ -43,7 +43,7 @@ void getRecommendedRadialVelocityBaseFunctions(
         Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
         const double timeOfFlight );
 
-void getRecommendedNormalAxialBaseFunctions(
+void getRecommendedNormalBaseFunctions(
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
         Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
         const double timeOfFlight );
@@ -53,6 +53,18 @@ void getRecommendedAxialVelocityBaseFunctions(
         Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
         const double timeOfFlight,
         const int numberOfRevolutions );
+
+
+std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > getRecommendedRadialVelocityBaseFunctions(
+        const double timeOfFlight );
+
+std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > getRecommendedNormalBaseFunctions(
+        const double timeOfFlight );
+
+std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > getRecommendedAxialVelocityBaseFunctions(
+        const double timeOfFlight,
+        const int numberOfRevolutions );
+
 } // namespace shape_based_methods
 } // namespace tudat
 

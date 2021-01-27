@@ -75,6 +75,22 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory ) = 0;
 
+
+    std::map< double, Eigen::Vector6d > getTrajectory(
+            std::vector< double >& epochsVector )
+    {
+       std::map< double, Eigen::Vector6d > propagatedTrajectory;
+       getTrajectory( epochsVector, propagatedTrajectory );
+       return propagatedTrajectory;
+    }
+
+    Eigen::Vector6d getStateAtEpoch(
+            double epoch )
+    {
+        std::vector< double > epochs = { epoch };
+        return getTrajectory( epochs ).begin( )->second;
+    }
+
     //! Compute current mass of the spacecraft.
     double computeCurrentMass( const double independentVariable,
                                std::function< double ( const double ) > specificImpulseFunction,
@@ -133,6 +149,16 @@ public:
             std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
             std::function< double ( const double ) > specificImpulseFunction,
             std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+
+    std::map< double, Eigen::VectorXd > getThrustAccelerationProfile(
+            std::vector< double >& epochsVector,
+            std::function< double ( const double ) > specificImpulseFunction,
+            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+    {
+        std::map< double, Eigen::VectorXd > thrustProfile;
+        getThrustAccelerationProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+        return thrustProfile;
+    }
 
 
     //! Compute total deltaV.
