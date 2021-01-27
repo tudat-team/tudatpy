@@ -23,7 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
-{  
+{
 namespace basic_astrodynamics
 {
 

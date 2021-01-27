@@ -183,8 +183,47 @@ protected:
 
 };
 
+class ScaledEphemeris: public Ephemeris
+{
+public:
+    ScaledEphemeris(
+            const std::shared_ptr< Ephemeris > baseEphemeris,
+            const std::function< Eigen::Vector6d( const double ) > stateScalingFunction,
+            const bool isScalingAbsolute = true ):
+        Ephemeris( baseEphemeris->getReferenceFrameOrigin( ), baseEphemeris->getReferenceFrameOrientation( ) ),
+    baseEphemeris_( baseEphemeris ),
+    stateScalingFunction_( stateScalingFunction ),
+    isScalingAbsolute_( isScalingAbsolute ){ }
+
+    Eigen::Vector6d getCartesianState(
+            const double secondsSinceEpoch  )
+    {
+        Eigen::Vector6d currentState = baseEphemeris_->getCartesianState( secondsSinceEpoch );
+        Eigen::Vector6d stateScaling = stateScalingFunction_( secondsSinceEpoch );
+        if( !isScalingAbsolute_ )
+        {
+            currentState.array( ) *= stateScaling.array( );
+        }
+        else
+        {
+           currentState +=  stateScaling;
+        }
+        return currentState;
+    }
+
+private:
+
+    std::shared_ptr< Ephemeris > baseEphemeris_;
+
+    std::function< Eigen::Vector6d( const double ) > stateScalingFunction_;
+
+    bool isScalingAbsolute_;
+};
+
+
 //! Typedef for shared-pointer to Ephemeris object.
 typedef std::shared_ptr< Ephemeris > EphemerisPointer;
+
 
 //! Function to compute the relative state from two state functions.
 /*!

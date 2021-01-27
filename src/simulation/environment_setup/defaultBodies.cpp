@@ -46,9 +46,14 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const std::string baseFrameOrientation )
 {
+    std::string bodyNameToUse = bodyName;
+    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    {
+        bodyNameToUse += "_BARYCENTER";
+    }
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< DirectSpiceEphemerisSettings >(
-                "SSB", baseFrameOrientation, false, false, false );
+                "SSB", baseFrameOrientation, bodyNameToUse );
 }
 
 //! Function to create default settings for a body's ephemeris.
@@ -59,9 +64,15 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string baseFrameOrientation,
         const double timeStep )
 {
+    std::string bodyNameToUse = bodyName;
+    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    {
+        bodyNameToUse += "_BARYCENTER";
+    }
     // Create settings for an interpolated Spice ephemeris.
     return std::make_shared< InterpolatedSpiceEphemerisSettings >(
-                initialTime, finalTime, timeStep, "SSB", baseFrameOrientation );
+                initialTime, finalTime, timeStep, "SSB", baseFrameOrientation,
+                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), bodyNameToUse );
 
 }
 

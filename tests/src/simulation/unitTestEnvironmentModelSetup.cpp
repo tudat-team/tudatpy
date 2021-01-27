@@ -67,7 +67,6 @@ BOOST_AUTO_TEST_SUITE( test_environment_model_setup )
 //! Test set up of atmosphere environment models.
 BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 {
-
     // Create settings for tabulated atmosphere.
     std::string atmosphereTableFile =
             tudat::paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
@@ -207,6 +206,53 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                     ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
+
+    {
+        // Create scaled spice ephemeris.
+        std::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                std::make_shared< DirectSpiceEphemerisSettings >( "Earth", "J2000" );
+
+        Eigen::Vector6d absoluteScaling = ( Eigen::Vector6d( ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 ).finished( );
+        std::shared_ptr< EphemerisSettings > scaledEphemerisSettings =
+                std::make_shared< ScaledEphemerisSettings >( spiceEphemerisSettings, absoluteScaling, true );
+        std::shared_ptr< ephemerides::Ephemeris > scaledSpiceEphemeris =
+                createBodyEphemeris( scaledEphemerisSettings, "Moon" );
+
+        // Compare spice ephemeris against direct spice state.
+        Eigen::Vector6d spiceState = spice_interface::getBodyCartesianStateAtEpoch(
+                    "Moon", "Earth", "J2000", "None", 1.0E7 );
+        Eigen::Vector6d scaledState = scaledSpiceEphemeris->getCartesianState( 1.0E7 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( spiceState + absoluteScaling ),
+                    ( scaledState ),
+                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create scaled spice ephemeris.
+        std::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                std::make_shared< DirectSpiceEphemerisSettings >( "Earth", "J2000" );
+
+        Eigen::Vector6d absoluteScaling = ( Eigen::Vector6d( ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 ).finished( );
+        std::shared_ptr< EphemerisSettings > scaledEphemerisSettings =
+                std::make_shared< ScaledEphemerisSettings >( spiceEphemerisSettings, absoluteScaling, false );
+        std::shared_ptr< ephemerides::Ephemeris > scaledSpiceEphemeris =
+                createBodyEphemeris( scaledEphemerisSettings, "Moon" );
+
+        // Compare spice ephemeris against direct spice state.
+        Eigen::Vector6d spiceState = spice_interface::getBodyCartesianStateAtEpoch(
+                    "Moon", "Earth", "J2000", "None", 1.0E7 );
+        Eigen::Vector6d scaledState = scaledSpiceEphemeris->getCartesianState( 1.0E7 );
+
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( scaledState.cwiseQuotient( spiceState ) ),
+                    ( absoluteScaling ),
+                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+
 
     {
         // Create custom ephemeris

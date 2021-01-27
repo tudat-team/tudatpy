@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "tudat/io/matrixTextFileReader.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tleEphemeris.h"
@@ -45,7 +46,8 @@ enum EphemerisType
     kepler_ephemeris,
     custom_ephemeris,
     direct_tle_ephemeris,
-    interpolated_tle_ephemeris
+    interpolated_tle_ephemeris,
+    scaled_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -156,6 +158,57 @@ protected:
     bool makeMultiArcEphemeris_;
 };
 
+
+class ScaledEphemerisSettings: public EphemerisSettings
+{
+public:
+
+    ScaledEphemerisSettings(
+            const std::shared_ptr< EphemerisSettings > baseSettings,
+            const double scaling,
+            const bool isScalingAbsolute ):
+        EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
+        baseSettings_( baseSettings ), scaling_( [=]( const double ){ return Eigen::Vector6d::Constant( scaling ); } ), isScalingAbsolute_( isScalingAbsolute ){ }
+
+
+    ScaledEphemerisSettings(
+            const std::shared_ptr< EphemerisSettings > baseSettings,
+            const Eigen::Vector6d scaling,
+            const bool isScalingAbsolute ):
+        EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
+        baseSettings_( baseSettings ), scaling_( [=]( const double ){ return scaling; } ), isScalingAbsolute_( isScalingAbsolute ){ }
+
+    ScaledEphemerisSettings(
+            const std::shared_ptr< EphemerisSettings > baseSettings,
+            const std::function< Eigen::Vector6d( const double ) > scaling,
+            const bool isScalingAbsolute ):
+        EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
+    baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute ){ }
+
+    std::shared_ptr< EphemerisSettings > getBaseSettings( )
+    {
+        return baseSettings_;
+    }
+
+    std::function< Eigen::Vector6d( const double ) > getScaling( )
+    {
+        return scaling_;
+    }
+
+    bool getIsScalingAbsolute( )
+    {
+        return isScalingAbsolute_;
+    }
+
+protected:
+
+    std::shared_ptr< EphemerisSettings > baseSettings_;
+
+    std::function< Eigen::Vector6d( const double ) > scaling_;
+
+    bool isScalingAbsolute_;
+};
+
 //! EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.
 class DirectSpiceEphemerisSettings: public EphemerisSettings
 {
@@ -187,7 +240,18 @@ public:
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ),
         correctForStellarAberration_( correctForStellarAberration ),
         correctForLightTimeAberration_( correctForLightTimeAberration ),
-        convergeLighTimeAberration_( convergeLighTimeAberration ){ }
+        convergeLighTimeAberration_( convergeLighTimeAberration ),
+        bodyNameOverride_( "" ){ }
+
+    DirectSpiceEphemerisSettings( const std::string frameOrigin,
+                                  const std::string frameOrientation,
+                                  const std::string bodyNameOverride,
+                                  const EphemerisType ephemerisType = direct_spice_ephemeris ):
+        EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ),
+        correctForStellarAberration_( false ),
+        correctForLightTimeAberration_( false ),
+        convergeLighTimeAberration_( false ),
+        bodyNameOverride_( bodyNameOverride ){ }
 
 
     //! Destructor
@@ -216,6 +280,9 @@ public:
      *  calculating light time.
      */
     bool getConvergeLighTimeAberration( ){ return convergeLighTimeAberration_; }
+
+    std::string getBodyNameOverride( ){ return bodyNameOverride_; }
+
 protected:
 
     //! Boolean whether to correct for stellar aberration in retrieved values of (observed state).
@@ -226,6 +293,8 @@ protected:
 
     //! Boolean whether to use single iteration or max. 3 iterations for calculating light time.
     bool convergeLighTimeAberration_;
+
+    std::string bodyNameOverride_;
 };
 
 //! EphemerisSettings derived class for defining settings of a ephemeris interpolated from Spice
@@ -260,8 +329,9 @@ public:
                                         std::string frameOrigin = "SSB",
                                         std::string frameOrientation = "ECLIPJ2000",
                                         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
-        DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ),
+                                        const std::string bodyNameOverride = "" ):
+        DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, bodyNameOverride,
                                       interpolated_spice ),
         initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
         interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( 0 ){ }
@@ -801,16 +871,36 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromTLE(
 
 inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
         const Eigen::Vector6d& initialStateInKeplerianElements,
-                         const double epochOfInitialState,
-                         const double centralBodyGravitationalParameter,
-                         const std::string& referenceFrameOrigin = "SSB",
-                         const std::string& referenceFrameOrientation = "ECLIPJ2000",
-                         const double rootFinderAbsoluteTolerance =
+        const double epochOfInitialState,
+        const double centralBodyGravitationalParameter,
+        const std::string& referenceFrameOrigin = "SSB",
+        const std::string& referenceFrameOrientation = "ECLIPJ2000",
+        const double rootFinderAbsoluteTolerance =
         200.0 * std::numeric_limits< double >::epsilon( ),
-                         const double rootFinderMaximumNumberOfIterations = 1000.0 )
+        const double rootFinderMaximumNumberOfIterations = 1000.0 )
 {
     return std::make_shared< KeplerEphemerisSettings >(
                 initialStateInKeplerianElements, epochOfInitialState, centralBodyGravitationalParameter,
+                referenceFrameOrigin, referenceFrameOrientation, rootFinderAbsoluteTolerance,
+                rootFinderMaximumNumberOfIterations );
+}
+
+inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
+        const std::string body,
+        const double epochOfInitialState,
+        const double centralBodyGravitationalParameter,
+        const std::string& referenceFrameOrigin = "SSB",
+        const std::string& referenceFrameOrientation = "ECLIPJ2000",
+        const double rootFinderAbsoluteTolerance =
+        200.0 * std::numeric_limits< double >::epsilon( ),
+        const double rootFinderMaximumNumberOfIterations = 1000.0 )
+{
+    Eigen::Vector6d initialCartesianState = spice_interface::getBodyCartesianStateAtEpoch(
+                body, referenceFrameOrigin, referenceFrameOrientation, "None", epochOfInitialState );
+    Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+                initialCartesianState, centralBodyGravitationalParameter );
+    return std::make_shared< KeplerEphemerisSettings >(
+                initialKeplerianState, epochOfInitialState, centralBodyGravitationalParameter,
                 referenceFrameOrigin, referenceFrameOrientation, rootFinderAbsoluteTolerance,
                 rootFinderMaximumNumberOfIterations );
 }
@@ -829,12 +919,20 @@ inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
 		const std::string frameOrientation = "ECLIPJ2000",
 		const bool correctForStellarAberration = false,
 		const bool correctForLightTimeAberration = false,
-		const bool convergeLightTimeAberration = false,
-		const EphemerisType ephemerisType = direct_spice_ephemeris )
+        const bool convergeLightTimeAberration = false )
 {
 	return std::make_shared< DirectSpiceEphemerisSettings >(
 			frameOrigin, frameOrientation, correctForStellarAberration,
-			correctForLightTimeAberration, convergeLightTimeAberration, ephemerisType );
+            correctForLightTimeAberration, convergeLightTimeAberration );
+}
+
+inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
+        const std::string frameOrigin = "SSB",
+        const std::string frameOrientation = "ECLIPJ2000",
+        const std::string bodyNameOverride = "" )
+{
+    return std::make_shared< DirectSpiceEphemerisSettings >(
+            frameOrigin, frameOrientation, bodyNameOverride);
 }
 
 inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
@@ -844,10 +942,11 @@ inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
 		std::string frameOrigin = "SSB",
 		std::string frameOrientation = "ECLIPJ2000",
 		std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-		std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ),
+        const std::string bodyNameOverride = "" )
 {
 	return std::make_shared< InterpolatedSpiceEphemerisSettings >(
-			initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings );
+            initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings, bodyNameOverride );
 }
 
 inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
@@ -896,6 +995,30 @@ inline std::shared_ptr< EphemerisSettings > interpolatedTleEphemerisSettings(
 	return std::make_shared< InterpolatedTleEphemerisSettings >(
 			initialTime, finalTime, timeStep, tle, interpolatorSettings, useLongDoubleStates,
 			frameOrigin, frameOrientation );
+}
+
+inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
+        const std::shared_ptr< EphemerisSettings > baseSettings,
+        const double scaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
+}
+
+inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
+        const std::shared_ptr< EphemerisSettings > baseSettings,
+        const Eigen::Vector6d scaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
+}
+
+inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
+        const std::shared_ptr< EphemerisSettings > baseSettings,
+        const std::function< Eigen::Vector6d( const double ) > scaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
 
