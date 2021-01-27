@@ -849,6 +849,19 @@ void convertUnnormalizedToGeodesyNormalizedCoefficients(
     }
 }
 
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > convertUnnormalizedToGeodesyNormalizedCoefficients(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients )
+{
+    Eigen::MatrixXd normalizedCosineCoefficients;
+    Eigen::MatrixXd normalizedSineCoefficients;
+    convertUnnormalizedToGeodesyNormalizedCoefficients(
+                unnormalizedCosineCoefficients, unnormalizedSineCoefficients,
+                normalizedCosineCoefficients, normalizedSineCoefficients );
+    return std::make_pair( normalizedCosineCoefficients, normalizedSineCoefficients );
+
+}
+
 //! Function to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients
 void convertGeodesyNormalizedToUnnormalizedCoefficients(
         const Eigen::MatrixXd& normalizedCosineCoefficients,
@@ -872,6 +885,19 @@ void convertGeodesyNormalizedToUnnormalizedCoefficients(
                     normalizationFactor;
         }
     }
+}
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > convertGeodesyNormalizedToUnnormalizedCoefficients(
+        const Eigen::MatrixXd& normalizedCosineCoefficients,
+        const Eigen::MatrixXd& normalizedSineCoefficients )
+{
+    Eigen::MatrixXd unnormalizedCosineCoefficients;
+    Eigen::MatrixXd unnormalizedSineCoefficients;
+    convertUnnormalizedToGeodesyNormalizedCoefficients(
+                normalizedCosineCoefficients, normalizedSineCoefficients,
+                unnormalizedCosineCoefficients, unnormalizedSineCoefficients );
+    return std::make_pair( normalizedCosineCoefficients, normalizedSineCoefficients );
+
 }
 
 //! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients

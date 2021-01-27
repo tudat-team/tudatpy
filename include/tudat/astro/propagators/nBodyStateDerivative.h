@@ -388,9 +388,13 @@ protected:
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
                     // Calculate acceleration and add to state derivative.
+                    std::cout<<"Pre-move "<<innerAccelerationIterator->second[ j ]->getAcceleration( ).transpose( )<<std::endl;
                     innerAccelerationIterator->second[ j ]->getAccelerationByReference( currentAccelerationComponent_ );
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += currentAccelerationComponent_.
                             template cast< StateScalarType >( );
+                    std::cout<<"Post-move "<<currentAccelerationComponent_.transpose( )<<std::endl;
+                    std::cout<<"Post-move "<<innerAccelerationIterator->second[ j ]->getAcceleration( ).transpose( )<<std::endl<<std::endl;
+
                 }
             }
 

@@ -17,6 +17,8 @@
 #include <memory>
 #include <functional>
 
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+
 namespace tudat
 {
 namespace aerodynamics
@@ -32,7 +34,18 @@ class WindModel
 public:
 
     //! Constructor.
-    WindModel( ){ }
+    WindModel( const reference_frames::AerodynamicsReferenceFrames associatedFrame =
+            reference_frames::vertical_frame ):
+        associatedFrame_( associatedFrame )
+    {
+        if( !( associatedFrame == reference_frames::inertial_frame ||
+               associatedFrame == reference_frames::corotating_frame ||
+               associatedFrame == reference_frames::vertical_frame ) )
+        {
+            throw std::runtime_error(
+                        "Error when creating wind model, definition must be in inertial, corotating or vertical frame" );
+        }
+    }
 
     //! Destructor.
     virtual  ~WindModel( ){ }
@@ -46,11 +59,42 @@ public:
      * \param currentTime Time at which wind vector is to be retrieved.
      * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
      */
-    virtual Eigen::Vector3d getCurrentWindVelocity(
+    virtual Eigen::Vector3d getCurrentBodyFixedCartesianWindVelocity(
             const double currentAltitude,
             const double currentLongitude,
             const double currentLatitude,
             const double currentTime ) = 0;
+
+    reference_frames::AerodynamicsReferenceFrames getAssociatedFrame( )
+    {
+        return associatedFrame_;
+    }
+
+protected:
+
+    reference_frames::AerodynamicsReferenceFrames associatedFrame_;
+};
+
+class ConstantWindModel: public WindModel
+{
+public:
+    ConstantWindModel(
+            const Eigen::Vector3d constantWindVelocity,
+            const reference_frames::AerodynamicsReferenceFrames associatedFrame =
+            reference_frames::vertical_frame ):
+        WindModel( associatedFrame ), constantWindVelocity_( constantWindVelocity ){ }
+
+    Eigen::Vector3d getCurrentBodyFixedCartesianWindVelocity(
+            const double currentAltitude,
+            const double currentLongitude,
+            const double currentLatitude,
+            const double currentTime )
+    {
+        return constantWindVelocity_;
+    }
+
+private:
+    Eigen::Vector3d constantWindVelocity_;
 };
 
 //! Class for computing the wind velocity vector from a custom, user-defined function.
@@ -65,8 +109,10 @@ public:
      * order).
      */
     CustomWindModel(
-            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
-    windFunction_( windFunction ){ }
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
+            const reference_frames::AerodynamicsReferenceFrames associatedFrame =
+            reference_frames::vertical_frame ):
+        WindModel( associatedFrame ), windFunction_( windFunction ){ }
 
     //! Destructor
     ~CustomWindModel( ){ }
@@ -80,7 +126,7 @@ public:
      * \param currentTime Time at which wind vector is to be retrieved.
      * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
      */
-    Eigen::Vector3d getCurrentWindVelocity(
+    Eigen::Vector3d getCurrentBodyFixedCartesianWindVelocity(
             const double currentAltitude,
             const double currentLongitude,
             const double currentLatitude,

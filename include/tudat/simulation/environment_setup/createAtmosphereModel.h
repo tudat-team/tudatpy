@@ -38,6 +38,7 @@ using namespace aerodynamics;
  */
 enum WindModelTypes
 {
+    constant_wind_model,
     custom_wind_model
 };
 
@@ -57,8 +58,10 @@ public:
      * Constructor
      * \param windModelType Type of wind model that is to be created
      */
-    WindModelSettings( const WindModelTypes windModelType ):
-        windModelType_( windModelType ){ }
+    WindModelSettings(
+            const WindModelTypes windModelType,
+            const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
+        windModelType_( windModelType ), associatedFrame_( associatedFrame ){ }
 
     //! Destructor
     virtual ~WindModelSettings( ){ }
@@ -73,10 +76,39 @@ public:
         return windModelType_;
     }
 
+    reference_frames::AerodynamicsReferenceFrames getAssociatedFrame( )
+    {
+        return associatedFrame_;
+    }
+
+
 protected:
 
     //! Type of wind model that is to be created
     WindModelTypes windModelType_;
+
+    reference_frames::AerodynamicsReferenceFrames associatedFrame_;
+
+};
+
+class ConstantWindModelSettings: public WindModelSettings
+{
+public:
+
+    ConstantWindModelSettings(
+            const Eigen::Vector3d constantWindVelocity,
+            const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
+        WindModelSettings( constant_wind_model, associatedFrame ),
+        constantWindVelocity_( constantWindVelocity ){ }
+
+    Eigen::Vector3d getConstantWindVelocity( )
+    {
+        return constantWindVelocity_;
+    }
+
+private:
+
+    Eigen::Vector3d constantWindVelocity_;
 
 };
 
@@ -92,8 +124,10 @@ public:
      * order).
      */
     CustomWindModelSettings(
-            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
-        WindModelSettings( custom_wind_model ), windFunction_( windFunction ){ }
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
+            const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame  ):
+        WindModelSettings( custom_wind_model, associatedFrame ), windFunction_( windFunction )
+    { }
 
     //! Destructor
     ~CustomWindModelSettings( ){ }
@@ -821,27 +855,34 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
 
 inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
 {
-	return std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    return std::make_shared< AtmosphereSettings >( nrlmsise00 );
 }
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphereSettings(
-		const DensityFunction& densityFunction,
-		const double constantTemperature,
-		const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-		const double ratioOfSpecificHeats = 1.4
-		)
+        const DensityFunction& densityFunction,
+        const double constantTemperature,
+        const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+        const double ratioOfSpecificHeats = 1.4
+        )
 {
-	return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-			densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats
-			);
+    return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
+                densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats
+                );
 }
 
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
-		const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction
-		)
+        const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
 {
-	return std::make_shared< CustomWindModelSettings >( windFunction );
+    return std::make_shared< CustomWindModelSettings >( windFunction, associatedFrame );
+}
+
+inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
+        const Eigen::Vector3d constantWindVelocity,
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
+{
+    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame );
 }
 
 //! Function to create a wind model.

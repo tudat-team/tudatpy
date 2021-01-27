@@ -259,6 +259,15 @@ inline std::shared_ptr< InterpolatorSettings > piecewiseConstantInterpolation(
                 piecewise_constant_interpolator, selectedLookupScheme, false, boundaryInterpolation );
 }
 
+
+inline std::shared_ptr< InterpolatorSettings > hermiteInterpolation(
+        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+        const BoundaryInterpolationType boundaryInterpolation = extrapolate_at_boundary_with_warning )
+{
+    return std::make_shared< InterpolatorSettings >(
+                hermite_spline_interpolator, selectedLookupScheme, false, boundaryInterpolation );
+}
+
 inline std::shared_ptr< InterpolatorSettings > lagrangeInterpolation(
         const int order,
         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,

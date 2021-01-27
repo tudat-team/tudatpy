@@ -17,6 +17,7 @@
 #include <memory>
 
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -640,14 +641,35 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
 		const std::string& targetFrame,
 		const Eigen::Quaterniond& initialOrientation,
 		const double initialTime,
-		const double rotationRate
-		)
+        const double rotationRate )
 {
 	return std::make_shared< SimpleRotationModelSettings >(
-			originalFrame, targetFrame, initialOrientation, initialTime, rotationRate
-			);
+            originalFrame, targetFrame, initialOrientation, initialTime, rotationRate );
 }
 
+inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Matrix3d& initialOrientation,
+        const double initialTime,
+        const double rotationRate )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+            originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate );
+}
+
+
+inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const double initialTime )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+            originalFrame, targetFrame, spice_interface::computeRotationQuaternionBetweenFrames(
+                    "ECLIPJ2000", "IAU_Earth", initialTime ), initialTime,
+                spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
+                    originalFrame, targetFrame, initialTime ).norm( ) );
+}
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame,
@@ -674,6 +696,15 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
 	return std::make_shared< GcrsToItrsRotationModelSettings >(
 			nutationTheory, baseFrameName
 	);
+}
+
+inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings(
+        const std::string& centralBodyName,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation )
+{
+    return std::make_shared< SynchronousRotationModelSettings >(
+            centralBodyName, baseFrameOrientation, targetFrameOrientation );
 }
 
 } // namespace simulation_setup
