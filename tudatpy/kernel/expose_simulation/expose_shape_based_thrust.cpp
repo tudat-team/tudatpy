@@ -48,12 +48,16 @@ void expose_shape_based_thrust(py::module &m)
                   &tltt::LowThrustLeg::getStateAtEpoch,
                   py::arg("time") )
             .def( "get_low_thrust_acceleration_settings",
-                  &tltt::LowThrustLeg::getLowThrustAccelerationSettings,
+                  py::overload_cast<
+                          const tss::SystemOfBodies&,
+                          const std::string&,
+                          const double,
+                          const double >(
+                      &tltt::LowThrustLeg::getLowThrustAccelerationSettings ),
                   py::arg("bodies"),
                   py::arg("body_to_propagate"),
-                  py::arg("specific_impulse_function") = nullptr,
-                  py::arg("integrator_settings" ) = nullptr,
-                  py::arg("time_offset" ) = 0.0 )
+                  py::arg("specific_impulse_function"),
+                  py::arg("time_offset" ) )
             .def( "compute_delta_v",
                   &tltt::LowThrustLeg::computeDeltaV );
 
