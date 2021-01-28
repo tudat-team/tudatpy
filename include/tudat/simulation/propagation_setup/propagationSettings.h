@@ -878,6 +878,30 @@ template< typename StateScalarType = double >
 inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
 translationalStatePropagatorSettings(
         const std::vector< std::string >& centralBodies,
+        const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const TranslationalPropagatorType propagator = cowell,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesTotal = nullptr;
+    if( dependentVariablesToSave.size( ) > 0 )
+    {
+        dependentVariablesTotal =
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave );
+    }
+    return std::make_shared< TranslationalStatePropagatorSettings < StateScalarType > >(
+                centralBodies, accelerationSettingsMap, bodiesToIntegrate, initialBodyStates,
+                terminationSettings, propagator, dependentVariablesTotal, printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+translationalStatePropagatorSettings(
+        const std::vector< std::string >& centralBodies,
         const basic_astrodynamics::AccelerationMap& accelerationsMap,
         const std::vector< std::string >& bodiesToIntegrate,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
@@ -1732,6 +1756,12 @@ public:
      */
     std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
     propagatorSettingsMap_;
+
+    std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
+    getPropagatorSettingsMap( )
+    {
+        return propagatorSettingsMap_;
+    }
 
     //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
     /*!
