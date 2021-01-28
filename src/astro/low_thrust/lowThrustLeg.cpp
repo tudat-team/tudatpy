@@ -24,7 +24,6 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double timeOffset )
 {
-
     std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
 
     // Define thrust magnitude function from the shaped trajectory.
@@ -83,6 +82,23 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
                 thrustDirectionSettings, thrustMagnitudeSettings );
 
     return thrustAccelerationSettings;
+}
+
+std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::getLowThrustAccelerationSettings(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyToPropagate,
+        const double specificImpulse,
+        const double timeOffset )
+{
+    if( legModelIsForceBased_ )
+    {
+       throw std::runtime_error( "Error, cannot create low-thrust acceleration settings for force-based model with Isp and integration settings" );
+    }
+    else
+    {
+        return getLowThrustAccelerationSettings(
+                    bodies, bodyToPropagate, [=](const double){return specificImpulse;}, nullptr, timeOffset );
+    }
 }
 
 std::shared_ptr< propulsion::ThrustAcceleration > LowThrustLeg::getLowThrustAccelerationModel(
