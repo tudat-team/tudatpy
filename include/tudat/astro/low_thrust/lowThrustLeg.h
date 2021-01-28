@@ -110,6 +110,12 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const double timeOffset = 0.0 );
 
+    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustAccelerationSettings(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::string& bodyToPropagate,
+            const double specificImpulse,
+            const double timeOffset );
+
     //! Retrieve acceleration model (thrust).
     std::shared_ptr< propulsion::ThrustAcceleration > getLowThrustAccelerationModel(
             const simulation_setup::SystemOfBodies& bodies,
