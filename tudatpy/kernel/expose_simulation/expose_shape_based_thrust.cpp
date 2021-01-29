@@ -24,6 +24,83 @@ namespace tltt = tudat::low_thrust_trajectories;
 namespace tni = tudat::numerical_integrators;
 namespace tss = tudat::simulation_setup;
 
+namespace tudat
+{
+
+namespace shape_based_methods
+{
+
+inline std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getHodographicShapingAccelerationSettings(
+        const Eigen::Vector6d& initialState,
+        const Eigen::Vector6d& finalState,
+        const double timeOfFlight,
+        const double centralBodyGravitationalParameter,
+        const int numberOfRevolutions,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+        const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyToPropagate,
+        const double specificImpulse,
+        const double timeOffset )
+{
+    HodographicShaping* shapingObject =
+            new HodographicShaping(
+                initialState, finalState, timeOfFlight, centralBodyGravitationalParameter,
+                numberOfRevolutions, radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
+    return shapingObject->getLowThrustAccelerationSettings( bodies, bodyToPropagate, specificImpulse, timeOffset );
+}
+
+inline Eigen::Vector6d getHodographicShapingStateAtEpoch(
+        const Eigen::Vector6d& initialState,
+        const Eigen::Vector6d& finalState,
+        const double timeOfFlight,
+        const double centralBodyGravitationalParameter,
+        const int numberOfRevolutions,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+        const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
+        const double epoch )
+{
+    return HodographicShaping(
+                initialState, finalState, timeOfFlight, centralBodyGravitationalParameter,
+                numberOfRevolutions, radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction ).
+            getStateAtEpoch( epoch );
+}
+
+inline double getHodographicShapingDeltaV(
+        const Eigen::Vector6d& initialState,
+        const Eigen::Vector6d& finalState,
+        const double timeOfFlight,
+        const double centralBodyGravitationalParameter,
+        const int numberOfRevolutions,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
+        const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
+        const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
+        const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction )
+{
+    return HodographicShaping(
+                initialState, finalState, timeOfFlight, centralBodyGravitationalParameter,
+                numberOfRevolutions, radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
+                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction ).computeDeltaV( );
+}
+
+
+
+
+} // namespace shape_based_methods
+} // namespace tudat
+
 namespace tudatpy {
 
 
@@ -195,6 +272,54 @@ void expose_shape_based_thrust(py::module &m)
           py::arg("exponent"),
           py::arg("frequency"),
           py::arg("scale_factor") );
+
+    m.def("get_hodographic_shaping_acceleration_settings",
+          &tsbm::getHodographicShapingAccelerationSettings,
+          py::arg("initialState"),
+          py::arg("finalState"),
+          py::arg("timeOfFlight"),
+          py::arg("centralBodyGravitationalParameter"),
+          py::arg("numberOfRevolutions"),
+          py::arg("radialVelocityFunctionComponents"),
+          py::arg("normalVelocityFunctionComponents"),
+          py::arg("axialVelocityFunctionComponents"),
+          py::arg("freeCoefficientsRadialVelocityFunction"),
+          py::arg("freeCoefficientsNormalVelocityFunction"),
+          py::arg("freeCoefficientsAxialVelocityFunction"),
+          py::arg("bodies"),
+          py::arg("bodyToPropagate"),
+          py::arg("specificImpulse"),
+          py::arg("timeOffset") );
+
+    m.def("get_hodographic_state_at_epoch",
+          &tsbm::getHodographicShapingStateAtEpoch,
+          py::arg("initialState"),
+          py::arg("finalState"),
+          py::arg("timeOfFlight"),
+          py::arg("centralBodyGravitationalParameter"),
+          py::arg("numberOfRevolutions"),
+          py::arg("radialVelocityFunctionComponents"),
+          py::arg("normalVelocityFunctionComponents"),
+          py::arg("axialVelocityFunctionComponents"),
+          py::arg("freeCoefficientsRadialVelocityFunction"),
+          py::arg("freeCoefficientsNormalVelocityFunction"),
+          py::arg("freeCoefficientsAxialVelocityFunction"),
+          py::arg("epoch") );
+
+    m.def("get_hodographic_delta_v",
+          &tsbm::getHodographicShapingDeltaV,
+          py::arg("initialState"),
+          py::arg("finalState"),
+          py::arg("timeOfFlight"),
+          py::arg("centralBodyGravitationalParameter"),
+          py::arg("numberOfRevolutions"),
+          py::arg("radialVelocityFunctionComponents"),
+          py::arg("normalVelocityFunctionComponents"),
+          py::arg("axialVelocityFunctionComponents"),
+          py::arg("freeCoefficientsRadialVelocityFunction"),
+          py::arg("freeCoefficientsNormalVelocityFunction"),
+          py::arg("freeCoefficientsAxialVelocityFunction") );
+
 };
 
 }// namespace tudatpy

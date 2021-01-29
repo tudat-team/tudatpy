@@ -499,7 +499,9 @@ void expose_acceleration_setup(py::module &m) {
                  py::arg("data_interpolation_settings"),
                  py::arg("constant_specific_impulse"),
                  py::arg("thrust_frame"),
-                 py::arg("central_body") = "");
+                 py::arg("central_body") = "")
+            .def_readwrite("direction_settings", &tss::ThrustAccelerationSettings::thrustMagnitudeSettings_ );
+
 
     //////////////////////////////////////////////////////////////////////////////
     // createThrustModelGuidance.h / createThrustModelGuidance.cpp
@@ -1545,4 +1547,5 @@ void expose_propagation_setup(py::module &m) {
     auto dependent_variable_setup = m.def_submodule("dependent_variable");
     expose_dependent_variable_setup(dependent_variable_setup);
 }
+
 }// namespace tudatpy
