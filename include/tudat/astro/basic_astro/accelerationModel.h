@@ -76,6 +76,11 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
+    AccelerationDataType& getAccelerationReference( )
+    {
+        return currentAcceleration_;
+    }
+
     AccelerationDataType getAcceleration( )
     {
         return currentAcceleration_;
@@ -83,7 +88,7 @@ public:
 
     void getAccelerationByReference( AccelerationDataType& acceleration ) const
     {
-        acceleration = std::move( currentAcceleration_ );
+        acceleration = currentAcceleration_;
     }
 
     void addCurrentAcceleration( AccelerationDataType& acceleration ) const
