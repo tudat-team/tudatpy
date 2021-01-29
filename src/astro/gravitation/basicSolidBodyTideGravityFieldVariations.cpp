@@ -148,7 +148,6 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
         Eigen::MatrixXd& sTermCorrections )
 {
 //    // Initialize power of radiusRatio^(N+1) (calculation starts at N=2)
-    radiusRatioPower = radiusRatio * radiusRatio * radiusRatio;
 
     currentCosineCorrections_.setZero( );
     currentSineCorrections_.setZero( );
@@ -159,8 +158,9 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     for( auto loveNumberIt : loveNumbers_ )
     {
         int n = loveNumberIt.first;
+        radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
 
-        for( int m = 0; ( m <= n && m < loveNumberIt.second.size( ) ); m++ )
+        for( unsigned int m = 0; ( m <= n && m < loveNumberIt.second.size( ) ); m++ )
         {
             updateTidalAmplitudeAndArgument( n, m );
 
@@ -177,9 +177,6 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
                 currentSineCorrections_( n - 2, m ) -= stokesCoefficientCorrection.imag( );
             }
         }
-
-        // Increment radius ratio power.
-        radiusRatioPower *= radiusRatio;
     }
 
     cTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=

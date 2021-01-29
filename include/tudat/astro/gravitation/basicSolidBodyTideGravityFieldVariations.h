@@ -138,7 +138,7 @@ public:
             const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
-        GravityFieldVariations( 2, 0, 2 + loveNumbers.size( ) - 1, 2 + loveNumbers.size( ) - 1 ),
+        GravityFieldVariations( 2, 0, loveNumbers.rbegin( )->first, loveNumbers.rbegin( )->first ),
         deformedBodyStateFunction_( deformedBodyStateFunction ),
         deformedBodyOrientationFunction_( deformedBodyOrientationFunction ),
         deformingBodyStateFunctions_( deformingBodyStateFunctions ),
