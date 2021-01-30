@@ -45,10 +45,9 @@ endif ()
 
 
 list(APPEND Tudat_PROPAGATION_LIBRARIES
+        Tudat::tudat_propagation_setup
         Tudat::tudat_shape_based_methods
         Tudat::tudat_low_thrust_trajectories
-        Tudat::tudat_numerical_quadrature
-        Tudat::tudat_propagation_setup
         Tudat::tudat_trajectory_design
         Tudat::tudat_environment_setup
         Tudat::tudat_ground_stations
@@ -67,7 +66,8 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_statistics
         Tudat::tudat_propagators
         ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
-        Tudat::tudat_basic_astrodynamics
+        Tudat::tudat_basic_astrodynamics        
+        Tudat::tudat_numerical_quadrature
         Tudat::tudat_interpolators
         Tudat::tudat_root_finders
         Tudat::tudat_basic_mathematics

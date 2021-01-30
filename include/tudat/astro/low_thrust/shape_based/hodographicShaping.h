@@ -16,7 +16,6 @@
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
 #include <cmath>
 #include <vector>
@@ -45,8 +44,7 @@ public:
             const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
             const Eigen::VectorXd& freeCoefficientsRadialVelocityFunction,
             const Eigen::VectorXd& freeCoefficientsNormalVelocityFunction,
-            const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction,
-            const double initialBodyMass = TUDAT_NAN );
+            const Eigen::VectorXd& freeCoefficientsAxialVelocityFunction );
 
     //! Default destructor.
     ~HodographicShaping( ) { }
@@ -76,19 +74,16 @@ public:
     }
 
     //! Compute radial distance from the central body.
-    double computeCurrentRadialDistance( const double currentTime );
+    double computeCurrentRadialDistance( const double timeSinceDeparture );
 
     //! Compute polar angle.
-    double computeCurrentPolarAngle( double currentTime );
+    double computeCurrentPolarAngle( double timeSinceDeparture );
 
     //! Compute axial distance from central body.
-    double computeCurrentAxialDistance( const double currentTime );
+    double computeCurrentAxialDistance( const double timeSinceDeparture );
 
     //! Compute current cartesian state.
-    Eigen::Vector6d computeCurrentStateVector( const double currentTime );
-
-    //! Compute thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeThrustAccelerationVector( double currentTime );
+    Eigen::Vector6d computeCurrentStateVector( const double timeSinceDeparture );
 
     //! Compute DeltaV.
     double computeDeltaV( );
@@ -109,9 +104,19 @@ public:
 
     //! Compute magnitude thrust acceleration.
     double computeCurrentThrustAccelerationMagnitude(
-            const double currentTime, std::function< double ( const double ) > specificImpulseFunction =
-            [ ]( const double ){ return TUDAT_NAN; },
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings = nullptr );
+            const double timeSinceDeparture );
+
+    //! Compute direction thrust acceleration in cartesian coordinates.
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
+            double timeSinceDeparture );
+
+    Eigen::Vector3d computeCurrentThrustAcceleration( double timeSinceDeparture );
+
+    Eigen::Vector3d computeCurrentThrustAcceleration(
+                const double currentTime,
+                const double timeOffset  );
+
+
 
 protected:
 
@@ -128,27 +133,29 @@ protected:
     //! Satisfy boundary conditions in normal direction.
     void satisfyNormalBoundaryConditions( Eigen::VectorXd freeCoefficients );
 
+    //! Define angular velocity due to the third component of the composite function only.
+    double computeDerivativePolarAngleDueToThirdComponent(
+            const double timeSinceDeparture, const Eigen::Vector2d& matrixK );
+
+    //! Define the angular velocity due to all the other components of the composite function, once combined.
+    double computeDerivativePolarAngleDueToOtherComponents(
+            const double timeSinceDeparture, const Eigen::Vector2d& matrixL, const Eigen::VectorXd& freeCoefficients );
+
     //! Compute third fixed coefficient of the normal velocity composite function, so that the condition on the final polar angle
     //! is fulfilled.
     double computeThirdFixedCoefficientAxialVelocityFromFinalPolarAngle( Eigen::VectorXd freeCoefficients );
 
     //! Compute velocity vector in cylindrical coordinates.
-    Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( double currentTime );
+    Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( double timeSinceDeparture );
 
     //! Compute angular velocity.
-    double evaluateDerivativePolarAngleWrtTime( const double currentTime );
+    double evaluateDerivativePolarAngleWrtTime( const double timeSinceDeparture );
 
     //! Compute state vector in cylindrical coordinates.
-    Eigen::Vector6d computeStateVectorInCylindricalCoordinates( const double currentTime );
+    Eigen::Vector6d computeStateVectorInCylindricalCoordinates( const double timeSinceDeparture );
 
     //! Compute thrust acceleration vector in cylindrical coordinates.
-    Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double currentTime );
-
-
-    //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+    Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture );
 
 
 private:

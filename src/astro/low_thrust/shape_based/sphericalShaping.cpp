@@ -12,7 +12,7 @@
 
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/astro/propulsion/thrustAccelerationModel.h"
+#include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShaping.h"
 
 namespace tudat
@@ -30,9 +30,8 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
                                     const double initialValueFreeCoefficient,
                                     const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient,
-                                    const double initialBodyMass ):
-    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight, initialBodyMass ),
+                                    const double upperBoundFreeCoefficient ):
+    ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
@@ -628,16 +627,14 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double 
 
 //! Compute magnitude cartesian acceleration.
 double  SphericalShaping::computeCurrentThrustAccelerationMagnitude(
-        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        double currentAzimuthAngle )
 {
     return computeThrustAccelerationVector( currentAzimuthAngle ).norm( );
 }
 
 //! Compute direction thrust acceleration in cartesian coordinates.
 Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection(
-        double currentAzimuthAngle, std::function< double ( const double ) > specificImpulseFunction,
-        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+        double currentAzimuthAngle )
 {
     return computeThrustAccelerationVector( currentAzimuthAngle ).normalized( );
 }
