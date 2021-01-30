@@ -429,13 +429,9 @@ double HodographicShaping::computeCurrentRadialDistance( const double currentTim
 //! Compute current polar angle.
 double HodographicShaping::computeCurrentPolarAngle( double currentTime )
 {
-
     // Define the derivative of the polar angle, ie angular velocity function, as a function of time.
-    std::function< double( const double ) > derivativeFunctionPolarAngle = [ = ] ( const double currentTime ){
-
-        return evaluateDerivativePolarAngleWrtTime( currentTime );
-
-    } ;
+    std::function< double( const double ) > derivativeFunctionPolarAngle =
+            std::bind( &HodographicShaping::evaluateDerivativePolarAngleWrtTime, this, std::placeholders::_1 );
 
     // Define numerical quadrature.
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
@@ -563,13 +559,10 @@ Eigen::Vector3d HodographicShaping::computeCurrentThrustAccelerationDirection(
 //! Compute DeltaV.
 double HodographicShaping::computeDeltaV( )
 {
-
     // Define the derivative of the deltaV, ie thrust acceleration function, as a function of time.
-    std::function< double( const double ) > derivativeFunctionDeltaVtest = [ = ] ( const double currentTime ){
-
-        return computeThrustAccelerationInCylindricalCoordinates( currentTime ).norm( );
-
-    } ;
+    std::function< double( const double ) > derivativeFunctionDeltaVtest =
+            std::bind( &HodographicShaping::computeCurrentThrustAccelerationMagnitude, this,
+                       std::placeholders::_1, nullptr, nullptr );
 
     // Define numerical quadrature.
     std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =

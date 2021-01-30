@@ -110,6 +110,25 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const double timeOffset = 0.0 );
 
+    double getForceBasedThrustMagnitude(
+            const double currentTime,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const double timeOffset );
+
+    double getAccelerationBasedThrustMagnitude(
+            const double currentTime,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const double timeOffset,
+            const std::shared_ptr< simulation_setup::Body > vehicle );
+
+
+    Eigen::Vector3d getThrustDirection(
+            const double currentTime, const std::function< double( const double ) > specificImpulseFunction,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const double timeOffset );
+
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustAccelerationSettings(
             const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
