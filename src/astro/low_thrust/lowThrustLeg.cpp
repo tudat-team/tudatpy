@@ -27,30 +27,17 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
     std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
 
     // Define thrust magnitude function from the shaped trajectory.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime )
+    std::function< double( const double ) > thrustMagnitudeFunction;
+    if( legModelIsForceBased_ )
     {
-        // Compute current independent variable.
-        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset );
-
-        if( legModelIsForceBased_ )
-        {
-            // Compute current acceleration.
-            return computeCurrentThrustForce(
-                        currentIndependentVariable, specificImpulseFunction, integratorSettings ).norm( );
-        }
-        else
-        {
-            // Compute current acceleration.
-            double currentAcceleration = computeCurrentThrustAccelerationMagnitude(
-                        currentIndependentVariable, specificImpulseFunction, integratorSettings );
-
-            // Compute current mass of the vehicle.
-            double currentMass = vehicle->getBodyMass();
-
-            // Compute and return magnitude of the low-thrust force.
-            return currentAcceleration * currentMass;
-        }
-    };
+        thrustMagnitudeFunction = std::bind( &LowThrustLeg::getForceBasedThrustMagnitude, this,
+                                             std::placeholders::_1, specificImpulseFunction, integratorSettings, timeOffset );
+    }
+    else
+    {
+        thrustMagnitudeFunction = std::bind( &LowThrustLeg::getAccelerationBasedThrustMagnitude, this,
+                                             std::placeholders::_1, specificImpulseFunction, integratorSettings, timeOffset, vehicle );
+    }
 
     // Define thrust magnitude settings from thrust magnitude function.
     std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings
@@ -59,21 +46,12 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
 
 
     // Define thrust direction function from the shaped trajectory.
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime )
-    {
-        // Compute current independent variable.
-        double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset  );
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+            std::bind( &LowThrustLeg::getThrustDirection, this,
+                                                         std::placeholders::_1, specificImpulseFunction, integratorSettings, timeOffset );
 
-        // Compute current direction of the acceleration vector.
-        Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection(
-                    currentIndependentVariable, specificImpulseFunction, integratorSettings );
-
-        // Return direction of the low-thrust acceleration.
-        return currentAccelerationDirection;
-    };
-
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
+            // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
+            std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
             std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
 
     // Define thrust acceleration settings.
@@ -84,6 +62,57 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
     return thrustAccelerationSettings;
 }
 
+double LowThrustLeg::getForceBasedThrustMagnitude(
+        const double currentTime,
+        const std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double timeOffset )
+{
+    double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset );
+
+    // Compute current acceleration.
+    return computeCurrentThrustForce(
+                currentIndependentVariable, specificImpulseFunction, integratorSettings ).norm( );
+}
+
+double LowThrustLeg::getAccelerationBasedThrustMagnitude(
+        const double currentTime,
+        const std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double timeOffset,
+        const std::shared_ptr< simulation_setup::Body > vehicle )
+{
+
+    // Compute current independent variable.
+    double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset );
+
+    // Compute current acceleration.
+    double currentAcceleration = computeCurrentThrustAccelerationMagnitude(
+                currentIndependentVariable, specificImpulseFunction, integratorSettings );
+
+    // Compute current mass of the vehicle.
+    double currentMass = vehicle->getBodyMass();
+
+    // Compute and return magnitude of the low-thrust force.
+    return currentAcceleration * currentMass;
+}
+
+Eigen::Vector3d LowThrustLeg::getThrustDirection(
+        const double currentTime, const std::function< double( const double ) > specificImpulseFunction,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double timeOffset )
+{
+    // Compute current independent variable.
+    double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset  );
+
+    // Compute current direction of the acceleration vector.
+    Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection(
+                currentIndependentVariable, specificImpulseFunction, integratorSettings );
+
+    // Return direction of the low-thrust acceleration.
+    return currentAccelerationDirection;
+}
+
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::getLowThrustAccelerationSettings(
         const simulation_setup::SystemOfBodies& bodies,
         const std::string& bodyToPropagate,
@@ -92,7 +121,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > LowThrustLeg::ge
 {
     if( legModelIsForceBased_ )
     {
-       throw std::runtime_error( "Error, cannot create low-thrust acceleration settings for force-based model with Isp and integration settings" );
+        throw std::runtime_error( "Error, cannot create low-thrust acceleration settings for force-based model with Isp and integration settings" );
     }
     else
     {
