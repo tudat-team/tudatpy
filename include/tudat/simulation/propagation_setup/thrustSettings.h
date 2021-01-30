@@ -27,6 +27,7 @@
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/math/interpolators/interpolator.h"
+#include "tudat/astro/low_thrust/lowThrustLeg.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 
@@ -1253,6 +1254,8 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
         const std::string specificImpulseDataFile,
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
         const std::string nameOfCentralBody = "" );
+
+
 
 } // namespace simulation_setup
 
