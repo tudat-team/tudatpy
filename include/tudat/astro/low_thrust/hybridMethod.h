@@ -136,8 +136,7 @@ public:
 
     //! Compute direction thrust acceleration in cartesian coordinates.
     Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double currentTime, std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+            double currentTime );
 
     //! Compute magnitude thrust acceleration.
     double computeCurrentThrustAccelerationMagnitude(

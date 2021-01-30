@@ -58,35 +58,35 @@ std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
                     sphericalShapingSettings->boundsFreeCoefficient_.second );
         break;
     }
-#if( TUDAT_BUILD_WITH_PAGMO )
-    case sims_flanagan_leg:
-    {
-        std::shared_ptr< SimsFlanaganLegSettings > simsFlanaganSettings =
-                std::dynamic_pointer_cast< SimsFlanaganLegSettings >( lowThrustLegSettings );
+//#if( TUDAT_BUILD_WITH_PAGMO )
+//    case sims_flanagan_leg:
+//    {
+//        std::shared_ptr< SimsFlanaganLegSettings > simsFlanaganSettings =
+//                std::dynamic_pointer_cast< SimsFlanaganLegSettings >( lowThrustLegSettings );
 
-        lowThrustLeg = std::make_shared< low_thrust_trajectories::SimsFlanagan >(
-                    stateAtDeparture, stateAtArrival, simsFlanaganSettings->centralBodyGravitationalParameter_,
-                    simsFlanaganSettings->vehicleInitialMass_, simsFlanaganSettings->maximumThrust_,
-                    simsFlanaganSettings->specificImpulseFunction_,
-                    simsFlanaganSettings->numberSegments_, timeOfFlight,
-                    simsFlanaganSettings->optimisationSettings_ );
+//        lowThrustLeg = std::make_shared< low_thrust_trajectories::SimsFlanagan >(
+//                    stateAtDeparture, stateAtArrival, simsFlanaganSettings->centralBodyGravitationalParameter_,
+//                    simsFlanaganSettings->vehicleInitialMass_, simsFlanaganSettings->maximumThrust_,
+//                    simsFlanaganSettings->specificImpulseFunction_,
+//                    simsFlanaganSettings->numberSegments_, timeOfFlight,
+//                    simsFlanaganSettings->optimisationSettings_ );
 
-        break;
-    }
-    case hybrid_method_leg:
-    {
-        throw std::runtime_error( "Hybrid low-thrust leg disabled" );
-//        std::shared_ptr< HybridMethodLegSettings > hybridMethodSettings =
-//                std::dynamic_pointer_cast< HybridMethodLegSettings >( lowThrustLegSettings );
+//        break;
+//    }
+//    case hybrid_method_leg:
+//    {
+//        throw std::runtime_error( "Hybrid low-thrust leg disabled" );
+////        std::shared_ptr< HybridMethodLegSettings > hybridMethodSettings =
+////                std::dynamic_pointer_cast< HybridMethodLegSettings >( lowThrustLegSettings );
 
-//        lowThrustLeg = std::make_shared< low_thrust_trajectories::HybridMethod >(
-//                    stateAtDeparture, stateAtArrival, hybridMethodSettings->maximumThrust_, hybridMethodSettings->specificImpulse_,
-//                    timeOfFlight,
-//                    hybridMethodSettings->optimisationSettings_, hybridMethodSettings->initialAndFinalMEEcostatesBounds_ );
+////        lowThrustLeg = std::make_shared< low_thrust_trajectories::HybridMethod >(
+////                    stateAtDeparture, stateAtArrival, hybridMethodSettings->maximumThrust_, hybridMethodSettings->specificImpulse_,
+////                    timeOfFlight,
+////                    hybridMethodSettings->optimisationSettings_, hybridMethodSettings->initialAndFinalMEEcostatesBounds_ );
 
-        break;
-    }
-#endif
+//        break;
+//    }
+//#endif
     }
 
     // Return low-thrust leg.
