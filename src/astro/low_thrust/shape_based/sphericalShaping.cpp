@@ -526,7 +526,9 @@ Eigen::Vector6d SphericalShaping::computeStateVectorInSphericalCoordinates( cons
 //! Compute current cartesian state.
 Eigen::Vector6d SphericalShaping::computeCurrentStateVector( const double currentAzimuthAngle )
 {
-    Eigen::Vector6d normalizedStateVector =  coordinate_conversions::convertSphericalToCartesianState( computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
+    Eigen::Vector6d normalizedStateVector = 
+            coordinate_conversions::convertSphericalToCartesianState( 
+                computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
 
     Eigen::Vector6d dimensionalStateVector;
     dimensionalStateVector.segment( 0, 3 ) = normalizedStateVector.segment( 0, 3 )
@@ -604,7 +606,7 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVectorInSphericalCoor
 }
 
 //! Compute current thrust acceleration in cartesian coordinates.
-Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double currentAzimuthAngle )
+Eigen::Vector3d SphericalShaping::computeCurrentThrustAcceleration( const double currentAzimuthAngle )
 {
     if( thrustAccelerationVectorCache_.count( currentAzimuthAngle ) == 0 )
     {
@@ -629,14 +631,14 @@ Eigen::Vector3d SphericalShaping::computeThrustAccelerationVector( const double 
 double  SphericalShaping::computeCurrentThrustAccelerationMagnitude(
         double currentAzimuthAngle )
 {
-    return computeThrustAccelerationVector( currentAzimuthAngle ).norm( );
+    return computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( );
 }
 
 //! Compute direction thrust acceleration in cartesian coordinates.
 Eigen::Vector3d SphericalShaping::computeCurrentThrustAccelerationDirection(
         double currentAzimuthAngle )
 {
-    return computeThrustAccelerationVector( currentAzimuthAngle ).normalized( );
+    return computeCurrentThrustAcceleration( currentAzimuthAngle ).normalized( );
 }
 
 //! Compute final deltaV.

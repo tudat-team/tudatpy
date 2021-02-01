@@ -52,28 +52,6 @@ public:
             std::vector< double >& epochsVector,
             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
-//    //! Return thrust profile.
-//    void getThrustForceProfile( std::vector< double >& epochsVector,
-//                           std::map< double, Eigen::VectorXd >& thrustProfile,
-//                           std::function< double ( const double ) > specificImpulseFunction,
-//                           std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-
-//    //! Retrieve acceleration map (thrust and central gravity accelerations).
-//    basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
-//            const simulation_setup::SystemOfBodies& bodies,
-//            const std::string& bodyToPropagate,
-//            const std::string& centralBody,
-//            const std::function< double ( const double ) > specificImpulseFunction,
-//            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
-//    //! Define appropriate translational state propagator settings for the full propagation.
-//    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-//            const std::string& bodyToPropagate,
-//            const std::string& centralBody,
-//            const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-//            const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
 
 protected:
