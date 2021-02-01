@@ -79,8 +79,16 @@ public:
 
 
     //! Compute current thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeThrustAccelerationVector( const double currentAzimuthAngle );
+    Eigen::Vector3d computeCurrentThrustAcceleration( const double currentAzimuthAngle );
 
+    Eigen::Vector3d computeCurrentThrustAcceleration( const double currentTime,
+                                                      const double timeOffset )
+    {
+        return computeCurrentThrustAcceleration(
+                    convertTimeToIndependentVariable( currentTime - timeOffset ) );
+    
+    }
+    
     //! Compute deltaV.
     double computeDeltaV( );
 
@@ -161,7 +169,7 @@ protected:
 
     //! Compute direction thrust acceleration in cartesian coordinates.
     Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double currentIndependentVariable );
+            double currentAzimuthAngle );
 
 
 
