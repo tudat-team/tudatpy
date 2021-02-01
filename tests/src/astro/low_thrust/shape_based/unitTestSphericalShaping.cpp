@@ -27,6 +27,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/simulation/simulation.h"
+#include "tudat/simulation/propagation_setup/propagationLowThrustProblem.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
@@ -84,9 +85,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     for ( int i = 0 ; i <= 5000 ; i++ )
     {
         double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
-        if ( sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        if ( sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() >  peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm();
+            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm();
         }
     }
 
@@ -153,9 +154,9 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     {
         double currentThetaAngle = sphericalShaping.getInitialValueInpendentVariable() + i * stepSize;
 
-        if ( sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm() >  peakThrustAcceleration )
+        if ( sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm() >  peakThrustAcceleration )
         {
-            peakThrustAcceleration = sphericalShaping.computeThrustAccelerationVector( currentThetaAngle ).norm();
+            peakThrustAcceleration = sphericalShaping.computeCurrentThrustAcceleration( currentThetaAngle ).norm();
         }
     }
 
@@ -286,106 +287,104 @@ SystemOfBodies getTestBodyMap( )
 
 }
 
-//BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
-//{
+BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
+{
 
-//    int numberOfRevolutions = 1;
-//    double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
-//    double  timeOfFlight = 580.0;
+    int numberOfRevolutions = 1;
+    double julianDate = 8174.5 * physical_constants::JULIAN_DAY;
+    double  timeOfFlight = 580.0;
 
-//    // Ephemeris for arrival and departure body.
-//    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
-//                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-//    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
-//                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
-//    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
-//    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState(
-//                julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
+    // Ephemeris for arrival and departure body.
+    EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ApproximatePlanetPositions>(
+                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
+    EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ApproximatePlanetPositions >(
+                ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
+    Eigen::Vector6d stateAtDeparture = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
+    Eigen::Vector6d stateAtArrival = pointerToArrivalBodyEphemeris->getCartesianState(
+                julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
 
-//    // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
-//    std::shared_ptr< RootFinderSettings > rootFinderSettings =
-//            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
+    // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
+    std::shared_ptr< RootFinderSettings > rootFinderSettings =
+            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
 
-//    // Compute shaped trajectory.
-//    SphericalShaping sphericalShaping = SphericalShaping(
-//                stateAtDeparture, stateAtArrival, timeOfFlight * physical_constants::JULIAN_DAY,
-//                spice_interface::getBodyGravitationalParameter( "Sun" ),
-//                numberOfRevolutions, 0.000703,
-//                rootFinderSettings, 1.0e-6, 1.0e-1 );
+    // Compute shaped trajectory.
+    std::shared_ptr< SphericalShaping > sphericalShaping = std::make_shared< SphericalShaping >(
+                stateAtDeparture, stateAtArrival, timeOfFlight * physical_constants::JULIAN_DAY,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),
+                numberOfRevolutions, 0.000703,
+                rootFinderSettings, 1.0e-6, 1.0e-1 );
 
-//    std::map< double, Eigen::VectorXd > fullPropagationResults;
-//    std::map< double, Eigen::Vector6d > shapingMethodResults;
-//    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
+    std::map< double, Eigen::VectorXd > fullPropagationResults;
+    std::map< double, Eigen::Vector6d > shapingMethodResults;
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory;
 
-//    // Create system of bodies
-//    SystemOfBodies bodies = getTestBodyMap( );
-//    bodies.at( "Vehicle" )->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
-
-
-//    // Define integrator settings
-//    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-//            std::make_shared< numerical_integrators::IntegratorSettings< double > > (
-//                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * physical_constants::JULIAN_DAY / ( 1000.0 ) );
-
-//    // Define mass and specific impulse functions of the vehicle.
-//    std::function< double( const double ) > specificImpulseFunction =
-//            [ ]( const double ){ return 3000.0; };
+    // Create system of bodies
+    SystemOfBodies bodies = getTestBodyMap( );
+    bodies.at( "Vehicle" )->setBodyMassFunction(  [ = ]( const double currentTime ){ return 2000.0; } );
 
 
-//    // Create object with list of dependent variables
-//    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-//    dependentVariablesList.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-//                                          basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-//    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-//            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList, false );
+    // Define integrator settings
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< double > > (
+                numerical_integrators::rungeKutta4, 0.0, timeOfFlight * physical_constants::JULIAN_DAY / ( 1000.0 ) );
 
-//    // Create complete propagation settings (backward and forward propagations).
-//    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap =
-//            sphericalShaping.retrieveLowThrustAccelerationMap(
-//                bodies, "Vehicle", "Sun", specificImpulseFunction, integratorSettings );
-//    std::pair< std::shared_ptr< PropagatorSettings< double > >,
-//            std::shared_ptr< PropagatorSettings< double > > > propagatorSettings =
-//            sphericalShaping.createLowThrustTranslationalStatePropagatorSettings(
-//                "Vehicle", "Sun", lowThrustAccelerationsMap, dependentVariablesToSave );
-
-//    // Compute shaped trajectory and propagated trajectory.
-//    sphericalShaping.computeSemiAnalyticalAndFullPropagation(
-//                bodies, integratorSettings, propagatorSettings,
-//                fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
-
-//    // Check difference between full propagation and shaping method at arrival
-//    // (disregarding the very last values because of expected interpolation errors).
-//    int numberOfDisregardedValues = 7;
-//    std::map< double, Eigen::VectorXd >::iterator itr = fullPropagationResults.end();
-//    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
-//    {
-//        itr--;
-//    }
-
-//    // Check results consistency between full propagation and shaped trajectory at arrival.
-//    for ( int i = 0 ; i < 6 ; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) /
-//                shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
-//    }
-
-//    // Check difference between full propagation and shaping method at departure
-//    // (disregarding the very first values because of expected interpolation errors).
-//    itr = fullPropagationResults.begin();
-//    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
-//    {
-//        itr++;
-//    }
-
-//    // Check results consistency between full propagation and shaped trajectory at departure.
-//    for ( int i = 0 ; i < 6 ; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) /
-//                shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
-//    }
+    // Define mass and specific impulse functions of the vehicle.
+    std::function< double( const double ) > specificImpulseFunction =
+            [ ]( const double ){ return 3000.0; };
 
 
-//}
+    // Create object with list of dependent variables
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                                          basic_astrodynamics::thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList, false );
+
+    // Create complete propagation settings (backward and forward propagations).
+    basic_astrodynamics::AccelerationMap lowThrustAccelerationsMap =
+            retrieveLowThrustAccelerationMap(
+                sphericalShaping, bodies, "Vehicle", "Sun", specificImpulseFunction, 0.0 );
+    std::pair< std::shared_ptr< PropagatorSettings< double > >,
+            std::shared_ptr< PropagatorSettings< double > > > propagatorSettings =
+            createLowThrustTranslationalStatePropagatorSettings(
+                sphericalShaping, "Vehicle", "Sun", lowThrustAccelerationsMap, dependentVariablesToSave );
+
+    // Compute shaped trajectory and propagated trajectory.
+    computeLowThrustLegSemiAnalyticalAndFullPropagation(
+                sphericalShaping, bodies, integratorSettings, propagatorSettings,
+                fullPropagationResults, shapingMethodResults, dependentVariablesHistory );
+
+    // Check difference between full propagation and shaping method at arrival
+    // (disregarding the very last values because of expected interpolation errors).
+    int numberOfDisregardedValues = 7;
+    std::map< double, Eigen::VectorXd >::iterator itr = fullPropagationResults.end();
+    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
+    {
+        itr--;
+    }
+
+    // Check results consistency between full propagation and shaped trajectory at arrival.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) /
+                shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
+    }
+
+    // Check difference between full propagation and shaping method at departure
+    // (disregarding the very first values because of expected interpolation errors).
+    itr = fullPropagationResults.begin();
+    for( int i = 0 ; i < numberOfDisregardedValues ; i++ )
+    {
+        itr++;
+    }
+
+    // Check results consistency between full propagation and shaped trajectory at departure.
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( shapingMethodResults[ itr->first ][ i ] - itr->second[ i ] ) /
+                shapingMethodResults[ itr->first ][ i ] , 1.0e-6 );
+    }
+}
 
 
 //BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation_mass_propagation )
