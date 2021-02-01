@@ -760,127 +760,126 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     }
 
 
-    //    //! Test combinations of factory functions, check if results are identical
-    //    std::vector< Eigen::MatrixXd > cosineCoefficientsFunctionTestDegreeTwo;
-    //    std::vector< Eigen::MatrixXd > sineCoefficientsFunctionTestDegreeTwo;
+    //! Test combinations of factory functions, check if results are identical
+    std::vector< Eigen::MatrixXd > cosineCoefficientsFunctionTestDegreeTwo;
+    std::vector< Eigen::MatrixXd > sineCoefficientsFunctionTestDegreeTwo;
 
-    //    // Test for different factory functions
-    //    for( int functionTest = 0; functionTest < 4; functionTest++ )
-    //    {
-    //        std::vector< Eigen::MatrixXd > cosineCoefficientsBodyTest;
-    //        std::vector< Eigen::MatrixXd > sineCoefficientsBodyTest;
+    // Test for different factory functions
+    for( int functionTest = 0; functionTest < 4; functionTest++ )
+    {
+        std::vector< Eigen::MatrixXd > cosineCoefficientsBodyTest;
+        std::vector< Eigen::MatrixXd > sineCoefficientsBodyTest;
 
-    //        // Test for separate or joint deforming bodies
-    //        for( int bodyTest = 0; bodyTest < 3; bodyTest++ )
-    //        {
-    //            std::cout<<"Test: "<<functionTest<<" "<<bodyTest<<std::endl;
+        // Test for separate or joint deforming bodies
+        for( int bodyTest = 0; bodyTest < 3; bodyTest++ )
+        {
+            std::cout<<"Test: "<<functionTest<<" "<<bodyTest<<std::endl;
 
-    //            // Clear for current test
-    //            bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+            // Clear for current test
+            bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
 
-    //            // Define deforming bodies (one or two)
-    //            std::vector< std::string > deformingBodies;
-    //            if( bodyTest == 0 || bodyTest == 2 )
-    //            { deformingBodies.push_back( "Moon" ); }
-    //            if( bodyTest == 1 || bodyTest == 2  )
-    //            { deformingBodies.push_back( "Sun" ); }
+            // Define deforming bodies (one or two)
+            std::vector< std::string > deformingBodies;
+            if( bodyTest == 0 || bodyTest == 2 )
+            { deformingBodies.push_back( "Moon" ); }
+            if( bodyTest == 1 || bodyTest == 2  )
+            { deformingBodies.push_back( "Sun" ); }
 
-    //            // Create settings for each deforming body
-    //            for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
-    //            {
-    //                if( functionTest == 0 )
-    //                {
-    //                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
-    //                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
-    //                                    deformingBodies.at( i ), loveNumber, 2 ) );
-    //                }
-    //                else if( functionTest == 1 )
-    //                {
-    //                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
-    //                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
-    //                                    deformingBodies.at( i ), std::complex< double >( loveNumber, 0.0 ), 2 ) );
-    //                }
-    //                else if( functionTest == 2 )
-    //                {
-    //                    std::map< int, double > loveNumberMap;
-    //                    loveNumberMap[ 2 ] = 0.25;
-    //                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
-    //                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
-    //                                    deformingBodies.at( i ), loveNumberMap ) );
-    //                }
-    //                else if( functionTest == 3 )
-    //                {
-    //                    std::map< int, std::complex< double > > loveNumberMap;
-    //                    loveNumberMap[ 2 ] = std::complex< double >( loveNumber, 0.0 );
-    //                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
-    //                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
-    //                                    deformingBodies.at( i ), loveNumberMap ) );
-    //                }
-    //            }
+            // Create settings for each deforming body
+            for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+            {
+                if( functionTest == 0 )
+                {
+                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                    deformingBodies.at( i ), loveNumber, 2 ) );
+                }
+                else if( functionTest == 1 )
+                {
+                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                    deformingBodies.at( i ), std::complex< double >( loveNumber, 0.0 ), 2 ) );
+                }
+                else if( functionTest == 2 )
+                {
+                    std::map< int, double > loveNumberMap;
+                    loveNumberMap[ 2 ] = 0.25;
+                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                    deformingBodies.at( i ), loveNumberMap ) );
+                }
+                else if( functionTest == 3 )
+                {
+                    std::map< int, std::complex< double > > loveNumberMap;
+                    loveNumberMap[ 2 ] = std::complex< double >( loveNumber, 0.0 );
+                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                    deformingBodies.at( i ), loveNumberMap ) );
+                }
+            }
 
-    //            // Create bodies
-    //            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+            // Create bodies
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    //            // Update states.
-    //            bodies.at( "Earth" )->setStateFromEphemeris( testTime );
-    //            bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
-    //            bodies.at( "Sun" )->setStateFromEphemeris( testTime );
-    //            bodies.at( "Moon" )->setStateFromEphemeris( testTime );
+            // Update states.
+            bodies.at( "Earth" )->setStateFromEphemeris( testTime );
+            bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+            bodies.at( "Sun" )->setStateFromEphemeris( testTime );
+            bodies.at( "Moon" )->setStateFromEphemeris( testTime );
 
-    //            // Update gravity field
-    //            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-    //                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-    //                        bodies.at( "Earth" )->getGravityFieldModel( ) );
-    //            earthGravityField->update( testTime );
+            // Update gravity field
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( "Earth" )->getGravityFieldModel( ) );
+            earthGravityField->update( testTime );
 
-    //            // Retrieve corrections.
-    //            cosineCoefficientsBodyTest.push_back(
-    //                        earthGravityField->getCosineCoefficients( ) - cosineCoefficients );
-    //            sineCoefficientsBodyTest.push_back(
-    //                        earthGravityField->getSineCoefficients( ) - sineCoefficients );
-    //        }
+            // Retrieve corrections.
+            cosineCoefficientsBodyTest.push_back(
+                        earthGravityField->getCosineCoefficients( ) - cosineCoefficients );
+            sineCoefficientsBodyTest.push_back(
+                        earthGravityField->getSineCoefficients( ) - sineCoefficients );
+        }
 
 
-    //        // Test whether corrections from separate bodies, or two bodies together, give identical results
-    //        Eigen::MatrixXd cosineDegreeTwoBodyDifference =
-    //                cosineCoefficientsBodyTest.at( 2 ) -
-    //                cosineCoefficientsBodyTest.at( 1 ) - cosineCoefficientsBodyTest.at( 0 );
-    //        Eigen::MatrixXd sineDegreeTwoBodyDifference =
-    //                sineCoefficientsBodyTest.at( 2 ) -
-    //                sineCoefficientsBodyTest.at( 1 ) - sineCoefficientsBodyTest.at( 0 );
+        // Test whether corrections from separate bodies, or two bodies together, give identical results
+        Eigen::MatrixXd cosineDegreeTwoBodyDifference =
+                cosineCoefficientsBodyTest.at( 2 ) -
+                cosineCoefficientsBodyTest.at( 1 ) - cosineCoefficientsBodyTest.at( 0 );
+        Eigen::MatrixXd sineDegreeTwoBodyDifference =
+                sineCoefficientsBodyTest.at( 2 ) -
+                sineCoefficientsBodyTest.at( 1 ) - sineCoefficientsBodyTest.at( 0 );
 
-    //        for( unsigned int n = 2; n <= 2; n++ )
-    //        {
-    //            for( unsigned m = 0; m <=2; m++ )
-    //            {
-    //                BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
-    //                BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
-    //            }
-    //        }
+        for( unsigned int n = 2; n <= 2; n++ )
+        {
+            for( unsigned m = 0; m <=2; m++ )
+            {
+                BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+            }
+        }
 
-    //        // Check different function types for two-body case (most complex)
-    //        cosineCoefficientsFunctionTestDegreeTwo.push_back( cosineCoefficientsBodyTest.at( 2 ) );
-    //        sineCoefficientsFunctionTestDegreeTwo.push_back( sineCoefficientsBodyTest.at( 2 ) );
-    //        if( functionTest != 0 )
-    //        {
-    //            // Check if the four constant love number interfaces are the same
-    //            Eigen::MatrixXd cosineDegreeTwoBodyDifference =
-    //                    cosineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - cosineCoefficientsFunctionTestDegreeTwo.at( 0 );
-    //            Eigen::MatrixXd sineDegreeTwoBodyDifference =
-    //                    sineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - sineCoefficientsFunctionTestDegreeTwo.at( 0 );
+        // Check different function types for two-body case (most complex)
+        cosineCoefficientsFunctionTestDegreeTwo.push_back( cosineCoefficientsBodyTest.at( 2 ) );
+        sineCoefficientsFunctionTestDegreeTwo.push_back( sineCoefficientsBodyTest.at( 2 ) );
+        if( functionTest != 0 )
+        {
+            // Check if the four constant love number interfaces are the same
+            Eigen::MatrixXd cosineDegreeTwoBodyDifference =
+                    cosineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - cosineCoefficientsFunctionTestDegreeTwo.at( 0 );
+            Eigen::MatrixXd sineDegreeTwoBodyDifference =
+                    sineCoefficientsFunctionTestDegreeTwo.at( functionTest ) - sineCoefficientsFunctionTestDegreeTwo.at( 0 );
 
-    //            for( unsigned int n = 2; n <= 2; n++ )
-    //            {
-    //                for( unsigned m = 0; m <=2; m++ )
-    //                {
-    //                    BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
-    //                    BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
-    //                }
-    //            }
-    //        }
-    //    }
+            for( unsigned int n = 2; n <= 2; n++ )
+            {
+                for( unsigned m = 0; m <=2; m++ )
+                {
+                    BOOST_CHECK_SMALL( cosineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                    BOOST_CHECK_SMALL( sineDegreeTwoBodyDifference( n, m ), 1.0E-23 );
+                }
+            }
+        }
+    }
 
-    std::cout<<"Degree test"<<std::endl;
     std::vector< Eigen::MatrixXd > cosineCoefficientsDegreeTest;
     std::vector< Eigen::MatrixXd > sineCoefficientsDegreeTest;
 
@@ -974,6 +973,89 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         }
     }
 
+    {
+        std::vector< Eigen::MatrixXd > cosineCoefficientsOrderTest;
+        std::vector< Eigen::MatrixXd > sineCoefficientsOrderTest;
+
+        for( int orderTest = 0; orderTest < 5; orderTest++ )
+        {
+            // Clear for current test
+            bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+
+
+            if( orderTest == 0 )
+            {
+                bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                            fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                "Moon", loveNumber, 2 ) );
+            }
+            else if( orderTest < 4 )
+            {
+                std::vector< double > loveNumbers = { 0.0, 0.0, 0.0 };
+                loveNumbers[ orderTest - 1 ] = loveNumber;
+                bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                            orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                "Moon", loveNumbers, 2 ) );
+            }
+            else
+            {
+                std::vector< double > loveNumbers = { 0.0, 0.0, 0.0 };
+                for( int order = 0; order < 3; order++ )
+                {
+                    loveNumbers[ order ] = loveNumber;
+                    bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                                orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings(
+                                    "Moon", loveNumbers, 2 ) );
+                }
+            }
+
+            // Create bodies
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+            // Update states.
+            bodies.at( "Earth" )->setStateFromEphemeris( testTime );
+            bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+            bodies.at( "Sun" )->setStateFromEphemeris( testTime );
+            bodies.at( "Moon" )->setStateFromEphemeris( testTime );
+
+            // Update gravity field
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodies.at( "Earth" )->getGravityFieldModel( ) );
+            earthGravityField->update( testTime );
+
+            // Retrieve corrections.
+            cosineCoefficientsOrderTest.push_back(
+                        earthGravityField->getCosineCoefficients( ) - cosineCoefficients );
+            sineCoefficientsOrderTest.push_back(
+                        earthGravityField->getSineCoefficients( ) - sineCoefficients );
+
+        }
+
+        Eigen::MatrixXd firstCosineDifference =
+                cosineCoefficientsOrderTest.at( 0 ) - cosineCoefficientsOrderTest.at( 1 ) -
+                cosineCoefficientsOrderTest.at( 2 ) - cosineCoefficientsOrderTest.at( 3 );
+        Eigen::MatrixXd firstSineDifference =
+                sineCoefficientsOrderTest.at( 0 ) - sineCoefficientsOrderTest.at( 1 ) -
+                sineCoefficientsOrderTest.at( 2 ) - sineCoefficientsOrderTest.at( 3 );
+
+        Eigen::MatrixXd secondCosineDifference =
+                cosineCoefficientsOrderTest.at( 4 ) - cosineCoefficientsOrderTest.at( 1 ) -
+                cosineCoefficientsOrderTest.at( 2 ) - cosineCoefficientsOrderTest.at( 3 );
+        Eigen::MatrixXd secondSineDifference =
+                sineCoefficientsOrderTest.at( 4 ) - sineCoefficientsOrderTest.at( 1 ) -
+                sineCoefficientsOrderTest.at( 2 ) - sineCoefficientsOrderTest.at( 3 );
+
+
+        for( unsigned int n = 2; n <= 2; n++ )
+        {
+            for( unsigned m = 0; m <=2; m++ )
+            {
+                BOOST_CHECK_SMALL( firstCosineDifference( n, m ), 1.0E-23 );
+                BOOST_CHECK_SMALL( firstSineDifference( n, m ), 1.0E-23 );
+            }
+        }
+    }
 }
 
 
