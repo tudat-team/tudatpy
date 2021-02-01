@@ -408,7 +408,7 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
     std::vector< std::string > deformingBodies;
     deformingBodies.push_back( "Moon" );
 
-    std::vector< std::vector< std::complex< double > > > loveNumbers;
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
 
     std::vector< std::complex< double > > degreeTwoLoveNumbers_;
     degreeTwoLoveNumbers_.push_back( std::complex< double >( 0.29525, -0.00087 ) );
@@ -419,13 +419,12 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
     degreeThreeLoveNumbers_.push_back( std::complex< double >( 0.093, 0.0 ) );
     degreeThreeLoveNumbers_.push_back( std::complex< double >( 0.093, 0.0 ) );
     degreeThreeLoveNumbers_.push_back( std::complex< double >( 0.093, 0.0 ) );
-    loveNumbers.push_back( degreeTwoLoveNumbers_ );
-    loveNumbers.push_back( degreeThreeLoveNumbers_ );
+    loveNumbers[ 2 ] = degreeTwoLoveNumbers_;
+    loveNumbers[ 3 ] =degreeThreeLoveNumbers_;
 
 
     std::shared_ptr< GravityFieldVariationSettings > singleGravityFieldVariation =
-            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers,
-                                                                             6378137.0 );
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
     gravityFieldVariations.push_back( singleGravityFieldVariation );
     return gravityFieldVariations;
 }

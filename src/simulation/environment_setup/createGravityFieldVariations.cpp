@@ -119,6 +119,15 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     {
     case basic_solid_body:
     {
+        std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                            bodies.at( body )->getGravityFieldModel( ) );
+        if( gravityField == nullptr )
+        {
+            throw std::runtime_error( "Error when making basic solid-body gravity field variation of body " + body +
+                                      ", base type is not time dependent" );
+        }
+
         // Check consistency
         std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
                 basicSolidBodyGravityVariationSettings =
@@ -208,7 +217,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         deformedBodyStateFunction,
                         deformedBodyOrientationFunction,
                         deformingBodyStateFunctions,
-                        basicSolidBodyGravityVariationSettings->getBodyReferenceRadius( ),
+                        gravityField->getReferenceRadius( ),
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
@@ -255,6 +264,62 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     return gravityFieldVariationModel;
     
 }
+
+
+//! Function to create constant complex Love number list for a range of degrees and orders.
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    // Define list of Love numbers
+    std::map< int, std::vector< std::complex< double > > > fullLoveNumbersVector;
+
+    // Iterate over all degrees and orders.
+    for( unsigned int i = 2; i <= static_cast< unsigned int >( maximumDegree );i++ )
+    {
+        for( unsigned int j = 0; j <= ( i + 2 ); j++ )
+        {
+            // Set current Love numbers.
+            if( static_cast< int >( j ) <= maximumOrder  )
+            {
+                fullLoveNumbersVector[ i ].push_back( constantLoveNumber );
+            }
+            else
+            {
+                fullLoveNumbersVector[ i ].push_back( std::complex< double >( 0.0, 0.0 ) );
+            }
+        }
+    }
+
+    return fullLoveNumbersVector;
+}
+
+//! Function to create constant real Love number list for a range of degrees and orders.
+std::map< int, std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const double constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    return getFullLoveNumbersVector( std::complex< double >( constantLoveNumber, 0.0 ), maximumDegree, maximumOrder );
+}
+
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const std::complex< double > loveNumber,
+        const int degree )
+{
+    std::vector< std::complex< double > > loveNumbers;
+    for( int i = 0; i <= degree; i++ )
+    {
+        loveNumbers.push_back( loveNumber );
+    }
+    return loveNumbers;
+}
+
+std::vector< std::complex< double > > getLoveNumberPerDegree(
+        const double loveNumber,
+        const int degree )
+{
+    return getLoveNumberPerDegree( std::complex< double >( loveNumber, 0.0 ), degree );
+}
+
 
 } // namespace simulation_setup
 
