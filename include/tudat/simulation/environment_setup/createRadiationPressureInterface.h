@@ -112,7 +112,15 @@ public:
             const std::string& sourceBody, const double area, const double radiationPressureCoefficient,
             const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ),
-        area_( area ), radiationPressureCoefficient_( radiationPressureCoefficient ){ }
+        area_( area ), radiationPressureCoefficient_( radiationPressureCoefficient ),
+        radiationPressureCoefficientFunction_( [=]( const double ){ return radiationPressureCoefficient;} ){ }
+
+    CannonBallRadiationPressureInterfaceSettings(
+            const std::string& sourceBody, const double area, const std::function< double(  const double ) > radiationPressureCoefficientFunction,
+            const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
+        RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ),
+        area_( area ), radiationPressureCoefficient_( TUDAT_NAN ),
+        radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction ){ }
 
     //! Function to return surface area that undergoes radiation pressure.
     /*!
@@ -135,6 +143,8 @@ public:
      */
     double getRadiationPressureCoefficient( ){ return radiationPressureCoefficient_; }
 
+    std::function< double( const double ) >  getRadiationPressureCoefficientFunction( ){ return radiationPressureCoefficientFunction_; }
+
 
 private:
 
@@ -143,6 +153,8 @@ private:
 
     //! Radiation pressure coefficient.
     double radiationPressureCoefficient_;
+
+    std::function< double( const double ) > radiationPressureCoefficientFunction_;
 };
 
 inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(

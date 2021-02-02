@@ -148,15 +148,31 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
                             radiationPressureInterfaceSettings->getSourceBody( ) ); };
         }
 
+        if( cannonBallSettings->getRadiationPressureCoefficient( ) !=
+                cannonBallSettings->getRadiationPressureCoefficient( ) )
+        {
         // Create radiation pressure interface.
         radiationPressureInterface =
                 std::make_shared< electromagnetism::RadiationPressureInterface >(
                     radiatedPowerFunction,
                     std::bind( &Body::getPosition, sourceBody ),
                     std::bind( &Body::getPosition, bodies.at( bodyName ) ),
-                    cannonBallSettings->getRadiationPressureCoefficient( ),
+                    cannonBallSettings->getRadiationPressureCoefficientFunction( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );
+        }
+        else
+        {
+            // Create radiation pressure interface.
+            radiationPressureInterface =
+                    std::make_shared< electromagnetism::RadiationPressureInterface >(
+                        radiatedPowerFunction,
+                        std::bind( &Body::getPosition, sourceBody ),
+                        std::bind( &Body::getPosition, bodies.at( bodyName ) ),
+                        cannonBallSettings->getRadiationPressureCoefficient( ),
+                        cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
+                        sourceRadius );
+        }
         break;
     }
     case panelled_radiation_pressure_interface:

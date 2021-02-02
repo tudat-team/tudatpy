@@ -1204,6 +1204,17 @@ createConstantCoefficientAerodynamicCoefficientInterface(
         const bool areCoefficientsInAerodynamicFrame = false,
         const bool areCoefficientsInNegativeAxisDirection = true );
 
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createZeroParameterAerodynamicCoefficientInterface(
+        const std::function< Eigen::Vector3d( ) > constantForceCoefficientFunction,
+        const std::function< Eigen::Vector3d( ) > constantMomentCoefficientFunction,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool areCoefficientsInAerodynamicFrame = false,
+        const bool areCoefficientsInNegativeAxisDirection = true );
+
 //! Factory function for tabulated (N-D independent variables) aerodynamic coefficient interface.
 /*!
  *  Factory function for tabulated (N-D independent variables) aerodynamic coefficient interface.

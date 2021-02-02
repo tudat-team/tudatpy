@@ -134,6 +134,30 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
+//! Function to create an aerodynamic coefficient interface containing constant coefficients.
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createZeroParameterAerodynamicCoefficientInterface(
+        const std::function< Eigen::Vector3d( ) > constantForceCoefficientFunction,
+        const std::function< Eigen::Vector3d( ) > constantMomentCoefficientFunction,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool areCoefficientsInAerodynamicFrame,
+        const bool areCoefficientsInNegativeAxisDirection )
+{
+    // Create coefficient interface
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
+            std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                [ = ]( const std::vector< double >& ){ return constantForceCoefficientFunction( ); },
+                [ = ]( const std::vector< double >& ){ return constantMomentCoefficientFunction( ); },
+                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
+    return coefficientInterface;
+}
+
 //! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
