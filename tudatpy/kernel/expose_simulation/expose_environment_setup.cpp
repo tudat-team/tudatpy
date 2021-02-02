@@ -20,6 +20,7 @@
 //#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/complex.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -28,6 +29,7 @@ namespace ti = tudat::interpolators;
 namespace tba = tudat::basic_astrodynamics;
 namespace ta = tudat::aerodynamics;
 namespace trf = tudat::reference_frames;
+namespace tg = tudat::gravitation;
 
 namespace tudat
 {
@@ -652,6 +654,9 @@ void expose_ephemeris_setup(py::module &m) {
 
 void expose_shape_setup(py::module &m){
 
+    py::class_<tss::BodyShapeSettings,
+            std::shared_ptr<tss::BodyShapeSettings>>(m, "BodyShapeSettings");
+
     m.def("spherical",
           &tss::sphericalBodyShapeSettings,
           py::arg("radius"));
@@ -664,6 +669,86 @@ void expose_shape_setup(py::module &m){
           py::arg("equatorial_radius"),
           py::arg("flattening"));
 
+}
+
+void expose_gravity_field_variation_setup(py::module &m)
+{
+    py::enum_<tg::BodyDeformationTypes>(
+                m, "BodyDeformationTypes", "<no_doc>")
+            .value("basic_solid_body", tg::basic_solid_body)
+            .value("tabulated", tg::tabulated_variation)
+            .export_values();
+
+    py::class_<tss::GravityFieldVariationSettings,
+            std::shared_ptr<tss::GravityFieldVariationSettings>>(m, "GravityFieldVariationSettings");
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string, const double, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number"),
+          py::arg("degree" ),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string, const std::complex< double >, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number"),
+          py::arg("degree" ),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string, std::map< int, double >,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree"),
+          py::arg("interpolation_settings" ) = nullptr);
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string, std::map< int, std::complex< double > >,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree"),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string,  const std::vector< double >, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_order"),
+          py::arg("degree"),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string,  const std::vector< std::complex< double > >, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::orderVariableSingleDegreeLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_order"),
+          py::arg("degree"),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string,  const std::map< int, std::vector< double > >, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("solid_body_tide",
+          py::overload_cast< const std::string,  const std::map< int, std::vector< std::complex< double > > >, const int,
+          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings ),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          py::arg("interpolation_settings" ) = nullptr );
 }
 
 void expose_environment_setup(py::module &m) {
@@ -915,6 +1000,10 @@ void expose_environment_setup(py::module &m) {
 
     auto shape_setup = m.def_submodule("shape");
     expose_shape_setup(shape_setup);
+
+    auto gravity_variation_setup = m.def_submodule("gravity_field_variation");
+    expose_gravity_field_variation_setup(gravity_variation_setup);
+
 
 }
 
