@@ -16,6 +16,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
@@ -383,7 +384,19 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
         case body_mass_state:
         {
-            throw std::runtime_error( "Error, cannot estimate initial mass state" );
+            std::shared_ptr< MassPropagatorSettings< InitialStateParameterType > > massPropagatorSettings =
+                    std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
+            std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
+            Eigen::VectorXd initialStates =  massPropagatorSettings->getInitialStates( );
+            for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+            {
+                initialStateParameterSettings.push_back(
+                            std::make_shared< estimatable_parameters::InitialMassEstimatableParameterSettings<
+                            InitialStateParameterType > >(
+                                propagatedBodies.at( i ), initialStates( i ) ) );
+            }
+            break;
         }
         case custom_state:
         {
@@ -567,6 +580,31 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                             initialStateSettings->baseOrientation_ );
             }
             break;
+        case initial_mass_state:
+        {
+            // Check consistency of input.
+            if( std::dynamic_pointer_cast<
+                    InitialMassEstimatableParameterSettings< InitialStateParameterType > >(
+                        parameterSettings ) == nullptr )
+            {
+                throw std::runtime_error( "Error when making body initial mass state parameter, settings type is incompatible" );
+            }
+            else
+            {
+                std::shared_ptr< InitialMassEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings = std::dynamic_pointer_cast<
+                        InitialMassEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings );
+
+                double initialMass = initialStateSettings->initialStateValue_;
+                initialStateParameterToEstimate =
+                        std::make_shared< InitialMassStateParameter< InitialStateParameterType > >(
+                            initialStateSettings->parameterType_.second.first,
+                            ( Eigen::VectorXd( 1 ) << initialMass ).finished( ) );
+            }
+            break;
+        }
+
         default:
             std::string errorMessage = "Error, could not create parameter for initial state of type " +
                     std::to_string( parameterSettings->parameterType_.first );

@@ -77,7 +77,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     using namespace aerodynamics;
     using namespace acceleration_partials;
 
-    std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial;
+    std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial = nullptr;
 
     // Identify current acceleration model type
     AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
@@ -417,6 +417,9 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
+    case thrust_acceleration:
+        std::cerr<<"Warning, thrust acceleration partials implicitly set to zero - depending on thrust guidance model, this may provide biased results for variational equations"<<std::endl;
+        break;
     default:
         std::string errorMessage = "Acceleration model " + std::to_string( accelerationType ) +
                 " not found when making acceleration partial";
@@ -519,9 +522,12 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                                         std::make_pair( acceleratingBody, acceleratingBodyObject ),
                                         bodies, parametersToEstimate );
 
-                            accelerationPartialVector.push_back( currentAccelerationPartial );
-                            accelerationPartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
-                                        currentAccelerationPartial );
+                            if( currentAccelerationPartial != nullptr )
+                            {
+                                accelerationPartialVector.push_back( currentAccelerationPartial );
+                                accelerationPartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
+                                            currentAccelerationPartial );
+                            }
                         }
                     }
 

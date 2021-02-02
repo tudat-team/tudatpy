@@ -372,6 +372,40 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         }
         break;
     }
+    case body_mass_state:
+    {
+        std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
+                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        // Retrieve estimated and propagated translational states, and check equality.
+        std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
+        std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesWithMassStateToEstimate(
+                    parametersToEstimate );
+        if( propagatedBodies.size( ) != estimatedBodies.size( ) )
+        {
+            std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
+                    std::to_string( propagatedBodies.size( ) ) + " " +
+                    std::to_string( estimatedBodies.size( ) );
+            throw std::runtime_error( errorMessage );
+            isInputConsistent = 0;
+        }
+        else
+        {
+            for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+            {
+                if( propagatedBodies.at( i ) != estimatedBodies.at( i ) )
+                {
+                    std::string errorMessage = "Error, propagated and estimated body vectors inconsistent at index" +
+                            std::string( propagatedBodies.at( i ) ) + " " +
+                            std::string( estimatedBodies.at( i ) );
+                    throw std::runtime_error( errorMessage );
+                    isInputConsistent = 0;
+                }
+            }
+
+        }
+        break;
+    }
     case hybrid:
     {
         std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
