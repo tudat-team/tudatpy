@@ -30,6 +30,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case initial_rotational_body_state:
         parameterDescription = "rotational state ";
         break;
+    case initial_mass_state:
+        parameterDescription = "rotational state ";
+        break;
     case gravitational_parameter:
         parameterDescription = "gravitational parameter ";
         break;
@@ -135,6 +138,9 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
         flag = true;
         break;
     case initial_rotational_body_state:
+        flag = true;
+        break;
+    case initial_mass_state:
         flag = true;
         break;
     default:
