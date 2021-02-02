@@ -17,8 +17,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 
-#define TUDAT_NAN std::numeric_limits< double >::signaling_NaN()
-
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -360,6 +358,33 @@ void expose_dependent_variable_setup(py::module &m) {
     //                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
     //    }
 
+
+}
+
+void expose_torque_setup(py::module &m) {
+
+    py::enum_<tba::AvailableTorque>(m, "AvailableTorque")
+            .value("torque_free_type", tba::AvailableTorque::torque_free)
+            .value("underfined_type", tba::AvailableTorque::underfined_torque)
+            .value("second_order_gravitational_type", tba::AvailableTorque::second_order_gravitational_torque)
+            .value("aerodynamic_type", tba::AvailableTorque::aerodynamic_torque)
+            .value("spherical_harmonic_gravitational_type", tba::AvailableTorque::spherical_harmonic_gravitational_torque)
+            .value("inertial_type", tba::AvailableTorque::inertial_torque)
+            .value("dissipative_type", tba::AvailableTorque::dissipative_torque)
+            .export_values();
+
+    py::class_<tss::TorqueSettings,
+            std::shared_ptr<tss::TorqueSettings>>(m, "AccelerationSettings");
+
+    py::class_<tss::SphericalHarmonicTorqueSettings,
+            std::shared_ptr<tss::SphericalHarmonicTorqueSettings>,
+            tss::TorqueSettings>(m, "SphericalHarmonicTorqueSettings");
+
+    m.def("aerodynamic", &tss::aerodynamicTorque);
+
+    m.def("second_degree_gravitational", &tss::secondDegreeGravitationalTorque);
+
+    m.def("spherical_harmonic_gravitational", &tss::sphericalHarmonicGravitationalTorque);
 
 }
 
@@ -1407,6 +1432,17 @@ void expose_propagation_setup(py::module &m) {
           py::arg("body_system"),
           py::arg("selected_acceleration_per_body"),
           py::arg("central_bodies"));
+
+    //////////////////////////////////////////////////////////////////////////////
+    // createTorqueModels.cpp
+    //////////////////////////////////////////////////////////////////////////////
+
+    m.def("create_torque_models",// overload [1/2]
+              &tss::createTorqueModelsMap,
+          py::arg("body_system"),
+          py::arg("selected_acceleration_per_body"),
+          py::arg("bodies_to_propagate"));
+
 
     //////////////////////////////////////////////////////////////////////////////
     // dynamicsSimulator.h / dynamicsSimulator.cpp
