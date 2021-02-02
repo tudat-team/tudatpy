@@ -109,7 +109,9 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
 
 
             stateDerivativePartials[ propagators::body_mass_state ] = massPartials;
-            std::cerr<<"Warning, mass state partials implicitly set to zero - depending on thrust guidance/mass rate model, this may provide biased results for variational equations"<<std::endl;
+            std::cerr<<"Warning, mass state partials implicitly set to zero - depending on non-conservative force settings"<<
+                       " and thrust guidance/mass rate model, this may provide biased results for variational equations "<<
+                       "(implicit assumption: mass influence nothing, and nothing influences mass)"<<std::endl;
             break;
         }
         default:
