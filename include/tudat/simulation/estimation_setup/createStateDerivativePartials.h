@@ -95,6 +95,23 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             }
             break;
         }
+        case propagators::body_mass_state:
+        {
+            std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > initialMassParameters =
+                    getListOfMassStateParametersToEstimate( parametersToEstimate );
+            orbit_determination::StateDerivativePartialsMap massPartials;
+            for( unsigned int i = 0; i < initialMassParameters.size( ); i++ )
+            {
+                massPartials.push_back(
+                            std::vector< std::shared_ptr< orbit_determination::StateDerivativePartial > >( ) );
+            }
+
+
+            stateDerivativePartials[ propagators::body_mass_state ] = massPartials;
+            std::cerr<<"Warning, mass state partials implicitly set to zero - depending on thrust guidance/mass rate model, this may provide biased results for variational equations"<<std::endl;
+            break;
+        }
         default:
             std::string errorMessage = "Cannot yet create state derivative partial models for type " +
                     std::to_string( stateDerivativeIterator->first );

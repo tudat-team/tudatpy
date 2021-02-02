@@ -24,6 +24,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
 namespace tudat
