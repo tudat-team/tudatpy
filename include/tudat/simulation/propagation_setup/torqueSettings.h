@@ -76,6 +76,31 @@ public:
     int maximumOrder_;
 };
 
+inline std::shared_ptr< TorqueSettings > aerodynamicTorque( )
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::aerodynamic_torque );
+}
+
+inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::second_order_gravitational_torque );
+}
+
+inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque(
+        const int maximumDegree, const int maximumOrder)
+{
+    return std::make_shared< SphericalHarmonicTorqueSettings >( maximumDegree, maximumOrder );
+}
+
+inline std::shared_ptr< TorqueSettings > dissipativeTorque(
+        const int maximumDegree, const int maximumOrder)
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
+}
+
+
+
+
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
 

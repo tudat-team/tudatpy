@@ -251,6 +251,10 @@ createAerodynamicCoefficientInterface(
         }
         break;
     }
+    case custom_aerodynamic_coefficients:
+    {
+        break;
+    }
     case tabulated_coefficients:
     {
         // Check number of dimensions of tabulated coefficients.

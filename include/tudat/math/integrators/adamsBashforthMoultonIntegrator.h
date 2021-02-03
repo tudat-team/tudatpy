@@ -112,6 +112,19 @@ public:
           absoluteErrorTolerance_( absoluteErrorTolerance.array( ).abs( ) ),
           bandwidth_( std::fabs( static_cast< double >( bandwidth ) ) )
     {
+        if( !( currentState_.rows( ) == relativeErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == relativeErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating ABM integrator, relative tolerance input size is inconsistent" );
+        }
+
+        if( !( currentState_.rows( ) == absoluteErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == absoluteErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating ABM integrator, absolute tolerance input size is inconsistent" );
+        }
+
+
         fixedStepSize_ = false;
         strictCompare_ = true;
         fixedOrder_ = false;
