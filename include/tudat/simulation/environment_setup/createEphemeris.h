@@ -914,6 +914,23 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
 			bodyIdentifier, useCircularCoplanarApproximation );
 }
 
+inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
+        const std::string bodyName,
+        const bool useCircularCoplanarApproximation )
+{
+    ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier;
+    try
+    {
+        bodyIdentifier = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
+    }
+    catch( std::runtime_error )
+    {
+        throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
+    }
+    return std::make_shared< ApproximatePlanetPositionSettings >(
+            bodyIdentifier, useCircularCoplanarApproximation );
+}
+
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
 		const std::string frameOrigin = "SSB",
 		const std::string frameOrientation = "ECLIPJ2000",
