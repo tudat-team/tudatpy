@@ -1076,6 +1076,40 @@ private:
 
 };
 
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotatonalPropagatorSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModelMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueModelMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotatonalPropagatorSettings(
+        const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueSettingsMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
+
 //! Class for defining settings for propagating the mass of a body
 /*!
  *  Class for defining settings for propagating the mass of a body. The body masses are propagated in their natural

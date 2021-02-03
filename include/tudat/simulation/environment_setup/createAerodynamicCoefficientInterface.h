@@ -402,6 +402,51 @@ private:
 
 };
 
+//! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
+class CustomAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+{
+public:
+
+    CustomAerodynamicCoefficientSettings(
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
+            const double referenceLength,
+            const double referenceArea,
+            const double lateralReferenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+            independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = true,
+            const bool areCoefficientsInNegativeAxisDirection = true ) :
+        AerodynamicCoefficientSettings(
+            custom_aerodynamic_coefficients, referenceLength, referenceArea,
+            lateralReferenceLength, momentReferencePoint,
+            independentVariableNames,
+            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+        forceCoefficientFunction_( forceCoefficientFunction ),
+        momentCoefficientFunction_( momentCoefficientFunction )
+    { }
+
+    std::function< Eigen::Vector3d( const std::vector< double >& ) > getForceCoefficientFunction( )
+    {
+        return forceCoefficientFunction_;
+    }
+
+    std::function< Eigen::Vector3d( const std::vector< double >& ) > getMomentCoefficientFunction( )
+    {
+        return momentCoefficientFunction_;
+    }
+
+
+private:
+    std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction_;
+
+    std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction_;
+
+
+};
+
+
 inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings(
         const double referenceArea,
         const Eigen::Vector3d& constantForceCoefficient,
@@ -443,6 +488,37 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoeffi
 {
     return std::make_shared< ScaledAerodynamicCoefficientInterfaceSettings >(
                 baseSettings, forceScaling, momentScaling, isScalingAbsolute );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true )
+{
+    return std::make_shared< CustomAerodynamicCoefficientSettings >(
+                forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea, lateralReferenceLength,
+                momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = true,
+        const bool areCoefficientsInNegativeAxisDirection = true )
+{
+    return std::make_shared< CustomAerodynamicCoefficientSettings >(
+                forceCoefficientFunction, [=](const std::vector< double >& ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); },
+    TUDAT_NAN, referenceArea, TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
+    independentVariableNames, areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
 
