@@ -267,6 +267,13 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientatio
     return std::make_shared< CustomThrustOrientationSettings >( thrustOrientationFunction );
 }
 
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientationSettings(
+        const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction  )
+{
+    return std::make_shared< CustomThrustOrientationSettings >(
+                [=]( const double time ){ return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } );
+}
+
 
 inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustDirectionSettings(
         const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
