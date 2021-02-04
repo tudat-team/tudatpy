@@ -165,6 +165,12 @@ public:
         return bodyFixedToTopocentricFrameRotation_;
     }
 
+    Eigen::Matrix3d getRotationMatrixFromBodyFixedToTopocentricFrame( const double time )
+    {
+        return Eigen::Matrix3d( getRotationFromBodyFixedToTopocentricFrame( time ) );
+    }
+
+
     //! Function to (re)set the nominal state of the station
     /*!
      *  Function to (re)set the nominal state of the station. Input may be in any type of elements defined in
