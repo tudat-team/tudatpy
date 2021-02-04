@@ -324,11 +324,12 @@ using RungeKuttaVariableStepSizeSettings = RungeKuttaVariableStepSizeSettingsSca
 /*!
  *  Class to define settings of variable step RK numerical integrator with vector tolerances.
  */
-template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
+template< typename IndependentVariableType = double >
 class RungeKuttaVariableStepSizeSettingsVectorTolerances: public RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >
 {
 public:
 
+    typedef Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentVariableType;
     //! Default constructor.
     /*!
      *  Constructor for variable step RK integrator settings with vector tolerances.
@@ -354,8 +355,8 @@ public:
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const DependentVariableType& relativeErrorTolerance,
-            const DependentVariableType& absoluteErrorTolerance,
+            const DependentVariableType relativeErrorTolerance,
+            const DependentVariableType absoluteErrorTolerance,
             const int saveFrequency = 1,
             const bool assessTerminationOnMinorSteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -598,15 +599,15 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
                 maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
 }
 
-template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
+template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerances(
         const IndependentVariableType initialTime,
         const IndependentVariableType initialTimeStep,
         const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
         const IndependentVariableType minimumStepSize,
         const IndependentVariableType maximumStepSize,
-        const DependentVariableType& relativeErrorTolerance,
-        const DependentVariableType& absoluteErrorTolerance,
+        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > relativeErrorTolerance,
+        const Eigen::Matrix< IndependentVariableType, Eigen::Dynamic, Eigen::Dynamic > absoluteErrorTolerance,
         const int saveFrequency = 1,
         const bool assessTerminationOnMinorSteps = false,
         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -614,12 +615,13 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
         const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
 {
     auto settings = std::make_shared< RungeKuttaVariableStepSizeSettingsVectorTolerances<
-            IndependentVariableType, DependentVariableType > >(
+            IndependentVariableType > >(
                 initialTime, initialTimeStep,
                 coefficientSet, minimumStepSize, maximumStepSize,
                 relativeErrorTolerance, absoluteErrorTolerance,
                 saveFrequency, assessTerminationOnMinorSteps, safetyFactorForNextStepSize,
                 maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize );
+
     return settings;
 }
 
@@ -759,22 +761,22 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         else
         {
             // Settings with vector tolerances
-            std::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >
                     vectorTolerancesIntegratorSettings = std::dynamic_pointer_cast<
-                    RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >(
+                    RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >(
                         variableStepIntegratorSettings );
 
             // Check input consistency
             if ( vectorTolerancesIntegratorSettings == nullptr )
             {
                 throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
-                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances type with suitable (in)dependent variable types." );
+                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances type with suitable independent variable type." );
             }
 
             // Check that sizes of tolerances and initial state match
-            DependentVariableType relativeErrorTolerance = vectorTolerancesIntegratorSettings->relativeErrorTolerance_.template cast<
+            auto relativeErrorTolerance = vectorTolerancesIntegratorSettings->relativeErrorTolerance_.template cast<
                     typename DependentVariableType::Scalar >( );
-            DependentVariableType absoluteErrorTolerance = vectorTolerancesIntegratorSettings->absoluteErrorTolerance_.template cast<
+            auto absoluteErrorTolerance = vectorTolerancesIntegratorSettings->absoluteErrorTolerance_.template cast<
                     typename DependentVariableType::Scalar >( );
             if ( ( relativeErrorTolerance.rows( ) != initialState.rows( ) ) ||
                  ( relativeErrorTolerance.cols( ) != initialState.cols( ) ) ||

@@ -670,6 +670,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSett
                 spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
                     originalFrame, targetFrame, initialTime ).norm( ) );
 }
+
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame,
@@ -678,6 +679,16 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 {
 	return std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation,
 														 initialTime, 0 );
+}
+
+inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Matrix3d& initialOrientation,
+        const double initialTime )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+                originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ),initialTime, 0 );
 }
 
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
