@@ -31,30 +31,6 @@ namespace ta = tudat::aerodynamics;
 namespace trf = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettingsFromMatrix(
-        const std::string& originalFrame,
-        const std::string& targetFrame,
-        const Eigen::Matrix3d& initialOrientation,
-        const double initialTime,
-        const double rotationRate
-        )
-{
-    return std::make_shared< SimpleRotationModelSettings >(
-                originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate
-                );
-}
-
-
-
-}
-
-}
 namespace tudatpy {
 
 void expose_aerodynamic_coefficient_setup(py::module &m) {
@@ -96,6 +72,17 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
               &tss::constantAerodynamicCoefficientSettings),
           py::arg("reference_area"),
           py::arg("constant_force_coefficient"),
+          py::arg("are_coefficients_in_aerodynamic_frame") = true,
+          py::arg("are_coefficients_in_negative_axis_direction") = true);
+
+    m.def("custom",
+          py::overload_cast<
+          const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+          const double, const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+          const bool, const bool >( &tss::customAerodynamicCoefficientSettings),
+          py::arg("force_coefficient_function"),
+          py::arg("reference_area"),
+          py::arg("independent_variables"),
           py::arg("are_coefficients_in_aerodynamic_frame") = true,
           py::arg("are_coefficients_in_negative_axis_direction") = true);
 
@@ -348,8 +335,7 @@ void expose_rotation_model_setup(py::module &m) {
     m.def("gcrs_to_itrs",
           &tss::gcrsToItrsRotationModelSettings,
           py::arg("precession_nutation_theory") = tba::iau_2006,
-          py::arg("original_frame") = "GCRS"
-            );
+          py::arg("original_frame") = "GCRS" );
 
 }
 
@@ -590,8 +576,9 @@ void expose_ephemeris_setup(py::module &m) {
 
 
     m.def("approximate_planet_positions",
-          &tss::approximatePlanetPositionsSettings,
-          py::arg("body_identifier"),
+          py::overload_cast<  const std::string,
+          const bool >( &tss::approximatePlanetPositionsSettings ),
+          py::arg("body_name"),
           py::arg("use_circular_coplanar_approximation"));
 
     m.def("direct_spice",
@@ -735,7 +722,7 @@ void expose_gravity_field_variation_setup(py::module &m)
           py::arg("interpolation_settings" ) = nullptr );
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string,  const std::map< int, std::vector< double > >, const int,
+          py::overload_cast< const std::string,  const std::map< int, std::vector< double > >,
           const std::shared_ptr< tss::ModelInterpolationSettings > >(
               &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),
@@ -743,7 +730,7 @@ void expose_gravity_field_variation_setup(py::module &m)
           py::arg("interpolation_settings" ) = nullptr );
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string,  const std::map< int, std::vector< std::complex< double > > >, const int,
+          py::overload_cast< const std::string,  const std::map< int, std::vector< std::complex< double > > >,
           const std::shared_ptr< tss::ModelInterpolationSettings > >(
               &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),

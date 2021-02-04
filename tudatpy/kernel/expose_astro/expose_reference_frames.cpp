@@ -70,6 +70,13 @@ void expose_frames(py::module &m) {
           &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
           py::arg("inertial_cartesian_state") );
 
+    m.def("corotating_to_inertial",
+          py::overload_cast< const double, const double, const double >(
+              &trf::getRotatingPlanetocentricToInertialFrameTransformationQuaternion ),
+          py::arg("pole_declination"),
+          py::arg("pole_right_ascension"),
+          py::arg("pole_meridian") );
+
 
 }
 

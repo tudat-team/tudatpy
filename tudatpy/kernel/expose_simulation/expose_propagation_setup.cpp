@@ -800,24 +800,8 @@ void expose_integrator_setup(py::module &m) {
           py::arg("save_frequency") = 1,
           py::arg("assess_termination_on_minor_steps") = false);
 
-    //    m.def("runge_kutta_variable_step_size",
-    //		  &tni::rungeKuttaVariableStepSettings< double >,
-    //		  py::arg("initial_time"),
-    //		  py::arg("initial_time_step"),
-    //		  py::arg("coefficient_set"),
-    //		  py::arg("minimum_step_size"),
-    //		  py::arg("maximum_step_size"),
-    //		  py::arg("relative_error_tolerance"),
-    //		  py::arg("absolute_error_tolerance"),
-    //		  py::arg("save_frequency") = 1,
-    //		  py::arg("assess_termination_on_minor_steps") = false,
-    //		  py::arg("safety_factor") = 0.8,
-    //		  py::arg("maximum_factor_increase") = 4.0,
-    //		  py::arg("minimum_factor_increase") = 0.1);
-
-    //! Function defined twice (here with shorter name)
     m.def("runge_kutta_variable_step_size",
-          &tni::rungeKuttaVariableStepSettingsScalarTolerances,
+          &tni::rungeKuttaVariableStepSettingsScalarTolerances< double >,
           py::arg("initial_time"),
           py::arg("initial_time_step"),
           py::arg("coefficient_set"),
@@ -831,24 +815,8 @@ void expose_integrator_setup(py::module &m) {
           py::arg("maximum_factor_increase") = 4.0,
           py::arg("minimum_factor_increase") = 0.1 );
 
-
-    m.def("runge_kutta_variable_step_size_scalar_tolerances",
-          &tni::rungeKuttaVariableStepSettingsScalarTolerances,
-          py::arg("initial_time"),
-          py::arg("initial_time_step"),
-          py::arg("coefficient_set"),
-          py::arg("minimum_step_size"),
-          py::arg("maximum_step_size"),
-          py::arg("relative_error_tolerance"),
-          py::arg("absolute_error_tolerance"),
-          py::arg("save_frequency") = 1,
-          py::arg("assess_termination_on_minor_steps") = false,
-          py::arg("safety_factor") = 0.8,
-          py::arg("maximum_factor_increase") = 4.0,
-          py::arg("minimum_factor_increase") = 0.1 );
-
-    m.def("runge_kutta_variable_step_size_vector_tolerances",
-          &tni::rungeKuttaVariableStepSettingsVectorTolerances,
+    m.def("runge_kutta_variable_step_size",
+          &tni::rungeKuttaVariableStepSettingsVectorTolerances< double >,
           py::arg("initial_time"),
           py::arg("initial_time_step"),
           py::arg("coefficient_set"),
@@ -913,6 +881,17 @@ void expose_propagator_setup(py::module &m)
                    tp::TranslationalPropagatorType::unified_state_model_modified_rodrigues_parameters)
             .value("unified_state_model_exponential_map",
                    tp::unified_state_model_exponential_map)
+            .export_values();
+
+    py::enum_<tp::RotationalPropagatorType>(m, "RotationalPropagatorType")
+            .value("undefined_rotational_propagator",
+                   tp::RotationalPropagatorType::undefined_rotational_propagator)
+            .value("quaternions",
+                   tp::RotationalPropagatorType::quaternions)
+            .value("modified_rodrigues_parameters",
+                   tp::RotationalPropagatorType::modified_rodrigues_parameters)
+            .value("exponential_map",
+                   tp::RotationalPropagatorType::exponential_map)
             .export_values();
 
     py::class_<tp::DependentVariableSaveSettings,
@@ -1206,6 +1185,44 @@ void expose_propagator_setup(py::module &m)
           py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
           py::arg("print_interval") = TUDAT_NAN);
 
+    m.def("rotational",
+          py::overload_cast<
+          const tba::TorqueModelMap&,
+          const std::vector< std::string >&,
+          const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+          const std::shared_ptr< tp::PropagationTerminationSettings >,
+          const tp::RotationalPropagatorType,
+          const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+          const double
+          >(&tp::rotatonalPropagatorSettings<double>),
+          py::arg("torque_models"),
+          py::arg("bodies_to_propagate"),
+          py::arg("initial_states"),
+          py::arg("termination_settings"),
+          py::arg("propagator") = tp::quaternions,
+          py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+          py::arg("print_interval") = TUDAT_NAN);
+
+
+    m.def("rotational",
+          py::overload_cast<
+          const tss::SelectedTorqueMap&,
+          const std::vector< std::string >&,
+          const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+          const std::shared_ptr< tp::PropagationTerminationSettings >,
+          const tp::RotationalPropagatorType,
+          const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+          const double
+          >(&tp::rotatonalPropagatorSettings<double>),
+          py::arg("torque_model_settings"),
+          py::arg("bodies_to_propagate"),
+          py::arg("initial_states"),
+          py::arg("termination_settings"),
+          py::arg("propagator") = tp::quaternions,
+          py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
+          py::arg("print_interval") = TUDAT_NAN);
+
+
     m.def("mass",
           py::overload_cast<
           const std::vector< std::string >,
@@ -1220,9 +1237,6 @@ void expose_propagator_setup(py::module &m)
           py::arg("termination_settings"),
           py::arg("output_variables") = std::shared_ptr<tp::DependentVariableSaveSettings>(),
           py::arg("print_interval") = TUDAT_NAN);
-
-
-
 
     m.def("mass",
           py::overload_cast<
@@ -1268,9 +1282,6 @@ void expose_propagator_setup(py::module &m)
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >(),
           py::arg("print_interval") = TUDAT_NAN);
-
-
-
 
 
     m.def("multitype",
@@ -1571,6 +1582,9 @@ void expose_propagation_setup(py::module &m) {
     auto acceleration_setup = m.def_submodule("acceleration");
     expose_acceleration_setup(acceleration_setup);
 
+    auto torque_setup = m.def_submodule("torque");
+    expose_torque_setup(torque_setup);
+
     auto integrator_setup = m.def_submodule("integrator");
     expose_integrator_setup(integrator_setup);
 
@@ -1579,6 +1593,7 @@ void expose_propagation_setup(py::module &m) {
 
     auto mass_setup = m.def_submodule("mass");
     expose_mass_rate_setup(mass_setup);
+
 
     auto dependent_variable_setup = m.def_submodule("dependent_variable");
     expose_dependent_variable_setup(dependent_variable_setup);
