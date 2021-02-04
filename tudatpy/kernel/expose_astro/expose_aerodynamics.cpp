@@ -68,11 +68,15 @@ namespace tudatpy {
 
 void expose_aerodynamics(py::module &m) {
 
-    // TODO: Note down that Pybind11 has types registered from detatched submodules.
-    //  py::class_<// Forward declaration of AerodynamicAngleCalculator from "tudat/reference_frames.h"
-    //      tudat::reference_frames::AerodynamicAngleCalculator,
-    //      std::shared_ptr<tudat::reference_frames::AerodynamicAngleCalculator>>
-    //      AerodynamicAngleCalculator(m, "AerodynamicAngleCalculator");
+    py::enum_<ta::AerodynamicCoefficientsIndependentVariables>(m, "AerodynamicCoefficientsIndependentVariables", "<no_doc>")
+            .value("mach_number_dependent", ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent)
+            .value("angle_of_attack_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent)
+            .value("sideslip_angle_dependent", ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent)
+            .value("altitude_dependent", ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent)
+            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent)
+            .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent)
+            .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable)
+            .export_values();
 
     py::class_<ta::AerodynamicCoefficientInterface,
             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
@@ -123,7 +127,30 @@ void expose_aerodynamics(py::module &m) {
                  py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
             .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
             .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
-            .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator);
+            .def_property_readonly("current_altitude", &ta::FlightConditions::getCurrentAltitude)
+            .def_property_readonly("current_longitude", &ta::FlightConditions::getCurrentLongitude)
+            .def_property_readonly("current_geodetic_latitude", &ta::FlightConditions::getCurrentTime)
+            .def_property_readonly("current_time", &ta::FlightConditions::getCurrentGeodeticLatitude)
+            .def_property_readonly("current_body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState)
+            .def_property_readonly("current_altitude", &ta::FlightConditions::getCurrentAltitude);
+
+    py::class_<ta::AtmosphericFlightConditions,
+            std::shared_ptr<ta::AtmosphericFlightConditions>,
+            ta::FlightConditions>(m, "AtmosphericFlightConditions")
+            .def_property_readonly("current_density", &ta::AtmosphericFlightConditions::getCurrentDensity)
+            .def_property_readonly("current_temperature", &ta::AtmosphericFlightConditions::getCurrentFreestreamTemperature)
+            .def_property_readonly("current_dynamic_pressure", &ta::AtmosphericFlightConditions::getCurrentDynamicPressure)
+            .def_property_readonly("current_pressure", &ta::AtmosphericFlightConditions::getCurrentPressure)
+            .def_property_readonly("current_airspeed", &ta::AtmosphericFlightConditions::getCurrentAirspeed)
+            .def_property_readonly("current_mach_number", &ta::AtmosphericFlightConditions::getCurrentMachNumber)
+            .def_property_readonly("current_airspeed_velocity", &ta::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity)
+            .def_property_readonly("current_speed_of_sound", &ta::AtmosphericFlightConditions::getCurrentSpeedOfSound)
+            .def_property_readonly("current_aerodynamic_coefficient_independent_variables",
+                                   &ta::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables)
+            .def_property_readonly("current_control_surface+aerodynamic_coefficient_independent_variables",
+                                   &ta::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables)
+            .def_property_readonly("aerodynamic_coefficient_interface", &ta::AtmosphericFlightConditions::getAerodynamicCoefficientInterface);
+
 
     py::class_<ta::AerodynamicGuidance, ta::PyAerodynamicGuidance,
             std::shared_ptr< ta::AerodynamicGuidance > >(m, "AerodynamicGuidance")
