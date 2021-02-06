@@ -231,6 +231,11 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
+        if( !( stepSize == stepSize) )
+        {
+            throw std::runtime_error( "Error in ABM integrator, step size is NaN" );
+        }
+
         // If stepSize is not same as old, clear the step-size dependent histories.
         if ( stepSize != stepSize_ )
         {
