@@ -127,6 +127,7 @@ void expose_aerodynamics(py::module &m) {
                  py::arg("aerodynamic_angle_calculator") = std::shared_ptr< tr::AerodynamicAngleCalculator>())
             .def("get_aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
             .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
+            .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator)
             .def_property_readonly("current_altitude", &ta::FlightConditions::getCurrentAltitude)
             .def_property_readonly("current_longitude", &ta::FlightConditions::getCurrentLongitude)
             .def_property_readonly("current_geodetic_latitude", &ta::FlightConditions::getCurrentTime)
