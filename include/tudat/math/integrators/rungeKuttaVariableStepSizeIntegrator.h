@@ -508,6 +508,11 @@ StateType
 RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 ::performIntegrationStep( const TimeStepType stepSize )
 {
+    if( !( stepSize == stepSize ) )
+    {
+        throw std::runtime_error( "Error in RKF integrator, step size is NaN" );
+    }
+
     // Define and allocated vector for the number of stages.
     currentStateDerivatives_.clear( );
     currentStateDerivatives_.reserve( this->coefficients_.cCoefficients.rows( ) );
