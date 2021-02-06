@@ -1332,6 +1332,10 @@ void expose_propagator_setup(py::module &m)
           py::arg("termination_time"),
           py::arg("terminate_exactly_on_final_condition") = false);
 
+    m.def("cpu_time_termination",
+          &tp::propagationCPUTimeTerminationSettings,
+          py::arg("cpu_termination_time") );
+
     m.def("dependent_variable_termination",
           &tp::propagationDependentVariableTerminationSettings,
           py::arg("dependent_variable_settings"),
