@@ -1614,6 +1614,26 @@ int getMultiTypePropagatorStateSize(
     return stateSize;
 }
 
+template< typename StateScalarType >
+int getMultiTypePropagatorConventionalStateSize(
+        const std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >&
+        propagatorSettingsList )
+{
+    int stateSize = 0;
+
+    // Iterate over all propagation settings and add size to list
+    for( typename std::map< IntegratedStateType,
+         std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
+         typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
+    {
+        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+        {
+            stateSize += typeIterator->second.at( i )->getConventionalStateSize( );
+        }
+    }
+    return stateSize;
+}
+
 //! Function to retrieve the initial state for a list of propagator settings.
 /*!
  *  Function to retrieve the initial state for a list of propagator settings.
@@ -1628,7 +1648,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
         propagatorSettingsList )
 {
     // Get total size of propagated state
-    int totalSize = getMultiTypePropagatorStateSize( propagatorSettingsList );
+    int totalSize = getMultiTypePropagatorConventionalStateSize( propagatorSettingsList );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );
