@@ -278,6 +278,13 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationTimeTerminat
                 terminationTime, terminateExactlyOnFinalCondition );
 }
 
+inline std::shared_ptr< PropagationTerminationSettings > propagationCPUTimeTerminationSettings(
+        const double cpuTerminationTime )
+{
+    return std::make_shared< PropagationCPUTimeTerminationSettings >(
+                cpuTerminationTime );
+}
+
 inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTerminationSettings(
         const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
         const bool fulfillSingleCondition = false )
