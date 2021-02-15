@@ -32,7 +32,7 @@ void expose_io(py::module &m) {
         py::arg("vector_size"),
         py::arg("file_name") );
 
-  m.def("read_vector_history_from_file", &tudat::input_output::readMatrixHistoryFromFile< double, double >,
+  m.def("read_matrix_history_from_file", &tudat::input_output::readMatrixHistoryFromFile< double, double >,
         py::arg("matrix_rows"),
         py::arg("matrix_columns"),
         py::arg("file_name") );
