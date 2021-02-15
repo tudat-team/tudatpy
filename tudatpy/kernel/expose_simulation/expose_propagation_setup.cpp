@@ -1344,6 +1344,11 @@ void expose_propagator_setup(py::module &m)
           py::arg("terminate_exactly_on_final_condition") = false,
           py::arg("termination_root_finder_settings") = nullptr);
 
+    m.def("custom_termination",
+          &tp::popagationCustomTerminationSettings,
+          py::arg("custom_condition"));
+
+
     m.def("hybrid_termination",
           &tp::propagationHybridTerminationSettings,
           py::arg("termination_settings"),
