@@ -417,7 +417,7 @@ public:
     ApproximatePlanetPositionSettings(
             const ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData
             bodyIdentifier,
-            const bool useCircularCoplanarApproximation ):
+            const bool useCircularCoplanarApproximation = false ):
         EphemerisSettings( approximate_planet_positions ),
         bodyIdentifier_( bodyIdentifier ),
         useCircularCoplanarApproximation_( useCircularCoplanarApproximation ){ }
@@ -907,16 +907,14 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
 
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
 		const ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData
-		bodyIdentifier,
-		const bool useCircularCoplanarApproximation )
+        bodyIdentifier )
 {
 	return std::make_shared< ApproximatePlanetPositionSettings >(
-			bodyIdentifier, useCircularCoplanarApproximation );
+            bodyIdentifier, false );
 }
 
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
-        const std::string bodyName,
-        const bool useCircularCoplanarApproximation )
+        const std::string bodyName )
 {
     ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier;
     try
@@ -928,8 +926,15 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
         throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
     }
     return std::make_shared< ApproximatePlanetPositionSettings >(
-            bodyIdentifier, useCircularCoplanarApproximation );
+            bodyIdentifier, false );
 }
+
+inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )
+{
+    return std::make_shared< ApproximatePlanetPositionSettings >(
+                ephemerides::ApproximatePlanetPositionsBase::undefined, false );
+}
+
 
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
 		const std::string frameOrigin = "SSB",

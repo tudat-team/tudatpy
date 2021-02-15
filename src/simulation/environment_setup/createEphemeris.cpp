@@ -278,6 +278,23 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyToUse;
+                if( approximateEphemerisSettings->getBodyIdentifier( ) ==
+                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::undefined )
+                {
+                    try
+                    {
+                        bodyToUse = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
+                    }
+                    catch( std::runtime_error )
+                    {
+                        throw std::runtime_error( "Error, approximate ephemeris not available for body: " + bodyName + " when creating ephemeris." );
+                    }
+                }
+                else
+                {
+                    bodyToUse = approximateEphemerisSettings->getBodyIdentifier( );
+                }
                 // Create corresponding ephemeris object.
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {

@@ -169,7 +169,8 @@ enum AtmosphereTypes
     exponential_atmosphere,
     custom_constant_temperature_atmosphere,
     tabulated_atmosphere,
-    nrlmsise00
+    nrlmsise00,
+    scaled_atmosphere
 };
 
 //! Class for providing settings for atmosphere model.
@@ -833,10 +834,55 @@ private:
 
 };
 
+
+
+class ScaledAtmosphereSettings: public AtmosphereSettings
+{
+public:
+
+    ScaledAtmosphereSettings(
+            const std::shared_ptr< AtmosphereSettings > baseSettings,
+            const double scaling,
+            const bool isScalingAbsolute ):
+        AtmosphereSettings( scaled_atmosphere ),
+        baseSettings_( baseSettings ), scaling_( [=]( const double ){ return scaling; } ), isScalingAbsolute_( isScalingAbsolute ){ }
+
+    ScaledAtmosphereSettings(
+            const std::shared_ptr< AtmosphereSettings > baseSettings,
+            const std::function< double( const double ) > scaling,
+            const bool isScalingAbsolute ):
+        AtmosphereSettings( scaled_atmosphere ),
+    baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute ){ }
+
+    std::shared_ptr< AtmosphereSettings > getBaseSettings( )
+    {
+        return baseSettings_;
+    }
+
+    std::function< double( const double ) > getScaling( )
+    {
+        return scaling_;
+    }
+
+    bool getIsScalingAbsolute( )
+    {
+        return isScalingAbsolute_;
+    }
+
+protected:
+
+    std::shared_ptr< AtmosphereSettings > baseSettings_;
+
+    std::function< double( const double ) > scaling_;
+
+    bool isScalingAbsolute_;
+};
+
+
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double densityScaleHeight,
-        const double constantTemperature,
         const double densityAtZeroAltitude,
+        const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
         const double ratioOfSpecificHeats = 1.4 )
 {
@@ -853,6 +899,28 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
                 densityScaleHeight, TUDAT_NAN, densityAtZeroAltitude, TUDAT_NAN, TUDAT_NAN );
 }
 
+inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
+        const std::string& bodyName )
+{
+    BodiesWithPredefinedExponentialAtmospheres bodyId;
+    if( bodyName == "Earth" )
+    {
+        bodyId = BodiesWithPredefinedExponentialAtmospheres::earth;
+    }
+    else if( bodyName == "Mars" )
+    {
+        bodyId = BodiesWithPredefinedExponentialAtmospheres::mars;
+    }
+    else
+    {
+        throw std::runtime_error( "Error while creating exponential atmosphere. The body name provided "
+                                  "does not match any predefined atmosphere model. Available models for: "
+                                  "Earth, Mars." );
+    }
+    return std::make_shared< ExponentialAtmosphereSettings >(
+                bodyId );
+}
+
 inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
 {
     return std::make_shared< AtmosphereSettings >( nrlmsise00 );
@@ -860,16 +928,46 @@ inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphereSettings(
-        const DensityFunction& densityFunction,
+        const std::function< double( const double ) > densityFunction,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4
-        )
+        const double ratioOfSpecificHeats = 1.4 )
+{
+    DensityFunction fullDensityFunction = [=](const double altitude, const double, const double, const double ){
+        return densityFunction( altitude ); };
+    return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
+                fullDensityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
+}
+
+
+inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphereSettings(
+        const DensityFunction densityFunction,
+        const double constantTemperature,
+        const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+        const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-                densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats
-                );
+                densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
 }
+
+
+inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings(
+        const std::shared_ptr< AtmosphereSettings > baseSettings,
+        const std::function< double( const double ) > scaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
+}
+
+inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings(
+        const std::shared_ptr< AtmosphereSettings > baseSettings,
+        const double scaling,
+        const bool isScalingAbsolute )
+{
+    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
+}
+
+
 
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
         const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,

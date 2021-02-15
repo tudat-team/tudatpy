@@ -293,6 +293,14 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTermin
                 terminationSettings, fulfillSingleCondition );
 }
 
+inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTerminationSettings(
+        const std::function< bool( const double ) > checkStopCondition )
+{
+    return std::make_shared< PropagationCustomTerminationSettings >(
+                checkStopCondition );
+}
+
+
 
 } // namespace propagators
 

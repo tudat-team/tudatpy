@@ -165,6 +165,13 @@ inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiation
                 sourceBody, area, radiationPressureCoefficient, occultingBodies );
 }
 
+inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(
+        const std::string& sourceBody, const double area, const std::function< double(  const double ) >  radiationPressureCoefficientFunction,
+        const std::vector< std::string >& occultingBodies )
+{
+    return std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                sourceBody, area, radiationPressureCoefficientFunction, occultingBodies );
+}
 
 class PanelledRadiationPressureInterfaceSettings: public RadiationPressureInterfaceSettings
 {
