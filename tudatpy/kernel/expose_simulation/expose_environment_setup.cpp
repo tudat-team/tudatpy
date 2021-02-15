@@ -175,6 +175,11 @@ void expose_atmosphere_setup(py::module &m) {
             std::shared_ptr<tss::WindModelSettings>>(m, "WindModelSettings");
 
     m.def("exponential",
+          py::overload_cast<const std::string&>(
+              &tss::exponentialAtmosphereSettings ),
+          py::arg("body_name") );
+
+    m.def("exponential",
           py::overload_cast<const double, const double>(
               &tss::exponentialAtmosphereSettings ),
           py::arg("scale_height"),
@@ -184,8 +189,8 @@ void expose_atmosphere_setup(py::module &m) {
           py::overload_cast< const double, const double, const double,
           const double, const double >(&tss::exponentialAtmosphereSettings),
           py::arg("scale_height"),
-          py::arg("constant_temperature"),
           py::arg("surface_density"),
+          py::arg("constant_temperature"),
           py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
           py::arg("ratio_specific_heats") = 1.4);
 
@@ -193,11 +198,35 @@ void expose_atmosphere_setup(py::module &m) {
           &tss::nrlmsise00AtmosphereSettings);
 
     m.def("custom_constant_temperature",
-          &tss::customConstantTemperatureAtmosphereSettings,
+          py::overload_cast< const std::function< double( const double ) >,
+          const double,  const double, const double >( &tss::customConstantTemperatureAtmosphereSettings ),
           py::arg("density_function"),
           py::arg("constant_temperature"),
           py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
           py::arg("ratio_of_specific_heats") = 1.4);
+
+    m.def("custom_constant_temperature",
+          py::overload_cast< const std::function< double( const double, const double, const double, const double ) >,
+          const double, const double, const double >( &tss::customConstantTemperatureAtmosphereSettings ),
+          py::arg("density_function"),
+          py::arg("constant_temperature"),
+          py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+          py::arg("ratio_of_specific_heats") = 1.4);
+
+    m.def("scaled",
+          py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
+          const std::function< double( const double ) >, const bool >( &tss::scaledAtmosphereSettings ),
+          py::arg("unscaled_atmosphere_settings"),
+          py::arg("density_scaling_function"),
+          py::arg("is_scaling_absolute") = false  );
+
+    m.def("scaled",
+          py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
+          const double, const bool >( &tss::scaledAtmosphereSettings ),
+          py::arg("unscaled_atmosphere_settings"),
+          py::arg("density_scaling"),
+          py::arg("is_scaling_absolute") = false  );
+
 
     m.def("constant_wind_model",
           &tss::constantWindModelSettings,
@@ -247,7 +276,8 @@ void expose_radiation_pressure_setup(py::module &m) {
                  py::arg("occulting_bodies") = std::vector<std::string>());
 
     m.def("cannonball",
-          &tss::cannonBallRadiationPressureSettings,
+          py::overload_cast< const std::string&, const double, const double, const std::vector< std::string >& >(
+              &tss::cannonBallRadiationPressureSettings ),
           py::arg("source_body"), py::arg("reference_area"),
           py::arg("radiation_pressure_coefficient"),
           py::arg("occulting_bodies") = std::vector<std::string>());
@@ -316,6 +346,7 @@ void expose_rotation_model_setup(py::module &m) {
           &tss::simpleRotationModelFromSpiceSettings,
           py::arg("original_frame"),
           py::arg("target_frame"),
+          py::arg("target_frame_spice"),
           py::arg("initial_time")
           );
 
@@ -336,6 +367,13 @@ void expose_rotation_model_setup(py::module &m) {
           &tss::gcrsToItrsRotationModelSettings,
           py::arg("precession_nutation_theory") = tba::iau_2006,
           py::arg("original_frame") = "GCRS" );
+
+    m.def("constant",
+          py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >(
+              &tss::constantRotationModelSettings ),
+          py::arg("original_frame"),
+          py::arg("target_frame"),
+          py::arg("constant_orientation") );
 
 }
 
@@ -576,10 +614,11 @@ void expose_ephemeris_setup(py::module &m) {
 
 
     m.def("approximate_planet_positions",
-          py::overload_cast<  const std::string,
-          const bool >( &tss::approximatePlanetPositionsSettings ),
-          py::arg("body_name"),
-          py::arg("use_circular_coplanar_approximation"));
+          py::overload_cast<  const std::string >( &tss::approximatePlanetPositionsSettings ),
+          py::arg("body_name_to_use"));
+
+    m.def("approximate_planet_positions",
+          py::overload_cast< >( &tss::approximatePlanetPositionsSettings ));
 
     m.def("direct_spice",
           py::overload_cast< const std::string, const std::string,  const std::string >(
@@ -615,21 +654,21 @@ void expose_ephemeris_setup(py::module &m) {
           const double, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_constant"),
-          py::arg("is_scaling_absolute") );
+          py::arg("is_scaling_absolute") = false  );
 
     m.def("scaled",
           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
           const Eigen::Vector6d, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_vector"),
-          py::arg("is_scaling_absolute") );
+          py::arg("is_scaling_absolute") = false );
 
     m.def("scaled",
           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
           const std::function< Eigen::Vector6d( const double ) >, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_vector_function"),
-          py::arg("is_scaling_absolute") );
+          py::arg("is_scaling_absolute") = false  );
 
 
     m.def("custom",
@@ -736,6 +775,14 @@ void expose_gravity_field_variation_setup(py::module &m)
           py::arg("tide_raising_body"),
           py::arg("love_number_per_degree_and_order"),
           py::arg("interpolation_settings" ) = nullptr );
+
+    m.def("tabulated",
+          &tss::tabulatedGravityFieldVariationSettings,
+          py::arg("cosine_variations_table"),
+          py::arg("sine_variations_table"),
+          py::arg("minimum_degree"),
+          py::arg("minimum_order"),
+          py::arg("interpolation_settings" ) );
 }
 
 void expose_environment_setup(py::module &m) {
