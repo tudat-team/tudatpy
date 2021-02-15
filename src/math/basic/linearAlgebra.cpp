@@ -50,6 +50,10 @@ Eigen::Matrix3d convertVectorQuaternionToMatrixFormat( const Eigen::Vector4d& ve
     return Eigen::Matrix3d( convertVectorToQuaternionFormat( vector ) );
 }
 
+Eigen::Vector4d convertMatrixToVectorQuaternioFormat( const Eigen::Matrix3d& rotationMatrix )
+{
+    return convertQuaternionToVectorFormat( Eigen::Quaterniond( rotationMatrix ) );
+}
 
 
 //! Function to take the product of two quaternions.

@@ -543,7 +543,7 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
  *  \param propagationDependentVariables Dependent variable type.
  *  \return String with dependent variable type id.
  */
-std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables );
+std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 //! Function to get a string representing a 'named identification' of a dependent variable.
 /*!

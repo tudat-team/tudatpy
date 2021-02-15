@@ -409,6 +409,17 @@ inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveN
                 std::vector< std::string >( { deformingBody } ), loveNumber, interpolatorSettings );
 }
 
+inline std::shared_ptr< GravityFieldVariationSettings > tabulatedGravityFieldVariationSettings(
+        const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections,
+        const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections,
+        const int minimumDegree, const int minimumOrder,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    return std::make_shared< TabulatedGravityFieldVariationSettings >(
+                cosineCoefficientCorrections, sineCoefficientCorrections, minimumDegree, minimumOrder,
+                interpolatorSettings );
+}
+
 
 
 //! Function to create a set of gravity field variations, stored in the associated interface class
