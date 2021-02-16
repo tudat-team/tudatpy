@@ -250,21 +250,6 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("radiating_body"));
 
-
-    m.def("central_body_fixed_spherical_position",
-          &tp::centralBodyFixedSphericalPositionVariable,
-          py::arg("associatedBody"),
-          py::arg("central_body"));
-
-    m.def("central_body_fixed_cartesian_position",
-          &tp::centralBodyFixedCartesianPositionVariable,
-          py::arg("associatedBody"),
-          py::arg("central_body"));
-
-    m.def("body_mass",
-          &tp::bodyMassVariable,
-          py::arg("associatedBody"));
-
     m.def("total_gravity_field_variation_acceleration",
           &tp::totalGravityFieldVariationAccelerationContributionVariable,
           py::arg("body_undergoing_acceleration"),

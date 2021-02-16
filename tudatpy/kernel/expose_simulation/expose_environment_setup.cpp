@@ -702,7 +702,7 @@ void expose_gravity_field_variation_setup(py::module &m)
     py::enum_<tg::BodyDeformationTypes>(
                 m, "BodyDeformationTypes", "<no_doc>")
             .value("basic_solid_body", tg::basic_solid_body)
-            .value("tabulated", tg::tabulated_variation)
+            .value("tabulated_deformation", tg::tabulated_variation)
             .export_values();
 
     py::class_<tss::GravityFieldVariationSettings,
