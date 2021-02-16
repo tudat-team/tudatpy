@@ -1,4 +1,4 @@
-from ._layer_propagation_setup import modify_propagation_setup
+#from ._layer_propagation_setup import modify_propagation_setup
 from .kernel.simulation import propagation_setup
 from ._version import *
 
