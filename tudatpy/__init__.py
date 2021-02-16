@@ -1,8 +1,8 @@
 #from ._layer_propagation_setup import modify_propagation_setup
-from .kernel.simulation import propagation_setup
+#from .kernel.simulation import propagation_setup
 from ._version import *
 
-modify_propagation_setup(propagation_setup)
+#modify_propagation_setup(propagation_setup)
 
 
 __all__ = [
