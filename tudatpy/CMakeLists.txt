@@ -38,7 +38,7 @@ endif ()
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
         __init__.py
-        _layer_propagation_setup.py
+        #_layer_propagation_setup.py
         elements.py
         prototype.py
         io.py
