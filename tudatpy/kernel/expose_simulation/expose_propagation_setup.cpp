@@ -829,7 +829,7 @@ void expose_integrator_setup(py::module &m) {
           py::arg("check_termination_on_minor_steps") = 0,
           py::arg("safety_factor") = 0.7,
           py::arg("maximum_factor_increase") = 10.0,
-          py::arg("minimum_factor_increase") = 10.0 );
+          py::arg("minimum_factor_increase") = 0.1 );
 
     m.def("adams_bashforth_moulton",
           &tni::adamsBashforthMoultonSettings< double >,
