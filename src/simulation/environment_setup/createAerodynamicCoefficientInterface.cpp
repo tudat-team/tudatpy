@@ -253,6 +253,31 @@ createAerodynamicCoefficientInterface(
     }
     case custom_aerodynamic_coefficients:
     {
+        // Check consistency of type.
+        std::shared_ptr< CustomAerodynamicCoefficientSettings > customCoefficientSettings =
+                std::dynamic_pointer_cast< CustomAerodynamicCoefficientSettings >(
+                    coefficientSettings );
+        if( customCoefficientSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected custom aerodynamic coefficients for body " + body );
+        }
+        else
+        {
+            // create constant interface.
+            coefficientInterface = std::make_shared< CustomAerodynamicCoefficientInterface >(
+                        customCoefficientSettings->getForceCoefficientFunction( ),
+                        customCoefficientSettings->getMomentCoefficientFunction( ),
+                        customCoefficientSettings->getReferenceLength( ),
+                        customCoefficientSettings->getReferenceArea( ),
+                        customCoefficientSettings->getReferenceLength( ),
+                        customCoefficientSettings->getMomentReferencePoint( ),
+                        customCoefficientSettings->getIndependentVariableNames( ),
+                        customCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
+                        customCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+        }
+        break;
+
         break;
     }
     case tabulated_coefficients:
