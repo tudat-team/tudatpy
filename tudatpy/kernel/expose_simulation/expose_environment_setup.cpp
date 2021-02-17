@@ -927,6 +927,8 @@ void expose_environment_setup(py::module &m) {
                  py::arg("body_name"))
             .def("add_settings", py::overload_cast<std::shared_ptr<tss::BodySettings>, const std::string>
                  (&tss::BodyListSettings::addSettings), py::arg("settings_to_add"), py::arg("body_name"))
+            .def("add_empty_settings", py::overload_cast<const std::string>(&tss::BodyListSettings::addSettings),
+                 py::arg("body_name"))
             .def("get_frame_origin", &tss::BodyListSettings::getFrameOrigin)
             .def("get_frame_orientation", &tss::BodyListSettings::getFrameOrientation);
 
