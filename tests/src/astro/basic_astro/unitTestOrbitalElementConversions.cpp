@@ -1622,6 +1622,46 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
 }
 
 
+//! Test if conversion from eccentric anomaly to mean anomaly is working correctly.
+BOOST_AUTO_TEST_CASE( testMeanToTrueAnomalyConversion )
+{
+    using namespace orbital_element_conversions;
+    using namespace basic_mathematics;
+
+    std::vector< double > meanAnomalies =
+    { 1.0E-12, 1.0, mathematical_constants::PI, 5.0, 2.0 * mathematical_constants::PI - 1.0E-12 };
+    std::vector< double > eccentricities =
+    { 0.0, 0.1, 0.5, 0.9, 0.99, 0.99999999, 1.00000001, 1.001, 2.0, 5.0, 10.0 };
+    for( unsigned int i = 0; i < meanAnomalies.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < eccentricities.size( ); j++ )
+        {
+            double eccentricity = eccentricities.at( j );
+            double meanAnomaly = meanAnomalies.at( i );
+
+            double trueAnomaly = convertMeanAnomalyToTrueAnomaly( eccentricity, meanAnomaly );
+            double recomputedMeanAnomaly = convertTrueAnomalyToMeanAnomaly( eccentricity, trueAnomaly );
+
+            double anomalyDifference = meanAnomaly - recomputedMeanAnomaly;
+            if( anomalyDifference > 1.0 )
+            {
+                anomalyDifference -= 2.0 * mathematical_constants::PI;
+            }
+
+            double tolerance = 1.0E-13;
+            if( std::fabs( eccentricity - 1 ) < 0.1 )
+            {
+                tolerance *= 1.0E3;
+            }
+
+            if( std::fabs( eccentricity - 1 ) < 0.00001 )
+            {
+                tolerance *= 1.0E6;
+            }
+            BOOST_CHECK_SMALL( std::fabs( anomalyDifference ), tolerance );
+        }
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 
