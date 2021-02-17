@@ -264,6 +264,7 @@ createAerodynamicCoefficientInterface(
         }
         else
         {
+            std::cout<<"Test custom aero 1 "<<coefficientInterface<<std::endl;
             // create constant interface.
             coefficientInterface = std::make_shared< CustomAerodynamicCoefficientInterface >(
                         customCoefficientSettings->getForceCoefficientFunction( ),
@@ -275,9 +276,8 @@ createAerodynamicCoefficientInterface(
                         customCoefficientSettings->getIndependentVariableNames( ),
                         customCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
                         customCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+            std::cout<<"Test custom aero 2 "<<coefficientInterface<<std::endl;
         }
-        break;
-
         break;
     }
     case tabulated_coefficients:
@@ -352,6 +352,7 @@ createAerodynamicCoefficientInterface(
     default:
         throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
+    std::cout<<"Test custom aero 3 "<<coefficientInterface<<std::endl;
 
     // Create and set control surfaces
     if( coefficientSettings->getControlSurfaceSettings( ).size( ) != 0 )
@@ -371,6 +372,7 @@ createAerodynamicCoefficientInterface(
         coefficientInterface->setControlSurfaceIncrements( controlSurfaceIncrementInterfaces );
 
     }
+    std::cout<<"Test custom aero 4 "<<coefficientInterface<<std::endl;
 
     return coefficientInterface;
 }
