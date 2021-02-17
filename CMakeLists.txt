@@ -45,7 +45,7 @@ set(Tudat_DEFINITIONS "")
 #  Offer the user the choice of defining the build variation.
 # +============================================================================
 # Build option: enable the test suite.
-option(TUDAT_BUILD_TESTS "Build the test suite." ON)
+option(TUDAT_BUILD_TESTS "Build the test suite." OFF)
 
 option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
 
