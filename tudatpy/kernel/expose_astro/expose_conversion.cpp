@@ -75,6 +75,19 @@ void expose_conversion(py::module &m) {
           py::arg("true_anomaly"),
           py::arg("gravitational_parameter"));
 
+    m.def("mean_to_true_anomaly",
+          &toec::convertMeanAnomalyToTrueAnomaly< double >,
+          py::arg("eccentricity"),
+          py::arg("mean_anomaly"),
+          py::arg("use_default_initial_guess") = true,
+          py::arg("non_default_initial_guess") = TUDAT_NAN,
+          py::arg("root_finder") = nullptr );
+
+    m.def("true_to_mean_anomaly",
+          &toec::convertTrueAnomalyToMeanAnomaly< double >,
+          py::arg("eccentricity"),
+          py::arg("true_anomaly") );
+
     m.def("spherical_to_cartesian",
           py::overload_cast< const Eigen::Vector6d& >(
               &toec::convertSphericalOrbitalToCartesianState< double > ),

@@ -405,7 +405,9 @@ void expose_gravity_field_setup(py::module &m) {
 
     py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
             tss::GravityFieldSettings>(m, "CentralGravityFieldSettings", "<no doc>")
-            .def(py::init<double>(), py::arg("gravitational_parameter"));
+            .def(py::init<double>(), py::arg("gravitational_parameter") )
+            .def_property_readonly("gravitational_parameter", &tss::CentralGravityFieldSettings::getGravitationalParameter);
+
 
     py::class_<tss::SphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>,
             tss::GravityFieldSettings>(m, "SphericalHarmonicsGravityFieldSettings", "<no doc>")
@@ -420,7 +422,9 @@ void expose_gravity_field_setup(py::module &m) {
             .def("get_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame)
             .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
             .def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
-            .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField);
+            .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField)
+            .def_property_readonly("gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter);
+
 
     m.def("central",
           &tss::centralGravitySettings);
@@ -901,7 +905,7 @@ void expose_environment_setup(py::module &m) {
             .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)
             .def_readwrite("gravity_field_settings", &tss::BodySettings::gravityFieldSettings)
             .def_readwrite("rotation_model_settings", &tss::BodySettings::rotationModelSettings)
-            .def_readwrite("shape_model_settings", &tss::BodySettings::shapeModelSettings)
+            .def_readwrite("shape_settings", &tss::BodySettings::shapeModelSettings)
             .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings)
             .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings)
             .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings)

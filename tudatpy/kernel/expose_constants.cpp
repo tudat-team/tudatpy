@@ -12,6 +12,7 @@
 
 #include "docstrings.h"
 #include "tudat/constants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
@@ -20,6 +21,7 @@ namespace py = pybind11;
 namespace tbc = tudat::celestial_body_constants;
 namespace tpc = tudat::physical_constants;
 namespace tmc = tudat::mathematical_constants;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
 
@@ -70,6 +72,10 @@ void expose_constants(py::module &m) {
   m.attr("VACUUM_PERMITTIVITY") = tpc::VACUUM_PERMITTIVITY;
   m.attr("LG_TIME_RATE_TERM") = tpc::LG_TIME_RATE_TERM;
   m.attr("LG_TIME_RATE_TERM_LONG") = tpc::LG_TIME_RATE_TERM_LONG;
+
+  // time constants
+  m.attr("JULIAN_DAY_ON_J2000") = tba::JULIAN_DAY_ON_J2000;
+  m.attr("JULIAN_DAY_AT_0_MJD") = tba::JULIAN_DAY_AT_0_MJD;
 
   // mathematicalConstants.h
   m.attr("E") = tmc::E;
