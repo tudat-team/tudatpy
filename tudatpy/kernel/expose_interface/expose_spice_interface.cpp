@@ -73,12 +73,12 @@ void expose_spice_interface(py::module &m) {
         "Get Cartesian state of a satellite from its two-line element set at a specified epoch.");
 
   // rotational state related
-  m.def("compute_rotation_quaternion_between_frames",
-        &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
+  m.def("compute_rotation_matrix_between_frames",
+        &tudat::spice_interface::computeRotationMatrixBetweenFrames,
         py::arg("original_frame"),
         py::arg("new_frame"),
         py::arg("ephemeris_time"),
-        "Compute quaternion of rotation between two frames.");
+        "Compute matrix of rotation between two frames.");
 
   m.def("compute_rotation_matrix_derivative_between_frames",
         &tudat::spice_interface::computeRotationMatrixDerivativeBetweenFrames,
