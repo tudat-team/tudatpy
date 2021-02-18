@@ -888,7 +888,23 @@ void expose_environment_setup(py::module &m) {
                  py::arg("process_body") = 1 )
             .def("delete_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name") )
-            .def("processBodyFrameDefinitions", &tss::SystemOfBodies::processBodyFrameDefinitions);
+            .def("processBodyFrameDefinitions", &tss::SystemOfBodies::processBodyFrameDefinitions)
+            .def(py::pickle(
+                    [](const tss::SystemOfBodies &p) { // __getstate__
+                        /* Return a tuple that fully encodes the state of the object */
+                        return py::make_tuple(p.getFrameOrigin(), p.getMap());
+                    },
+                    [](py::tuple t) { // __setstate__
+                        if (t.size() != 3)
+                            throw std::runtime_error("Invalid state for SystemOfBodies!");
+
+                        /* Create a new C++ instance */
+                        tss::SystemOfBodies p(t[0].cast<std::string>());
+
+                        return p;
+                    }
+                ));
+
 
 
     m.def("get_body_gravitational_parameter",
