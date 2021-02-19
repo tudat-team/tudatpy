@@ -24,6 +24,9 @@
 #include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>
 
+#include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/mission_segments/transferLeg.h"
+#include "tudat/astro/mission_segments/transferNode.h"
 #include "tudat/astro/trajectory_design/swingbyLegMga1DsmVelocity.h"
 
 namespace tudat
@@ -45,57 +48,70 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     // by GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1415.44020553569;
-    const Eigen::Vector3d expectedVelocity ( -5080.63624082843, 55179.1205883319,
+    const Eigen::Vector3d expectedArrivalVelocity ( -5080.63624082843, 55179.1205883319,
                                              3549.41832192081 );
+
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -75133023393.8197, -77873986249.455,
-                                            3277461620.51787 );
-    const Eigen::Vector3d planet2Position ( 53627979831.9489, -5044669560.01206,
-                                            -5339232305.5444 );
-    const Eigen::Vector3d planet1Velocity ( 24956.3863503886, -24481.33754925,
-                                            -1774.16153112584 );
+    const Eigen::Vector6d planet1State =
+            ( Eigen::Vector6d( ) <<
+              -75133023393.8197, -77873986249.455, 3277461620.51787,
+              24956.3863503886, -24481.33754925, -1774.16153112584 ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris1 =
+            std::make_shared< ephemerides::ConstantEphemeris >( planet1State );
+
+    const Eigen::Vector6d planet2State =
+            ( Eigen::Vector6d( ) <<
+              53627979831.9489, -5044669560.01206, -5339232305.5444 ,
+              TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris2 =
+            std::make_shared< ephemerides::ConstantEphemeris >( planet2State );
+
 
     // Set velocity before departure body.
-    const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
-                                                  -1915.53135757897 );
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    const Eigen::Vector3d velocityBeforePlanet1 (
+                28586.0252553367, -17610.9003149933, -1915.53135757897 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 180.510754824 * physical_constants::JULIAN_DAY;
 
-    // Set the gravitational parameters.
-    const double sunGravitationalParameter = 1.32712428e20;
+    // Set the planet gravitational parameters.
     const double planet1GravitationalParameter = 3.24860e14;
 
-    //set model specific variables.
-    const double dsmTimeOfFlightFraction = 0.317174785637;
-    const double rotationAngle = 1.34317576594;
+    //set swingby model specific variables.
     const double pericenterRadius = 1.10000000891 * 6052000;
+    const double rotationAngle = 1.34317576594;
     const double swingbyDeltaV = 0.;
 
-    // Set up the test leg.
-    using namespace tudat::transfer_trajectories;
-    SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                        planet1Velocity, sunGravitationalParameter,
-                                        planet1GravitationalParameter,
-                                        pointerToVelocityBeforePlanet1, dsmTimeOfFlightFraction,
-                                        rotationAngle, pericenterRadius, swingbyDeltaV );
+    Eigen::VectorXd nodeFreeParameters = (
+                Eigen::VectorXd( 4 ) << 0.0,pericenterRadius, rotationAngle, swingbyDeltaV ).finished( );
 
-    // Prepare the variables for the results.
-    Eigen::Vector3d resultingVelocity;
-    double resultingDeltaV;
+    using namespace mission_segments;
+    SwingbyWithFreeOutgoingVelocity transferNode(
+                constantEphemeris1, nodeFreeParameters, planet1GravitationalParameter,
+                [=]( ){ return velocityBeforePlanet1; } );
+    Eigen::Vector3d velocityAfterPlanet1 = transferNode.getOutgoingVelocity( );
 
-    // Compute delta-V of the leg.
-    legTest.calculateLeg( resultingVelocity, resultingDeltaV );
+    // Set the sun gravitational parameters.
+    const double sunGravitationalParameter = 1.32712428e20;
 
-    // Test if the computed delta-V corresponds to the expected value within the specified
-    // tolerance and if the computed velocity before target planet matches the expected velocity
-    // within the specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, resultingDeltaV, tolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedVelocity, resultingVelocity, tolerance );
+    //set dsm model specific variables.
+    const double dsmTimeOfFlightFraction = 0.317174785637;
+
+    Eigen::VectorXd legFreeParameters =
+            ( Eigen::VectorXd( 3 ) << 0.0, timeOfFlight, dsmTimeOfFlightFraction ).finished( );
+
+    DsmVelocityBasedTransferLeg transferLeg(
+            constantEphemeris1, constantEphemeris2, legFreeParameters,
+                sunGravitationalParameter, [=]( ){ return velocityAfterPlanet1; } );
+
+    BOOST_CHECK_CLOSE_FRACTION( transferLeg.getLegDeltaV( ), expectedDeltaV, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( transferNode.getNodeDeltaV( ), 0.0, tolerance );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transferLeg.getArrivalVelocity( ), expectedArrivalVelocity, tolerance );
+
+
 }
 
 //! Test delta-V computation for a powered gravity assist leg.

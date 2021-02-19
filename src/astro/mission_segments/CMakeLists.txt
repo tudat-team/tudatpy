@@ -13,12 +13,17 @@ set(mission_segments_SOURCES
         "escapeAndCapture.cpp"
         "gravityAssist.cpp"
         "improvedInversePolynomialWall.cpp"
+        "lambertTargeter.cpp"
         "lambertTargeterIzzo.cpp"
         "lambertTargeterGooding.cpp"
         "lambertRoutines.cpp"
         "multiRevolutionLambertTargeterIzzo.cpp"
         "oscillatingFunctionNovak.cpp"
         "zeroRevolutionLambertTargeterIzzo.cpp"
+        "transferNode.cpp"
+        "transferLeg.cpp"
+        "transferTrajectory.cpp"
+        "createTransferTrajectory.cpp"
         )
 
 # Set the header files.
@@ -33,6 +38,10 @@ set(mission_segments_HEADERS
         "multiRevolutionLambertTargeterIzzo.h"
         "oscillatingFunctionNovak.h"
         "zeroRevolutionLambertTargeterIzzo.h"
+        "transferNode.h"
+        "transferLeg.h"
+        "transferTrajectory.h"
+        "createTransferTrajectory.h"
         )
 
 # Add library.
