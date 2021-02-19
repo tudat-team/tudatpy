@@ -404,7 +404,8 @@ public:
             std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         initialPropagationTime_( integratorSettings_->initialTime_ ),
         printNumberOfFunctionEvaluations_( printNumberOfFunctionEvaluations ), initialClockTime_( initialClockTime ),
-        propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
+        propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) ),
+        printDependentVariableData_( true )
     {
         if( propagatorSettings == nullptr )
         {
@@ -466,7 +467,7 @@ public:
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds_ = dependentVariableData.second;
 
-            if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ )
+            if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ && printDependentVariableData_ )
             {
                 std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;
@@ -845,6 +846,17 @@ public:
         }
     }
 
+    void suppresDependentVariableDataPrinting( )
+    {
+        printDependentVariableData_ = false;
+    }
+
+    void enableDependentVariableDataPrinting( )
+    {
+        printDependentVariableData_ = true;
+    }
+
+
 protected:
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
@@ -939,6 +951,8 @@ protected:
 
     //! Event that triggered the termination of the propagation
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
+
+    bool printDependentVariableData_;
 
 };
 
