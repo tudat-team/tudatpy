@@ -30,7 +30,6 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/mission_segments/transferLeg.h"
 #include "tudat/astro/mission_segments/transferNode.h"
-#include "tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h"
 
 namespace tudat
 {

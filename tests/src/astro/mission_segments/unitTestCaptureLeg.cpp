@@ -28,8 +28,6 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/mission_segments/transferNode.h"
 
-#include "tudat/astro/trajectory_design/captureLeg.h"
-
 namespace tudat
 {
 namespace unit_tests
