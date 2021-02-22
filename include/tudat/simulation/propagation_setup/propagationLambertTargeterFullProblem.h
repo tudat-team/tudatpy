@@ -51,7 +51,6 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLamber
         const  std::pair< std::string, std::string >& departureAndArrivalBodies,
         const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies);
 
-<<<<<<< HEAD
 //! Function to setup a system of bodies corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
 /*!
@@ -72,8 +71,7 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedStatesForLambertTarg
         const Eigen::Vector3d& cartesianPositionAtArrival );
 
 
-=======
->>>>>>> dominic-origin/features/mission_segments_refactor
+
 //! Function to directly setup an acceleration map for the Lambert targeter.
 /*!
  * Function to directly setup an acceleration map for the Lambert targeter. Only the central body exerts a point-mass gravity acceleration
@@ -192,7 +190,6 @@ void propagateLambertTargeterAndFullProblem(
         const TranslationalPropagatorType propagator = cowell );
 
 
-<<<<<<< HEAD
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
 //! and at arrival.
 /*!
@@ -230,8 +227,6 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 
 
 
-=======
->>>>>>> dominic-origin/features/mission_segments_refactor
 } // namespace propagators
 
 } // namespace tudat

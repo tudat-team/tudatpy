@@ -28,8 +28,6 @@
 #include "tudat/astro/mission_segments/transferLeg.h"
 #include "tudat/astro/mission_segments/transferNode.h"
 
-#include "tudat/astro/trajectory_design/swingbyLegMga.h"
-
 namespace tudat
 {
 namespace unit_tests
