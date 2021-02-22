@@ -27,9 +27,10 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/mission_segments/lambertTargeterIzzo.h"
-
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {
@@ -60,11 +61,24 @@ public:
 
     TransferLegTypes getTransferLegType( );
 
-//    virtual bool departureVelocityIsPredetermined( ) = 0;
-
     Eigen::Vector3d getDepartureVelocity( );
 
     Eigen::Vector3d getArrivalVelocity( );
+
+    double getTimeOfFlight( )
+    {
+        return arrivalTime_ - departureTime_;
+    }
+
+    virtual void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                  const std::vector< double >& timePoints ) = 0;
+
+    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                  const int numberOfDataPoints )
+    {
+        std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
+        getStateAlongTrajectory( statesAlongTrajectory, times );
+    }
 
 protected:
 
@@ -101,6 +115,9 @@ public:
             const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter );
 
+    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                  const std::vector< double >& timePoints );
+
 protected:
 
     virtual void computeTransfer( );
@@ -110,7 +127,33 @@ protected:
 
 
 
-class DsmPositionBasedTransferLeg : public TransferLeg
+class DsmTransferLeg : public TransferLeg
+{
+public:
+    DsmTransferLeg(
+            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+            const TransferLegTypes legType,
+            const Eigen::VectorXd legParameters,
+            const double centralBodyGravitationalParameter ):
+        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType, legParameters ),
+    centralBodyGravitationalParameter_( centralBodyGravitationalParameter){ }
+
+    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                  const std::vector< double >& timePoints );
+
+protected:
+
+    double centralBodyGravitationalParameter_;
+    Eigen::Vector3d dsmLocation_;
+    Eigen::Vector3d velocityBeforeDsm_;
+    Eigen::Vector3d velocityAfterDsm_;
+    double dsmTime_;
+    double dsmDeltaV_;
+};
+
+
+class DsmPositionBasedTransferLeg : public DsmTransferLeg
 {
 public:
     DsmPositionBasedTransferLeg(
@@ -125,23 +168,13 @@ protected:
 
     void calculateDsmLocation( );
 
-    double centralBodyGravitationalParameter_;
-
     double dsmTimeOfFlightFraction_;
     double dimensionlessRadiusDsm_;
     double inPlaneAngle_;
     double outOfPlaneAngle_;
-
-
-    Eigen::Vector3d dsmLocation_;
-    Eigen::Vector3d velocityBeforeDsm_;
-    Eigen::Vector3d velocityAfterDsm_;
-    double dsmTime_;
-    double dsmDeltaV_;
 };
 
-
-class DsmVelocityBasedTransferLeg : public TransferLeg
+class DsmVelocityBasedTransferLeg : public DsmTransferLeg
 {
 public:
     DsmVelocityBasedTransferLeg(
@@ -150,12 +183,10 @@ public:
             const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter,
             const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
-
 protected:
 
     virtual void computeTransfer( );
 
-    double centralBodyGravitationalParameter_;
     std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
 
     double dsmTimeOfFlightFraction_;
@@ -163,11 +194,6 @@ protected:
     double excessVelocityInPlaneAngle_;
     double excessVelocityOutOfPlaneAngle_;
 
-    Eigen::Vector3d dsmLocation_;
-    Eigen::Vector3d velocityBeforeDsm_;
-    Eigen::Vector3d velocityAfterDsm_;
-    double dsmTime_;
-    double dsmDeltaV_;
 };
 
 
