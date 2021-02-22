@@ -38,7 +38,6 @@
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
-#include "tudat/astro/trajectory_design/trajectory.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -48,8 +47,6 @@ namespace unit_tests
 
 // Additional namespaces to be used.
 using namespace tudat::input_output;
-using namespace tudat::input_output::parsed_data_vector_utilities;
-using namespace tudat::transfer_trajectories;
 using namespace tudat::simulation_setup;
 using namespace mission_segments;
 
