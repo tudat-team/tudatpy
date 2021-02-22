@@ -66,6 +66,21 @@ UnpoweredUnperturbedTransferLeg::UnpoweredUnperturbedTransferLeg(
     legTotalDeltaV_ = 0.0;
 }
 
+void UnpoweredUnperturbedTransferLeg::getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                              const std::vector< double >& timePoints )
+{
+    Eigen::Vector6d initialState;
+    initialState.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
+    initialState.segment( 3, 3 ) = departureVelocity_;
+
+    Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+                initialState, centralBodyGravitationalParameter_ );
+
+    statesAlongTrajectory = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
+            initialKeplerianState, departureTime_, timePoints, centralBodyGravitationalParameter_ );
+}
+
+
 void UnpoweredUnperturbedTransferLeg::computeTransfer( )
 {
     if( legParameters_.rows( ) != 2 )
@@ -82,14 +97,47 @@ void UnpoweredUnperturbedTransferLeg::computeTransfer( )
                 departureVelocity_, arrivalVelocity_ );
 }
 
+void DsmTransferLeg::getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                              const std::vector< double >& timePoints )
+{
+    Eigen::Vector6d initialState;
+    initialState.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
+    initialState.segment( 3, 3 ) = departureVelocity_;
+
+    Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+                initialState, centralBodyGravitationalParameter_ );
+
+    auto lowerBound = std::lower_bound ( timePoints.begin( ), timePoints.end( ), dsmTime_ );
+    std::vector< double > timesUpToDsm;
+    std::vector< double > timesAfterDsm;
+
+    timesUpToDsm.insert( timesUpToDsm.begin( ), timePoints.begin( ), lowerBound );
+    timesAfterDsm.insert( timesAfterDsm.begin( ), lowerBound, timePoints.end( ) );
+
+     std::map< double, Eigen::Vector6d > statesUpToDsm = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
+                    initialKeplerianState, departureTime_, timesUpToDsm, centralBodyGravitationalParameter_ );
+
+    Eigen::Vector6d stateAfterDsm;
+    stateAfterDsm.segment( 0, 3 ) = dsmLocation_;
+    stateAfterDsm.segment( 3, 3 ) = velocityAfterDsm_;;
+
+    Eigen::Vector6d keplerianStateAfterDsm = orbital_element_conversions::convertCartesianToKeplerianElements(
+                stateAfterDsm, centralBodyGravitationalParameter_ );
+
+    std::map< double, Eigen::Vector6d > statesAfterDsm = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
+                   keplerianStateAfterDsm, dsmTime_, timesAfterDsm, centralBodyGravitationalParameter_ );
+
+    statesAlongTrajectory = std::move( statesUpToDsm );
+    statesAlongTrajectory.insert( statesAfterDsm.begin( ), statesAfterDsm.end( ) );
+
+}
 
 DsmPositionBasedTransferLeg::DsmPositionBasedTransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
         const Eigen::VectorXd legParameters,
         const double centralBodyGravitationalParameter ):
-    TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, legParameters ),
-    centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
+    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, legParameters, centralBodyGravitationalParameter )
 {
     computeTransfer( );
 }
@@ -191,8 +239,7 @@ DsmVelocityBasedTransferLeg::DsmVelocityBasedTransferLeg(
         const Eigen::VectorXd legParameters,
         const double centralBodyGravitationalParameter,
         const std::function< Eigen::Vector3d( ) > departureVelocityFunction ):
-    TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, legParameters ),
-    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, legParameters, centralBodyGravitationalParameter ),
     departureVelocityFunction_( departureVelocityFunction )
 {
     computeTransfer( );

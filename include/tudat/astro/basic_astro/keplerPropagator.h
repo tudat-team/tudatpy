@@ -159,71 +159,47 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
     return finalStateInKeplerianElements;
 }
 
-//! Function to determine the cartesian state at a given time for a keplerian orbit, based on the initial state.
-/*!
- * Function to determine the cartesian state at a given time for a keplerian orbit, based on the initial state.
- * \param initialState Initial cartesian state on this orbit (x-position coordinate [m], y-position coordinate [m], z-position coordinate [m],
- * x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
- * \param finalPropagationTime Final time at which the cartesian state has to be calculated [s].
- * \param gravitationalParameter gravitation parameter defining the keplerian orbit [m^3 s^-2].
- * \return Vector containing the cartesian state at a given time for a keplerian orbit.
- */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > propagateCartesianStateAlongKeplerOrbit(
-        const Eigen::Matrix< ScalarType, 6, 1 >& initialState,
-        const ScalarType finalPropagationTime,
-        const ScalarType gravitationalParameter)
+template< typename ScalarType = double, typename TimeType = double >
+std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > getKeplerOrbitKeplerianStateHistory(
+        const Eigen::Matrix< ScalarType, 6, 1 >& initialStateInKeplerianElements,
+        const TimeType initialTime,
+        const std::vector< TimeType >& outputTimes,
+        const ScalarType centralBodyGravitationalParameter,
+        std::shared_ptr< root_finders::RootFinderCore< ScalarType > > aRootFinder =
+        std::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
 {
-    Eigen::Matrix< ScalarType, 6, 1 > keplerianInitialState = orbital_element_conversions::convertCartesianToKeplerianElements(
-                initialState, gravitationalParameter);
-    // Retrieve the semi-major axis and eccentricty of the keplerian orbit.
-    ScalarType semiMajorAxis = keplerianInitialState[orbital_element_conversions::semiMajorAxisIndex];
-    ScalarType eccentricity = keplerianInitialState[orbital_element_conversions::eccentricityIndex];
-
-    // Calculate the initial mean anomaly.
-    ScalarType initialTrueAnomaly = keplerianInitialState[orbital_element_conversions::trueAnomalyIndex];
-    ScalarType initialMeanAnomaly;
-
-    if( eccentricity < 1.0 )
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > keplerianStateHistory;
+    for( unsigned int i = 0; i < outputTimes.size( ); i++ )
     {
-        initialMeanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
-                    orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(initialTrueAnomaly, eccentricity), eccentricity);
-
+        keplerianStateHistory[ outputTimes.at( i ) ] = propagateKeplerOrbit(
+                    initialStateInKeplerianElements, outputTimes.at( i ) - initialTime,
+                    centralBodyGravitationalParameter, aRootFinder );
     }
-    else
-    {
-        initialMeanAnomaly = orbital_element_conversions::convertHyperbolicEccentricAnomalyToMeanAnomaly(
-                    orbital_element_conversions::convertTrueAnomalyToHyperbolicEccentricAnomaly(
-                        initialTrueAnomaly, eccentricity), eccentricity);
-    }
-
-    // Calculate the mean anomaly at the final time.
-    ScalarType meanAnomalyEndPropagation = initialMeanAnomaly + orbital_element_conversions::convertElapsedTimeToMeanAnomalyChange(
-                finalPropagationTime, gravitationalParameter, semiMajorAxis );
-
-    ScalarType trueAnomalyEndPropagation;
-
-    if( eccentricity < 1.0 )
-    {
-        trueAnomalyEndPropagation = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                    orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                        eccentricity, meanAnomalyEndPropagation), eccentricity );
-    }
-    else
-    {
-        trueAnomalyEndPropagation = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                    orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                        eccentricity, meanAnomalyEndPropagation), eccentricity );
-    }
-
-    // Determine the keplerian state at final time.
-    Eigen::Matrix< ScalarType, 6, 1 > finalKeplerianState = keplerianInitialState;
-    finalKeplerianState[orbital_element_conversions::trueAnomalyIndex] = trueAnomalyEndPropagation;
-
-    // Convert keplerian to cartesian state at final time.
-    return orbital_element_conversions::convertKeplerianToCartesianElements(
-                finalKeplerianState, gravitationalParameter);
+    return keplerianStateHistory;
 }
+
+template< typename ScalarType = double, typename TimeType = double >
+std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > getKeplerOrbitCartesianStateHistory(
+        const Eigen::Matrix< ScalarType, 6, 1 >& initialStateInKeplerianElements,
+        const TimeType initialTime,
+        const std::vector< TimeType >& outputTimes,
+        const ScalarType centralBodyGravitationalParameter,
+        std::shared_ptr< root_finders::RootFinderCore< ScalarType > > aRootFinder =
+        std::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
+{
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > keplerianStateHistory =
+            getKeplerOrbitKeplerianStateHistory( initialStateInKeplerianElements, initialTime, outputTimes,
+                                                 centralBodyGravitationalParameter, aRootFinder );
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > cartesianStateHistory;
+    for( auto kepler_iterator : keplerianStateHistory )
+    {
+        cartesianStateHistory[ kepler_iterator.first ] = orbital_element_conversions::convertKeplerianToCartesianElements(
+                    kepler_iterator.second, centralBodyGravitationalParameter );
+    }
+    return cartesianStateHistory;
+
+}
+
 
 } // namespace orbital_element_conversions
 

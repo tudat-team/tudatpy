@@ -61,6 +61,37 @@ public:
 
     double getTotalDeltaV( );
 
+    void getStateAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
+                                        const int numberOfDataPointsPerLeg );
+
+    std::vector< std::map< double, Eigen::Vector6d > > getStateAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
+    {
+        std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
+        getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+        return statesAlongTrajectoryPerLeg;
+    }
+
+    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                  const int numberOfDataPointsPerLeg )
+    {
+        std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
+        getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+        statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
+        for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
+        {
+            statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ),
+                                          statesAlongTrajectoryPerLeg.at( i ).end( ) );
+        }
+    }
+
+    std::map< double, Eigen::Vector6d > getStateAlongTrajectory( const int numberOfDataPointsPerLeg )
+    {
+        std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+        getStateAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
+        return statesAlongTrajectory;
+    }
+
+
 private:
 
     void getLegTotalParameters(
