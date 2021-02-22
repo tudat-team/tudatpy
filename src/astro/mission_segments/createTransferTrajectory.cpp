@@ -22,7 +22,7 @@ std::shared_ptr< TransferLegSettings > unpoweredLeg( )
     return std::make_shared< TransferLegSettings >( unpowered_unperturbed_leg );
 }
 
-std::shared_ptr< TransferNodeSettings > escapeAndCaptureNode(
+std::shared_ptr< TransferNodeSettings > escapeAndDepartureNode(
         const double departureSemiMajorAxis,
         const double departureEccentricity )
 {
@@ -265,6 +265,161 @@ std::shared_ptr< TransferNode > createTransferNode(
     return transferNode;
 }
 
+void getMgaTransferTrajectorySettings(
+        std::vector< std::shared_ptr< TransferLegSettings > >& transferLegSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& transferNodeSettings,
+        const std::vector< std::string >& fullBodiesList,
+        const TransferLegTypes identicalTransferLegType,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    int numberOfNodes = fullBodiesList.size( );
+
+    transferLegSettings.resize( numberOfNodes - 1 );
+    for( int i = 0; i < numberOfNodes - 1; i++ )
+    {
+        transferLegSettings[ i ] = std::make_shared< TransferLegSettings >( identicalTransferLegType );
+    }
+
+    double currentMinimumPericenterRadius = TUDAT_NAN;
+    transferNodeSettings.resize( numberOfNodes );
+    if( departureOrbit.first != departureOrbit.first )
+    {
+        if( minimumPericenterRadii.count( fullBodiesList.at( 0 ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making MGA settings, no pericenter radius provided for " + fullBodiesList.at( 0 ) );
+        }
+        currentMinimumPericenterRadius = minimumPericenterRadii.at( fullBodiesList.at( 0 ) );
+        transferNodeSettings.push_back( swingbyNode( currentMinimumPericenterRadius ) );
+    }
+    else
+    {
+        transferNodeSettings.push_back( escapeAndDepartureNode( departureOrbit.first, departureOrbit.second ) );
+    }
+
+    for( int i = 0; i < numberOfNodes - 1; i++ )
+    {
+        if( minimumPericenterRadii.count( fullBodiesList.at( i ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making MGA settings, no pericenter radius provided for " + fullBodiesList.at( i ) );
+        }
+        currentMinimumPericenterRadius = minimumPericenterRadii.at( fullBodiesList.at( i ) );
+        transferNodeSettings[ i ] = swingbyNode( currentMinimumPericenterRadius );
+    }
+
+    if( arrivalOrbit.first != arrivalOrbit.first )
+    {
+        if( minimumPericenterRadii.count( fullBodiesList.at( numberOfNodes - 1 ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making MGA settings, no pericenter radius provided for " + fullBodiesList.at( numberOfNodes - 1  ) );
+        }
+        currentMinimumPericenterRadius = minimumPericenterRadii.at( fullBodiesList.at( numberOfNodes - 1  ) );
+        transferNodeSettings.push_back( swingbyNode( currentMinimumPericenterRadius ) );
+    }
+    else
+    {
+        transferNodeSettings.push_back( captureAndInsertionNode( departureOrbit.first, departureOrbit.second ) );
+    }
+
+
+}
+
+void getMgaTransferTrajectorySettingsWithoutDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::string& departureBody, const std::string& arrivalBody,
+        const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    std::vector< std::string > fullBodiesList = { departureBody };
+    fullBodiesList.insert(
+                fullBodiesList.end( ), flybyBodies.begin( ), flybyBodies.end( ) );
+    fullBodiesList.push_back( arrivalBody );
+    return getMgaTransferTrajectorySettingsWithoutDsm(
+                legSettings, nodeSettings, fullBodiesList, departureOrbit, arrivalOrbit, minimumPericenterRadii );
+
+}
+
+void getMgaTransferTrajectorySettingsWithoutDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    return getMgaTransferTrajectorySettings(
+            legSettings, nodeSettings, fullBodiesList, unpowered_unperturbed_leg,
+            departureOrbit, arrivalOrbit, minimumPericenterRadii );
+}
+
+void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::string& departureBody, const std::string& arrivalBody,
+        const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    std::vector< std::string > fullBodiesList = { departureBody };
+    fullBodiesList.insert(
+                fullBodiesList.end( ), flybyBodies.begin( ), flybyBodies.end( ) );
+    fullBodiesList.push_back( arrivalBody );
+    return getMgaTransferTrajectorySettingsWithPositionBasedDsm(
+                legSettings, nodeSettings, fullBodiesList, departureOrbit, arrivalOrbit, minimumPericenterRadii );
+
+}
+
+void getMgaTransferTrajectorySettingsWithPositionBasedDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    return getMgaTransferTrajectorySettings(
+            legSettings, nodeSettings, fullBodiesList, dsm_position_based_leg,
+            departureOrbit, arrivalOrbit, minimumPericenterRadii );
+}
+
+void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::string& departureBody, const std::string& arrivalBody,
+        const std::vector< std::string >& flybyBodies,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    std::vector< std::string > fullBodiesList = { departureBody };
+    fullBodiesList.insert(
+                fullBodiesList.end( ), flybyBodies.begin( ), flybyBodies.end( ) );
+    fullBodiesList.push_back( arrivalBody );
+    return getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+                legSettings, nodeSettings, fullBodiesList, departureOrbit, arrivalOrbit, minimumPericenterRadii );
+
+}
+
+void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
+        std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+        std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+        const std::vector< std::string >& fullBodiesList,
+        const std::pair< double, double > departureOrbit,
+        const std::pair< double, double > arrivalOrbit,
+        const std::map< std::string, double > minimumPericenterRadii )
+{
+    return getMgaTransferTrajectorySettings(
+            legSettings, nodeSettings, fullBodiesList, dsm_velocity_based_leg,
+            departureOrbit, arrivalOrbit, minimumPericenterRadii );
+}
+
+
+
 std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
@@ -342,7 +497,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         }
     }
 
-    std::cout<<nodeSettings.size( )<<" "<<nodeFreeParameters.size( )<<std::endl;
     nodes.push_back(
                 createTransferNode(
                     bodyMap, nodeSettings.at( legSettings.size( ) ),
@@ -471,7 +625,7 @@ void printTransferParameterDefinition(
     }
 
     int parameterIndex = 0;
-    for( int i = 0; i < nodeSettings.size( ); i++ )
+    for( unsigned int i = 0; i < nodeSettings.size( ); i++ )
     {
         std::cout << "Parameter "<<parameterIndex<<": Node time "<<i<<std::endl;
         parameterIndex++;

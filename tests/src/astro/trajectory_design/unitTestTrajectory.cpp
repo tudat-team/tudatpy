@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
 
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
     transferNodeSettings.resize( numberOfNodes );
-    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );
     transferNodeSettings[ 1 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 1 ) ) );
     transferNodeSettings[ 2 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 2 ) ) );
     transferNodeSettings[ 3 ] = swingbyNode( minimumPeriapses.at( bodyOrder.at( 3 ) ) );
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     // Create node settings
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
     transferNodeSettings.resize( numberOfNodes );
-    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );
     transferNodeSettings[ 1 ] = swingbyNode( );
     transferNodeSettings[ 2 ] = swingbyNode( );
     transferNodeSettings[ 3 ] = swingbyNode( );
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
 
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
     transferNodeSettings.resize( numberOfNodes );
-    transferNodeSettings[ 0 ] = escapeAndCaptureNode( std::numeric_limits< double >::infinity( ), 0.0 );
+    transferNodeSettings[ 0 ] = escapeAndDepartureNode( std::numeric_limits< double >::infinity( ), 0.0 );
     transferNodeSettings[ 1 ] = swingbyNode( );
     transferNodeSettings[ 2 ] = swingbyNode( );
     transferNodeSettings[ 3 ] = swingbyNode( );
