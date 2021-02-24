@@ -64,7 +64,7 @@ protected:
  * \param groundStationState Object defining the state of the ground-station in a body-fixed frame
  */
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string groundStationName,
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState );
 
@@ -77,7 +77,7 @@ void createGroundStation(
  * \param positionElementType Element type (e.g. Cartesian, spherical, etc.) of groundStationPosition.
  */
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string groundStationName,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType =
@@ -98,7 +98,7 @@ void createGroundStations(
         coordinate_conversions::cartesian_position );
 
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings );
 
