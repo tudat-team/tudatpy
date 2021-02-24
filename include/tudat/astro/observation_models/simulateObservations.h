@@ -320,10 +320,12 @@ simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > >&
         observationsToSimulate,
         const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-        observationSimulators )
+        observationSimulators,
+        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+        PerObservableObservationViabilityCalculatorList( ) )
 {
     return simulateObservations< ObservationScalarType, TimeType >(
-                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationSimulators );
+                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationSimulators, viabilityCalculatorList );
 }
 
 //! Function to simulate observations from set of observables and link and sets
