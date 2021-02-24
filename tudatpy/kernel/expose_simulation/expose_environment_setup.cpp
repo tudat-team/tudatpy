@@ -30,6 +30,7 @@ namespace tba = tudat::basic_astrodynamics;
 namespace ta = tudat::aerodynamics;
 namespace trf = tudat::reference_frames;
 namespace tg = tudat::gravitation;
+namespace tcc = tudat::coordinate_conversions;
 
 namespace tudatpy {
 
@@ -1015,6 +1016,16 @@ void expose_environment_setup(py::module &m) {
           &tss::addRadiationPressureInterface,
           py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"));
 
+    m.def("add_ground_station",
+          py::overload_cast<
+          const std::shared_ptr< tss::Body >,
+          const std::string,
+          const Eigen::Vector3d,
+          const tcc::PositionElementTypes >( &tss::createGroundStation ),
+          py::arg( "body" ),
+          py::arg( "ground_station_name" ),
+          py::arg( "ground_station_position" ),
+          py::arg( "position_type" ) = tcc::cartesian_position );
 
     m.def("create_radiation_pressure_interface",
           &tss::createRadiationPressureInterface,
