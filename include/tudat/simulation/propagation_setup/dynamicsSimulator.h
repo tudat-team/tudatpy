@@ -846,7 +846,7 @@ public:
         }
     }
 
-    void suppresDependentVariableDataPrinting( )
+    void suppressDependentVariableDataPrinting( )
     {
         printDependentVariableData_ = false;
     }
