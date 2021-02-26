@@ -64,6 +64,30 @@ public:
 
 };
 
+inline std::shared_ptr< RootFinderSettings > bisectionRootFinderSettings(
+        const double terminationTolerance, const unsigned int maximumNumberOfIterations )
+{
+    return std::make_shared< RootFinderSettings >( bisection_root_finder, terminationTolerance, maximumNumberOfIterations );
+}
+
+inline std::shared_ptr< RootFinderSettings > newtonRaphsonRootFinderSettings(
+        const double terminationTolerance, const unsigned int maximumNumberOfIterations )
+{
+    return std::make_shared< RootFinderSettings >( newton_raphson_root_finder, terminationTolerance, maximumNumberOfIterations );
+}
+
+inline std::shared_ptr< RootFinderSettings > halleyRootFinderSettings(
+        const double terminationTolerance, const unsigned int maximumNumberOfIterations )
+{
+    return std::make_shared< RootFinderSettings >( halley_root_finder, terminationTolerance, maximumNumberOfIterations );
+}
+
+inline std::shared_ptr< RootFinderSettings > secantRootFinderSettings(
+        const double terminationTolerance, const unsigned int maximumNumberOfIterations )
+{
+    return std::make_shared< RootFinderSettings >( secant_root_finder, terminationTolerance, maximumNumberOfIterations );
+}
+
 //! Function to determine whether a root finder requires any analytical derivatives
 /*!
  * Function to determine whether a root finder requires any analytical derivatives, based on settings for root finder
