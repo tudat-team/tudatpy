@@ -1328,7 +1328,7 @@ void expose_propagator_setup(py::module &m)
           py::arg("limit_value"),
           py::arg("use_as_lower_limit"),
           py::arg("terminate_exactly_on_final_condition") = false,
-          py::arg("termination_root_finder_settings") = tmrf::bisectionRootFinderSettings( 1.0E-8, 25 ) );
+          py::arg("termination_root_finder_settings") = nullptr );
 
     m.def("custom_termination",
           &tp::popagationCustomTerminationSettings,
