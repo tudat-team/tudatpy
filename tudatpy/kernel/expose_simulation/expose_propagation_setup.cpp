@@ -25,6 +25,7 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
+namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
 
@@ -1327,7 +1328,7 @@ void expose_propagator_setup(py::module &m)
           py::arg("limit_value"),
           py::arg("use_as_lower_limit"),
           py::arg("terminate_exactly_on_final_condition") = false,
-          py::arg("termination_root_finder_settings") = nullptr);
+          py::arg("termination_root_finder_settings") = tmrf::bisectionRootFinderSettings( 1.0E-8, 25 ) );
 
     m.def("custom_termination",
           &tp::popagationCustomTerminationSettings,
@@ -1561,7 +1562,11 @@ void expose_propagation_setup(py::module &m) {
             .def("reset_propagation_termination_conditions",
                  &tp::SingleArcDynamicsSimulator<double, double>::resetPropagationTerminationConditions)
             .def("process_numerical_equations_of_motion_solution",
-                 &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution);
+                 &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution)
+            .def("suppress_dependent_variable_terminal_printing",
+                 &tp::SingleArcDynamicsSimulator<double, double>::suppressDependentVariableDataPrinting)
+            .def("enable_dependent_variable_terminal_printing",
+                 &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting);
 
 
     //        py::enum_<tp::VariableType>(m, "VariableType")
