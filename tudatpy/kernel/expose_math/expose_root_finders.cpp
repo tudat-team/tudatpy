@@ -36,8 +36,7 @@ void expose_root_finders(py::module &m) {
    */
 
   py::class_<trf::RootFinderCore<double>,
-             std::shared_ptr<trf::RootFinderCore<double>>>
-      RootFinderCore_(m, "RootFinderCore");
+             std::shared_ptr<trf::RootFinderCore<double>>>(m, "RootFinderCore");
 
   py::class_<trf::NewtonRaphsonCore<double>,
              std::shared_ptr<trf::NewtonRaphsonCore<double>>,
@@ -48,8 +47,27 @@ void expose_root_finders(py::module &m) {
           py::arg("max_iter"));
 
   py::class_<trf::RootFinderSettings,
-             std::shared_ptr<trf::RootFinderSettings>>
-      RootFinderSettings_(m, "RootFinderSettings");
+             std::shared_ptr<trf::RootFinderSettings>>(m, "RootFinderSettings");
+
+  m.def("bisection",
+        &trf::bisectionRootFinderSettings,
+        py::arg("termination_tolerance"),
+        py::arg("maximum_iterations") );
+
+  m.def("newton_raphson",
+        &trf::newtonRaphsonRootFinderSettings,
+        py::arg("termination_tolerance"),
+        py::arg("maximum_iterations") );
+
+  m.def("halley",
+        &trf::halleyRootFinderSettings,
+        py::arg("termination_tolerance"),
+        py::arg("maximum_iterations") );
+
+  m.def("secant",
+        &trf::secantRootFinderSettings,
+        py::arg("termination_tolerance"),
+        py::arg("maximum_iterations") );
 }
 
 }// namespace tudatpy
