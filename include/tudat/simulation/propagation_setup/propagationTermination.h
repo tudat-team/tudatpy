@@ -46,13 +46,13 @@ public:
     /*!
      * Constructor
      * \param terminationType Type of termination condition
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     PropagationTerminationCondition(
             const PropagationTerminationTypes terminationType,
-            const bool terminateExactlyOnFinalCondition = false ):
-        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ){ }
+            const bool checkTerminationToExactCondition = false ):
+        terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition ){ }
 
     //! Destructor
     virtual ~PropagationTerminationCondition( ){ }
@@ -82,9 +82,9 @@ public:
      *  Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition
      *  \return Boolean to denote whether the propagation is to terminate exactly on the final condition
      */
-    bool getTerminateExactlyOnFinalCondition( )
+    bool getcheckTerminationToExactCondition( )
     {
-        return terminateExactlyOnFinalCondition_;
+        return checkTerminationToExactCondition_;
     }
 
 protected:
@@ -94,7 +94,7 @@ protected:
 
     //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
     //! on the first step where it is violated.
-    bool terminateExactlyOnFinalCondition_;
+    bool checkTerminationToExactCondition_;
 
 };
 
@@ -109,14 +109,14 @@ public:
      * \param stopTime Time at which the propagation is to stop.
      * \param propagationDirectionIsPositive Boolean denoting whether propagation is forward (if true) or backwards
      * (if false) in time.
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     FixedTimePropagationTerminationCondition(
             const double stopTime,
             const bool propagationDirectionIsPositive,
-            const bool terminateExactlyOnFinalCondition = false ):
-        PropagationTerminationCondition( time_stopping_condition, terminateExactlyOnFinalCondition ),
+            const bool checkTerminationToExactCondition = false ):
+        PropagationTerminationCondition( time_stopping_condition, checkTerminationToExactCondition ),
         stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
 
@@ -195,7 +195,7 @@ public:
      * \param limitingValue Value at which the propagation is to be stopped
      * \param useAsLowerBound Boolean denoting whether the propagation should stop if the dependent variable goes below
      * (if true) or above (if false) limitingValue
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
@@ -204,20 +204,20 @@ public:
             const std::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
             const bool useAsLowerBound,
-            const bool terminateExactlyOnFinalCondition = false,
+            const bool checkTerminationToExactCondition = false,
             const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr ):
         PropagationTerminationCondition(
-            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
+            dependent_variable_stopping_condition, checkTerminationToExactCondition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFunction_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
-        if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != nullptr ) )
+        if( ( checkTerminationToExactCondition == false ) && ( terminationRootFinderSettings != nullptr ) )
         {
             std::cerr << "Warning, root finder provided to SingleVariableLimitPropagationTerminationCondition, "
                          "but termination on final conditions set to false." << std::endl;
         }
-        if( ( terminateExactlyOnFinalCondition ) && doesRootFinderRequireDerivatives( terminationRootFinderSettings ) )
+        if( ( checkTerminationToExactCondition ) && doesRootFinderRequireDerivatives( terminationRootFinderSettings ) )
         {
             throw std::runtime_error( "Error when setting exact dependent variable termination, requested root finder "
                                       "requires derivatives; not available in state derivative model." );
@@ -285,13 +285,13 @@ public:
     /*!
      * Constructor
      * \param checkStopCondition Custom function to check for the attainment of the propagation stopping conditions.
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     CustomTerminationCondition(
             std::function< bool( const double ) >& checkStopCondition,
-            const bool terminateExactlyOnFinalCondition = false ):
-        PropagationTerminationCondition( custom_stopping_condition, terminateExactlyOnFinalCondition ),
+            const bool checkTerminationToExactCondition = false ):
+        PropagationTerminationCondition( custom_stopping_condition, checkTerminationToExactCondition ),
         checkStopCondition_( checkStopCondition )
     { }
 
@@ -327,14 +327,14 @@ public:
      * checkStopCondition is called.
      * \param fulfillSingleCondition Boolean denoting whether a single (if true) or all (if false) of the entries in the
      * propagationTerminationCondition_ should return true from the checkStopCondition function to stop the propagation
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     HybridPropagationTerminationCondition(
             const std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulfillSingleCondition = 0,
-            const bool terminateExactlyOnFinalCondition = 0 ):
-        PropagationTerminationCondition( hybrid_stopping_condition, terminateExactlyOnFinalCondition ),
+            const bool checkTerminationToExactCondition = 0 ):
+        PropagationTerminationCondition( hybrid_stopping_condition, checkTerminationToExactCondition ),
         propagationTerminationCondition_( propagationTerminationCondition ),
         fulfillSingleCondition_( fulfillSingleCondition )
     {
