@@ -84,18 +84,18 @@ public:
      * relative tolerance for the independent variable. If desired, a custom convergence function
      * can provided to the alternative constructor.
 
-     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *  \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *          solutions below which convergence is reached.
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      */
-    HalleyRootFinderCore( const DataType relativeXTolerance, const unsigned int maxIterations )
+    HalleyRootFinderCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
         : RootFinderCore< DataType >(
               std::bind(
-                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
-                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
+                  RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
     { }
 
     //! Default destructor.
@@ -156,7 +156,7 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;

@@ -88,22 +88,18 @@ public:
      *  lower bound. It is required that the function values at upper and lower bound have an
      *  opposite sign. The default interval is [-1, 1]. If desired, a custom convergence function
      *  can be provided to the alternative constructor.
-     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *  \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *      solutions below which convergence is reached.
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *      terminated, i.e. convergence is assumed.
      *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    BisectionCore( const DataType relativeXTolerance, const unsigned int maxIterations,
+    BisectionCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations,
                    const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
         RootFinderCore< DataType >(
-            std::bind(
-                &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                checkTerminationCondition, std::make_shared<
-                termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                    relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2,
-                std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
+           createTerminationCondition(
+                relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
@@ -191,7 +187,7 @@ public:
 
             counter++;
         }
-        while( !this->terminationFunction( rootValue, previousRootValue, rootFunctionValue,
+        while( !this->terminationFunction_( rootValue, previousRootValue, rootFunctionValue,
                                            previousRootFunctionValue, counter ) );
 
         return rootValue;
