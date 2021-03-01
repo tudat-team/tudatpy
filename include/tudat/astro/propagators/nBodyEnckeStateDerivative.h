@@ -90,14 +90,12 @@ public:
                     this->accelerationModelsPerBody_ );
 
         // Create root-finder for Kepler orbit propagation
-        rootFinder_ = std::make_shared< root_finders::NewtonRaphsonCore< StateScalarType > >(
-                    std::bind( &root_finders::termination_conditions::
-                                 RootAbsoluteToleranceTerminationCondition< StateScalarType >::
-                                 checkTerminationCondition,
-                                 std::make_shared< root_finders::termination_conditions::
-                                 RootAbsoluteToleranceTerminationCondition< StateScalarType > >(
-                                     20.0 * std::numeric_limits< StateScalarType >::epsilon( ), 1000 ),
-                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
+        rootFinder_ = root_finders::createRootFinder< StateScalarType >(
+                            root_finders::newtonRaphsonRootFinderSettings(
+                                TUDAT_NAN, 20.0 * std::numeric_limits< StateScalarType >::epsilon( ),
+                        TUDAT_NAN, 1000,
+                        root_finders::throw_exception ) );
+
         this->createAccelerationModelList( );
     }
 
