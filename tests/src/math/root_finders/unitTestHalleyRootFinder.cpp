@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 
 using namespace tudat;
 using namespace root_finders;
-using namespace root_finders::termination_conditions;
+
 
 //! Check if Halley method converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )

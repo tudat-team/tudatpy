@@ -94,21 +94,21 @@ public:
      * and switches the values if necessary.) If desired, a custom convergence function can be
      * provided to the alternative constructor.
      *
-     * \param relativeXTolerance Relative difference between the root solution of two subsequent
+     * \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *          solutions below which convergence is reached.
      * \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinderCore( const double relativeXTolerance, const unsigned int maxIterations,
+    SecantRootFinderCore( const double relativeIndependentVariableTolerance, const unsigned int maxIterations,
                           const DataType initialGuessOfRootOne = 0.5 )
         : RootFinderCore< DataType >(
               std::bind(
-                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
-                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
+                  RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
           initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
@@ -178,7 +178,7 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;

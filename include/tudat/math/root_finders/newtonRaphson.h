@@ -67,18 +67,14 @@ public:
      *  Constructor taking maximum number of iterations and relative tolerance for independent
      *  variable. If desired, a custom convergence function can provided to the alternative
      *  constructor
-     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *  \param relativeIndependentVariableTolerance Relative difference between the root solution of two subsequent
      *  solutions below which convergence is reached.
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *  terminated, i.e. convergence is assumed
      */
-    NewtonRaphsonCore( const DataType relativeXTolerance, const unsigned int maxIterations )
+    NewtonRaphsonCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
         : RootFinderCore< DataType >(
-              std::bind(
-                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, std::make_shared<
-                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
+             createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
     {}
 
     //! Default destructor.
@@ -107,8 +103,7 @@ public:
         DataType currentFunctionValue   = TUDAT_NAN;
         DataType nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
         DataType currentDerivativeValue = TUDAT_NAN;
-        DataType nextDerivativeValue    = this->rootFunction->
-                computeDerivative( 1, nextRootValue );
+        DataType nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
 
         // Loop counter.
         unsigned int counter = 1;
@@ -130,7 +125,7 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;

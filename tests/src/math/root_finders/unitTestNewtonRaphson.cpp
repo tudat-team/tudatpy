@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 
 using namespace tudat;
 using namespace root_finders;
-using namespace root_finders::termination_conditions;
+
 
 //! Check if Newton-Raphson converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
@@ -157,11 +157,8 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction
-            = std::bind(
-                &RootAbsoluteOrRelativeToleranceTerminationCondition< >::
-                checkTerminationCondition,
-                std::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition< > >(
-                    1.0e-308, 1.0e-15 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+            = tudat::root_finders::createTerminationConditionFunction(
+                1.0e-15, 1.0E-308 );
 
     // Test Newton-Raphson object.
     NewtonRaphson newtonRaphson( terminationConditionFunction );
