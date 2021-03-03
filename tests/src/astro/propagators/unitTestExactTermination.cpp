@@ -185,8 +185,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     terminationSettings = std::make_shared< PropagationDependentVariableTerminationSettings >(
                                 dependentVariables.at( 0 ), 8.7E6, false, true,
-                                std::make_shared< root_finders::RootFinderSettings >(
-                                    root_finders::bisection_root_finder, 1.0E-6, 100 ) );
+                                tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) );
                 }
                 else if( simulationCase == 2 )
                 {
@@ -196,8 +195,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                    tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, true );
                 }
@@ -209,8 +207,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                        tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
+
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, false );
                 }
@@ -222,8 +220,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettingsList.push_back(
                                 std::make_shared< PropagationDependentVariableTerminationSettings >(
                                     dependentVariables.at( 0 ), 8.7E6, false, true,
-                                    std::make_shared< root_finders::RootFinderSettings >(
-                                        root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
+                                        tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 100 ) ) );
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                                 terminationSettingsList, false );
                 }

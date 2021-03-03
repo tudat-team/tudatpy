@@ -132,7 +132,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
                 std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = std::make_shared< FixedTimePropagationTerminationCondition >(
                     timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
-                    timeTerminationSettings->terminateExactlyOnFinalCondition_ );
+                    timeTerminationSettings->checkTerminationToExactCondition_ );
         break;
     }
     case cpu_time_stopping_condition:
@@ -167,7 +167,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
                     dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
                     dependentVariableTerminationSettings->useAsLowerLimit_,
-                    dependentVariableTerminationSettings->terminateExactlyOnFinalCondition_,
+                    dependentVariableTerminationSettings->checkTerminationToExactCondition_,
                     dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }
@@ -179,7 +179,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         // Create dependent variable termination condition.
         propagationTerminationCondition = std::make_shared< CustomTerminationCondition >(
                     customTerminationSettings->checkStopCondition_,
-                    customTerminationSettings->terminateExactlyOnFinalCondition_ );
+                    customTerminationSettings->checkTerminationToExactCondition_ );
         break;
     }
     case hybrid_stopping_condition:
@@ -198,7 +198,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
-                    hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
+                    hybridTerminationSettings->checkTerminationToExactCondition_ );
         break;
     }
     default:

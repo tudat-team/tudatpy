@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     // Define root finder settings (used to update the updated value of the free coefficient, so that it
     // matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
-            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
     // Compute shaped trajectory.
     SphericalShaping sphericalShaping = SphericalShaping(
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
-            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
     // Compute shaped trajectory.
     SphericalShaping sphericalShaping = SphericalShaping(
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer_multi_revolutio
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
-            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
     // Bounds for the free parameter.
     std::vector< double > freeParameterLowerBoundVector = { -1.0, 1.0e-6, -1.0e-2 };
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_full_propagation )
 
     // Define root finder settings (used to update the updated value of the free coefficient, so that it matches the required time of flight).
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
-            std::make_shared< RootFinderSettings >( bisection_root_finder, 1.0e-6, 30 );
+            tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
     // Compute shaped trajectory.
     std::shared_ptr< SphericalShaping > sphericalShaping = std::make_shared< SphericalShaping >(

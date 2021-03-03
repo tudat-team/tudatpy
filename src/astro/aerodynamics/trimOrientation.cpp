@@ -10,8 +10,7 @@
 
 #include "tudat/astro/aerodynamics/trimOrientation.h"
 #include "tudat/math/basic/functionProxy.h"
-#include "tudat/math/root_finders/secantRootFinder.h"
-#include "tudat/math/root_finders/terminationConditions.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 namespace tudat
 {
 
@@ -21,7 +20,7 @@ namespace aerodynamics
 //! Constructor
 TrimOrientationCalculator::TrimOrientationCalculator(
         const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
-        const std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder ):
+        const std::shared_ptr< root_finders::RootFinder< double > > rootFinder ):
     coefficientInterface_( coefficientInterface ), rootFinder_( rootFinder )
 {
     // Find index of angle of attack in aerodynamic coefficient interface (throw error if not found)
@@ -63,12 +62,10 @@ TrimOrientationCalculator::TrimOrientationCalculator(
     // If no root finder provided, use default value.
     if ( !rootFinder_.get( ) )
     {
-        rootFinder_ = std::make_shared< root_finders::SecantRootFinderCore< double > >(
-                    std::bind(
-                        &root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition< double >::
-                        checkTerminationCondition,
-                        std::make_shared< root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition
-                        < double > >( 1.0E-15, 1000 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ), 0.5 );
+        rootFinder_ = root_finders::createRootFinder(
+                    root_finders::secantRootFinderSettings(
+                        TUDAT_NAN, 1.0E-15, TUDAT_NAN, 1000, root_finders::accept_result ),
+                    TUDAT_NAN, TUDAT_NAN, 0.5 );
     }
 }
 

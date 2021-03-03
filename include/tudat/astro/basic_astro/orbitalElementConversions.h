@@ -1058,8 +1058,8 @@ ScalarType convertMeanAnomalyToTrueAnomaly(
         const ScalarType eccentricity, const ScalarType meanAnomaly,
         const bool useDefaultInitialGuess = true,
         const ScalarType userSpecifiedInitialGuess = TUDAT_NAN,
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > > rootFinder =
-        std::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > rootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
 {
     using namespace mathematical_constants;
 

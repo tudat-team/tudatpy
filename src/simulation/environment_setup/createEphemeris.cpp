@@ -299,12 +299,12 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {
                     ephemeris = std::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
-                                approximateEphemerisSettings->getBodyIdentifier( ) );
+                                bodyToUse );
                 }
                 else
                 {
                     ephemeris = std::make_shared< ApproximatePlanetPositions >(
-                                approximateEphemerisSettings->getBodyIdentifier( ) );
+                                bodyToUse );
                 }
             }
             break;
