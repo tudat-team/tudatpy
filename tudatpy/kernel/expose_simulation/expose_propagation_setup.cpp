@@ -1492,7 +1492,8 @@ void expose_propagation_setup(py::module &m) {
                  const bool,
                  const bool,
                  const std::chrono::steady_clock::time_point,
-                 const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>> &>(),
+                 const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>&,
+                 const bool >(),
                  py::arg("body_map"),
                  py::arg("integrator_settings"),
                  py::arg("propagator_settings"),
@@ -1502,7 +1503,8 @@ void expose_propagation_setup(py::module &m) {
                  py::arg("print_number_of_function_evaluations") = false,
                  py::arg("initial_clock_time") = std::chrono::steady_clock::now(),
                  py::arg("state_derivative_models") =
-            std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>())
+            std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(),
+                 py::arg("print_dependent_variable_data" )= true )
             .def("integrate_equations_of_motion",
                  &tp::SingleArcDynamicsSimulator<double, double>::integrateEquationsOfMotion,
                  py::arg("initial_states"))
