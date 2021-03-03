@@ -25,6 +25,7 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
+namespace tmrf = tudat::root_finders;
 
 namespace tudatpy {
 
@@ -1327,7 +1328,7 @@ void expose_propagator_setup(py::module &m)
           py::arg("limit_value"),
           py::arg("use_as_lower_limit"),
           py::arg("terminate_exactly_on_final_condition") = false,
-          py::arg("termination_root_finder_settings") = nullptr);
+          py::arg("termination_root_finder_settings") = nullptr );
 
     m.def("custom_termination",
           &tp::popagationCustomTerminationSettings,
@@ -1491,7 +1492,8 @@ void expose_propagation_setup(py::module &m) {
                  const bool,
                  const bool,
                  const std::chrono::steady_clock::time_point,
-                 const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>> &>(),
+                 const std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>&,
+                 const bool >(),
                  py::arg("body_map"),
                  py::arg("integrator_settings"),
                  py::arg("propagator_settings"),
@@ -1501,7 +1503,8 @@ void expose_propagation_setup(py::module &m) {
                  py::arg("print_number_of_function_evaluations") = false,
                  py::arg("initial_clock_time") = std::chrono::steady_clock::now(),
                  py::arg("state_derivative_models") =
-            std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>())
+            std::vector<std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(),
+                 py::arg("print_dependent_variable_data" )= true )
             .def("integrate_equations_of_motion",
                  &tp::SingleArcDynamicsSimulator<double, double>::integrateEquationsOfMotion,
                  py::arg("initial_states"))
@@ -1561,7 +1564,11 @@ void expose_propagation_setup(py::module &m) {
             .def("reset_propagation_termination_conditions",
                  &tp::SingleArcDynamicsSimulator<double, double>::resetPropagationTerminationConditions)
             .def("process_numerical_equations_of_motion_solution",
-                 &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution);
+                 &tp::SingleArcDynamicsSimulator<double, double>::processNumericalEquationsOfMotionSolution)
+            .def("suppress_dependent_variable_terminal_printing",
+                 &tp::SingleArcDynamicsSimulator<double, double>::suppressDependentVariableDataPrinting)
+            .def("enable_dependent_variable_terminal_printing",
+                 &tp::SingleArcDynamicsSimulator<double, double>::enableDependentVariableDataPrinting);
 
 
     //        py::enum_<tp::VariableType>(m, "VariableType")
