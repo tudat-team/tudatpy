@@ -35,12 +35,18 @@ void expose_root_finders(py::module &m) {
    *
    */
 
-  py::class_<trf::RootFinderCore<double>,
-             std::shared_ptr<trf::RootFinderCore<double>>>(m, "RootFinderCore");
+    py::enum_<trf::MaximumIterationHandling>(m, "MaximumIterationHandling")
+            .value("accept_result", trf::MaximumIterationHandling::accept_result)
+            .value("accept_result_with_warning", trf::MaximumIterationHandling::accept_result_with_warning)
+            .value("throw_exception", trf::MaximumIterationHandling::throw_exception);
 
-  py::class_<trf::NewtonRaphsonCore<double>,
-             std::shared_ptr<trf::NewtonRaphsonCore<double>>,
-             trf::RootFinderCore<double>>(m, "NewtonRaphsonCore")
+
+  py::class_<trf::RootFinder<double>,
+             std::shared_ptr<trf::RootFinder<double>>>(m, "RootFinderCore");
+
+  py::class_<trf::NewtonRaphson<double>,
+             std::shared_ptr<trf::NewtonRaphson<double>>,
+             trf::RootFinder<double>>(m, "NewtonRaphsonCore")
       .def(
           py::init<const double, const unsigned int>(),
           py::arg("x_tol"),
@@ -51,23 +57,36 @@ void expose_root_finders(py::module &m) {
 
   m.def("bisection",
         &trf::bisectionRootFinderSettings,
-        py::arg("termination_tolerance"),
-        py::arg("maximum_iterations") );
+        py::arg( "relative_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "absolute_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "root_function_tolerance" ) = TUDAT_NAN,
+        py::arg( "maximum_iteration" ) = 1000,
+        py::arg( "maximum_iteration_handling" ) = trf::throw_exception );
+
 
   m.def("newton_raphson",
         &trf::newtonRaphsonRootFinderSettings,
-        py::arg("termination_tolerance"),
-        py::arg("maximum_iterations") );
+        py::arg( "relative_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "absolute_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "root_function_tolerance" ) = TUDAT_NAN,
+        py::arg( "maximum_iteration" ) = 1000,
+        py::arg( "maximum_iteration_handling" ) = trf::throw_exception );
 
   m.def("halley",
         &trf::halleyRootFinderSettings,
-        py::arg("termination_tolerance"),
-        py::arg("maximum_iterations") );
+        py::arg( "relative_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "absolute_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "root_function_tolerance" ) = TUDAT_NAN,
+        py::arg( "maximum_iteration" ) = 1000,
+        py::arg( "maximum_iteration_handling" ) = trf::throw_exception );
 
   m.def("secant",
         &trf::secantRootFinderSettings,
-        py::arg("termination_tolerance"),
-        py::arg("maximum_iterations") );
+        py::arg( "relative_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "absolute_variable_tolerance" ) = TUDAT_NAN,
+        py::arg( "root_function_tolerance" ) = TUDAT_NAN,
+        py::arg( "maximum_iteration" ) = 1000,
+        py::arg( "maximum_iteration_handling" ) = trf::throw_exception );
 }
 
 }// namespace tudatpy
