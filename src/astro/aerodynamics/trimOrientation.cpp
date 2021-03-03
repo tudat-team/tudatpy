@@ -20,7 +20,7 @@ namespace aerodynamics
 //! Constructor
 TrimOrientationCalculator::TrimOrientationCalculator(
         const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
-        const std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder ):
+        const std::shared_ptr< root_finders::RootFinder< double > > rootFinder ):
     coefficientInterface_( coefficientInterface ), rootFinder_( rootFinder )
 {
     // Find index of angle of attack in aerodynamic coefficient interface (throw error if not found)

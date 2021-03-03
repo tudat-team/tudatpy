@@ -91,10 +91,10 @@ public:
 
         // Create root-finder for Kepler orbit propagation
         rootFinder_ = root_finders::createRootFinder< StateScalarType >(
-                            root_finders::newtonRaphsonRootFinderSettings(
-                                TUDAT_NAN, 20.0 * std::numeric_limits< StateScalarType >::epsilon( ),
-                        TUDAT_NAN, 1000,
-                        root_finders::throw_exception ) );
+                    root_finders::newtonRaphsonRootFinderSettings(
+                        TUDAT_NAN, 5.0 * std::numeric_limits< StateScalarType >::epsilon( ),
+                        TUDAT_NAN, 50, root_finders::accept_result ) );
+
 
         this->createAccelerationModelList( );
     }
@@ -284,7 +284,7 @@ private:
     centralAccelerations_;
 
     //! Root finder used to propagate Kepler orbit.
-    std::shared_ptr< root_finders::RootFinderCore< StateScalarType > > rootFinder_;
+    std::shared_ptr< root_finders::RootFinder< StateScalarType > > rootFinder_;
 
     //! Current Cartesian states of reference Kepler orbits, valid at currentKeplerOrbitTime_, computed by
     //! calculateKeplerTrajectoryCartesianStates

@@ -54,15 +54,15 @@ namespace root_finders
  *  \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class BisectionCore : public RootFinderCore< DataType >
+class Bisection : public RootFinder< DataType >
 {
 public:
 
     //! Useful type definition for the function pointer (from base class).
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Useful type definition for the termination function (from base class).
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! Constructor taking a general termination function and the bracket of the solution.
     /*!
@@ -75,9 +75,9 @@ public:
      *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    BisectionCore( const TerminationFunction terminationFunction,
-                   const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
-        RootFinderCore< DataType >( terminationFunction ),
+    Bisection( const TerminationFunction terminationFunction,
+               const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
+        RootFinder< DataType >( terminationFunction ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
@@ -95,16 +95,16 @@ public:
      *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    BisectionCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations,
-                   const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
-        RootFinderCore< DataType >(
-           createTerminationCondition(
+    Bisection( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations,
+               const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
+        RootFinder< DataType >(
+            createTerminationCondition(
                 relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
     //! Default destructor.
-    ~BisectionCore( ) { }
+    ~Bisection( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -139,57 +139,68 @@ public:
         // upper bound and midpoint).
         DataType currentLowerBoundFunctionValue = this->rootFunction->evaluate( currentLowerBound );
         DataType currentUpperBoundFunctionValue = this->rootFunction->evaluate( currentUpperBound );
-        DataType rootFunctionValue = this->rootFunction->evaluate( rootValue );
-
-        // Validate that upperbound and lowerbound function values have different signs
-        // (requirement).
-        if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
+        if( currentLowerBoundFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) )
         {
-            throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
-                                      "and lower bounds have a different sign." );
+            rootValue =  currentLowerBound;
         }
-
-        // Loop counter.
-        unsigned int counter = 1;
-
-        // Loop until we have a solution with sufficient accuracy.
-        do
+        else if( currentUpperBoundFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) )
         {
-            // Sanity check.
+            rootValue =  currentUpperBound;
+        }
+        else
+        {
+            DataType rootFunctionValue = this->rootFunction->evaluate( rootValue );
+
+            // Validate that upperbound and lowerbound function values have different signs
+            // (requirement).
             if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
             {
                 throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
-                                          "and lower bounds have a different sign, error during iteration." );
+                                          "and lower bounds have a different sign." );
             }
 
-            // Save old values.
-            previousRootValue = rootValue;
-            previousRootFunctionValue = rootFunctionValue;
+            // Loop counter.
+            unsigned int counter = 1;
 
-            // Check which subinterval to keep, by maintaining endpoints with opposite function
-            // value signs.
-            if( rootFunctionValue * currentLowerBoundFunctionValue < 0.0 )
+            // Loop until we have a solution with sufficient accuracy.
+            do
             {
-                // Different sign, hence the upper bound is replaced.
-                currentUpperBound = rootValue;
-                currentUpperBoundFunctionValue = rootFunctionValue;
-            }
-            else
-            {
-                // Same sign, hence the lower bound is replaced.
-                currentLowerBound = rootValue;
-                currentLowerBoundFunctionValue = rootFunctionValue;
-            }
+                // Sanity check.
+                if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
+                {
+                    throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
+                                              "and lower bounds have a different sign, error during iteration." );
+                }
 
-            // Compute the new midpoint of the interval and its function value.
-            rootValue = ( currentLowerBound + currentUpperBound ) / 2.0;
-            rootFunctionValue = this->rootFunction->evaluate( rootValue );
+                // Save old values.
+                previousRootValue = rootValue;
+                previousRootFunctionValue = rootFunctionValue;
 
-            counter++;
+                // Check which subinterval to keep, by maintaining endpoints with opposite function
+                // value signs.
+                if( rootFunctionValue * currentLowerBoundFunctionValue < 0.0 )
+                {
+                    // Different sign, hence the upper bound is replaced.
+                    currentUpperBound = rootValue;
+                    currentUpperBoundFunctionValue = rootFunctionValue;
+                }
+                else
+                {
+                    // Same sign, hence the lower bound is replaced.
+                    currentLowerBound = rootValue;
+                    currentLowerBoundFunctionValue = rootFunctionValue;
+                }
+
+                // Compute the new midpoint of the interval and its function value.
+                rootValue = ( currentLowerBound + currentUpperBound ) / 2.0;
+                rootFunctionValue = this->rootFunction->evaluate( rootValue );
+
+                counter++;
+            }
+            while( rootFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                   !this->terminationFunction_( rootValue, previousRootValue, rootFunctionValue,
+                                                previousRootFunctionValue, counter ) );
         }
-        while( !this->terminationFunction_( rootValue, previousRootValue, rootFunctionValue,
-                                           previousRootFunctionValue, counter ) );
-
         return rootValue;
     }
 
@@ -218,9 +229,6 @@ private:
 
 };
 
-// Some handy typedefs.
-typedef BisectionCore< double > Bisection;
-typedef std::shared_ptr< Bisection > BisectionPointer;
 
 } // namespace root_finders
 

@@ -15,6 +15,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 
 #include <functional>
 #include <memory>
@@ -47,18 +48,28 @@ enum MaximumIterationHandling
  */
 inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIterations,
                                             const unsigned int maximumNumberOfIterations,
-                                            const bool throwRunTimeException = true )
+                                            const MaximumIterationHandling maximumIterationHandling )
 {
     // Check if maximum number of iterations have been exceeded.
     const bool isMaximumIterationsExceeded = numberOfIterations > maximumNumberOfIterations;
 
     // If exceeded, and flag is set to throw run-time exception, proceed.
-    if ( isMaximumIterationsExceeded && throwRunTimeException )
+    if ( isMaximumIterationsExceeded )
     {
-        std::string errorMessage
+        static std::string errorMessage
                 = "Root-finder did not converge within maximum number of iterations!";
+        switch( maximumIterationHandling )
+        {
+        case accept_result:
+            break;
+        case accept_result_with_warning:
+            std::cerr<<errorMessage<<std::endl;
+            break;
+        case throw_exception:
+            throw std::runtime_error( errorMessage );
+            break;
+        }
 
-        throw std::runtime_error( errorMessage );
     }
 
     // Else, simply return whether maximum number of iterations have been exceeded.
@@ -169,9 +180,9 @@ public:
      * \param maximumNumberOfIterations Maximum number of iterations (default=1000).
      */
     MaximumIterationsTerminationCondition( const unsigned int maximumNumberOfIterations = 1000,
-                                           const bool throwRunTimeExceptionFlag = true )
+                                           const MaximumIterationHandling maximumIterationHandling = throw_exception )
         : maximumNumberOfIterations_( maximumNumberOfIterations ),
-          throwRunTimeException_( throwRunTimeExceptionFlag )
+          maximumIterationHandling_( maximumIterationHandling )
     { }
 
     //! Check termination condition (wrapper for checkMaximumIterationsExceeded()-function).
@@ -182,7 +193,7 @@ public:
                                     const unsigned int numberOfIterations )
     {
         return checkMaximumIterationsExceeded( numberOfIterations, maximumNumberOfIterations_,
-                                               throwRunTimeException_ );
+                                               maximumIterationHandling_ );
     }
 
 private:
@@ -191,7 +202,7 @@ private:
     const unsigned int maximumNumberOfIterations_;
 
     //! Flag indicating if run-time exception should be thrown.
-    const bool throwRunTimeException_;
+    const MaximumIterationHandling maximumIterationHandling_;
 };
 
 //! Absolute tolerance for root termination condition.
@@ -368,16 +379,15 @@ std::shared_ptr< TerminationCondition< DataType > > createTerminationCondition(
         const DataType relativeIndependentVariableTolerance = TUDAT_NAN,
         const DataType absoluteIndependentVariableTolerance = TUDAT_NAN,
         const DataType rootFunctionTolerance = TUDAT_NAN,
-
         const unsigned int maximumNumberOfIterations = 1000,
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
     std::vector< std::shared_ptr< TerminationCondition< DataType > > > terminationConditionList;
 
 
-        terminationConditionList.push_back(
-                    std::make_shared< MaximumIterationsTerminationCondition< DataType > >(
-                        maximumNumberOfIterations, maximumIterationHandling ) );
+    terminationConditionList.push_back(
+                std::make_shared< MaximumIterationsTerminationCondition< DataType > >(
+                    maximumNumberOfIterations, maximumIterationHandling ) );
 
     if( ( relativeIndependentVariableTolerance == relativeIndependentVariableTolerance ) )
     {

@@ -466,10 +466,11 @@ void SphericalShaping::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root
             std::make_shared< SphericalShaping::TimeOfFlightFunction >( resetFreeCoefficientFunction, satisfyBoundaryConditionsFunction, computeTOFfunction, getRequiredTOFfunction );
 
     // Create root finder from root finder settings.
-    std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder = root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
+    std::shared_ptr< root_finders::RootFinder< double > > rootFinder = root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
 
     // Iterate to find the free coefficient value that matches the required time of flight.
     double updatedFreeCoefficient = rootFinder->execute( timeOfFlightFunction, initialGuess );
+    resetValueFreeCoefficient( updatedFreeCoefficient );
 
 }
 
