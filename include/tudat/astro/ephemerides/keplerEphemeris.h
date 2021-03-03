@@ -97,7 +97,7 @@ private:
     Eigen::Quaterniond rotationFromOrbitalPlane_;
 
     //! Root finder used to convert mean to eccentric anomalies.
-    std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder_;
+    std::shared_ptr< root_finders::RootFinder< double > > rootFinder_;
 
     //! Initial epoch from which propagation of Kepler orbit is performed.
     double epochOfInitialState_;
