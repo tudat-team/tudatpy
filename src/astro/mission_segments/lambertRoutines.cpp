@@ -363,7 +363,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 {
     if ( !rootFinder.get( ) )
     {
-        rootFinder = std::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 );
+        rootFinder = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 );
     }
 
     // Normalize positions.

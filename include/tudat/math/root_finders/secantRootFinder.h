@@ -56,15 +56,15 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class SecantRootFinderCore : public RootFinderCore< DataType >
+class SecantRootFinder : public RootFinder< DataType >
 {
 public:
 
     //! Usefull type definition for the function pointer (from base class).
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Usefull type definition for the termination function (from base class).
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! Constructor taking the general termination function and the least accurate initial guess.
     /*!
@@ -79,9 +79,9 @@ public:
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinderCore( TerminationFunction terminationFunction,
+    SecantRootFinder( TerminationFunction terminationFunction,
                           const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinderCore< DataType >( terminationFunction ),
+        : RootFinder< DataType >( terminationFunction ),
           initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
@@ -101,9 +101,9 @@ public:
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinderCore( const double relativeIndependentVariableTolerance, const unsigned int maxIterations,
+    SecantRootFinder( const double relativeIndependentVariableTolerance, const unsigned int maxIterations,
                           const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinderCore< DataType >(
+        : RootFinder< DataType >(
               std::bind(
                   &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
@@ -113,7 +113,7 @@ public:
     { }
 
     //! Default destructor.
-    ~SecantRootFinderCore( ) { }
+    ~SecantRootFinder( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -178,7 +178,8 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
+        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;
@@ -208,10 +209,6 @@ private:
     double initialGuessOfRootOne_;
 
 };
-
-// Some handy typedefs.
-typedef SecantRootFinderCore< double > SecantRootFinder;
-typedef std::shared_ptr< SecantRootFinder > SecantRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

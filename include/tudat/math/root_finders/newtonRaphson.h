@@ -42,15 +42,15 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class NewtonRaphsonCore : public RootFinderCore< DataType >
+class NewtonRaphson : public RootFinder< DataType >
 {
 public:
 
     //! Useful type definition for the function pointer (from base class)
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Useful type definition for the termination function (from base class)
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! This is the constructor taking the general termination function
     /*!
@@ -58,8 +58,8 @@ public:
      *  \param terminationFunction The function specifying the termination conditions of the
      *  root-finding process \sa RootFinderCore::terminationFunction
      */
-    NewtonRaphsonCore( TerminationFunction terminationFunction )
-        : RootFinderCore< DataType >( terminationFunction )
+    NewtonRaphson( TerminationFunction terminationFunction )
+        : RootFinder< DataType >( terminationFunction )
     { }
 
     //! Constructor taking typical convergence criteria.
@@ -72,16 +72,16 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *  terminated, i.e. convergence is assumed
      */
-    NewtonRaphsonCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
-        : RootFinderCore< DataType >(
-             createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
+    NewtonRaphson( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
+        : RootFinder< DataType >(
+              createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
     {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-     ~NewtonRaphsonCore( ) { }
+    ~NewtonRaphson( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -105,28 +105,32 @@ public:
         DataType currentDerivativeValue = TUDAT_NAN;
         DataType nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
 
-        // Loop counter.
-        unsigned int counter = 1;
-
-        // Loop until we have a solution with sufficient accuracy.
-        do
+        if( !( nextFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) ) )
         {
-            // Save the old values.
-            currentRootValue       = nextRootValue;
-            currentFunctionValue   = nextFunctionValue;
-            currentDerivativeValue = nextDerivativeValue;
+            // Loop counter.
+            unsigned int counter = 1;
 
-            // Compute next value of root using the following algorithm (see class documentation):
-            nextRootValue          = currentRootValue -
-                    currentFunctionValue / currentDerivativeValue;
-            nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
-            nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
+            // Loop until we have a solution with sufficient accuracy.
+            do
+            {
+                // Save the old values.
+                currentRootValue       = nextRootValue;
+                currentFunctionValue   = nextFunctionValue;
+                currentDerivativeValue = nextDerivativeValue;
 
-            // Update the counter.
-            counter++;
+                // Compute next value of root using the following algorithm (see class documentation):
+                nextRootValue          = currentRootValue -
+                        currentFunctionValue / currentDerivativeValue;
+                nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
+                nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
+
+                // Update the counter.
+                counter++;
+            }
+            while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                   !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
+                                                currentFunctionValue, counter ) );
         }
-        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
-                                           currentFunctionValue, counter ) );
 
         return nextRootValue;
     }
@@ -136,10 +140,6 @@ protected:
 private:
 
 };
-
-// Some handy typedefs.
-typedef NewtonRaphsonCore< > NewtonRaphson;
-typedef std::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
 
 } // namespace root_finders
 } // namespace tudat

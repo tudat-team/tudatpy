@@ -109,7 +109,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
 
     // Create root finder.
     bool increasingTime = static_cast< double >( lastTime - secondToLastTime ) > 0.0;
-    std::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
+    std::shared_ptr< root_finders::RootFinder< TimeStepType > > finalConditionRootFinder;
     if( increasingTime )
     {
         finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(

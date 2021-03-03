@@ -56,15 +56,15 @@ namespace root_finders
  * \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
-class HalleyRootFinderCore : public RootFinderCore< DataType >
+class HalleyRootFinder : public RootFinder< DataType >
 {
 public:
 
     //! Usefull type definition for the function pointer (from base class).
-    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+    typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
     //! Usefull type definition for the termination function (from base class).
-    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
+    typedef typename RootFinder< DataType >::TerminationFunction TerminationFunction;
 
     //! Constructor taking the general termination function.
     /*!
@@ -74,8 +74,8 @@ public:
      * \param terminationFunction The function specifying the termination conditions of the
      *          root-finding process. \sa RootFinderCore::terminationFunction
      */
-    HalleyRootFinderCore( TerminationFunction terminationFunction )
-        : RootFinderCore< DataType >( terminationFunction )
+    HalleyRootFinder( TerminationFunction terminationFunction )
+        : RootFinder< DataType >( terminationFunction )
     { }
 
     //! Constructor taking typical convergence criteria.
@@ -89,8 +89,8 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      */
-    HalleyRootFinderCore( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
-        : RootFinderCore< DataType >(
+    HalleyRootFinder( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
+        : RootFinder< DataType >(
               std::bind(
                   &RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
@@ -102,7 +102,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~HalleyRootFinderCore( ){ }
+    ~HalleyRootFinder( ){ }
 
     //! Find a root of the function provided as input.
     /*!
@@ -156,7 +156,8 @@ public:
             // Update the counter.
             counter++;
         }
-        while( !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
+        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
 
         return nextRootValue;
@@ -168,9 +169,6 @@ private:
 
 };
 
-// Some handy typedefs.
-typedef HalleyRootFinderCore< double > HalleyRootFinder;
-typedef std::shared_ptr< HalleyRootFinder > HalleyRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

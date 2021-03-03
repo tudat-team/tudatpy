@@ -63,7 +63,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const bool useEccentricityInsteadOfPericenter = true,
                       const double speedTolerance = 1.0e-6,
                       root_finders::RootFinderPointer rootFinder
-                        = std::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 ) );
+                        = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
 
 //! Propagate an unpowered gravity assist.
 /*!
