@@ -1640,6 +1640,7 @@ BOOST_AUTO_TEST_CASE( testMeanToTrueAnomalyConversion )
             double meanAnomaly = meanAnomalies.at( i );
 
             double trueAnomaly = convertMeanAnomalyToTrueAnomaly( eccentricity, meanAnomaly );
+
             double recomputedMeanAnomaly = convertTrueAnomalyToMeanAnomaly( eccentricity, trueAnomaly );
 
             double anomalyDifference = meanAnomaly - recomputedMeanAnomaly;
