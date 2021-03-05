@@ -225,6 +225,13 @@ inline std::shared_ptr< ObservationBiasSettings > arcWiseRelativeBias(
                 observationBiases, linkEndForTime, false );
 }
 
+inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSettings(
+        const std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList  )
+{
+    return std::make_shared< MultipleObservationBiasSettings >(
+                biasSettingsList );
+}
+
 
 
 //! Class used for defining the settings for an observation model that is to be created.
