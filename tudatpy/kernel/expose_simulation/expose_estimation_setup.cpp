@@ -10,6 +10,8 @@
 
 #include "expose_estimation_setup.h"
 
+#include "tudat/astro/propagators/propagateCovariance.h"
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -28,6 +30,7 @@ namespace tom = tudat::observation_models;
 namespace tudatpy {
 
 void expose_observation_setup(py::module &m) {
+
     py::enum_< tom::LinkEndType >(m, "LinkEndType")
             .value("unidentified_link_end", tom::LinkEndType::unidentified_link_end )
             .value("transmitter", tom::LinkEndType::transmitter )
@@ -128,12 +131,93 @@ void expose_observation_setup(py::module &m) {
             std::shared_ptr<tom::ObservationBiasSettings>>(
                 m, "ObservationBiasSettings");
 
+    m.def("bias",
+          &tom::constantAbsoluteBias,
+          py::arg("bias_value") );
+
+    m.def("relative_bias",
+          &tom::constantRelativeBias,
+          py::arg("bias_value") );
+
+    m.def("arcwise_bias",
+          py::overload_cast<
+          const std::vector< double >&,
+          const std::vector< Eigen::VectorXd >&,
+          const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
+          py::arg("arc_start_times" ),
+          py::arg("bias_values"),
+          py::arg("time_link_end" ) );
+
+    m.def("arcwise_bias",
+          py::overload_cast<
+          const std::map< double, Eigen::VectorXd >&,
+          const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
+          py::arg("bias_values_per_start_time"),
+          py::arg("time_link_end" ) );
+
+    m.def("arcwise_relative_bias",
+          py::overload_cast<
+          const std::vector< double >&,
+          const std::vector< Eigen::VectorXd >&,
+          const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
+          py::arg("arc_start_times" ),
+          py::arg("bias_values"),
+          py::arg("time_link_end" ) );
+
+    m.def("arcwise_relative_bias",
+          py::overload_cast<
+          const std::map< double, Eigen::VectorXd >&,
+          const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
+          py::arg("bias_values_per_start_time"),
+          py::arg("time_link_end" ) );
+
+    m.def("combined_bias",
+          &tom::multipleObservationBiasSettings,
+          py::arg("bias_list") );
+
+
+    py::enum_< tom::ObservationViabilityType >(m, "ObservationViabilityType")
+            .value("minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
+            .value("body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
+            .value("body_occultation", tom::ObservationViabilityType::body_occultation )
+            .export_values();
+
+
+    py::class_<tom::ObservationViabilitySettings,
+            std::shared_ptr<tom::ObservationViabilitySettings>>(
+                m, "ObservationViabilitySettings")
+            .def(py::init< const tom::ObservationViabilityType,
+                 const std::pair< std::string, std::string >,
+                 const std::string,
+                 const double >(),
+                 py::arg("viability_type"),
+                 py::arg("associated_link_end"),
+                 py::arg("string_input"),
+                 py::arg("double_input") );
+
+    m.def("elevation_angle_viability",
+          &tom::elevationAngleViabilitySettings,
+          py::arg("link_end" ),
+          py::arg("elevationAngle" ) );
+
+
+    m.def("body_avoidance_viability",
+          &tom::bodyAvoidanceAngleViabilitySettings,
+          py::arg("link_end" ),
+          py::arg("body_to_avoid" ),
+          py::arg("avoidance_angle") );
+
+    m.def("body_occultation_viability",
+          &tom::bodyOccultationViabilitySettings,
+          py::arg("link_end" ),
+          py::arg("occulting_body" ) );
+
 }
 
 void expose_estimated_parameter_setup(py::module &m) {
 
     py::enum_<tep::EstimatebleParametersEnum >(m, "EstimatebleParameterTypes")
-            .value("arc_wxise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
+            .value("arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
             .value("initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state)
             .value("initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state)
             .value("gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter)
@@ -152,9 +236,9 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta)
             .value("ground_station_position_type", tep::EstimatebleParametersEnum::ground_station_position)
             .value("equivalence_principle_lpi_violation_parameter_type", tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter)
-            .value("empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::empirical_acceleration_coefficients)
-            .value("arc_wise_empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients)
-            .value("full_degree_tidal_love_number_type", tep::EstimatebleParametersEnum::full_degree_tidal_love_number)
+            .value("empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::empirical_acceleration_coefficients)// TO EXPOSE
+            .value("arc_wise_empirical_acceleration_coefficients_type", tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients)// TO EXPOSE
+            .value("full_degree_tidal_love_number_type", tep::EstimatebleParametersEnum::full_degree_tidal_love_number)// TO EXPOSE
             .value("single_degree_variable_tidal_love_number_type", tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number)
             .value("direct_dissipation_tidal_time_lag_type", tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag)
             .value("mean_moment_of_inertia_type", tep::EstimatebleParametersEnum::mean_moment_of_inertia)
@@ -249,13 +333,57 @@ void expose_estimated_parameter_setup(py::module &m) {
           &tep::rotationPolePosition,
           py::arg("body_name") );
 
+    m.def("observation_bias",
+          &tep::observationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type") );
+
+    m.def("relative_observation_bias",
+          &tep::relativeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type") );
+
+    m.def("arcwise_observation_bias",
+          &tep::arcwiseObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("arc_start_times" ),
+          py::arg("time_link_end" ) );
+
+    m.def("arcwise_relative_observation_bias",
+          &tep::arcwiseRelativeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("arc_start_times" ),
+          py::arg("time_link_end" ) );
+
+
     m.def("ppn_parameter_gamma",
           &tep::ppnParameterGamma );
 
     m.def("ppn_parameter_beta",
           &tep::ppnParameterBeta );
 
+    m.def("ground_station_position",
+          &tep::groundStationPosition,
+          py::arg("body_name"),
+          py::arg("ground_station_name") );
 
+    m.def("direct_tidal_dissipation_time_lag",
+          py::overload_cast< const std::string&, const std::string& >(
+              &tep::directTidalDissipationLagTime ),
+          py::arg("body_name"),
+          py::arg("deforming_body") );
+
+    m.def("direct_tidal_dissipation_time_lag",
+          py::overload_cast< const std::string&, const std::vector< std::string >& >(
+              &tep::directTidalDissipationLagTime ),
+          py::arg("body_name"),
+          py::arg("deforming_body") );
+
+    m.def("mean_moment_of_inertia",
+          &tep::meanMomentOfInertia,
+          py::arg("body_name") );
 
     m.def("order_invariant_k_love_number",
           py::overload_cast< const std::string&,
@@ -377,6 +505,36 @@ void expose_estimation_setup(py::module &m) {
                  &tp::SingleArcVariationalEquationsSolver<double, double>::getDynamicsSimulator)
             .def("reset_parameter_estimate",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::resetParameterEstimate);
+
+    py::class_<
+            tp::CombinedStateTransitionAndSensitivityMatrixInterface,
+            std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>>(
+                m, "CombinedStateTransitionAndSensitivityMatrixInterface")
+            .def("state_transition_sensitivity_at_epoch",
+                 &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                 getCombinedStateTransitionAndSensitivityMatrix,
+                 py::arg("time"))
+            .def("full_state_transition_sensitivity_at_epoch",
+                 &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                 getCombinedStateTransitionAndSensitivityMatrix,
+                 py::arg("time"))
+            .def_property_readonly(
+                "state_transition_size",
+                &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getStateTransitionMatrixSize)
+            .def_property_readonly(
+                "sensitivity_size",
+                &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getSensitivityMatrixSize)
+            .def_property_readonly(
+                "full_parameter_size",
+                &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getFullParameterVectorSize);;
+
+    m.def("propagate_covariance",
+          py::overload_cast< const Eigen::MatrixXd&,
+          const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+          const std::vector< double > >( &tp::propagateCovariance ),
+          py::arg("initial_covariance"),
+          py::arg("state_transition_interface"),
+          py::arg("output_times") );
 
     py::class_<tep::EstimatableParameterSet<double>,
             std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
