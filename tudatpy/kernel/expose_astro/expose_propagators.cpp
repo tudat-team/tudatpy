@@ -37,12 +37,9 @@ void expose_propagators(py::module &m) {
         &tp::getGeneralizedAccelerationSize,
         py::arg("state_type"));
 
-  py::class_<
-      tp::SingleStateTypeDerivative<double, double>,
-      std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>
-      SingleStateTypeDerivative_(m, "SingleStateTypeDerivative");
-  //                    .def(py::init<const tp::IntegratedStateType>(),
-  //                         py::arg("integrated_state_type"));
+//  py::class_<
+//      tp::SingleStateTypeDerivative<double, double>,
+//      std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(m, "SingleStateTypeDerivative");
 
   py::class_<
       tp::NBodyStateDerivative<double, double>,

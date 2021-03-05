@@ -11,6 +11,7 @@
 #include "expose_conversion.h"
 
 #include <tudat/astro/conversions.h>
+#include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 
 #include <pybind11/eigen.h>
@@ -19,6 +20,8 @@
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
+namespace tcc = tudat::coordinate_conversions;
+
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
@@ -51,6 +54,11 @@ void expose_conversion(py::module &m) {
             .value("heading_angle_index", toec::SphericalOrbitalStateElementIndices::headingAngleIndex)
             .export_values();
 
+    py::enum_<tcc::PositionElementTypes>(m, "PositionElementTypes")
+            .value("cartesian_position_type", tcc::PositionElementTypes::cartesian_position)
+            .value("spherical_position_type", tcc::PositionElementTypes::spherical_position)
+            .value("geodetic_position_type", tcc::PositionElementTypes::geodetic_position)
+            .export_values();
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,
