@@ -64,6 +64,7 @@ LinkEndType getDefaultReferenceLinkEndType(
     return referenceLinkEndType;
 }
 
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
 std::vector< TimeType >, LinkEndType > >

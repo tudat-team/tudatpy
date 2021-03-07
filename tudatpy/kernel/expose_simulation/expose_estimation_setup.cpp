@@ -568,23 +568,23 @@ void expose_estimation_setup(py::module &m) {
 
     py::class_<tep::EstimatableParameterSet<double>,
             std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet")
-            .def_readonly( "parameter_set_size",
-                  &tss::EstimatableParameterSet<double>::getEstimatedParameterSetSize )
-            .def_readonly( "initial_states_size",
-                  &tss::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize )
-            .def_readonly( "initial_multi_arc_states_size",
-                  &tss::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize )
-            .def_readonly( "initial_multi_arc_states_size",
-                  &tss::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize )
-            .def_readonly( "constraints_size",
-                  &tss::EstimatableParameterSet<double>::getConstraintSize )
-            .def_readonly( "values",
-                  &tss::EstimatableParameterSet<double>::getFullParameterValues< double > )
+            .def_property_readonly( "parameter_set_size",
+                  &tep::EstimatableParameterSet<double>::getEstimatedParameterSetSize )
+            .def_property_readonly( "initial_states_size",
+                  &tep::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize )
+            .def_property_readonly( "initial_multi_arc_states_size",
+                  &tep::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize )
+            .def_property_readonly( "initial_multi_arc_states_size",
+                  &tep::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize )
+            .def_property_readonly( "constraints_size",
+                  &tep::EstimatableParameterSet<double>::getConstraintSize )
+            .def_property_readonly( "values",
+                  &tep::EstimatableParameterSet<double>::getFullParameterValues< double > )
             .def( "reset_values",
-                  &tss::EstimatableParameterSet<double>::resetParameterValues< double >,
+                  &tep::EstimatableParameterSet<double>::resetParameterValues< double >,
                   py::arg("new_parameter_values") )
             .def( "indices_for_parameter_type",
-                  &tss::EstimatableParameterSet<double>::getIndicesForParameterType,
+                  &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
                   py::arg("parameter_type") );
     py::class_<
             tss::EstimationConvergenceChecker,
