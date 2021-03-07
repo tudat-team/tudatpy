@@ -984,6 +984,10 @@ void expose_environment_setup(py::module &m) {
 
     m.def("create_system_of_bodies", &tss::createSystemOfBodies);
 
+    m.def("add_empty_tabulate_ephemeris", &tss::addEmptyTabulateEphemeris,
+          py::arg("bodies"),
+          py::arg("body_name"),
+          py::arg("ephemeris_origin" ) = "" );
 
     // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
     m.def(

@@ -19,6 +19,7 @@
 namespace py = pybind11;
 
 namespace tbm = tudat::basic_mathematics;
+namespace tla = tudat::linear_algebra;
 
 namespace tudatpy {
 
@@ -41,6 +42,13 @@ void expose_basic_functions(py::module &m) {
           py::arg("normalized_cosine_coefficients"),
           py::arg("normalized_sine_coefficients") );
 
+    m.def("quaterion_entries_to_rotation_matrix",
+          &tla::convertVectorQuaternionToMatrixFormat,
+          py::arg( "quaterion_entries" ) );
+
+    m.def("rotation_matrix_to_quaternion_entries",
+          &tla::convertMatrixToVectorQuaternionFormat,
+          py::arg( "rotation_matrix" ) );
 };
 
 }// namespace tudatpy
