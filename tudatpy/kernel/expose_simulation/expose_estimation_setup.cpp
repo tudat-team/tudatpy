@@ -26,6 +26,36 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+OrbitDeterminationManager< double, double > createOrbitDeterminationManager(
+        const tss::SystemOfBodies& bodies,
+        const std::shared_ptr< tep::EstimatableParameterSet< double > > parameterSet,
+        const std::vector< std::pair< tom::LinkEnds, std::shared_ptr< tom::ObservationSettings > > >&
+        observationSettings,
+        const std::shared_ptr< tni::IntegratorSettings< double > > integratorSettings,
+        const std::shared_ptr< tp::PropagatorSettings< double > > propagatorSettings,
+        const bool propagateOnCreation )
+{
+    tom::SortedObservationSettingsMap observationSettingsList;
+
+        for( int i = 0; i < observationSettings.size( ); i++ )
+        {
+            observationSettingsList[ observationSettings.at( i ).second->observableType_ ][
+                    observationSettings.at( i ).first ] = observationSettings.at( i ).second;
+        }
+
+    return OrbitDeterminationManager< double, double >(
+                bodies, parameterSet, observationSettingsList, integratorSettings, propagatorSettings,
+                propagateOnCreation );
+}
+
+}
+
+}
 
 namespace tudatpy {
 
@@ -537,8 +567,25 @@ void expose_estimation_setup(py::module &m) {
           py::arg("output_times") );
 
     py::class_<tep::EstimatableParameterSet<double>,
-            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet");
-
+            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet")
+            .def_readonly( "parameter_set_size",
+                  &tss::EstimatableParameterSet<double>::getEstimatedParameterSetSize )
+            .def_readonly( "initial_states_size",
+                  &tss::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize )
+            .def_readonly( "initial_multi_arc_states_size",
+                  &tss::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize )
+            .def_readonly( "initial_multi_arc_states_size",
+                  &tss::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize )
+            .def_readonly( "constraints_size",
+                  &tss::EstimatableParameterSet<double>::getConstraintSize )
+            .def_readonly( "values",
+                  &tss::EstimatableParameterSet<double>::getFullParameterValues< double > )
+            .def( "reset_values",
+                  &tss::EstimatableParameterSet<double>::resetParameterValues< double >,
+                  py::arg("new_parameter_values") )
+            .def( "indices_for_parameter_type",
+                  &tss::EstimatableParameterSet<double>::getIndicesForParameterType,
+                  py::arg("parameter_type") );
     py::class_<
             tss::EstimationConvergenceChecker,
             std::shared_ptr<tss::EstimationConvergenceChecker>>(m, "EstimationConvergenceChecker")
@@ -635,6 +682,16 @@ void expose_estimation_setup(py::module &m) {
                  py::arg( "estimation_input" ),
                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ) );
 
+    m.def("create_orbit_determination_manager",
+          &tss::createOrbitDeterminationManager,
+          py::arg("bodies"),
+          py::arg("estimated_parameters"),
+          py::arg("observation_settings"),
+          py::arg("integrator_settings"),
+          py::arg("propagator_settings"),
+          py::arg("integrate_on_creation") = true );
+
+
     m.def("create_parameters_to_estimate",
           &tss::createParametersToEstimate< double >,
           py::arg("parameter_settings"),
@@ -645,7 +702,7 @@ void expose_estimation_setup(py::module &m) {
     auto parameter_setup = m.def_submodule("parameter");
     expose_estimated_parameter_setup(parameter_setup);
 
-    auto observation_setup = m.def_submodule("observation");
+    auto observation_setup = m.def_submodule("observation_setup");
     expose_observation_setup(observation_setup);
 }
 
