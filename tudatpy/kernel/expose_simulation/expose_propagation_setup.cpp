@@ -484,6 +484,9 @@ void expose_acceleration_setup(py::module &m) {
             std::shared_ptr<tss::EmpiricalAccelerationSettings>,
             tss::AccelerationSettings>(m, "EmpiricalAccelerationSettings");
 
+    py::class_<tss::RelativisticAccelerationCorrectionSettings,
+            std::shared_ptr<tss::RelativisticAccelerationCorrectionSettings>,
+            tss::AccelerationSettings>(m, "RelativisticAccelerationCorrectionSettings");
 
     py::class_<tss::ThrustAccelerationSettings,
             std::shared_ptr<tss::ThrustAccelerationSettings>,
