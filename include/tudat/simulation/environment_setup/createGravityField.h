@@ -91,6 +91,8 @@ public:
     CentralGravityFieldSettings( double gravitationalParameter ):GravityFieldSettings( central ),
         gravitationalParameter_( gravitationalParameter ){ }
 
+    virtual ~CentralGravityFieldSettings( ){ }
+
     //! Function to return gravitational parameter for gravity field.
     /*!
      *  Function to return gravitational parameter for gravity field.
@@ -132,6 +134,8 @@ public:
         associatedReferenceFrame_( associatedReferenceFrame ),
         createTimeDependentField_( 0 )
     {  }
+
+    virtual ~SphericalHarmonicsGravityFieldSettings( ){ }
 
     //! Function to return gravitational parameter for gravity field.
     /*!
@@ -293,6 +297,7 @@ public:
      */
     FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
+    virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ){ }
     //! Get the sphericals harmonics model.
     /*!
      * @copybrief getSphericalHarmonicsModel
