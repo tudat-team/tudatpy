@@ -101,6 +101,7 @@ public:
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ),
         maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
 
+
     //! Maximum degree that is to be used for spherical harmonic acceleration
     int maximumDegree_;
 
@@ -109,7 +110,7 @@ public:
 };
 
 
-inline std::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicAcceleration(
+inline std::shared_ptr< AccelerationSettings > sphericalHarmonicAcceleration(
         const int maximumDegree, const int maximumOrder )
 {
     return std::make_shared< SphericalHarmonicAccelerationSettings >( maximumDegree, maximumOrder );
@@ -168,7 +169,7 @@ public:
 
 };
 
-inline std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicAcceleration(
+inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAcceleration(
 		const int maximumDegreeOfBodyExertingAcceleration,
 		const int maximumOrderOfBodyExertingAcceleration,
 		const int maximumDegreeOfBodyUndergoingAcceleration,
@@ -244,7 +245,7 @@ public:
 
 };
 
-inline std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationCorrection(
+inline std::shared_ptr< AccelerationSettings > relativisticAccelerationCorrection(
 		const bool calculateSchwarzschildCorrection = true,
 		const bool calculateLenseThirringCorrection = false,
 		const bool calculateDeSitterCorrection = false,
@@ -292,7 +293,7 @@ public:
 
 };
 
-inline std::shared_ptr< EmpiricalAccelerationSettings > empiricalAcceleration(
+inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
 		const Eigen::Vector3d& constantAcceleration = Eigen::Vector3d::Zero( ),
 		const Eigen::Vector3d& sineAcceleration = Eigen::Vector3d::Zero( ),
 		const Eigen::Vector3d& cosineAcceleration = Eigen::Vector3d::Zero( )
@@ -529,14 +530,14 @@ public:
 
 };
 
-inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionGuidanceSettings >
+inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionGuidanceSettings >
         thrustDirectionGuidanceSettings,
 		const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
 {
 	return std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings );
 }
 
-inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration(
+inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
 		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
 		const std::function< double( const double ) > specificImpulseFunction,
         const ThrustFrames thrustFrame = unspecified_thrust_frame,
@@ -546,7 +547,7 @@ inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration(
 														thrustFrame, centralBody );
 }
 
-inline std::shared_ptr< ThrustAccelerationSettings > thrustAcceleration(
+inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
 		const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >& dataInterpolationSettings,
 		const double constantSpecificImpulse,
         const ThrustFrames thrustFrame = unspecified_thrust_frame,
@@ -653,7 +654,7 @@ public:
     bool useTideRaisedOnPlanet_;
 };
 
-inline std::shared_ptr< DirectTidalDissipationAccelerationSettings > directTidalDissipationAcceleration(
+inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleration(
 		const double k2LoveNumber, const double timeLag,
 		const bool includeDirectRadialComponent = true,
 		const bool useTideRaisedOnPlanet = true
@@ -703,7 +704,7 @@ public:
 
 };
 
-inline std::shared_ptr< MomentumWheelDesaturationAccelerationSettings > momentumWheelDesaturationAcceleration(
+inline std::shared_ptr< AccelerationSettings > momentumWheelDesaturationAcceleration(
 		const std::vector< double > thrustMidTimes,
 		const std::vector< Eigen::Vector3d > deltaVValues,
 		const double totalManeuverTime,
