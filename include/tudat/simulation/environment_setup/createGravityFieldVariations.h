@@ -302,33 +302,30 @@ std::vector< std::complex< double > > getLoveNumberPerDegree(
 inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
         const std::string deformingBody,
         const double loveNumber,
-        const int degree,
-        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr )
+        const int degree )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
     loveNumbers[ degree ] = getLoveNumberPerDegree( loveNumber, degree );
 
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
 inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
         const std::string deformingBody,
         const std::complex< double > loveNumber,
-        const int degree,
-        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr   )
+        const int degree   )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
     loveNumbers[ degree ] = getLoveNumberPerDegree( loveNumber, degree );
 
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
 inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
         const std::string deformingBody,
-        const std::map< int, double > loveNumberPerDegree,
-        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr  )
+        const std::map< int, double > loveNumberPerDegree )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
     for( auto loveNumberIt : loveNumberPerDegree )
@@ -337,13 +334,12 @@ inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNum
     }
 
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
 inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
         const std::string deformingBody,
-        const std::map< int, std::complex< double > > loveNumberPerDegree,
-        const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr  )
+        const std::map< int, std::complex< double > > loveNumberPerDegree  )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
     for( auto loveNumberIt : loveNumberPerDegree )
@@ -352,7 +348,7 @@ inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNum
     }
 
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                std::vector< std::string >( { deformingBody } ), loveNumbers, interpolatorSettings );
+                std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
 

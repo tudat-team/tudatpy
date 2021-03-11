@@ -99,6 +99,9 @@ public:
      *  \return Gravitational parameter for gravity field.
      */
     double getGravitationalParameter( ){ return gravitationalParameter_; }
+
+    void resetGravitationalParameter( const double gravitationalParameter ){ gravitationalParameter_ = gravitationalParameter; }
+
 private:
 
     //! Gravitational parameter for gravity field.
@@ -166,12 +169,17 @@ public:
      */
     Eigen::MatrixXd getCosineCoefficients( ){ return cosineCoefficients_; }
 
+
+    void resetCosineCoefficients( const Eigen::MatrixXd cosineCoefficients ){ cosineCoefficients_ = cosineCoefficients; }
+
     //! Function to return sine spherical harmonic coefficients (geodesy normalized).
     /*!
      *  Function to return sine spherical harmonic coefficients (geodesy normalized).
      *  \return Sine spherical harmonic coefficients (geodesy normalized).
      */
     Eigen::MatrixXd getSineCoefficients( ){ return sineCoefficients_; }
+
+    void resetSineCoefficients( const Eigen::MatrixXd sineCoefficients ){ sineCoefficients_ = sineCoefficients; }
 
     //! Function to return identifier for body-fixed reference frame.
     /*!
