@@ -32,6 +32,28 @@ namespace trf = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace tcc = tudat::coordinate_conversions;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+
+inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNumberGravityFieldVariationSettingsSimplified(
+        const std::string deformingBody,
+        const double loveNumber,
+        const int degree )
+{
+    return fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
+                deformingBody, loveNumber, degree, nullptr );
+}
+
+}
+
+}
+
+
+
 namespace tudatpy {
 
 void expose_aerodynamic_coefficient_setup(py::module &m) {
@@ -712,6 +734,13 @@ void expose_gravity_field_variation_setup(py::module &m)
 
     py::class_<tss::GravityFieldVariationSettings,
             std::shared_ptr<tss::GravityFieldVariationSettings>>(m, "GravityFieldVariationSettings");
+
+    m.def("solid_body_tide_simplified",
+          &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettingsSimplified,
+          py::arg("tide_raising_body"),
+          py::arg("love_number"),
+          py::arg("degree" ) );
+
 
     m.def("solid_body_tide",
           py::overload_cast< const std::string, const double, const int,
