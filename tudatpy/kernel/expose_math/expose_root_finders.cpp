@@ -38,7 +38,7 @@ void expose_root_finders(py::module &m) {
     py::enum_<trf::MaximumIterationHandling>(m, "MaximumIterationHandling")
             .value("accept_result", trf::MaximumIterationHandling::accept_result)
             .value("accept_result_with_warning", trf::MaximumIterationHandling::accept_result_with_warning)
-            .value("throw_exception", trf::MaximumIterationHandling::throw_exception);
+            .value("throw_exception", trf::MaximumIterationHandling::throw_exception).export_values();
 
 
   py::class_<trf::RootFinder<double>,
