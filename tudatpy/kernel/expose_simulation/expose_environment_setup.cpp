@@ -45,7 +45,7 @@ inline std::shared_ptr< GravityFieldVariationSettings > fixedSingleDegreeLoveNum
         const int degree )
 {
     return fixedSingleDegreeLoveNumberGravityFieldVariationSettings(
-                deformingBody, loveNumber, degree, nullptr );
+                deformingBody, loveNumber, degree );
 }
 
 }
@@ -743,38 +743,30 @@ void expose_gravity_field_variation_setup(py::module &m)
 
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string, const double, const int,
-          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+          py::overload_cast< const std::string, const double, const int >(
               &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),
           py::arg("love_number"),
-          py::arg("degree" ),
-          py::arg("interpolation_settings" ) = nullptr );
+          py::arg("degree" ) );
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string, const std::complex< double >, const int,
-          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+          py::overload_cast< const std::string, const std::complex< double >, const int >(
               &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),
           py::arg("love_number"),
-          py::arg("degree" ),
-          py::arg("interpolation_settings" ) = nullptr );
+          py::arg("degree" ) );
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string, std::map< int, double >,
-          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+          py::overload_cast< const std::string, std::map< int, double > >(
               &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),
-          py::arg("love_number_per_degree"),
-          py::arg("interpolation_settings" ) = nullptr);
+          py::arg("love_number_per_degree") );
 
     m.def("solid_body_tide",
-          py::overload_cast< const std::string, std::map< int, std::complex< double > >,
-          const std::shared_ptr< tss::ModelInterpolationSettings > >(
+          py::overload_cast< const std::string, std::map< int, std::complex< double > > >(
               &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
           py::arg("tide_raising_body"),
-          py::arg("love_number_per_degree"),
-          py::arg("interpolation_settings" ) = nullptr );
+          py::arg("love_number_per_degree") );
 
     m.def("solid_body_tide",
           py::overload_cast< const std::string,  const std::vector< double >, const int,
