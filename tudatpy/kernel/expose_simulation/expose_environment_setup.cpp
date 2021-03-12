@@ -922,7 +922,9 @@ void expose_environment_setup(py::module &m) {
             .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
             .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
             .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
-            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris);
+            .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
+            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor, &tss::Body::setBodyInertiaTensor);
+
 
 
     py::class_<tss::SystemOfBodies,
