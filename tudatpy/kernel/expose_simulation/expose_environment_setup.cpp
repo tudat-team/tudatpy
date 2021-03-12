@@ -194,6 +194,15 @@ void expose_atmosphere_setup(py::module &m) {
             .def_property("wind_settings", &tss::AtmosphereSettings::getWindSettings,
                           &tss::AtmosphereSettings::setWindSettings );
 
+        py::class_<tss::ExponentialAtmosphereSettings,
+                std::shared_ptr<tss::ExponentialAtmosphereSettings >,
+                tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings");
+
+        py::class_<tss::TabulatedAtmosphereSettings,
+                std::shared_ptr<tss::TabulatedAtmosphereSettings >,
+                tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings");
+
+
     py::class_<tss::WindModelSettings,
             std::shared_ptr<tss::WindModelSettings>>(m, "WindModelSettings");
 
@@ -429,7 +438,8 @@ void expose_gravity_field_setup(py::module &m) {
     py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
             tss::GravityFieldSettings>(m, "CentralGravityFieldSettings", "<no doc>")
             .def(py::init<double>(), py::arg("gravitational_parameter") )
-            .def_property_readonly("gravitational_parameter", &tss::CentralGravityFieldSettings::getGravitationalParameter);
+            .def_property("gravitational_parameter", &tss::CentralGravityFieldSettings::getGravitationalParameter,
+                          &tss::CentralGravityFieldSettings::resetGravitationalParameter );
 
 
     py::class_<tss::SphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>,
@@ -443,10 +453,20 @@ void expose_gravity_field_setup(py::module &m) {
             .def("get_cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients)
             .def("get_sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients)
             .def("get_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame)
-            .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
+            .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame,
+                 py::arg( "associated_reference_frame" ) )
             .def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
-            .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField)
-            .def_property_readonly("gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter);
+            .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
+                 py::arg( "create_time_dependent_field" ) )
+            .def_property("gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter,
+                          &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter )
+            .def_property("cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients,
+                          &tss::SphericalHarmonicsGravityFieldSettings::resetCosineCoefficients )
+            .def_property("sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients,
+                          &tss::SphericalHarmonicsGravityFieldSettings::resetSineCoefficients );
+
+    py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
+            tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings", "<no doc>");
 
 
     m.def("central",
@@ -709,6 +729,22 @@ void expose_shape_setup(py::module &m){
 
     py::class_<tss::BodyShapeSettings,
             std::shared_ptr<tss::BodyShapeSettings>>(m, "BodyShapeSettings");
+
+    py::class_<tss::SphericalBodyShapeSettings,
+            std::shared_ptr<tss::SphericalBodyShapeSettings>,
+            tss::BodyShapeSettings >(m, "SphericalBodyShapeSettings")
+            .def_property("radius", &tss::SphericalBodyShapeSettings::getRadius,
+                          &tss::SphericalBodyShapeSettings::resetRadius);
+
+
+    py::class_<tss::OblateSphericalBodyShapeSettings,
+            std::shared_ptr<tss::OblateSphericalBodyShapeSettings>,
+            tss::BodyShapeSettings >(m, "OblateSphericalBodyShapeSettings")
+            .def_property("equatorial_radius", &tss::OblateSphericalBodyShapeSettings::getEquatorialRadius,
+                          &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius)
+            .def_property("radius", &tss::OblateSphericalBodyShapeSettings::getFlattening,
+                          &tss::OblateSphericalBodyShapeSettings::resetFlattening);
+
 
     m.def("spherical",
           &tss::sphericalBodyShapeSettings,
