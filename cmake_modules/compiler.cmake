@@ -134,7 +134,7 @@
          # standard windows clang c++ compiler flags
          set(CMAKE_CXX_FLAGS
                  "${CMAKE_CXX_FLAGS}"
-                 " -std=c++11"
+                 " -std=c++17"
                  " -Wall"
                  " -Wextra"
                  " -Wno-unused-parameter"
@@ -227,9 +227,9 @@
      add_compile_definitions(TUDAT_BUILD_GNU)
      message(STATUS "Using gnucxx compiler.")
      include(CheckCXXCompilerFlag)
-     check_cxx_compiler_flag("-std=c++11" CXX_SUPPORTS_CXX11)
-     if (CXX_SUPPORTS_CXX11)
-         set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
+     check_cxx_compiler_flag("-std=c++17" CXX_SUPPORTS_CXX17)
+     if (CXX_SUPPORTS_CXX17)
+         set(CMAKE_CXX_FLAGS "-Wall -std=c++17")
      else ()
          check_cxx_compiler_flag("-std=c++0x" CXX_SUPPORTS_CXX0x)
          if (CXX_SUPPORTS_CXX0x)

@@ -1,10 +1,10 @@
 
 # Run a first pass for finding the headers only,
 # and establishing the Boost version.
-set(_TUDAT_BOOST_MINIMUM_VERSION 1.64.0)
-set(Boost_USE_STATIC_LIBS ON)
+set(_TUDAT_BOOST_MINIMUM_VERSION 1.72.0)
+set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} QUIET REQUIRED)
 
 if(_TUDAT_FIND_BOOST_PYTHON)

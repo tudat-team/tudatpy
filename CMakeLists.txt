@@ -45,7 +45,7 @@ set(Tudat_DEFINITIONS "")
 #  Offer the user the choice of defining the build variation.
 # +============================================================================
 # Build option: enable the test suite.
-option(TUDAT_BUILD_TESTS "Build the test suite." OFF)
+option(TUDAT_BUILD_TESTS "Build the test suite." ON)
 
 option(TUDAT_DOWNLOAD_AND_BUILD_BOOST "Downloads and builds boost" OFF)
 
@@ -71,7 +71,7 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
