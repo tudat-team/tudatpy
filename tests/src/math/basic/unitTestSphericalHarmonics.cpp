@@ -9,6 +9,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 // Deal with deprecation past boost version 1.67.
