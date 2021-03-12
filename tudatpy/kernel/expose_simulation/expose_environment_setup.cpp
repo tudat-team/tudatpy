@@ -923,7 +923,8 @@ void expose_environment_setup(py::module &m) {
             .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
             .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
-            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor, &tss::Body::setBodyInertiaTensor);
+            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor, py::overload_cast< const Eigen::Matrix3d& >(
+                              &tss::Body::setBodyInertiaTensor ) );
 
 
 
