@@ -157,7 +157,7 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
 
     for( auto loveNumberIt : loveNumbers_ )
     {
-        int n = loveNumberIt.first;
+        unsigned int n = static_cast< unsigned int >( loveNumberIt.first );
         radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
 
         for( unsigned int m = 0; ( m <= n && m < loveNumberIt.second.size( ) ); m++ )

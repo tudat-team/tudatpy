@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/floating_point_comparison.hpp>

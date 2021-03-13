@@ -14,6 +14,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/floating_point_comparison.hpp>
