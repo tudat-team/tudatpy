@@ -7,59 +7,59 @@
  #    a copy of the license with this file. If not, please or visit:
  #    http://tudat.tudelft.nl/LICENSE.
 
-TUDAT_ADD_TEST_CASE(OneWayRangePartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(OneWayRangePartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(NWayRangePartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(NWayRangePartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(DifferencedOneWayRangePartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(DifferencedOneWayRangePartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(OneWayDopplerPartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(OneWayDopplerPartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(TwoWayDopplerPartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(TwoWayDopplerPartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(AngularPositionPartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(AngularPositionPartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(PositionPartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(PositionPartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(EulerAngleObservationPartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(EulerAngleObservationPartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
-TUDAT_ADD_TEST_CASE(LightTimePartials
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
-        )
+#TUDAT_ADD_TEST_CASE(LightTimePartials
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        SOURCES "observationPartialTestFunctions.cpp" "numericalObservationPartial.cpp"
+#        )
 
 TUDAT_ADD_TEST_CASE(RotationMatrixPartials
         PRIVATE_LINKS
