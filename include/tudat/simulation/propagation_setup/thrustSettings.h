@@ -175,6 +175,12 @@ public:
         ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
         thrustOrientationFunction_( thrustOrientationFunction ){ }
 
+    CustomThrustOrientationSettings(
+            const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction ):
+        ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
+        thrustOrientationFunction_(
+            [=]( const double time ){ return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } ){ }
+
     //! Destructor.
     ~CustomThrustOrientationSettings( ){ }
 
@@ -259,6 +265,11 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionFromSta
 {
     return std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                 centralBody, isColinearWithVelocity, directionIsOppositeToVector );
+}
+
+inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustFromExistingBodyOrientation(  )
+{
+    return std::make_shared< ThrustDirectionGuidanceSettings >( thrust_direction_from_existing_body_orientation );
 }
 
 inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientationSettings(
