@@ -49,6 +49,10 @@ AvailableTorque getTorqueModelType(
     {
         torqueType = dissipative_torque;
     }
+    else if( std::dynamic_pointer_cast< basic_astrodynamics::CustomTorqueModel >( torqueModel ) != nullptr )
+    {
+        torqueType = custom_torque;
+    }
     else
     {
         std::cerr << "Error, could not identify torque type" << std::endl;
@@ -76,6 +80,9 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     case dissipative_torque:
         torqueName = "dissipative torque ";
+        break;
+    case custom_torque:
+        torqueName = "custom torque ";
         break;
     default:
         std::string errorMessage = "Error, torque type " +
