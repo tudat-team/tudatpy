@@ -538,25 +538,6 @@ inline Eigen::Vector3d applyAccelerationScalingFunction(
     return accelerationFunction( time ) * scalingFunction( time );
 }
 
-class CustomAccelerationSettings: public AccelerationSettings
-{
-public:
-
-    CustomAccelerationSettings(
-            const std::function< Eigen::Vector3d( const double ) > accelerationFunction  ):
-        AccelerationSettings( basic_astrodynamics::custom_acceleration ),
-        accelerationFunction_( accelerationFunction ){ }
-
-    CustomAccelerationSettings(
-            const std::function< Eigen::Vector3d( const double ) > accelerationFunction,
-            std::function< double( const double) > scalingFunction ):
-        AccelerationSettings( basic_astrodynamics::custom_acceleration ),
-        accelerationFunction_(
-            std::bind( &applyAccelerationScalingFunction, accelerationFunction, scalingFunction,
-                       std::placeholders::_1 ) ){ }
-
-    std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
-};
 
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionGuidanceSettings >
         thrustDirectionGuidanceSettings,
@@ -640,6 +621,41 @@ inline std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThr
 }
 
 
+class CustomAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    CustomAccelerationSettings(
+            const std::function< Eigen::Vector3d( const double ) > accelerationFunction  ):
+        AccelerationSettings( basic_astrodynamics::custom_acceleration ),
+        accelerationFunction_( accelerationFunction ){ }
+
+    CustomAccelerationSettings(
+            const std::function< Eigen::Vector3d( const double ) > accelerationFunction,
+            const std::function< double( const double) > scalingFunction ):
+        AccelerationSettings( basic_astrodynamics::custom_acceleration ),
+        accelerationFunction_(
+            std::bind( &applyAccelerationScalingFunction, accelerationFunction, scalingFunction,
+                       std::placeholders::_1 ) ){ }
+
+    std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
+};
+
+inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
+        const std::function< Eigen::Vector3d( const double ) > accelerationFunction,
+        const std::function< double( const double ) > scalingFunction = nullptr )
+{
+    if( scalingFunction == nullptr )
+    {
+        return std::make_shared< CustomAccelerationSettings >(
+                    accelerationFunction );
+    }
+    else
+    {
+        return std::make_shared< CustomAccelerationSettings >(
+                    accelerationFunction, scalingFunction );
+    }
+}
 
 //! Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
 /*!
