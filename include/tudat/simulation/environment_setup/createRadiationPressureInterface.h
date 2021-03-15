@@ -553,7 +553,11 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
         const std::string& bodyName, const SystemOfBodies& bodies );
 
-
+std::function< double( const double ) > getOccultationFunction(
+        const SystemOfBodies& bodyMap,
+        const std::string& sourceBody,
+        const std::string& occultingBody,
+        const std::string& shadowedBody );
 
 } // namespace simulation_setup
 
