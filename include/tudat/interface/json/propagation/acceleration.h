@@ -47,7 +47,8 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes =
     { third_body_mutual_spherical_harmonic_gravity, "thirdBodyMutualSphericalHarmonicGravity" },
     { thrust_acceleration, "thrust" },
     { relativistic_correction_acceleration, "relativisticCorrection" },
-    { empirical_acceleration, "empirical" }
+    { empirical_acceleration, "empirical" },
+    { custom_acceleration, "custom" }
 };
 
 //! `AvailableAcceleration`s not supported by `json_interface`.

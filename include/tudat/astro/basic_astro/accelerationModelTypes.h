@@ -12,7 +12,7 @@
 #ifndef TUDAT_ACCELERATIONMODELTYPES_H
 #define TUDAT_ACCELERATIONMODELTYPES_H
 
-
+#include "tudat/astro/basic_astro/customAccelerationModel.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -61,7 +61,8 @@ enum AvailableAcceleration
     direct_tidal_dissipation_in_orbiting_body_acceleration,
     panelled_radiation_pressure_acceleration,
     momentum_wheel_desaturation_acceleration,
-    solar_sail_acceleration
+    solar_sail_acceleration,
+    custom_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type
