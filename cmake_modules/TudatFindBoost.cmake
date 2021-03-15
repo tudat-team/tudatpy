@@ -1,7 +1,7 @@
 
 # Run a first pass for finding the headers only,
 # and establishing the Boost version.
-set(_TUDAT_BOOST_MINIMUM_VERSION 1.64.0)
+set(_TUDAT_BOOST_MINIMUM_VERSION 1.72.0)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
