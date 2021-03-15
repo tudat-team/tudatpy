@@ -103,10 +103,6 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
 
             magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
             magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
-                        thrustDirectionGuidanceSettings->relativeBody_ );
-            magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
-                        thrustDirectionGuidanceSettings->relativeBody_);
         }
         else if( bodyWithGuidance->getRotationalEphemeris( ) != nullptr )
         {
