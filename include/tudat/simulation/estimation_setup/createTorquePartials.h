@@ -149,6 +149,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     gravitationalParameterFunction, acceleratedBody.first );
         break;
     }
+    case custom_torque:
+        throw std::runtime_error( "Custom torque does not yet have an associated partial." );
+        break;
     default:
         std::string errorMessage = "Torque model " + std::to_string( torqueType ) +
                 " not found when making torque partial";
