@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                        std::make_shared< ThrustDirectionGuidanceSettings >(
-                                                           thrust_direction_from_existing_body_orientation, "Earth" ),
+                                                           thrust_direction_from_existing_body_orientation ),
                                                        std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
@@ -771,7 +771,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         double specificImpulse = 250.0;
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                          std::make_shared< ThrustDirectionGuidanceSettings >(
-                                                             thrust_direction_from_existing_body_orientation, "Earth" ),
+                                                             thrust_direction_from_existing_body_orientation ),
                                                          std::make_shared< ConstantThrustMagnitudeSettings >(
                                                              thrustMagnitude, specificImpulse ) ) );
 
@@ -1376,7 +1376,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                    thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     specificImpulseInterpolator, specificImpulseDependencies ) ) );
@@ -1387,7 +1387,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                    thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
                                     specificImpulseInterpolator, specificImpulseDependencies ) ) );
@@ -1405,7 +1405,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                    thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     constantSpecificImpulse ) ) );
@@ -1416,7 +1416,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< ThrustDirectionGuidanceSettings >(
-                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                    thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
                                     constantSpecificImpulse ) ) );
@@ -1666,7 +1666,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     accelerationsOfApollo[ "Apollo" ].push_back(
                 std::make_shared< ThrustAccelerationSettings >(
                     std::make_shared< ThrustDirectionGuidanceSettings >(
-                        thrust_direction_from_existing_body_orientation, "Earth" ),
+                        thrust_direction_from_existing_body_orientation ),
                     createAccelerationLimitedParameterizedThrustMagnitudeSettings(
                         bodies, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
                         thrustFile, thrustDependencies,
