@@ -18,8 +18,8 @@ PYBIND11_MODULE(kernel, m) {
   // NOTE: the 'options' object needs to stay alive
   // throughout the whole definition of the module.
   py::options options;
-  options.disable_function_signatures();
-  options.enable_user_defined_docstrings();
+  options.enable_function_signatures( );
+  options.enable_user_defined_docstrings( );
 
   // Export the tudat version.
   m.attr("_tudat_version") = TUDAT_VERSION;
