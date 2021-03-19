@@ -470,6 +470,15 @@ protected:
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
 };
 
+template< typename StateScalarType = double >
+std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings(
+        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings,
+        const bool transferInitialStateInformationPerArc = 0 )
+{
+        return std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                    singleArcSettings, transferInitialStateInformationPerArc );
+}
+
 //! Class for defining setting of a propagator for a combination of single- and multi-arc dynamics
 template< typename StateScalarType = double >
 class HybridArcPropagatorSettings: public PropagatorSettings< StateScalarType >
@@ -575,6 +584,16 @@ protected:
     //! Size of total multi-arc initial state
     int multiArcStateSize_;
 };
+
+
+template< typename StateScalarType = double >
+std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridArcPropagatorSettings(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings,
+        const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings )
+{
+        return std::make_shared< HybridArcPropagatorSettings< StateScalarType > >(
+                    singleArcPropagatorSettings, multiArcPropagatorSettings );
+}
 
 //! Class for defining settings for propagating translational dynamics.
 /*!

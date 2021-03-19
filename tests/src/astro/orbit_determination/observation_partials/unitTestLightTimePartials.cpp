@@ -23,7 +23,7 @@
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
-#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/support/observationPartialTestFunctions.h"
 
 namespace tudat
 {
