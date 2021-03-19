@@ -27,6 +27,7 @@ enum ObservationSimulationTimesTypes
     tabulated_observation_simulation_times
 };
 
+
 //! Base struct for defining times at which observations are to be simulated.
 /*!
  *  Base struct for defining times at which observations are to be simulated. Here, only the link end from which the
@@ -49,6 +50,7 @@ struct ObservationSimulationTimeSettings
     //! Link end type from which observations are to be simulated.
     LinkEndType linkEndType_;
 };
+
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
 /*!
