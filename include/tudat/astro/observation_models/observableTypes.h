@@ -38,6 +38,12 @@ enum ObservableType
     velocity_observable = 8
 };
 
+
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
+        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
+        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes );
+
 //! Function to get the name (string) associated with a given observable type.
 /*!
  * Function to get the name (string) associated with a given observable type.
