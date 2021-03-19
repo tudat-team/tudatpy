@@ -9,7 +9,7 @@
  */
 
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/support/observationPartialTestFunctions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
