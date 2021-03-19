@@ -47,7 +47,7 @@ const int SECOND_ROW = 1;
  * \param integrator Shared-pointer to numerical integrator used.
  * \sa NumericalIntegrator.
  */
-void executeOneIntegrateToStep(
+inline void executeOneIntegrateToStep(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const numerical_integrators::NumericalIntegratorXdPointer integrator )
@@ -101,7 +101,7 @@ void executeOneIntegrateToStep(
  * \param integrator Shared-pointer to numerical integrator used.
  * \sa NumericalIntegrator.
  */
-void performIntegrationStepToSpecifiedTime(
+inline void performIntegrationStepToSpecifiedTime(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const double fullIntegrationTestTolerance,
@@ -180,7 +180,7 @@ void performIntegrationStepToSpecifiedTime(
  * \param specifiedTime Time to integrator to.
  * \sa NumericalIntegrator.
  */
-void executeIntegrateToToSpecifiedTime(
+inline void executeIntegrateToToSpecifiedTime(
         const Eigen::MatrixXd benchmarkData,
         const double fullIntegrationTestTolerance,
         const numerical_integrators::NumericalIntegratorXdPointer integrator,
@@ -235,7 +235,7 @@ void executeIntegrateToToSpecifiedTime(
  * \param integrator Shared-pointer to re-initializable numerical integrator used.
  * \sa ReinitializableNumericalIntegrator.
  */
-void performIntegrationStepToSpecifiedTimeWithEvents(
+inline void performIntegrationStepToSpecifiedTimeWithEvents(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const double fullIntegrationTestTolerance,
