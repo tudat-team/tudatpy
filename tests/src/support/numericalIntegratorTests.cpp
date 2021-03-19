@@ -17,7 +17,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include "tudat/math/integrators/numericalIntegratorTests.h"
+#include "tudat/support/numericalIntegratorTests.h"
 
 namespace tudat
 {

@@ -33,7 +33,7 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/math/integrators/numericalIntegrator.h"
 #include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
-#include "tudat/math/integrators/numericalIntegratorTests.h"
+#include "tudat/support/numericalIntegratorTests.h"
 #include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
 
 #include "tudat/io/matrixTextFileReader.h"

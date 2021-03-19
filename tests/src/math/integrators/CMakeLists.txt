@@ -8,43 +8,35 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-#TUDAT_ADD_TEST_CASE(AdamsBashforthMoultonIntegrator PRIVATE_LINKS
-#        tudat_numerical_integrators
-#        tudat_input_output)
+TUDAT_ADD_TEST_CASE(AdamsBashforthMoultonIntegrator PRIVATE_LINKS
+        tudat_numerical_integrators
+        tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(EulerIntegrator PRIVATE_LINKS
-#        tudat_numerical_integrators
-#        tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(EulerIntegrator PRIVATE_LINKS
+        tudat_test_support
+        tudat_numerical_integrators
+        tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(NumericalIntegrator
-#        PRIVATE_LINKS tudat_numerical_integrators
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(NumericalIntegrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators)
 
-#TUDAT_ADD_TEST_CASE(RungeKutta4Integrator
-#        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKutta4Integrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(RungeKuttaVariableStepSizeIntegrator
-#        PRIVATE_LINKS tudat_numerical_integrators
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKuttaVariableStepSizeIntegrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators)
 
-#TUDAT_ADD_TEST_CASE(RungeKuttaCoefficients
-#        PRIVATE_LINKS tudat_numerical_integrators
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKuttaCoefficients
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators)
 
-#TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg45Integrator
-#        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg45Integrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg78Integrator
-#        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKuttaFehlberg78Integrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(RungeKutta87DormandPrinceIntegrator
-#        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(RungeKutta87DormandPrinceIntegrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
-#        PRIVATE_LINKS tudat_numerical_integrators tudat_input_output
-#        SOURCES "numericalIntegratorTests.cpp")
+TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
+        PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
