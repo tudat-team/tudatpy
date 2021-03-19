@@ -714,6 +714,8 @@ typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< Observati
 //! since this typedef represents a multimap.
 typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > ObservationSettingsMap;
 
+typedef std::vector< std::pair< LinkEnds, std::shared_ptr< ObservationSettings > > > ObservationSettingsVector;
+
 typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
 
 //! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
@@ -734,6 +736,8 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsVector& unsortedObservationSettingsMap );
 
 //! Function to create an object that computes an observation bias
 /*!
@@ -1593,7 +1597,7 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::SortedObservationSettingsMap observationSettingsMap,
+        const observation_models::SortedObservationSettingsMap& observationSettingsMap,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< ObservableType,
@@ -1647,12 +1651,23 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::ObservationSettingsMap observationSettingsMap,
+        const observation_models::ObservationSettingsMap& observationSettingsMap,
         const simulation_setup::SystemOfBodies &bodies )
 {
     return createObservationSimulators< ObservationScalarType, TimeType >(
                 convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
 }
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType,
+std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+        const observation_models::ObservationSettingsVector& observationSettingsMap,
+        const simulation_setup::SystemOfBodies &bodies )
+{
+    return createObservationSimulators< ObservationScalarType, TimeType >(
+                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
+}
+
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 /*!
