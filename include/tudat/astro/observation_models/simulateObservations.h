@@ -15,6 +15,8 @@
 #include <boost/bind.hpp>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
+#include "tudat/basics/utilities.h"
+#include "tudat/math/statistics/randomVariableGenerator.h"
 
 namespace tudat
 {
@@ -749,6 +751,17 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
         }
     }
     return observationsWithoutLinkEndId;
+}
+
+inline std::function< double( const double ) > getGaussianDistributionNoiseFunction(
+        const double standardDeviation,
+        const double mean = 0.0,
+        const double seed = 0.0 )
+{
+    std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
+                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
+    return std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                       inputFreeNoiseFunction, std::placeholders::_1 );
 }
 
 }
