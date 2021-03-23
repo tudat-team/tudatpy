@@ -103,7 +103,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_unit_tests.cpp
         kernel/docstrings.cpp
 
-        kernel/expose_example.cpp
+#        kernel/expose_example.cpp
         )
 
 target_link_libraries(kernel PRIVATE
