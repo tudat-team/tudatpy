@@ -910,11 +910,13 @@ void expose_environment_setup(py::module &m) {
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
-            .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
+            .def_property("aerodynamic_coefficient_interface", &    tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_body_mass", &tss::Body::getBodyMass)
             .def("set_constant_mass", &tss::Body::setConstantBodyMass)
-            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
-            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface)
+//            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
+//            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface,
+//                 py::arg( "radiating_body" ),
+//                 py::arg( "radiation_pressure_interface" ) )
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)

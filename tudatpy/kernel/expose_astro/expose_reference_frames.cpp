@@ -70,6 +70,14 @@ void expose_frames(py::module &m) {
           &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
           py::arg("inertial_cartesian_state") );
 
+
+    m.def("lvlh_to_inertial_rotation_matrix",
+          &trf::getVelocityBasedLvlhToInertialRotation,
+          py::arg("inertial_cartesian_state"),
+          py::arg("central_body_cartesian_state") = Eigen::Vector6d::Zero( ),
+          py::arg("local_y_points_away_from_central_body" ) = true);
+
+
     m.def("inertial_to_body_fixed_rotation_matrix",
          py::overload_cast< const double, const double, const double >(
               &trf::getInertialToPlanetocentricFrameTransformationMatrix ),
