@@ -10,16 +10,21 @@
 
 #include "expose_observations.h"
 
+#include <stdio.h>
+#include <time.h>
+
 #include <tudat/astro/observation_models.h>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 namespace py = pybind11;
 namespace tom = tudat::observation_models;
 
-namespace tudat{
+namespace tudat
+{
 
 namespace observation_models
 {
@@ -64,16 +69,9 @@ LinkEndType getDefaultReferenceLinkEndType(
     return referenceLinkEndType;
 }
 
-
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-std::vector< TimeType >, LinkEndType > >
-simulateObservations(
-        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
-        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-        observationSimulators,
-        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-        PerObservableObservationViabilityCalculatorList( ) )
+std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > getObservationSettingsMapFormat(
+        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate )
 {
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate;
     for( int i = 0; i < observationsToSimulate.size( ); i++ )
@@ -86,9 +84,15 @@ simulateObservations(
         sortedObservationsToSimulate[ currentObservableType ][ currentLinkEnds ] = std::make_pair(
                     currentLinkEndTimes, currentReferenceLinkEndType );
     }
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservations( sortedObservationsToSimulate, observationSimulators, viabilityCalculatorList );
+    return sortedObservationsToSimulate;
+}
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::vector< TimeType >, LinkEndType > > getObservationsVectorFormat(
+        const std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+                std::pair< std::vector< TimeType >, LinkEndType > > > >& sortedObservations )
+{
     std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
     std::vector< TimeType >, LinkEndType > > observationsOutput;
 
@@ -109,6 +113,49 @@ simulateObservations(
         }
     }
     return observationsOutput;
+}
+
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::vector< TimeType >, LinkEndType > >
+simulateObservations(
+        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
+        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+        observationSimulators,
+        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+        PerObservableObservationViabilityCalculatorList( ) )
+{
+    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
+        getObservationSettingsMapFormat( observationsToSimulate );
+
+    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservations(
+                sortedObservationsToSimulate, observationSimulators, viabilityCalculatorList );
+
+    return getObservationsVectorFormat( sortedObservations );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::vector< TimeType >, LinkEndType > >
+simulateObservationsWithNoise(
+        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
+        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+        observationSimulators,
+        const std::map< ObservableType, std::function< double( const double ) > >& noiseFunctions,
+        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+        PerObservableObservationViabilityCalculatorList( ) )
+{
+    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
+        getObservationSettingsMapFormat( observationsToSimulate );
+
+    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservationsWithNoise(
+                createObservationSimulationTimeSettingsMap(
+                        sortedObservationsToSimulate ), observationSimulators, noiseFunctions, viabilityCalculatorList );
+
+    return getObservationsVectorFormat( sortedObservations );
 }
 
 }
@@ -202,6 +249,24 @@ void expose_observations(py::module &m) {
           py::arg("observation_to_simulate"),
           py::arg("observation_simulator"),
           py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+    m.def("simulate_noisy_observations",
+          py::overload_cast<
+          const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, std::vector< double > > >&,
+          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
+          const std::map< tom::ObservableType, std::function< double( const double ) > >&,
+          const tom::PerObservableObservationViabilityCalculatorList >(
+              &tom::simulateObservationsWithNoise< double, double > ),
+          py::arg("observation_to_simulate"),
+          py::arg("observation_simulator"),
+          py::arg("noise_functions"),
+          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+    m.def("gaussian_noise_function",
+              &tom::getGaussianDistributionNoiseFunction,
+          py::arg("standard_deviation"),
+          py::arg("mean") = 0.0,
+          py::arg("seed") = time(NULL) );
 
 }
 

@@ -1315,6 +1315,16 @@ void expose_propagator_setup(py::module &m)
           py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
           py::arg("print_interval") = TUDAT_NAN );
 
+    m.def("multi_arc",
+          &tp::multiArcPropagatorSettings<double>,
+          py::arg("single_arc_settings"),
+          py::arg("transfer_state_to_next_arc") = false );
+
+    m.def("hybrid_arc",
+          &tp::hybridArcPropagatorSettings<double>,
+          py::arg("single_arc_settings"),
+          py::arg("multi_arc_settings") );
+
     py::class_<tp::PropagationTerminationSettings,
             std::shared_ptr<tp::PropagationTerminationSettings>>
             PropagationTerminationSettings_(m, "PropagationTerminationSettings");

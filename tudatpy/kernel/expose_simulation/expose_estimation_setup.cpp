@@ -31,6 +31,20 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+std::shared_ptr< PodInput< > > createPodInput(
+        const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, Eigen::VectorXd,
+        std::vector< double >, tom::LinkEndType > >& tudatpyObservationsAndTimes,
+          const int numberOfEstimatedParameters,
+          const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+          const Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
+        Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 0, 0 ) )
+{
+    auto tudatObservationsAndTimes = getTudatCompatibleObservationsAndTimes( tudatpyObservationsAndTimes );
+    return std::make_shared< PodInput< > >( tudatObservationsAndTimes, numberOfEstimatedParameters, inverseOfAprioriCovariance,
+                                         initialParameterDeviationEstimate );
+}
+
 OrbitDeterminationManager< double, double > createOrbitDeterminationManager(
         const tss::SystemOfBodies& bodies,
         const std::shared_ptr< tep::EstimatableParameterSet< double > > parameterSet,
@@ -241,6 +255,12 @@ void expose_observation_setup(py::module &m) {
           &tom::bodyOccultationViabilitySettings,
           py::arg("link_end" ),
           py::arg("occulting_body" ) );
+
+    m.def("create_observation_simulators",
+          py::overload_cast< const tom::ObservationSettingsVector&, const tss::SystemOfBodies& >(
+              &tom::createObservationSimulators< double, double > ),
+          py::arg( "observation_settings" ),
+          py::arg( "bodies" ) );
 
 }
 
@@ -690,6 +710,13 @@ void expose_estimation_setup(py::module &m) {
           py::arg("integrator_settings"),
           py::arg("propagator_settings"),
           py::arg("integrate_on_creation") = true );
+
+    m.def("pod_input",
+          &tss::createPodInput,
+          py::arg("observations_and_times"),
+          py::arg("number_of_parameters"),
+          py::arg("inverse_a_priori_covariance") = Eigen::MatrixXd( 0, 0 ),
+          py::arg("initial_parameter_deviation") = Eigen::VectorXd( 0 ) );
 
 
     m.def("create_parameters_to_estimate",
