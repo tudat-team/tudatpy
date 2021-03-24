@@ -4,7 +4,7 @@
 
 #include "expose_astro.h"
 #include "expose_constants.h"
-//#include "expose_example.h"
+#include "expose_example.h"
 #include "expose_interface.h"
 #include "expose_io.h"
 #include "expose_math.h"
@@ -52,8 +52,8 @@ PYBIND11_MODULE(kernel, m) {
   tudatpy::expose_simulation(simulation);
 
 //  // example module
-//  auto example = m.def_submodule("example");
-//  tudatpy::expose_example(example);
+  auto example = m.def_submodule("example");
+  tudatpy::expose_example(example);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
