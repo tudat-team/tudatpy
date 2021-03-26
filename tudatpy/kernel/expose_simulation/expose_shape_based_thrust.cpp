@@ -77,7 +77,12 @@ void expose_shape_based_thrust(py::module &m)
                  py::arg("axial_velocity_functions"),
                  py::arg("radial_free_coefficients"),
                  py::arg("normal_free_coefficients"),
-                 py::arg("axial_free_coefficients") );
+                 py::arg("axial_free_coefficients") )
+            .def( "get_thrust",
+                  py::overload_cast< double >(
+                  &tsbm::HodographicShaping::computeCurrentThrustAcceleration ),
+                  py::arg( "time_since_departure" ) );
+
 
     py::class_<
             tsbm::BaseFunctionHodographicShaping,
