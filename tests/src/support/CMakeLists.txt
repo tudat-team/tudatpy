@@ -10,7 +10,6 @@
 
 # Set the source files.
 set(test_support_SOURCES
-	"numericalIntegratorTests.cpp"
 	"numericalObservationPartial.cpp"
 	"observationPartialTestFunctions.cpp"
         )
