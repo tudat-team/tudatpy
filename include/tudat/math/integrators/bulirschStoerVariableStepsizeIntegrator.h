@@ -214,6 +214,11 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
+        if( !( stepSize == stepSize) )
+        {
+            throw std::runtime_error( "Error in BS integrator, step size is NaN" );
+        }
+
         StateType stateAtFirstPoint_;
         StateType stateAtCenterPoint_;
         StateType stateAtLastPoint_;

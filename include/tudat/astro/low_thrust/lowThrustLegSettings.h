@@ -162,7 +162,7 @@ public:
             const int numberOfRevolutions,
             const double centralBodyGravitationalParameter,
             const double initialValueFreeCoefficient,
-            const std::shared_ptr< root_finders::RootFinderSettings >& rootFinderSettings,
+            const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
             const std::pair< double, double > boundsFreeCoefficient = std::make_pair( TUDAT_NAN, TUDAT_NAN ) ):
         LowThrustLegSettings( spherical_shaping_leg ),
         numberOfRevolutions_( numberOfRevolutions ),

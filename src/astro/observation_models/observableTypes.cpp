@@ -19,6 +19,25 @@ namespace tudat
 namespace observation_models
 {
 
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservationsAndTimes(
+        const std::vector< std::tuple< ObservableType, LinkEnds, Eigen::VectorXd,
+        std::vector< double >, LinkEndType > >& tudatpyObservationsAndTimes )
+{
+    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
+    std::pair< std::vector< double >, LinkEndType > > > > tudatCompatibleObservationsAndTimes ;
+
+    for( int i = 0; i < tudatpyObservationsAndTimes.size( ); i++ )
+    {
+        auto currentTuple = tudatpyObservationsAndTimes.at( i );
+        tudatCompatibleObservationsAndTimes[ std::get< 0 >( currentTuple ) ][ std::get< 1 >( currentTuple ) ] =
+                std::make_pair(  std::get< 2 >( currentTuple ), std::make_pair(
+                                     std::get< 3 >( currentTuple ), std::get< 4 >( currentTuple ) ) );
+    }
+    return tudatCompatibleObservationsAndTimes;
+}
+
+
 //! Function to get the name (string) associated with a given observable type.
 std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds )
 {

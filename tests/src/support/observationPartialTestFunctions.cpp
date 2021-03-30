@@ -9,7 +9,7 @@
  */
 
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/astro/orbit_determination/observation_partials/observationPartialTestFunctions.h"
+#include "tudat/support/observationPartialTestFunctions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
@@ -553,28 +553,6 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
     return partialTimes;
 }
-
-template void testObservationPartials< 1 >(
-        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
-        SystemOfBodies& bodies,
-        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-        const LinkEnds& linkEnds, const ObservableType observableType,
-        const double tolerance,
-        const bool testPositionPartial,
-        const bool testParameterPartial,
-        const double positionPerturbationMultiplier,
-        const Eigen::VectorXd parameterPerturbationMultipliers );
-
-template void testObservationPartials< 2 >(
-        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
-        SystemOfBodies& bodies,
-        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-        const LinkEnds& linkEnds, const ObservableType observableType,
-        const double tolerance,
-        const bool testPositionPartial,
-        const bool testParameterPartial,
-        const double positionPerturbationMultiplier,
-        const Eigen::VectorXd parameterPerturbationMultipliers );
 
 
 }

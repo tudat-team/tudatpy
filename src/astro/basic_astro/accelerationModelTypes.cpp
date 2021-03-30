@@ -71,6 +71,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case solar_sail_acceleration:
         accelerationName = "solar sail acceleration";
         break;
+    case custom_acceleration:
+        accelerationName = "custom acceleration";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 std::to_string( accelerationType ) +
@@ -171,6 +174,10 @@ AvailableAcceleration getAccelerationModelType(
     else if ( std::dynamic_pointer_cast< SolarSailAcceleration >( accelerationModel) != NULL )
     {
         accelerationType = solar_sail_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = custom_acceleration;
     }
     else
     {

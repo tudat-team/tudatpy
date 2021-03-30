@@ -15,6 +15,8 @@
 #include <boost/bind.hpp>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
+#include "tudat/basics/utilities.h"
+#include "tudat/math/statistics/randomVariableGenerator.h"
 
 namespace tudat
 {
@@ -26,6 +28,7 @@ enum ObservationSimulationTimesTypes
 {
     tabulated_observation_simulation_times
 };
+
 
 //! Base struct for defining times at which observations are to be simulated.
 /*!
@@ -49,6 +52,7 @@ struct ObservationSimulationTimeSettings
     //! Link end type from which observations are to be simulated.
     LinkEndType linkEndType_;
 };
+
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
 /*!
@@ -320,10 +324,12 @@ simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > >&
         observationsToSimulate,
         const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-        observationSimulators )
+        observationSimulators,
+        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+        PerObservableObservationViabilityCalculatorList( ) )
 {
     return simulateObservations< ObservationScalarType, TimeType >(
-                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationSimulators );
+                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationSimulators, viabilityCalculatorList );
 }
 
 //! Function to simulate observations from set of observables and link and sets
@@ -745,6 +751,17 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
         }
     }
     return observationsWithoutLinkEndId;
+}
+
+inline std::function< double( const double ) > getGaussianDistributionNoiseFunction(
+        const double standardDeviation,
+        const double mean = 0.0,
+        const double seed = 0.0 )
+{
+    std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
+                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
+    return std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                       inputFreeNoiseFunction, std::placeholders::_1 );
 }
 
 }

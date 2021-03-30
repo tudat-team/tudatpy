@@ -33,7 +33,8 @@ enum AvailableTorque
     aerodynamic_torque = 1,
     spherical_harmonic_gravitational_torque = 2,
     inertial_torque = 3,
-    dissipative_torque = 4
+    dissipative_torque = 4,
+    custom_torque = 5
 };
 
 //! Function to identify the derived class type of a torque model.

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -458,7 +459,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
         // Define integrator settings.
         std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( initialEphemerisTime, 10.0,
+                ( initialEphemerisTime, 30.0,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78,
                   30.0, 300.0, 1.0E-14, 1.0E-14 );
 
@@ -873,10 +874,10 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                         angularMomentumInterpolator =
                         std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Vector3d > >(
                             inertialAngularMomentumMap, 6 );
-                typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
-                std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
-                            static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
-                            ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
+                    typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+                    std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
+                                static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+                                ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
 
                 double timeStep = 0.001;
 

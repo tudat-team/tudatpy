@@ -21,6 +21,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -77,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
     // Declare L1 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL1( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL1.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l1 );
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
     // Declare L2 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL2( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL2.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l2 );
@@ -136,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
     // Declare L3 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL3( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL3.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l3 );
@@ -165,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
     // Declare L4 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL4( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL4.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l4 );
@@ -196,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
     // Declare L5 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL5( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL5.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l5 );

@@ -864,6 +864,21 @@ std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
 
 }
 
+std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > createCustomAccelerationModel(
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::string& nameOfBodyUndergoingAcceleration )
+{
+    std::shared_ptr< CustomAccelerationSettings > customAccelerationSettings =
+            std::dynamic_pointer_cast< CustomAccelerationSettings >(
+                accelerationSettings );
+    if( customAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected custom acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration  );
+    }
+    return std::make_shared< CustomAccelerationModel >( customAccelerationSettings->accelerationFunction_ );
+
+}
 
 //! Function to create an orbiter relativistic correction acceleration model
 std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
@@ -1395,6 +1410,11 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     centralBody,
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
+        break;
+    case custom_acceleration:
+        accelerationModelPointer = createCustomAccelerationModel(
+                    accelerationSettings,
+                    nameOfBodyUndergoingAcceleration );
         break;
     default:
         throw std::runtime_error(

@@ -46,7 +46,7 @@
 
 #include "tudat/astro/mission_segments/gravityAssist.h"
 #include "tudat/math/basic/functionProxy.h"
-#include "tudat/math/root_finders/bisection.h"
+#include "tudat/math/root_finders/createRootFinder.h"
 
 
 namespace tudat
@@ -196,8 +196,11 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             }
             catch(std::runtime_error)
             {
-                root_finders::RootFinderPointer rootFinder_temp
-                  = std::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                root_finders::RootFinderPointer rootFinder_temp = root_finders::createRootFinder(
+                                        root_finders::bisectionRootFinderSettings(
+                                            TUDAT_NAN, 10E-12,
+                                            TUDAT_NAN, 1000 ) );
+
                 incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-2 );
 
             }
@@ -215,7 +218,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             catch(std::runtime_error)
             {
                 root_finders::RootFinderPointer rootFinder_temp
-                  = std::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                  = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
                 incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-10 );
 
             }

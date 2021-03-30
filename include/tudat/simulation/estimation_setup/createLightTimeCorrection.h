@@ -102,6 +102,12 @@ private:
 
 };
 
+inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
+        const std::vector< std::string >& perturbingBodies )
+{
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies );
+}
+
 //! Function to create object that computes a single (type of) correction to the light-time
 /*!
  * Function to create object that computes a single (type of) correction to the light-time

@@ -17,6 +17,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/bind.hpp>
@@ -39,7 +40,7 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 
 using namespace tudat;
 using namespace root_finders;
-using namespace root_finders::termination_conditions;
+
 
 //! Check if Bisection method converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_bisection_testFunction1 )
@@ -48,13 +49,11 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction1 )
     std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
-    Bisection::TerminationFunction terminationConditionFunction =
-            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    Bisection< >::TerminationFunction terminationConditionFunction =
+            createTerminationConditionFunction( TUDAT_NAN, testFunction->getTrueRootAccuracy( ) );
 
     // Test Bisection object.
-    Bisection bisection( terminationConditionFunction,
+    Bisection< > bisection( terminationConditionFunction,
                          testFunction->getLowerBound( ), testFunction->getUpperBound( ) );
 
     // Let the Bisection method search for the root.
@@ -72,13 +71,11 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction2 )
     std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 1 );
 
     // The termination condition.
-    Bisection::TerminationFunction terminationConditionFunction =
-            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    Bisection< >::TerminationFunction terminationConditionFunction =
+            createTerminationConditionFunction( TUDAT_NAN, testFunction->getTrueRootAccuracy( ) );
 
     // Test Bisection object.
-    Bisection bisection( terminationConditionFunction,
+    Bisection< > bisection( terminationConditionFunction,
                          testFunction->getLowerBound( ), testFunction->getUpperBound( ) );
 
     // Let the Bisection method search for the root.
@@ -96,13 +93,11 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction3 )
     std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 1 );
 
     // The termination condition.
-    Bisection::TerminationFunction terminationConditionFunction =
-            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    Bisection< >::TerminationFunction terminationConditionFunction =
+            createTerminationConditionFunction( TUDAT_NAN, testFunction->getTrueRootAccuracy( ) );
 
     // Test Bisection object.
-    Bisection bisection( terminationConditionFunction,
+    Bisection< > bisection( terminationConditionFunction,
                          testFunction->getLowerBound( ), testFunction->getUpperBound( ) );
 
     // Let the Bisection method search for the root.
@@ -139,14 +134,12 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunctionWithLargeRootDifference )
             ( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
     // The termination condition.
-    Bisection::TerminationFunction terminationConditionFunction
-            = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
-                           std::make_shared< RootRelativeToleranceTerminationCondition< > >(
-                               1.0e-10 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    Bisection< >::TerminationFunction terminationConditionFunction =
+            createTerminationConditionFunction( 1.0E-10 );
 
     // Test Bisection object, per case.
-    Bisection bisectionLowCase( terminationConditionFunction, lowerBound, upperBound );
-    Bisection bisectionHighCase( terminationConditionFunction, lowerBound, upperBound );
+    Bisection< > bisectionLowCase( terminationConditionFunction, lowerBound, upperBound );
+    Bisection< > bisectionHighCase( terminationConditionFunction, lowerBound, upperBound );
 
     // Let the Bisection method search for the root.
     const double rootLowCase = bisectionLowCase.execute( testFunctionLowCase );
@@ -164,13 +157,11 @@ BOOST_AUTO_TEST_CASE( test_bisection_wrongBracket )
     std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
-    Bisection::TerminationFunction terminationConditionFunction =
-            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    Bisection< >::TerminationFunction terminationConditionFunction =
+            createTerminationConditionFunction( TUDAT_NAN, testFunction->getTrueRootAccuracy( ) );
 
     // Test Bisection object. The input interval does not bracket the solution.
-    Bisection bisection( terminationConditionFunction,
+    Bisection< > bisection( terminationConditionFunction,
                          testFunction->getLowerBound( ), 0.0 );
 
     // Check if a runtime error is thrown if the root finder is executed.

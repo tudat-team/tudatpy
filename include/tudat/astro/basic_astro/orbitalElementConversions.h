@@ -30,6 +30,7 @@
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
+#include "tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -1049,6 +1050,80 @@ ScalarType convertSemiMajorAxisToEllipticalMeanMotion(
                           ( semiMajorAxis * semiMajorAxis * semiMajorAxis ) );
     }
 }
+
+
+
+template< typename ScalarType = double >
+ScalarType convertMeanAnomalyToTrueAnomaly(
+        const ScalarType eccentricity, const ScalarType meanAnomaly,
+        const bool useDefaultInitialGuess = true,
+        const ScalarType userSpecifiedInitialGuess = TUDAT_NAN,
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > rootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
+{
+    using namespace mathematical_constants;
+
+    ScalarType trueAnomaly = TUDAT_NAN;
+    if ( eccentricity < getFloatingInteger< ScalarType >( 1 ) )
+    {
+        ScalarType eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                    eccentricity, meanAnomaly,  useDefaultInitialGuess,
+                    userSpecifiedInitialGuess, rootFinder );
+        trueAnomaly = convertEccentricAnomalyToTrueAnomaly(
+                    eccentricAnomaly, eccentricity );
+    }
+    else if( eccentricity > getFloatingInteger< ScalarType >( 1 ) )
+    {
+        ScalarType hyperbolicEccentricAnomaly = convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                    eccentricity, meanAnomaly,  useDefaultInitialGuess,
+                    userSpecifiedInitialGuess, rootFinder );
+        trueAnomaly = convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                    hyperbolicEccentricAnomaly, eccentricity );
+    }
+    else
+    {
+        throw std::runtime_error( "Cannot convert mean to true anomaly for exact parabolic orbits" );
+    }
+    return trueAnomaly;
+}
+
+
+
+template< typename ScalarType = double >
+ScalarType convertTrueAnomalyToMeanAnomaly(
+        const ScalarType eccentricity, const ScalarType trueAnomaly )
+{
+    using namespace mathematical_constants;
+
+    ScalarType meanAnomaly = TUDAT_NAN;
+    if ( eccentricity < getFloatingInteger< ScalarType >( 1 ) )
+    {
+        ScalarType ecccentricAnomaly =
+                convertTrueAnomalyToEccentricAnomaly< ScalarType >(
+                    trueAnomaly,
+                    eccentricity );
+        meanAnomaly = convertEccentricAnomalyToMeanAnomaly< ScalarType >(
+                    ecccentricAnomaly,
+                    eccentricity );
+    }
+    else if ( eccentricity > getFloatingInteger< ScalarType >( 1 ) )
+    {
+        ScalarType hyperbolicEccentricAnomaly =
+                convertTrueAnomalyToHyperbolicEccentricAnomaly(
+                    trueAnomaly,
+                    eccentricity );
+        meanAnomaly = convertHyperbolicEccentricAnomalyToMeanAnomaly(
+                    hyperbolicEccentricAnomaly,
+                    eccentricity );
+    }
+    else
+    {
+        throw std::runtime_error( "Cannot convert true to mean anomaly for exact parabolic orbits" );
+    }
+    return meanAnomaly;
+
+}
+
 } // namespace orbital_element_conversions
 
 } // namespace tudat

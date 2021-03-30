@@ -28,7 +28,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationalOrientation.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
-#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
@@ -182,7 +182,6 @@ void testObservationPartials(
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        std::cout << "============================ REFERENCE LINK END =============" << linkEndIterator->first << std::endl;
         // Evaluate nominal observation values
         std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
@@ -435,28 +434,6 @@ void testObservationPartials(
         }
     }
 }
-
-extern template void testObservationPartials< 1 >(
-const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
-SystemOfBodies& bodies,
-const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-const LinkEnds& linkEnds, const ObservableType observableType,
-const double tolerance,
-const bool testPositionPartial,
-const bool testParameterPartial,
-const double positionPerturbationMultiplier,
-const Eigen::VectorXd parameterPerturbationMultipliers );
-
-extern template void testObservationPartials< 2 >(
-const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
-SystemOfBodies& bodies,
-const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-const LinkEnds& linkEnds, const ObservableType observableType,
-const double tolerance,
-const bool testPositionPartial,
-const bool testParameterPartial,
-const double positionPerturbationMultiplier,
-const Eigen::VectorXd parameterPerturbationMultipliers );
 
 
 }

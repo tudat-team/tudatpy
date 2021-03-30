@@ -56,6 +56,20 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
     return sortedObservationSettingsMap;
 }
 
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsVector& unsortedObservationSettingsMap )
+{
+    SortedObservationSettingsMap sortedObservationSettingsMap;
+
+    for( unsigned int i = 0; i < unsortedObservationSettingsMap.size( ); i++ )
+    {
+        sortedObservationSettingsMap[ unsortedObservationSettingsMap.at( i ).second->observableType_ ][
+                unsortedObservationSettingsMap.at( i ).first ] =
+                unsortedObservationSettingsMap.at( i ).second;
+    }
+    return sortedObservationSettingsMap;
+}
+
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 ObservationViabilitySettingsList filterObservationViabilitySettings(
         const ObservationViabilitySettingsList& observationViabilitySettings,

@@ -356,6 +356,31 @@ protected:
     double doubleParameter_;
 };
 
+inline std::shared_ptr< ObservationViabilitySettings > elevationAngleViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const double elevationAngle )
+{
+    return std::make_shared< ObservationViabilitySettings >(
+                minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
+}
+
+inline std::shared_ptr< ObservationViabilitySettings > bodyAvoidanceAngleViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const std::string bodyToAvoid,
+        const double avoidanceAngle )
+{
+    return std::make_shared< ObservationViabilitySettings >(
+                body_avoidance_angle, associatedLinkEnd, bodyToAvoid, avoidanceAngle );
+}
+
+inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const double occultingBody )
+{
+    return std::make_shared< ObservationViabilitySettings >(
+                body_occultation, associatedLinkEnd, "", occultingBody );
+}
+
 //! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
 typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > >
 PerObservableObservationViabilityCalculatorList;

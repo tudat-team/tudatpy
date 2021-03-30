@@ -10,7 +10,7 @@
  */
 
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
-#include "tudat/astro/orbit_determination/observation_partials/numericalObservationPartial.h"
+#include "tudat/support/numericalObservationPartial.h"
 
 namespace tudat
 {

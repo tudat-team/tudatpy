@@ -553,6 +553,15 @@ class Body {
     return currentRotationToLocalFrame_;
   }
 
+
+  Eigen::Matrix3d getCurrentRotationMatrixToGlobalFrame() {
+    return Eigen::Matrix3d( currentRotationToLocalFrame_.inverse() );
+  }
+
+  Eigen::Matrix3d getCurrentRotationMatrixToLocalFrame() {
+    return Eigen::Matrix3d( currentRotationToLocalFrame_ );
+  }
+
   //! Get current rotational state.
   /*!
      *  Get current rotational state, expressed as a quaternion from global to body-fixed frame

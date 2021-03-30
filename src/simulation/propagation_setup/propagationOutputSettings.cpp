@@ -57,8 +57,10 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
 
 
 //! Function to get a string representing a 'named identification' of a dependent variable type
-std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables )
+std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
+
+    PropagationDependentVariables propagationDependentVariables = dependentVariableSettings->dependentVariableType_;
     std::string variableName = "";
     switch( propagationDependentVariables )
     {
@@ -114,8 +116,35 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Rotation matrix from ";
         break;
     case relative_body_aerodynamic_orientation_angle_variable:
-        variableName = "Body orientation angle ";
+    {
+        std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
+                std::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
+        if( angleDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type string, expected body angle type" );
+        }
+        else
+        {
+            reference_frames::AerodynamicsReferenceFrameAngles angleToSave = angleDependentVariableSettings->angle_;
+            if( angleToSave == reference_frames::latitude_angle ||
+                    angleToSave == reference_frames::longitude_angle )
+            {
+                variableName = "Spherical position angle ";
+            }
+            else if( angleToSave == reference_frames::heading_angle ||
+                     angleToSave == reference_frames::flight_path_angle )
+            {
+                variableName = "Velocity orientation angle  ";
+            }
+            else if( angleToSave == reference_frames::angle_of_attack ||
+                     angleToSave == reference_frames::angle_of_sideslip ||
+                     angleToSave == reference_frames::bank_angle  )
+            {
+                variableName = "Aerodynamic body orientation angle ";
+            }
+        }
         break;
+    }
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
         break;
@@ -217,7 +246,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 std::string getDependentVariableId(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
-    std::string variableId = getDependentVariableName( dependentVariableSettings->dependentVariableType_ );
+    std::string variableId = getDependentVariableName( dependentVariableSettings );
 
     if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) )

@@ -470,6 +470,15 @@ protected:
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
 };
 
+template< typename StateScalarType = double >
+std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings(
+        const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings,
+        const bool transferInitialStateInformationPerArc = 0 )
+{
+        return std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                    singleArcSettings, transferInitialStateInformationPerArc );
+}
+
 //! Class for defining setting of a propagator for a combination of single- and multi-arc dynamics
 template< typename StateScalarType = double >
 class HybridArcPropagatorSettings: public PropagatorSettings< StateScalarType >
@@ -575,6 +584,16 @@ protected:
     //! Size of total multi-arc initial state
     int multiArcStateSize_;
 };
+
+
+template< typename StateScalarType = double >
+std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridArcPropagatorSettings(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings,
+        const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings )
+{
+        return std::make_shared< HybridArcPropagatorSettings< StateScalarType > >(
+                    singleArcPropagatorSettings, multiArcPropagatorSettings );
+}
 
 //! Class for defining settings for propagating translational dynamics.
 /*!
@@ -1075,6 +1094,40 @@ private:
     basic_astrodynamics::TorqueModelMap torqueModelMap_;
 
 };
+
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotatonalPropagatorSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModelMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueModelMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
+template< typename StateScalarType = double >
+inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotatonalPropagatorSettings(
+        const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const RotationalPropagatorType propagator = quaternions,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const double printInterval = TUDAT_NAN )
+{
+    return std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                torqueSettingsMap, bodiesToIntegrate, initialBodyStates, terminationSettings, propagator,
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave ), printInterval );
+}
+
 
 //! Class for defining settings for propagating the mass of a body
 /*!
@@ -1580,6 +1633,26 @@ int getMultiTypePropagatorStateSize(
     return stateSize;
 }
 
+template< typename StateScalarType >
+int getMultiTypePropagatorConventionalStateSize(
+        const std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >&
+        propagatorSettingsList )
+{
+    int stateSize = 0;
+
+    // Iterate over all propagation settings and add size to list
+    for( typename std::map< IntegratedStateType,
+         std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
+         typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
+    {
+        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+        {
+            stateSize += typeIterator->second.at( i )->getConventionalStateSize( );
+        }
+    }
+    return stateSize;
+}
+
 //! Function to retrieve the initial state for a list of propagator settings.
 /*!
  *  Function to retrieve the initial state for a list of propagator settings.
@@ -1594,7 +1667,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
         propagatorSettingsList )
 {
     // Get total size of propagated state
-    int totalSize = getMultiTypePropagatorStateSize( propagatorSettingsList );
+    int totalSize = getMultiTypePropagatorConventionalStateSize( propagatorSettingsList );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );

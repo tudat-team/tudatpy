@@ -16,6 +16,7 @@
  ####################
  # Debug information
  ####################
+
  message("")
  message("*** COMPILER CONFIGURATION ***")
  message("")
@@ -100,7 +101,7 @@
          # standard apple clang compiler flags
          set(CMAKE_CXX_FLAGS
                  "${CMAKE_CXX_FLAGS}"
-                 " -std=c++11"
+                 " -std=c++1z"
                  " -stdlib=libc++"
                  " -Wall "
                  " -Wextra"
@@ -119,7 +120,7 @@
          # standard linux clang compiler flags
          set(CMAKE_CXX_FLAGS
                  "${CMAKE_CXX_FLAGS}"
-                 " -std=c++11"
+                 " -std=c++1z"
                  " -stdlib=libstdc++"
                  " -Wall"
                  " -Wextra"
@@ -134,7 +135,7 @@
          # standard windows clang c++ compiler flags
          set(CMAKE_CXX_FLAGS
                  "${CMAKE_CXX_FLAGS}"
-                 " -std=c++11"
+                 " -std=c++1z"
                  " -Wall"
                  " -Wextra"
                  " -Wno-unused-parameter"
@@ -211,7 +212,7 @@
                              " -Wno-c++98-compat-pedantic"
                              " -Wno-used-but-marked-unused" # : boost unit tests. should be reinabled and sorted out.
                              " -Wno-newline-eof" # : end of line newline. should be reinabled and so.
-                             " -Wno-return-std-move-in-c++11" # :
+                             " -Wno-return-std-move-in-c++1z" # :
                              )
                      string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
                  endif ()
@@ -227,9 +228,9 @@
      add_compile_definitions(TUDAT_BUILD_GNU)
      message(STATUS "Using gnucxx compiler.")
      include(CheckCXXCompilerFlag)
-     check_cxx_compiler_flag("-std=c++11" CXX_SUPPORTS_CXX11)
-     if (CXX_SUPPORTS_CXX11)
-         set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
+     check_cxx_compiler_flag("-std=c++1z" CXX_SUPPORTS_CXX1Z)
+     if (CXX_SUPPORTS_CXX1Z)
+         set(CMAKE_CXX_FLAGS "-Wall -std=c++1z")
      else ()
          check_cxx_compiler_flag("-std=c++0x" CXX_SUPPORTS_CXX0x)
          if (CXX_SUPPORTS_CXX0x)
@@ -345,7 +346,7 @@
                  "C1786" # Deprecated functions
                  "C2545" # Empty else statement
                  "C2557" # Comparing signed to unsigned
-                 "C2722" # List init syntax is c++11 feature
+                 "C2722" # List init syntax is c++1z feature
                  "C3280" # Declaration hides variable
                  )
      endif ()

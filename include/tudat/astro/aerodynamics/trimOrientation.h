@@ -47,7 +47,7 @@ public:
      */
     TrimOrientationCalculator(
             const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
-            const std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder = nullptr );
+            const std::shared_ptr< root_finders::RootFinder< double > > rootFinder = nullptr );
 
     //! Function to find the trimmed angle of attack for a given set of independent  variables
     /*!
@@ -111,7 +111,7 @@ private:
 
     //! Object to iteratively find the root of the equations C_m(alpha)=0, i.e. to determine the
     //!  angle of attack for which the pitch moment is zero.
-    std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder_;
+    std::shared_ptr< root_finders::RootFinder< double > > rootFinder_;
 
     //! Index in independent variable list of coefficientInterface_ corresponding to the angle of attack.
     int variableIndex_;

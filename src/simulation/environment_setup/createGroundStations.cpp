@@ -19,7 +19,7 @@ namespace simulation_setup
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string groundStationName,
         const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
 {
@@ -33,7 +33,7 @@ void createGroundStation(
 
 //! Function to create a ground station and add it to a Body object
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string groundStationName,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType )
@@ -62,7 +62,7 @@ void createGroundStations(
 }
 
 void createGroundStation(
-        const std::shared_ptr< Body >& body,
+        const std::shared_ptr< Body > body,
         const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {

@@ -662,22 +662,32 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings(
         const std::string& originalFrame,
         const std::string& targetFrame,
+        const std::string& targetFrameSpice,
         const double initialTime )
 {
     return std::make_shared< SimpleRotationModelSettings >(
             originalFrame, targetFrame, spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ECLIPJ2000", "IAU_Earth", initialTime ), initialTime,
+                    originalFrame, targetFrameSpice, initialTime ), initialTime,
                 spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
-                    originalFrame, targetFrame, initialTime ).norm( ) );
+                    originalFrame, targetFrameSpice, initialTime ).norm( ) );
 }
+
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame,
-		const Eigen::Quaterniond& initialOrientation,
-		const double initialTime )
+        const Eigen::Quaterniond& initialOrientation )
 {
 	return std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation,
-														 initialTime, 0 );
+                                                         0.0, 0.0 );
+}
+
+inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Matrix3d& initialOrientation )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+                originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), 0.0, 0.0 );
 }
 
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(

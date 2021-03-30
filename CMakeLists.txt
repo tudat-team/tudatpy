@@ -71,7 +71,7 @@ option(TUDAT_BUILD_WITH_FILTERS "Build Tudat with preliminary Kalman Filter func
 option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 
 # Build json interface.
-option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." ON)
+option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
@@ -141,7 +141,7 @@ endif ()
 
 # Set required boost components.
 set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system regex date_time thread
-        serialization chrono atomic)
+        chrono atomic)
 
 if (TUDAT_BUILD_TESTS)
     # Add the unit test framework, if needed.
@@ -179,6 +179,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
+
 
 
 # Set compiler based on preferences (e.g. USE_CLANG) and system.

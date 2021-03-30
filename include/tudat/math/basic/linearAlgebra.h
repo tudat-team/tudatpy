@@ -47,6 +47,10 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 
+Eigen::Matrix3d convertVectorQuaternionToMatrixFormat( const Eigen::Vector4d& vector );
+
+Eigen::Vector4d convertMatrixToVectorQuaternionFormat( const Eigen::Matrix3d& vector );
+
 //! Function to take the product of two quaternions.
 /*!
  *  Function to take the product of two quaternions, both expressed as vectors.

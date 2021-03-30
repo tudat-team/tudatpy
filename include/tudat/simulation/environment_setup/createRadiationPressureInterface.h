@@ -165,6 +165,13 @@ inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiation
                 sourceBody, area, radiationPressureCoefficient, occultingBodies );
 }
 
+inline std::shared_ptr< RadiationPressureInterfaceSettings > cannonBallRadiationPressureSettings(
+        const std::string& sourceBody, const double area, const std::function< double(  const double ) >  radiationPressureCoefficientFunction,
+        const std::vector< std::string >& occultingBodies )
+{
+    return std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                sourceBody, area, radiationPressureCoefficientFunction, occultingBodies );
+}
 
 class PanelledRadiationPressureInterfaceSettings: public RadiationPressureInterfaceSettings
 {
@@ -546,7 +553,11 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
         const std::string& bodyName, const SystemOfBodies& bodies );
 
-
+std::function< double( const double ) > getOccultationFunction(
+        const SystemOfBodies& bodyMap,
+        const std::string& sourceBody,
+        const std::string& occultingBody,
+        const std::string& shadowedBody );
 
 } // namespace simulation_setup
 

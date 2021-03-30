@@ -248,6 +248,11 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
         const double rightAscensionOfPole,
         const double longitudeOfPrimeMeridian );
 
+Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian );
+
 //! Create a Quaterniond rotation state object from four quaternion values in vector 4d.
 /*!
  * Creates a Quaterniond rotation state object from four quaternion values.

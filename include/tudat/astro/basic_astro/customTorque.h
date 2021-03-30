@@ -25,7 +25,7 @@ namespace basic_astrodynamics
 /*!
  *  Class to link the a custom torque model to a body.
  */
-class CustomTorque : public TorqueModel
+class CustomTorqueModel : public TorqueModel
 {
 public:
 
@@ -36,13 +36,12 @@ public:
      *  \param customUpdateFunction Function to update the value of the custom torque based on the current time (which is the
      *      only input).
      */
-    CustomTorque( const std::function< Eigen::Vector3d( ) >& customTorqueFunction,
-                  const std::function< void( const double ) >& customUpdateFunction = std::function< void( const double ) >( ) ) :
-        customTorqueFunction_( customTorqueFunction ), customUpdateFunction_( customUpdateFunction )
+    CustomTorqueModel( const std::function< Eigen::Vector3d( const double ) >& customTorqueFunction ) :
+        customTorqueFunction_( customTorqueFunction )
     { }
 
     //! Destructor
-    ~CustomTorque( ) { }
+    ~CustomTorqueModel( ) { }
 
     //! Function to retrieve the current value of the torque.
     /*!
@@ -53,7 +52,7 @@ public:
     Eigen::Vector3d getTorque( )
     {
         // Retrieve and return the torque based on the custom torque model
-        return customTorqueFunction_( );
+        return currentTorque_;
     }
 
     //! Update member variables used by the torque model.
@@ -64,9 +63,10 @@ public:
     void updateMembers( const double currentTime )
     {
         // Update the custom torque model
-        if ( customUpdateFunction_ != nullptr )
+        if ( currentTime_ != currentTime )
         {
-            customUpdateFunction_( currentTime );
+            currentTorque_ = customTorqueFunction_( currentTime );
+            currentTime_ = currentTime;
         }
     }
 
@@ -75,10 +75,9 @@ protected:
 private:
 
     //! Function to be used to retrieve the torque.
-    const std::function< Eigen::Vector3d( ) > customTorqueFunction_;
+    const std::function< Eigen::Vector3d( const double ) > customTorqueFunction_;
 
-    //! Function to be used to update the torque.
-    const std::function< void( const double ) > customUpdateFunction_;
+    Eigen::Vector3d currentTorque_;
 
 };
 

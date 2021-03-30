@@ -762,6 +762,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case direct_dissipation_tidal_time_lag:
         {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating direct_dissipation_tidal_time_lag parameter, no propagatorSettings provided." );
+            }
+
             // Check input consistency
             std::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
                     std::dynamic_pointer_cast< DirectTidalTimeLagEstimatableParameterSettings >( doubleParameterName );
@@ -1143,6 +1148,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         }
         case empirical_acceleration_coefficients:
         {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating empirical_acceleration_coefficients parameter, no propagatorSettings provided." );
+            }
+
             // Check input consistency
             std::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
                     std::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
@@ -1260,6 +1270,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         }
         case arc_wise_empirical_acceleration_coefficients:
         {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating arc_wise_empirical_acceleration_coefficients parameter, no propagatorSettings provided." );
+            }
+
             // Check input consistency
             std::shared_ptr< ArcWiseEmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
                     std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
@@ -1412,6 +1427,10 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         }
         case desaturation_delta_v_values:
         {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating desaturation_delta_v_values parameter, no propagatorSettings provided." );
+            }
             // Check input consistency.
             std::string acceleratedBody = vectorParameterName->parameterType_.second.first;
 
