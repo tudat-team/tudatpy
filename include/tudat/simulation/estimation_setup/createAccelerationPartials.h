@@ -417,6 +417,12 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
+    case custom_acceleration:
+        std::cerr<<"Warning when making acceleration partials; ignoring custom acceleration (partials implicitly set to zero)"<<std::endl;
+        break;
+    case thrust_acceleration:
+        std::cerr<<"Warning when making acceleration partials; ignoring thrust acceleration (partials implicitly set to zero)"<<std::endl;
+        break;
     default:
         std::string errorMessage = "Acceleration model " + std::to_string( accelerationType ) +
                 " not found when making acceleration partial";
