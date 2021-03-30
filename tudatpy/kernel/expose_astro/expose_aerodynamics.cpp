@@ -79,7 +79,16 @@ void expose_aerodynamics(py::module &m) {
             .export_values();
 
     py::class_<ta::AerodynamicCoefficientInterface,
-            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
+            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
+            .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
+            .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
+            .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
+            .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
+                 py::arg( "independent_variables" ),
+                 py::arg( "time") );
+
+
 
     py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
             std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
