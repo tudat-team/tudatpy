@@ -34,6 +34,7 @@ set(basic_astrodynamics_SOURCES
 set(basic_astrodynamics_HEADERS
         "accelerationModelTypes.h"
         "accelerationModel.h"
+        "customAccelerationModel.h"
         "attitudeElementConversions.h"
         "celestialBodyConstants.h"
         "convertMeanToEccentricAnomalies.h"

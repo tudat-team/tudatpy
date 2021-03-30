@@ -7,17 +7,22 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    Notes
+ *     If you are unable to replicate the error control mechanism for adaptive step size methods,
+ *     you can force the integrator to accept all steps taken based on the time-data in the 
+ *     benchmark data files. The easiest way to do this is to set the relative and absolute
+ *     tolerances to a large value, so that in effect the error control mechanism doesn't kick
+ *     in.
+ *
  */
 
-#include <cmath>
-#include <limits>
+#ifndef TUDAT_NUMERICAL_INTEGRATOR_TESTS_H
+#define TUDAT_NUMERICAL_INTEGRATOR_TESTS_H
 
-#include <boost/test/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <Eigen/Core>
 
-#include "tudat/math/basic/mathematicalConstants.h"
-
-#include "tudat/math/integrators/numericalIntegratorTests.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
 
 namespace tudat
 {
@@ -26,8 +31,23 @@ namespace unit_tests
 namespace numerical_integrator_tests
 {
 
+//! Set column indices in matrices.
+const int TIME_COLUMN_INDEX = 0;
+const int STATE_COLUMN_INDEX = 1;
+const int FIRST_ROW = 0;
+const int SECOND_ROW = 1;
+
 //! Use integrateTo() to integrate one step forward in time.
-void executeOneIntegrateToStep(
+/*!
+ * Uses the integrateTo() function provided with Tudat integrators to make one step forward in
+ * time.
+ * \param benchmarkData Benchmark integration data.
+ * \param singleStepTestTolerance Tolerance used to compare computed final state with benchmark
+ *          data.
+ * \param integrator Shared-pointer to numerical integrator used.
+ * \sa NumericalIntegrator.
+ */
+inline void executeOneIntegrateToStep(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const numerical_integrators::NumericalIntegratorXdPointer integrator )
@@ -69,7 +89,19 @@ void executeOneIntegrateToStep(
 }
 
 //! Use performIntegrationStep() to integrate to specified time in multiple steps.
-void performIntegrationStepToSpecifiedTime(
+/*!
+ * Uses the performIntegrationStep() function provided with Tudat integrations to integrate to a
+ * specified time, with all of the intermediate steps checked against benchmark data.
+ * \param benchmarkData Benchmark integration data.
+ * \param singleStepTestTolerance Tolerance used to compare computed intermiedate states with
+ *          benchmark data.
+ * \param fullIntegrationTestTolerance Tolerance used to compare computed final state with
+ *          benchmark data. This tolerance is greater than for a single step, as the errors
+ *          accumulate during the integration.
+ * \param integrator Shared-pointer to numerical integrator used.
+ * \sa NumericalIntegrator.
+ */
+inline void performIntegrationStepToSpecifiedTime(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const double fullIntegrationTestTolerance,
@@ -136,7 +168,19 @@ void performIntegrationStepToSpecifiedTime(
 }
 
 //! Use integrateTo() to integrate to specified time in one step.
-void executeIntegrateToToSpecifiedTime(
+/*!
+ * Uses the integrateTo() function provided with Tudat integrators to integrate to specified
+ * time. All intermediate steps are used internally in the integrator, with the final step
+ * being handled by the integrateTo() function.
+ * \param benchmarkData Benchmark integration data.
+ * \param fullIntegrationTestTolerance Tolerance used to compare computed final state with
+ *          benchmark data. This tolerance is greater than for a single step, as the errors
+ *          accumulate during the integration.
+ * \param integrator Shared-pointer to numerical integrator used.
+ * \param specifiedTime Time to integrator to.
+ * \sa NumericalIntegrator.
+ */
+inline void executeIntegrateToToSpecifiedTime(
         const Eigen::MatrixXd benchmarkData,
         const double fullIntegrationTestTolerance,
         const numerical_integrators::NumericalIntegratorXdPointer integrator,
@@ -178,7 +222,20 @@ void executeIntegrateToToSpecifiedTime(
 
 //! Use performIntegrationStep() to integrate to specified time in multiple steps, including
 //! discrete events.
-void performIntegrationStepToSpecifiedTimeWithEvents(
+/*!
+ * Uses the performIntegrationStep() function provided with Tudat integrations to integrate to a
+ * specified time, with all of the intermediate steps checked against benchmark data, and discrete
+ * events, that instantly change the state, incorporated too.
+ * \param benchmarkData Benchmark integration data.
+ * \param singleStepTestTolerance Tolerance used to compare computed intermiedate states with
+ *          benchmark data.
+ * \param fullIntegrationTestTolerance Tolerance used to compare computed final state with
+ *          benchmark data. This tolerance is greater than for a single step, as the errors
+ *          accumulate during the integration.
+ * \param integrator Shared-pointer to re-initializable numerical integrator used.
+ * \sa ReinitializableNumericalIntegrator.
+ */
+inline void performIntegrationStepToSpecifiedTimeWithEvents(
         const Eigen::MatrixXd benchmarkData,
         const double singleStepTestTolerance,
         const double fullIntegrationTestTolerance,
@@ -266,7 +323,8 @@ void performIntegrationStepToSpecifiedTimeWithEvents(
     // Check that it is now not possible to roll back to the previous step.
     BOOST_CHECK( !integrator->rollbackToPreviousState( ) );
 }
-
 } // namespace numerical_integrator_tests
 } // namespace unit_tests
 } // namespace tudat
+
+#endif // TUDAT_NUMERICAL_INTEGRATOR_TESTS_H

@@ -85,6 +85,8 @@ public:
      */
     double getRadius( ){ return radius_; }
 
+    void resetRadius( const double radius ){ radius_ = radius; }
+
 private:
 
     //! Radius of spherical shape model.
@@ -116,12 +118,16 @@ public:
      */
     double getEquatorialRadius( ){ return equatorialRadius_; }
 
+    void resetEquatorialRadius( const double equatorialRadius ){ equatorialRadius_ = equatorialRadius; }
+
     //! Function to return the flattening of spheroid shape model.
     /*!
      *  Function to return the flattening of spheroid shape model.
      *  \return Flattening of spheroid shape model.
      */
     double getFlattening( ){ return flattening_; }
+
+    void resetFlattening( const double flattening ){ flattening_ = flattening; }
 
 private:
 

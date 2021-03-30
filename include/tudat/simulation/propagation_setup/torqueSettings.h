@@ -76,6 +76,74 @@ public:
     int maximumOrder_;
 };
 
+inline Eigen::Vector3d applyTorqueScalingFunction(
+        const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+        const std::function< double( const double) > scalingFunction,
+        const double time )
+{
+    return torqueFunction( time ) * scalingFunction( time );
+}
+
+class CustomTorqueSettings: public TorqueSettings
+{
+public:
+
+    CustomTorqueSettings(
+            const std::function< Eigen::Vector3d( const double ) > torqueFunction  ):
+        TorqueSettings( basic_astrodynamics::custom_torque ),
+        torqueFunction_( torqueFunction ){ }
+
+    CustomTorqueSettings(
+            const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+            std::function< double( const double) > scalingFunction ):
+        TorqueSettings( basic_astrodynamics::custom_torque ),
+        torqueFunction_(
+            std::bind( &applyTorqueScalingFunction, torqueFunction, scalingFunction,
+                       std::placeholders::_1 ) ){ }
+
+    std::function< Eigen::Vector3d( const double ) > torqueFunction_;
+};
+
+inline std::shared_ptr< TorqueSettings > aerodynamicTorque( )
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::aerodynamic_torque );
+}
+
+inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::second_order_gravitational_torque );
+}
+
+inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque(
+        const int maximumDegree, const int maximumOrder)
+{
+    return std::make_shared< SphericalHarmonicTorqueSettings >( maximumDegree, maximumOrder );
+}
+
+inline std::shared_ptr< TorqueSettings > dissipativeTorque(
+        const int maximumDegree, const int maximumOrder)
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
+}
+
+inline std::shared_ptr< TorqueSettings > customTorqueSettings(
+        const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+        const std::function< double( const double ) > scalingFunction = nullptr )
+{
+    if( scalingFunction == nullptr )
+    {
+        return std::make_shared< CustomTorqueSettings >(
+                    torqueFunction );
+    }
+    else
+    {
+        return std::make_shared< CustomTorqueSettings >(
+                    torqueFunction, scalingFunction );
+    }
+}
+
+
+
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
 

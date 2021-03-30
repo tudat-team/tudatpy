@@ -112,6 +112,19 @@ public:
           absoluteErrorTolerance_( absoluteErrorTolerance.array( ).abs( ) ),
           bandwidth_( std::fabs( static_cast< double >( bandwidth ) ) )
     {
+        if( !( currentState_.rows( ) == relativeErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == relativeErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating ABM integrator, relative tolerance input size is inconsistent" );
+        }
+
+        if( !( currentState_.rows( ) == absoluteErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == absoluteErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating ABM integrator, absolute tolerance input size is inconsistent" );
+        }
+
+
         fixedStepSize_ = false;
         strictCompare_ = true;
         fixedOrder_ = false;
@@ -218,6 +231,11 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
+        if( !( stepSize == stepSize) )
+        {
+            throw std::runtime_error( "Error in ABM integrator, step size is NaN" );
+        }
+
         // If stepSize is not same as old, clear the step-size dependent histories.
         if ( stepSize != stepSize_ )
         {

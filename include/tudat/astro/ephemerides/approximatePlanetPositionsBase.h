@@ -46,7 +46,7 @@ public:
     //! Bodies with ephemeris data.
     enum BodiesWithEphemerisData
     {
-        mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto
+        mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto, undefined
     };
 
     static BodiesWithEphemerisData getBodiesWithEphemerisDataId( const std::string& bodyName )
@@ -84,9 +84,13 @@ public:
         {
             bodyId = neptune;
         }
-        else if( bodyName == "Uranus" )
+        else if( bodyName == "Pluto" )
         {
             bodyId = pluto;
+        }
+        else if( bodyName == "" )
+        {
+            bodyId = undefined;
         }
         else
         {

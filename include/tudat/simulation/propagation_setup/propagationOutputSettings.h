@@ -543,7 +543,7 @@ std::string getVariableId( const std::shared_ptr< VariableSettings > variableSet
  *  \param propagationDependentVariables Dependent variable type.
  *  \return String with dependent variable type id.
  */
-std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables );
+std::string getDependentVariableName( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 //! Function to get a string representing a 'named identification' of a dependent variable.
 /*!
@@ -981,6 +981,32 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureC
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 radiation_pressure_coefficient_dependent_variable,  associatedBody, emittingBody );
 }
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > dynamicPressureVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                local_dynamic_pressure_dependent_variable,  associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicGLoadVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                total_aerodynamic_g_load_variable,  associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > atmosphericTemperatureVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+                local_temperature_dependent_variable,  associatedBody, centralBody );
+}
+
+
 
 
 } // namespace propagators

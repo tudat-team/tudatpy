@@ -176,6 +176,64 @@ public:
     bool useAbsoluteBias_;
 };
 
+inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
+        const Eigen::VectorXd& observationBias )
+{
+    return std::make_shared< ConstantObservationBiasSettings >(
+                observationBias, true );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > constantRelativeBias(
+        const Eigen::VectorXd& observationBias )
+{
+    return std::make_shared< ConstantObservationBiasSettings >(
+                observationBias, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseAbsoluteBias(
+        const std::vector< double >& arcStartTimes,
+        const std::vector< Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime)
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                arcStartTimes, observationBiases, linkEndForTime, true );
+}
+
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseAbsoluteBias(
+        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime)
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                observationBiases, linkEndForTime, true );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseRelativeBias(
+        const std::vector< double >& arcStartTimes,
+        const std::vector< Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                arcStartTimes, observationBiases, linkEndForTime, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseRelativeBias(
+        const std::map< double, Eigen::VectorXd >& observationBiases,
+        const LinkEndType linkEndForTime )
+{
+    return std::make_shared< ArcWiseConstantObservationBiasSettings >(
+                observationBiases, linkEndForTime, false );
+}
+
+inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSettings(
+        const std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList  )
+{
+    return std::make_shared< MultipleObservationBiasSettings >(
+                biasSettingsList );
+}
+
+
+
 //! Class used for defining the settings for an observation model that is to be created.
 /*!
  * Class used for defining the settings for an observation model that is to be created. This class allows the type, light-time
@@ -236,6 +294,8 @@ public:
     //! Settings for the observation bias model that is to be used (default none: nullptr)
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
+
+
 
 //! Enum defining all possible types of proper time rate computations in one-way Doppler
 enum DopplerProperTimeRateType
@@ -474,6 +534,97 @@ public:
 
 };
 
+
+inline std::shared_ptr< ObservationSettings > oneWayRangeSettings(
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationSettings >(
+                one_way_range, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > angularPositionSettings(
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationSettings >(
+                angular_position, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > positionObservableSettings(
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationSettings >(
+                position_observable, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > velocityObservableSettings(
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationSettings >(
+                velocity_observable, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > eulerAngle313ObservableSettings(
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationSettings >(
+                euler_angle_313_observable, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > oneWayOpenLoopDoppler(
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = nullptr,
+        const std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = nullptr )
+{
+    return std::make_shared< OneWayDopplerObservationSettings >(
+                lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings,
+                biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > twoWayOpenLoopDoppler(
+        const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
+        const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< TwoWayDopplerObservationSettings >(
+                uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > oneWayClosedLoopDoppler(
+        const std::function< double( const double ) > integrationTimeFunction,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                integrationTimeFunction, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > oneWayClosedLoopDoppler(
+        const double integrationTime,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+{
+    return std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                [=](const double){ return integrationTime; }, lightTimeCorrectionsList, biasSettings );
+}
+
+inline std::shared_ptr< ObservationSettings > nWayRange(
+        const std::vector< std::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+        std::function< std::vector< double >( const double  ) >( ))
+{
+    return std::make_shared< NWayRangeObservationSettings >(
+                oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
+}
+
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -563,6 +714,8 @@ typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< Observati
 //! since this typedef represents a multimap.
 typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > ObservationSettingsMap;
 
+typedef std::vector< std::pair< LinkEnds, std::shared_ptr< ObservationSettings > > > ObservationSettingsVector;
+
 typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
 
 //! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
@@ -583,6 +736,8 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsVector& unsortedObservationSettingsMap );
 
 //! Function to create an object that computes an observation bias
 /*!
@@ -1382,8 +1537,8 @@ public:
             observationModel = std::make_shared< VelocityObservationModel<
                     ObservationScalarType, TimeType > >(
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
-                                     ObservationScalarType, TimeType >,
-                                     bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   ObservationScalarType, TimeType >,
+                                   bodies.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1442,7 +1597,7 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::SortedObservationSettingsMap observationSettingsMap,
+        const observation_models::SortedObservationSettingsMap& observationSettingsMap,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< ObservableType,
@@ -1496,12 +1651,23 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        observation_models::ObservationSettingsMap observationSettingsMap,
+        const observation_models::ObservationSettingsMap& observationSettingsMap,
         const simulation_setup::SystemOfBodies &bodies )
 {
     return createObservationSimulators< ObservationScalarType, TimeType >(
                 convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
 }
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType,
+std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+        const observation_models::ObservationSettingsVector& observationSettingsMap,
+        const simulation_setup::SystemOfBodies &bodies )
+{
+    return createObservationSimulators< ObservationScalarType, TimeType >(
+                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
+}
+
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 /*!

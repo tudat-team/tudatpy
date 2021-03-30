@@ -158,6 +158,10 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames(const std::string &ori
                                                           const std::string &newFrame,
                                                           const double ephemerisTime);
 
+Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFrame,
+                                                   const std::string &newFrame,
+                                                   const double ephemerisTime);
+
 //! Computes time derivative of rotation matrix between two frames.
 /*!
  * This function computes the derivative of the rotation matrix between two frames at a given

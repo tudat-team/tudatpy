@@ -137,6 +137,18 @@ public:
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
         newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
     {
+        if( !( currentState_.rows( ) == relativeErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == relativeErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating variable step-size RK integrator, relative tolerance input size is inconsistent" );
+        }
+
+        if( !( currentState_.rows( ) == absoluteErrorTolerance_.rows( ) ) ||
+                !( currentState_.cols( ) == absoluteErrorTolerance_.cols( ) ) )
+        {
+            throw std::runtime_error( "Error when creating variable step-size RK integrator, absolute tolerance input size is inconsistent" );
+        }
+
         // Set default newStepSizeFunction_ to the class method.
         if ( this->newStepSizeFunction_ == 0 )
         {
@@ -496,6 +508,11 @@ StateType
 RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 ::performIntegrationStep( const TimeStepType stepSize )
 {
+    if( !( stepSize == stepSize ) )
+    {
+        throw std::runtime_error( "Error in RKF integrator, step size is NaN" );
+    }
+
     // Define and allocated vector for the number of stages.
     currentStateDerivatives_.clear( );
     currentStateDerivatives_.reserve( this->coefficients_.cCoefficients.rows( ) );

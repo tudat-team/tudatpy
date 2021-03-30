@@ -83,6 +83,10 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
+std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel(
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque );
+
 //! Function to create torque model object.
 /*!
  *  Function to create torque model object.
