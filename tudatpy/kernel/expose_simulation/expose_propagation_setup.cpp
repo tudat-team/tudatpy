@@ -325,6 +325,20 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("emitting_body") );
 
+    m.def("dynamic_pressure",
+          &tp::dynamicPressureVariable,
+          py::arg("body"),
+          py::arg("central_body") );
+
+    m.def("aerodynamic_g_load",
+          &tp::aerodynamicGLoadVariable,
+          py::arg("body"),
+          py::arg("central_body") );
+
+    m.def("aerodynamic_temperature",
+          &tp::atmosphericTemperatureVariable,
+          py::arg("body"),
+          py::arg("central_body") );
 
     //    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
     //            const basic_astrodynamics::AvailableTorque torqueModelType,

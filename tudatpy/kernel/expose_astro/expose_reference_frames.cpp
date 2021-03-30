@@ -25,6 +25,16 @@ namespace tudatpy {
 
 void expose_frames(py::module &m) {
 
+    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles" )
+            .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)
+            .value("longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle)
+            .value("heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle)
+            .value("flight_path_angle", trf::AerodynamicsReferenceFrameAngles::flight_path_angle)
+            .value("angle_of_attack", trf::AerodynamicsReferenceFrameAngles::angle_of_attack)
+            .value("angle_of_sideslip", trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip)
+            .value("bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle)
+            .export_values( );
+
     py::enum_<trf::AerodynamicsReferenceFrames>(m, "AerodynamicsReferenceFrames" )
             .value("inertial_frame", trf::AerodynamicsReferenceFrames::inertial_frame)
             .value("corotating_frame", trf::AerodynamicsReferenceFrames::corotating_frame)
@@ -63,7 +73,10 @@ void expose_frames(py::module &m) {
             .def("get_rotation_matrix_between_frames",
                  &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                  py::arg("original_frame"),
-                 py::arg("target_frame" ) );
+                 py::arg("target_frame" ) )
+            .def("get_angle",
+                 &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
+                 py::arg("angle_type") );
 
 
     m.def("inertial_to_rsw_rotation_matrix",
