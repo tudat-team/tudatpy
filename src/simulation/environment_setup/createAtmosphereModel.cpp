@@ -208,6 +208,26 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         break;
     }
 #endif
+    case scaled_atmosphere:
+    {
+        // Check consistency of type and class.
+        std::shared_ptr< ScaledAtmosphereSettings > scaledAtmosphereSettings =
+                std::dynamic_pointer_cast< ScaledAtmosphereSettings >(
+                    atmosphereSettings );
+        if( scaledAtmosphereSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error, expected scaled atmosphere settings for body " + body );
+        }
+        else
+        {
+            std::shared_ptr< AtmosphereModel > baseAtmosphere = createAtmosphereModel(
+                        scaledAtmosphereSettings->getBaseSettings( ), body );
+            atmosphereModel = std::make_shared< ScaledAtmosphereModel >(
+                        baseAtmosphere, scaledAtmosphereSettings->getScaling( ), scaledAtmosphereSettings->getIsScalingAbsolute( ) );
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
                                   std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
