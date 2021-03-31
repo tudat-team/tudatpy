@@ -398,11 +398,105 @@ private:
  * \param initialTimeStep Time step at first call of numerical integration.
  * \return Object used to check whether propagation is to be stopped or not.
  */
+//! Function to create propagation termination conditions from associated settings
+template< typename StateScalarType = double , typename TimeType = double >
 std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::SystemOfBodies& bodies,
-        const double initialTimeStep );
+        const double initialTimeStep,
+        const std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
+        < SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
+        std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
+                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+{
+    std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
 
+    // Check termination type.
+    switch( terminationSettings->terminationType_ )
+    {
+    case time_stopping_condition:
+    {
+        // Create stopping time termination condition.
+        std::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
+                std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
+        propagationTerminationCondition = std::make_shared< FixedTimePropagationTerminationCondition >(
+                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
+                    timeTerminationSettings->checkTerminationToExactCondition_ );
+        break;
+    }
+    case cpu_time_stopping_condition:
+    {
+        // Create stopping time termination condition.
+        std::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
+                std::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
+        propagationTerminationCondition = std::make_shared< FixedCPUTimePropagationTerminationCondition >(
+                    cpuTimeTerminationSettings->cpuTerminationTime_ );
+        break;
+    }
+    case dependent_variable_stopping_condition:
+    {
+        std::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
+                std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
+
+        // Get dependent variable function
+        std::function< double( ) > dependentVariableFunction;
+        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
+        {
+            dependentVariableFunction =
+                    getDoubleDependentVariableFunction(
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies, stateDerivativeModels );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, cannot make stopping condition from vector dependent variable" );
+        }
+
+        // Create dependent variable termination condition.
+        propagationTerminationCondition = std::make_shared< SingleVariableLimitPropagationTerminationCondition >(
+                    dependentVariableTerminationSettings->dependentVariableSettings_,
+                    dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
+                    dependentVariableTerminationSettings->useAsLowerLimit_,
+                    dependentVariableTerminationSettings->checkTerminationToExactCondition_,
+                    dependentVariableTerminationSettings->terminationRootFinderSettings_ );
+        break;
+    }
+    case custom_stopping_condition:
+    {
+        std::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
+                std::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
+
+        // Create dependent variable termination condition.
+        propagationTerminationCondition = std::make_shared< CustomTerminationCondition >(
+                    customTerminationSettings->checkStopCondition_,
+                    customTerminationSettings->checkTerminationToExactCondition_ );
+        break;
+    }
+    case hybrid_stopping_condition:
+    {
+        std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+                std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+
+        // Recursively create termination condition list.
+        std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationConditionList;
+        for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
+        {
+            propagationTerminationConditionList.push_back(
+                        createPropagationTerminationConditions(
+                            hybridTerminationSettings->terminationSettings_.at( i ),
+                            bodies, initialTimeStep, stateDerivativeModels ) );
+        }
+        propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
+                    propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
+                    hybridTerminationSettings->checkTerminationToExactCondition_ );
+        break;
+    }
+    default:
+        std::string errorMessage = "Error, stopping condition type " + std::to_string(
+                    terminationSettings->terminationType_ ) + " not recognized when making stopping conditions object";
+        throw std::runtime_error( errorMessage );
+    }
+    return propagationTerminationCondition;
+}
 //! Class for storing details on the propagation termination
 class PropagationTerminationDetails
 {
