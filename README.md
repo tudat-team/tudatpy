@@ -5,7 +5,7 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 
 ## Prerequisites
 
-- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
+- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
   - All procedures, including the following prerequisite, assume the use of WSL. Power users who wish to do otherwise,
     must do so at their own risk, with reduced support from the team.
 - Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
