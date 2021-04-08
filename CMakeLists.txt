@@ -7,7 +7,6 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 
-
 # Specify minimum CMake version required to compile Tudat.
 cmake_minimum_required(VERSION 2.8.10)
 
@@ -15,6 +14,10 @@ cmake_minimum_required(VERSION 2.8.10)
 if (EXISTS "${CMAKE_BINARY_DIR}/CMakeCache.txt")
     file(REMOVE "${CMAKE_BINARY_DIR}/CMakeCache.txt")
 endif ()
+
+# CMake configuration
+message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
 # Specific Tudat project name.
 project(TudatBundle)
