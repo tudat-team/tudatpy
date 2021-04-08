@@ -42,7 +42,7 @@ conda activate tudat-bundle
 echo $CONDA_PREFIX
 ````
 
-6. Set the following CMake build configuration
+6. Set the following CMake build configuration (See Notes below)
 
 ````
 -DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
@@ -50,7 +50,16 @@ echo $CONDA_PREFIX
 -DBoost_NO_BOOST_CMAKE=ON
 ````
 
+Alternatively (extra vigilance required when committing changes)
+
+````
+set(CMAKE_PREFIX_PATH <CONDA_PREFIX>)
+set(CMAKE_CXX_STANDARD 14)
+set(Boost_NO_BOOST_CMAKE ON)
+````
+
 ## Notes
 
 - [**CLion Users**] In CLion, the convention to set CMake arguments
-  is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`
+  is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
+
