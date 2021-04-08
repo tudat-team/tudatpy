@@ -72,4 +72,7 @@ set(Boost_NO_BOOST_CMAKE ON)
 
 - [**CLion Users**] In CLion, the convention to set CMake arguments
   is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
+  
+- [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>` 
+  build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely.
 
