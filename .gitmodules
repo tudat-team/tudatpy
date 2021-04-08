@@ -1,0 +1,6 @@
+[submodule "tudat"]
+	path = tudat
+	url = https://github.com/tudat-team/tudat.git
+[submodule "tudatpy"]
+	path = tudatpy
+	url = https://github.com/tudat-team/tudatpy.git
