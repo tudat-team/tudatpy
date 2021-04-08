@@ -8,5 +8,6 @@ dependencies:
   - tudat-resources
   - sofa-cmake
   - cspice-cmake
+  - python=3.8
   - pybind11
   - pybind11-abi
