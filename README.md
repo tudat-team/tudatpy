@@ -58,7 +58,7 @@ echo $CONDA_PREFIX
 -DBoost_NO_BOOST_CMAKE=ON
 ````
 
-Alternatively, add the following to the `CMakeLists.txt` file (extra vigilance required when committing changes):
+Alternatively, add the following to the `CMakeLists.txt`, after line 16 (extra vigilance required when committing changes):
 
 ````
 set(CMAKE_PREFIX_PATH <CONDA_PREFIX>)
