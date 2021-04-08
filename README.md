@@ -38,7 +38,7 @@ git checkout <branch-name>
 conda env create -f environment.yaml
 ````
 
-5. Activate the environment installed in step 1
+5. Activate the environment installed in step 4
 
 ````
 conda activate tudat-bundle
