@@ -12,10 +12,11 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 
 ## Setup
 
-1. Clone the repository
+1. Clone the repository and enter directory
 
 ````
 git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
+cd tudat-bundle
 ````
 
 2. Clone the `tudat` & `tudatpy` submodules
