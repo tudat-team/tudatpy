@@ -1,0 +1,12 @@
+name: tudat-bundle
+channels:
+  - conda-forge
+  - tudat-team
+dependencies:
+  - eigen
+  - boost-cpp=1.72
+  - tudat-resources
+  - sofa-cmake
+  - cspice-cmake
+  - pybind11
+  - pybind11-abi
