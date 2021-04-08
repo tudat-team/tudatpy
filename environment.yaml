@@ -11,3 +11,4 @@ dependencies:
   - python=3.8
   - pybind11
   - pybind11-abi
+  - numpy
