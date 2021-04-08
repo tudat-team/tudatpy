@@ -28,7 +28,5 @@ echo $CONDA_PREFIX
 -DBoost_NO_BOOST_CMAKE=ON
 ````
 
------------------------ ------------------------------------
-![Tip](.images/tip.png)\ Using CLion? In CLion, the convention to set CMake arguments
-        is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`
-----------------------------------------------------------------
+> **Using CLion?** In CLion, the convention to set CMake arguments
+  is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`
