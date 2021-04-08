@@ -67,6 +67,8 @@ set(Boost_NO_BOOST_CMAKE ON)
 ````
 
 ## Notes
+- [**Windows ∩ CLion Users**] In CLion, be sure to set WSL as your Toolchain
+  in `File>Settings>Build, Execution, Deployment>Toolchains`.
 
 - [**CLion Users**] In CLion, the convention to set CMake arguments
   is to add them to `File>Settings>Build, Execution, Deployment>CMake Options`.
