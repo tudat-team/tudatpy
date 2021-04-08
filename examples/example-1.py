@@ -7,6 +7,11 @@ from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 from tudatpy.kernel.astro import conversion
+from tudatpy.kernel import __version__
+
+import sys
+print(sys.path)
+print(__version__)
 
 def main():
     # Load spice kernels.
@@ -23,16 +28,17 @@ def main():
     # Create default body settings for "Earth"
     bodies_to_create = ["Earth"]
 
-    # Create default body settings for bodies_to_create, with "SSB"/"J2000" as 
+    # Create default body settings for bodies_to_create, with "SSB"/"J2000" as
     # global frame origin and orientation
     body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, "SSB", "J2000")
+        bodies_to_create, "SSB", "J2000"
+    )
 
     # Create system of bodies (in this case only Earth)
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     # Add vehicle object to system of bodies
-    bodies.create_empty_body( "Delfi-C3" )
+    bodies.create_empty_body("Delfi-C3")
 
     ###########################################################################
     # CREATE ACCELERATIONS ####################################################
@@ -45,15 +51,16 @@ def main():
     central_bodies = ["Earth"]
 
     # Define accelerations acting on Delfi-C3.
-    acceleration_settings_delfi_c3 = dict(Earth=[
-        propagation_setup.acceleration.point_mass_gravity()
-    ])
+    acceleration_settings_delfi_c3 = dict(
+        Earth=[propagation_setup.acceleration.point_mass_gravity()]
+    )
 
     acceleration_settings = {"Delfi-C3": acceleration_settings_delfi_c3}
 
     # Create acceleration models.
     acceleration_models = propagation_setup.create_acceleration_models(
-        bodies, acceleration_settings, bodies_to_propagate, central_bodies)
+        bodies, acceleration_settings, bodies_to_propagate, central_bodies
+    )
 
     ###########################################################################
     # CREATE PROPAGATION SETTINGS #############################################
@@ -62,15 +69,15 @@ def main():
     # Set initial conditions for the Asterix satellite that will be
     # propagated in this simulation. The initial conditions are given in
     # Keplerian elements and later on converted to Cartesian elements.
-    earth_gravitational_parameter = bodies.get_body( "Earth" ).gravitational_parameter
+    earth_gravitational_parameter = bodies.get_body("Earth").gravitational_parameter
     initial_state = conversion.keplerian_to_cartesian(
         gravitational_parameter=earth_gravitational_parameter,
-        semi_major_axis=7500.0E3,
+        semi_major_axis=7500.0e3,
         eccentricity=0.1,
         inclination=np.deg2rad(85.3),
         argument_of_periapsis=np.deg2rad(235.7),
         longitude_of_ascending_node=np.deg2rad(23.4),
-        true_anomaly=np.deg2rad(139.87)
+        true_anomaly=np.deg2rad(139.87),
     )
 
     # Create propagation settings.
@@ -79,13 +86,12 @@ def main():
         acceleration_models,
         bodies_to_propagate,
         initial_state,
-        simulation_end_epoch
+        simulation_end_epoch,
     )
     # Create numerical integrator settings.
     fixed_step_size = 10.0
     integrator_settings = propagation_setup.integrator.runge_kutta_4(
-        simulation_start_epoch,
-        fixed_step_size
+        simulation_start_epoch, fixed_step_size
     )
 
     ###########################################################################
@@ -94,7 +100,8 @@ def main():
 
     # Create simulation object and propagate dynamics.
     dynamics_simulator = propagation_setup.SingleArcDynamicsSimulator(
-        bodies, integrator_settings, propagator_settings, True)
+        bodies, integrator_settings, propagator_settings, True
+    )
     states = dynamics_simulator.state_history
 
     ###########################################################################
