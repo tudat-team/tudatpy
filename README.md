@@ -12,37 +12,44 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 
 ## Setup
 
-1. Clone the repository 
+1. Clone the repository
 
 ````
-git clone https://github.com/tudat-team/tudat-bundle.git
+git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
 ````
 
-2. (Optional) Switch to your desired branch
+2. Clone the `tudat` & `tudatpy` submodules
 
 ````
-git checkout <branch>
+git submodule update --init --recursive
 ````
 
-3. Install the contained `environment.yaml` file to satisfy dependencies
+3. [Optional] Switch `tudat` & `tudatpy` to their desired branches using
+
+````
+cd <tudat/tudatpy>
+git checkout <branch-name>
+````
+
+4. Install the contained `environment.yaml` file to satisfy dependencies
 
 ````
 conda env create -f environment.yaml
 ````
 
-4. Activate the environment installed in step 1
+5. Activate the environment installed in step 1
 
 ````
 conda activate tudat-bundle
 ````
 
-5. Determine your `CONDA_PREFIX` path
+6. Determine your `CONDA_PREFIX` path
 
 ````
 echo $CONDA_PREFIX
 ````
 
-6. Set the following CMake build configuration (See Notes below)
+7. Set the following CMake build configuration (See Notes below)
 
 ````
 -DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
