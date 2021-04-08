@@ -181,7 +181,6 @@ endif ()
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
 
-
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(compiler)
 
@@ -207,9 +206,9 @@ if (DEFINED _GLIBCXX_USE_CXX11_ABI)
             set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
             message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
         elseif ((${Boost_VERSION_MAJOR} GREATER_EQUAL "1") AND (${Boost_VERSION_MINOR} GREATER_EQUAL "70") AND ${TUDAT_BUILD_GNU})
-#            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-#            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
-#            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
+            #            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            #            set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
+            #            message(STATUS "-D_GLIBCXX_USE_CXX11_ABI=0 added to CMAKE_CXX_FLAGS!")
         elseif (${TUDAT_BUILD_MSVC})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
             set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -D_GLIBCXX_USE_CXX11_ABI=0")
@@ -283,19 +282,9 @@ endif ()
 # CSpice dependency
 find_package(CSpice REQUIRED 1.0.0)
 
-# Sofa dependency if in build settings.
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
-    #
+    find_package(Sofa REQUIRED 1.0.0)
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
-    if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        find_package(Sofa REQUIRED 1.0.0)
-    elseif (NOT ${TUDAT_BUNDLE_BUILD})
-        find_package(Sofa REQUIRED 1.0.0)
-    else ()
-        set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
-    endif ()
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=0)
 endif ()
 
 # TODO: add NRLMSISE back in
