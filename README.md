@@ -38,32 +38,84 @@ git checkout <branch-name>
 conda env create -f environment.yaml
 ````
 
-5. Activate the environment installed in step 4
+There are two directions you can go from here. CLion or the command line.
+
+### CLion Build
+
+6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
+   - Note that the CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. A `Release` configuration
+   will suppress a significant amount of harmless warnings during compilation. (*Currently: with the move to a 
+   later version of boost, some warnings have cropped up that have either not been fixed in the source code, or 
+   have not been suppressed via `tudat/cmake_modules/compiler.cmake`)
+
+7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
+   
+```
+-DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
+-DCMAKE_CXX_STANDARD=14
+-DBoost_NO_BOOST_CMAKE=ON
+```
+
+> **Note** \
+> The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
+> ````
+> conda activate tudat-bundle && echo $CONDA_PREFIX
+> ````
+
+8. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
+   
+9. `Build > Build Project`
+
+### Command Line Build
+
+6. Activate the environment installed in step 4
 
 ````
 conda activate tudat-bundle
 ````
 
-6. Determine your `CONDA_PREFIX` path
+7. Run the `build.sh` script.
 
 ````
-echo $CONDA_PREFIX
+bash build.sh
 ````
 
-7. Set the following CMake build configuration (See Notes below)
+## Verify your build
 
+### Running `tudat` tests
+
+1. Enter the `tudat` build directory
 ````
--DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
--DCMAKE_CXX_STANDARD=14
--DBoost_NO_BOOST_CMAKE=ON
+cd <build_directory>/tudat
 ````
 
-Alternatively, add the following to the `CMakeLists.txt` (extra vigilance required when committing changes):
-
+2. Run the tests using `ctest` (packaged with CMake)
 ````
-set(CMAKE_PREFIX_PATH <CONDA_PREFIX>)
-set(CMAKE_CXX_STANDARD 14)
-set(Boost_NO_BOOST_CMAKE ON)
+ctest
+````
+
+Desired result:
+````
+.. 
+100% tests passed, 0 tests failed out of 224
+Total Test time (real) = 490.77 sec
+````
+
+### Running `tudatpy` tests
+
+1. Enter the `tudatpy` build directory
+````
+cd <build_directory>/tudatpy
+````
+
+2. Run the tests using `pytest`
+````
+pytest
+````
+
+Desired results:
+````
+=========================================== 6 passed in 1.78s ============================================
 ````
 
 ## Notes
