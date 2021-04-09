@@ -12,3 +12,4 @@ dependencies:
   - pybind11
   - pybind11-abi
   - numpy
+  - pytest
