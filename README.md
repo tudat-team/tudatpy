@@ -43,10 +43,11 @@ There are two directions you can go from here. CLion or the command line.
 ### CLion Build
 
 6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
-   - Note that the CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. A `Release` configuration
-   will suppress a significant amount of harmless warnings during compilation. (*Currently: with the move to a 
-   later version of boost, some warnings have cropped up that have either not been fixed in the source code, or 
-   have not been suppressed via `tudat/cmake_modules/compiler.cmake`)
+> **Note** \
+> The CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. 
+> A `Release` configuration will suppress a significant amount of harmless warnings during compilation. Currently,
+> with the move to a later version of boost, some warnings have cropped up that have either not been fixed in the 
+> source code, or have not been suppressed via `tudat/cmake_modules/compiler.cmake`.
 
 7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
    
@@ -55,6 +56,10 @@ There are two directions you can go from here. CLion or the command line.
 -DCMAKE_CXX_STANDARD=14
 -DBoost_NO_BOOST_CMAKE=ON
 ```
+
+7.1. [**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
+ processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
+recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
 
 > **Note** \
 > The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
