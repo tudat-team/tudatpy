@@ -42,14 +42,14 @@ There are two directions you can go from here. CLion or the command line.
 
 ### CLion Build
 
-6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
+5. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
 > **Note** \
 > The CMake configuration option `CMAKE_BUILD_TYPE` will be determined by the the build profile's `Build type` entry. 
 > A `Release` configuration will suppress a significant amount of harmless warnings during compilation. Currently,
 > with the move to a later version of boost, some warnings have cropped up that have either not been fixed in the 
 > source code, or have not been suppressed via `tudat/cmake_modules/compiler.cmake`.
 
-7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
+6. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
    
 ```
 -DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
@@ -67,19 +67,19 @@ There are two directions you can go from here. CLion or the command line.
  processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
 recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
 
-8. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
+7. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
    
-9. `Build > Build Project`
+8. `Build > Build Project`
 
 ### Command Line Build
 
-6. Activate the environment installed in step 4
+5. Activate the environment installed in step 4
 
 ````
 conda activate tudat-bundle
 ````
 
-7. Run the `build.sh` script.
+6. Run the `build.sh` script.
 
 ````
 bash build.sh
