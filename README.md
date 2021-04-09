@@ -40,7 +40,7 @@ conda env create -f environment.yaml
 
 There are two directions you can go from here. CLion or the command line.
 
-### CLion Build
+### Build: CLion
 
 5. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`. 
 > **Note** \
@@ -71,7 +71,7 @@ recommended to start at `-j2` and work your way up with further builds, ensuring
    
 8. `Build > Build Project`
 
-### Command Line Build
+### Build: Command line
 
 5. Activate the environment installed in step 4
 
