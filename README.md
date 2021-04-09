@@ -118,7 +118,7 @@ cd <build_directory>/tudatpy
 pytest
 ````
 
-Desired results:
+Desired result:
 ````
 =========================================== 6 passed in 1.78s ============================================
 ````
