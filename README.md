@@ -57,15 +57,15 @@ There are two directions you can go from here. CLion or the command line.
 -DBoost_NO_BOOST_CMAKE=ON
 ```
 
-7.1. [**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
- processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
-recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
-
 > **Note** \
 > The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
 > ````
 > conda activate tudat-bundle && echo $CONDA_PREFIX
 > ````
+
+[**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
+ processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
+recommended to start at `-j2` and work your way up with further builds, ensuring **no unsaved work** in the background.
 
 8. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
    
