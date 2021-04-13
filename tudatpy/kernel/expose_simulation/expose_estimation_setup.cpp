@@ -528,7 +528,7 @@ void expose_estimation_setup(py::module &m) {
                  py::arg("integrate_equations_concurrently") = true,
                  py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
                  py::arg("clear_numerical_solutions") = false,
-                 py::arg("integrate_on_creation") = false,
+                 py::arg("integrate_on_creation") = true,
                  py::arg("set_integrated_result") = false )
             .def("integrate_equations_of_motion_only",
                  &tp::SingleArcVariationalEquationsSolver<double, double>::integrateDynamicalEquationsOfMotionOnly,
