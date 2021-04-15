@@ -134,12 +134,11 @@ void expose_spice_interface(py::module &m) {
         tudatpy::load_standard_kernels_docstring().c_str());
 
   m.def("get_total_count_of_kernels_loaded",
-        &tudat::spice_interface::getTotalCountOfKernelsLoaded,
-        "Get the amount of loaded Spice kernels.");
+        &tudat::spice_interface::getTotalCountOfKernelsLoaded );
 
   m.def("load_kernel",
         &tudat::spice_interface::loadSpiceKernelInTudat,
-        "<no_doc>");
+        py::arg( "kernel_file" ) );
 
   m.def("clear_kernels",
         &tudat::spice_interface::clearSpiceKernels,
