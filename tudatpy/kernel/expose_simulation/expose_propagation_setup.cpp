@@ -335,7 +335,7 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("central_body") );
 
-    m.def("aerodynamic_temperature",
+    m.def("atmospheric_temperature",
           &tp::atmosphericTemperatureVariable,
           py::arg("body"),
           py::arg("central_body") );
