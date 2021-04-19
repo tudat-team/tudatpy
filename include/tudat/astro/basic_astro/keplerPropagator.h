@@ -159,6 +159,48 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
     return finalStateInKeplerianElements;
 }
 
+template< typename ScalarType = double, typename TimeType = double >
+std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > getKeplerOrbitKeplerianStateHistory(
+        const Eigen::Matrix< ScalarType, 6, 1 >& initialStateInKeplerianElements,
+        const TimeType initialTime,
+        const std::vector< TimeType >& outputTimes,
+        const ScalarType centralBodyGravitationalParameter,
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > aRootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
+{
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > keplerianStateHistory;
+    for( unsigned int i = 0; i < outputTimes.size( ); i++ )
+    {
+        keplerianStateHistory[ outputTimes.at( i ) ] = propagateKeplerOrbit(
+                    initialStateInKeplerianElements, outputTimes.at( i ) - initialTime,
+                    centralBodyGravitationalParameter, aRootFinder );
+    }
+    return keplerianStateHistory;
+}
+
+template< typename ScalarType = double, typename TimeType = double >
+std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > getKeplerOrbitCartesianStateHistory(
+        const Eigen::Matrix< ScalarType, 6, 1 >& initialStateInKeplerianElements,
+        const TimeType initialTime,
+        const std::vector< TimeType >& outputTimes,
+        const ScalarType centralBodyGravitationalParameter,
+        std::shared_ptr< root_finders::RootFinder< ScalarType > > aRootFinder =
+        std::shared_ptr< root_finders::RootFinder< ScalarType > >( ) )
+{
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > keplerianStateHistory =
+            getKeplerOrbitKeplerianStateHistory( initialStateInKeplerianElements, initialTime, outputTimes,
+                                                 centralBodyGravitationalParameter, aRootFinder );
+    std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > cartesianStateHistory;
+    for( auto kepler_iterator : keplerianStateHistory )
+    {
+        cartesianStateHistory[ kepler_iterator.first ] = orbital_element_conversions::convertKeplerianToCartesianElements(
+                    kepler_iterator.second, centralBodyGravitationalParameter );
+    }
+    return cartesianStateHistory;
+
+}
+
+
 } // namespace orbital_element_conversions
 
 } // namespace tudat
