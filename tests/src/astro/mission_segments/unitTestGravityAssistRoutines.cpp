@@ -107,13 +107,14 @@ BOOST_AUTO_TEST_CASE( testBendingAngleDeltaV )
     const Eigen::Vector3d outgoingVelocity( incomingVelocity( 0 ),
                                             2.0 * marsVelocity( 1 ) - incomingVelocity( 1 ),
                                             0.0 );
-
+    
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( marsGravitationalParameter,
-                                                           marsVelocity, incomingVelocity,
-                                                           outgoingVelocity,
-                                                           marsSmallestPeriapsisDistance );
-
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV(
+                marsGravitationalParameter,
+                marsVelocity, incomingVelocity,
+                outgoingVelocity,
+                marsSmallestPeriapsisDistance );
+    
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
     BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, velocityTolerance );
@@ -144,10 +145,11 @@ BOOST_AUTO_TEST_CASE( testBendingAngleAndVelocityEffectDeltaVPericenter )
     const Eigen::Vector3d outgoingVelocity( 34500.0, 0.0, 0.0 );
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
-                                                           venusVelocity,incomingVelocity,
-                                                           outgoingVelocity,
-                                                           venusSmallestPeriapsisDistance );
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV(
+                venusGravitationalParameter,
+                venusVelocity,incomingVelocity,
+                outgoingVelocity,
+                venusSmallestPeriapsisDistance );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
@@ -179,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testNoDeltaVRequired )
     const Eigen::Vector3d outgoingVelocity( 35000.0, 1000.0, 0.0 );
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance );
@@ -221,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaVEccentricity )
     const bool useEccentricity = true;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -260,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowIncomingVelocityEccentricity )
     const bool useEccentricity = true;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -299,7 +301,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowOutgoingVelocityEccentricity )
     const bool useEccentricity = true;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity, incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -338,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowVelocitiesEccentricity )
     const bool useEccentricity = true;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -381,7 +383,7 @@ BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaVPericenter )
     const bool useEccentricity = false;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -420,7 +422,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowIncomingVelocityPericenter )
     const bool useEccentricity = false;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -459,7 +461,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowOutgoingVelocityPericenter )
     const bool useEccentricity = false;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -498,7 +500,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowVelocitiesPericenter )
     const bool useEccentricity = false;
 
     // Perform the gravity assist.
-    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+    const double deltaV = mission_segments::calculateGravityAssistDeltaV( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
@@ -537,7 +539,7 @@ BOOST_AUTO_TEST_CASE( testUnpoweredGravityAssistPropagation )
     const double pericenterRadius = 1.80629232251 * 6378000.0;
 
     // Perform the gravity assist.
-    const Eigen::Vector3d outgoingVelocity = mission_segments::gravityAssist(
+    const Eigen::Vector3d outgoingVelocity = mission_segments::calculateUnpoweredGravityAssistOutgoingVelocity(
                                                     earthGravitationalParameter, earthVelocity,
                                                     incomingVelocity, rotationAngle,
                                                     pericenterRadius );
@@ -578,7 +580,7 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistPropagationForUnpoweredGravityAssi
     const double deltaV = 0.0;
 
     // Perform the gravity assist.
-    const Eigen::Vector3d outgoingVelocity = mission_segments::gravityAssist(
+    const Eigen::Vector3d outgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                                                     earthGravitationalParameter, earthVelocity,
                                                     incomingVelocity, rotationAngle,
                                                     pericenterRadius, deltaV );
@@ -620,7 +622,7 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistPropagationReverseEngineered )
     const double deltaV = 1090.64622870007;
 
     // Perform the gravity assist.
-    const Eigen::Vector3d outgoingVelocity = mission_segments::gravityAssist(
+    const Eigen::Vector3d outgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                                                     venusGravitationalParameter, venusVelocity,
                                                     incomingVelocity, rotationAngle,
                                                     pericenterRadius, deltaV );
