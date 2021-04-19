@@ -56,50 +56,222 @@ namespace mission_segments
 
 using namespace root_finders;
 
+double calculateUnpoweredGravityAssistMaximumBendingAngle(
+        const double smallestPeriapsisDistance,
+        const double absoluteIncomingExcessVelocity,
+        const double absoluteOutgoingExcessVelocity,
+        const double centralBodyGravitationalParameter )
+{
+    // Compute maximum achievable bending angle.
+    return std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
+                                      absoluteIncomingExcessVelocity *
+                                      absoluteIncomingExcessVelocity /
+                                      centralBodyGravitationalParameter ) ) ) +
+            std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
+                                       absoluteOutgoingExcessVelocity *
+                                       absoluteOutgoingExcessVelocity /
+                                       centralBodyGravitationalParameter ) ) );
+}
+
+double calculateUnpoweredGravityAssistPericenter(
+        const double absoluteIncomingSemiMajorAxis,
+        const double absoluteOutgoingSemiMajorAxis,
+        const double bendingAngle,
+        const double initialGuess,
+        const RootFinderPointer rootFinder )
+{
+
+    // Set the gravity assist function with the variables to perform root finder calculations.
+    PericenterFindingFunctions pericenterFindingFunctions( absoluteIncomingSemiMajorAxis,
+                                                           absoluteOutgoingSemiMajorAxis,
+                                                           bendingAngle);
+
+    // Create an object containing the function of which we whish to obtain the root from.
+    basic_mathematics::UnivariateProxyPointer rootFunction = std::make_shared<
+            basic_mathematics::UnivariateProxy >(
+                std::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
+                           pericenterFindingFunctions, std::placeholders::_1 ) );
+
+    // Add the first derivative of the root function.
+    rootFunction->addBinding( -1, std::bind( &PericenterFindingFunctions::
+                                             computeFirstDerivativePericenterRadiusFunction,
+                                             pericenterFindingFunctions, std::placeholders::_1 ) );
+
+    // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
+    return rootFinder->execute( rootFunction, initialGuess );
+}
+
+double calculateGravityAssistDeltaVThroughPericenter(
+        const double centralBodyGravitationalParameter,
+        const double absoluteIncomingExcessVelocity,
+        const double absoluteOutgoingExcessVelocity,
+        const double bendingAngle,
+        const double initialGuess,
+        const RootFinderPointer rootFinder )
+{
+    // Compute semi-major axis of hyperbolic legs. This is the absolute semi-major axis, because
+    // it will otherwisely result in the root of a negative function for various cases during
+    // the rootfinding process.
+    const double absoluteIncomingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
+            absoluteIncomingExcessVelocity /
+            absoluteIncomingExcessVelocity;
+    const double absoluteOutgoingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
+            absoluteOutgoingExcessVelocity /
+            absoluteOutgoingExcessVelocity;
+
+    // Calculate pericenter radius
+    const double pericenterRadius = calculateUnpoweredGravityAssistPericenter(
+                absoluteIncomingSemiMajorAxis,
+                absoluteOutgoingSemiMajorAxis,
+                bendingAngle,
+                initialGuess,
+                rootFinder );
+
+    // Compute incoming hyperbolic leg eccentricity.
+    const double incomingEccentricity = 1.0 + pericenterRadius / absoluteIncomingSemiMajorAxis;
+
+    // Compute outgoing hyperbolic leg eccentricity.
+    const double outgoingEccentricity = 1.0 + pericenterRadius / absoluteOutgoingSemiMajorAxis;
+
+    // Compute incoming and outgoing velocities at periapsis.
+    const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
+            std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+    const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
+            std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
+
+    // Compute necessary delta-V due to velocity-effect.
+    return std::fabs( incomingVelocityAtPeriapsis -
+                      outgoingVelocityAtPeriapsis );
+}
+
+double calculateGravityAssistDeltaVThroughEccentricity(
+        const double centralBodyGravitationalParameter,
+        const double absoluteIncomingExcessVelocity,
+        const double absoluteOutgoingExcessVelocity,
+        const double bendingAngle,
+        const RootFinderPointer rootFinder )
+{
+    // Compute semi-major axis of hyperbolic legs.
+    const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+            absoluteIncomingExcessVelocity /
+            absoluteIncomingExcessVelocity;
+    const double outgoingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+            absoluteOutgoingExcessVelocity /
+            absoluteOutgoingExcessVelocity;
+
+    // Set the gravity assist function with the variables to perform root finder calculations.
+    EccentricityFindingFunctions eccentricityFindingFunctions( incomingSemiMajorAxis,
+                                                               outgoingSemiMajorAxis,
+                                                               bendingAngle );
+
+    // Create an object containing the function of which we whish to obtain the root from.
+    basic_mathematics::UnivariateProxyPointer rootFunction = std::make_shared<
+            basic_mathematics::UnivariateProxy >(
+                std::bind( &EccentricityFindingFunctions::
+                           computeIncomingEccentricityFunction,
+                           eccentricityFindingFunctions, std::placeholders::_1 ) );
+
+    // Add the first derivative of the root function.
+    rootFunction->addBinding( -1, std::bind(
+                                  &EccentricityFindingFunctions::
+                                  computeFirstDerivativeIncomingEccentricityFunction,
+                                  eccentricityFindingFunctions, std::placeholders::_1 ) );
+
+    // Initialize incoming eccentricity.
+    double incomingEccentricity = TUDAT_NAN;
+
+    // Set initial guess of the variable computed in Newton-Rapshon method.
+    if ( ( absoluteOutgoingExcessVelocity / absoluteIncomingExcessVelocity ) < 100.0 )
+    {
+        // In these cases the very low estimate (which is given under else) may in some cases
+        // result in no convergence. Hence a higher value of 1.01 is necessary. This will not
+        // result in 'going through' 1.0 as mentioned below, because the eccentricity in these
+        // cases is always high!
+        try
+        {
+            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
+        }
+        catch(std::runtime_error)
+        {
+            root_finders::RootFinderPointer rootFinder_temp
+                    = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
+            incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-2 );
+
+        }
+    }
+
+    else
+    {
+        // This is set to a value that is close to 1.0. This is more robust than higher values,
+        // because for those higher values Newton Raphson sometimes 'goes through' 1.0. This
+        // results in NaN values for the derivative of the eccentricity finding function.
+        try
+        {
+            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
+        }
+        catch(std::runtime_error)
+        {
+            root_finders::RootFinderPointer rootFinder_temp
+                    = std::make_shared< root_finders::Bisection< > >( 1.0e-12, 1000 ) ;
+            incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-10 );
+
+        }
+    }
+
+    // Compute outgoing hyperbolic leg eccentricity.
+    const double outgoingEccentricity = 1.0 - ( incomingSemiMajorAxis /
+                                                outgoingSemiMajorAxis ) *
+            ( 1.0 - incomingEccentricity );
+
+    // Compute incoming and outgoing velocities at periapsis.
+    const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
+            std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+    const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
+            std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
+
+    // Compute necessary delta-V due to velocity-effect.
+    return std::fabs( incomingVelocityAtPeriapsis -
+                      outgoingVelocityAtPeriapsis );
+}
 //! Calculate deltaV of a gravity assist.
-double gravityAssist( const double centralBodyGravitationalParameter,
-                      const Eigen::Vector3d& centralBodyVelocity,
-                      const Eigen::Vector3d& incomingVelocity,
-                      const Eigen::Vector3d& outgoingVelocity,
-                      const double smallestPeriapsisDistance,
-                      const bool useEccentricityInsteadOfPericenter,
-                      const double speedTolerance,
-                      RootFinderPointer rootFinder )
+double calculateGravityAssistDeltaV( const double centralBodyGravitationalParameter,
+                                     const Eigen::Vector3d& centralBodyVelocity,
+                                     const Eigen::Vector3d& incomingVelocity,
+                                     const Eigen::Vector3d& outgoingVelocity,
+                                     const double smallestPeriapsisDistance,
+                                     const bool useEccentricityInsteadOfPericenter,
+                                     const double speedTolerance,
+                                     RootFinderPointer rootFinder )
 {
     using basic_mathematics::UnivariateProxyPointer;
     using basic_mathematics::UnivariateProxy;
-
+    
     // Compute incoming and outgoing hyperbolic excess velocity.
     const Eigen::Vector3d incomingHyperbolicExcessVelocity
             = incomingVelocity - centralBodyVelocity;
     const Eigen::Vector3d outgoingHyperbolicExcessVelocity
             = outgoingVelocity - centralBodyVelocity;
-
+    
     // Compute absolute values of the hyperbolic excess velocities.
     const double absoluteIncomingExcessVelocity = incomingHyperbolicExcessVelocity.norm( );
     const double absoluteOutgoingExcessVelocity = outgoingHyperbolicExcessVelocity.norm( );
-
+    
     // Compute bending angle.
     double bendingAngle = linear_algebra::computeAngleBetweenVectors(
-                            incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
-
+                incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
+    
     // Compute maximum achievable bending angle.
     const double maximumBendingAngle =
-            std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
-                                       absoluteIncomingExcessVelocity *
-                                       absoluteIncomingExcessVelocity /
-                                       centralBodyGravitationalParameter ) ) ) +
-            std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
-                                       absoluteOutgoingExcessVelocity *
-                                       absoluteOutgoingExcessVelocity /
-                                       centralBodyGravitationalParameter ) ) );
-
+            calculateUnpoweredGravityAssistMaximumBendingAngle(
+                smallestPeriapsisDistance, absoluteIncomingExcessVelocity,
+                absoluteOutgoingExcessVelocity, centralBodyGravitationalParameter );
+    
     // Initialize bending effect deltaV, which is zero, unless extra bending angle is required.
     double bendingEffectDeltaV = 0.0;
-
+    
     // Initialize velocity effect delta V parameter.
     double velocityEffectDeltaV = 0.0;
-
+    
     // Check if an additional bending angle is required. If so, the additional bending angle
     // maneuver has to be performed. Also the pericenter radius will be the minimum pericenter
     // radius to obtain the largest possible bending angle 'for free'. Hence no root finding is
@@ -109,52 +281,51 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     {
         // Compute required extra bending angle that cannot be delivered by an unpowered swing-by.
         const double extraBendingAngle = bendingAngle - maximumBendingAngle;
-
+        
         // Compute necessary delta-V due to bending-effect.
         bendingEffectDeltaV = 2.0 * std::min( absoluteIncomingExcessVelocity,
                                               absoluteOutgoingExcessVelocity ) *
-                                    std::sin( extraBendingAngle / 2.0 );
-
+                std::sin( extraBendingAngle / 2.0 );
+        
         // This means the pericenter radius is now equal to the smallest pericenter radius, to
         // ensure the largest possible bending angle.
         const double pericenterRadius = smallestPeriapsisDistance;
-
+        
         // Compute semi-major axis of hyperbolic legs.
-        const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
-                                             absoluteIncomingExcessVelocity /
-                                             absoluteIncomingExcessVelocity;
-        const double outgoingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
-                                             absoluteOutgoingExcessVelocity /
-                                             absoluteOutgoingExcessVelocity;
-
+        const double incomingSemiMajorAxis = -centralBodyGravitationalParameter /
+                ( absoluteIncomingExcessVelocity * absoluteIncomingExcessVelocity );
+        const double outgoingSemiMajorAxis = -centralBodyGravitationalParameter /
+                ( absoluteOutgoingExcessVelocity * absoluteOutgoingExcessVelocity );
+        
         // Compute incoming hyperbolic leg eccentricity.
-        const double incomingEccentricity = 1 - pericenterRadius / incomingSemiMajorAxis;
-
+        const double incomingEccentricity = 1.0 - pericenterRadius / incomingSemiMajorAxis;
+        
         // Compute outgoing hyperbolic leg eccentricity.
-        const double outgoingEccentricity = 1 - pericenterRadius / outgoingSemiMajorAxis;
-
+        const double outgoingEccentricity = 1.0 - pericenterRadius / outgoingSemiMajorAxis;
+        
         // Compute incoming and outgoing velocities at periapsis.
         const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
                 std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
         const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
                 std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
-
+        
         // Compute necessary delta-V due to velocity-effect.
         velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
                                           outgoingVelocityAtPeriapsis );
     }
-
+    
     else if ( ( std::fabs( absoluteIncomingExcessVelocity - absoluteOutgoingExcessVelocity )
                 <= speedTolerance ) )
     {
         // In this case no maneuver has to be performed. Hence no iteration is performed, and the
         // delta V is simply kept at 0.0.
     }
-
+    
     // Here the required maneuver to patch the incoming and outgoing excess velocities is
     // calculated. In this implementation, the eccentricity will be used as iteration parameter.
     else if ( useEccentricityInsteadOfPericenter )
     {
+//<<<<<<< HEAD
         // Compute semi-major axis of hyperbolic legs.
         const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
                                              absoluteIncomingExcessVelocity /
@@ -235,72 +406,36 @@ double gravityAssist( const double centralBodyGravitationalParameter,
         const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
                 std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
 
+//=======
+//>>>>>>> feature/mga_dsm_refactor
         // Compute necessary delta-V due to velocity-effect.
-        velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
-                                          outgoingVelocityAtPeriapsis );
+        velocityEffectDeltaV = calculateGravityAssistDeltaVThroughEccentricity(
+                    centralBodyGravitationalParameter, absoluteIncomingExcessVelocity, absoluteOutgoingExcessVelocity,
+                    bendingAngle, rootFinder );
     }
-
+    
     // Here the required maneuver to patch the incoming and outgoing excess velocities is
     // calculated. In this implementation, the pericenter radius will be used as iteration
     // parameter.
     else
     {
-        // Compute semi-major axis of hyperbolic legs. This is the absolute semi-major axis, because
-        // it will otherwisely result in the root of a negative function for various cases during
-        // the rootfinding process.
-        const double absoluteIncomingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
-                                                     absoluteIncomingExcessVelocity /
-                                                     absoluteIncomingExcessVelocity;
-        const double absoluteOutgoingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
-                                                     absoluteOutgoingExcessVelocity /
-                                                     absoluteOutgoingExcessVelocity;
-
-        // Set the gravity assist function with the variables to perform root finder calculations.
-        PericenterFindingFunctions pericenterFindingFunctions( absoluteIncomingSemiMajorAxis,
-                                                               absoluteOutgoingSemiMajorAxis,
-                                                               bendingAngle);
-
-        // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
-                    std::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
-                                 pericenterFindingFunctions, std::placeholders::_1 ) );
-
-        // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, std::bind( &PericenterFindingFunctions::
-                                                   computeFirstDerivativePericenterRadiusFunction,
-                                                   pericenterFindingFunctions, std::placeholders::_1 ) );
-
-        // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
-        const double pericenterRadius = rootFinder->execute( rootFunction,
-                                                             smallestPeriapsisDistance );
-
-        // Compute incoming hyperbolic leg eccentricity.
-        const double incomingEccentricity = 1.0 + pericenterRadius / absoluteIncomingSemiMajorAxis;
-
-        // Compute outgoing hyperbolic leg eccentricity.
-        const double outgoingEccentricity = 1.0 + pericenterRadius / absoluteOutgoingSemiMajorAxis;
-
-        // Compute incoming and outgoing velocities at periapsis.
-        const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
-                std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
-        const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
-                std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
-
         // Compute necessary delta-V due to velocity-effect.
-        velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
-                                          outgoingVelocityAtPeriapsis );
+        velocityEffectDeltaV = calculateGravityAssistDeltaVThroughPericenter(
+                    centralBodyGravitationalParameter, absoluteIncomingExcessVelocity, absoluteOutgoingExcessVelocity,
+                    bendingAngle, smallestPeriapsisDistance, rootFinder );
     }
-
+    
     // Compute and return the total delta-V.
     return bendingEffectDeltaV + velocityEffectDeltaV;
 }
 
 //! Propagate an unpowered gravity assist.
-Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
-                               const Eigen::Vector3d& centralBodyVelocity,
-                               const Eigen::Vector3d& incomingVelocity,
-                               const double rotationAngle,
-                               const double pericenterRadius )
+Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& incomingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius )
 {
     // Calculate the incoming velocity.
     const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
@@ -308,75 +443,78 @@ Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
 
     // Calculate the eccentricity and bending angle.
     const double eccentricity = 1.0 + pericenterRadius / centralBodyGravitationalParameter *
-                            absoluteRelativeIncomingVelocity * absoluteRelativeIncomingVelocity;
+            absoluteRelativeIncomingVelocity * absoluteRelativeIncomingVelocity;
     const double bendingAngle = 2.0 * std::asin ( 1.0 / eccentricity );
-
+    
     // Calculate the unit vectors.
     const Eigen::Vector3d unitVector1 = relativeIncomingVelocity /
-                                        absoluteRelativeIncomingVelocity;
+            absoluteRelativeIncomingVelocity;
     const Eigen::Vector3d unitVector2 = unitVector1.cross( centralBodyVelocity ).normalized( );
     const Eigen::Vector3d unitVector3 = unitVector1.cross( unitVector2 );
-
+    
     // Calculate the relative outgoing velocity.
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeIncomingVelocity *
             ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
               std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
               std::sin( rotationAngle ) * unitVector3 );
-
+    
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
 }
 
 //! Propagate a powered gravity assist.
-Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
-                               const Eigen::Vector3d& centralBodyVelocity,
-                               const Eigen::Vector3d& incomingVelocity,
-                               const double rotationAngle,
-                               const double pericenterRadius,
-                               const double deltaV )
+Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& incomingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius,
+        const double deltaV )
 {
     // Calculate the incoming velocity.
     const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
     const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
-
+    
     // Calculate the incoming eccentricity and bending angle.
     const double incomingEccentricity = 1.0 + pericenterRadius /
-                                        centralBodyGravitationalParameter *
-                                        absoluteRelativeIncomingVelocity *
-                                        absoluteRelativeIncomingVelocity;
+            centralBodyGravitationalParameter *
+            absoluteRelativeIncomingVelocity *
+            absoluteRelativeIncomingVelocity;
     const double incomingBendingAngle = std::asin ( 1.0 / incomingEccentricity );
-
+    
     // Calculate the pericenter velocities.
     const double incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
                                                          absoluteRelativeIncomingVelocity *
                                                          ( incomingEccentricity + 1.0 ) /
                                                          ( incomingEccentricity - 1.0 ) );
     const double outgoingPericenterVelocity = incomingPericenterVelocity + deltaV;
-
+    
     // Calculate magnitude of the absolute relative outgoing velocity.
     const double absoluteRelativeOutgoingVelocity =
             std::sqrt( outgoingPericenterVelocity * outgoingPericenterVelocity -
                        2.0 * centralBodyGravitationalParameter / pericenterRadius );
-
+    
     // Calculate the remaining bending angles.
     const double outgoingBendingAngle =
             std::asin ( 1.0 / ( 1.0 + absoluteRelativeOutgoingVelocity *
                                 absoluteRelativeOutgoingVelocity * pericenterRadius /
                                 centralBodyGravitationalParameter ) );
     const double bendingAngle = incomingBendingAngle + outgoingBendingAngle;
-
+    
     // Calculate the unit vectors.
     const Eigen::Vector3d unitVector1 = relativeIncomingVelocity /
-                                        absoluteRelativeIncomingVelocity;
+            absoluteRelativeIncomingVelocity;
     const Eigen::Vector3d unitVector2 = unitVector1.cross( centralBodyVelocity ).normalized( );
     const Eigen::Vector3d unitVector3 = unitVector1.cross( unitVector2 );
-
+    
     // Calculate the relative outgoing velocity.
     const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeOutgoingVelocity *
-            ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
-              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
+            ( std::cos( bendingAngle ) * unitVector1 +
+              std::sin( bendingAngle ) *
+              std::cos( rotationAngle ) * unitVector2 +
+              std::sin( bendingAngle ) *
               std::sin( rotationAngle ) * unitVector3 );
-
+    
     // Add the relative outgoing velocity to the swing-by body velocity and return it.
     return centralBodyVelocity + relativeOutgoingVelocity;
 }
@@ -386,8 +524,8 @@ double PericenterFindingFunctions::computePericenterRadiusFunction( const double
 {
     return std::asin( absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ +
                                                          pericenterRadius ) ) +
-           std::asin( absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ +
-                                                         pericenterRadius ) ) - bendingAngle_;
+            std::asin( absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ +
+                                                          pericenterRadius ) ) - bendingAngle_;
 }
 
 //! Compute first-derivative of the pericenter radius function.
@@ -397,7 +535,7 @@ double PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunctio
     return -absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ + pericenterRadius )
             / std::sqrt( ( pericenterRadius + 2.0 * absoluteIncomingSemiMajorAxis_ )
                          * pericenterRadius ) -
-           absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ + pericenterRadius )
+            absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ + pericenterRadius )
             / std::sqrt( ( pericenterRadius + 2.0 * absoluteOutgoingSemiMajorAxis_ ) *
                          pericenterRadius );
 }
@@ -418,7 +556,7 @@ double EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityF
     const double eccentricitySquareMinusOne_ = incomingEccentricity * incomingEccentricity - 1.0;
     const double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
     const double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity );
-
+    
     return -1.0 / ( incomingEccentricity * std::sqrt( eccentricitySquareMinusOne_ ) ) -
             semiMajorAxisRatio_ / ( bParameter_ * std::sqrt( bParameter_ * bParameter_ - 1.0 ) );
 }
