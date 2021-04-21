@@ -15,6 +15,7 @@
 
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/simulation/environment_setup/createBodies.h"
@@ -247,6 +248,43 @@ SystemOfBodies createSystemOfBodies(
 
     return bodyList;
 
+}
+
+
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
+{
+    using namespace ephemerides;
+    using namespace gravitation;
+
+
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Sun" );
+    bodies.createEmptyBody( "Mercury" );
+    bodies.createEmptyBody( "Venus" );
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Jupiter" );
+    bodies.createEmptyBody( "Saturn" );
+
+    bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
+    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
+                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ) );
+    bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
+                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ) );
+    bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
+                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
+    bodies.getBody( "Jupiter" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
+                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ) );
+    bodies.getBody( "Saturn" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
+                                           ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ) );
+
+    bodies.getBody( "Sun" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.32712428e20 ) );
+    bodies.getBody( "Mercury" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 2.2321e13 ) );
+    bodies.getBody( "Venus" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.24860e14 ) );
+    bodies.getBody( "Earth" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.9860119e14 ) );
+    bodies.getBody( "Jupiter" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.267e17 ) );
+    bodies.getBody( "Saturn" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.79e16 ) );
+
+    return bodies;
 }
 
 } // namespace simulation_setup

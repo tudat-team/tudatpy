@@ -35,7 +35,7 @@ std::shared_ptr< TransferNodeSettings > swingbyNode(
     return std::make_shared< SwingbyNodeSettings >( minimumPeriapsisDistance );
 }
 
-std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionNode(
+std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
         const double captureSemiMajorAxis,
         const double captureEccentricity )
 {

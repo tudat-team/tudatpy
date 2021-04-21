@@ -40,6 +40,7 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
 
 namespace tudat
 {
@@ -50,42 +51,6 @@ namespace unit_tests
 using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
 using namespace mission_segments;
-
-simulation_setup::SystemOfBodies getApproximatePlanetBodyMap( )
-{
-    using namespace ephemerides;
-    using namespace gravitation;
-
-
-    SystemOfBodies bodies;
-    bodies.createEmptyBody( "Sun" );
-    bodies.createEmptyBody( "Mercury" );
-    bodies.createEmptyBody( "Venus" );
-    bodies.createEmptyBody( "Earth" );
-    bodies.createEmptyBody( "Jupiter" );
-    bodies.createEmptyBody( "Saturn" );
-
-    bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
-    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ) );
-    bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ) );
-    bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
-    bodies.getBody( "Jupiter" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ) );
-    bodies.getBody( "Saturn" )->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                           ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ) );
-
-    bodies.getBody( "Sun" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.32712428e20 ) );
-    bodies.getBody( "Mercury" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 2.2321e13 ) );
-    bodies.getBody( "Venus" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.24860e14 ) );
-    bodies.getBody( "Earth" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.9860119e14 ) );
-    bodies.getBody( "Jupiter" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.267e17 ) );
-    bodies.getBody( "Saturn" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.79e16 ) );
-
-    return bodies;
-}
 
 
 //! Test implementation of trajectory class
@@ -102,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     const double expectedDeltaV = 4930.72686847243;
 
     // Create environment
-    simulation_setup::SystemOfBodies bodies = getApproximatePlanetBodyMap( );
+    simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
 
     // Set transfer order
     std::vector< std::string > bodyOrder = {
@@ -176,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     const double expectedDeltaV = 8630.83256199051;
 
     // Create environment
-    simulation_setup::SystemOfBodies bodies = getApproximatePlanetBodyMap( );
+    simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
 
     // Set transfer order
     std::vector< std::string > bodyOrder = {
@@ -245,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     const double expectedDeltaV = 8385.15784516116;
 
     // Create environment
-    simulation_setup::SystemOfBodies bodies = getApproximatePlanetBodyMap( );
+    simulation_setup::SystemOfBodies bodies = createSimplifiedSystemOfBodies( );
 
     // Set transfer order
     std::vector< std::string > bodyOrder = { "Earth", "Venus", "Venus",  "Earth", "Jupiter", "Saturn" };
