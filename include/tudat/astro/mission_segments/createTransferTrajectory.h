@@ -126,7 +126,7 @@ std::shared_ptr< TransferNodeSettings > escapeAndDepartureNode(
 std::shared_ptr< TransferNodeSettings > swingbyNode(
         const double minimumPeriapsisDistance = TUDAT_NAN );
 
-std::shared_ptr< CaptureAndInsertionNodeSettings > captureAndInsertionNode(
+std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
         const double captureSemiMajorAxis,
         const double captureEccentricity );
 
@@ -212,7 +212,6 @@ void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
         const std::pair< double, double > departureOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
-
 
 std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const simulation_setup::SystemOfBodies& bodyMap,
