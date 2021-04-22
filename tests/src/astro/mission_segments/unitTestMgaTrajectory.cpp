@@ -122,6 +122,8 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
@@ -191,12 +193,12 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
     BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
-
 }
 
 //! Test delta-V computation for another MGA-1DSM Velocity Formulation trajectory model.
@@ -266,6 +268,8 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
                 bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );

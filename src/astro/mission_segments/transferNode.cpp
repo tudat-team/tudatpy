@@ -55,7 +55,7 @@ DepartureWithFixedOutgoingVelocityNode::DepartureWithFixedOutgoingVelocityNode(
     departureEccentricity_( departureEccentricity ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
 {
-    updateNodeParameters( nodeParameters );
+//    updateNodeParameters( nodeParameters );
 }
 
 Eigen::Vector3d DepartureWithFixedOutgoingVelocityNode::getIncomingVelocity( )
@@ -101,7 +101,7 @@ DepartureWithFreeOutgoingVelocityNode::DepartureWithFreeOutgoingVelocityNode(
     departureSemiMajorAxis_( departureSemiMajorAxis ),
     departureEccentricity_( departureEccentricity )
 {
-    updateNodeParameters( nodeParameters );
+//    updateNodeParameters( nodeParameters );
 }
 
 Eigen::Vector3d DepartureWithFreeOutgoingVelocityNode::getIncomingVelocity( )
@@ -121,6 +121,11 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
         throw std::runtime_error( "Error when computing DepartureWithFreeOutgoingVelocityNode, incorrect input size" );
     }
 
+    nodeTime_ = nodeParameters_( 0 );
+    excessVelocityMagnitude_ = nodeParameters_( 1 );
+    excessVelocityInPlaneAngle_ = nodeParameters_( 2 );
+    excessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
+
     centralBodyPosition_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 0, 3 );
     centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
 
@@ -129,10 +134,6 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
     const Eigen::Vector3d unitVector3 = ( centralBodyPosition_.cross( centralBodyVelocity_ ) ).normalized( );
     const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
 
-    nodeTime_ = nodeParameters_( 0 );
-    excessVelocityMagnitude_ = nodeParameters_( 1 );
-    excessVelocityInPlaneAngle_ = nodeParameters_( 2 );
-    excessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
 
     // Calculate the velocity after departure as described in [Vinko and Izzo, 2008].
     outgoingVelocity_ = centralBodyVelocity_ +
@@ -162,7 +163,7 @@ CaptureAndInsertionNode::CaptureAndInsertionNode(
     captureEccentricity_( captureEccentricity ),
     incomingVelocityFunction_( incomingVelocityFunction )
 {
-    updateNodeParameters( nodeParameters );
+//    updateNodeParameters( nodeParameters );
 }
 
 Eigen::Vector3d CaptureAndInsertionNode::getOutgoingVelocity( )
@@ -207,7 +208,7 @@ SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
     incomingVelocityFunction_( incomingVelocityFunction ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
 {
-    updateNodeParameters( nodeParameters );
+//    updateNodeParameters( nodeParameters );
 }
 
 bool SwingbyWithFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
@@ -247,7 +248,7 @@ SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     incomingVelocityFunction_( incomingVelocityFunction )
 {
-    updateNodeParameters( nodeParameters );
+//    updateNodeParameters( nodeParameters );
 }
 
 bool SwingbyWithFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )

@@ -49,7 +49,7 @@ void TransferLeg::updateDepartureAndArrivalBodies(
     departureTime_ = departureTime;
     arrivalTime_ = arrivalTime;
     departureBodyState_ = departureBodyEphemeris_->getCartesianState( departureTime_ );
-    arrivalBodyState_ = arrivalBodyEphemeris_->getCartesianState( arrivalTime );
+    arrivalBodyState_ = arrivalBodyEphemeris_->getCartesianState( arrivalTime_ );
 }
 
 
@@ -62,7 +62,7 @@ UnpoweredUnperturbedTransferLeg::UnpoweredUnperturbedTransferLeg(
     TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, unpowered_unperturbed_leg, legParameters ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
 {
-    computeTransfer( );
+//    computeTransfer( );
     legTotalDeltaV_ = 0.0;
 }
 
@@ -139,7 +139,7 @@ DsmPositionBasedTransferLeg::DsmPositionBasedTransferLeg(
         const double centralBodyGravitationalParameter ):
     DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, legParameters, centralBodyGravitationalParameter )
 {
-    computeTransfer( );
+//    computeTransfer( );
 }
 
 
@@ -242,7 +242,7 @@ DsmVelocityBasedTransferLeg::DsmVelocityBasedTransferLeg(
     DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, legParameters, centralBodyGravitationalParameter ),
     departureVelocityFunction_( departureVelocityFunction )
 {
-    computeTransfer( );
+//    computeTransfer( );
 }
 
 void DsmVelocityBasedTransferLeg::computeTransfer( )
