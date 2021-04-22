@@ -488,6 +488,7 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                             nodeTimes.at( i ), nodeTimes.at( i + 1 ),
                             legFreeParameters.at( i ) ) );
 
+
             nodes.push_back(
                         createTransferNode(
                             bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),

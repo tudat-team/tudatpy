@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
                     bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
-        
+
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
