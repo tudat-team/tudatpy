@@ -67,6 +67,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_conversion.cpp
         kernel/expose_astro/expose_ephemerides.cpp
         kernel/expose_astro/expose_aerodynamics.cpp
+        kernel/expose_astro/expose_trajectory_design.cpp
         kernel/expose_astro/expose_propagators.cpp
         kernel/expose_astro/expose_reference_frames.cpp
         kernel/expose_astro/expose_shape.cpp
@@ -95,6 +96,7 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/simulation
         kernel/expose_simulation.cpp
+        kernel/expose_simulation/expose_astro_setup.cpp
         kernel/expose_simulation/expose_environment_setup.cpp
         kernel/expose_simulation/expose_propagation_setup.cpp
         kernel/expose_simulation/expose_estimation_setup.cpp
