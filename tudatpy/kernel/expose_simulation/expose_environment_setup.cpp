@@ -896,13 +896,9 @@ void expose_environment_setup(py::module &m) {
             .def("get_state", &tss::Body::getState)
             .def("set_state", &tss::Body::setState)
             .def("get_state_in_based_frame_from_ephemeris", &tss::Body::getStateInBaseFrameFromEphemeris<double,double>)
-            .def("get_ephemeris", &tss::Body::getEphemeris)
-            .def("set_ephemeris", &tss::Body::setEphemeris)
-            .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
-            .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
+            .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris)
+            .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel)
             .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
-            .def("get_shape_model", &tss::Body::getShapeModel)
-            .def("set_shape_model", &tss::Body::setShapeModel)
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel)
             .def("set_gravity_field_model", &tss::Body::setGravityFieldModel)
             .def("get_gravitational_parameter", &tss::Body::getGravitationalParameter)
@@ -1052,6 +1048,8 @@ void expose_environment_setup(py::module &m) {
     m.def("get_global_frame_origin", &tss::getGlobalFrameOrigin);
 
     m.def("create_system_of_bodies", &tss::createSystemOfBodies);
+
+    m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies);
 
     m.def("add_empty_tabulate_ephemeris", &tss::addEmptyTabulateEphemeris,
           py::arg("bodies"),

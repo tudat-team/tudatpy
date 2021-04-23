@@ -1,0 +1,86 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rights reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#include "tudat/astro/mission_segments/createTransferTrajectory.h"
+
+#include <pybind11/eigen.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+namespace py = pybind11;
+namespace tms = tudat::mission_segments;
+
+namespace tudatpy {
+
+void expose_trajectory_design(py::module &m) {
+
+    py::class_<
+            tms::TransferNodeSettings,
+            std::shared_ptr<tms::TransferNodeSettings> >(m, "TransferNodeSettings");
+
+    py::class_<
+            tms::SwingbyNodeSettings,
+            std::shared_ptr<tms::SwingbyNodeSettings>,
+            tms::TransferNodeSettings >(m, "SwingbyNodeSettings");
+
+    py::class_<
+            tms::EscapeAndDepartureNodeSettings,
+            std::shared_ptr<tms::EscapeAndDepartureNodeSettings>,
+            tms::TransferNodeSettings >(m, "EscapeAndDepartureNodeSettings");
+
+    py::class_<
+            tms::CaptureAndInsertionNodeSettings,
+            std::shared_ptr<tms::CaptureAndInsertionNodeSettings>,
+            tms::TransferNodeSettings >(m, "CaptureAndInsertionNodeSettings");
+
+    py::class_<
+            tms::TransferLegSettings,
+            std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings");
+
+    py::class_<
+            tms::TransferTrajectory,
+            std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory")
+            .def_property_readonly("delta_v", &tms::TransferTrajectory::getTotalDeltaV )
+            .def("evaluate", &tms::TransferTrajectory::evaluateTrajectory,
+                                   py::arg( "times" ),
+                                   py::arg( "leg_parameters" ),
+                                   py::arg( "node_parameters" ) );
+
+    m.def("unpowered_leg",
+          &tms::unpoweredLeg );
+
+    m.def("dsm_position_based_leg",
+          &tms::dsmPositionBasedLeg );
+
+    m.def("dsm_velocity_based_leg",
+          &tms::dsmVelocityBasedLeg );
+
+    m.def("swingby_node",
+          &tms::swingbyNode,
+          py::arg( "minimum_periapsis" ) = TUDAT_NAN);
+
+    m.def("departure_node",
+          &tms::escapeAndDepartureNode,
+          py::arg( "departure_semi_major_axis" ),
+          py::arg( "departure_eccentricity" ) );
+
+    m.def("capture_node",
+          &tms::captureAndInsertionNode,
+          py::arg( "capture_semi_major_axis" ),
+          py::arg( "capture_eccentricity" ) );
+
+
+    m.def("print_parameter_definitions",
+          &tms::printTransferParameterDefinition,
+          py::arg( "leg_settings" ),
+          py::arg( "node_settings" ) );
+};
+
+}// namespace tudatpy
