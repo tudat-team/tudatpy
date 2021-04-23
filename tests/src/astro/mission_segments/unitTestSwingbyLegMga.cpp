@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     using namespace mission_segments;
     UnpoweredUnperturbedTransferLeg transferLeg(
                 constantEphemeris1, constantEphemeris2,
-                ( Eigen::VectorXd( 2 )<<0.0, timeOfFlight ).finished( ),
                 sunGravitationalParameter );
+    transferLeg.updateLegParameters( ( Eigen::VectorXd( 2 )<<0.0, timeOfFlight ).finished( ) );
 
     // Set velocity before and after swingby body
     Eigen::Vector3d velocityBeforePlanet1 (
@@ -96,10 +96,11 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double minimumRadiusPlanet1 = 6351800;
 
     SwingbyWithFixedOutgoingVelocity transferNode(
-                constantEphemeris1, ( Eigen::VectorXd( 1 ) << 0.0 ).finished( ),
+                constantEphemeris1,
                 planet1GravitationalParameter, minimumRadiusPlanet1,
                 [=]( ){ return velocityBeforePlanet1; },
                 [=]( ){ return velocityAfterPlanet1; } );
+    transferNode.updateNodeParameters( ( Eigen::VectorXd( 1 ) << 0.0 ).finished( ) );
 
     BOOST_CHECK_CLOSE_FRACTION( transferLeg.getLegDeltaV( ), 0.0, tolerance );
     BOOST_CHECK_CLOSE_FRACTION( transferNode.getNodeDeltaV( ), expectedDeltaV, tolerance );

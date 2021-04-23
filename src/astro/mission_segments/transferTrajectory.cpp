@@ -49,23 +49,38 @@ void TransferTrajectory::evaluateTrajectory(
                 nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
+    isComputed_ = true;
 }
 
 double TransferTrajectory::getTotalDeltaV( )
 {
-    return totalDeltaV_;
+    if( isComputed_ )
+    {
+        return totalDeltaV_;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting Delta V for transfer trajectory; transfer parameters not set!" );
+    }
 }
 
 void TransferTrajectory::getStateAlongTrajectoryPerLeg(
         std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
         const int numberOfDataPointsPerLeg )
 {
-    statesAlongTrajectoryPerLeg.clear( );
-    statesAlongTrajectoryPerLeg.resize( legs_.size( ) );
-
-    for( unsigned int i = 0; i < legs_.size( ); i++ )
+    if( isComputed_ )
     {
-        legs_.at( i )->getStateAlongTrajectory( statesAlongTrajectoryPerLeg[ i ], numberOfDataPointsPerLeg );
+        statesAlongTrajectoryPerLeg.clear( );
+        statesAlongTrajectoryPerLeg.resize( legs_.size( ) );
+
+        for( unsigned int i = 0; i < legs_.size( ); i++ )
+        {
+            legs_.at( i )->getStateAlongTrajectory( statesAlongTrajectoryPerLeg[ i ], numberOfDataPointsPerLeg );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
     }
 }
 
@@ -95,6 +110,7 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         legTotalParameters( 2 ) = legFreeParameters( 0 );
     }
+
 }
 
 void TransferTrajectory::getNodeTotalParameters(
@@ -103,6 +119,7 @@ void TransferTrajectory::getNodeTotalParameters(
         const int nodeIndex,
         Eigen::VectorXd& nodeTotalParameters )
 {
+
     if( nodes_.at( nodeIndex )->getTransferNodeType( ) == swingby )
     {
         if( !nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) )

@@ -89,7 +89,8 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     // Set test case.
     mission_segments::DsmPositionBasedTransferLeg transferLeg(
            constantEphemeris1, constantEphemeris2,
-            legFreeParameters, sunGravitationalParameter );
+            sunGravitationalParameter );
+    transferLeg.updateLegParameters( legFreeParameters );
 
 
     BOOST_CHECK_CLOSE_FRACTION( expectedDsmDeltaV, transferLeg.getLegDeltaV( ), tolerance );

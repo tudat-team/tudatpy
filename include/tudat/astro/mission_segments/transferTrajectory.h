@@ -42,7 +42,7 @@ public:
     TransferTrajectory(
             const std::vector< std::shared_ptr< TransferLeg > > legs,
             const std::vector< std::shared_ptr< TransferNode > > nodes ):
-        legs_( legs ), nodes_( nodes )
+        legs_( legs ), nodes_( nodes ), isComputed_( false )
     {
         totalDeltaV_ = 0.0;
         for( unsigned int i = 0; i < legs_.size( ); i++ )
@@ -66,29 +66,50 @@ public:
 
     std::vector< std::map< double, Eigen::Vector6d > > getStateAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
     {
-        std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-        getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-        return statesAlongTrajectoryPerLeg;
+        if( isComputed_ )
+        {
+            std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
+            getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            return statesAlongTrajectoryPerLeg;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
+        }
     }
 
     void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
                                   const int numberOfDataPointsPerLeg )
     {
-        std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-        getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
-        statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
-        for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
+        if( isComputed_ )
         {
-            statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ),
-                                          statesAlongTrajectoryPerLeg.at( i ).end( ) );
+            std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
+            getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
+            for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
+            {
+                statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ),
+                                              statesAlongTrajectoryPerLeg.at( i ).end( ) );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
         }
     }
 
     std::map< double, Eigen::Vector6d > getStateAlongTrajectory( const int numberOfDataPointsPerLeg )
     {
-        std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-        getStateAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
-        return statesAlongTrajectory;
+        if( isComputed_ )
+        {
+            std::map< double, Eigen::Vector6d > statesAlongTrajectory;
+            getStateAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
+            return statesAlongTrajectory;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting states on transfer trajectory; transfer parameters not set!" );
+        }
     }
 
 
@@ -111,6 +132,8 @@ private:
     const std::vector< std::shared_ptr< TransferNode > > nodes_;
 
     double totalDeltaV_;
+
+    bool isComputed_;
 };
 
 

@@ -120,9 +120,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     }
 
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
-                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
-                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun" );
 
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
@@ -191,8 +189,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     transferNodeFreeParameters[ 3 ] = ( Eigen::VectorXd( 3 ) <<1.10000000891 * 6.052e6, 1.34317576594, 0.0 ).finished( );
 
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
-                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
-                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun" );
 
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
@@ -266,9 +263,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     transferNodeFreeParameters[ 5 ] = Eigen::VectorXd( 0 );
 
     std::shared_ptr< TransferTrajectory > transferTrajectory = createTransferTrajectory(
-                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun",
-                nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );
-    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+                bodies, transferLegSettings, transferNodeSettings, bodyOrder, "Sun" );
 
     transferTrajectory->evaluateTrajectory(
                 nodeTimes, transferLegFreeParameters, transferNodeFreeParameters );

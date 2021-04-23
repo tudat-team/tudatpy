@@ -8,9 +8,8 @@ namespace mission_segments
 
 TransferNode::TransferNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const TransferNodeTypes nodeType,
-        const Eigen::VectorXd nodeParameters ):
-    nodeEphemeris_( nodeEphemeris ), nodeType_( nodeType ), nodeParameters_( nodeParameters ){ }
+        const TransferNodeTypes nodeType ):
+    nodeEphemeris_( nodeEphemeris ), nodeType_( nodeType ), nodeParameters_( Eigen::VectorXd::Zero( 0 ) ){ }
 
 void TransferNode::updateNodeParameters( const Eigen::VectorXd nodeParameters )
 {
@@ -44,19 +43,16 @@ Eigen::Vector3d TransferNode::getOutgoingVelocity( )
 
 DepartureWithFixedOutgoingVelocityNode::DepartureWithFixedOutgoingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const Eigen::VectorXd nodeParameters,
         const double centralBodyGravitationalParameter,
         const double departureSemiMajorAxis,
         const double departureEccentricity,
         const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction ):
-    TransferNode( nodeEphemeris, escape_and_departure, nodeParameters ),
+    TransferNode( nodeEphemeris, escape_and_departure ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     departureSemiMajorAxis_( departureSemiMajorAxis ),
     departureEccentricity_( departureEccentricity ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
-{
-//    updateNodeParameters( nodeParameters );
-}
+{}
 
 Eigen::Vector3d DepartureWithFixedOutgoingVelocityNode::getIncomingVelocity( )
 {
@@ -92,17 +88,14 @@ void DepartureWithFixedOutgoingVelocityNode::computeNode( )
 
 DepartureWithFreeOutgoingVelocityNode::DepartureWithFreeOutgoingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const Eigen::VectorXd nodeParameters,
         const double centralBodyGravitationalParameter,
         const double departureSemiMajorAxis,
         const double departureEccentricity ):
-    TransferNode( nodeEphemeris, escape_and_departure, nodeParameters ),
+    TransferNode( nodeEphemeris, escape_and_departure ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     departureSemiMajorAxis_( departureSemiMajorAxis ),
     departureEccentricity_( departureEccentricity )
-{
-//    updateNodeParameters( nodeParameters );
-}
+{ }
 
 Eigen::Vector3d DepartureWithFreeOutgoingVelocityNode::getIncomingVelocity( )
 {
@@ -152,19 +145,16 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
 
 CaptureAndInsertionNode::CaptureAndInsertionNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const Eigen::VectorXd nodeParameters,
         const double centralBodyGravitationalParameter,
         const double captureSemiMajorAxis,
         const double captureEccentricity,
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction ):
-    TransferNode( nodeEphemeris, capture_and_insertion, nodeParameters ),
+    TransferNode( nodeEphemeris, capture_and_insertion ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     captureSemiMajorAxis_( captureSemiMajorAxis ),
     captureEccentricity_( captureEccentricity ),
     incomingVelocityFunction_( incomingVelocityFunction )
-{
-//    updateNodeParameters( nodeParameters );
-}
+{ }
 
 Eigen::Vector3d CaptureAndInsertionNode::getOutgoingVelocity( )
 {
@@ -197,19 +187,16 @@ void CaptureAndInsertionNode::computeNode( )
 
 SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const Eigen::VectorXd nodeParameters,
         const double centralBodyGravitationalParameter,
         const double minimumPeriapsisRadius,
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction,
         const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction ):
-    TransferNode( nodeEphemeris, swingby, nodeParameters ),
+    TransferNode( nodeEphemeris, swingby ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     minimumPeriapsisRadius_( minimumPeriapsisRadius ),
     incomingVelocityFunction_( incomingVelocityFunction ),
     outgoingVelocityFunction_( outgoingVelocityFunction )
-{
-//    updateNodeParameters( nodeParameters );
-}
+{ }
 
 bool SwingbyWithFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
@@ -241,15 +228,12 @@ void SwingbyWithFixedOutgoingVelocity::computeNode( )
 
 SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-        const Eigen::VectorXd nodeParameters,
         const double centralBodyGravitationalParameter,
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction ):
-    TransferNode( nodeEphemeris, swingby, nodeParameters ),
+    TransferNode( nodeEphemeris, swingby ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     incomingVelocityFunction_( incomingVelocityFunction )
-{
-//    updateNodeParameters( nodeParameters );
-}
+{ }
 
 bool SwingbyWithFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {

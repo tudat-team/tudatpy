@@ -11,10 +11,9 @@ namespace mission_segments
 TransferLeg::TransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-        const TransferLegTypes legType,
-        const Eigen::VectorXd legParameters ):
+        const TransferLegTypes legType ):
     departureBodyEphemeris_( departureBodyEphemeris ), arrivalBodyEphemeris_( arrivalBodyEphemeris ),
-    legType_( legType ), legParameters_( legParameters ){ }
+    legType_( legType ), legParameters_( Eigen::VectorXd::Zero( 0 ) ){ }
 
 void TransferLeg::updateLegParameters( const Eigen::VectorXd legParameters )
 {
@@ -57,9 +56,8 @@ void TransferLeg::updateDepartureAndArrivalBodies(
 UnpoweredUnperturbedTransferLeg::UnpoweredUnperturbedTransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-        const Eigen::VectorXd legParameters,
         const double centralBodyGravitationalParameter ):
-    TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, unpowered_unperturbed_leg, legParameters ),
+    TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, unpowered_unperturbed_leg ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
 {
 //    computeTransfer( );
@@ -135,12 +133,9 @@ void DsmTransferLeg::getStateAlongTrajectory( std::map< double, Eigen::Vector6d 
 DsmPositionBasedTransferLeg::DsmPositionBasedTransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-        const Eigen::VectorXd legParameters,
         const double centralBodyGravitationalParameter ):
-    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, legParameters, centralBodyGravitationalParameter )
-{
-//    computeTransfer( );
-}
+    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_position_based_leg, centralBodyGravitationalParameter )
+{ }
 
 
 
@@ -236,14 +231,11 @@ void computeVelocityBasedDsmState(
 DsmVelocityBasedTransferLeg::DsmVelocityBasedTransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-        const Eigen::VectorXd legParameters,
         const double centralBodyGravitationalParameter,
         const std::function< Eigen::Vector3d( ) > departureVelocityFunction ):
-    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, legParameters, centralBodyGravitationalParameter ),
+    DsmTransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, dsm_velocity_based_leg, centralBodyGravitationalParameter ),
     departureVelocityFunction_( departureVelocityFunction )
-{
-//    computeTransfer( );
-}
+{ }
 
 void DsmVelocityBasedTransferLeg::computeTransfer( )
 {
