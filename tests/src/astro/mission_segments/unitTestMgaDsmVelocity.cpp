@@ -88,8 +88,9 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
     using namespace mission_segments;
     DepartureWithFreeOutgoingVelocityNode transferNode(
-            constantEphemeris1, nodeFreeParameters,
+            constantEphemeris1,
             earthGravitationalParameter, semiMajorAxis, eccentricity );
+    transferNode.updateNodeParameters( nodeFreeParameters );
 
 
     // Set the Sun gravitational parameter.
@@ -105,8 +106,9 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
     Eigen::Vector3d departureVelocity = transferNode.getOutgoingVelocity( );
     DsmVelocityBasedTransferLeg transferLeg(
-            constantEphemeris1, constantEphemeris2, legFreeParameters,
+            constantEphemeris1, constantEphemeris2,
                 sunGravitationalParameter, [=]( ){ return departureVelocity; } );
+    transferLeg.updateLegParameters( legFreeParameters );
 
     BOOST_CHECK_CLOSE_FRACTION( transferNode.getNodeDeltaV( ), expectedEscapeDeltaV, tolerance );
     BOOST_CHECK_CLOSE_FRACTION( transferLeg.getLegDeltaV( ), expectedDsmDeltaV, tolerance );

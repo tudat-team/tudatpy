@@ -52,8 +52,7 @@ public:
     TransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const TransferLegTypes legType,
-            const Eigen::VectorXd legParameters );
+            const TransferLegTypes legType );
 
     void updateLegParameters( const Eigen::VectorXd legParameters );
 
@@ -112,7 +111,6 @@ public:
     UnpoweredUnperturbedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter );
 
     void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
@@ -134,9 +132,8 @@ public:
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const TransferLegTypes legType,
-            const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter ):
-        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType, legParameters ),
+        TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter){ }
 
     void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
@@ -159,7 +156,6 @@ public:
     DsmPositionBasedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter );
 
 protected:
@@ -180,7 +176,6 @@ public:
     DsmVelocityBasedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const Eigen::VectorXd legParameters,
             const double centralBodyGravitationalParameter,
             const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
 protected:

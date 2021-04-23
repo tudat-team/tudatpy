@@ -49,9 +49,6 @@ std::shared_ptr< TransferLeg > createTransferLeg(
         const std::string& departureBodyName,
         const std::string& arrivalBodyName,
         const std::string& centralBodyName,
-        const double legStartTime,
-        const double legEndTime,
-        const Eigen::VectorXd& legFreeParameters,
         const std::shared_ptr< TransferNode > departureNode )
 {
     if( bodyMap.count( centralBodyName ) == 0 )
@@ -96,7 +93,6 @@ std::shared_ptr< TransferLeg > createTransferLeg(
     {
         transferLeg = std::make_shared< UnpoweredUnperturbedTransferLeg >(
                     departureBodyEphemeris, arrivalBodyEphemeris,
-                    ( Eigen::VectorXd( 2 )<< legStartTime, legEndTime ).finished( ),
                     centralBodyGravitationalParameter );
         break;
     }
@@ -104,7 +100,6 @@ std::shared_ptr< TransferLeg > createTransferLeg(
     {
         transferLeg = std::make_shared< DsmPositionBasedTransferLeg >(
                     departureBodyEphemeris, arrivalBodyEphemeris,
-                    ( Eigen::VectorXd( 6 )<< legStartTime, legEndTime, legFreeParameters ).finished( ),
                     centralBodyGravitationalParameter );
         break;
     }
@@ -119,7 +114,6 @@ std::shared_ptr< TransferLeg > createTransferLeg(
 
         transferLeg = std::make_shared< DsmVelocityBasedTransferLeg >(
                     departureBodyEphemeris, arrivalBodyEphemeris,
-                    ( Eigen::VectorXd( 3 )<< legStartTime, legEndTime, legFreeParameters ).finished( ),
                     centralBodyGravitationalParameter, departureVelocityFunction );
         break;
     }
@@ -133,8 +127,6 @@ std::shared_ptr< TransferNode > createTransferNode(
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferNodeSettings > nodeSettings,
         const std::string &nodeBodyName,
-        const double nodeTime,
-        const Eigen::VectorXd& nodeFreeParameters,
         const std::shared_ptr< TransferLeg > incomingTransferLeg,
         const std::shared_ptr< TransferLeg > outgoingTransferLeg,
         const bool nodeComputesOutgoingVelocity )
@@ -183,7 +175,7 @@ std::shared_ptr< TransferNode > createTransferNode(
             std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
                     std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
             transferNode = std::make_shared< SwingbyWithFixedOutgoingVelocity >(
-                        centralBodyEphemeris, ( Eigen::VectorXd( 1 )<< nodeTime ).finished( ),
+                        centralBodyEphemeris,
                         centralBodyGravitationalParameter, swingbySettings->minimumPeriapsisRadius_,
                         incomingVelocityFunction, outgoingVelocityFunction );
         }
@@ -192,7 +184,7 @@ std::shared_ptr< TransferNode > createTransferNode(
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                     std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
             transferNode = std::make_shared< SwingbyWithFreeOutgoingVelocity >(
-                        centralBodyEphemeris, ( Eigen::VectorXd( 4 )<< nodeTime, nodeFreeParameters ).finished( ),
+                        centralBodyEphemeris,
                         centralBodyGravitationalParameter, incomingVelocityFunction );
         }
 
@@ -214,7 +206,7 @@ std::shared_ptr< TransferNode > createTransferNode(
             std::function< Eigen::Vector3d( ) > outgoingVelocityFunction =
                     std::bind( &TransferLeg::getDepartureVelocity, outgoingTransferLeg );
             transferNode = std::make_shared< DepartureWithFixedOutgoingVelocityNode >(
-                        centralBodyEphemeris, ( Eigen::VectorXd( 1 )<< nodeTime ).finished( ),
+                        centralBodyEphemeris,
                         centralBodyGravitationalParameter,
                         escapeAndDepartureSettings->departureSemiMajorAxis_,
                         escapeAndDepartureSettings->departureEccentricity_,
@@ -231,7 +223,7 @@ std::shared_ptr< TransferNode > createTransferNode(
 
 
             transferNode = std::make_shared< DepartureWithFreeOutgoingVelocityNode >(
-                        centralBodyEphemeris, ( Eigen::VectorXd( 4 )<< nodeTime, nodeFreeParameters ).finished( ),
+                        centralBodyEphemeris,
                         centralBodyGravitationalParameter,
                         escapeAndDepartureSettings->departureSemiMajorAxis_,
                         escapeAndDepartureSettings->departureEccentricity_ );
@@ -252,7 +244,7 @@ std::shared_ptr< TransferNode > createTransferNode(
         std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
                 std::bind( &TransferLeg::getArrivalVelocity, incomingTransferLeg );
         transferNode = std::make_shared< CaptureAndInsertionNode >(
-                    centralBodyEphemeris, ( Eigen::VectorXd( 1 )<< nodeTime ).finished( ),
+                    centralBodyEphemeris,
                     centralBodyGravitationalParameter,
                     captureAndInsertionSettings->captureSemiMajorAxis_,
                     captureAndInsertionSettings->captureEccentricity_,
@@ -425,10 +417,7 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& nodeIds,
-        const std::string& centralBody,
-        const std::vector< double >& nodeTimes,
-        const std::vector< Eigen::VectorXd >& legFreeParameters,
-        const std::vector< Eigen::VectorXd >& nodeFreeParameters )
+        const std::string& centralBody )
 {
     if( legSettings.size( ) + 1 != nodeSettings.size( ) )
     {
@@ -448,18 +437,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                                   " ) are incompatible" );
     }
 
-    if( nodeIds.size( ) != nodeTimes.size( ) )
-    {
-        throw std::runtime_error( "Error when making transfer trajectory, number of node names ( "
-                                  + std::to_string( nodeIds.size( ) ) +
-                                  " ) and number of node times ( "
-                                  + std::to_string( nodeTimes.size( ) ) +
-                                  " ) are incompatible" );
-    }
-
-
-
-
     std::vector< std::shared_ptr< TransferLeg > > legs;
     std::vector< std::shared_ptr< TransferNode > > nodes;
 
@@ -470,29 +447,25 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
         {
             nodes.push_back(
                         createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),
-                            nodeFreeParameters.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), nullptr, true ) );
+                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), nullptr, true ) );
             legs.push_back(
                         createTransferLeg(
                             bodyMap, legSettings.at( i ),
                             nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
-                            nodeTimes.at( i ), nodeTimes.at( i + 1 ),
-                            legFreeParameters.at( i ), nodes.at( i ) ) );
+                            nodes.at( i ) ) );
         }
         else
         {
             legs.push_back(
                         createTransferLeg(
                             bodyMap, legSettings.at( i ),
-                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody,
-                            nodeTimes.at( i ), nodeTimes.at( i + 1 ),
-                            legFreeParameters.at( i ) ) );
+                            nodeIds.at( i ), nodeIds.at( i + 1 ), centralBody ) );
 
 
             nodes.push_back(
                         createTransferNode(
-                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ), nodeTimes.at( i ),
-                            nodeFreeParameters.at( i ), ( i == 0 ? nullptr : legs.at( i -  1 ) ), legs.at( i ), false ) );
+                            bodyMap, nodeSettings.at( i ), nodeIds.at( i ),
+                            ( i == 0 ? nullptr : legs.at( i -  1 ) ), legs.at( i ), false ) );
 
 
         }
@@ -502,8 +475,6 @@ std::shared_ptr< TransferTrajectory > createTransferTrajectory(
                 createTransferNode(
                     bodyMap, nodeSettings.at( legSettings.size( ) ),
                     nodeIds.at( legSettings.size( ) ),
-                    nodeTimes.at( legSettings.size( ) ),
-                    nodeFreeParameters.at( legSettings.size( ) ),
                     legs.at( legSettings.size( ) -  1 ), nullptr, false ) );
 
     return std::make_shared< TransferTrajectory >( legs, nodes );

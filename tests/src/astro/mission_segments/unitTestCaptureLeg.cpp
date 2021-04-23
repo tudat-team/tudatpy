@@ -72,9 +72,10 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
     // Set test case.
     using namespace tudat::mission_segments;
     CaptureAndInsertionNode captureNode(
-                constantEphemeris, ( Eigen::VectorXd( 1 )<<0.0 ) .finished( ),
+                constantEphemeris,
                 mercuryGravitationalParameter, semiMajorAxis, eccentricity,
                 [=]( ){return velocityBeforePlanet; } );
+    captureNode.updateNodeParameters( ( Eigen::VectorXd( 1 )<<0.0 ).finished( ) );
 
 
     // Prepare the variables for the results.
@@ -118,9 +119,10 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
     // Set test case.
     using namespace tudat::mission_segments;
     CaptureAndInsertionNode captureNode(
-                constantEphemeris, ( Eigen::VectorXd( 1 )<<0.0 ) .finished( ),
+                constantEphemeris,
                 marsGravitationalParameter, semiMajorAxis, eccentricity,
                 [=]( ){return velocityBeforePlanet; } );
+    captureNode.updateNodeParameters( ( Eigen::VectorXd( 1 )<<0.0 ) .finished( ) );
 
 
     // Prepare the variables for the results.
