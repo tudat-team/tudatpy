@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     using namespace mission_segments;
     UnpoweredUnperturbedTransferLeg transferLeg(
                 constantEphemeris1, constantEphemeris2,
-                ( Eigen::VectorXd( 2 )<<0.0, timeOfFlight ).finished( ),
                 sunGravitationalParameter );
+    transferLeg.updateLegParameters( ( Eigen::VectorXd( 2 )<<0.0, timeOfFlight ).finished( ) );
 
     // Set the Earth gravitational parameters.
     const double earthGravitationalParameter = 3.9860119e14;
@@ -92,9 +92,9 @@ BOOST_AUTO_TEST_CASE( testVelocities )
             transferLeg.getDepartureVelocity( );
     DepartureWithFixedOutgoingVelocityNode departureNode(
                 constantEphemeris1,
-                ( Eigen::VectorXd( 1 )<< 0.0 ).finished( ),
                 earthGravitationalParameter, semiMajorAxis, eccentricity,
                 [=]( ){ return departureVelocity; } );
+    departureNode.updateNodeParameters( ( Eigen::VectorXd( 1 )<< 0.0 ).finished( ) );
 
 
     // Prepare the variables for the results.

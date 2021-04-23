@@ -45,18 +45,17 @@ enum TransferNodeTypes
 };
 
 
-
-
 class TransferNode
 {
 public:
     TransferNode(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const TransferNodeTypes nodeType,
-            const Eigen::VectorXd nodeParameters );
+            const TransferNodeTypes nodeType );
 
     void updateNodeParameters( const Eigen::VectorXd nodeParameters );
+
     double getNodeDeltaV( );
+
     TransferNodeTypes getTransferNodeType( );
 
     virtual bool nodeComputesOutgoingVelocity( ) = 0;
@@ -89,7 +88,6 @@ class DepartureWithFixedOutgoingVelocityNode: public TransferNode
 public:
     DepartureWithFixedOutgoingVelocityNode(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const Eigen::VectorXd nodeParameters,
             const double centralBodyGravitationalParameter,
             const double departureSemiMajorAxis,
             const double departureEccentricity,
@@ -122,7 +120,6 @@ class DepartureWithFreeOutgoingVelocityNode: public TransferNode
 public:
     DepartureWithFreeOutgoingVelocityNode(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const Eigen::VectorXd nodeParameters,
             const double centralBodyGravitationalParameter,
             const double departureSemiMajorAxis,
             const double departureEccentricity );
@@ -159,7 +156,6 @@ class CaptureAndInsertionNode: public TransferNode
 public:
     CaptureAndInsertionNode(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const Eigen::VectorXd nodeParameters,
             const double centralBodyGravitationalParameter,
             const double captureSemiMajorAxis,
             const double captureEccentricity,
@@ -193,7 +189,6 @@ class SwingbyWithFixedOutgoingVelocity: public TransferNode
 public:
     SwingbyWithFixedOutgoingVelocity(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const Eigen::VectorXd nodeParameters,
             const double centralBodyGravitationalParameter,
             const double minimumPeriapsisRadius,
             const std::function< Eigen::Vector3d( ) > incomingVelocityFunction,
@@ -225,7 +220,6 @@ class SwingbyWithFreeOutgoingVelocity: public TransferNode
 public:
     SwingbyWithFreeOutgoingVelocity(
             const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
-            const Eigen::VectorXd nodeParameters,
             const double centralBodyGravitationalParameter,
             const std::function< Eigen::Vector3d( ) > incomingVelocityFunction );
 

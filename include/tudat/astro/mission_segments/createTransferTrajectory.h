@@ -130,23 +130,16 @@ std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
         const double captureSemiMajorAxis,
         const double captureEccentricity );
 
-std::shared_ptr< TransferLeg > createTransferLeg(
-        const simulation_setup::SystemOfBodies& bodyMap,
+std::shared_ptr< TransferLeg > createTransferLeg(const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,
         const std::string& departureBodyName,
         const std::string& arrivalBodyName,
         const std::string& centralBodyName,
-        const double legStartTime,
-        const double legEndTime,
-        const Eigen::VectorXd& legFreeParameters,
         const std::shared_ptr< TransferNode > departureNode = nullptr );
 
-std::shared_ptr< TransferNode > createTransferNode(
-        const simulation_setup::SystemOfBodies& bodyMap,
+std::shared_ptr< TransferNode > createTransferNode(const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferNodeSettings > nodeSettings,
         const std::string& nodeBodyName,
-        const double nodeTime,
-        const Eigen::VectorXd& nodeFreeParameters,
         const std::shared_ptr< TransferLeg > incomingTransferLeg,
         const std::shared_ptr< TransferLeg > outgoingTransferLeg,
         const bool nodeComputesOutgoingVelocity );
@@ -213,15 +206,11 @@ void getMgaTransferTrajectorySettingsWithVelocityasedDsm(
         const std::pair< double, double > arrivalOrbit = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
         const std::map< std::string, double > minimumPericenterRadii = DEFAULT_MINIMUM_PERICENTERS );
 
-std::shared_ptr< TransferTrajectory > createTransferTrajectory(
-        const simulation_setup::SystemOfBodies& bodyMap,
+std::shared_ptr< TransferTrajectory > createTransferTrajectory(const simulation_setup::SystemOfBodies& bodyMap,
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
         const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
         const std::vector< std::string >& nodeIds,
-        const std::string& centralBody,
-        const std::vector< double >& nodeTimes,
-        const std::vector< Eigen::VectorXd >& legFreeParameters,
-        const std::vector< Eigen::VectorXd >& nodeFreeParameters );
+        const std::string& centralBody);
 
 void getParameterVectorDecompositionIndices(
         const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
