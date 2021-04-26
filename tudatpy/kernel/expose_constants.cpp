@@ -10,7 +10,7 @@
 
 #include "expose_constants.h"
 
-#include "docstrings.h"
+#include "tudatpy/docstrings.h"
 #include "tudat/constants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 
@@ -24,10 +24,10 @@ namespace tmc = tudat::mathematical_constants;
 namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
-
+namespace constants {
 void expose_constants(py::module &m) {
 
-  m.attr("__doc__") = tudatpy::constants_docstring().c_str();
+  m.attr("__doc__") = tudatpy::get_docstring("constants").c_str();
 
   // celestialBodyConstants.h
   m.attr("EARTH_EQUATORIAL_RADIUS") = tbc::EARTH_EQUATORIAL_RADIUS;
@@ -85,5 +85,5 @@ void expose_constants(py::module &m) {
   m.attr("LONG_PI") = tmc::LONG_PI;
   m.attr("TUDAT_NAN") = TUDAT_NAN;
 };
-
+}// namespace constants
 }// namespace tudatpy

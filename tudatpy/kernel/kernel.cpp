@@ -37,11 +37,11 @@ PYBIND11_MODULE(kernel, m) {
 
   // interface module
   auto interface = m.def_submodule("interface");
-  tudatpy::expose_interface(interface);
+  tudatpy::interface::expose_interface(interface);
 
   // constants module
   auto constants = m.def_submodule("constants");
-  tudatpy::expose_constants(constants);
+  tudatpy::constants::expose_constants(constants);
 
   //   io module
   auto io = m.def_submodule("io");

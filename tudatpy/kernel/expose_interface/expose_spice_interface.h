@@ -16,9 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace interface {
+namespace spice {
 
 void expose_spice_interface(py::module &m);
 
+}
+}
 }
 
 #endif//TUDATBUNDLE_EXPOSE_SPICE_INTERFACE_H
