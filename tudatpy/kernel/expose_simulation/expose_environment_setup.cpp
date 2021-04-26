@@ -10,7 +10,7 @@
 
 #include "expose_environment_setup.h"
 
-#include "../docstrings.h"
+#include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -64,7 +64,7 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
     py::class_<tss::AerodynamicCoefficientSettings,
             std::shared_ptr<tss::AerodynamicCoefficientSettings>>
             AerodynamicCoefficientSettings_(m, "AerodynamicCoefficientSettings",
-                                            "<no doc>");
+                                            get_docstring("AerodynamicCoefficientSettings").c_str());
 
     py::class_<tss::ConstantAerodynamicCoefficientSettings,
             std::shared_ptr<tss::ConstantAerodynamicCoefficientSettings>,
@@ -985,7 +985,7 @@ void expose_environment_setup(py::module &m) {
     // createBodies.h ///////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
     py::class_<tss::BodySettings, std::shared_ptr<tss::BodySettings>>(
-                m, "BodySettings", tudatpy::body_settings_docstring().c_str())
+                m, "BodySettings", get_docstring("BodySettings").c_str())
             .def_readwrite("constant_mass", &tss::BodySettings::constantMass)
             .def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings)
             .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)
