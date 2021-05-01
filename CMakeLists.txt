@@ -7,6 +7,10 @@ endif (POLICY CMP0048)
 # Get version from file.
 file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+else()
+    set(VERSION_INFO "${tudatpy_VERSION}")
+endif()
 
 include_directories(include)
 # Add cmake modules

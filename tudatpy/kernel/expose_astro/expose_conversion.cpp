@@ -8,6 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
+ // functions
+ #define cartesian_to_keplerian
+
+ // classes
+
 #include "expose_conversion.h"
 
 #include <tudat/astro/conversions.h>
@@ -63,7 +69,8 @@ void expose_conversion(py::module &m) {
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,
           py::arg("cartesian_elements"),
-          py::arg("gravitational_parameter"));
+          py::arg("gravitational_parameter"),
+          "@docstrings::cartesian_to_keplerian");
 
     m.def("keplerian_to_cartesian",
           py::overload_cast< const Eigen::Vector6d&, double >(
