@@ -14,7 +14,12 @@ $VERSION_BUMP_PATTERNS = [  # These note where/how to find the version numbers
                          ]
 
 # FORGE
-#$FORGE_FEEDSTOCK_ORG = 'tudat-team'
+$FORGE_SOURCE_URL = 'https://github.com/$GITHUB_ORG/$GITHUB_REPO/archive/$VERSION.tar.gz'
+$FORGE_FEEDSTOCK = 'https://github.com/tudat-team/tudatpy-feedstock.git'
+$FORGE_FEEDSTOCK_ORG = 'tudat-team'
+$FORGE_PATTERNS = [
+                ('recipe/meta.yaml','version\s=\s"(.*)"', "version='$VERSION'")
+]
 
 $CHANGELOG_FILENAME = 'CHANGELOG.rst'  # Filename for the changelog
 $CHANGELOG_TEMPLATE = 'TEMPLATE.rst'  # Filename for the news template
