@@ -18,7 +18,7 @@ $FORGE_SOURCE_URL = 'https://github.com/$GITHUB_ORG/$GITHUB_REPO/archive/$VERSIO
 $FORGE_FEEDSTOCK = 'https://github.com/tudat-team/tudatpy-feedstock.git'
 $FORGE_FEEDSTOCK_ORG = 'tudat-team'
 $FORGE_PATTERNS = [
-                ('recipe/meta.yaml','version\s=\s"(.*)"', "version='$VERSION'")
+                ('meta.yaml','version\s=\s"(.*)"', "version='$VERSION'")
 ]
 
 $CHANGELOG_FILENAME = 'CHANGELOG.rst'  # Filename for the changelog
