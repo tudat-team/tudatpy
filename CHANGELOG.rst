@@ -4,6 +4,15 @@ TudatPy Change Log
 
 .. current developments
 
+v0.5.23-1
+====================
+
+**Authors:**
+
+* Geoffrey H. Garrett
+
+
+
 v0.5.23
 ====================
 
