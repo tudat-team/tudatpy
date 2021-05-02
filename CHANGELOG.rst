@@ -4,6 +4,14 @@ TudatPy Change Log
 
 .. current developments
 
+v0.5.23-rc1
+====================
+
+**Authors:**
+
+
+
+
 v0.5.23-rc
 ====================
 
