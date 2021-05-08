@@ -10,7 +10,7 @@
 
 #include "expose_example.h"
 
-#include <tudat/example/testApolloCapsuleCoefficients.h>
+#include <tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h>
 
 #include <pybind11/pybind11.h>
 
