@@ -60,6 +60,57 @@ public:
         PYBIND11_OVERLOAD_PURE(void, AerodynamicGuidance, updateGuidance, currentTime ); }
 };
 
+double getTotalSurfaceArea( const std::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientGenerator )
+{
+    double totalSurfaceArea = 0.0;
+    for( int i = 0; i < coefficientGenerator->getNumberOfVehicleParts( ); i++ )
+    {
+        totalSurfaceArea += std::fabs( coefficientGenerator->getVehiclePart( i )->getTotalArea( ) );
+    }
+    return totalSurfaceArea;
+}
+
+
+//! Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file
+std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getVehicleMesh(
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis )
+{
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints =
+            localInclinationAnalysis->getMeshPoints( );
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshSurfaceNormals =
+            localInclinationAnalysis->getPanelSurfaceNormals( );
+
+
+//    boost::array< int, 3 > independentVariables;
+//    independentVariables[ 0 ] = 0;
+//    independentVariables[ 1 ] = 6;
+//    independentVariables[ 2 ] = 0;
+
+//    std::vector< std::vector< std::vector< double > > > pressureCoefficients =
+//            localInclinationAnalysis->getPressureCoefficientList( independentVariables );
+
+    int counter = 0;
+    std::vector< Eigen::Vector3d > meshPointsList;
+    std::vector< Eigen::Vector3d > surfaceNormalsList;
+//    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
+
+    for( unsigned int i = 0; i < meshPoints.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < meshPoints.at( i ).shape( )[ 0 ] - 1; j++ )
+        {
+            for( unsigned int k = 0; k < meshPoints.at( i ).shape( )[ 1 ] - 1; k++ )
+            {
+                meshPointsList.push_back( meshPoints[ i ][ j ][ k ] );
+                surfaceNormalsList.push_back( meshSurfaceNormals[ i ][ j ][ k ] );
+//                pressureCoefficientsList[ counter ] = ( Eigen::Vector1d( ) << pressureCoefficients[ i ][ j ][ k ] ).finished( );
+                counter++;
+            }
+        }
+    }
+
+    return std::make_pair( meshPointsList, surfaceNormalsList );
+}
+
 }
 
 }
@@ -79,7 +130,16 @@ void expose_aerodynamics(py::module &m) {
             .export_values();
 
     py::class_<ta::AerodynamicCoefficientInterface,
-            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface", "<no_doc, only_dec>");
+            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
+            .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
+            .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
+            .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
+            .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
+                 py::arg( "independent_variables" ),
+                 py::arg( "time") );
+
+
 
     py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
             std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
@@ -117,6 +177,13 @@ void expose_aerodynamics(py::module &m) {
                  py::arg("reference_length"),
                  py::arg("moment_reference_point"),
                  py::arg("save_pressure_coefficients") = false );
+
+    m.def("get_local_inclination_total_vehicle_area", &ta::getTotalSurfaceArea,
+          py::arg( "local_inclination_analysis_object" ) );
+
+    m.def("get_local_inclination_mesh", &ta::getVehicleMesh,
+            py::arg( "local_inclination_analysis_object" ) );
+
 
     py::class_<ta::FlightConditions,
             std::shared_ptr<ta::FlightConditions>>(m, "FlightConditions")

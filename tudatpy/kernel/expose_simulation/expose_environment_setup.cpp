@@ -10,7 +10,7 @@
 
 #include "expose_environment_setup.h"
 
-#include "../docstrings.h"
+#include "tudatpy/docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -64,7 +64,7 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
     py::class_<tss::AerodynamicCoefficientSettings,
             std::shared_ptr<tss::AerodynamicCoefficientSettings>>
             AerodynamicCoefficientSettings_(m, "AerodynamicCoefficientSettings",
-                                            "<no doc>");
+                                            get_docstring("AerodynamicCoefficientSettings").c_str());
 
     py::class_<tss::ConstantAerodynamicCoefficientSettings,
             std::shared_ptr<tss::ConstantAerodynamicCoefficientSettings>,
@@ -910,11 +910,13 @@ void expose_environment_setup(py::module &m) {
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
-            .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
+            .def_property("aerodynamic_coefficient_interface", &    tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_body_mass", &tss::Body::getBodyMass)
             .def("set_constant_mass", &tss::Body::setConstantBodyMass)
-            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
-            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface)
+//            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
+//            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface,
+//                 py::arg( "radiating_body" ),
+//                 py::arg( "radiation_pressure_interface" ) )
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)
@@ -923,7 +925,15 @@ void expose_environment_setup(py::module &m) {
             .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
             .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris)
-            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor, &tss::Body::setBodyInertiaTensor);
+            .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor, py::overload_cast< const Eigen::Matrix3d& >(
+                              &tss::Body::setBodyInertiaTensor ) )
+            .def_property_readonly("state", &tss::Body::getState)
+            .def_property_readonly("position", &tss::Body::getPosition)
+            .def_property_readonly("velocity", &tss::Body::getVelocity)
+            .def_property_readonly("angular_velocity_body_fixed", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame)
+            .def_property_readonly("mass", &tss::Body::getBodyMass);
+
+
 
 
 
@@ -975,7 +985,7 @@ void expose_environment_setup(py::module &m) {
     // createBodies.h ///////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
     py::class_<tss::BodySettings, std::shared_ptr<tss::BodySettings>>(
-                m, "BodySettings", tudatpy::body_settings_docstring().c_str())
+                m, "BodySettings", get_docstring("BodySettings").c_str())
             .def_readwrite("constant_mass", &tss::BodySettings::constantMass)
             .def_readwrite("atmosphere_settings", &tss::BodySettings::atmosphereSettings)
             .def_readwrite("ephemeris_settings", &tss::BodySettings::ephemerisSettings)

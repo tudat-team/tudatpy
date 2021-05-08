@@ -91,7 +91,7 @@ void expose_dependent_variable_setup(py::module &m) {
 
     py::class_<tp::SingleDependentVariableSaveSettings,
             std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
-            tp::VariableSettings>(m, "tp::SingleDependentVariableSaveSettings")
+            tp::VariableSettings>(m, "SingleDependentVariableSaveSettings")
             .def(py::init<
                  const tp::PropagationDependentVariables,
                  const std::string &,
@@ -325,6 +325,20 @@ void expose_dependent_variable_setup(py::module &m) {
           py::arg("body"),
           py::arg("emitting_body") );
 
+    m.def("dynamic_pressure",
+          &tp::dynamicPressureVariable,
+          py::arg("body"),
+          py::arg("central_body") );
+
+    m.def("aerodynamic_g_load",
+          &tp::aerodynamicGLoadVariable,
+          py::arg("body"),
+          py::arg("central_body") );
+
+    m.def("atmospheric_temperature",
+          &tp::atmosphericTemperatureVariable,
+          py::arg("body"),
+          py::arg("central_body") );
 
     //    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
     //            const basic_astrodynamics::AvailableTorque torqueModelType,
@@ -371,6 +385,10 @@ void expose_torque_setup(py::module &m) {
     m.def("second_degree_gravitational", &tss::secondDegreeGravitationalTorque);
 
     m.def("spherical_harmonic_gravitational", &tss::sphericalHarmonicGravitationalTorque);
+
+    m.def("custom", &tss::customTorqueSettings,
+          py::arg( "torque_function" ),
+          py::arg( "scaling_function" ) = nullptr );
 
 }
 
@@ -438,6 +456,14 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "constant_acceleration" ) = Eigen::Vector3d::Zero( ),
           py::arg( "sine_acceleration" ) = Eigen::Vector3d::Zero( ),
           py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ) );
+
+    m.def("empirical", &tss::customAccelerationSettings,
+          py::arg( "acceleration_function" ),
+          py::arg( "scaling_function" ) = nullptr );
+
+    m.def("custom", &tss::customAccelerationSettings,
+          py::arg( "acceleration_function" ),
+          py::arg( "scaling_function" ) = nullptr );
 
     // TODO: add overloaded methods
     m.def("thrust_acceleration", py::overload_cast<const std::shared_ptr<tss::ThrustDirectionGuidanceSettings>,
@@ -601,7 +627,7 @@ void expose_acceleration_setup(py::module &m) {
             tss::CustomThrustOrientationSettings,
             std::shared_ptr<tss::CustomThrustOrientationSettings>,
             tss::ThrustDirectionGuidanceSettings>(m, "CustomThrustOrientationSettings")
-            .def(py::init<const std::function<Eigen::Quaterniond(const double)>>(),
+            .def(py::init<const std::function<Eigen::Matrix3d(const double)>>(),
                  py::arg("thrust_orientation_function"))
             .def_readonly("thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_);
 
@@ -694,6 +720,13 @@ void expose_acceleration_setup(py::module &m) {
 
     m.def("custom_thrust_direction", &tss::customThrustDirectionSettings,
           py::arg( "thrust_direction_function" ) );
+
+    m.def("custom_thrust_orientation",
+          py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >(
+              &tss::customThrustOrientationSettings ),
+          py::arg( "thrust_direction_function" ) );
+
+    m.def("thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
 
     m.def("custom_thrust_magnitude", &tss::fromFunctionThrustMagnitudeSettings,
           py::arg("thrust_magnitude_function"),
@@ -1295,6 +1328,16 @@ void expose_propagator_setup(py::module &m)
           py::arg("termination_settings"),
           py::arg("output_variables") = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
           py::arg("print_interval") = TUDAT_NAN );
+
+    m.def("multi_arc",
+          &tp::multiArcPropagatorSettings<double>,
+          py::arg("single_arc_settings"),
+          py::arg("transfer_state_to_next_arc") = false );
+
+    m.def("hybrid_arc",
+          &tp::hybridArcPropagatorSettings<double>,
+          py::arg("single_arc_settings"),
+          py::arg("multi_arc_settings") );
 
     py::class_<tp::PropagationTerminationSettings,
             std::shared_ptr<tp::PropagationTerminationSettings>>
