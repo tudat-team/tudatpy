@@ -11,6 +11,7 @@
 #include "expose_math/expose_interpolators.h"
 #include "expose_math/expose_numerical_integrators.h"
 #include "expose_math/expose_root_finders.h"
+#include "expose_math/expose_geometry.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -32,6 +33,9 @@ void expose_math(py::module &m) {
 
   auto root_finders = m.def_submodule("root_finders");
   expose_root_finders(root_finders);
+
+  auto geometry = m.def_submodule("geometry");
+  expose_geometry(geometry);
 };
 
 };// namespace tudatpy
