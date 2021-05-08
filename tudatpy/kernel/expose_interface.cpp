@@ -17,6 +17,8 @@
 namespace py = pybind11;
 
 namespace tudatpy {
+namespace interface {
+using namespace spice;
 
 void expose_interface(py::module &m) {
 
@@ -30,4 +32,5 @@ void expose_interface(py::module &m) {
   //  expose_sofa_interface(sofa_interface);
 }
 
+}// namespace interface
 }// namespace tudatpy

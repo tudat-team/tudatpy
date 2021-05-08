@@ -16,9 +16,9 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-
-void expose_constants(py::module &m);
-
+namespace constants {
+    void expose_constants(py::module &m);
+}
 }
 
 #endif//TUDATPY_EXPOSE_CONSTANTS_H

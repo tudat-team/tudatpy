@@ -24,22 +24,22 @@ namespace tudatpy {
 void expose_propagators(py::module &m) {
 
   // Astrodynamics/Propagators/singeStateTypeDerivative.h
+
   m.def("get_single_integration_size",
         &tp::getSingleIntegrationSize,
         py::arg("state_type"));
+
   m.def("get_single_integration_differential_equation_order",
         &tp::getSingleIntegrationDifferentialEquationOrder,
         py::arg("state_type"));
+
   m.def("get_generalized_acceleration_size",
         &tp::getGeneralizedAccelerationSize,
         py::arg("state_type"));
 
-  py::class_<
-      tp::SingleStateTypeDerivative<double, double>,
-      std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>
-      SingleStateTypeDerivative_(m, "SingleStateTypeDerivative");
-  //                    .def(py::init<const tp::IntegratedStateType>(),
-  //                         py::arg("integrated_state_type"));
+//  py::class_<
+//      tp::SingleStateTypeDerivative<double, double>,
+//      std::shared_ptr<tp::SingleStateTypeDerivative<double, double>>>(m, "SingleStateTypeDerivative");
 
   py::class_<
       tp::NBodyStateDerivative<double, double>,

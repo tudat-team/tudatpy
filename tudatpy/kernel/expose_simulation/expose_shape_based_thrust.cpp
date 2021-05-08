@@ -13,9 +13,12 @@
 #include <tudat/astro/low_thrust/shape_based/hodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h>
 #include <tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h>
+#include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
@@ -31,37 +34,25 @@ void expose_shape_based_thrust(py::module &m)
     py::class_<
             tltt::LowThrustLeg,
             std::shared_ptr<tltt::LowThrustLeg> >(m, "LowThrustLeg")
-            .def( "get_thrust_acceleration_profile",
-                  py::overload_cast<
-                  std::vector< double >&,
-                  std::function< double ( const double ) >,
-                  std::shared_ptr<tni::IntegratorSettings< double > > >( &tltt::LowThrustLeg::getThrustAccelerationProfile ),
-                  py::arg("output_times"),
-                  py::arg("specific_impulse_function"),
-                  py::arg("integrator_settings" ) )
             .def( "get_trajectory",
                   py::overload_cast<
                   std::vector< double >& >( &tltt::LowThrustLeg::getTrajectory ),
-                  py::arg("output_times") )
-            .def( "get_low_thrust_acceleration_settings",
-                  &tltt::LowThrustLeg::getLowThrustAccelerationSettings,
-                  py::arg("bodies"),
-                  py::arg("body_to_propagate"),
-                  py::arg("specific_impulse_function"),
-                  py::arg("integrator_settings" ),
-                  py::arg("time_offset" ) = 0.0 );
+                  py::arg("times") )
+            .def( "get_state",
+                  &tltt::LowThrustLeg::getStateAtEpoch,
+                  py::arg("time") )
+            .def( "compute_delta_v",
+                  &tltt::LowThrustLeg::computeDeltaV );
 
     py::class_<
             tsbm::ShapeBasedMethod,
-            std::shared_ptr<tsbm::ShapeBasedMethod>
-            ,
+            std::shared_ptr<tsbm::ShapeBasedMethod>,
             tltt::LowThrustLeg
             >(m, "ShapeBasedMethod");
 
     py::class_<
             tsbm::HodographicShaping,
-            std::shared_ptr<tsbm::HodographicShaping>
-            ,
+            std::shared_ptr<tsbm::HodographicShaping>,
             tsbm::ShapeBasedMethod
             >(m, "HodographicShaping")
             .def(py::init<
@@ -75,8 +66,7 @@ void expose_shape_based_thrust(py::module &m)
                  const std::vector< std::shared_ptr< tsbm::BaseFunctionHodographicShaping > >&,
                  const Eigen::VectorXd&,
                  const Eigen::VectorXd&,
-                 const Eigen::VectorXd&,
-                 const double >(),
+                 const Eigen::VectorXd& >(),
                  py::arg("initial_state"),
                  py::arg("final_state"),
                  py::arg("time_of_flight"),
@@ -87,9 +77,35 @@ void expose_shape_based_thrust(py::module &m)
                  py::arg("axial_velocity_functions"),
                  py::arg("radial_free_coefficients"),
                  py::arg("normal_free_coefficients"),
-                 py::arg("axial_free_coefficients"),
-                 py::arg("initial_mass") = TUDAT_NAN
-            );
+                 py::arg("axial_free_coefficients") )
+            .def( "get_thrust",
+                  py::overload_cast< double >(
+                  &tsbm::HodographicShaping::computeCurrentThrustAcceleration ),
+                  py::arg( "time_since_departure" ) );
+
+
+    py::class_<
+            tsbm::BaseFunctionHodographicShaping,
+            std::shared_ptr<tsbm::BaseFunctionHodographicShaping>
+            >(m, "BaseFunctionHodographicShaping");
+
+    m.def("recommended_radial_hodograph_functions",
+          py::overload_cast< const double >(
+              &tsbm::getRecommendedRadialVelocityBaseFunctions ),
+          py::arg("time_of_flight") );
+
+    m.def("recommended_normal_hodograph_functions",
+          py::overload_cast< const double >(
+              &tsbm::getRecommendedNormalBaseFunctions ),
+          py::arg("time_of_flight") );
+
+
+    m.def("recommended_axial_hodograph_functions",
+          py::overload_cast< const double, const int >(
+              &tsbm::getRecommendedAxialVelocityBaseFunctions ),
+          py::arg("time_of_flight"),
+          py::arg("number_of_revolutions") );
+
 
     m.def("hodograph_constant",
           &tsbm::hodographConstant );
@@ -164,6 +180,17 @@ void expose_shape_based_thrust(py::module &m)
           py::arg("exponent"),
           py::arg("frequency"),
           py::arg("scale_factor") );
-};
+
+
+    m.def("get_low_thrust_acceleration_settings",
+          &tss::getLowThrustLegAccelerationSettings,
+          py::arg("low_thrust_leg"),
+          py::arg("bodies"),
+          py::arg("body_to_propagate"),
+          py::arg("specific_impulse_function"),
+          py::arg("low_thrust_leg_initial_time") );
+
+
+}
 
 }// namespace tudatpy

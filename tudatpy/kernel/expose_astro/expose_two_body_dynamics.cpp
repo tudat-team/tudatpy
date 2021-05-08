@@ -128,7 +128,7 @@ void expose_two_body_dynamics(py::module &m) {
         py::arg("smallest_periapsis_distance"),
         py::arg("use_eccentricity_over_pericenter") = true,
         py::arg("speed_tolerance") = 1.0e-6,
-        py::arg("root_finder") = std::make_shared<trf::NewtonRaphson>(1.0e-12, 1000));
+        py::arg("root_finder") = std::make_shared<trf::NewtonRaphson< > >(1.0e-12, 1000));
 
   m.def("gravity_assist",// overload 2: unassisted (returns 3 dim vector)
         py::overload_cast<const double,
