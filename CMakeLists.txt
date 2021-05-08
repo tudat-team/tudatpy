@@ -21,7 +21,8 @@ endif ()
 cmake_policy(SET CMP0069 NEW)
 
 # Get version from file.
-file(READ "version" Tudat_VERSION)
+file(READ "version" Tudat_VERSION_LABEL)
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" Tudat_VERSION "${Tudat_VERSION_LABEL}")
 
 # Specific project name.
 project(Tudat VERSION ${Tudat_VERSION} LANGUAGES C CXX)
