@@ -101,7 +101,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_simulation/expose_shape_based_thrust.cpp
 
         kernel/expose_unit_tests.cpp
-        kernel/docstrings.cpp
+        ../tools/docstrings.cpp
 
         kernel/expose_example.cpp
         )
@@ -154,10 +154,12 @@ INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
+
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY tutorial_1.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY tutorial_2.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY tutorial_3.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY tutorial_4.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY tutorial_5.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+
+# collect all example-X.py files
+file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
+
+# copy them into the root build tree
+file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

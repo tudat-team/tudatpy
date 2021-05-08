@@ -7,6 +7,10 @@ endif (POLICY CMP0048)
 # Get version from file.
 file(STRINGS "version" tudatpy_VERSION)
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+else()
+    set(VERSION_INFO "${tudatpy_VERSION}")
+endif()
 
 include_directories(include)
 # Add cmake modules
@@ -44,21 +48,24 @@ endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
-# Configure Boost libraries.
-if (NOT Boost_USE_STATIC_LIBS)
-    set(Boost_USE_STATIC_LIBS ON)
-endif ()
-if (NOT Boost_USE_MULTITHREADED)
-    set(Boost_USE_MULTITHREADED ON)
-endif ()
-if (NOT Boost_USE_STATIC_RUNTIME)
-    set(Boost_USE_STATIC_RUNTIME ON)
-endif ()
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_RUNTIME OFF)
+
+## Configure Boost libraries.
+#if (NOT Boost_USE_STATIC_LIBS)
+#    set(Boost_USE_STATIC_LIBS ON)
+#endif ()
+##if (NOT Boost_USE_MULTITHREADED)
+##    set(Boost_USE_MULTITHREADED ON)
+##endif ()
+#if (NOT Boost_USE_STATIC_RUNTIME)
+#    set(Boost_USE_STATIC_RUNTIME ON)
+#endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find Boost libraries on local system.
-find_package(Boost 1.64.0
+find_package(Boost 1.72.0
         COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
 find_package(Eigen3 REQUIRED)
@@ -70,9 +77,9 @@ add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
-if (DEFINED _GLIBCXX_USE_CXX11_ABI)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
-endif ()
+#if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+#endif ()
 #set(TUDAT_BUNDLE_BUILD ON)
 #find_package(Python3 COMPONENTS Interpreter Development)
 
