@@ -171,6 +171,9 @@ def main():
     states = dynamics_simulator.state_history
     dependent_variables = dynamics_simulator.dependent_variable_history
 
+    # from tudatpy
+    # array = result2array(states)
+
     # io.save2txt(
     #     solution=dynamics_simulator.get_equations_of_motion_numerical_solution(),
     #     filename="apolloPropagationHistory.dat",
@@ -188,3 +191,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

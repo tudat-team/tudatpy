@@ -10,8 +10,9 @@
 
 #include "expose_constants.h"
 
-#include "docstrings.h"
+#include "tudatpy/docstrings.h"
 #include "tudat/constants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
 
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
@@ -20,12 +21,13 @@ namespace py = pybind11;
 namespace tbc = tudat::celestial_body_constants;
 namespace tpc = tudat::physical_constants;
 namespace tmc = tudat::mathematical_constants;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
-
+namespace constants {
 void expose_constants(py::module &m) {
 
-  m.attr("__doc__") = tudatpy::constants_docstring().c_str();
+  m.attr("__doc__") = tudatpy::get_docstring("constants").c_str();
 
   // celestialBodyConstants.h
   m.attr("EARTH_EQUATORIAL_RADIUS") = tbc::EARTH_EQUATORIAL_RADIUS;
@@ -71,6 +73,10 @@ void expose_constants(py::module &m) {
   m.attr("LG_TIME_RATE_TERM") = tpc::LG_TIME_RATE_TERM;
   m.attr("LG_TIME_RATE_TERM_LONG") = tpc::LG_TIME_RATE_TERM_LONG;
 
+  // time constants
+  m.attr("JULIAN_DAY_ON_J2000") = tba::JULIAN_DAY_ON_J2000;
+  m.attr("JULIAN_DAY_AT_0_MJD") = tba::JULIAN_DAY_AT_0_MJD;
+
   // mathematicalConstants.h
   m.attr("E") = tmc::E;
   m.attr("GOLDEN_RATIO") = tmc::GOLDEN_RATIO;
@@ -79,5 +85,5 @@ void expose_constants(py::module &m) {
   m.attr("LONG_PI") = tmc::LONG_PI;
   m.attr("TUDAT_NAN") = TUDAT_NAN;
 };
-
+}// namespace constants
 }// namespace tudatpy

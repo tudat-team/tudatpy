@@ -22,18 +22,28 @@ namespace tudatpy {
 
 void expose_gravitation(py::module &m) {
 
-  py::class_<tg::GravityFieldModel,
-             std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
-      .def(py::init<
-               const double,
-               const std::function<void()>>(),
-           py::arg("gravitational_parameter"),
-           py::arg("update_inertia_tensor") = std::function<void()>()// <pybind11/functional.h>
-           )
-      .def("get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter)
-      .def_property("gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter,
-                    &tg::GravityFieldModel::resetGravitationalParameter);
+    py::class_<tg::GravityFieldModel,
+            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
+            .def(py::init<
+                 const double,
+                 const std::function<void()>>(),
+                 py::arg("gravitational_parameter"),
+                 py::arg("update_inertia_tensor") = std::function<void()>()// <pybind11/functional.h>
+            )
+            .def("get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter)
+            .def_property("gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter,
+                          &tg::GravityFieldModel::resetGravitationalParameter);
 
+    py::class_<tg::SphericalHarmonicsGravityField,
+            std::shared_ptr<tg::SphericalHarmonicsGravityField >,
+            tg::GravityFieldModel>(m, "SphericalHarmonicsGravityField")
+            .def_property_readonly("reference_radius", &tg::SphericalHarmonicsGravityField::getReferenceRadius )
+            .def_property_readonly("maximum_degree", &tg::SphericalHarmonicsGravityField::getDegreeOfExpansion )
+            .def_property_readonly("maximum_order", &tg::SphericalHarmonicsGravityField::getOrderOfExpansion )
+            .def_property("cosine_coefficients", &tg::SphericalHarmonicsGravityField::getCosineCoefficients,
+                          &tg::SphericalHarmonicsGravityField::setCosineCoefficients)
+            .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
+                          &tg::SphericalHarmonicsGravityField::setSineCoefficients);
 };
 
 }// namespace tudatpy
