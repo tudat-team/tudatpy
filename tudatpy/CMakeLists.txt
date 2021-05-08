@@ -89,12 +89,14 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_interpolators.cpp
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
+        kernel/expose_math/expose_geometry.cpp
 
         # kernel/simulation
         kernel/expose_simulation.cpp
         kernel/expose_simulation/expose_environment_setup.cpp
         kernel/expose_simulation/expose_propagation_setup.cpp
         kernel/expose_simulation/expose_estimation_setup.cpp
+        kernel/expose_simulation/expose_shape_based_thrust.cpp
 
         kernel/expose_unit_tests.cpp
         kernel/docstrings.cpp
@@ -106,7 +108,8 @@ target_link_libraries(kernel PRIVATE
         ${Boost_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
         ${Tudat_PROPAGATION_LIBRARIES}
-        ${Tudat_ESTIMATION_LIBRARIES})
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 
 target_include_directories(kernel PUBLIC
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>

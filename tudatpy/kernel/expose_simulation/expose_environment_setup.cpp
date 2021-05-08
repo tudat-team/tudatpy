@@ -24,7 +24,41 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
+namespace tba = tudat::basic_astrodynamics;
+namespace ta = tudat::aerodynamics;
 
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettingsFromMatrix(
+        const std::string& originalFrame,
+        const std::string& targetFrame,
+        const Eigen::Matrix3d& initialOrientation,
+        const double initialTime,
+        const double rotationRate
+        )
+{
+    return std::make_shared< SimpleRotationModelSettings >(
+            originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate
+            );
+}
+
+inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings(
+        const std::string& centralBodyName,
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation
+        )
+{
+    return std::make_shared< SynchronousRotationModelSettings >(
+            centralBodyName, baseFrameOrientation, targetFrameOrientation );
+}
+
+}
+
+}
 namespace tudatpy {
 
 void expose_aerodynamic_coefficient_setup(py::module &m) {
@@ -68,6 +102,51 @@ void expose_aerodynamic_coefficient_setup(py::module &m) {
           py::arg("constant_force_coefficient"),
           py::arg("are_coefficients_in_aerodynamic_frame") = true,
           py::arg("are_coefficients_in_negative_axis_direction") = true);
+
+    m.def("tabulated",
+		  py::overload_cast<
+				  const std::vector<double>,
+				  const std::vector<Eigen::Vector3d>,
+				  const std::vector<Eigen::Vector3d>,
+				  const double,
+				  const double,
+				  const double,
+				  const Eigen::Vector3d&,
+				  const ta::AerodynamicCoefficientsIndependentVariables,
+				  const bool,
+				  const bool,
+				  const std::shared_ptr<ti::InterpolatorSettings>>
+				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+		  py::arg("independent_variables"),
+		  py::arg("force_coefficients"),
+		  py::arg("moment_coefficients"),
+		  py::arg("reference_length"),
+		  py::arg("reference_area"),
+		  py::arg("lateral_reference_length"),
+		  py::arg("moment_reference_point"),
+		  py::arg("independent_variable_name"),
+		  py::arg("are_coefficients_in_aerodynamic_frame"),
+		  py::arg("are_coefficients_in_negative_axis_direction"),
+		  py::arg("interpolator_settings"));
+
+    m.def("tabulated",
+		  py::overload_cast<
+		          const std::vector<double>,
+		          const std::vector<Eigen::Vector3d>,
+				  const double,
+				  const ta::AerodynamicCoefficientsIndependentVariables,
+				  const bool,
+				  const bool,
+				  const std::shared_ptr<ti::InterpolatorSettings>>
+				  (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
+		  py::arg("independent_variables"),
+		  py::arg("force_coefficients"),
+		  py::arg("reference_area"),
+		  py::arg("independent_variable_name"),
+		  py::arg("are_coefficients_in_aerodynamic_frame"),
+		  py::arg("are_coefficients_in_negative_axis_direction"),
+		  py::arg("interpolator_settings"));
+
 }
 
 void expose_atmosphere_setup(py::module &m) {
@@ -82,6 +161,30 @@ void expose_atmosphere_setup(py::module &m) {
           &tss::exponentialAtmosphereSettings ),
           py::arg("scale_height"),
           py::arg("surface_density") );
+
+	m.def("exponential",
+		  py::overload_cast< const double, const double, const double,
+		  const double, const double >(&tss::exponentialAtmosphereSettings),
+		  py::arg("scale_height"),
+		  py::arg("constant_temperature"),
+		  py::arg("surface_density"),
+		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+		  py::arg("ratio_specific_heats") = 1.4);
+
+    m.def("nrlmsise00",
+		  &tss::nrlmsise00AtmosphereSettings);
+
+    m.def("custom_constant_temperature",
+		  &tss::customConstantTemperatureAtmosphereSettings,
+		  py::arg("density_function"),
+		  py::arg("constant_temperature"),
+		  py::arg("specific_gas_constant") = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+		  py::arg("ratio_of_specific_heats") = 1.4);
+
+    m.def("custom_wind_model",
+		  &tss::customWindModelSettings,
+		  py::arg("wind_function"));
+
 }
 
 void expose_radiation_pressure_setup(py::module &m) {
@@ -124,13 +227,23 @@ void expose_radiation_pressure_setup(py::module &m) {
           py::arg("source_body"), py::arg("reference_area"),
           py::arg("radiation_pressure_coefficient"),
           py::arg("occulting_bodies") = std::vector<std::string>());
+
+    m.def("panelled",
+		  &tss::panelledRadiationPressureInterfaceSettings,
+		  py::arg("source_body"),
+		  py::arg("emissivities"),
+		  py::arg("areas"),
+		  py::arg("diffusion_coefficients"),
+		  py::arg("surface_normals_in_body_fixed_frame"),
+		  py::arg("occulting_bodies") = std::vector< std::string >());
+
 }
 
 void expose_rotation_model_setup(py::module &m) {
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
     /////////////////////////////////////////////////////////////////////////////
-    py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no doc>")
+    py::enum_<tss::RotationModelType>(m, "RotationModelType", "<no_doc>")
             .value("simple_rotational_model",
                    tss::RotationModelType::simple_rotation_model)
             .value("spice_rotation_model",
@@ -141,6 +254,15 @@ void expose_rotation_model_setup(py::module &m) {
                    tss::RotationModelType::synchronous_rotation_model)
             .value("planetary_rotation_model",
                    tss::RotationModelType::planetary_rotation_model)
+            .export_values();
+
+    py::enum_<tba::IAUConventions>(m, "IAUConventions", "<no_doc>")
+            .value("iau_2000_a",
+				   tba::IAUConventions::iau_2000_a)
+            .value("iau_2000_b",
+				   tba::IAUConventions::iau_2000_b)
+            .value("iau_2006",
+				   tba::IAUConventions::iau_2006)
             .export_values();
 
     py::class_<tss::RotationModelSettings,
@@ -155,6 +277,36 @@ void expose_rotation_model_setup(py::module &m) {
             .def("get_target_frame", &tss::RotationModelSettings::getTargetFrame)
             .def("reset_original_frame",
                  &tss::RotationModelSettings::resetOriginalFrame);
+
+    m.def("simple",
+          py::overload_cast< const std::string&, const std::string& ,
+            const Eigen:: Matrix3d&, const double, const double >( &tss::simpleRotationModelSettingsFromMatrix ),
+		  py::arg("original_frame"),
+		  py::arg("target_frame"),
+		  py::arg("initial_orientation"),
+          py::arg("initial_time"),
+          py::arg("rotation_rate")
+          );
+
+    m.def("synchronous",
+          &tss::synchronousRotationModelSettings,
+          py::arg("central_body_name"),
+          py::arg("original_frame"),
+          py::arg("target_frame")
+          );
+
+    m.def("spice",
+          &tss::spiceRotationModelSettings,
+          py::arg("originalFrame"),
+          py::arg("targetFrame")
+          );
+
+    m.def("gcrs_to_itrs",
+		  &tss::gcrsToItrsRotationModelSettings,
+		  py::arg("precession_nutation_theory"),
+		  py::arg("original_frame")
+		  );
+
 }
 
 void expose_gravity_field_setup(py::module &m) {
@@ -162,9 +314,9 @@ void expose_gravity_field_setup(py::module &m) {
     // createGravityField.h
     /////////////////////////////////////////////////////////////////////////////
     py::enum_<tss::GravityFieldType>(m, "GravityFieldType", "<no doc>")
-            .value("central", tss::GravityFieldType::central)
-            .value("central_spice", tss::GravityFieldType::central_spice)
-            .value("spherical_harmonic", tss::GravityFieldType::spherical_harmonic)
+            .value("central_gravity", tss::GravityFieldType::central)
+            .value("central_spice_gravity", tss::GravityFieldType::central_spice)
+            .value("spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic)
             .export_values();
 
     py::enum_<tss::SphericalHarmonicsModel>(m, "SphericalHarmonicsModel", "<no doc>")
@@ -201,9 +353,40 @@ void expose_gravity_field_setup(py::module &m) {
             .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame)
             .def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
             .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField);
+
+    m.def("central",
+		  &tss::centralGravitySettings);
+
+    m.def("central_spice",
+		  &tss::centralGravitySettings);
+
+    m.def("spherical_harmonic",
+		  &tss::sphericalHarmonicsGravitySettings,
+		  py::arg("gravitational_parameter"),
+		  py::arg("reference_radius"),
+		  py::arg("normalized_cosine_coefficients"),
+		  py::arg("normalized_sine_coefficients"),
+		  py::arg("associated_reference_frame"));
 }
 
 void expose_ephemeris_setup(py::module &m) {
+
+	/////////////////////////////////////////////////////////////////////////////
+	// approximatePlanetPositionsBase.h
+	/////////////////////////////////////////////////////////////////////////////
+
+	py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
+			m, "BodiesWithEphemerisData", "<no_doc>")
+			.value("mercury", te::ApproximatePlanetPositionsBase::mercury)
+			.value("venus", te::ApproximatePlanetPositionsBase::venus)
+			.value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
+			.value("mars", te::ApproximatePlanetPositionsBase::mars)
+			.value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
+			.value("saturn", te::ApproximatePlanetPositionsBase::saturn)
+			.value("uranus", te::ApproximatePlanetPositionsBase::uranus)
+			.value("neptune", te::ApproximatePlanetPositionsBase::neptune)
+			.value("pluto", te::ApproximatePlanetPositionsBase::pluto)
+			.export_values();
 
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
@@ -333,13 +516,70 @@ void expose_ephemeris_setup(py::module &m) {
 
     m.def("keplerian",
           &tss::keplerEphemerisSettings,
-          py::arg( "initial_keplerian_state" ),
-          py::arg( "initial_state_epoch" ),
-          py::arg( "central_body_gravitational_parameter" ),
-          py::arg( "frame_origin" ) = "SSB" ,
-          py::arg( "frame_orientation" ) = "ECLIPJ2000" ,
-          py::arg( "root_finder_absolute_tolerance" ) = 200.0 * std::numeric_limits< double >::epsilon( ),
-          py::arg( "root_finder_maximum_iterations" ) = 1000.0 );
+          py::arg("initial_keplerian_state"),
+          py::arg("initial_state_epoch"),
+          py::arg("central_body_gravitational_parameter"),
+          py::arg("frame_origin") = "SSB" ,
+          py::arg("frame_orientation") = "ECLIPJ2000" ,
+          py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
+          py::arg("root_finder_maximum_iterations") = 1000.0 );
+
+    m.def("approximate_planet_positions",
+		  &tss::approximatePlanetPositionsSettings,
+		  py::arg("body_identifier"),
+		  py::arg("use_circular_coplanar_approximation"));
+
+	m.def("direct_spice",
+		  &tss::directSpiceEphemerisSettings,
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000",
+		  py::arg("correct_for_stellar_aberration") = false,
+		  py::arg("correct_for_light_time_aberration") = false,
+		  py::arg("converge_light_time_aberration") = false,
+		  py::arg("ephemeris_type") = tss::EphemerisType::direct_spice_ephemeris);
+
+	m.def("interpolated_spice",
+		  &tss::interpolatedSpiceEphemerisSettings,
+		  py::arg("initial_time"),
+		  py::arg("final_time"),
+		  py::arg("time_step"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000",
+		  py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6));
+
+	m.def("tabulated",
+		  &tss::tabulatedEphemerisSettings,
+		  py::arg("body_state_history"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
+
+	m.def("constant",
+		  &tss::constantEphemerisSettings,
+		  py::arg("constant_state"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
+
+	m.def("custom",
+		  &tss::customEphemerisSettings,
+		  py::arg("custom_state_function"),
+		  py::arg("frame_origin") = "SSB",
+		  py::arg("frame_orientation") = "ECLIPJ2000");
+}
+
+void expose_shape_setup(py::module &m){
+
+	m.def("spherical",
+	   &tss::sphericalBodyShapeSettings,
+	   py::arg("radius"));
+
+	m.def("spherical_spice",
+	   &tss::fromSpiceSphericalBodyShapeSettings);
+
+	m.def("oblate_spherical",
+	   &tss::oblateSphericalBodyShapeSettings,
+	   py::arg("equatorial_radius"),
+	   py::arg("flattening"));
+
 }
 
 void expose_environment_setup(py::module &m) {
@@ -414,6 +654,7 @@ void expose_environment_setup(py::module &m) {
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)
             .def("set_flight_conditions", &tss::Body::setFlightConditions, py::arg("aerodynamic_flight_conditions"))
+            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
             .def("get_rotation_model", &tss::Body::getRotationalEphemeris)
             .def("set_rotation_model", &tss::Body::setRotationalEphemeris, py::arg("rotational_ephemeris"))
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris);
@@ -553,6 +794,13 @@ void expose_environment_setup(py::module &m) {
           py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
           py::arg("body_dict"));
 
+    m.def("set_aerodynamic_guidance",
+          py::overload_cast<
+          const std::shared_ptr< ta::AerodynamicGuidance > ,
+          const std::shared_ptr< tss::Body > >
+                  (&tss::setGuidanceAnglesFunctions),
+          py::arg("aerodynamic_guidance"),
+          py::arg("body") );
 
     m.def("set_aerodynamic_orientation_functions", &tss::setAerodynamicOrientationFunctions,
           py::arg("body"),
@@ -578,6 +826,9 @@ void expose_environment_setup(py::module &m) {
 
     auto atmosphere_setup = m.def_submodule("atmosphere");
     expose_atmosphere_setup(atmosphere_setup);
+
+    auto shape_setup = m.def_submodule("shape");
+    expose_shape_setup(shape_setup);
 
 }
 
