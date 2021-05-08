@@ -4,9 +4,15 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-# Get version from file.
-file(STRINGS "version" tudatpy_VERSION)
+# Get version+label from file.
+file(STRINGS "version" tudatpy_VERSION_LABEL)
+
+# Get version from version_label argument using regex (x.y.z-rc -> x.y.z).
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" tudatpy_VERSION "${tudatpy_VERSION_LABEL}")
+
+# Project declaration.
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
     set(VERSION_INFO "${tudatpy_VERSION}")
