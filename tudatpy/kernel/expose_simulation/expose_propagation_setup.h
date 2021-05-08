@@ -19,7 +19,7 @@
 
 #include "tudat/simulation/propagation_setup.h"
 
-#include "../docstrings.h"
+#include "../../../tools/docstrings.h"
 
 namespace py = pybind11;
 

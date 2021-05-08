@@ -10,6 +10,8 @@
 
 #include "expose_io.h"
 
+#include "tudat/io/readHistoryFromFile.h"
+
 namespace py = pybind11;
 
 using namespace tudat::input_output;
@@ -25,6 +27,15 @@ void expose_io(py::module &m) {
   m.def("get_atmosphere_tables_path", &tudat::paths::getAtmosphereTablesPath);
   m.def("get_gravity_models_path", &tudat::paths::getGravityModelsPath);
   m.def("get_space_weather_path", &tudat::paths::getSpaceWeatherDataPath);
+
+  m.def("read_vector_history_from_file", &tudat::input_output::readVectorHistoryFromFile< double, double >,
+        py::arg("vector_size"),
+        py::arg("file_name") );
+
+  m.def("read_matrix_history_from_file", &tudat::input_output::readMatrixHistoryFromFile< double, double >,
+        py::arg("matrix_rows"),
+        py::arg("matrix_columns"),
+        py::arg("file_name") );
 };
 
 }// namespace tudatpy

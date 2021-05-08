@@ -18,8 +18,8 @@ PYBIND11_MODULE(kernel, m) {
   // NOTE: the 'options' object needs to stay alive
   // throughout the whole definition of the module.
   py::options options;
-  options.disable_function_signatures();
-  options.enable_user_defined_docstrings();
+  options.enable_function_signatures( );
+  options.enable_user_defined_docstrings( );
 
   // Export the tudat version.
   m.attr("_tudat_version") = TUDAT_VERSION;
@@ -37,11 +37,11 @@ PYBIND11_MODULE(kernel, m) {
 
   // interface module
   auto interface = m.def_submodule("interface");
-  tudatpy::expose_interface(interface);
+  tudatpy::interface::expose_interface(interface);
 
   // constants module
   auto constants = m.def_submodule("constants");
-  tudatpy::expose_constants(constants);
+  tudatpy::constants::expose_constants(constants);
 
   //   io module
   auto io = m.def_submodule("io");
@@ -51,7 +51,7 @@ PYBIND11_MODULE(kernel, m) {
   auto simulation = m.def_submodule("simulation");
   tudatpy::expose_simulation(simulation);
 
-  // example module
+//  // example module
   auto example = m.def_submodule("example");
   tudatpy::expose_example(example);
 

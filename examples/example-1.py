@@ -7,7 +7,11 @@ from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.simulation import environment_setup
 from tudatpy.kernel.simulation import propagation_setup
 from tudatpy.kernel.astro import conversion
+from tudatpy.kernel import __version__
 
+import sys
+print(sys.path)
+print(__version__)
 
 def main():
     # Load spice kernels.
@@ -134,3 +138,4 @@ And the velocity vector of Delfi-C3 is [km]: \n{
 
 if __name__ == "__main__":
     main()
+

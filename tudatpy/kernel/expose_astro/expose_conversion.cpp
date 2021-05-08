@@ -8,9 +8,16 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
+ // functions
+ #define cartesian_to_keplerian
+
+ // classes
+
 #include "expose_conversion.h"
 
 #include <tudat/astro/conversions.h>
+#include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 
 #include <pybind11/eigen.h>
@@ -19,6 +26,8 @@
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
+namespace tcc = tudat::coordinate_conversions;
+
 namespace te = tudat::ephemerides;
 
 namespace tudatpy {
@@ -51,11 +60,17 @@ void expose_conversion(py::module &m) {
             .value("heading_angle_index", toec::SphericalOrbitalStateElementIndices::headingAngleIndex)
             .export_values();
 
+    py::enum_<tcc::PositionElementTypes>(m, "PositionElementTypes")
+            .value("cartesian_position_type", tcc::PositionElementTypes::cartesian_position)
+            .value("spherical_position_type", tcc::PositionElementTypes::spherical_position)
+            .value("geodetic_position_type", tcc::PositionElementTypes::geodetic_position)
+            .export_values();
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,
           py::arg("cartesian_elements"),
-          py::arg("gravitational_parameter"));
+          py::arg("gravitational_parameter"),
+          "@docstrings::cartesian_to_keplerian");
 
     m.def("keplerian_to_cartesian",
           py::overload_cast< const Eigen::Vector6d&, double >(
@@ -74,6 +89,19 @@ void expose_conversion(py::module &m) {
           py::arg("longitude_of_ascending_node"),
           py::arg("true_anomaly"),
           py::arg("gravitational_parameter"));
+
+    m.def("mean_to_true_anomaly",
+          &toec::convertMeanAnomalyToTrueAnomaly< double >,
+          py::arg("eccentricity"),
+          py::arg("mean_anomaly"),
+          py::arg("use_default_initial_guess") = true,
+          py::arg("non_default_initial_guess") = TUDAT_NAN,
+          py::arg("root_finder") = nullptr );
+
+    m.def("true_to_mean_anomaly",
+          &toec::convertTrueAnomalyToMeanAnomaly< double >,
+          py::arg("eccentricity"),
+          py::arg("true_anomaly") );
 
     m.def("spherical_to_cartesian",
           py::overload_cast< const Eigen::Vector6d& >(
