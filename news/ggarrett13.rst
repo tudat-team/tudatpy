@@ -1,6 +1,7 @@
 **Added:**
 
 * Documentation for :module:`tudatpy.plotting` module added, with example plots.
+* Copy to build tree for ``docs`` folder during CMake configuration.
 
 **Changed:**
 
