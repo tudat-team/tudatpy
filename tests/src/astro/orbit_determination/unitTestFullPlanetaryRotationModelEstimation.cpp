@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     
     // Define observation model settings
     observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationSettings >( one_way_range ) ) );
+    observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationModelSettings >( one_way_range, linkEnds[ 0 ] ) ) );
     
     // Define observation times.
     double observationTime;

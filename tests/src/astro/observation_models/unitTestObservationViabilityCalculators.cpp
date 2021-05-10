@@ -467,30 +467,31 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     // Create observation model and observation time settings for all observables
     std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
             observationTimeSettings;
-    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > > SortedObservationSettingsMap;
     SortedObservationSettingsMap observationSettingsMap;
     for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = testLinkEndsList.begin( );
          observableIterator != testLinkEndsList.end( ); observableIterator++ )
     {
         for( unsigned int i = 0; i < observableIterator->second.size( ); i++ )
         {
+            LinkEnds linkEnds = observableIterator->second.at( i );
             if( observableIterator->first == one_way_differenced_range )
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >( linkEnds,
                             [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) );
             }
             else if( observableIterator->first == n_way_range )
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        std::make_shared< NWayRangeObservationSettings >(
+                        std::make_shared< NWayRangeObservationSettings >( linkEnds,
                             std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) );
             }
             else
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        std::make_shared< ObservationSettings >(
-                            observableIterator->first, std::shared_ptr< LightTimeCorrectionSettings >( ) );
+                        std::make_shared< ObservationModelSettings >(
+                            observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) );
 
             }
             observationTimeSettings[ observableIterator->first ][ observableIterator->second.at( i ) ] =

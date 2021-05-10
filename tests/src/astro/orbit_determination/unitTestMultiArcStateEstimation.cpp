@@ -172,10 +172,10 @@ Eigen::VectorXd  executeParameterEstimation(
     linkEnds2[ 1 ][ transmitter ] = mslStation;
 
     observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], std::make_shared< ObservationSettings >(
-                                       one_way_range ) ) );
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], std::make_shared< ObservationSettings >(
-                                       one_way_range ) ) );
+    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 0 ] ) ) );
+    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 1 ] ) ) );
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -479,8 +479,8 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     for( int i = 0; i < numberOfVehicles; i++ )
     {
         linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
-        observationSettingsMap.insert( std::make_pair( linkEndsList[ i ], std::make_shared< ObservationSettings >(
-                                                           position_observable ) ) );
+        observationSettingsMap.insert( std::make_pair( linkEndsList[ i ], std::make_shared< ObservationModelSettings >(
+                                                           position_observable, linkEndsList[ i ] ) ) );
     }
 
 

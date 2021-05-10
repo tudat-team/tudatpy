@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
     observation_models::ObservationSettingsMap observationSettingsMap;
     observationSettingsMap.insert(
-                std::make_pair( linkEnds, std::make_shared< ObservationSettings >( position_observable ) ) );
+                std::make_pair( linkEnds, std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////

@@ -263,10 +263,10 @@ Eigen::VectorXd  executeParameterEstimation(
     observation_models::ObservationSettingsMap observationSettingsMap;
     for( unsigned int i = 0; i  < linkEnds2.size( ); i++ )
     {
-        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationSettings >(
-                                                           one_way_range ) ) );
-        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationSettings >(
-                                                           angular_position ) ) );
+        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationModelSettings >(
+                                                           one_way_range, linkEnds2[ i ] ) ) );
+        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationModelSettings >(
+                                                           angular_position, linkEnds2[ i ] ) ) );
     }
 
 

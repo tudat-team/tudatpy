@@ -175,10 +175,10 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         linkEnds[ 0 ][ observed_body ] = std::make_pair( "Io", "" );
         linkEnds[ 1 ][ observed_body ] = std::make_pair( "Europa", "" );
         observation_models::ObservationSettingsMap observationSettingsMap;
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationSettings >(
-                                           position_observable ) ) );
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 1 ], std::make_shared< ObservationSettings >(
-                                           position_observable ) ) );
+        observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 0 ] ) ) );
+        observationSettingsMap.insert( std::make_pair( linkEnds[ 1 ], std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 1 ] ) ) );
 
         // Define integrator and propagator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -433,8 +433,8 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Define observation settings
     observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationSettings >(
-                                       position_observable ) ) );
+    observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationModelSettings >(
+                                       position_observable, linkEnds ) ) );
     // Create orbit determination object.
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
