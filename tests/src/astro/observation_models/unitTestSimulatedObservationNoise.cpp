@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
             // Create observation settings
             observationSettingsMap.insert(
-                        std::make_pair( currentLinkEndsList.at( i ),
-                                        std::make_shared< ObservationSettings >(
-                                            currentObservable, std::shared_ptr< LightTimeCorrectionSettings >( ),
+                        std::make_pair( currentLinkEndsList.at( i ), std::make_shared< ObservationModelSettings >(
+                                            currentObservable, currentLinkEndsList.at( i ),
+                                            std::shared_ptr< LightTimeCorrectionSettings >( ),
                                             biasSettings ) ) );
         }
     }

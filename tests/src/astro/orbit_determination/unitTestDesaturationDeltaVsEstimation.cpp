@@ -250,8 +250,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
-                observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ), std::make_shared< ObservationSettings >
-                                                               ( currentObservable, std::shared_ptr< LightTimeCorrectionSettings >( ) ) ) );
+                observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ), std::make_shared< ObservationModelSettings >
+                                                               ( currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ) ) ) );
             }
         }
 

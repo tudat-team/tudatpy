@@ -825,7 +825,8 @@ protected:
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
                     createObservationManagerBase< ObservationScalarType, TimeType >(
-                        observablesIterator->first, observablesIterator->second, bodies, parametersToEstimate_,
+                        observablesIterator->first, tudat::utilities::createVectorFromMapValues( observablesIterator->second ),
+                        bodies, parametersToEstimate_,
                         stateTransitionAndSensitivityMatrixInterface_ );
         }
 

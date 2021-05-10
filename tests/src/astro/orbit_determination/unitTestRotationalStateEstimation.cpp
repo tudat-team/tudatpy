@@ -221,7 +221,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-                                                           std::make_shared< ObservationSettings >( currentObservable ) ) );
+                                                           std::make_shared< ObservationModelSettings >(
+                                                               currentObservable, currentLinkEndsList.at( i ) ) ) );
         }
     }
 
@@ -471,7 +472,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-                                                           std::make_shared< ObservationSettings >( currentObservable ) ) );
+                                                           std::make_shared< ObservationModelSettings >( currentObservable, currentLinkEndsList.at( i ) ) ) );
         }
     }
 
