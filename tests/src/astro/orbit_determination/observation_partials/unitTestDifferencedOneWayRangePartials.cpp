@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
-                        [ ]( const double ){ return 60.0; },
+                    std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
+                        linkEnds, [ ]( const double ){ return 60.0; },
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
-                        [ ]( const double ){ return 60.0; },
+                    std::make_shared< observation_models::OneWayDifferencedRangeRateObservationSettings >(
+                        linkEnds, [ ]( const double ){ return 60.0; },
                         std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodies  );
 

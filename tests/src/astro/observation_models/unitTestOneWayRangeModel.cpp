@@ -80,15 +80,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
 
 
     // Create observation settings
-    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
-            ( one_way_range, lightTimeCorrectionSettings,
+    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
+            ( one_way_range, linkEnds, lightTimeCorrectionSettings,
               std::make_shared< ConstantObservationBiasSettings >(
                   ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
             ObservationModelCreator< 1, double, double >::createObservationModel(
-                linkEnds, observableSettings, bodies );
+                observableSettings, bodies );
     std::shared_ptr< ObservationBias< 1 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
@@ -202,15 +202,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
         {
             linkEndForTime = receiver;
         }
-        std::shared_ptr< ObservationSettings > arcWiseBiasedObservableSettings = std::make_shared< ObservationSettings >
-                ( one_way_range, lightTimeCorrectionSettings,
+        std::shared_ptr< ObservationModelSettings > arcWiseBiasedObservableSettings = std::make_shared< ObservationModelSettings >
+                ( one_way_range, linkEnds, lightTimeCorrectionSettings,
                   std::make_shared< ArcWiseConstantObservationBiasSettings >(
                       observationTimes, observationBiases, linkEndForTime, true ) );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > arcwiseBiasedObservationModel =
                 ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, arcWiseBiasedObservableSettings, bodies );
+                    arcWiseBiasedObservableSettings, bodies );
 
         std::vector< double > observationDifferences;
         observationDifferences.push_back(

@@ -79,15 +79,15 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                                                 lightTimePerturbingBodies ) );
 
     // Create observation settings
-    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
-            ( angular_position, lightTimeCorrectionSettings,
+    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
+            ( angular_position, linkEnds, lightTimeCorrectionSettings,
               std::make_shared< ConstantObservationBiasSettings >(
                   ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
            ObservationModelCreator< 2, double, double >::createObservationModel(
-                linkEnds, observableSettings, bodies );
+                observableSettings, bodies );
     std::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
