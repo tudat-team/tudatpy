@@ -12,6 +12,7 @@
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
@@ -244,6 +245,30 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                        tabulatedGravityFieldVariationSettings->getMinimumDegree( ),
                        tabulatedGravityFieldVariationSettings->getMinimumOrder( ),
                        tabulatedGravityFieldVariationSettings->getInterpolatorSettings( )->interpolatorSettings_ );
+        }
+        break;
+    }
+    case periodic_variation:
+    {
+        // Check input consistency
+        std::shared_ptr< PeriodicGravityFieldVariationsSettings > periodicGravityFieldVariationSettings
+                = std::dynamic_pointer_cast< PeriodicGravityFieldVariationsSettings >(
+                    gravityFieldVariationSettings );
+        if( periodicGravityFieldVariationSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected periodic gravity field variation settings for " + body );
+        }
+        else
+        {
+            // Create variation.
+            gravityFieldVariationModel = std::make_shared< PeriodicGravityFieldVariations >
+                    (  periodicGravityFieldVariationSettings->getCosineAmplitudes( ),
+                       periodicGravityFieldVariationSettings->getSineAmplitudes( ),
+                       periodicGravityFieldVariationSettings->getFrequencies( ),
+                       periodicGravityFieldVariationSettings->getPhases( ),
+                       periodicGravityFieldVariationSettings->getReferenceEpoch( ),
+                       periodicGravityFieldVariationSettings->getMinimumDegree( ),
+                       periodicGravityFieldVariationSettings->getMinimumOrder( ) );
         }
         break;
     }
