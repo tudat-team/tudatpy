@@ -729,39 +729,22 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
     return properTimeRateInterface;
 }
 
-//! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
-//! with contents of ObservationModelSettings pointers. The ObservationSettingsMap may be used as well, which contains the same
-//! type of information. This typedef, however, has some advantages in terms of book-keeping when creating observation models.
-typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > > SortedObservationSettingsMap;
+////! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
+////! with contents of ObservationModelSettings pointers. The ObservationSettingsMap may be used as well, which contains the same
+////! type of information. This typedef, however, has some advantages in terms of book-keeping when creating observation models.
+//typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > > SortedObservationSettingsMap;
 
-//! Typedef of list of observation models per link ends. Multiple observation models for a single set of link ends are allowed,
-//! since this typedef represents a multimap.
-typedef std::multimap< LinkEnds, std::shared_ptr< ObservationModelSettings > > ObservationSettingsMap;
+////! Typedef of list of observation models per link ends. Multiple observation models for a single set of link ends are allowed,
+////! since this typedef represents a multimap.
+//typedef std::multimap< LinkEnds, std::shared_ptr< ObservationModelSettings > > ObservationSettingsMap;
 
-typedef std::vector< std::pair< LinkEnds, std::shared_ptr< ObservationModelSettings > > > ObservationSettingsVector;
+//typedef std::vector< std::pair< LinkEnds, std::shared_ptr< ObservationModelSettings > > > ObservationSettingsVector;
 
-typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationModelSettings > > > ObservationSettingsListPerLinkEnd;
+//typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationModelSettings > > > ObservationSettingsListPerLinkEnd;
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
-/*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
- * \param unsortedObservationSettingsMap List (multimap_) of observation models sorted link ends
- * \return List (map of maps) of observation models sorted by observable type and link ends
- */
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsMap& unsortedObservationSettingsMap );
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
-/*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
- * \param unsortedObservationSettingsMap List (map_) of observation models sorted link ends
- * \return List (map of maps) of observation models sorted by observable type and link ends
- */
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
-
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsVector& unsortedObservationSettingsMap );
+std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortObservationModelSettingsByType(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings );
 
 //! Function to create an object that computes an observation bias
 /*!
@@ -1611,47 +1594,45 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
 //! Function to create a map of object to simulate observations (one object for each type of observable).
 /*!
  *  Function to create a map of object to simulate observations (one object for each type of observable).
- *  \param observationSettingsMap Map of settings for the observation models that are to be created in the simulator object: first
- *  map key is observable type, second is link ends for observation. One observation settings object must be given
- *  for each required set of link ends/observable (each settings object must be consistent with observable type in first entry).
+ *  \param observationSettingsList List of settings for the observation models that are to be created in the simulator object
  *  \param bodies Map of Body objects that comprise the environment
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
         const simulation_setup::SystemOfBodies& bodies )
 {
     std::map< ObservableType,
             std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+    std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
+            sortObservationModelSettingsByType( observationSettingsList );
 
     // Iterate over all observables
-    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > >
-            SortedObservationSettingsMap;
-    for( SortedObservationSettingsMap::const_iterator settingsIterator = observationSettingsMap.begin( );
-         settingsIterator != observationSettingsMap.end( ); settingsIterator++ )
+    for( auto it : sortedObservationSettingsList )
     {
         // Call createObservationSimulator of required observation size
-        int observableSize = getObservableSize( settingsIterator->first );
+        ObservableType observableType = it.first;
+        int observableSize = getObservableSize( observableType );
         switch( observableSize )
         {
         case 1:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        settingsIterator->first, utilities::createVectorFromMapValues( settingsIterator->second ), bodies );
+            observationSimulators[ observableType ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies );
             break;
         }
         case 2:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        settingsIterator->first, utilities::createVectorFromMapValues( settingsIterator->second ), bodies );
+            observationSimulators[ observableType ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies );
             break;
         }
         case 3:
         {
-            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        settingsIterator->first, utilities::createVectorFromMapValues( settingsIterator->second ), bodies );
+            observationSimulators[ observableType ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies );
             break;
         }
         default:
@@ -1662,34 +1643,34 @@ std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
 }
 
 
-//! Function to create a map of object to simulate observations (one object for each type of observable).
-/*!
- *  Function to create a map of object to simulate observations (one object for each type of observable), from a list of
- *  observation settings not sorted by observable type.
- *  \param observationSettingsMap Multi-map of settings for the observation models that are to be created in the simulator object
- *  map key is link ends for observation.
- *  \param bodies Map of Body objects that comprise the environment
- *  \return List of objects that simulate the observables according to the provided settings.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType,
-std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        const observation_models::ObservationSettingsMap& observationSettingsMap,
-        const simulation_setup::SystemOfBodies &bodies )
-{
-    return createObservationSimulators< ObservationScalarType, TimeType >(
-                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
-}
+////! Function to create a map of object to simulate observations (one object for each type of observable).
+///*!
+// *  Function to create a map of object to simulate observations (one object for each type of observable), from a list of
+// *  observation settings not sorted by observable type.
+// *  \param observationSettingsMap Multi-map of settings for the observation models that are to be created in the simulator object
+// *  map key is link ends for observation.
+// *  \param bodies Map of Body objects that comprise the environment
+// *  \return List of objects that simulate the observables according to the provided settings.
+// */
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::map< ObservableType,
+//std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+//        const observation_models::ObservationSettingsMap& observationSettingsMap,
+//        const simulation_setup::SystemOfBodies &bodies )
+//{
+//    return createObservationSimulators< ObservationScalarType, TimeType >(
+//                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
+//}
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType,
-std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
-        const observation_models::ObservationSettingsVector& observationSettingsMap,
-        const simulation_setup::SystemOfBodies &bodies )
-{
-    return createObservationSimulators< ObservationScalarType, TimeType >(
-                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
-}
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::map< ObservableType,
+//std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+//        const observation_models::ObservationSettingsVector& observationSettingsMap,
+//        const simulation_setup::SystemOfBodies &bodies )
+//{
+//    return createObservationSimulators< ObservationScalarType, TimeType >(
+//                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodies );
+//}
 
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
@@ -1817,6 +1798,32 @@ createObservationViabilityCalculators(
         const simulation_setup::SystemOfBodies& bodies,
         const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
+
+
+
+//void addObservationViabilitySettings(
+//        std::shared_ptr< ObservationModelSettings > observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList );
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList );
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const ObservableType observationType );
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const ObservableType observationType,
+//        const std::vector< LinkEnds > linkEnds );
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerType );
 
 } // namespace observation_models
 

@@ -171,11 +171,11 @@ Eigen::VectorXd  executeParameterEstimation(
     linkEnds2[ 1 ][ receiver ] = grazStation;
     linkEnds2[ 1 ][ transmitter ] = mslStation;
 
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], std::make_shared< ObservationModelSettings >(
-                                       one_way_range, linkEnds2[ 0 ] ) ) );
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], std::make_shared< ObservationModelSettings >(
-                                       one_way_range, linkEnds2[ 1 ] ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 0 ] ) );
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       one_way_range, linkEnds2[ 1 ] ) );
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -201,7 +201,7 @@ Eigen::VectorXd  executeParameterEstimation(
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsMap, integratorSettings, propagatorSettings );
+                observationSettingsList, integratorSettings, propagatorSettings );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
@@ -474,13 +474,13 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
 
     // Define links and observations in simulation.
     std::vector< LinkEnds > linkEndsList;
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( numberOfVehicles );
     for( int i = 0; i < numberOfVehicles; i++ )
     {
         linkEndsList[ i ][ observed_body ] = std::make_pair( vehicleNames.at( i ), "" );
-        observationSettingsMap.insert( std::make_pair( linkEndsList[ i ], std::make_shared< ObservationModelSettings >(
-                                                           position_observable, linkEndsList[ i ] ) ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                                           position_observable, linkEndsList[ i ] ) );
     }
 
 
@@ -488,7 +488,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsMap, integratorSettings, propagatorSettings );
+                observationSettingsList, integratorSettings, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

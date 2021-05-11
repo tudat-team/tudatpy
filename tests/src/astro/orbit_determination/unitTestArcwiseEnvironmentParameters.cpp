@@ -174,9 +174,8 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert(
-                std::make_pair( linkEnds, std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
@@ -215,7 +214,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > dependentVariableData =

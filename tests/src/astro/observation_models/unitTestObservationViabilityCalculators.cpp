@@ -467,8 +467,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     // Create observation model and observation time settings for all observables
     std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
             observationTimeSettings;
-    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationModelSettings > > > SortedObservationSettingsMap;
-    SortedObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = testLinkEndsList.begin( );
          observableIterator != testLinkEndsList.end( ); observableIterator++ )
     {
@@ -477,21 +476,21 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             LinkEnds linkEnds = observableIterator->second.at( i );
             if( observableIterator->first == one_way_differenced_range )
             {
-                observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
+                observationSettingsList.push_back(
                         std::make_shared< OneWayDifferencedRangeRateObservationSettings >( linkEnds,
-                            [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) );
+                            [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) ) );
             }
             else if( observableIterator->first == n_way_range )
             {
-                observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
+                observationSettingsList.push_back(
                         std::make_shared< NWayRangeObservationSettings >( linkEnds,
-                            std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) );
+                            std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) ) );
             }
             else
             {
-                observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
+                observationSettingsList.push_back(
                         std::make_shared< ObservationModelSettings >(
-                            observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) );
+                            observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
 
             }
             observationTimeSettings[ observableIterator->first ][ observableIterator->second.at( i ) ] =
@@ -532,7 +531,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     // Create osbervation simulatos
     std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
-            createObservationSimulators( observationSettingsMap , bodies );
+            createObservationSimulators( observationSettingsList , bodies );
 
     // Simulate observations without constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
