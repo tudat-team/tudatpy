@@ -169,19 +169,17 @@ public:
      *  objects (that are stored in the observationManagers_ map).
      *  \return Map of observation simulators for all observable types involved in current orbit determination.
      */
-    std::map< observation_models::ObservableType,
-    std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
     getObservationSimulators( ) const
     {
-        std::map< observation_models::ObservableType,
-                std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+        std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
         for( typename std::map< observation_models::ObservableType,
              std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
              managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
              managerIterator++ )
         {
-            observationSimulators[ managerIterator->first ] = managerIterator->second->getObservationSimulator( );
+            observationSimulators.push_back( managerIterator->second->getObservationSimulator( ) );
         }
 
         return observationSimulators;

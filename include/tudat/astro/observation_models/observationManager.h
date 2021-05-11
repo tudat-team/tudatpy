@@ -73,7 +73,7 @@ public:
      * \param linkEnds Link ends for which observable size is to be computed
      * \return Size of observable
      */
-    virtual int getObservationSize( const LinkEnds& linkEnds ) = 0;
+    virtual int getObservationSize( ) = 0;
 
 
     //! Function to simulate observations between specified link ends and associated partials at set of observation times.
@@ -187,9 +187,9 @@ public:
      * \param linkEnds Link ends for which observable size is to be computed
      * \return Size of observable
      */
-    int getObservationSize( const LinkEnds& linkEnds )
+    int getObservationSize( )
     {
-        return observationSimulator_->getObservationSize( linkEnds );
+        return observationSimulator_->getObservationSize( );
     }
 
     //! Function to return the observation model for a given set of link ends

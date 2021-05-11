@@ -26,7 +26,6 @@
 #include "observation_models/oneWayDopplerObservationModel.h"
 #include "observation_models/oneWayRangeObservationModel.h"
 #include "observation_models/positionObservationModel.h"
-#include "observation_models/simulateObservations.h"
 #include "observation_models/twoWayDopplerObservationModel.h"
 #include "observation_models/velocityObservationModel.h"
 #include "observation_models/corrections/lightTimeCorrection.h"
