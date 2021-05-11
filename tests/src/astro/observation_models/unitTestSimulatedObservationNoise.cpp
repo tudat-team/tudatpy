@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     double rangeBias2 = -7.2;
 
     // Define observation settings for each observable/link ends combination
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
@@ -143,18 +143,17 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             }
 
             // Create observation settings
-            observationSettingsMap.insert(
-                        std::make_pair( currentLinkEndsList.at( i ), std::make_shared< ObservationModelSettings >(
+            observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                                             currentObservable, currentLinkEndsList.at( i ),
                                             std::shared_ptr< LightTimeCorrectionSettings >( ),
-                                            biasSettings ) ) );
+                                            biasSettings ) );
         }
     }
 
     // Create observation simulators
     std::map< ObservableType,
             std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
-            createObservationSimulators( observationSettingsMap, bodies );
+            createObservationSimulators( observationSettingsList, bodies );
 
     // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
     std::vector< double > baseTimeList;

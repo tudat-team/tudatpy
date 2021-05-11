@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     linkEnds[ 0 ][ receiver ] = mslStation;    
     
     // Define observation model settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationModelSettings >( one_way_range, linkEnds[ 0 ] ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, linkEnds[ 0 ] ) );
     
     // Define observation times.
     double observationTime;
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
         
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate =

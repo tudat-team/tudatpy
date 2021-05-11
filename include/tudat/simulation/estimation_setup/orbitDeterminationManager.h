@@ -125,13 +125,13 @@ public:
             const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodies, observationSettingsMap, { integratorSettings }, propagatorSettings,
+        initializeOrbitDeterminationManager( bodies, observationSettingsList, { integratorSettings }, propagatorSettings,
                                              propagateOnCreation );
     }
 
@@ -139,56 +139,13 @@ public:
             const SystemOfBodies &bodies,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodies, observationSettingsMap, integratorSettings, propagatorSettings,
-                                             propagateOnCreation );
-    }
-
-    //! Constructor
-    /*!
-     *  Constructor
-     *  \param bodies Map of body objects with names of bodies, storing all environment models used in simulation.
-     *  \param parametersToEstimate Container object for all parameters that are to be estimated
-     *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
-     *  for which measurement data is to be provided in orbit determination process
-     *  (through estimateParameters function)
-     *  \param integratorSettings Settings for numerical integrator.
-     *  \param propagatorSettings Settings for propagator.
-     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
-     *  true)
-     */
-    OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
-            const observation_models::ObservationSettingsMap& observationSettingsMap,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
-    {
-        initializeOrbitDeterminationManager( bodies, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                                                 observationSettingsMap ), { integratorSettings }, propagatorSettings,
-                                             propagateOnCreation );
-    }
-
-    OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
-            const observation_models::ObservationSettingsMap& observationSettingsMap,
-            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
-    {
-        initializeOrbitDeterminationManager( bodies, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                                                 observationSettingsMap ), integratorSettings, propagatorSettings,
+        initializeOrbitDeterminationManager( bodies, observationSettingsList, integratorSettings, propagatorSettings,
                                              propagateOnCreation );
     }
 
@@ -773,7 +730,7 @@ protected:
      */
     void initializeOrbitDeterminationManager(
             const SystemOfBodies &bodies,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true )
@@ -819,13 +776,18 @@ protected:
         }
 
         // Iterate over all observables and create observation managers.
-        for( SortedObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
-             observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
+        std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
+                sortObservationModelSettingsByType( observationSettingsList );
+        for( auto it : sortedObservationSettingsList )
         {
+            // Call createObservationSimulator of required observation size
+            ObservableType observableType = it.first;
+
             // Create observation manager for current observable.
-            observationManagers_[ observablesIterator->first ] =
+            observationManagers_[ observableType ] =
                     createObservationManagerBase< ObservationScalarType, TimeType >(
-                        observablesIterator->first, tudat::utilities::createVectorFromMapValues( observablesIterator->second ),
+                        observableType,
+                        it.second,
                         bodies, parametersToEstimate_,
                         stateTransitionAndSensitivityMatrixInterface_ );
         }
