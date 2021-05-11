@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     printEstimatableParameterEntries( parametersToEstimate );
 
     // Create observation settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
@@ -220,16 +220,15 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-                                                           std::make_shared< ObservationModelSettings >(
-                                                               currentObservable, currentLinkEndsList.at( i ) ) ) );
+            observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                                               currentObservable, currentLinkEndsList.at( i ) ) );
         }
     }
 
     // Create orbit determination object
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     // Deifne observation times
@@ -462,7 +461,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     printEstimatableParameterEntries( parametersToEstimate );
 
     // Create observation settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
@@ -471,15 +470,15 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-                                                           std::make_shared< ObservationModelSettings >( currentObservable, currentLinkEndsList.at( i ) ) ) );
+            observationSettingsList.push_back(
+                        std::make_shared< ObservationModelSettings >( currentObservable, currentLinkEndsList.at( i ) ) );
         }
     }
 
     // Create orbit determination object
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     // Deifne observation times

@@ -260,13 +260,13 @@ Eigen::VectorXd  executeParameterEstimation(
 //    linkEnds2[ 3 ][ receiver ] = grazStation;
 //    linkEnds2[ 3 ][ transmitter ] = std::make_pair( "Mars", "" );
 
-    observation_models::ObservationSettingsMap observationSettingsMap;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( unsigned int i = 0; i  < linkEnds2.size( ); i++ )
     {
-        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationModelSettings >(
-                                                           one_way_range, linkEnds2[ i ] ) ) );
-        observationSettingsMap.insert( std::make_pair( linkEnds2[ i ], std::make_shared< ObservationModelSettings >(
-                                                           angular_position, linkEnds2[ i ] ) ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                                           one_way_range, linkEnds2[ i ] ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                                           angular_position, linkEnds2[ i ] ) );
     }
 
 
@@ -274,7 +274,7 @@ Eigen::VectorXd  executeParameterEstimation(
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodies, parametersToEstimate,
-                observationSettingsMap, integratorSettings, hybridArcPropagatorSettings );
+                observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

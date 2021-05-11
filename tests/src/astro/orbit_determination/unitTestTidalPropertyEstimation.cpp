@@ -174,11 +174,11 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         linkEnds.resize( 2 );
         linkEnds[ 0 ][ observed_body ] = std::make_pair( "Io", "" );
         linkEnds[ 1 ][ observed_body ] = std::make_pair( "Europa", "" );
-        observation_models::ObservationSettingsMap observationSettingsMap;
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 0 ], std::make_shared< ObservationModelSettings >(
-                                           position_observable, linkEnds[ 0 ] ) ) );
-        observationSettingsMap.insert( std::make_pair( linkEnds[ 1 ], std::make_shared< ObservationModelSettings >(
-                                           position_observable, linkEnds[ 1 ] ) ) );
+        std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 0 ] ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                           position_observable, linkEnds[ 1 ] ) );
 
         // Define integrator and propagator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         OrbitDeterminationManager< double, double > orbitDeterminationManager =
                 OrbitDeterminationManager< double, double >(
                     bodies, parametersToEstimate,
-                    observationSettingsMap, integratorSettings, propagatorSettings );
+                    observationSettingsList, integratorSettings, propagatorSettings );
 
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
@@ -432,13 +432,13 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
             createParametersToEstimate( parameterNames, bodies );
 
     // Define observation settings
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationModelSettings >(
-                                       position_observable, linkEnds ) ) );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                                       position_observable, linkEnds ) );
     // Create orbit determination object.
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
+                bodies, parametersToEstimate, observationSettingsList,
                 integratorSettings, propagatorSettings );
 
     // define observation simulation times

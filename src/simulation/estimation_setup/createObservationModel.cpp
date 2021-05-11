@@ -22,52 +22,16 @@ namespace tudat
 namespace observation_models
 {
 
-
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsMap& unsortedObservationSettingsMap )
+std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortObservationModelSettingsByType(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings )
 {
-    SortedObservationSettingsMap sortedObservationSettingsMap;
-
-    for( ObservationSettingsMap::const_iterator iterator = unsortedObservationSettingsMap.begin( );
-         iterator != unsortedObservationSettingsMap.end( ); iterator++ )
+    std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationModelSettings;
+    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
     {
-        sortedObservationSettingsMap[ iterator->second->observableType_ ][ iterator->first ] =
-                iterator->second;
+        sortedObservationModelSettings[ observationModelSettings.at( i )->observableType_ ].push_back(
+                observationModelSettings.at( i ) );
     }
-    return sortedObservationSettingsMap;
-}
-
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap )
-{
-    SortedObservationSettingsMap sortedObservationSettingsMap;
-
-    for( ObservationSettingsListPerLinkEnd::const_iterator iterator = unsortedObservationSettingsMap.begin( );
-         iterator != unsortedObservationSettingsMap.end( ); iterator++ )
-    {
-        for( unsigned int i = 0; i < iterator->second.size( ); i++ )
-        {
-            sortedObservationSettingsMap[ iterator->second.at( i )->observableType_ ][ iterator->first ] =
-                    iterator->second.at( i );
-        }
-    }
-    return sortedObservationSettingsMap;
-}
-
-SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
-        const ObservationSettingsVector& unsortedObservationSettingsMap )
-{
-    SortedObservationSettingsMap sortedObservationSettingsMap;
-
-    for( unsigned int i = 0; i < unsortedObservationSettingsMap.size( ); i++ )
-    {
-        sortedObservationSettingsMap[ unsortedObservationSettingsMap.at( i ).second->observableType_ ][
-                unsortedObservationSettingsMap.at( i ).first ] =
-                unsortedObservationSettingsMap.at( i ).second;
-    }
-    return sortedObservationSettingsMap;
+    return sortedObservationModelSettings;
 }
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
@@ -474,6 +438,72 @@ createObservationViabilityCalculators(
 
     return viabilityCalculators;
 }
+
+
+//void addObservationViabilitySettings(
+//        std::shared_ptr< ObservationModelSettings > observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList )
+//{
+//    std::vector< std::shared_ptr< ObservationViabilitySettings > > currentSettings =
+//            std::move( observationModelSettings->viabilitySettingsList_ );
+//    currentSettings.insert( std::end( currentSettings ), std::begin( viabilitySettingsList ), std::end( viabilitySettingsList ) );
+//    observationModelSettings->viabilitySettingsList_ = std::move( currentSettings );
+//}
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList )
+//{
+//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
+//    {
+//        addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
+//    }
+//}
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const ObservableType observationType )
+//{
+//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
+//    {
+//        if( observationModelSettings.at( i )->observableType_ == observationType )
+//        {
+//            addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
+//        }
+//    }
+//}
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const ObservableType observationType,
+//        const std::vector< LinkEnds > linkEnds )
+//{
+//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
+//    {
+//        if( observationModelSettings.at( i )->observableType_ == observationType )
+//        {
+//            if( std::find( linkEnds.begin( ), linkEnds.end( ), observationModelSettings.at( i )->linkEnds_ ) !=
+//                    linkEnds.end( ) )
+//            {
+//                addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
+//            }
+//        }
+//    }
+//}
+
+//void addObservationViabilitySettings(
+//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
+//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerType )
+//{
+//    for( auto it : linkEndsPerType )
+//    {
+//        addObservationViabilitySettings(
+//                    observationModelSettings, viabilitySettingsList, it.first, it.second );
+//    }
+//}
 
 } // namespace observation_models
 
