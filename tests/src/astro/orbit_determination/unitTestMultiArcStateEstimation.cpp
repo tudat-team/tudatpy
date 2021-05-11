@@ -23,7 +23,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"

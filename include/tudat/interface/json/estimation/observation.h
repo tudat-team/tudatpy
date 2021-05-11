@@ -13,7 +13,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/interface/json/support/valueAccess.h"
 #include "tudat/interface/json/support/valueConversions.h"
@@ -28,7 +28,7 @@ namespace observation_models
 static std::map< ObservableType, std::string > observationTypes =
 {
     { one_way_range, "oneWayRange" },
-    { angular_position, "angularPosition" },
+    { angular_position, "angularPos#include "tudat/simulation/estimation_setup/simulateObservations.h"ition" },
     { position_observable, "positionObservable" },
     { one_way_doppler, "oneWayDoppler" },
     { one_way_differenced_range, "oneWayDifferencedRange" },
@@ -194,10 +194,10 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorr
 
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.

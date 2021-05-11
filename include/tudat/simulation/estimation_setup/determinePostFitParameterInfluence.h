@@ -15,7 +15,7 @@
 
 #include <boost/make_shared.hpp>
 
-#include "tudat/astro/observation_models/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
