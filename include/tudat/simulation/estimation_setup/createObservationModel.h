@@ -1599,13 +1599,11 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< ObservableType,
-std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
         const simulation_setup::SystemOfBodies& bodies )
 {
-    std::map< ObservableType,
-            std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+    std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
     std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
             sortObservationModelSettingsByType( observationSettingsList );
 

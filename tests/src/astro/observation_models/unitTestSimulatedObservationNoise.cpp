@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     // Define observation simulation settings (observation type, link end, times and reference link end)
-    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
+    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationSettings< double > > > >
             measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
+                    std::make_shared< TabulatedObservationSimulationSettings< double > >(
                         receiver, baseTimeList );
         }
     }

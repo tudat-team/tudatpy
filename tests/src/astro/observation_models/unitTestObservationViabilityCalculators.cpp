@@ -465,7 +465,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     int unconstrainedNumberOfObservations = unconstrainedObservationTimes.size( );
 
     // Create observation model and observation time settings for all observables
-    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
+    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationSettings< double > > > >
             observationTimeSettings;
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = testLinkEndsList.begin( );
@@ -494,7 +494,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
             }
             observationTimeSettings[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                    std::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
+                    std::make_shared< TabulatedObservationSimulationSettings< double > >(
                         referenceLinkEnd, unconstrainedObservationTimes );
         }
     }
@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     // Simulate observations without constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
             unconstrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
-                simulateObservations( observationTimeSettings,observationSimulators ) );
+                simulateObservations( observationTimeSettings, observationSimulators ) );
 
 
     // Simulate observations with viability constraints directly from simulateObservations function
