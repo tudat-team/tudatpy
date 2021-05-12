@@ -19,8 +19,6 @@
 
 #include "tudat/simulation/estimation_setup.h"
 
-#include "../../../tools/docstrings.h"
-
 namespace py = pybind11;
 
 namespace tudatpy {

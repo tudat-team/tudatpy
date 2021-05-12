@@ -22,18 +22,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_version.py.in" "${CMAKE_CURRENT_BIN
 #set(INSTALL_MAN_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation directory for man documentation")
 #set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/cspice CACHE PATH "Installation directory for cmake config files")
 
-if (MINGW OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    message(STATUS "Creating the files for the installation from build/tudatpy.")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/wheel_setup.py" "${CMAKE_CURRENT_BINARY_DIR}/../setup.py" @ONLY)
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        # NOTE: this is necessary on linux but harmful on mingw.
-        #        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/wheel_setup.cfg" "${CMAKE_CURRENT_BINARY_DIR}/../setup.cfg" @ONLY)
-    endif ()
-    if (MINGW)
-        # configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/mingw_wheel_libs_python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}.txt" "${CMAKE_CURRENT_BINARY_DIR}/wheel/mingw_wheel_libs_python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}.txt" @ONLY)
-    endif ()
-endif ()
-
 
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
@@ -78,7 +66,7 @@ YACMA_PYTHON_MODULE(kernel
 
         # kernel/interface
         kernel/expose_interface.cpp
-        kernel/expose_interface/expose_spice_interface.cpp
+        kernel/expose_interface/expose_spice.cpp
         #        kernel/expose_interface/expose_json_interface.cpp
         #        kernel/expose_interface/expose_sofa_interface.cpp
 
@@ -101,7 +89,6 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_simulation/expose_shape_based_thrust.cpp
 
         kernel/expose_unit_tests.cpp
-        ../tools/docstrings.cpp
 
         kernel/expose_example.cpp
         )
@@ -156,7 +143,6 @@ INSTALL_PURE_PYTHON_MODULE_DIR(util)
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
-file(COPY test.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 
 # collect all example-X.py files
 file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
