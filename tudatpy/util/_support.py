@@ -4,10 +4,16 @@ import numpy as np
 def result2array(result):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
-    return
-    ------
+    Parameters
+    ----------
+    result : Dict[float, np.ndarray]
+        Dictionary mapping the simulation time steps to the propagated
+        state time series.
 
-    numpy.ndarray: Array of converted results. First column is time.
+    Returns
+    -------
+    array : numpy.ndarray
+        Array of converted results. First column is time.
 
     """
     # Convert dict_values into list before stacking them.

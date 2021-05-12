@@ -2,6 +2,7 @@
 
 * Documentation for :module:`tudatpy.plotting` module added, with example plots.
 * Copy to build tree for ``docs`` folder during CMake configuration.
+* Rever tooling support.
 
 **Changed:**
 
@@ -23,6 +24,9 @@
 * ``tudatpy/.conda`` directory.
 * ``tudatpy/include/docstrings`` directory (compliance with ``multidoc``
   in ``tudatpy/include/tudatpy/docstrings.h``).
+* Removed test and tutorials from main ``tudatpy`` source.
+* Removed old dev python layering ``_layer_propagation_setup.py``.
+* Removed ``tudatpy/tools``.
 
 **Fixed:**
 

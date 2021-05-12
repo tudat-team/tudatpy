@@ -15,7 +15,7 @@ project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
-    set(VERSION_INFO "${tudatpy_VERSION}")
+#    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
 include_directories(include)
@@ -155,4 +155,5 @@ endif ()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
 # Add the module directory.
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(tudatpy)
