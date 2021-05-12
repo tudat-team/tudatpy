@@ -9,6 +9,8 @@
 * ``tudatpy::spice_interface`` changed to ``tudatpy::spice``.
 * ``tudatpy/docs`` changed to comply with implementation of :module:`multidoc`.
 * ``tudatpy/include/tudatpy/docstrings.h`` to comply with :module:`multidoc`.
+* Removed ``.conda`` build recipe from source.
+* Removed ``wheel-setup.py``, as PyPi is not currently a goal.
 
 **Deprecated:**
 
