@@ -72,3 +72,6 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 
+
+# Rever
+rever/
