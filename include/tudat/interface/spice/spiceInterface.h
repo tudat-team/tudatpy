@@ -78,12 +78,12 @@ Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFr
                                                    const std::string &newFrame,
                                                    const double ephemerisTime);
 
-//! @get_docstrings(compute_rotation_matrix_derivative_between_frames)
+//! @get_docstring(compute_rotation_matrix_derivative_between_frames)
 Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &originalFrame,
                                                              const std::string &newFrame,
                                                              const double ephemerisTime);
 
-//! @get_docstrings(get_angular_velocity_vector_of_frame_in_original_frame)
+//! @get_docstring(get_angular_velocity_vector_of_frame_in_original_frame)
 Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string &originalFrame,
                                                                const std::string &newFrame,
                                                                const double ephemerisTime);
@@ -91,21 +91,21 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string
 std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
     const std::string &originalFrame, const std::string &newFrame, const double ephemerisTime);
 
-//! @get_docstrings(get_body_properties)
+//! @get_docstring(get_body_properties)
 std::vector<double> getBodyProperties(const std::string &body,
                                       const std::string &property,
                                       const int maximumNumberOfValues = 1);
 
-//! @get_docstrings(get_body_gravitational_parameter)
+//! @get_docstring(get_body_gravitational_parameter)
 double getBodyGravitationalParameter(const std::string &body);
 
-//! @get_docstrings(get_average_radius)
+//! @get_docstring(get_average_radius)
 double getAverageRadius(const std::string &body);
 
-//! @get_docstrings(convert_body_name_to_naif_id)
+//! @get_docstring(convert_body_name_to_naif_id)
 int convertBodyNameToNaifId(const std::string &bodyName);
 
-//! @get_docstrings(check_body_property_in_kernel_pool)
+//! @get_docstring(check_body_property_in_kernel_pool)
 bool checkBodyPropertyInKernelPool(const std::string &bodyName, const std::string &bodyProperty);
 
 //! @get_docstring(load_kernel)
