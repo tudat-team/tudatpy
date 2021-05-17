@@ -465,8 +465,9 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     int unconstrainedNumberOfObservations = unconstrainedObservationTimes.size( );
 
     // Create observation model and observation time settings for all observables
-    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationSettings< double > > > >
-            observationTimeSettings;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettings;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettingsConstrained;
+
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = testLinkEndsList.begin( );
          observableIterator != testLinkEndsList.end( ); observableIterator++ )
@@ -493,9 +494,12 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                             observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
 
             }
-            observationTimeSettings[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                    std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                        referenceLinkEnd, unconstrainedObservationTimes );
+            observationTimeSettings.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                            observableIterator->first, observableIterator->second.at( i ), referenceLinkEnd, unconstrainedObservationTimes ) );
+            observationTimeSettingsConstrained.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                            observableIterator->first, observableIterator->second.at( i ), referenceLinkEnd, unconstrainedObservationTimes ) );
         }
     }
 
@@ -525,24 +529,21 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
 
-    // Create observation viability calculators
-    PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
-                bodies, testLinkEndsList, observationViabilitySettings );
 
     // Create osbervation simulatos
-    std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsList , bodies );
 
     // Simulate observations without constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
             unconstrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
-                simulateObservations( observationTimeSettings, observationSimulators ) );
+                simulateObservations( observationTimeSettings, observationSimulators, bodies ) );
 
 
     // Simulate observations with viability constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
             constrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
-                simulateObservations( observationTimeSettings, observationSimulators, viabilityCalculators ) );
+                simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies ) );
 
     // Simulate observations without/with viability constraints directly from ObservationSimulator objects
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >

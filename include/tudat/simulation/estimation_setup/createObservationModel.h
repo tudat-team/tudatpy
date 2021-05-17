@@ -1617,20 +1617,20 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
         {
         case 1:
         {
-            observationSimulators[ observableType ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 1, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         case 2:
         {
-            observationSimulators[ observableType ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 2, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         case 3:
         {
-            observationSimulators[ observableType ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
-                        observableType, it.second, bodies );
+            observationSimulators.push_back( createObservationSimulator< 3, ObservationScalarType, TimeType >(
+                        observableType, it.second, bodies ) );
             break;
         }
         default:
