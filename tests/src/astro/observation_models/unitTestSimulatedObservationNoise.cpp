@@ -151,8 +151,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     // Create observation simulators
-    std::map< ObservableType,
-            std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
 
     // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
