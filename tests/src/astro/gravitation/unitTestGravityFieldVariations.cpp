@@ -385,77 +385,126 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
     Eigen::MatrixXd nominalCosineCoefficients;
     Eigen::MatrixXd nominalSineCoefficients;
     getNominalJupiterGravityField( nominalCosineCoefficients, nominalSineCoefficients );
-
-    double testTime = 1.0E7;
-    for( int k = 0; k < 3; k++ )
     {
-        std::vector< Eigen::MatrixXd > cosineAmplitudes;
-        std::vector< Eigen::MatrixXd > sineAmplitudes;
-        std::vector< double > frequencies;
-        std::vector< double > phases;
-        double referenceEpoch;
-        int minimumDegree;
-        int minimumOrder;
-        getPeriodicGravityFieldVariationSettings(
-                    cosineAmplitudes, sineAmplitudes, frequencies, phases,
-                    referenceEpoch, minimumDegree, minimumOrder, k );
-
-        std::shared_ptr< PeriodicGravityFieldVariationsSettings > variationSettings =
-                std::make_shared< PeriodicGravityFieldVariationsSettings >(
-                    cosineAmplitudes, sineAmplitudes,
-                    frequencies, phases, referenceEpoch,
-                    minimumDegree, minimumOrder );
-
-        // Create time-varying gravity field.
-        std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
-                std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
-                    gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-                    nominalSineCoefficients );
-
-        SystemOfBodies dummySystem;
-        dummySystem.createEmptyBody( "Jupiter" );
-        dummySystem.getBody( "Jupiter" )->setGravityFieldModel( timeDependentGravityField );
-        std::vector< std::shared_ptr< GravityFieldVariationSettings > > variationSettingsList;
-        variationSettingsList.push_back( variationSettings );
-
-        std::shared_ptr< gravitation::GravityFieldVariationsSet > variations = createGravityFieldModelVariationsSet(
-                    "Jupiter", dummySystem, variationSettingsList );
-
-        timeDependentGravityField->update( 2.0 * testTime );
-
-        // Calculate variations for current test time.
-        timeDependentGravityField->update( testTime );
-
-        // Get corrections at current time step from timeDependentGravityField
-        Eigen::MatrixXd perturbedCosineCoefficients =
-                timeDependentGravityField->getCosineCoefficients( );
-        Eigen::MatrixXd perturbedSineCoefficients =
-                timeDependentGravityField->getSineCoefficients( );
-        Eigen::MatrixXd calculatedCosineCoefficientCorrections =
-                ( perturbedCosineCoefficients - nominalCosineCoefficients ).block( 0, 0, 5, 5 );
-        Eigen::MatrixXd calculatedSineCoefficientCorrections =
-                ( perturbedSineCoefficients - nominalSineCoefficients ).block( 0, 0, 5, 5 );
-
-        Eigen::MatrixXd expectedCosineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
-        Eigen::MatrixXd expectedSineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
-
-        for( unsigned int j = 0; j < cosineAmplitudes.size( ); j++ )
+        double testTime = 1.0E7;
+        for( int k = 0; k < 4; k++ )
         {
-            expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += cosineAmplitudes.at( j ) * std::cos(
-                        frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
-            expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += sineAmplitudes.at( j ) * std::sin(
-                        frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
-        }
+            std::vector< Eigen::MatrixXd > cosineAmplitudes;
+            std::vector< Eigen::MatrixXd > sineAmplitudes;
+            std::vector< double > frequencies;
+            std::vector< double > phases;
+            double referenceEpoch;
+            int minimumDegree;
+            int minimumOrder;
+            int testIndex = ( k < 3 ) ? k : 0;
+            getPeriodicGravityFieldVariationSettings(
+                        cosineAmplitudes, sineAmplitudes, frequencies, phases,
+                        referenceEpoch, minimumDegree, minimumOrder, testIndex );
 
-        // Compare corrections against expected variations.
-        for( unsigned int i = 0; i < 5; i++ )
-        {
-            for( unsigned int j = 0; j < 5; j++ )
+            std::shared_ptr< PeriodicGravityFieldVariationsSettings > variationSettings;
+            if( k < 3 )
             {
-                BOOST_CHECK_SMALL( calculatedCosineCoefficientCorrections( i, j ) -
-                                   expectedCosineCoefficientsCorrections( i, j ), 1.0E-18 );
-                BOOST_CHECK_SMALL( calculatedSineCoefficientCorrections( i, j ) -
-                                   expectedSineCoefficientsCorrections( i, j ), 1.0E-18 );
+                variationSettings = std::dynamic_pointer_cast< PeriodicGravityFieldVariationsSettings >(
+                            periodicGravityFieldVariationsSettings(
+                                cosineAmplitudes, sineAmplitudes,
+                                frequencies, phases, referenceEpoch,
+                                minimumDegree, minimumOrder ) );
+            }
+            else
+            {
+                variationSettings = std::dynamic_pointer_cast< PeriodicGravityFieldVariationsSettings >(
+                            periodicGravityFieldVariationsSettings(
+                                cosineAmplitudes.at( 0 ), sineAmplitudes.at( 0 ),
+                                frequencies.at( 0 ), 0.0, referenceEpoch,
+                                minimumDegree, minimumOrder ) );
+            }
+
+            // Create time-varying gravity field.
+            std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                        gravitationalParameter, referenceRadius, nominalCosineCoefficients,
+                        nominalSineCoefficients );
+
+            SystemOfBodies dummySystem;
+            dummySystem.createEmptyBody( "Jupiter" );
+            dummySystem.getBody( "Jupiter" )->setGravityFieldModel( timeDependentGravityField );
+            std::vector< std::shared_ptr< GravityFieldVariationSettings > > variationSettingsList;
+            variationSettingsList.push_back( variationSettings );
+
+            std::shared_ptr< gravitation::GravityFieldVariationsSet > variations = createGravityFieldModelVariationsSet(
+                        "Jupiter", dummySystem, variationSettingsList );
+
+            if( k < 3 )
+            {
+                timeDependentGravityField->update( 2.0 * testTime );
+
+                // Calculate variations for current test time.
+                timeDependentGravityField->update( testTime );
+
+                // Get corrections at current time step from timeDependentGravityField
+                Eigen::MatrixXd perturbedCosineCoefficients =
+                        timeDependentGravityField->getCosineCoefficients( );
+                Eigen::MatrixXd perturbedSineCoefficients =
+                        timeDependentGravityField->getSineCoefficients( );
+                Eigen::MatrixXd calculatedCosineCoefficientCorrections =
+                        ( perturbedCosineCoefficients - nominalCosineCoefficients ).block( 0, 0, 5, 5 );
+                Eigen::MatrixXd calculatedSineCoefficientCorrections =
+                        ( perturbedSineCoefficients - nominalSineCoefficients ).block( 0, 0, 5, 5 );
+
+                Eigen::MatrixXd expectedCosineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
+                Eigen::MatrixXd expectedSineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
+
+                for( unsigned int j = 0; j < cosineAmplitudes.size( ); j++ )
+                {
+                    expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += cosineAmplitudes.at( j ) * std::cos(
+                                frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
+                    expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += sineAmplitudes.at( j ) * std::sin(
+                                frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
+                }
+
+                // Compare corrections against expected variations.
+                for( unsigned int i = 0; i < 5; i++ )
+                {
+                    for( unsigned int j = 0; j < 5; j++ )
+                    {
+                        BOOST_CHECK_SMALL( calculatedCosineCoefficientCorrections( i, j ) -
+                                           expectedCosineCoefficientsCorrections( i, j ), 1.0E-18 );
+                        BOOST_CHECK_SMALL( calculatedSineCoefficientCorrections( i, j ) -
+                                           expectedSineCoefficientsCorrections( i, j ), 1.0E-18 );
+                    }
+                }
+            }
+            else
+            {
+                timeDependentGravityField->update( referenceEpoch );
+
+                // Get corrections at current time step from timeDependentGravityField
+                Eigen::MatrixXd perturbedCosineCoefficients =
+                        timeDependentGravityField->getCosineCoefficients( );
+                Eigen::MatrixXd perturbedSineCoefficients =
+                        timeDependentGravityField->getSineCoefficients( );
+                Eigen::MatrixXd calculatedCosineCoefficientCorrections =
+                        ( perturbedCosineCoefficients - nominalCosineCoefficients ).block( 0, 0, 5, 5 );
+                Eigen::MatrixXd calculatedSineCoefficientCorrections =
+                        ( perturbedSineCoefficients - nominalSineCoefficients ).block( 0, 0, 5, 5 );
+
+
+                Eigen::MatrixXd expectedCosineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
+
+                expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) =
+                        cosineAmplitudes.at( 0 );
+
+                // Compare corrections against expected variations.
+                for( unsigned int i = 0; i < 5; i++ )
+                {
+                    for( unsigned int j = 0; j < 5; j++ )
+                    {
+                        BOOST_CHECK_SMALL( calculatedCosineCoefficientCorrections( i, j ) -
+                                           expectedCosineCoefficientsCorrections( i, j ), 1.0E-18 );
+                        BOOST_CHECK_EQUAL( calculatedSineCoefficientCorrections( i, j ), 0.0 );
+                    }
+                }
+
             }
         }
     }
