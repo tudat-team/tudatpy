@@ -489,6 +489,37 @@ inline std::shared_ptr< GravityFieldVariationSettings > tabulatedGravityFieldVar
                 interpolatorSettings );
 }
 
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
+        const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+        const std::vector< double >& frequencies,
+        const std::vector< double >& phases,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                cosineAmplitudes, sineAmplitudes, frequencies, phases, referenceEpoch, minimumDegree, minimumOrder );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const Eigen::MatrixXd& cosineAmplitudes,
+        const Eigen::MatrixXd& sineAmplitudes,
+        const double frequency,
+        const double phase,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                std::vector< Eigen::MatrixXd >( { cosineAmplitudes } ),
+                std::vector< Eigen::MatrixXd >( { sineAmplitudes } ),
+                std::vector< double >( { frequency } ),
+                std::vector< double >( { phase } ),
+                referenceEpoch, minimumDegree, minimumOrder );
+
+}
+
 
 
 //! Function to create a set of gravity field variations, stored in the associated interface class

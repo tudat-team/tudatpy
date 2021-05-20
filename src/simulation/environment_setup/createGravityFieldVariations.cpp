@@ -43,6 +43,12 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     std::map< int, double > finalTimes;
     std::map< int, double > timeSteps;
 
+
+    if( bodies.count( body ) == 0 )
+    {
+        throw std::runtime_error( "Error when making gravity field variations of body " + body +
+                                  ", body not found" );
+    }
     // Iterate over all variations to create.
     for( unsigned int i = 0; i < gravityFieldVariationSettings.size( ); i++ )
     {
@@ -84,6 +90,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
             timeSteps[ i ]
                     = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->timeStep_;
         }
+
     }
 
     // Create object with settings for updating variations from new parameter values.
@@ -100,7 +107,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     }
 
     std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodies.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
+                bodies.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, true );
 
     return fieldVariationsSet;
 }
@@ -260,6 +267,8 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         }
         else
         {
+            if( periodicGravityFieldVariationSettings->getCosineAmplitudes( ).size( ) > 0 )
+            {
             // Create variation.
             gravityFieldVariationModel = std::make_shared< PeriodicGravityFieldVariations >
                     (  periodicGravityFieldVariationSettings->getCosineAmplitudes( ),
@@ -269,7 +278,13 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                        periodicGravityFieldVariationSettings->getReferenceEpoch( ),
                        periodicGravityFieldVariationSettings->getMinimumDegree( ),
                        periodicGravityFieldVariationSettings->getMinimumOrder( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating periodic gravity field variations; no cosine amplitudes found" );
+            }
         }
+
         break;
     }
     default:
