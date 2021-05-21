@@ -12,7 +12,7 @@
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
-#include "tudat/astro/gravitation/periodGravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"

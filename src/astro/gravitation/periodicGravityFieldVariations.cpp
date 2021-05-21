@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/gravitation/periodGravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 
 namespace tudat
 {
