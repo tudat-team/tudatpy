@@ -285,35 +285,46 @@ public:
      * \param time Time at which the global state is to be set.
      */
     template<typename StateScalarType = double, typename TimeType = double>
-    void setStateFromEphemeris(const TimeType &time) {
-        if (!(static_cast<Time>(time) == timeOfCurrentState_)) {
+    void setStateFromEphemeris(const TimeType &time)
+    {
+        if (!(static_cast<Time>(time) == timeOfCurrentState_))
+        {
             // If body is not global frame origin, set state.
-            if (bodyIsGlobalFrameOrigin_ == 0) {
-                if (sizeof(StateScalarType) == 8) {
+            if (bodyIsGlobalFrameOrigin_ == 0)
+            {
+                if (sizeof(StateScalarType) == 8)
+                {
                     currentState_ =
                             (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<double>();
                     currentLongState_ = currentState_.template cast<long double>();
-                } else {
+                } else
+                {
                     currentLongState_ =
                             (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<long double>();
                     currentState_ = currentLongState_.template cast<double>();
                 }
             }
             // If body is global frame origin, set state to zeroes, and barycentric state value.
-            else if (bodyIsGlobalFrameOrigin_ == 1) {
+            else if (bodyIsGlobalFrameOrigin_ == 1)
+            {
                 currentState_.setZero();
                 currentLongState_.setZero();
 
-                if (sizeof(StateScalarType) == 8) {
+                if (sizeof(StateScalarType) == 8)
+                {
                     currentBarycentricState_ =
                             ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time).template cast<double>();
                     currentBarycentricLongState_ = currentBarycentricState_.template cast<long double>();
-                } else {
+                }
+                else
+                {
                     currentBarycentricLongState_ =
                             ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time).template cast<long double>();
                     currentBarycentricState_ = currentBarycentricLongState_.template cast<double>();
                 }
-            } else {
+            }
+            else
+            {
                 throw std::runtime_error("Error when setting body state, global origin not yet defined.");
             }
 
