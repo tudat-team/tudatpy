@@ -17,7 +17,7 @@
 #include <string>
 
 #include <boost/assign.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
