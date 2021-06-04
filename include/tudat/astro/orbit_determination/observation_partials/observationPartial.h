@@ -563,8 +563,8 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
                 }
             }
-            break;
         }
+        break;
     }
     case estimatable_parameters::arcwise_constant_relative_observation_bias:
     {

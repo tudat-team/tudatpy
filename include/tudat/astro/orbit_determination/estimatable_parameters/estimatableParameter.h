@@ -36,6 +36,7 @@ enum EstimatebleParametersEnum
     arc_wise_initial_body_state,
     initial_body_state,
     initial_rotational_body_state,
+    initial_mass_state,
     gravitational_parameter,
     constant_drag_coefficient,
     radiation_pressure_coefficient,
@@ -255,6 +256,11 @@ bool isDynamicalParameterSingleArc(
         break;
     }
     case initial_rotational_body_state:
+    {
+        flag = true;
+        break;
+    }
+    case initial_mass_state:
     {
         flag = true;
         break;
@@ -937,6 +943,28 @@ std::vector< std::string > getListOfBodiesWithRotationalStateToEstimate(
     return bodiesToEstimate;
 }
 
+template< typename InitialStateParameterType >
+std::vector< std::string > getListOfBodiesWithMassStateToEstimate(
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< std::string > bodiesToEstimate;
+
+    // Retrieve initial dynamical parameters.
+    std::vector< std::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state )
+        {
+            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
+    }
+
+    return bodiesToEstimate;
+}
+
 //! Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
 /*!
  * Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
@@ -1062,6 +1090,29 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
     return rotationalStateParameters;
 }
 
+template< typename InitialStateParameterType >
+std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfMassStateParametersToEstimate(
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > massStateParameters;
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state )   )
+        {
+            massStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+        }
+    }
+
+    return massStateParameters;
+}
+
 //! Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.
 /*!
  *  Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.
@@ -1092,6 +1143,11 @@ getListOfInitialDynamicalStateParametersEstimate(
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::rotational_state ].push_back(
+                        initialDynamicalParameters.at( i )->getParameterName( ).second );
+        }
+        else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state ) )
+        {
+            initialDynamicalStateParametersEstimate[ propagators::body_mass_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
     }

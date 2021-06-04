@@ -60,7 +60,7 @@ private:
     typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
     //! Typedef for function returning body position.
-    typedef std::function< Eigen::Vector3d( ) > StateFunction;
+    typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
     //! Typedef for function returning gravitational parameter.
     typedef std::function< double( ) > DataReturningFunction;
@@ -165,6 +165,8 @@ public:
         accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->updateMembers( currentTime );
 
         this->currentTime_ = currentTime;
+        this->currentAcceleration_ = accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
+                accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
     }
 
     //! Function to reset the current time
@@ -178,16 +180,6 @@ public:
 
         accelerationModelFromShExpansionOfBodyExertingAcceleration_->resetTime( currentTime );
         accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->resetTime( currentTime );
-    }
-
-    //! Function to get the mutual sh acceleration value.
-    /*!
-     *  Function to get the mutual sh acceleration value, determined from the sum of the two constituent acceleration models.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
-                accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
     }
 
     //! Function returning whether the acceleration is expressed in a frame centered on the body exerting the acceleration.

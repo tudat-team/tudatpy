@@ -8,13 +8,18 @@
 #    http://tudat.tudelft.nl/LICENSE.
 
 
-TUDAT_ADD_EXECUTABLE(application_SingleSatellitePropagator
-        "singleSatellitePropagator.cpp"
-        ${Tudat_PROPAGATION_LIBRARIES}
-        )
+#TUDAT_ADD_EXECUTABLE(application_SingleSatellitePropagator
+#        "singleSatellitePropagator.cpp"
+#        ${Tudat_PROPAGATION_LIBRARIES}
+#        )
 
 TUDAT_ADD_EXECUTABLE(application_SinglePerturbedSatellitePropagator
         "singlePerturbedSatellitePropagator.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_EXECUTABLE(application_InnerSolarSystemPropagation
+        "innerSolarSystemPropagation.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
