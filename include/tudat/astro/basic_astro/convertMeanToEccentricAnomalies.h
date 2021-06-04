@@ -236,7 +236,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
         }
         // Use bisection algorithm if root finder fails
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             // Set tolerance
             ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
@@ -389,7 +389,7 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
             hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
 
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             rootFinder = createRootFinder< ScalarType >(
                         bisectionRootFinderSettings(

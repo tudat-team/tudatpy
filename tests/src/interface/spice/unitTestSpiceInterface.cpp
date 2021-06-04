@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 0, referenceFrame );
     }
 
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 1, referenceFrame );
     }
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
         spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 1, referenceFrame );
     }
 
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }

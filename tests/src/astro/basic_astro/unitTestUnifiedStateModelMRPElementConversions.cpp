@@ -12,7 +12,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
                     convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionFound = true;
         }
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
                     convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionFound = true;
         }
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionFound = true;
         }

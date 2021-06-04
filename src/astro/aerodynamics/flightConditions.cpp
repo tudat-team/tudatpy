@@ -220,7 +220,7 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         {
             currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }

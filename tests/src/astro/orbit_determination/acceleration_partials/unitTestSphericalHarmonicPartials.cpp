@@ -594,7 +594,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionCaught = true;
         }
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionCaught = true;
         }
@@ -626,7 +626,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionCaught = true;
         }
@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                     createParametersToEstimate( wrongParameterNames, bodies );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             isExceptionCaught = true;
         }
