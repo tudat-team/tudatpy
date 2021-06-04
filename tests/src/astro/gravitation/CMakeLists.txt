@@ -64,10 +64,7 @@ TUDAT_ADD_TEST_CASE(DirectTidalDissipationAcceleration
 
 TUDAT_ADD_TEST_CASE(GravityFieldVariations
         PRIVATE_LINKS
-        tudat_gravitation
-        tudat_interpolators
-        tudat_basic_mathematics
-        tudat_spice_interface
+        ${Tudat_PROPAGATION_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
