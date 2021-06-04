@@ -107,7 +107,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
     }
 
     std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodies.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, true );
+                bodies.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
 
     return fieldVariationsSet;
 }
