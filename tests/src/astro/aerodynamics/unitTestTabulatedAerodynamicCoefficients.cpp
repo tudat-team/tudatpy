@@ -120,13 +120,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
                 altitudes, aerodynamicCoefficients, referenceArea,
                 aerodynamics::altitude_dependent, 1, 1, interpolatorSettings );
 
-<<<<<<< HEAD:tests/src/astro/aerodynamics/unitTestTabulatedAerodynamicCoefficients.cpp
-    // aerodynamics interface
-    bodies[ "Vehicle" ]->setAerodynamicCoefficientInterface(
-=======
     // Aerodynamics interface
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
->>>>>>> dominic-origin/BodyMapRefactoring:Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

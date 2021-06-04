@@ -286,7 +286,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                     {
                         bodyToUse = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
                     }
-                    catch( std::runtime_error )
+                    catch( std::runtime_error& )
                     {
                         throw std::runtime_error( "Error, approximate ephemeris not available for body: " + bodyName + " when creating ephemeris." );
                     }

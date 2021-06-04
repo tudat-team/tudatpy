@@ -457,7 +457,8 @@ public:
         }
 
         propagationTerminationCondition_ = createPropagationTerminationConditions(
-                    propagatorSettings_->getTerminationSettings( ), bodies_, integratorSettings->initialTimeStep_ );
+                    propagatorSettings_->getTerminationSettings( ), bodies_,
+                    integratorSettings->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ) );
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
         {
@@ -820,7 +821,8 @@ public:
     {
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodies_,
-                            integratorSettings_->initialTimeStep_ );
+                    integratorSettings_->initialTimeStep_,
+                    dynamicsStateDerivative_->getStateDerivativeModels( ) );
     }
 
     //! This function updates the environment with the numerical solution of the propagation.
