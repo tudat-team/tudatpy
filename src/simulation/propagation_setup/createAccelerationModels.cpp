@@ -248,11 +248,16 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
         }
 
         // Create acceleration object.
+        std::function< void( Eigen::Vector3d& ) > bodyUndergoingAccelerationPositionFunction =
+                std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 );
+        std::function< void( Eigen::Vector3d& ) > bodyExertingAccelerationPositionFunction =
+                std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 );
+
         accelerationModelPointer =
                 std::make_shared< CentralGravitationalAccelerationModel3d >(
-                    std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                    bodyUndergoingAccelerationPositionFunction,
                     gravitationalParameterFunction,
-                    std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                    bodyExertingAccelerationPositionFunction,
                     useCentralBodyFixedFrame );
     }
 
@@ -365,8 +370,8 @@ createSphericalHarmonicsGravityAcceleration(
 
             // Create acceleration object.
             accelerationModel =
-                    std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >
-                    ( std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                    std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+                    std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
                       gravitationalParameterFunction,
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
                       cosineCoefficientFunction,
@@ -374,7 +379,7 @@ createSphericalHarmonicsGravityAcceleration(
                                  sphericalHarmonicsGravityField,
                                  sphericalHarmonicsSettings->maximumDegree_,
                                  sphericalHarmonicsSettings->maximumOrder_ ),
-                      std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                    std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                       std::bind( &Body::getCurrentRotationToGlobalFrame,
                                  bodyExertingAcceleration ), useCentralBodyFixedFrame );
         }
@@ -475,8 +480,8 @@ createMutualSphericalHarmonicsGravityAcceleration(
             }
 
             accelerationModel = std::make_shared< MutualSphericalHarmonicsGravitationalAccelerationModel >(
-                        std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                        std::bind( &Body::getPosition, bodyExertingAcceleration ),
+                        std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                        std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                         gravitationalParameterFunction,
                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
                         sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),
@@ -730,19 +735,20 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     }
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
-    std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
+    std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > toPropagationFrameTransformation;
     toPropagationFrameTransformation =
-            reference_frames::getAerodynamicForceTransformationFunction(
+            reference_frames::getAerodynamicForceTransformationReferenceFunction(
                 bodyFlightConditions->getAerodynamicAngleCalculator( ),
                 accelerationFrame,
-                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                std::bind( &Body::getCurrentRotationToGlobalFrameReference, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
-    std::function< Eigen::Vector3d( ) > coefficientFunction =
-            std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+    std::function< Eigen::Vector3d&( ) > coefficientFunction =
+            std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficientsReference,
                        aerodynamicCoefficients );
-    std::function< Eigen::Vector3d( ) > coefficientInPropagationFrameFunction =
-            std::bind( &reference_frames::transformVectorFunctionFromVectorFunctions,
+    std::function< void( Eigen::Vector3d& ) > coefficientInPropagationFrameFunction =
+            std::bind( &reference_frames::transformVectorFunctionFromVectorReferenceFunctions,
+                       std::placeholders::_1,
                        coefficientFunction, toPropagationFrameTransformation );
 
     // Create acceleration model.
@@ -1524,130 +1530,130 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
 }
 
 
-//! Function to create a set of acceleration models from a map of bodies and acceleration model types.
-basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-        const SystemOfBodies& bodies,
-        const SelectedAccelerationMap& selectedAccelerationPerBody,
-        const std::map< std::string, std::string >& centralBodies )
-{
-    // Declare return map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap;
+////! Function to create a set of acceleration models from a map of bodies and acceleration model types.
+//basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+//        const SystemOfBodies& bodies,
+//        const SelectedAccelerationMap& selectedAccelerationPerBody,
+//        const std::map< std::string, std::string >& centralBodies )
+//{
+//    // Declare return map.
+//    basic_astrodynamics::AccelerationMap accelerationModelMap;
 
-    // Put selectedAccelerationPerBody in correct order
-    SelectedAccelerationList orderedAccelerationPerBody =
-            orderSelectedAccelerationMap( selectedAccelerationPerBody );
+//    // Put selectedAccelerationPerBody in correct order
+//    SelectedAccelerationList orderedAccelerationPerBody =
+//            orderSelectedAccelerationMap( selectedAccelerationPerBody );
 
-    // Iterate over all bodies which are undergoing acceleration
-    for( SelectedAccelerationList::const_iterator bodyIterator =
-         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
-         bodyIterator++ )
-    {
-        std::shared_ptr< Body > currentCentralBody;
+//    // Iterate over all bodies which are undergoing acceleration
+//    for( SelectedAccelerationList::const_iterator bodyIterator =
+//         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
+//         bodyIterator++ )
+//    {
+//        std::shared_ptr< Body > currentCentralBody;
 
-        // Retrieve name of body undergoing acceleration.
-        std::string bodyUndergoingAcceleration = bodyIterator->first;
+//        // Retrieve name of body undergoing acceleration.
+//        std::string bodyUndergoingAcceleration = bodyIterator->first;
 
-        // Retrieve name of current central body.
-        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
+//        // Retrieve name of current central body.
+//        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
 
-        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
-        {
-            if( bodies.count( currentCentralBodyName ) == 0 )
-            {
-                throw std::runtime_error(
-                            std::string( "Error, could not find non-inertial central body ") +
-                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
-                            " when making acceleration model." );
-            }
-            else
-            {
-                currentCentralBody = bodies.at( currentCentralBodyName );
-            }
-        }
+//        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
+//        {
+//            if( bodies.count( currentCentralBodyName ) == 0 )
+//            {
+//                throw std::runtime_error(
+//                            std::string( "Error, could not find non-inertial central body ") +
+//                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
+//                            " when making acceleration model." );
+//            }
+//            else
+//            {
+//                currentCentralBody = bodies.at( currentCentralBodyName );
+//            }
+//        }
 
-        // Check if body undergoing acceleration is included in bodies
-        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
-        {
-            throw std::runtime_error(
-                        std::string( "Error when making acceleration models, requested forces" ) +
-                        "acting on body " + bodyUndergoingAcceleration  +
-                        ", but no such body found in map of bodies" );
-        }
+//        // Check if body undergoing acceleration is included in bodies
+//        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
+//        {
+//            throw std::runtime_error(
+//                        std::string( "Error when making acceleration models, requested forces" ) +
+//                        "acting on body " + bodyUndergoingAcceleration  +
+//                        ", but no such body found in map of bodies" );
+//        }
 
-        // Declare map of acceleration models acting on current body.
-        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
+//        // Declare map of acceleration models acting on current body.
+//        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
 
-        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
-        // current body.
-        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
-                accelerationsForBody = bodyIterator->second;
+//        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
+//        // current body.
+//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
+//                accelerationsForBody = bodyIterator->second;
 
-        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
+//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
 
-        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
-        // Iterate over all bodies exerting an acceleration
-        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
-        {
-            // Retrieve name of body exerting acceleration.
-            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
+//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
+//        // Iterate over all bodies exerting an acceleration
+//        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
+//        {
+//            // Retrieve name of body exerting acceleration.
+//            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
 
-            // Check if body exerting acceleration is included in bodies
-            if( bodies.count( bodyExertingAcceleration ) ==  0 )
-            {
-                throw std::runtime_error(
-                            std::string( "Error when making acceleration models, requested forces ")
-                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
-                            bodyExertingAcceleration +
-                            ", but no such body found in map of bodies" );
-            }
+//            // Check if body exerting acceleration is included in bodies
+//            if( bodies.count( bodyExertingAcceleration ) ==  0 )
+//            {
+//                throw std::runtime_error(
+//                            std::string( "Error when making acceleration models, requested forces ")
+//                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
+//                            bodyExertingAcceleration +
+//                            ", but no such body found in map of bodies" );
+//            }
 
-            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
-            {
-                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-                                                               bodies.at( bodyExertingAcceleration ),
-                                                               accelerationsForBody.at( i ).second,
-                                                               bodyUndergoingAcceleration,
-                                                               bodyExertingAcceleration,
-                                                               currentCentralBody,
-                                                               currentCentralBodyName,
-                                                               bodies );
-
-
-                // Create acceleration model.
-                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-                            currentAcceleration );
-            }
-            else
-            {
-                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
-            }
-
-        }
-
-        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
-        {
-            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
-                                                           thrustAccelerationSettings.at( i ).second,
-                                                           bodyUndergoingAcceleration,
-                                                           thrustAccelerationSettings.at( i ).first,
-                                                           currentCentralBody,
-                                                           currentCentralBodyName,
-                                                           bodies );
+//            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+//            {
+//                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+//                                                               bodies.at( bodyExertingAcceleration ),
+//                                                               accelerationsForBody.at( i ).second,
+//                                                               bodyUndergoingAcceleration,
+//                                                               bodyExertingAcceleration,
+//                                                               currentCentralBody,
+//                                                               currentCentralBodyName,
+//                                                               bodies );
 
 
-            // Create acceleration model.
-            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
-                        currentAcceleration );
-        }
+//                // Create acceleration model.
+//                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
+//                            currentAcceleration );
+//            }
+//            else
+//            {
+//                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+//            }
+
+//        }
+
+//        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
+//        {
+//            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+//                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
+//                                                           thrustAccelerationSettings.at( i ).second,
+//                                                           bodyUndergoingAcceleration,
+//                                                           thrustAccelerationSettings.at( i ).first,
+//                                                           currentCentralBody,
+//                                                           currentCentralBodyName,
+//                                                           bodies );
 
 
-        // Put acceleration models on current body in return map.
-        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
-    }
+//            // Create acceleration model.
+//            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
+//                        currentAcceleration );
+//        }
 
-    return accelerationModelMap;
-}
+
+//        // Put acceleration models on current body in return map.
+//        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
+//    }
+
+//    return accelerationModelMap;
+//}
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 basic_astrodynamics::AccelerationMap createAccelerationModelsMap(

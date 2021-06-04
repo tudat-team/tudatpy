@@ -921,7 +921,7 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
     {
         bodyIdentifier = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
     }
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
     }

@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass
                 = std::make_shared< AerodynamicAcceleration >(
-                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( Eigen::Vector3d& input ){ input = forceCoefficients; },
                     [ & ]( ){ return density; },
                     [ & ]( ){ return airSpeed; },
                     mass, referenceArea, false );
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( Eigen::Vector3d& input ){ input = forceCoefficients; },
                     [ & ]( ){ return density; },
                     [ & ]( ){ return airSpeed; },
                     [ & ]( ){ return mass; },
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass =
                 std::make_shared< AerodynamicAcceleration >(
-                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( Eigen::Vector3d& input ){ input = -forceCoefficients; },
                     [ & ]( ){ return density; },
                     [ & ]( ){ return airSpeed; },
                     mass, referenceArea, true );
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( Eigen::Vector3d& input ){ input = -forceCoefficients; },
                     [ & ]( ){ return density; },
                     [ & ]( ){ return airSpeed; },
                     [ & ]( ){ return mass; },
