@@ -444,6 +444,21 @@ public:
 
 };
 
+//! Class to define settings for estimating an initial rotational state.
+template< typename InitialStateParameterType = double >
+class InitialMassEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    InitialMassEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const double initialStateValue ):
+        EstimatableParameterSettings( associatedBody, initial_mass_state ),
+        initialStateValue_( initialStateValue ){ }
+
+    double initialStateValue_;
+};
+
 
 //! Class to define settings for estimating time-independent empirical acceleration components
 class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
