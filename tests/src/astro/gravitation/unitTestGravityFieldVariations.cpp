@@ -433,6 +433,7 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
 
             std::shared_ptr< gravitation::GravityFieldVariationsSet > variations = createGravityFieldModelVariationsSet(
                         "Jupiter", dummySystem, variationSettingsList );
+            timeDependentGravityField->updateCorrectionFunctions( );
 
             if( k < 3 )
             {

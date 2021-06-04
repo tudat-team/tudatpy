@@ -23,11 +23,9 @@ class CustomAccelerationModel: public basic_astrodynamics::AccelerationModel3d
 public:
     CustomAccelerationModel(
             const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
-        accelerationFunction_( accelerationFunction ){ }
-
-    Eigen::Vector3d getAcceleration( )
+        accelerationFunction_( accelerationFunction )
     {
-        return currentAcceleration_;
+        updateMembers( TUDAT_NAN );
     }
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
@@ -41,9 +39,6 @@ public:
 
 private:
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
-
-    Eigen::Vector3d currentAcceleration_;
-
 };
 
 
