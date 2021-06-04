@@ -74,34 +74,34 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     return loveNumberInterfaces;
 }
 
-template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< double >(
-        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
-        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
-        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
-        parametersToEstimate );
+//template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< double >(
+//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
+//        parametersToEstimate );
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
-        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
-        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
-        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
-        parametersToEstimate );
-#endif
+//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
+//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
+//        parametersToEstimate );
+//#endif
 
-template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
-        parametersToEstimate );
-        template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
-                const basic_astrodynamics::AccelerationMap& accelerationMap,
-                const simulation_setup::SystemOfBodies& bodies,
-                const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
-                parametersToEstimate );
+//template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
+//        const basic_astrodynamics::AccelerationMap& accelerationMap,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
+//        parametersToEstimate );
+//        template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
+//                const basic_astrodynamics::AccelerationMap& accelerationMap,
+//                const simulation_setup::SystemOfBodies& bodies,
+//                const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
+//                parametersToEstimate );
 
 }
 

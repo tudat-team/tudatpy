@@ -67,22 +67,14 @@ public:
         updateMembers( );
     }
 
-    //! Get acceleration.
-    /*!
-     * Returns acceleration. In this case, this functions returns an acceleration that is dependent
-     * on the internally stored position and time members. This function merely serves as an
-     * example, rather than representing real dynamics.
-     * \return Computed acceleration.
-     */
-    AccelerationDataType getAcceleration( ) { return position / ( time * time ); }
-
     //! Update member variables used by the acceleration model.
     /*!
      * Updates member variables used by the acceleration model. In this case, the internally stored
      * position and time are updated by calling the function-pointers passed to the constructor.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN ) { position = getPosition( ); time = getTime( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN ) { position = getPosition( ); time = getTime( );
+                                                                 this->currentAcceleration_ = position / ( time * time ); };
 
 protected:
 
@@ -167,17 +159,6 @@ public:
         updateMembers( );
     }
 
-    //! Get acceleration.
-    /*!
-     * Returns acceleration. In this case, this functions returns an acceleration that is dependent
-     * on the internally stored position, velocity, and time members. This function merely serves
-     * as an example, rather than representing real dynamics.
-     * \return Computed acceleration.
-     */
-    AccelerationDataType getAcceleration( )
-    {
-        return 0.5 * position / ( 3.2 * ( time + 3.4 ) * time ) + velocity / time;
-    }
 
     //! Update member variables used by the acceleration model.
     /*!
@@ -191,6 +172,7 @@ public:
         position = getPosition( );
         velocity = getVelocity( );
         time = getTime( );
+        this->currentAcceleration_ = 0.5 * position / ( 3.2 * ( time + 3.4 ) * time ) + velocity / time;
     }
 
 protected:
