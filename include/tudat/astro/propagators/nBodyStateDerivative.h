@@ -216,7 +216,7 @@ public:
 
         for( unsigned int i = 0; i < centralBodyStatesWrtGlobalOrigin_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyStatesWrtGlobalOrigin_[ i ];
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyStatesWrtGlobalOrigin_.at( i );
         }
     }
 
@@ -308,7 +308,7 @@ public:
                     for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                     {
                         // Calculate acceleration and add to state derivative.
-                        totalAcceleration += innerAccelerationIterator->second[ j ]->getAcceleration( );
+                         innerAccelerationIterator->second[ j ]->addCurrentAcceleration( totalAcceleration );
                     }
                 }
             }
@@ -388,9 +388,10 @@ protected:
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
                     // Calculate acceleration and add to state derivative.
-                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
-                                innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
-                            template cast< StateScalarType >( );
+                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) +=
+                                                ( innerAccelerationIterator->second[ j ]->getAccelerationReference( ) ).
+                                                template cast< StateScalarType >( );
+
                 }
             }
 
@@ -459,6 +460,8 @@ protected:
 
     //! List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
+
+    Eigen::Vector3d currentAccelerationComponent_;
 
 };
 
