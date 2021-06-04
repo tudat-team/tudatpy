@@ -265,6 +265,79 @@ private:
 
 };
 
+class PeriodicGravityFieldVariationsSettings: public GravityFieldVariationSettings
+{
+
+public:
+    PeriodicGravityFieldVariationsSettings(
+            const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
+            const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+            const std::vector< double >& frequencies,
+            const std::vector< double >& phases,
+            const double referenceEpoch,
+            const int minimumDegree = 2,
+            const int minimumOrder = 0 ):
+        GravityFieldVariationSettings( gravitation::periodic_variation ),
+    cosineAmplitudes_( cosineAmplitudes ),
+    sineAmplitudes_( sineAmplitudes ),
+    frequencies_( frequencies ),
+    phases_( phases ),
+    referenceEpoch_( referenceEpoch ),
+    minimumDegree_( minimumDegree ),
+    minimumOrder_( minimumOrder ){ }
+
+    std::vector< Eigen::MatrixXd > getCosineAmplitudes( )
+    {
+        return cosineAmplitudes_;
+    }
+
+    std::vector< Eigen::MatrixXd > getSineAmplitudes( )
+    {
+        return sineAmplitudes_;
+    }
+
+    std::vector< double > getFrequencies( )
+    {
+        return frequencies_;
+    }
+
+    std::vector< double > getPhases( )
+    {
+        return phases_;
+    }
+
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
+
+    int getMinimumDegree( )
+    {
+        return minimumDegree_;
+    }
+
+    int getMinimumOrder( )
+    {
+        return minimumOrder_;
+    }
+
+private:
+
+    std::vector< Eigen::MatrixXd > cosineAmplitudes_;
+
+    std::vector< Eigen::MatrixXd > sineAmplitudes_;
+
+    std::vector< double > frequencies_;
+
+    std::vector< double > phases_;
+
+    double referenceEpoch_;
+
+    int minimumDegree_;
+
+    int minimumOrder_;
+
+};
 
 //! Function to create constant complex Love number list for a range of degrees and orders.
 /*!
@@ -414,6 +487,37 @@ inline std::shared_ptr< GravityFieldVariationSettings > tabulatedGravityFieldVar
     return std::make_shared< TabulatedGravityFieldVariationSettings >(
                 cosineCoefficientCorrections, sineCoefficientCorrections, minimumDegree, minimumOrder,
                 interpolatorSettings );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
+        const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+        const std::vector< double >& frequencies,
+        const std::vector< double >& phases,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                cosineAmplitudes, sineAmplitudes, frequencies, phases, referenceEpoch, minimumDegree, minimumOrder );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariationsSettings(
+        const Eigen::MatrixXd& cosineAmplitudes,
+        const Eigen::MatrixXd& sineAmplitudes,
+        const double frequency,
+        const double phase,
+        const double referenceEpoch,
+        const int minimumDegree = 2,
+        const int minimumOrder = 0 )
+{
+    return std::make_shared< PeriodicGravityFieldVariationsSettings >(
+                std::vector< Eigen::MatrixXd >( { cosineAmplitudes } ),
+                std::vector< Eigen::MatrixXd >( { sineAmplitudes } ),
+                std::vector< double >( { frequency } ),
+                std::vector< double >( { phase } ),
+                referenceEpoch, minimumDegree, minimumOrder );
+
 }
 
 
