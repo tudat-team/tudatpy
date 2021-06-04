@@ -168,7 +168,7 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return StateMatrix::Zero( ); },
+            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 [ = ]( ){ return aGravitationalParameter; },
@@ -201,8 +201,8 @@ public:
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
-            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = [ ]( ){ return StateMatrix::Zero( ); },
+            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
@@ -210,21 +210,6 @@ public:
                 isMutualAttractionUsed )
     {
         this->updateMembers( );
-    }
-
-    //! Get gravitational acceleration.
-    /*!
-     * Returns the gravitational acceleration computed using the input parameters provided to the
-     * class. This function serves as a wrapper for the computeGravitationalAcceleration()
-     * function.
-     * \return Computed gravitational acceleration vector.
-     */
-    StateMatrix getAcceleration( )
-    {
-        return computeGravitationalAcceleration(
-                    this->positionOfBodySubjectToAcceleration,
-                    this->gravitationalParameter,
-                    this->positionOfBodyExertingAcceleration );
     }
 
     //! Update members.
@@ -239,6 +224,10 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             this->updateBaseMembers( );
+            this->currentAcceleration_ = computeGravitationalAcceleration(
+                        this->positionOfBodySubjectToAcceleration,
+                        this->gravitationalParameter,
+                        this->positionOfBodyExertingAcceleration );
         }
     }
 
