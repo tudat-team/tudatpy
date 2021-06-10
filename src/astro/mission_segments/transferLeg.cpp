@@ -60,22 +60,21 @@ UnpoweredUnperturbedTransferLeg::UnpoweredUnperturbedTransferLeg(
     TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, unpowered_unperturbed_leg ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
 {
-//    computeTransfer( );
     legTotalDeltaV_ = 0.0;
 }
 
-void UnpoweredUnperturbedTransferLeg::getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                              const std::vector< double >& timePoints )
+void UnpoweredUnperturbedTransferLeg::getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                                               const double time )
 {
-    Eigen::Vector6d initialState;
-    initialState.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
-    initialState.segment( 3, 3 ) = departureVelocity_;
+    if( time < departureTime_ || time > arrivalTime_ )
+    {
+        throw std::runtime_error( "Error when requesting state along unpowered unperturbed leg, requested time is outside bounds" );
+    }
 
-    Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
-                initialState, centralBodyGravitationalParameter_ );
-
-    statesAlongTrajectory = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
-            initialKeplerianState, departureTime_, timePoints, centralBodyGravitationalParameter_ );
+    stateAlongTrajectory = orbital_element_conversions::convertKeplerianToCartesianElements(
+                orbital_element_conversions::propagateKeplerOrbit(
+                    constantKeplerianState_, time - departureTime_, centralBodyGravitationalParameter_ ),
+                centralBodyGravitationalParameter_ );
 }
 
 
@@ -93,42 +92,57 @@ void UnpoweredUnperturbedTransferLeg::computeTransfer( )
                 departureBodyState_.segment( 0, 3 ), arrivalBodyState_.segment( 0, 3 ),
                 legParameters_( 1 ) - legParameters_( 0 ), centralBodyGravitationalParameter_,
                 departureVelocity_, arrivalVelocity_ );
+
+    Eigen::Vector6d initialState;
+    initialState.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
+    initialState.segment( 3, 3 ) = departureVelocity_;
+
+    constantKeplerianState_ = orbital_element_conversions::convertCartesianToKeplerianElements(
+                initialState, centralBodyGravitationalParameter_ );
 }
 
-void DsmTransferLeg::getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                              const std::vector< double >& timePoints )
+void DsmTransferLeg::calculateKeplerianElements( )
 {
     Eigen::Vector6d initialState;
     initialState.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
     initialState.segment( 3, 3 ) = departureVelocity_;
 
-    Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+    constantKeplerianStateBeforeDsm_ = orbital_element_conversions::convertCartesianToKeplerianElements(
                 initialState, centralBodyGravitationalParameter_ );
-
-    auto lowerBound = std::lower_bound ( timePoints.begin( ), timePoints.end( ), dsmTime_ );
-    std::vector< double > timesUpToDsm;
-    std::vector< double > timesAfterDsm;
-
-    timesUpToDsm.insert( timesUpToDsm.begin( ), timePoints.begin( ), lowerBound );
-    timesAfterDsm.insert( timesAfterDsm.begin( ), lowerBound, timePoints.end( ) );
-
-     std::map< double, Eigen::Vector6d > statesUpToDsm = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
-                    initialKeplerianState, departureTime_, timesUpToDsm, centralBodyGravitationalParameter_ );
 
     Eigen::Vector6d stateAfterDsm;
     stateAfterDsm.segment( 0, 3 ) = dsmLocation_;
-    stateAfterDsm.segment( 3, 3 ) = velocityAfterDsm_;;
+    stateAfterDsm.segment( 3, 3 ) = velocityAfterDsm_;
 
-    Eigen::Vector6d keplerianStateAfterDsm = orbital_element_conversions::convertCartesianToKeplerianElements(
+    constantKeplerianStateAfterDsm_ = orbital_element_conversions::convertCartesianToKeplerianElements(
                 stateAfterDsm, centralBodyGravitationalParameter_ );
-
-    std::map< double, Eigen::Vector6d > statesAfterDsm = orbital_element_conversions::getKeplerOrbitCartesianStateHistory(
-                   keplerianStateAfterDsm, dsmTime_, timesAfterDsm, centralBodyGravitationalParameter_ );
-
-    statesAlongTrajectory = std::move( statesUpToDsm );
-    statesAlongTrajectory.insert( statesAfterDsm.begin( ), statesAfterDsm.end( ) );
-
 }
+
+
+void DsmTransferLeg::getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                              const double time )
+{
+    if( time < departureTime_ || time > arrivalTime_ )
+    {
+        throw std::runtime_error( "Error when requesting state along unpowered unperturbed leg, requested time is outside bounds" );
+    }
+
+    if( time < dsmTime_ )
+    {
+        stateAlongTrajectory = orbital_element_conversions::convertKeplerianToCartesianElements(
+                    orbital_element_conversions::propagateKeplerOrbit(
+                        constantKeplerianStateBeforeDsm_, time - departureTime_, centralBodyGravitationalParameter_ ),
+                    centralBodyGravitationalParameter_ );
+    }
+    else
+    {
+        stateAlongTrajectory = orbital_element_conversions::convertKeplerianToCartesianElements(
+                    orbital_element_conversions::propagateKeplerOrbit(
+                        constantKeplerianStateAfterDsm_, time - dsmTime_, centralBodyGravitationalParameter_ ),
+                    centralBodyGravitationalParameter_ );
+    }
+}
+
 
 DsmPositionBasedTransferLeg::DsmPositionBasedTransferLeg(
         const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
@@ -199,6 +213,8 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
 
     //Calculate the deltaV originating from the DSM.
     legTotalDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
+
+    calculateKeplerianElements( );
 }
 
 
@@ -272,6 +288,8 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
 
     // Calculate the deltaV needed for the DSM.
     legTotalDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
+
+    calculateKeplerianElements( );
 
 }
 

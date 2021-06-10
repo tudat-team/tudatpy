@@ -61,15 +61,15 @@ public:
 
     double getTotalDeltaV( );
 
-    void getStateAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
+    void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
 
-    std::vector< std::map< double, Eigen::Vector6d > > getStateAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
+    std::vector< std::map< double, Eigen::Vector6d > > getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
     {
         if( isComputed_ )
         {
             std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-            getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            getStatesAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
             return statesAlongTrajectoryPerLeg;
         }
         else
@@ -78,13 +78,13 @@ public:
         }
     }
 
-    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
                                   const int numberOfDataPointsPerLeg )
     {
         if( isComputed_ )
         {
             std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
-            getStateAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
+            getStatesAlongTrajectoryPerLeg( statesAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
             statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
             for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
             {
@@ -98,12 +98,12 @@ public:
         }
     }
 
-    std::map< double, Eigen::Vector6d > getStateAlongTrajectory( const int numberOfDataPointsPerLeg )
+    std::map< double, Eigen::Vector6d > getStatesAlongTrajectory( const int numberOfDataPointsPerLeg )
     {
         if( isComputed_ )
         {
             std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-            getStateAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
+            getStatesAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
             return statesAlongTrajectory;
         }
         else
