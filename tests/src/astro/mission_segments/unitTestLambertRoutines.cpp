@@ -32,9 +32,11 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/basics/testMacros.h"
+#include "tudat/basics/basicTypedefs.h"
 
 #include "tudat/astro/mission_segments/lambertRoutines.h"
 
@@ -117,6 +119,22 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoElliptical )
     BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
                                 testInertialVelocityAtArrival.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtArrival.z( ), tolerance );
+
+    Eigen::Vector6d initialCartesianState;
+    initialCartesianState << testCartesianPositionAtDeparture, testInertialVelocityAtDeparture;
+
+    Eigen::Vector6d constantKeplerianState_ = orbital_element_conversions::convertCartesianToKeplerianElements(
+                initialCartesianState, testGravitationalParameter );
+
+    Eigen::Vector6d finalCartesianState = orbital_element_conversions::convertKeplerianToCartesianElements(
+                orbital_element_conversions::propagateKeplerOrbit(
+                    constantKeplerianState_, testTimeOfFlight, testGravitationalParameter ),
+                testGravitationalParameter );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( finalCartesianState.segment( 0, 3 ) ), testCartesianPositionAtArrival, 1.0E-14 )
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( finalCartesianState.segment( 3, 3 ) ), testInertialVelocityAtArrival, 1.0E-14 )
+
+
 }
 
 //! Test the Izzo Lambert routine for a hyperbolic transfer.
