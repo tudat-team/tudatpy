@@ -64,7 +64,7 @@ double TransferTrajectory::getTotalDeltaV( )
     }
 }
 
-void TransferTrajectory::getStateAlongTrajectoryPerLeg(
+void TransferTrajectory::getStatesAlongTrajectoryPerLeg(
         std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
         const int numberOfDataPointsPerLeg )
 {
@@ -75,7 +75,7 @@ void TransferTrajectory::getStateAlongTrajectoryPerLeg(
 
         for( unsigned int i = 0; i < legs_.size( ); i++ )
         {
-            legs_.at( i )->getStateAlongTrajectory( statesAlongTrajectoryPerLeg[ i ], numberOfDataPointsPerLeg );
+            legs_.at( i )->getStatesAlongTrajectory( statesAlongTrajectoryPerLeg[ i ], numberOfDataPointsPerLeg );
         }
     }
     else

@@ -69,14 +69,35 @@ public:
         return arrivalTime_ - departureTime_;
     }
 
-    virtual void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                  const std::vector< double >& timePoints ) = 0;
+    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                          const double time ) = 0;
 
-    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                  const int numberOfDataPoints )
+    Eigen::Vector6d getStateAlongTrajectory( const double time )
     {
+        Eigen::Vector6d stateAlongTrajectory;
+        getStateAlongTrajectory( stateAlongTrajectory, time );
+        return stateAlongTrajectory;
+    }
+
+
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                   const std::vector< double >& times )
+    {
+        statesAlongTrajectory.clear( );
+        Eigen::Vector6d currentStateAlongTrajectory;
+        for( unsigned int i = 0; i < times.size( ); i++ )
+        {
+            getStateAlongTrajectory( currentStateAlongTrajectory, times.at( i ) );
+            statesAlongTrajectory[ times.at( i ) ] = currentStateAlongTrajectory;
+        }
+    }
+
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
+                                   const int numberOfDataPoints )
+    {
+        statesAlongTrajectory.clear( );
         std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
-        getStateAlongTrajectory( statesAlongTrajectory, times );
+        getStatesAlongTrajectory( statesAlongTrajectory, times );
     }
 
 protected:
@@ -108,19 +129,23 @@ protected:
 class UnpoweredUnperturbedTransferLeg : public TransferLeg
 {
 public:
+    using TransferLeg::getStateAlongTrajectory;
+
     UnpoweredUnperturbedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
             const double centralBodyGravitationalParameter );
 
-    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                  const std::vector< double >& timePoints );
+    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                  const double time );
 
 protected:
 
     virtual void computeTransfer( );
 
     double centralBodyGravitationalParameter_;
+
+    Eigen::Vector6d constantKeplerianState_;
 };
 
 
@@ -128,6 +153,7 @@ protected:
 class DsmTransferLeg : public TransferLeg
 {
 public:
+
     DsmTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
@@ -136,23 +162,40 @@ public:
         TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter){ }
 
-    void getStateAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                  const std::vector< double >& timePoints );
+    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
+                                  const double time );
+
+    double getDsmTime( )
+    {
+        return dsmTime_;
+    }
+
+    Eigen::Vector3d getDsmLocation( )
+    {
+        return dsmLocation_;
+    }
 
 protected:
+
+    void calculateKeplerianElements( );
 
     double centralBodyGravitationalParameter_;
     Eigen::Vector3d dsmLocation_;
     Eigen::Vector3d velocityBeforeDsm_;
     Eigen::Vector3d velocityAfterDsm_;
     double dsmTime_;
-    double dsmDeltaV_;
+
+    Eigen::Vector6d constantKeplerianStateBeforeDsm_;
+    Eigen::Vector6d constantKeplerianStateAfterDsm_;
+
 };
 
 
 class DsmPositionBasedTransferLeg : public DsmTransferLeg
 {
 public:
+    using TransferLeg::getStateAlongTrajectory;
+
     DsmPositionBasedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
@@ -173,6 +216,8 @@ protected:
 class DsmVelocityBasedTransferLeg : public DsmTransferLeg
 {
 public:
+    using TransferLeg::getStateAlongTrajectory;
+
     DsmVelocityBasedTransferLeg(
             const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
             const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
