@@ -111,7 +111,7 @@ void DsmTransferLeg::calculateKeplerianElements( )
                 initialState, centralBodyGravitationalParameter_ );
 
     Eigen::Vector6d stateAfterDsm;
-    stateAfterDsm.segment( 0, 3 ) = dsmLocation_;
+    stateAfterDsm.segment( 0, 3 ) = trajectoryManeuver_.getPosition( );
     stateAfterDsm.segment( 3, 3 ) = velocityAfterDsm_;
 
     constantKeplerianStateAfterDsm_ = orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -127,7 +127,7 @@ void DsmTransferLeg::getStateAlongTrajectory( Eigen::Vector6d& stateAlongTraject
         throw std::runtime_error( "Error when requesting state along unpowered unperturbed leg, requested time is outside bounds" );
     }
 
-    if( time < dsmTime_ )
+    if( time < trajectoryManeuver_.getManeuverTime( ) )
     {
         stateAlongTrajectory = orbital_element_conversions::convertKeplerianToCartesianElements(
                     orbital_element_conversions::propagateKeplerOrbit(
@@ -138,7 +138,7 @@ void DsmTransferLeg::getStateAlongTrajectory( Eigen::Vector6d& stateAlongTraject
     {
         stateAlongTrajectory = orbital_element_conversions::convertKeplerianToCartesianElements(
                     orbital_element_conversions::propagateKeplerOrbit(
-                        constantKeplerianStateAfterDsm_, time - dsmTime_, centralBodyGravitationalParameter_ ),
+                        constantKeplerianStateAfterDsm_, time - trajectoryManeuver_.getManeuverTime( ), centralBodyGravitationalParameter_ ),
                     centralBodyGravitationalParameter_ );
     }
 }
@@ -193,26 +193,28 @@ void DsmPositionBasedTransferLeg::computeTransfer( )
     inPlaneAngle_ = legParameters_( 4 );
     outOfPlaneAngle_ = legParameters_( 5 );
 
-    dsmLocation_ = calculatePositionBasedDsmLocation(
+    Eigen::Vector3d dsmLocation = calculatePositionBasedDsmLocation(
                 departureBodyState_, dimensionlessRadiusDsm_, inPlaneAngle_, outOfPlaneAngle_ );
 
 
     // Calculate the DSM time of application from the time of flight fraction.
-    dsmTime_ = dsmTimeOfFlightFraction_ * timeOfFlight;
+    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight;
 
     // Calculate and set the spacecraft velocities after departure, before and after the DSM, and
     // before arrival using two lambert targeters and all the corresponding positions and flight
     // times.
-    mission_segments::solveLambertProblemIzzo( departureBodyState_.segment( 0, 3 ), dsmLocation_, dsmTime_,
+    mission_segments::solveLambertProblemIzzo( departureBodyState_.segment( 0, 3 ), dsmLocation, dsmTime,
                                                centralBodyGravitationalParameter_,
                                                departureVelocity_, velocityBeforeDsm_ );
-    mission_segments::solveLambertProblemIzzo( dsmLocation_, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -
-                                               dsmTime_, centralBodyGravitationalParameter_,
+    mission_segments::solveLambertProblemIzzo( dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -
+                                               dsmTime, centralBodyGravitationalParameter_,
                                                velocityAfterDsm_, arrivalVelocity_ );
 
 
     //Calculate the deltaV originating from the DSM.
-    legTotalDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
+    Eigen::Vector3d dsmManeuver = ( velocityAfterDsm_ - velocityBeforeDsm_ );
+    legTotalDeltaV_ = dsmManeuver.norm( );
+    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime );
 
     calculateKeplerianElements( );
 }
@@ -266,7 +268,7 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
     dsmTimeOfFlightFraction_ = legParameters_( 2 );
 
     // Calculate the DSM time of application from the time of flight fraction.
-    dsmTime_ = dsmTimeOfFlightFraction_ * timeOfFlight;
+    double dsmTime = dsmTimeOfFlightFraction_ * timeOfFlight;
 
     departureVelocity_ = departureVelocityFunction_( );
 
@@ -276,18 +278,21 @@ void DsmVelocityBasedTransferLeg::computeTransfer( )
     departureCartesianElements.segment( 0, 3 ) = departureBodyState_.segment( 0, 3 );
     departureCartesianElements.segment( 3, 3 ) = departureVelocity_;
 
+    Eigen::Vector3d dsmLocation;
     computeVelocityBasedDsmState(
                 departureCartesianElements,
-                centralBodyGravitationalParameter_, dsmTime_,
-                dsmLocation_, velocityBeforeDsm_ );
+                centralBodyGravitationalParameter_, dsmTime,
+                dsmLocation, velocityBeforeDsm_ );
 
     // Calculate the velocities after the DSM and before the arrival body.
     mission_segments::solveLambertProblemIzzo(
-                dsmLocation_, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -  dsmTime_,
+                dsmLocation, arrivalBodyState_.segment( 0, 3 ), timeOfFlight -  dsmTime,
                 centralBodyGravitationalParameter_, velocityAfterDsm_, arrivalVelocity_ );
 
     // Calculate the deltaV needed for the DSM.
-    legTotalDeltaV_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
+    Eigen::Vector3d dsmManeuver = ( velocityAfterDsm_ - velocityBeforeDsm_ );
+    legTotalDeltaV_ = dsmManeuver.norm( );
+    trajectoryManeuver_ = TrajectoryManeuver( dsmLocation, dsmManeuver.norm( ), dsmTime );
 
     calculateKeplerianElements( );
 
