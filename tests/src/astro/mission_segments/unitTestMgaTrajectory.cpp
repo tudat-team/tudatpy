@@ -127,6 +127,54 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
     printTransferParameterDefinition( transferLegSettings, transferNodeSettings );
 
     BOOST_CHECK_CLOSE_FRACTION( expectedDeltaV, transferTrajectory->getTotalDeltaV( ), tolerance );
+
+    std::vector< std::map< double, Eigen::Vector6d > > statesAlongTrajectoryPerLeg;
+    transferTrajectory-> getStatesAlongTrajectoryPerLeg(
+                statesAlongTrajectoryPerLeg, 10 );
+
+    double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
+    for( int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
+    {
+        double legStartTime = nodeTimes.at( i );
+        double legEndTime = nodeTimes.at( i + 1 );
+
+        std::map< double, Eigen::Vector6d > statesAlongSingleLeg = statesAlongTrajectoryPerLeg.at( i );
+
+        // Check initial and final time on output list
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongSingleLeg.begin( )->first, legStartTime, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( statesAlongSingleLeg.rbegin( )->first, legEndTime, 1.0E-14 );
+
+        // Check if Keplerian state (slow elements) is the same for each output point
+        Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
+        for( auto it : statesAlongSingleLeg )
+        {
+            Eigen::Vector6d currentCartesianState = it.second;
+            Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
+                        currentCartesianState, sunGravitationalParameter );
+            if( previousKeplerianState == previousKeplerianState )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( previousKeplerianState.segment( 0, 5 ) ),
+                            ( currentKeplerianState.segment( 0, 5 ) ),
+                            1.0E-12 );
+
+            }
+            previousKeplerianState = currentKeplerianState;
+        }
+
+        // Check if output meets boundary conditions
+        Eigen::Vector3d depatureBodyPosition = bodies.at( bodyOrder.at( i ) )->getStateInBaseFrameFromEphemeris(
+                    legStartTime ).segment( 0, 3 );
+        Eigen::Vector3d arrivalBodyPosition = bodies.at( bodyOrder.at( i + 1 ) )->getStateInBaseFrameFromEphemeris(
+                    legEndTime ).segment( 0, 3 );
+
+        for( int j = 0; j < 3; j++ )
+        {
+            std::cout<<i<<" "<<j<<std::endl;
+            BOOST_CHECK_SMALL( std::fabs( statesAlongSingleLeg.begin( )->second( j ) - depatureBodyPosition( j ) ), 1.0E-2 );
+            BOOST_CHECK_SMALL( std::fabs( statesAlongSingleLeg.rbegin( )->second( j ) - arrivalBodyPosition( j ) ), 1.0E-2 );
+        }
+    }
 }
 
 
