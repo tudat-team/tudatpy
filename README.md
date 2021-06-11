@@ -16,7 +16,7 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 1. Clone the repository and enter directory
 
 ````
-git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
+git clone --single-branch --branch <branch-name> https://github.com/tudat-team/tudat-bundle
 cd tudat-bundle
 ````
 
