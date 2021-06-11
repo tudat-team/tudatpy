@@ -39,6 +39,8 @@ namespace mission_segments
 class TransferTrajectory
 {
 public:
+
+    //! Class constructor
     TransferTrajectory(
             const std::vector< std::shared_ptr< TransferLeg > > legs,
             const std::vector< std::shared_ptr< TransferNode > > nodes ):
@@ -54,16 +56,20 @@ public:
         totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
     }
 
+    //! Update trajectory with new independent variables
     void evaluateTrajectory(
             const std::vector< double >& nodeTimes,
             const std::vector< Eigen::VectorXd >& legFreeParameters,
             const std::vector< Eigen::VectorXd >& nodeFreeParameters );
 
+    //! Retrieve total trajectory Delta V
     double getTotalDeltaV( );
 
+    //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
 
+    //! Get Cartesian position and velocity along full trajectory
     std::vector< std::map< double, Eigen::Vector6d > > getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
     {
         if( isComputed_ )
@@ -78,6 +84,7 @@ public:
         }
     }
 
+    //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
                                   const int numberOfDataPointsPerLeg )
     {
@@ -98,6 +105,7 @@ public:
         }
     }
 
+    //! Get Cartesian position and velocity along full trajectory
     std::map< double, Eigen::Vector6d > getStatesAlongTrajectory( const int numberOfDataPointsPerLeg )
     {
         if( isComputed_ )
@@ -115,24 +123,30 @@ public:
 
 private:
 
+    //! Retrieve full set of parameters for single leg
     void getLegTotalParameters(
             const std::vector< double >& nodeTimes,
             const Eigen::VectorXd& legFreeParameters,
             const int legIndex,
             Eigen::VectorXd& legTotalParameters );
 
+    //! Retrieve full set of parameters for single node
     void getNodeTotalParameters(
             const std::vector< double >& nodeTimes,
             const Eigen::VectorXd& nodeFreeParameters,
             const int nodeIndex,
             Eigen::VectorXd& nodeTotalParameters );
 
+    //! List of legs
     const std::vector< std::shared_ptr< TransferLeg > > legs_;
 
+    //! List of nodes
     const std::vector< std::shared_ptr< TransferNode > > nodes_;
 
+    //! Total Delta V over trajectory
     double totalDeltaV_;
 
+    //! Boolean defining whether the object is in a valid state (trajectory parameters have been set)
     bool isComputed_;
 };
 

@@ -45,6 +45,47 @@ enum TransferLegTypes
     dsm_velocity_based_leg
 };
 
+struct TrajectoryManeuver
+{
+public:
+
+    TrajectoryManeuver(
+            const Eigen::Vector3d position,
+            const double velocityChange,
+            const double time ):
+    position_( position ), velocityChange_( velocityChange ), time_( time ){ }
+
+    TrajectoryManeuver( ):
+        position_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
+        velocityChange_( TUDAT_NAN ),
+        time_( TUDAT_NAN ){ }
+
+    Eigen::Vector3d getPosition( )
+    {
+        return position_;
+    }
+
+    double getVelocityChange( )
+    {
+        return velocityChange_;
+    }
+
+    double getManeuverMagnitude( )
+    {
+        return velocityChange_;
+    }
+
+    double getManeuverTime( )
+    {
+        return time_;
+    }
+private:
+    Eigen::Vector3d position_;
+
+    double velocityChange_;
+
+    double time_;
+};
 
 class TransferLeg
 {
@@ -63,6 +104,16 @@ public:
     Eigen::Vector3d getDepartureVelocity( );
 
     Eigen::Vector3d getArrivalVelocity( );
+
+    virtual int getNumberOfImpulsiveManeuvers( )
+    {
+        return 0;
+    }
+
+    virtual const TrajectoryManeuver& getTrajectoryManeuver( const int maneuverIndex )
+    {
+        throw std::runtime_error( "Error, no maneuvers present in current leg" );
+    }
 
     double getTimeOfFlight( )
     {
@@ -167,12 +218,29 @@ public:
 
     double getDsmTime( )
     {
-        return dsmTime_;
+        return trajectoryManeuver_.getManeuverTime( );
     }
 
     Eigen::Vector3d getDsmLocation( )
     {
-        return dsmLocation_;
+        return trajectoryManeuver_.getPosition( );
+    }
+
+    int getNumberOfImpulsiveManeuvers( )
+    {
+        return 1;
+    }
+
+    const TrajectoryManeuver& getTrajectoryManeuver( const int maneuverIndex )
+    {
+        if( maneuverIndex == 0 )
+        {
+            return trajectoryManeuver_;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when retrieving maneuver from DSM leg, only one maneuver is available" );
+        }
     }
 
 protected:
@@ -180,10 +248,10 @@ protected:
     void calculateKeplerianElements( );
 
     double centralBodyGravitationalParameter_;
-    Eigen::Vector3d dsmLocation_;
     Eigen::Vector3d velocityBeforeDsm_;
     Eigen::Vector3d velocityAfterDsm_;
-    double dsmTime_;
+
+    TrajectoryManeuver trajectoryManeuver_;
 
     Eigen::Vector6d constantKeplerianStateBeforeDsm_;
     Eigen::Vector6d constantKeplerianStateAfterDsm_;
