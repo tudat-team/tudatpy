@@ -47,7 +47,9 @@ void TransferTrajectory::evaluateTrajectory(
 
     getNodeTotalParameters(
                 nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
+
     nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
+
     totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
     isComputed_ = true;
 }
@@ -61,6 +63,31 @@ double TransferTrajectory::getTotalDeltaV( )
     else
     {
         throw std::runtime_error( "Error when getting Delta V for transfer trajectory; transfer parameters not set!" );
+    }
+}
+
+
+double TransferTrajectory::getNodeDeltaV( const int nodeIndex )
+{
+    if( isComputed_ )
+    {
+        return nodes_.at( nodeIndex )->getNodeDeltaV( );;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting single node Delta V for transfer trajectory; transfer parameters not set!" );
+    }
+}
+
+double TransferTrajectory::getLegDeltaV( const int legIndex )
+{
+    if( isComputed_ )
+    {
+        return legs_.at( legIndex )->getLegDeltaV( );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting single leg Delta V for transfer trajectory; transfer parameters not set!" );
     }
 }
 

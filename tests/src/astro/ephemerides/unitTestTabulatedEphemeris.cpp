@@ -65,9 +65,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 {
     // Create ephemeris from which table is to be generated; used as input to tabulated ephemeris
     using namespace ephemerides;
-    std::shared_ptr< ApproximatePlanetPositions > marsNominalEphemeris =
-            std::make_shared< ApproximatePlanetPositions >(
-                ApproximatePlanetPositionsBase::mars );
+    std::shared_ptr< ApproximateJplEphemeris > marsNominalEphemeris =
+            std::make_shared< ApproximateJplEphemeris >(
+                mars );
 
     // Generate state history map from ephemeris
     std::map< double, Eigen::Vector6d > marsStateHistoryMap = getStateHistoryMap(
@@ -112,9 +112,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 
     // Create new ephemeris from which table is to be generated; used to reset input to tabulated
     // ephemeris
-    std::shared_ptr< ApproximatePlanetPositions > jupiterNominalEphemeris =
-            std::make_shared< ApproximatePlanetPositions >(
-                ApproximatePlanetPositionsBase::jupiter );
+    std::shared_ptr< ApproximateJplEphemeris > jupiterNominalEphemeris =
+            std::make_shared< ApproximateJplEphemeris >(
+                jupiter );
 
     // Reset tabulated ephemeris data.
     std::map< double, Eigen::Vector6d > jupiterStateHistoryMap = getStateHistoryMap(
