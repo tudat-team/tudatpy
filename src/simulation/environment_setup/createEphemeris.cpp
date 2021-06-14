@@ -278,13 +278,13 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyToUse;
+                ephemerides::BodiesWithApproximateEphemeris bodyToUse;
                 if( approximateEphemerisSettings->getBodyIdentifier( ) ==
-                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::undefined )
+                        ephemerides::BodiesWithApproximateEphemeris::undefined_body )
                 {
                     try
                     {
-                        bodyToUse = ephemerides::ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId( bodyName );
+                        bodyToUse = ephemerides::getBodiesWithApproximateEphemerisId( bodyName );
                     }
                     catch( std::runtime_error& )
                     {
@@ -298,12 +298,12 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 // Create corresponding ephemeris object.
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {
-                    ephemeris = std::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
+                    ephemeris = std::make_shared< ApproximateJplCircularCoplanarEphemeris >(
                                 bodyToUse );
                 }
                 else
                 {
-                    ephemeris = std::make_shared< ApproximatePlanetPositions >(
+                    ephemeris = std::make_shared< ApproximateJplEphemeris >(
                                 bodyToUse );
                 }
             }

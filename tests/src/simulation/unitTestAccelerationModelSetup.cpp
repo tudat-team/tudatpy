@@ -61,9 +61,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     bodySettings.addSettings( "Jupiter" );
     bodySettings.addSettings( "Sun" );
     bodySettings.at( "Mars" )->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, 0 );
+                ephemerides::mars, 0 );
     bodySettings.at( "Jupiter" )->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::jupiter, 0 );
+                ephemerides::jupiter, 0 );
     bodySettings.at( "Mars" )->gravityFieldSettings =
             std::make_shared< GravityFieldSettings >( central_spice );
     bodySettings.at( "Jupiter" )->gravityFieldSettings =
