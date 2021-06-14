@@ -23,7 +23,7 @@ namespace ephemerides
 {
 
 //! Set planet.
-void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )
+void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEphemeris bodyWithEphemerisData )
 {
     // Check if ephemeris data has been loaded, and reload data if not.
     if ( containerOfDataFromEphemerisFile_.size( ) == 0 )
@@ -104,7 +104,7 @@ void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWith
 }
 
 //! Parse ephemeris line data.
-void ApproximatePlanetPositionsBase::parseEphemerisLineData_( const unsigned int& firstLineNumber )
+void ApproximateJplSolarSystemEphemerisBase::parseEphemerisLineData_( const unsigned int& firstLineNumber )
 {
     // Parse data from container of strings using a string stream.
 
@@ -149,7 +149,7 @@ void ApproximatePlanetPositionsBase::parseEphemerisLineData_( const unsigned int
 }
 
 //! Parse line data for extra terms for ephemeris.
-void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
+void ApproximateJplSolarSystemEphemerisBase::parseExtraTermsEphemerisLineData_(
         const unsigned int& lineNumber )
 {
     // Clear stringstream.
@@ -166,7 +166,7 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
 }
 
 //! Load in ephemeris data for planets.
-void ApproximatePlanetPositionsBase::reloadData( )
+void ApproximateJplSolarSystemEphemerisBase::reloadData( )
 {
     // Set  path to ephemeris file in file reader.
     std::string filePath_ = paths::getEphemerisDataFilesPath( ) + "/p_elem_t2.txt";
@@ -195,7 +195,7 @@ void ApproximatePlanetPositionsBase::reloadData( )
     ephemerisFile_.close( );
 }
 
-double getApproximatePlanetGravitationalParameter( const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyId )
+double getApproximatePlanetGravitationalParameter( const BodiesWithApproximateEphemeris bodyId )
 {
     return 0.0;
 }

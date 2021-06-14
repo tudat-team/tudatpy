@@ -38,8 +38,10 @@ Eigen::Vector3d TransferNode::getOutgoingVelocity( )
 }
 
 
-
-
+void TransferNode::updateNodeState( const double nodeTime )
+{
+    nodeState_ = nodeEphemeris_->getCartesianState( nodeTime );
+}
 
 DepartureWithFixedOutgoingVelocityNode::DepartureWithFixedOutgoingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
@@ -72,14 +74,14 @@ void DepartureWithFixedOutgoingVelocityNode::computeNode( )
     }
 
     nodeTime_ = nodeParameters_( 0 );
+    updateNodeState( nodeTime_ );
 
     outgoingVelocity_ = outgoingVelocityFunction_( );
-    centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
 
     totalNodeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 centralBodyGravitationalParameter_,
                 departureSemiMajorAxis_, departureEccentricity_,
-                ( outgoingVelocity_ - centralBodyVelocity_ ).norm( ) );
+                ( outgoingVelocity_ - nodeState_.segment< 3 >( 3 ) ).norm( ) );
 }
 
 
@@ -119,17 +121,17 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
     excessVelocityInPlaneAngle_ = nodeParameters_( 2 );
     excessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
 
-    centralBodyPosition_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 0, 3 );
-    centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
+    updateNodeState( nodeTime_ );
 
     // Calculate unit vectors as described in [Vinko and Izzo, 2008].
-    const Eigen::Vector3d unitVector1 = centralBodyVelocity_.normalized( );
-    const Eigen::Vector3d unitVector3 = ( centralBodyPosition_.cross( centralBodyVelocity_ ) ).normalized( );
+    Eigen::Vector3d nodeVelocity = nodeState_.segment< 3 >( 3 );
+    const Eigen::Vector3d unitVector1 = nodeVelocity.normalized( );
+    const Eigen::Vector3d unitVector3 = ( nodeState_.segment< 3 >( 0 ).cross( nodeVelocity ) ).normalized( );
     const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
 
 
     // Calculate the velocity after departure as described in [Vinko and Izzo, 2008].
-    outgoingVelocity_ = centralBodyVelocity_ +
+    outgoingVelocity_ = nodeVelocity +
             excessVelocityMagnitude_ * std::cos( excessVelocityInPlaneAngle_ ) *
             std::cos( excessVelocityOutOfPlaneAngle_ ) * unitVector1 +
             excessVelocityMagnitude_ * std::sin( excessVelocityInPlaneAngle_ ) *
@@ -139,7 +141,8 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
     totalNodeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 centralBodyGravitationalParameter_,
                 departureSemiMajorAxis_, departureEccentricity_,
-                ( outgoingVelocity_ - centralBodyVelocity_ ).norm( ) );
+                ( outgoingVelocity_ - nodeVelocity ).norm( ) );
+
 }
 
 
@@ -175,13 +178,14 @@ void CaptureAndInsertionNode::computeNode( )
 
     nodeTime_ = nodeParameters_( 0 );
 
+    updateNodeState( nodeTime_ );
+
     incomingVelocity_ = incomingVelocityFunction_( );
-    centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
 
     totalNodeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 centralBodyGravitationalParameter_,
                 captureSemiMajorAxis_, captureEccentricity_,
-                ( incomingVelocity_ - centralBodyVelocity_ ).norm( ) );
+                ( incomingVelocity_ - nodeState_.segment< 3 >( 3 ) ).norm( ) );
 }
 
 
@@ -212,13 +216,14 @@ void SwingbyWithFixedOutgoingVelocity::computeNode( )
     }
 
     nodeTime_ = nodeParameters_( 0 );
+
+    updateNodeState( nodeTime_ );
+
     incomingVelocity_ = incomingVelocityFunction_( );
     outgoingVelocity_ = outgoingVelocityFunction_( );
 
-    centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
-
     totalNodeDeltaV_ = calculateGravityAssistDeltaV(
-                centralBodyGravitationalParameter_, centralBodyVelocity_,
+                centralBodyGravitationalParameter_, nodeState_.segment< 3 >( 3 ),
                 incomingVelocity_, outgoingVelocity_, minimumPeriapsisRadius_ );
 
 }
@@ -253,14 +258,14 @@ void SwingbyWithFreeOutgoingVelocity::computeNode( )
     outgoingRotationAngle_ = nodeParameters_( 2 );
     swingbyDeltaV_ = nodeParameters_( 3 );
 
-    incomingVelocity_ = incomingVelocityFunction_( );
+    updateNodeState( nodeTime_ );
 
-    centralBodyVelocity_ = nodeEphemeris_->getCartesianState( nodeTime_ ).segment( 3, 3 );
+    incomingVelocity_ = incomingVelocityFunction_( );
 
     // Prepare the gravity assist propagator module.
     outgoingVelocity_ = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                 centralBodyGravitationalParameter_,
-                centralBodyVelocity_, incomingVelocity_,
+                nodeState_.segment< 3 >( 3 ), incomingVelocity_,
                 outgoingRotationAngle_, periapsisRadius_, swingbyDeltaV_ );
 
     totalNodeDeltaV_ = swingbyDeltaV_;

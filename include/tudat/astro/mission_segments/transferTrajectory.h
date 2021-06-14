@@ -47,13 +47,6 @@ public:
         legs_( legs ), nodes_( nodes ), isComputed_( false )
     {
         totalDeltaV_ = 0.0;
-        for( unsigned int i = 0; i < legs_.size( ); i++ )
-        {
-            totalDeltaV_ += nodes_.at( i )->getNodeDeltaV( );
-            totalDeltaV_ += legs_.at( i )->getLegDeltaV( );
-        }
-
-        totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
     }
 
     //! Update trajectory with new independent variables
@@ -64,6 +57,10 @@ public:
 
     //! Retrieve total trajectory Delta V
     double getTotalDeltaV( );
+
+    double getNodeDeltaV( const int nodeIndex );
+
+    double getLegDeltaV( const int legIndex );
 
     //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,

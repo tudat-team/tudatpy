@@ -66,7 +66,11 @@ public:
 
 protected:
 
+    void updateNodeState( const double nodeTime );
+
     virtual void computeNode( ) = 0;
+
+    double nodeTime_;
 
     // Constant inputs
     std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris_;
@@ -79,6 +83,8 @@ protected:
     Eigen::Vector3d incomingVelocity_;
     Eigen::Vector3d outgoingVelocity_;
     double totalNodeDeltaV_;
+
+    Eigen::Vector6d nodeState_;
 
 };
 
@@ -106,12 +112,6 @@ protected:
     double departureSemiMajorAxis_;
     double departureEccentricity_;
     std::function< Eigen::Vector3d( ) > outgoingVelocityFunction_;
-
-    // Input modified per iteration (extracted from nodeParameters_)
-    double nodeTime_;
-
-    // Values computed per iteration
-    Eigen::Vector3d centralBodyVelocity_;
 };
 
 
@@ -139,13 +139,11 @@ protected:
     double departureEccentricity_;
 
     // Input modified per iteration (extracted from nodeParameters_)
-    double nodeTime_;
     double excessVelocityMagnitude_;
     double excessVelocityInPlaneAngle_;
     double excessVelocityOutOfPlaneAngle_;
 
     // Values computed per iteration
-    Eigen::Vector3d centralBodyVelocity_;
     Eigen::Vector3d centralBodyPosition_;
 
 };
@@ -175,12 +173,6 @@ protected:
     double captureSemiMajorAxis_;
     double captureEccentricity_;
     std::function< Eigen::Vector3d( ) > incomingVelocityFunction_;
-
-    // Input modified per iteration (extracted from nodeParameters_)
-    double nodeTime_;
-
-    // Values computed per iteration
-    Eigen::Vector3d centralBodyVelocity_;
 };
 
 
@@ -206,12 +198,6 @@ protected:
     double minimumPeriapsisRadius_;
     const std::function< Eigen::Vector3d( ) > incomingVelocityFunction_;
     const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction_;
-
-    // Input modified per iteration (extracted from nodeParameters_)
-    double nodeTime_;
-
-    // Values computed per iteration
-    Eigen::Vector3d centralBodyVelocity_;
 };
 
 
@@ -235,13 +221,10 @@ protected:
     const std::function< Eigen::Vector3d( ) > incomingVelocityFunction_;
 
     // Input modified per iteration (extracted from nodeParameters_)
-    double nodeTime_;
     double periapsisRadius_;
     double swingbyDeltaV_;
     double outgoingRotationAngle_;
 
-    // Values computed per iteration
-    Eigen::Vector3d centralBodyVelocity_;
 };
 
 } // namespace mission_segments

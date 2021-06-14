@@ -39,7 +39,15 @@ namespace tudat
 namespace mission_segments
 {
 
-const static std::map< std::string, double > DEFAULT_MINIMUM_PERICENTERS = { { "Earth" , 6700.0} };
+//! From  "Problem Description for the 1st ACT Competition on Global Trajectory Optimisation"
+const static std::map< std::string, double > DEFAULT_MINIMUM_PERICENTERS =
+{   { "Mercury", 2740000.0 },
+    { "Venus", 6351800.0 },
+    { "Earth" , 6678000.0 },
+    { "Mars" , 3689000.0 },
+    { "Jupiter" , 600000000.0 },
+    { "Saturn" , 70000000.0 }
+};
 
 
 static std::map< TransferLegTypes, bool > legRequiresInputFromNode =
