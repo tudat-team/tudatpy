@@ -268,8 +268,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case approximate_planet_positions:
         {
             // Check consistency of type and class.
-            std::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-                    std::dynamic_pointer_cast< ApproximatePlanetPositionSettings >(
+            std::shared_ptr< ApproximateJplEphemerisSettings > approximateEphemerisSettings =
+                    std::dynamic_pointer_cast< ApproximateJplEphemerisSettings >(
                         ephemerisSettings );
             if( approximateEphemerisSettings == nullptr )
             {
@@ -278,33 +278,16 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
-                ephemerides::BodiesWithApproximateEphemeris bodyToUse;
-                if( approximateEphemerisSettings->getBodyIdentifier( ) ==
-                        ephemerides::BodiesWithApproximateEphemeris::undefined_body )
-                {
-                    try
-                    {
-                        bodyToUse = ephemerides::getBodiesWithApproximateEphemerisId( bodyName );
-                    }
-                    catch( std::runtime_error& )
-                    {
-                        throw std::runtime_error( "Error, approximate ephemeris not available for body: " + bodyName + " when creating ephemeris." );
-                    }
-                }
-                else
-                {
-                    bodyToUse = approximateEphemerisSettings->getBodyIdentifier( );
-                }
                 // Create corresponding ephemeris object.
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {
                     ephemeris = std::make_shared< ApproximateJplCircularCoplanarEphemeris >(
-                                bodyToUse );
+                                approximateEphemerisSettings->getBodyName( ) );
                 }
                 else
                 {
                     ephemeris = std::make_shared< ApproximateJplEphemeris >(
-                                bodyToUse );
+                                approximateEphemerisSettings->getBodyName( ) );
                 }
             }
             break;

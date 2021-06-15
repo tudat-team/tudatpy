@@ -157,42 +157,10 @@ Eigen::Vector6d ApproximateJplEphemeris::getKeplerianStateFromEphemeris(
     return planetKeplerianElementsAtGivenJulianDate_;
 }
 
-ApproximateGtopEphemeris::ApproximateGtopEphemeris( const BodiesWithApproximateEphemeris bodyWithEphemerisData ):
+ApproximateGtopEphemeris::ApproximateGtopEphemeris( const std::string& bodyName ):
     Ephemeris( "Sun", "ECLIPJ2000" )
 {
-    switch( bodyWithEphemerisData )
-    {
-    case mercury:
-        bodyIndex_ = 1;
-        break;
-    case venus:
-        bodyIndex_ = 2;
-        break;
-    case earthMoonBarycenter:
-        bodyIndex_ = 3;
-        break;
-    case mars:
-        bodyIndex_ = 4;
-        break;
-    case jupiter:
-        bodyIndex_ = 5;
-        break;
-    case saturn:
-        bodyIndex_ = 6;
-        break;
-    case uranus:
-        bodyIndex_ = 7;
-        break;
-    case neptune:
-        bodyIndex_ = 8;
-        break;
-    case pluto:
-        bodyIndex_ = 9;
-        break;
-    case undefined_body:
-        break;
-
-    }
+    bodyIndex_ = getPlanetIndex( bodyName );
 }
 
 

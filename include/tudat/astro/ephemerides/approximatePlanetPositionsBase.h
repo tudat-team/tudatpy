@@ -35,61 +35,8 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Bodies with ephemeris data.
-enum BodiesWithApproximateEphemeris
-{
-    mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto, undefined_body
-};
 
-static BodiesWithApproximateEphemeris getBodiesWithApproximateEphemerisId( const std::string& bodyName )
-{
-    BodiesWithApproximateEphemeris bodyId;
-    if( bodyName == "Mercury" )
-    {
-        bodyId = mercury;
-    }
-    else if( bodyName == "Venus" )
-    {
-        bodyId = venus;
-    }
-    else if( bodyName == "Earth" )
-    {
-        bodyId = earthMoonBarycenter;
-    }
-    else if( bodyName == "Mars" )
-    {
-        bodyId = mars;
-    }
-    else if( bodyName == "Jupiter" )
-    {
-        bodyId = jupiter;
-    }
-    else if( bodyName == "Saturn" )
-    {
-        bodyId = saturn;
-    }
-    else if( bodyName == "Uranus" )
-    {
-        bodyId = uranus;
-    }
-    else if( bodyName == "Saturn" )
-    {
-        bodyId = neptune;
-    }
-    else if( bodyName == "Pluto" )
-    {
-        bodyId = pluto;
-    }
-    else if( bodyName == "" )
-    {
-        bodyId = undefined_body;
-    }
-    else
-    {
-        throw std::runtime_error( "Error, could find body " + bodyName + " when getting BodiesWithApproximateEphemeris id." );
-    }
-    return bodyId;
-}
+int getPlanetIndex( const std::string& bodyName );
 
 //! Ephemeris base class using JPL "Approximate Positions of Major Planets".
 /*!
@@ -141,7 +88,7 @@ public:
      * The resulting data is stored in
      * ApproximateJplSolarSystemEphemerisBase::containerOfDataFromEphemerisFile_ to be used in the
      * generation of planet ephemeris. This method is automatically invoked if you call
-     * ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEphemeris ).
+     * ApproximateJplSolarSystemEphemerisBase::setPlanet.
      */
     void reloadData( );
 
@@ -161,7 +108,7 @@ protected:
      * Sets planet to retrieve ephemeris data for.
      * \param bodyWithEphemerisData Planet.
      */
-    void setPlanet( BodiesWithApproximateEphemeris bodyWithEphemerisData );
+    void setPlanet( const std::string& bodyName );
 
     //! Gravitational parameter of the Sun.
     /*!
@@ -219,11 +166,6 @@ private:
 
 //! Typedef for shared-pointer to ApproximateJplSolarSystemEphemerisBase object.
 typedef std::shared_ptr< ApproximateJplSolarSystemEphemerisBase > ApproximateJplSolarSystemEphemerisBasePointer;
-
-double getApproximatePlanetGravitationalParameter( const BodiesWithApproximateEphemeris bodyId  );
-
-double getApproximatePlanetGravitationalParameter( const std::string& bodyName );
-
 
 } // namespace ephemerides
 } // namespace tudat

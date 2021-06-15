@@ -39,27 +39,6 @@ public:
 
     using Ephemeris::getCartesianState;
 
-    //! Default constructor.
-    /*!
-     * Default constructor that initializes the class from the body for which the position is
-     * approximated and the gravitational parameter of the Sun (default 1.32712440018e20). Other
-     * members are initialized to default values (NAN).
-     *
-     * \param bodyWithEphemerisData The body for which the position is approximated.
-     * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
-     * \sa BodiesWithApproximateEphemeris, ApproximateJplSolarSystemEphemerisBase.
-     */
-    ApproximateJplEphemeris( BodiesWithApproximateEphemeris bodyWithEphemerisData,
-                             const double sunGravitationalParameter = 1.32712440018e20 )
-        : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
-          eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
-          longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
-          meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
-          trueAnomalyAtGivenJulianData_( TUDAT_NAN )
-    {
-        setPlanet( bodyWithEphemerisData );
-    }
-
     ApproximateJplEphemeris( const std::string& bodyName,
                              const double sunGravitationalParameter = 1.32712440018e20 )
         : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
@@ -68,9 +47,7 @@ public:
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           trueAnomalyAtGivenJulianData_( TUDAT_NAN )
     {
-        BodiesWithApproximateEphemeris bodyWithEphemerisData = getBodiesWithApproximateEphemerisId(
-                    bodyName );
-        setPlanet( bodyWithEphemerisData );
+        this->setPlanet( bodyName );
     }
 
     //! Get cartesian state from ephemeris.
@@ -130,9 +107,6 @@ class ApproximateGtopEphemeris : public Ephemeris
 public:
 
     using Ephemeris::getCartesianState;
-
-
-    ApproximateGtopEphemeris( const BodiesWithApproximateEphemeris bodyWithEphemerisData );
 
     ApproximateGtopEphemeris( const std::string& bodyName );
 

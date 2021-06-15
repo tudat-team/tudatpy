@@ -139,9 +139,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -238,9 +238,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_2 )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -337,9 +337,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_3 )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -434,9 +434,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_4 )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -531,9 +531,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_5 )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -634,9 +634,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mercury_transfer )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mercury );
+                "Mercury" );
     Eigen::Vector6d cartesianStateDepartureBody =
             pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
@@ -1169,9 +1169,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+                "Earth"  );
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-                ephemerides::BodiesWithApproximateEphemeris::mars );
+                "Mars"  );
     Eigen::Vector6d cartesianStateDepartureBody = pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
     Eigen::Vector6d cartesianStateArrivalBody =
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight * physical_constants::JULIAN_DAY );
@@ -1266,9 +1266,9 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 
 //    // Retrieve cartesian state at departure and arrival.
 //    ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris>(
-//                ephemerides::BodiesWithApproximateEphemeris::earthMoonBarycenter );
+//                "Earth"  );
 //    ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximateJplEphemeris >(
-//                ephemerides::BodiesWithApproximateEphemeris::mars );
+//                "Mars"  );
 //    Eigen::Vector6d cartesianStateDepartureBody =
 //            pointerToDepartureBodyEphemeris->getCartesianState( julianDate );
 //    Eigen::Vector6d cartesianStateArrivalBody =

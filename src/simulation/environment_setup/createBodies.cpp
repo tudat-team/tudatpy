@@ -268,17 +268,17 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
 
     bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
     bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                            BodiesWithApproximateEphemeris::mercury ) );
+                                            "Mercury" ) );
     bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          BodiesWithApproximateEphemeris::venus ) );
+                                          "Venus" ) );
     bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          BodiesWithApproximateEphemeris::earthMoonBarycenter ) );
+                                          "Earth" ) );
     bodies.getBody( "Mars" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          BodiesWithApproximateEphemeris::mars ) );
+                                          "Mars" ) );
     bodies.getBody( "Jupiter" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                            BodiesWithApproximateEphemeris::jupiter ) );
+                                            "Jupiter" ) );
     bodies.getBody( "Saturn" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                           BodiesWithApproximateEphemeris::saturn ) );
+                                           "Saturn" ) );
 
     bodies.getBody( "Sun" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.32712428e20 ) );
     bodies.getBody( "Mercury" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 2.2321e13 ) );
