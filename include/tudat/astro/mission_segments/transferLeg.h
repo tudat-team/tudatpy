@@ -42,7 +42,8 @@ enum TransferLegTypes
 {
     unpowered_unperturbed_leg,
     dsm_position_based_leg,
-    dsm_velocity_based_leg
+    dsm_velocity_based_leg,
+    hodographic_low_thrust_leg
 };
 
 struct TrajectoryManeuver
@@ -167,6 +168,7 @@ protected:
 
     double departureTime_;
     double arrivalTime_;
+    double timeOfFlight_;
 
     Eigen::Vector6d departureBodyState_;
     Eigen::Vector6d arrivalBodyState_;
