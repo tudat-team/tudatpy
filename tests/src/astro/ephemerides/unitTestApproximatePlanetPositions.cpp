@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     expectedKeplerianElements[ 5 ] = convertDegreesToRadians( 3.577219707986779e2 );
 
     // Create Mars ephemeris.
-    ApproximateJplEphemeris marsEphemeris( mars );
+    ApproximateJplEphemeris marsEphemeris( "Mars" );
 
     // Convert the expected Keplerian elements to Cartesian elements.
     Eigen::Vector6d expectedEphemeris;
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
     using namespace ephemerides;
 
     ApproximateJplCircularCoplanarEphemeris marsEphemeris(
-                mars );
+                "Mars" );
 
     Eigen::Vector6d marsStateCircularCoplanar
             = marsEphemeris.getCartesianState(

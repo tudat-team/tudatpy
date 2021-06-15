@@ -52,17 +52,16 @@ public:
      * approximated and the gravitational parameter of the Sun (default 1.32712440018e20). Other
      * members are initialized to default values.
      *
-     * \param bodyWithEphemerisData The body for which the position is approximated.
+     * \param bodyName The body for which the position is approximated.
      * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
-     * \sa BodiesWithApproximateEphemeris, ApproximateJplSolarSystemEphemerisBase.
      */
     ApproximateJplCircularCoplanarEphemeris(
-            BodiesWithApproximateEphemeris bodyWithEphemerisData,
+            const std::string bodyName,
             const double sunGravitationalParameter = 1.32712440018e20 )
         : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
           constantOrbitalRadius_( -0.0 )
     {
-        setPlanet( bodyWithEphemerisData );
+        this->setPlanet( bodyName );
     }
 
     //! Get state from ephemeris; circular, coplanar case.

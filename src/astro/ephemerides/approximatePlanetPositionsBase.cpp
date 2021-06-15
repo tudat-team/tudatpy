@@ -22,8 +22,66 @@ namespace tudat
 namespace ephemerides
 {
 
+int getPlanetIndex( const std::string& bodyName )
+{
+    int bodyIndex;
+    if( bodyName == "Mercury" )
+    {
+        bodyIndex = 1;
+    }
+    else if( bodyName == "Venus" )
+    {
+        bodyIndex = 2;
+    }
+    else if( bodyName == "Earth" )
+    {
+        bodyIndex = 3;
+    }
+    else if( bodyName == "EMB" )
+    {
+        bodyIndex = 3;
+    }
+    else if( bodyName == "EarthMoonBarycenter" )
+    {
+        bodyIndex = 3;
+    }
+    else if( bodyName == "Mars" )
+    {
+        bodyIndex = 4;
+    }
+    else if( bodyName == "Jupiter" )
+    {
+        bodyIndex = 5;
+    }
+    else if( bodyName == "Saturn" )
+    {
+        bodyIndex = 6;
+    }
+    else if( bodyName == "Uranus" )
+    {
+        bodyIndex = 7;
+    }
+    else if( bodyName == "Saturn" )
+    {
+        bodyIndex = 8;
+    }
+    else if( bodyName == "Pluto" )
+    {
+        bodyIndex = 9;
+    }
+    else if( bodyName == "" )
+    {
+        bodyIndex = -1;
+    }
+    else
+    {
+        throw std::runtime_error( "Error, could find body " + bodyName + " when getting planet index." );
+    }
+    return bodyIndex;
+}
+
 //! Set planet.
-void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEphemeris bodyWithEphemerisData )
+void ApproximateJplSolarSystemEphemerisBase::setPlanet( const std::string& bodyName )
 {
     // Check if ephemeris data has been loaded, and reload data if not.
     if ( containerOfDataFromEphemerisFile_.size( ) == 0 )
@@ -31,34 +89,35 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
         reloadData( );
     }
 
-    switch ( bodyWithEphemerisData )
+    int bodyIndex = getPlanetIndex( bodyName );
+    switch ( bodyIndex )
     {
-    case mercury:
+    case 1:
 
         parseEphemerisLineData_( 18 );
         planetGravitationalParameter_ = celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER;
         break;
 
-    case venus:
+    case 2:
 
         parseEphemerisLineData_( 20 );
         planetGravitationalParameter_ = celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER;
         break;
 
-    case earthMoonBarycenter:
+    case 3:
 
         parseEphemerisLineData_( 22 );
         planetGravitationalParameter_ = celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER +
                 celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER;
         break;
 
-    case mars:
+    case 4:
 
         parseEphemerisLineData_( 24 );
         planetGravitationalParameter_ = celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER;
         break;
 
-    case jupiter:
+    case 5:
 
         parseEphemerisLineData_( 26 );
         parseExtraTermsEphemerisLineData_( 48 );
@@ -66,7 +125,7 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
 
         break;
 
-    case saturn:
+    case 6:
 
         parseEphemerisLineData_( 28 );
         parseExtraTermsEphemerisLineData_( 49 );
@@ -74,7 +133,7 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
 
         break;
 
-    case uranus:
+    case 7:
 
         parseEphemerisLineData_( 30 );
         parseExtraTermsEphemerisLineData_( 50 );
@@ -82,7 +141,7 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
 
         break;
 
-    case neptune:
+    case 8:
 
         parseEphemerisLineData_( 32 );
         parseExtraTermsEphemerisLineData_( 51 );
@@ -90,7 +149,7 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
 
         break;
 
-    case pluto:
+    case 9:
 
         parseEphemerisLineData_( 34 );
         parseExtraTermsEphemerisLineData_( 52 );
@@ -99,6 +158,7 @@ void ApproximateJplSolarSystemEphemerisBase::setPlanet( BodiesWithApproximateEph
         break;
 
     default:
+        throw std::runtime_error( "Error, did not recognize planet index " + std::to_string( bodyIndex ) );
         break;
     }
 }
@@ -195,14 +255,5 @@ void ApproximateJplSolarSystemEphemerisBase::reloadData( )
     ephemerisFile_.close( );
 }
 
-double getApproximatePlanetGravitationalParameter( const BodiesWithApproximateEphemeris bodyId )
-{
-    return 0.0;
-}
-
-double getApproximatePlanetGravitationalParameter( const std::string& bodyName )
-{
-    return 0.0;
-}
 } // namespace ephemerides
 } // namespace tudat
