@@ -402,7 +402,7 @@ private:
  *  planets, as inplemented in ApproximateJplEphemeris class and derived class,
  *  described on http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf.
  */
-class ApproximatePlanetPositionSettings: public EphemerisSettings
+class ApproximateJplEphemerisSettings: public EphemerisSettings
 {
 public:
 
@@ -414,12 +414,11 @@ public:
      *  orbit of the body is to be assumed, or whether a non-zero inclination and long-period
      *  changes in the orbit are to be included.
      */
-    ApproximatePlanetPositionSettings(
-            const ephemerides::BodiesWithApproximateEphemeris
-            bodyIdentifier,
+    ApproximateJplEphemerisSettings(
+            const std::string bodyName,
             const bool useCircularCoplanarApproximation = false ):
         EphemerisSettings( approximate_planet_positions ),
-        bodyIdentifier_( bodyIdentifier ),
+        bodyName_( bodyName ),
         useCircularCoplanarApproximation_( useCircularCoplanarApproximation ){ }
 
     //! Function to return parameter identifying for which body an ephemeris is to be created.
@@ -427,9 +426,9 @@ public:
      *  Function to return parameter identifying for which body an ephemeris is to be created.
      *  \return Parameter identifying for which body an ephemeris is to be created.
      */
-    ephemerides::BodiesWithApproximateEphemeris getBodyIdentifier( )
+    std::string getBodyName( )
     {
-        return bodyIdentifier_;
+        return bodyName_;
     }
 
     //! Function to return whether a circular, coplanar orbit of the body is to be assumed.
@@ -445,7 +444,7 @@ public:
 private:
 
     //! Parameter identifying for which body an ephemeris is to be created.
-    ephemerides::BodiesWithApproximateEphemeris bodyIdentifier_;
+    std::string bodyName_;
 
     //!  Boolean defining whether a circular, coplanar orbit of the body is to be assumed,
     /*!
@@ -906,34 +905,17 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
 }
 
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
-		const ephemerides::BodiesWithApproximateEphemeris
-        bodyIdentifier )
-{
-	return std::make_shared< ApproximatePlanetPositionSettings >(
-            bodyIdentifier, false );
-}
-
-inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
         const std::string bodyName )
 {
-    ephemerides::BodiesWithApproximateEphemeris bodyIdentifier;
-    try
-    {
-        bodyIdentifier = ephemerides::getBodiesWithApproximateEphemerisId( bodyName );
-    }
-    catch( std::runtime_error& )
-    {
-        throw std::runtime_error( "Error, approximate ephemeris not available for " + bodyName );
-    }
-    return std::make_shared< ApproximatePlanetPositionSettings >(
-            bodyIdentifier, false );
+    return std::make_shared< ApproximateJplEphemerisSettings >(
+            bodyName, false );
 }
 
-inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )
-{
-    return std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::undefined_body, false );
-}
+//inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )
+//{
+//    return std::make_shared< ApproximateJplEphemerisSettings >(
+//                ephemerides::undefined_body, false );
+//}
 
 
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(

@@ -171,11 +171,10 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
     {
         // Create settings for approximate planet positions.
-        ephemerides::BodiesWithApproximateEphemeris bodyIdentifier =
-                ephemerides::mars;
+        std::string bodyIdentifier = "Mars";
         bool useCircularCoplanarApproximation = 0;
-        std::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-                std::make_shared< ApproximatePlanetPositionSettings >(
+        std::shared_ptr< ApproximateJplEphemerisSettings > approximateEphemerisSettings =
+                std::make_shared< ApproximateJplEphemerisSettings >(
                     bodyIdentifier, useCircularCoplanarApproximation );
 
         // Create ephemeris using setup function.
