@@ -24,6 +24,7 @@
 
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h"
 #include "tudat/astro/low_thrust/shape_based/hodographicShaping.h"
+#include "tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h"
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 #include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -148,6 +149,13 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
             pointerToArrivalBodyEphemeris->getCartesianState( julianDate + timeOfFlight  * physical_constants::JULIAN_DAY );
 
     // Create hodographic-shaping object with defined velocity functions and boundary conditions.
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),  numberOfRevolutions,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
+                                                     julianDate,
+                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
     HodographicShaping hodographicShaping = HodographicShaping(
                 cartesianStateDepartureBody, cartesianStateArrivalBody,
                 timeOfFlight * physical_constants::JULIAN_DAY,
@@ -159,6 +167,18 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_earth_mars_transfer_1 )
     // Check results consistency w.r.t. thesis from D. Gondelach (ADD PROPER REFERENCE)
     double expectedDeltaV = 7751.0;
     double expectedPeakAcceleration = 2.64e-4;
+
+    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<hodographicShaping.computeDeltaV( )<<std::endl;
+    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
+                                                     julianDate + 10.0 * 86400.0,
+                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
+    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+
+    hodographicShapingLeg.updateLegParameters( ( Eigen::Vector2d( )<<
+                                                     julianDate,
+                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY ).finished( ) );
+    std::cout<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
 
     // DeltaV provided with a precision of 1 m/s
     BOOST_CHECK_SMALL( std::fabs(  hodographicShaping.computeDeltaV( ) - expectedDeltaV ), 1.0 );
@@ -1184,6 +1204,21 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
                 radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents,
                 freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction, freeCoefficientsAxialVelocityFunction );
 
+
+    HodographicShapingLeg hodographicShapingLeg = HodographicShapingLeg(
+                pointerToDepartureBodyEphemeris, pointerToArrivalBodyEphemeris,
+                spice_interface::getBodyGravitationalParameter( "Sun" ),  numberOfRevolutions,
+                radialVelocityFunctionComponents, normalVelocityFunctionComponents, axialVelocityFunctionComponents );
+    hodographicShapingLeg.updateLegParameters( ( Eigen::VectorXd( 8 )<<
+                                                     julianDate,
+                                                     julianDate + timeOfFlight  * physical_constants::JULIAN_DAY,
+                                                 freeCoefficientsRadialVelocityFunction,
+                                                 freeCoefficientsNormalVelocityFunction,
+                                                 freeCoefficientsAxialVelocityFunction ).finished( ) );
+
+    std::cout<<"DV1 "<<hodographicShapingLeg.computeDeltaV( )<<std::endl;
+    std::cout<<"DV2 "<<hodographicShaping->computeDeltaV( )<<std::endl;
+
     // Create environment
     SystemOfBodies bodies = getTestBodyMap( );
 
@@ -1464,38 +1499,38 @@ BOOST_AUTO_TEST_CASE( test_hodographic_shaping_full_propagation )
 //    std::map< double, Eigen::VectorXd > thrustProfile;
 //    std::map< double, Eigen::VectorXd > thrustAccelerationProfile;
 
-//    hodographicShaping.getTrajectory( epochsVector, trajectory );
-//    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
-////    hodographicShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
-////    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
+////    hodographicShaping.getTrajectory( epochsVector, trajectory );
+////    hodographicShaping.getMassProfile( epochsVector, massProfile, specificImpulseFunction, integratorSettings );
+//////    hodographicShaping.getThrustForceProfile( epochsVector, thrustProfile, specificImpulseFunction, integratorSettings );
+//////    hodographicShaping.getThrustAccelerationProfile( epochsVector, thrustAccelerationProfile, specificImpulseFunction, integratorSettings );
 
-//    for ( int i = 0 ; i < 3 ; i ++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] ), 1.0e-3 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i + 3 ] - cartesianStateDepartureBody[ i + 3 ] ), 1.0e-10 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] ), 1.0e-3 );
-//        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i + 3 ] - cartesianStateArrivalBody[ i + 3 ] ), 1.0e-10 );
-//    }
+////    for ( int i = 0 ; i < 3 ; i ++ )
+////    {
+////        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i ] - cartesianStateDepartureBody[ i ] ), 1.0e-3 );
+////        BOOST_CHECK_SMALL( std::fabs( trajectory.begin( )->second[ i + 3 ] - cartesianStateDepartureBody[ i + 3 ] ), 1.0e-10 );
+////        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i ] - cartesianStateArrivalBody[ i ] ), 1.0e-3 );
+////        BOOST_CHECK_SMALL( std::fabs( trajectory.rbegin( )->second[ i + 3 ] - cartesianStateArrivalBody[ i + 3 ] ), 1.0e-10 );
+////    }
 
-//    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
-//    {
-//        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
-//        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration(
-//                    itr->first, specificImpulseFunction, integratorSettings );
-//        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrustForce(
-//                    itr->first, specificImpulseFunction, integratorSettings );
-//        double mass = hodographicShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
+////    for ( std::map< double, Eigen::Vector6d >::iterator itr = trajectory.begin( ) ; itr != trajectory.end( ) ; itr++ )
+////    {
+////        Eigen::Vector6d stateVector = hodographicShaping.computeCurrentStateVector( itr->first );
+////        Eigen::Vector3d thrustAccelerationVector = hodographicShaping.computeCurrentThrustAcceleration(
+////                    itr->first, specificImpulseFunction, integratorSettings );
+////        Eigen::Vector3d thrustVector = hodographicShaping.computeCurrentThrustForce(
+////                    itr->first, specificImpulseFunction, integratorSettings );
+////        double mass = hodographicShaping.computeCurrentMass( itr->first, specificImpulseFunction, integratorSettings );
 
-//        for ( int i = 0 ; i < 3 ; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
-//            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
-//            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
-//        }
-//        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-12 );
-//    }
-//}
+////        for ( int i = 0 ; i < 3 ; i++ )
+////        {
+////            BOOST_CHECK_SMALL( std::fabs( itr->second[ i ] - stateVector[ i ] ), 1.0e-6 );
+////            BOOST_CHECK_SMALL( std::fabs( itr->second[ i + 3 ] - stateVector[ i + 3 ] ), 1.0e-12 );
+////            BOOST_CHECK_SMALL( std::fabs( thrustAccelerationProfile[ itr->first ][ i ] - thrustAccelerationVector[ i ] ), 1.0e-6 );
+////            BOOST_CHECK_SMALL( std::fabs( thrustProfile[ itr->first ][ i ] - thrustVector[ i ] ), 1.0e-12 );
+////        }
+////        BOOST_CHECK_SMALL( std::fabs( massProfile[ itr->first ][ 0 ] - mass ), 1.0e-12 );
+////    }
+////}
 
 
 BOOST_AUTO_TEST_SUITE_END( )

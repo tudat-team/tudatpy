@@ -47,6 +47,7 @@ void TransferLeg::updateDepartureAndArrivalBodies(
 {
     departureTime_ = departureTime;
     arrivalTime_ = arrivalTime;
+    timeOfFlight_ = arrivalTime_ - departureTime_;
     departureBodyState_ = departureBodyEphemeris_->getCartesianState( departureTime_ );
     arrivalBodyState_ = arrivalBodyEphemeris_->getCartesianState( arrivalTime_ );
 }
