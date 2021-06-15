@@ -50,7 +50,7 @@ public:
      * \sa BodiesWithApproximateEphemeris, ApproximateJplSolarSystemEphemerisBase.
      */
     ApproximateJplEphemeris( BodiesWithApproximateEphemeris bodyWithEphemerisData,
-                                const double sunGravitationalParameter = 1.32712440018e20 )
+                             const double sunGravitationalParameter = 1.32712440018e20 )
         : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
@@ -61,7 +61,7 @@ public:
     }
 
     ApproximateJplEphemeris( const std::string& bodyName,
-                                const double sunGravitationalParameter = 1.32712440018e20 )
+                             const double sunGravitationalParameter = 1.32712440018e20 )
         : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
@@ -122,8 +122,8 @@ private:
 
 
 //! NOTE: Implementation of this function taken from https://github.com/esa/pagmo/blob/master/src/AstroToolbox/Pl_Eph_An.cpp
-Eigen::Vector6d getGtopKeplerElements (const double mjd2000,
-                                    const int planet );
+Eigen::Vector6d getGtopCartesianElements( const double daysSinceMjd2000,
+                                          const int planet );
 
 class ApproximateGtopEphemeris : public Ephemeris
 {
@@ -146,8 +146,7 @@ public:
             const double secondsSinceEpoch )
     {
         double mjd2000 = ( secondsSinceEpoch + physical_constants::JULIAN_DAY / 2.0 ) / physical_constants::JULIAN_DAY;
-
-        return getGtopKeplerElements( mjd2000, bodyIndex_ );
+        return getGtopCartesianElements( mjd2000, bodyIndex_ );
     }
 
 protected:
