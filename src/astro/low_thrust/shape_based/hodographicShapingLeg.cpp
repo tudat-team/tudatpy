@@ -137,8 +137,7 @@ Eigen::Matrix3d HodographicShapingLeg::computeInverseMatrixRadialOrAxialBoundari
         std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction )
 {
     Eigen::Matrix3d matrixBoundaryValues, inverseMatrixBoundaryValues;
-    matrixBoundaryValues <<
-                            velocityFunction->getComponentFunctionIntegralCurrentTime( 0, timeOfFlight_ )
+    matrixBoundaryValues << velocityFunction->getComponentFunctionIntegralCurrentTime( 0, timeOfFlight_ )
                             - velocityFunction->getComponentFunctionIntegralCurrentTime( 0, 0.0 ),
             velocityFunction->getComponentFunctionIntegralCurrentTime( 1, timeOfFlight_ )
             - velocityFunction->getComponentFunctionIntegralCurrentTime( 1, 0.0 ),
@@ -164,8 +163,7 @@ Eigen::Matrix2d HodographicShapingLeg::computeInverseMatrixNormalBoundaries(
 {
     Eigen::Matrix2d matrixBoundaryValues, inverseMatrixBoundaryValues;
 
-    matrixBoundaryValues <<
-                            velocityFunction->getComponentFunctionCurrentValue( 0, 0.0 ),
+    matrixBoundaryValues << velocityFunction->getComponentFunctionCurrentValue( 0, 0.0 ),
             velocityFunction->getComponentFunctionCurrentValue( 1, 0.0 ),
             velocityFunction->getComponentFunctionCurrentValue( 0, timeOfFlight_ ),
             velocityFunction->getComponentFunctionCurrentValue( 1, timeOfFlight_ );
