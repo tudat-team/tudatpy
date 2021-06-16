@@ -9,11 +9,11 @@
  *
  */
 
-#ifndef TUDAT_SPHERICAL_SHAPING_H
-#define TUDAT_SPHERICAL_SHAPING_H
+#ifndef TUDAT_SPHERICAL_SHAPING_LEG_H
+#define TUDAT_SPHERICAL_SHAPING_LEG_H
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
-#include "tudat/astro/low_thrust/shape_based/shapeBasedMethod.h"
+#include "tudat/astro/mission_segments/transferLeg.h"
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h"
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionSphericalShaping.h"
 #include "tudat/math/basic/basicFunction.h"
@@ -31,23 +31,23 @@ namespace shape_based_methods
 {
 
 
-class SphericalShaping : public ShapeBasedMethod
+class SphericalShapingLeg : public mission_segments::TransferLeg
 {
 public:
 
     //! Constructor for spherical shaping.
-    SphericalShaping( const Eigen::Vector6d& initialState,
-                      const Eigen::Vector6d& finalState,
-                      const double requiredTimeOfFlight,
-                      const double centralBodyGravitationalParameter,
-                      const int numberOfRevolutions,
-                      const double initialValueFreeCoefficient,
-                      const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
-                      const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                      const double upperBoundFreeCoefficient = TUDAT_NAN );
+    SphericalShapingLeg(
+            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+            const double centralBodyGravitationalParameter,
+            const int numberOfRevolutions,
+            const double initialValueFreeCoefficient,
+            const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+            const double lowerBoundFreeCoefficient = TUDAT_NAN,
+            const double upperBoundFreeCoefficient = TUDAT_NAN );
 
     //! Default destructor.
-    ~SphericalShaping( ) { }
+    ~SphericalShapingLeg( ) { }
 
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time );
@@ -68,9 +68,9 @@ public:
     }
 
     //! Compute time of flight.
-    double getTimeOfFlight()
+    double computeTimeOfFlight()
     {
-        return currentNormalizedTimeOfFlight_ * physical_constants::JULIAN_YEAR;
+        return computeNormalizedTimeOfFlight( ) * physical_constants::JULIAN_YEAR;
     }
 
 
@@ -92,7 +92,6 @@ public:
     //! Compute deltaV.
     double computeDeltaV( );
 
-    double computeRequiredTimeOfFlightError( const double freeCoefficient );
 
 protected:
 
@@ -110,8 +109,6 @@ protected:
 
     //! Compute the final value of the constant C, as defined in ... (ADD REFERENCE) to express the boundary conditions.
     double computeFinalValueBoundariesConstant( );
-
-    void resetBoundaryStates( );
 
     //! Ensure that the boundary conditions are respected.
     void satisfyBoundaryConditions( );
@@ -135,7 +132,7 @@ protected:
     }
 
     //! Compute normalized time of flight.
-    void computeNormalizedTimeOfFlight( );
+    double computeNormalizedTimeOfFlight();
 
     //! Compute current time from azimuth angle.
     double computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle );
@@ -143,10 +140,8 @@ protected:
     //! Reset the value of the free coefficient, in order to match the required time of flight.
     void resetValueFreeCoefficient( const double freeCoefficient )
     {
-        currentFreeCoefficient_ = freeCoefficient;
-        satisfyBoundaryConditions( );
-        computeNormalizedTimeOfFlight( );
-
+        initialValueFreeCoefficient_ = freeCoefficient;
+        coefficientsRadialDistanceFunction_[ 2 ] = freeCoefficient;
     }
 
     //! Compute first derivative of the azimuth angle w.r.t. time.
@@ -175,6 +170,71 @@ protected:
     //! Compute direction thrust acceleration in cartesian coordinates.
     Eigen::Vector3d computeCurrentThrustAccelerationDirection(
             double currentAzimuthAngle );
+
+
+
+    //! Time of flight function for the root-finder.
+    struct TimeOfFlightFunction : public basic_mathematics::BasicFunction< double, double >
+    {
+
+        //! Create a function that returns the time of flight associated with the current trajectory.
+        TimeOfFlightFunction( std::function< void ( const double ) > resetFreeCoefficientFunction,
+                              std::function< void( ) > satisfyBoundaryConditionsFunction,
+                              std::function< double ( ) >  computeTimeOfFlightFunction,
+                              std::function< double( ) > getRequiredTimeOfFlightfunction ):
+        resetFreeCoefficientFunction_( resetFreeCoefficientFunction ),
+        satisfyBoundaryConditionsFunction_( satisfyBoundaryConditionsFunction ),
+        computeTimeOfFlightFunction_( computeTimeOfFlightFunction ),
+        getRequiredTimeOfFlightfunction_( getRequiredTimeOfFlightfunction ){ }
+
+        //! Evaluate the difference between the current and required time of flight values, from the current value of the free coefficient.
+        double evaluate( const double inputValue )
+        {
+            resetFreeCoefficientFunction_( inputValue );
+            satisfyBoundaryConditionsFunction_( );
+            double currentTimeOfFlight = computeTimeOfFlightFunction_( );
+
+            return getRequiredTimeOfFlightfunction_( ) - currentTimeOfFlight;
+        }
+
+        //! Derivative function (not provided).
+        double computeDerivative( const unsigned int order, const double inputValue )
+        {
+            throw std::runtime_error( "The rootfinder for TOF should not evaluate derivatives!" );
+        }
+
+        //! Integral function (not provided).
+        double computeDefiniteIntegral( unsigned int order, double lowerBound, double upperbound )
+        {
+            throw std::runtime_error( "The rootfinder for TOF should not evaluate integrals!" );
+        }
+
+        //! Get the expected true location of the root (not implemented).
+        double getTrueRootLocation( ) { return TUDAT_NAN; }
+
+        //! Get the accuracy of the true location of the root (not implemented).
+        double getTrueRootAccuracy( ) { return TUDAT_NAN; }
+
+        //! Get a reasonable initial guess of the root location (not implemented).
+        double getInitialGuess( ) { return TUDAT_NAN; }
+
+        //! Get a reasonable lower boundary for the root location (not implemented).
+        double getLowerBound( ) { return TUDAT_NAN; }
+
+        //! Get a reasonable upper boundary for the root location (not implemented).
+        double getUpperBound( ) { return TUDAT_NAN; }
+
+    protected:
+
+    private:
+
+        std::function< void ( const double ) > resetFreeCoefficientFunction_;
+        std::function< void ( ) > satisfyBoundaryConditionsFunction_;
+        std::function< double ( ) >  computeTimeOfFlightFunction_;
+        std::function< double ( ) > getRequiredTimeOfFlightfunction_;
+    };
+
+
 
 private:
 
@@ -209,10 +269,10 @@ private:
     std::shared_ptr< CompositeElevationFunctionSphericalShaping > elevationAngleCompositeFunction_;
 
     //! Coefficients for the radial distance composite function.
-    Eigen::VectorXd coefficientsRadialDistanceFunction_;
+    Eigen::Vector7d coefficientsRadialDistanceFunction_;
 
     //! Coefficients for the elevation angle composite function.
-    Eigen::VectorXd coefficientsElevationAngleFunction_;
+    Eigen::Vector4d coefficientsElevationAngleFunction_;
 
     //! Initial guess for the free coefficient (i.e. coefficient of the second order component of the radial inverse polynomial).
     double initialValueFreeCoefficient_;
@@ -229,14 +289,6 @@ private:
     //! Inverse of matrix containing the boundary conditions
     Eigen::MatrixXd inverseMatrixBoundaryConditions_;
 
-    double currentFreeCoefficient_;
-
-    double currentNormalizedTimeOfFlight_;
-
-
-    Eigen::VectorXd boundaryValues_;
-
-    Eigen::VectorXd secondComponentContributionNormalized_;
 
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
@@ -248,4 +300,4 @@ private:
 } // namespace shape_based_methods
 } // namespace tudat
 
-#endif // TUDAT_SPHERICAL_SHAPING_H
+#endif // TUDAT_SPHERICAL_SHAPING_LEG_H

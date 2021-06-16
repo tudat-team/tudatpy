@@ -43,7 +43,8 @@ enum TransferLegTypes
     unpowered_unperturbed_leg,
     dsm_position_based_leg,
     dsm_velocity_based_leg,
-    hodographic_low_thrust_leg
+    hodographic_low_thrust_leg,
+    spherical_shaping_low_thrust_leg
 };
 
 struct TrajectoryManeuver

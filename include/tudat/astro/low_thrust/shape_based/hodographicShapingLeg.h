@@ -61,19 +61,19 @@ public:
     //! Compute DeltaV.
     double computeDeltaV( );
 
-    //! Return thrust acceleration profile.
-    void getCylindricalThrustAccelerationProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
-    {
-        thrustAccelerationProfile.clear();
+//    //! Return thrust acceleration profile.
+//    void getCylindricalThrustAccelerationProfile(
+//            std::vector< double >& epochsVector,
+//            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile )
+//    {
+//        thrustAccelerationProfile.clear();
 
-        for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
-        {
-            thrustAccelerationProfile[ epochsVector.at( i ) ] = computeThrustAccelerationInCylindricalCoordinates( epochsVector.at( i ) );
-        }
+//        for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
+//        {
+//            thrustAccelerationProfile[ epochsVector.at( i ) ] = computeThrustAccelerationInCylindricalCoordinates( epochsVector.at( i ) );
+//        }
 
-    }
+//    }
 
     //! Compute magnitude thrust acceleration.
     double computeCurrentThrustAccelerationMagnitude(
@@ -95,10 +95,11 @@ protected:
 
     void computeTransfer(  );
 
+private:
+
     void updateFreeCoefficients( );
 
     void satisfyConstraints( );
-
 
     Eigen::Matrix2d computeInverseMatrixNormalBoundaries( std::shared_ptr< CompositeFunctionHodographicShaping > velocityFunction );
 
@@ -137,9 +138,6 @@ protected:
     //! Compute thrust acceleration vector in cylindrical coordinates.
     Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( double timeSinceDeparture );
 
-
-private:
-
     //! Central body gravitational parameter.
     double centralBodyGravitationalParameter_;
 
@@ -148,46 +146,23 @@ private:
 
     std::shared_ptr< numerical_quadrature::QuadratureSettings< double > > quadratureSettings_;
 
-    //! Radial velocity function.
+    //! Velocity functions.
     std::shared_ptr< CompositeFunctionHodographicShaping > radialVelocityFunction_;
-
-    //! Normal velocity function.
     std::shared_ptr< CompositeFunctionHodographicShaping > normalVelocityFunction_;
-
-    //! Axial velocity function.
     std::shared_ptr< CompositeFunctionHodographicShaping > axialVelocityFunction_;
 
-    //! Vector containing the coefficients of the radial function.
-    Eigen::VectorXd freeCoefficientsRadialVelocityFunction_;
-
-    //! Vector containing the coefficients of the normal function.
-    Eigen::VectorXd freeCoefficientsNormalVelocityFunction_;
-
-    //! Vector containing the coefficients of the axial function.
-    Eigen::VectorXd freeCoefficientsAxialVelocityFunction_;
-
     Eigen::VectorXd fullCoefficientsRadialVelocityFunction_;
-
     Eigen::VectorXd fullCoefficientsNormalVelocityFunction_;
-
     Eigen::VectorXd fullCoefficientsAxialVelocityFunction_;
 
-    //! Number of free coefficients for the radial velocity function.
+    //! Number of free coefficients
     int numberOfFreeRadialCoefficients;
-
-    //! Number of free coefficients for the normal velocity function.
     int numberOfFreeNormalCoefficients;
-
-    //! Number of free coefficients for the axial velocity function.
     int numberOfFreeAxialCoefficients;
 
-    //! Radial boundary conditions.
+    //! Boundary conditions.
     std::vector< double > radialBoundaryConditions_;
-
-    //! Normal boundary conditions.
     std::vector< double > normalBoundaryConditions_;
-
-    //! Axial boundary conditions.
     std::vector< double > axialBoundaryConditions_;
 
     /*! Inverse of matrix containing the boundary values of the terms in the radial velocity
