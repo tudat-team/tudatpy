@@ -92,12 +92,28 @@ public:
     //! Compute deltaV.
     double computeDeltaV( );
 
-    double computeRequiredTimeOfFlightError( const double freeCoefficient );
-
 protected:
 
+    double computeRequiredTimeOfFlightError( const double freeCoefficient );
+
+    void reinitializeBoundaryConstraints( );
+
+    void updateBoundaryStates( const Eigen::Vector6d& initialState, const Eigen::Vector6d& finalState );
+
+    void createTimeInterpolator( );
+
+    //! Reset the value of the free coefficient, in order to match the required time of flight.
+    void resetValueFreeCoefficient( const double freeCoefficient )
+    {
+        currentFreeCoefficient_ = freeCoefficient;
+        satisfyBoundaryConditions( );
+        computeNormalizedTimeOfFlight( );
+
+    }
+
+
     //! Compute the inverse of the boundary conditions matrix.
-    Eigen::MatrixXd computeInverseMatrixBoundaryConditions( );
+    void setInverseMatrixBoundaryConditions( );
 
     //! Compute the initial value of the variable alpha, as defined in ... (ADD REFERENCE) to express the boundary conditions.
     double computeInitialAlphaValue( );
@@ -111,7 +127,6 @@ protected:
     //! Compute the final value of the constant C, as defined in ... (ADD REFERENCE) to express the boundary conditions.
     double computeFinalValueBoundariesConstant( );
 
-    void resetBoundaryStates( );
 
     //! Ensure that the boundary conditions are respected.
     void satisfyBoundaryConditions( );
@@ -128,26 +143,11 @@ protected:
     //! Compute second derivative of the scalar function D in the time equation (ADD REFERENCE AND EQUATION NUMBER) w.r.t. azimuth angle.
     double computeDerivativeScalarFunctionTimeEquation( double currentAzimuthAngle );
 
-    //! Return the required value for the time of flight (normalized w.r.t. julian year).
-    double getNormalizedRequiredTimeOfFlight( )
-    {
-        return timeOfFlight_ / physical_constants::JULIAN_YEAR;
-    }
-
     //! Compute normalized time of flight.
     void computeNormalizedTimeOfFlight( );
 
     //! Compute current time from azimuth angle.
     double computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle );
-
-    //! Reset the value of the free coefficient, in order to match the required time of flight.
-    void resetValueFreeCoefficient( const double freeCoefficient )
-    {
-        currentFreeCoefficient_ = freeCoefficient;
-        satisfyBoundaryConditions( );
-        computeNormalizedTimeOfFlight( );
-
-    }
 
     //! Compute first derivative of the azimuth angle w.r.t. time.
     double computeFirstDerivativeAzimuthAngleWrtTime( const double currentAzimuthAngle );
@@ -179,7 +179,7 @@ protected:
 private:
 
     //! Central body gravitational parameter.
-    double centralBodyGravitationalParameter_;
+    double normalizedCentralBodyGravitationalParameter_;
 
     //! Number of revolutions.
     int numberOfRevolutions_;
