@@ -44,7 +44,9 @@ public:
                       const double initialValueFreeCoefficient,
                       const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                       const double lowerBoundFreeCoefficient = TUDAT_NAN,
-                      const double upperBoundFreeCoefficient = TUDAT_NAN );
+                      const double upperBoundFreeCoefficient = TUDAT_NAN,
+                      const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::cubic_spline_interpolator ) );
 
     //! Default destructor.
     ~SphericalShaping( ) { }
@@ -94,26 +96,38 @@ public:
 
 protected:
 
-    double computeRequiredTimeOfFlightError( const double freeCoefficient );
-
-    void reinitializeBoundaryConstraints( );
-
+    //! Update trajectory with new boundary states
     void updateBoundaryStates( const Eigen::Vector6d& initialState, const Eigen::Vector6d& finalState );
 
-    void createTimeInterpolator( );
-
-    //! Reset the value of the free coefficient, in order to match the required time of flight.
-    void resetValueFreeCoefficient( const double freeCoefficient )
-    {
-        currentFreeCoefficient_ = freeCoefficient;
-        satisfyBoundaryConditions( );
-        computeNormalizedTimeOfFlight( );
-
-    }
-
+    //! Resets data structures to handle boundary conditions with new states
+    void reinitializeBoundaryConstraints( );
 
     //! Compute the inverse of the boundary conditions matrix.
     void setInverseMatrixBoundaryConditions( );
+
+
+    //! Iterate to match the required time of flight, by updating the value of the free coefficient.
+    void iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+                                             const double lowerBound = TUDAT_NAN,
+                                             const double upperBound = TUDAT_NAN,
+                                             const double initialGuess = TUDAT_NAN );
+
+    //! Computes the offset between required and actual time-of-flight for current free coefficient
+    double computeRequiredTimeOfFlightError( const double freeCoefficient );
+
+    //! Reset the value of the free coefficient, in order to match the required time of flight.
+    void resetValueFreeCoefficient( const double freeCoefficient );
+
+    //! Ensure that the boundary conditions are respected.
+    void satisfyBoundaryConditions( );
+
+    //! Compute normalized time of flight.
+    void computeNormalizedTimeOfFlight( );
+
+    void createTimeInterpolator( );
+
+
+
 
     //! Compute the initial value of the variable alpha, as defined in ... (ADD REFERENCE) to express the boundary conditions.
     double computeInitialAlphaValue( );
@@ -127,24 +141,11 @@ protected:
     //! Compute the final value of the constant C, as defined in ... (ADD REFERENCE) to express the boundary conditions.
     double computeFinalValueBoundariesConstant( );
 
-
-    //! Ensure that the boundary conditions are respected.
-    void satisfyBoundaryConditions( );
-
-    //! Iterate to match the required time of flight, by updating the value of the free coefficient.
-    void iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
-                                             const double lowerBound = TUDAT_NAN,
-                                             const double upperBound = TUDAT_NAN,
-                                             const double initialGuess = TUDAT_NAN );
-
     //! Compute derivative of the scalar function D in the time equation (ADD REFERENCE AND EQUATION NUMBER) w.r.t. azimuth angle.
     double computeScalarFunctionTimeEquation( double currentAzimuthAngle );
 
     //! Compute second derivative of the scalar function D in the time equation (ADD REFERENCE AND EQUATION NUMBER) w.r.t. azimuth angle.
     double computeDerivativeScalarFunctionTimeEquation( double currentAzimuthAngle );
-
-    //! Compute normalized time of flight.
-    void computeNormalizedTimeOfFlight( );
 
     //! Compute current time from azimuth angle.
     double computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle );
@@ -238,6 +239,8 @@ private:
 
     Eigen::VectorXd secondComponentContributionNormalized_;
 
+
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator_;
 
