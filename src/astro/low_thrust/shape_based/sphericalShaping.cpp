@@ -31,14 +31,16 @@ SphericalShaping::SphericalShaping( const Eigen::Vector6d& initialState,
                                     const double initialValueFreeCoefficient,
                                     const std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
                                     const double lowerBoundFreeCoefficient,
-                                    const double upperBoundFreeCoefficient ):
+                                    const double upperBoundFreeCoefficient,
+                                    const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
     ShapeBasedMethod( initialState, finalState, requiredTimeOfFlight ),
     normalizedCentralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
     numberOfRevolutions_( numberOfRevolutions ),
     initialValueFreeCoefficient_( initialValueFreeCoefficient ),
     rootFinderSettings_( rootFinderSettings ),
     lowerBoundFreeCoefficient_( lowerBoundFreeCoefficient ),
-    upperBoundFreeCoefficient_( upperBoundFreeCoefficient )
+    upperBoundFreeCoefficient_( upperBoundFreeCoefficient ),
+    interpolatorSettings_( interpolatorSettings )
 {
 
     // Normalize the gravitational parameter of the central body.
@@ -121,69 +123,41 @@ void SphericalShaping::updateBoundaryStates( const Eigen::Vector6d& initialState
 
 }
 
-void SphericalShaping::createTimeInterpolator( )
+
+void SphericalShaping::reinitializeBoundaryConstraints( )
 {
-    // Retrieve initial step size.
-    double initialStepSize = 86400.0;//integratorSettings->initialTimeStep_;
+    boundaryValues_.resize( 10 );
 
-    std::cerr<<"Warning, initialStepSize set to arbitrary value"<<std::endl;
+    boundaryValues_[ 0 ] = 1.0 / initialStateParametrizedByAzimuthAngle_[ 0 ];
+    boundaryValues_[ 1 ] = 1.0 / finalStateParametrizedByAzimuthAngle_[ 0 ];
+    boundaryValues_[ 2 ] = - initialStateParametrizedByAzimuthAngle_[ 3 ] / std::pow( initialStateParametrizedByAzimuthAngle_[ 0 ], 2.0 );
+    boundaryValues_[ 3 ] = - finalStateParametrizedByAzimuthAngle_[ 3 ] / std::pow( finalStateParametrizedByAzimuthAngle_[ 0 ], 2.0 );
+    boundaryValues_[ 4 ] = computeInitialValueBoundariesConstant()
+            - 2.0 * std::pow( initialStateParametrizedByAzimuthAngle_[ 3 ], 2.0 ) / initialStateParametrizedByAzimuthAngle_[ 0 ];
+    boundaryValues_[ 5 ] = computeFinalValueBoundariesConstant()
+            - 2.0 * std::pow( finalStateParametrizedByAzimuthAngle_[ 3 ], 2.0 ) / finalStateParametrizedByAzimuthAngle_[ 0 ];
+    boundaryValues_[ 6 ] = initialStateParametrizedByAzimuthAngle_[ 2 ];
+    boundaryValues_[ 7 ] = finalStateParametrizedByAzimuthAngle_[ 2 ];
+    boundaryValues_[ 8 ] = initialStateParametrizedByAzimuthAngle_[ 5 ] / initialStateParametrizedByAzimuthAngle_[ 0 ];
+    boundaryValues_[ 9 ] = finalStateParametrizedByAzimuthAngle_[ 5 ] / finalStateParametrizedByAzimuthAngle_[ 0 ];
 
-    // Vector of azimuth angles at which the time should be computed.
-    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
-            Eigen::VectorXd::LinSpaced( std::ceil( currentNormalizedTimeOfFlight_ * physical_constants::JULIAN_YEAR / initialStepSize ),
-                                        initialAzimuthAngle_, finalAzimuthAngle_ );
+    secondComponentContributionNormalized_.resize( 10 );
 
-    std::map< double, double > dataToInterpolate;
-    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
-    {
-        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
-                = azimuthAnglesToComputeAssociatedEpochs[ i ];
-    }
+    secondComponentContributionNormalized_[ 0 ] = radialDistanceCompositeFunction_->getComponentFunctionCurrentValue( 2, initialAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 1 ] = radialDistanceCompositeFunction_->getComponentFunctionCurrentValue( 2, finalAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 2 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, initialAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 3 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, finalAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 4 ] = - std::pow( initialStateParametrizedByAzimuthAngle_[ 0 ], 2 )
+            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, initialAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 5 ] = - std::pow( finalStateParametrizedByAzimuthAngle_[ 0 ], 2 )
+            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, finalAzimuthAngle_ );
+    secondComponentContributionNormalized_[ 6 ] = 0.0;
+    secondComponentContributionNormalized_[ 7 ] = 0.0;
+    secondComponentContributionNormalized_[ 8 ] = 0.0;
+    secondComponentContributionNormalized_[ 9 ] = 0.0;
 
-    // Create interpolator.
-    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 10 );
-
-    interpolator_ = interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings );
+    setInverseMatrixBoundaryConditions( );
 }
-
-//! Convert time to independent variable.
-double SphericalShaping::convertTimeToIndependentVariable( const double time )
-{
-    return  interpolator_->interpolate( time ); ;
-}
-
-
-//! Convert independent variable to time.
-double SphericalShaping::convertIndependentVariableToTime( const double independentVariable )
-{
-    // Define the derivative of the time function w.r.t the azimuth angle theta.
-    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
-
-        double scalarFunctionTimeEquation = computeScalarFunctionTimeEquation( currentAzimuthAngle );
-
-        // Check that the trajectory is feasible, ie curved toward the central body.
-        if ( scalarFunctionTimeEquation < 0.0 )
-        {
-            throw std::runtime_error ( "Error, trajectory not curved toward the central body, and thus not feasible." );
-        }
-        else
-        {
-            return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle ) *
-                              std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
-                              / normalizedCentralBodyGravitationalParameter_ );
-        }
-    };
-
-    // Create numerical quadrature from quadrature settings.
-    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
-            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, independentVariable );
-
-    double time = quadrature->getQuadrature( );
-
-    return time;
-}
-
 
 void SphericalShaping::setInverseMatrixBoundaryConditions( )
 {
@@ -226,6 +200,153 @@ void SphericalShaping::setInverseMatrixBoundaryConditions( )
 
     // Compute and return the inverse of the boundary conditions matrix.
     inverseMatrixBoundaryConditions_ = matrixBoundaryConditions.inverse();
+}
+
+//! Iterate to match the required time of flight
+void SphericalShaping::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
+                                                           const double lowerBound,
+                                                           const double upperBound,
+                                                           const double initialGuess )
+{
+    std::function< double( const double ) > tofErrorFunction = std::bind(
+                &SphericalShaping::computeRequiredTimeOfFlightError, this, std::placeholders::_1 );
+
+    // Create root finder from root finder settings.
+    std::shared_ptr< root_finders::RootFinder< double > > rootFinder =
+            root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
+
+    // Iterate to find the free coefficient value that matches the required time of flight.
+    double updatedFreeCoefficient = rootFinder->execute(
+                std::make_shared< basic_mathematics::FunctionProxy< double, double > >( tofErrorFunction ), initialGuess );
+    resetValueFreeCoefficient( updatedFreeCoefficient );
+
+}
+
+double SphericalShaping::computeRequiredTimeOfFlightError( const double freeCoefficient )
+{
+    resetValueFreeCoefficient( freeCoefficient );
+    return  timeOfFlight_ / physical_constants::JULIAN_YEAR - currentNormalizedTimeOfFlight_;
+}
+
+void SphericalShaping::resetValueFreeCoefficient( const double freeCoefficient )
+{
+    currentFreeCoefficient_ = freeCoefficient;
+    satisfyBoundaryConditions( );
+    computeNormalizedTimeOfFlight( );
+
+}
+
+void SphericalShaping::satisfyBoundaryConditions( )
+{
+    Eigen::MatrixXd compositeFunctionCoefficients = inverseMatrixBoundaryConditions_ *
+            ( boundaryValues_ - secondComponentContributionNormalized_ * currentFreeCoefficient_ );
+
+    for ( int i = 0 ; i < 6 ; i++ )
+    {
+        if ( i < 2 )
+        {
+            coefficientsRadialDistanceFunction_( i ) = compositeFunctionCoefficients( i );
+        }
+        else
+        {
+            coefficientsRadialDistanceFunction_( i + 1 ) = compositeFunctionCoefficients( i );
+        }
+    }
+    coefficientsRadialDistanceFunction_( 2 ) = currentFreeCoefficient_;
+
+    for ( int i = 0 ; i < 4 ; i++ )
+    {
+        coefficientsElevationAngleFunction_( i ) = compositeFunctionCoefficients( i + 6 );
+    }
+
+    radialDistanceCompositeFunction_->resetCompositeFunctionCoefficients( coefficientsRadialDistanceFunction_ );
+    elevationAngleCompositeFunction_->resetCompositeFunctionCoefficients( coefficientsElevationAngleFunction_ );
+}
+
+
+void SphericalShaping::computeNormalizedTimeOfFlight()
+{
+
+    // Define the derivative of the time function w.r.t the azimuth angle theta.
+    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
+
+        double scalarFunctionTimeEquation = computeScalarFunctionTimeEquation( currentAzimuthAngle );
+
+        // Check that the trajectory is feasible, ie curved toward the central body.
+        if ( scalarFunctionTimeEquation < 0.0 )
+        {
+            throw std::runtime_error ( "Error, trajectory not curved toward the central body, and thus not feasible." );
+        }
+        else
+        {
+            return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle ) *
+                              std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
+                              / normalizedCentralBodyGravitationalParameter_ );
+        }
+    };
+
+    // Create numerical quadrature from quadrature settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, finalAzimuthAngle_ );
+
+    currentNormalizedTimeOfFlight_ = quadrature->getQuadrature( );
+}
+
+void SphericalShaping::createTimeInterpolator( )
+{
+    // Retrieve initial step size.
+    double initialStepSize = 86400.0;//integratorSettings->initialTimeStep_;
+
+    // Vector of azimuth angles at which the time should be computed.
+    Eigen::VectorXd azimuthAnglesToComputeAssociatedEpochs =
+            Eigen::VectorXd::LinSpaced( std::ceil( currentNormalizedTimeOfFlight_ * physical_constants::JULIAN_YEAR / initialStepSize ),
+                                        initialAzimuthAngle_, finalAzimuthAngle_ );
+
+    std::map< double, double > dataToInterpolate;
+    for ( int i = 0 ; i < azimuthAnglesToComputeAssociatedEpochs.size() ; i++ )
+    {
+        dataToInterpolate[ computeCurrentTimeFromAzimuthAngle( azimuthAnglesToComputeAssociatedEpochs[ i ] ) * physical_constants::JULIAN_YEAR ]
+                = azimuthAnglesToComputeAssociatedEpochs[ i ];
+    }
+
+    interpolator_ = interpolators::createOneDimensionalInterpolator( dataToInterpolate, interpolatorSettings_ );
+}
+
+//! Convert time to independent variable.
+double SphericalShaping::convertTimeToIndependentVariable( const double time )
+{
+    return  interpolator_->interpolate( time ); ;
+}
+
+
+//! Convert independent variable to time.
+double SphericalShaping::convertIndependentVariableToTime( const double independentVariable )
+{
+    // Define the derivative of the time function w.r.t the azimuth angle theta.
+    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
+
+        double scalarFunctionTimeEquation = computeScalarFunctionTimeEquation( currentAzimuthAngle );
+
+        // Check that the trajectory is feasible, ie curved toward the central body.
+        if ( scalarFunctionTimeEquation < 0.0 )
+        {
+            throw std::runtime_error ( "Error, trajectory not curved toward the central body, and thus not feasible." );
+        }
+        else
+        {
+            return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle ) *
+                              std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
+                              / normalizedCentralBodyGravitationalParameter_ );
+        }
+    };
+
+    // Create numerical quadrature from quadrature settings.
+    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
+            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, independentVariable );
+
+    double time = quadrature->getQuadrature( );
+
+    return time;
 }
 
 double SphericalShaping::computeInitialAlphaValue( )
@@ -274,70 +395,6 @@ double SphericalShaping::computeFinalValueBoundariesConstant( )
             / ( std::pow( derivativeElevationAngle, 2.0 ) + std::pow( std::cos( elevationAngle ), 2.0 ) );
 }
 
-void SphericalShaping::reinitializeBoundaryConstraints( )
-{
-    boundaryValues_.resize( 10 );
-
-    boundaryValues_[ 0 ] = 1.0 / initialStateParametrizedByAzimuthAngle_[ 0 ];
-    boundaryValues_[ 1 ] = 1.0 / finalStateParametrizedByAzimuthAngle_[ 0 ];
-    boundaryValues_[ 2 ] = - initialStateParametrizedByAzimuthAngle_[ 3 ] / std::pow( initialStateParametrizedByAzimuthAngle_[ 0 ], 2.0 );
-    boundaryValues_[ 3 ] = - finalStateParametrizedByAzimuthAngle_[ 3 ] / std::pow( finalStateParametrizedByAzimuthAngle_[ 0 ], 2.0 );
-    boundaryValues_[ 4 ] = computeInitialValueBoundariesConstant()
-            - 2.0 * std::pow( initialStateParametrizedByAzimuthAngle_[ 3 ], 2.0 ) / initialStateParametrizedByAzimuthAngle_[ 0 ];
-    boundaryValues_[ 5 ] = computeFinalValueBoundariesConstant()
-            - 2.0 * std::pow( finalStateParametrizedByAzimuthAngle_[ 3 ], 2.0 ) / finalStateParametrizedByAzimuthAngle_[ 0 ];
-    boundaryValues_[ 6 ] = initialStateParametrizedByAzimuthAngle_[ 2 ];
-    boundaryValues_[ 7 ] = finalStateParametrizedByAzimuthAngle_[ 2 ];
-    boundaryValues_[ 8 ] = initialStateParametrizedByAzimuthAngle_[ 5 ] / initialStateParametrizedByAzimuthAngle_[ 0 ];
-    boundaryValues_[ 9 ] = finalStateParametrizedByAzimuthAngle_[ 5 ] / finalStateParametrizedByAzimuthAngle_[ 0 ];
-
-    secondComponentContributionNormalized_.resize( 10 );
-
-    secondComponentContributionNormalized_[ 0 ] = radialDistanceCompositeFunction_->getComponentFunctionCurrentValue( 2, initialAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 1 ] = radialDistanceCompositeFunction_->getComponentFunctionCurrentValue( 2, finalAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 2 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, initialAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 3 ] = radialDistanceCompositeFunction_->getComponentFunctionFirstDerivative( 2, finalAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 4 ] = - std::pow( initialStateParametrizedByAzimuthAngle_[ 0 ], 2 )
-            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, initialAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 5 ] = - std::pow( finalStateParametrizedByAzimuthAngle_[ 0 ], 2 )
-            * radialDistanceCompositeFunction_->getComponentFunctionSecondDerivative( 2, finalAzimuthAngle_ );
-    secondComponentContributionNormalized_[ 6 ] = 0.0;
-    secondComponentContributionNormalized_[ 7 ] = 0.0;
-    secondComponentContributionNormalized_[ 8 ] = 0.0;
-    secondComponentContributionNormalized_[ 9 ] = 0.0;
-
-    setInverseMatrixBoundaryConditions( );
-
-}
-void SphericalShaping::satisfyBoundaryConditions( )
-{
-    Eigen::MatrixXd compositeFunctionCoefficients = inverseMatrixBoundaryConditions_ *
-            ( boundaryValues_ - secondComponentContributionNormalized_ * currentFreeCoefficient_ );
-
-    for ( int i = 0 ; i < 6 ; i++ )
-    {
-        if ( i < 2 )
-        {
-            coefficientsRadialDistanceFunction_( i ) = compositeFunctionCoefficients( i );
-        }
-        else
-        {
-            coefficientsRadialDistanceFunction_( i + 1 ) = compositeFunctionCoefficients( i );
-        }
-    }
-    coefficientsRadialDistanceFunction_( 2 ) = currentFreeCoefficient_;
-
-    for ( int i = 0 ; i < 4 ; i++ )
-    {
-        coefficientsElevationAngleFunction_( i ) = compositeFunctionCoefficients( i + 6 );
-    }
-
-    radialDistanceCompositeFunction_->resetCompositeFunctionCoefficients( coefficientsRadialDistanceFunction_ );
-    elevationAngleCompositeFunction_->resetCompositeFunctionCoefficients( coefficientsElevationAngleFunction_ );
-
-}
-
-
 
 double SphericalShaping::computeScalarFunctionTimeEquation( double currentAzimuthAngle )
 {
@@ -385,33 +442,6 @@ double SphericalShaping::computeDerivativeScalarFunctionTimeEquation( double cur
             - 4.0 * F4 * F2 * std::pow( firstDerivativeElevationFunction, 2.0 ) * firstDerivativeRadialFunction / std::pow( F3, 2.0 );
 }
 
-void SphericalShaping::computeNormalizedTimeOfFlight()
-{
-
-    // Define the derivative of the time function w.r.t the azimuth angle theta.
-    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
-
-        double scalarFunctionTimeEquation = computeScalarFunctionTimeEquation( currentAzimuthAngle );
-
-        // Check that the trajectory is feasible, ie curved toward the central body.
-        if ( scalarFunctionTimeEquation < 0.0 )
-        {
-            throw std::runtime_error ( "Error, trajectory not curved toward the central body, and thus not feasible." );
-        }
-        else
-        {
-            return std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle ) *
-                              std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
-                              / normalizedCentralBodyGravitationalParameter_ );
-        }
-    };
-
-    // Create numerical quadrature from quadrature settings.
-    std::shared_ptr< numerical_quadrature::NumericalQuadrature< double, double > > quadrature =
-            numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, finalAzimuthAngle_ );
-
-    currentNormalizedTimeOfFlight_ = quadrature->getQuadrature( );
-}
 
 //! Compute current time from azimuth angle.
 double SphericalShaping::computeCurrentTimeFromAzimuthAngle( const double currentAzimuthAngle )
@@ -439,34 +469,6 @@ double SphericalShaping::computeCurrentTimeFromAzimuthAngle( const double curren
             numerical_quadrature::createQuadrature( derivativeTimeFunction, quadratureSettings_, currentAzimuthAngle );
 
     return quadrature->getQuadrature( );
-}
-
-double SphericalShaping::computeRequiredTimeOfFlightError( const double freeCoefficient )
-{
-    resetValueFreeCoefficient( freeCoefficient );
-
-    return  timeOfFlight_ / physical_constants::JULIAN_YEAR - currentNormalizedTimeOfFlight_;
-}
-
-
-//! Iterate to match the required time of flight
-void SphericalShaping::iterateToMatchRequiredTimeOfFlight( std::shared_ptr< root_finders::RootFinderSettings > rootFinderSettings,
-                                                           const double lowerBound,
-                                                           const double upperBound,
-                                                           const double initialGuess )
-{
-    std::function< double( const double ) > tofErrorFunction = std::bind(
-                &SphericalShaping::computeRequiredTimeOfFlightError, this, std::placeholders::_1 );
-
-    // Create root finder from root finder settings.
-    std::shared_ptr< root_finders::RootFinder< double > > rootFinder =
-            root_finders::createRootFinder( rootFinderSettings, lowerBound, upperBound, initialGuess );
-
-    // Iterate to find the free coefficient value that matches the required time of flight.
-    double updatedFreeCoefficient = rootFinder->execute(
-                std::make_shared< basic_mathematics::FunctionProxy< double, double > >( tofErrorFunction ), initialGuess );
-    resetValueFreeCoefficient( updatedFreeCoefficient );
-
 }
 
 
@@ -519,22 +521,6 @@ Eigen::Vector6d SphericalShaping::computeStateVectorInSphericalCoordinates( cons
 }
 
 
-//! Compute current cartesian state.
-Eigen::Vector6d SphericalShaping::computeCurrentStateVector( const double currentAzimuthAngle )
-{
-    Eigen::Vector6d normalizedStateVector =
-            coordinate_conversions::convertSphericalToCartesianState(
-                computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
-
-    Eigen::Vector6d dimensionalStateVector;
-    dimensionalStateVector.segment( 0, 3 ) = normalizedStateVector.segment( 0, 3 )
-            * physical_constants::ASTRONOMICAL_UNIT;
-    dimensionalStateVector.segment( 3, 3 ) = normalizedStateVector.segment( 3, 3 )
-            * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
-
-    return dimensionalStateVector;
-}
-
 
 //! Compute current velocity in spherical coordinates parametrized by azimuth angle theta.
 Eigen::Vector3d SphericalShaping::computeVelocityVectorParametrizedByAzimuthAngle( const double currentAzimuthAngle )
@@ -550,6 +536,23 @@ Eigen::Vector3d SphericalShaping::computeVelocityVectorParametrizedByAzimuthAngl
     return ( Eigen::Vector3d() << derivativeRadialDistance,
              radialDistance * std::cos( elevationAngle ),
              radialDistance * derivativeElevationAngle ).finished();
+}
+
+
+//! Compute current cartesian state.
+Eigen::Vector6d SphericalShaping::computeCurrentStateVector( const double currentAzimuthAngle )
+{
+    Eigen::Vector6d normalizedStateVector =
+            coordinate_conversions::convertSphericalToCartesianState(
+                computeStateVectorInSphericalCoordinates( currentAzimuthAngle ) );
+
+    Eigen::Vector6d dimensionalStateVector;
+    dimensionalStateVector.segment( 0, 3 ) = normalizedStateVector.segment( 0, 3 )
+            * physical_constants::ASTRONOMICAL_UNIT;
+    dimensionalStateVector.segment( 3, 3 ) = normalizedStateVector.segment( 3, 3 )
+            * physical_constants::ASTRONOMICAL_UNIT / physical_constants::JULIAN_YEAR;
+
+    return dimensionalStateVector;
 }
 
 
@@ -624,7 +627,7 @@ Eigen::Vector3d SphericalShaping::computeCurrentThrustAcceleration( const double
 }
 
 //! Compute magnitude cartesian acceleration.
-double  SphericalShaping::computeCurrentThrustAccelerationMagnitude(
+double SphericalShaping::computeCurrentThrustAccelerationMagnitude(
         double currentAzimuthAngle )
 {
     return computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( );
@@ -647,6 +650,9 @@ double SphericalShaping::computeDeltaV( )
                 * std::sqrt( computeScalarFunctionTimeEquation( currentAzimuthAngle )
                              * std::pow( radialDistanceCompositeFunction_->evaluateCompositeFunction( currentAzimuthAngle ), 2.0 )
                              / normalizedCentralBodyGravitationalParameter_ );
+        std::cout<<computeCurrentThrustAcceleration( currentAzimuthAngle ).norm( )<<" "<<
+                   thrustAcceleration<<" "<<
+                   computeThrustAccelerationVectorInSphericalCoordinates( currentAzimuthAngle ).norm()<<std::endl;
 
         return thrustAcceleration;
 
