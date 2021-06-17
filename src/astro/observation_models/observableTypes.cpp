@@ -27,7 +27,7 @@ std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservat
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd,
     std::pair< std::vector< double >, LinkEndType > > > > tudatCompatibleObservationsAndTimes ;
 
-    for( int i = 0; i < tudatpyObservationsAndTimes.size( ); i++ )
+    for( unsigned int i = 0; i < tudatpyObservationsAndTimes.size( ); i++ )
     {
         auto currentTuple = tudatpyObservationsAndTimes.at( i );
         tudatCompatibleObservationsAndTimes[ std::get< 0 >( currentTuple ) ][ std::get< 1 >( currentTuple ) ] =
