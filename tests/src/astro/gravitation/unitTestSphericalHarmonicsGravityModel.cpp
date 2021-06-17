@@ -30,7 +30,7 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
     // Declare spherical harmonics gravitational acceleration class object.
     SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity
             = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
-                [ & ]( ){ return position; }, gravitationalParameter, planetaryRadius,
+                [ & ]( Eigen::Vector3d& input ){ input = position; }, gravitationalParameter, planetaryRadius,
                 cosineCoefficients, sineCoefficients );
 
     // Compute resultant acceleration [m s^-2].

@@ -96,7 +96,10 @@ public:
         angleOfSideslipFunction_( angleOfSideslipFunction ),
         bankAngleFunction_( bankAngleFunction ),
         angleUpdateFunction_( angleUpdateFunction ),
-        currentBodyAngleTime_( TUDAT_NAN ){ }
+        currentBodyAngleTime_( TUDAT_NAN )
+    {
+        currentAerodynamicAngles_.resize( 7 );
+    }
 
     //! Function to set the atmospheric wind model
     /*!
@@ -155,6 +158,11 @@ public:
      *  \param updateBodyOrientation Boolean denoting whether the trajectory<->body-fixed angles are to be updated.
      */
     void update( const double currentTime, const bool updateBodyOrientation );
+
+    void getRotationQuaternionReferenceBetweenFrames(
+            Eigen::Quaterniond& rotationToFrame,
+            const AerodynamicsReferenceFrames originalFrame,
+            const AerodynamicsReferenceFrames targetFrame );
 
     //! Function to get the rotation quaternion between two frames
     /*!
@@ -281,7 +289,7 @@ private:
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Map of current angles, as calculated by previous call to update( ) function.
-    std::map< AerodynamicsReferenceFrameAngles, double > currentAerodynamicAngles_;
+    std::vector< double > currentAerodynamicAngles_;
 
     //! Map of current transformation quaternions, as calculated since previous call to update( ) function.
     std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
@@ -350,6 +358,15 @@ getAerodynamicForceTransformationFunction(
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
         [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
+
+// EFFICIENCY TODO: MAKE THIS AND PREVIOUS FUNCTION THE SAME
+std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
+getAerodynamicForceTransformationReferenceFunction(
+        const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const AerodynamicsReferenceFrames accelerationFrame,
+        const std::function< Eigen::Quaterniond&( ) > bodyFixedToInertialFrameFunction,
+        const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
+
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
 /*!

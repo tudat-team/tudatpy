@@ -219,6 +219,8 @@ private:
 
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 
+    bool radialPositionHasBeenNegative_;
+
 };
 
 

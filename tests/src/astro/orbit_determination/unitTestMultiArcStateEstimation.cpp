@@ -149,10 +149,28 @@ Eigen::VectorXd  executeParameterEstimation(
     while( currentEndTime < integrationEndTime );
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
+
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
+    {
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
+                getInitialStateOfBody< TimeType, StateScalarType>(
+                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
+        propagatorSettingsList.push_back(
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
+                      currentInitialState,
+                      integrationArcEndTimes.at( i ) ) );
+    }
+    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
+
+
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                   "Earth", integrationArcStartTimes ) );
+//    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Mars", constant_rotation_rate ) );
     parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >
@@ -181,21 +199,6 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0 );
-
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
-    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
-    {
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
-                getInitialStateOfBody< TimeType, StateScalarType>(
-                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, integrationArcStartTimes.at( i ) );
-        propagatorSettingsList.push_back(
-                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
-                    ( centralBodies, accelerationModelMap, bodiesToIntegrate,
-                      currentInitialState,
-                      integrationArcEndTimes.at( i ) ) );
-    }
-    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
 
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
