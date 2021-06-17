@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_boundary_case )
             {
                 linearInterpolator.interpolate( valueBelowMinimumValue );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& )
             {
                 exceptionIsCaught = true;
             }
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_boundary_case )
             {
                 linearInterpolator.interpolate( valueAboveMaximumValue );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& )
             {
                 exceptionIsCaught = true;
             }

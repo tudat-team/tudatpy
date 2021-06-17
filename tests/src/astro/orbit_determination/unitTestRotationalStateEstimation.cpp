@@ -444,12 +444,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Create parameters to estimate
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Phobos", initialTranslationalState, "Mars" ) );
-    parameterNames.push_back(
-                std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
-                    "Phobos", systemInitialState ) );
+    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.push_back( std::make_pair( 2, 0 ) );
     blockIndices.push_back( std::make_pair( 2, 2 ) );

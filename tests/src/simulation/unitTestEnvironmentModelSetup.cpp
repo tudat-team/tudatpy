@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-        
+
 
         // Update gravity field
         std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =

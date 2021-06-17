@@ -45,6 +45,8 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
                     std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
                     std::placeholders::_1, 1.0E-4 );
     }
+    scalarFlightConditions_.resize( 12 );
+    isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
 }
 
 //! Function to update all flight conditions.
@@ -65,6 +67,7 @@ void FlightConditions::updateConditions( const double currentTime )
         currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
     }
 }
+
 
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 AtmosphericFlightConditions::AtmosphericFlightConditions(
@@ -149,6 +152,32 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
     }
 }
 
+
+void AtmosphericFlightConditions::updateAtmosphereInput( )
+{
+    if( ( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 ||
+          isScalarFlightConditionComputed_.at( longitude_flight_condition ) == 0 ) )
+    {
+        if( updateLatitudeAndLongitudeForAtmosphere_ )
+        {
+            computeLatitudeAndLongitude( );
+        }
+        else
+        {
+            scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
+            scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
+            isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
+            isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
+        }
+    }
+
+    if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
+    {
+        computeAltitude( );
+    }
+}
+
+
 //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
 double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable(
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
@@ -191,7 +220,7 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         {
             currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error& )
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }

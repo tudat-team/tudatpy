@@ -51,6 +51,18 @@ using Eigen::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
+BOOST_AUTO_TEST_CASE( testMultiSpiceKernels )
+{
+    using namespace spice_interface;
+    using namespace physical_constants;
+
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath() + "/MEX_ROB_040101_041231_001.BSP" );
+    double testTime = 4.0 * JULIAN_YEAR + 40.0 * JULIAN_DAY;
+    Eigen::Vector6d marsCentricState = getBodyCartesianStateAtEpoch( "Mars Express", "Mars", "IAU_Mars", "NONE", testTime );
+}
+
+
 // Test 1: Test Julian day <-> Ephemeris time conversions at J2000.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
 {
@@ -371,7 +383,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 0, referenceFrame );
     }
 
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -386,7 +398,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     {
         spiceEphemeris = SpiceEphemeris( target, observer, 1, 0, 1, referenceFrame );
     }
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }
@@ -402,7 +414,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
         spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 1, referenceFrame );
     }
 
-    catch( std::runtime_error )
+    catch( std::runtime_error& )
     {
         areExceptionsHandledCorrectly = true;
     }

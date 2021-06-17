@@ -202,7 +202,7 @@ public:
             const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
             const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return Eigen::Vector3d::Zero( ); },
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
             [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
@@ -219,7 +219,6 @@ public:
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
-          currentAcceleration_( Eigen::Vector3d::Zero( ) ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
         maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
@@ -265,8 +264,8 @@ public:
             const double anEquatorialRadius,
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
-            const StateFunction positionOfBodyExertingAccelerationFunction
-            = [ ]( ){ return Eigen::Vector3d::Zero( ); },
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
             [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
@@ -282,7 +281,6 @@ public:
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
           rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
-          currentAcceleration_( Eigen::Vector3d::Zero( ) ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
         maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
@@ -295,16 +293,6 @@ public:
 
 
         this->updateMembers( );
-    }
-
-    //! Get gravitational acceleration.
-    /*!
-     * Returns the gravitational acceleration computed by the updateMembers function.
-     * \return Computed gravitational acceleration vector.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return currentAcceleration_;
     }
 
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
@@ -616,9 +604,6 @@ private:
 
     //!  Spherical harmonics cache for this acceleration
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
-
-    //! Current acceleration in inertial frame, as computed by last call to updateMembers function
-    Eigen::Vector3d currentAcceleration_;
 
     //! Current acceleration in frame fixed to body undergoing acceleration, as computed by last call to updateMembers function
     Eigen::Vector3d currentAccelerationInBodyFixedFrame_;

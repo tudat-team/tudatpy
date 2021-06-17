@@ -720,15 +720,15 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                 variableStepIntegratorSettings = std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings<
                 IndependentVariableType > >( integratorSettings );
 
-        if( std::fabs( (double)variableStepIntegratorSettings->initialTimeStep_ ) <
-                std::fabs( (double)variableStepIntegratorSettings->minimumStepSize_ ) )
+        if( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_) ) <
+                std::fabs( static_cast<double>(variableStepIntegratorSettings->minimumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making RK variable step-size integrator: initial step size is smaller than minimum step" );
         }
 
 
-        if( std::fabs( (double)variableStepIntegratorSettings->initialTimeStep_ ) >
-                std::fabs( (double)variableStepIntegratorSettings->maximumStepSize_ ) )
+        if( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_) ) >
+                std::fabs( static_cast<double>(variableStepIntegratorSettings->maximumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making RK variable step-size integrator: initial step size is larger than maximum step" );
         }
@@ -823,15 +823,15 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     integratorSettings );
 
 
-        if( std::fabs( (double)bulirschStoerIntegratorSettings->initialTimeStep_ ) <
-                std::fabs( (double)bulirschStoerIntegratorSettings->minimumStepSize_ ) )
+        if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_) ) <
+                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->minimumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is smaller than minimum step" );
         }
 
 
-        if( std::fabs( (double)bulirschStoerIntegratorSettings->initialTimeStep_  ) >
-                std::fabs( (double)bulirschStoerIntegratorSettings->maximumStepSize_ ) )
+        if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_)  ) >
+                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->maximumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is larger than maximum step" );
         }
@@ -867,15 +867,15 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                 std::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
                     integratorSettings );
 
-        if( std::fabs( (double)adamsBashforthMoultonIntegratorSettings->initialTimeStep_ ) <
-                std::fabs( (double)adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ) )
+        if( std::fabs( static_cast<double>(adamsBashforthMoultonIntegratorSettings->initialTimeStep_) ) <
+                std::fabs( static_cast<double>(adamsBashforthMoultonIntegratorSettings->minimumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making ABM variable step-size integrator: initial step size is smaller than minimum step" );
         }
 
 
-        if( std::fabs( (double)adamsBashforthMoultonIntegratorSettings->initialTimeStep_ )  >
-            std::fabs( (double)adamsBashforthMoultonIntegratorSettings->maximumStepSize_ ) )
+        if( std::fabs( static_cast<double>(adamsBashforthMoultonIntegratorSettings->initialTimeStep_) )  >
+            std::fabs( static_cast<double>(adamsBashforthMoultonIntegratorSettings->maximumStepSize_) ) )
         {
             throw std::runtime_error( "Error when making ABM variable step-size integrator: initial step size is larger than maximum step" );
         }
