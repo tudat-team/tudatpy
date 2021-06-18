@@ -271,9 +271,10 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     }
 
     // Create measureement simulation input
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-    measurementSimulationInput[ position_observable ][ linkEnds ] =
-            std::make_pair( baseTimeList, observed_body );
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+                std::make_shared< TabulatedObservationSimulationSettings< > >(
+                    position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Set typedefs for POD input (observation types, observation link ends, observation values, associated times with
     // reference link ends.
@@ -284,7 +285,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
