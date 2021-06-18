@@ -120,11 +120,13 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
         baseTimeList.push_back( currentTime );
         currentTime += simulatedObservationInterval;
     }
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
     {
-        measurementSimulationInput[ position_observable ][ linkEndsList.at( i ) ] =
-                std::make_pair( baseTimeList, observed_body );
+
+        measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        position_observable, linkEndsList.at( i ), baseTimeList, observed_body ) );
     }
 
     // Simulate ideal observations
@@ -132,7 +134,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > de
     typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
     typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
     PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
     //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input

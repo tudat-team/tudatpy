@@ -273,7 +273,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             }
         }
 
-        std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
+
+        std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
         for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
              linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
         {
@@ -281,8 +282,9 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
-                measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                        std::make_pair( baseTimeList, receiver );
+                measurementSimulationInput.push_back(
+                            std::make_shared< TabulatedObservationSimulationSettings< > >(
+                                currentObservable, currentLinkEndsList[ i ], baseTimeList, receiver ) );
             }
         }
 
@@ -293,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
 
         // Simulate observations.
         PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Perturb parameter estimate.
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

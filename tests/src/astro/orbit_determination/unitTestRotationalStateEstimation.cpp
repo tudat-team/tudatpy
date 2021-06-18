@@ -240,16 +240,19 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
         observationTimes.push_back( currentTime );
         currentTime += observationTimeStep;
     }
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        for( int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_pair( observationTimes, observed_body );
+            measurementSimulationInput.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                            currentObservable, currentLinkEndsList.at( i ), observationTimes, observed_body ) );
         }
     }
 
@@ -259,7 +262,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
@@ -487,7 +490,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
         currentTime += observationTimeStep;
     }
 
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
@@ -495,8 +499,9 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_pair( observationTimes, receiver );
+            measurementSimulationInput.push_back(
+                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+                        currentObservable, currentLinkEndsList.at( i ), observationTimes, receiver ) );
         }
     }
 
@@ -506,7 +511,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
