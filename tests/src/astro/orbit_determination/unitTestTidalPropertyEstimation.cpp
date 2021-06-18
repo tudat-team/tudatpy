@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         measurementSimulationInput.push_back(
                     std::make_shared< TabulatedObservationSimulationSettings< > >(
                         position_observable, linkEnds[ 0 ], observationTimes, observed_body ) );
-                measurementSimulationInput.push_back(
+        measurementSimulationInput.push_back(
                     std::make_shared< TabulatedObservationSimulationSettings< > >(
                         position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
