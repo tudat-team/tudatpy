@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     {
         ObservableType currentObservable = linkEndIterator->first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-        for( int i = 0; i < currentLinkEndsList.size( ); i++ )
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput.push_back(
                         std::make_shared< TabulatedObservationSimulationSettings< > >(

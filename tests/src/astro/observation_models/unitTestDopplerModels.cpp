@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationSettings >
-                ( linkEndsStationSpacecraft, oneWayObservableUplinkSettingsWithCorrections, oneWayObservableDownlinkSettingsWithCorrections );
+                ( oneWayObservableUplinkSettingsWithCorrections, oneWayObservableDownlinkSettingsWithCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =

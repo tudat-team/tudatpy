@@ -165,6 +165,71 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
     return matchingLinkEndTypes;
 }
 
+LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
+{
+    if( uplink.at( receiver ) != downlink.at( transmitter ) )
+    {
+        throw std::runtime_error( "Error when merging up and downlink LinkEnds, settings are not compatible" );
+    }
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = uplink.at( transmitter );
+    twoWayLinkEnds[ retransmitter ] = downlink.at( transmitter );
+    twoWayLinkEnds[ receiver ] = downlink.at( receiver );
+    return twoWayLinkEnds;
+}
+
+LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
+{
+    LinkEnds nWayLinkEnds;
+    nWayLinkEnds[ transmitter ] = linkEnds.at( 0 ).at( transmitter );
+    for( unsigned int i = 1; i < linkEnds.size( ); i++ )
+    {
+        if( linkEnds.at( i - 1 ).at( receiver ) != linkEnds.at( i ).at( transmitter ) )
+        {
+            throw std::runtime_error( "Error when merging one-way link ends, receiver and transmitter of subsequent link ends not compatible." );
+        }
+        nWayLinkEnds[ getNWayLinkEnumFromIndex( i, linkEnds.size( ) + 1 ) ] = linkEnds.at( i ).at( transmitter );
+    }
+    nWayLinkEnds[ receiver ] = linkEnds.at( linkEnds.size( ) - 1 ).at( receiver );
+    return nWayLinkEnds;
+}
+
+LinkEnds getUplinkFromTwoWayLinkEnds(
+        const LinkEnds& twoWayLinkEnds )
+{
+    LinkEnds uplink;
+    uplink[ transmitter ] = twoWayLinkEnds.at( transmitter );
+    uplink[ receiver ] = twoWayLinkEnds.at( retransmitter );
+    return uplink;
+}
+
+LinkEnds getDownlinkFromTwoWayLinkEnds(
+        const LinkEnds& twoWayLinkEnds )
+{
+    LinkEnds downlink;
+    downlink[ transmitter ] = twoWayLinkEnds.at( retransmitter );
+    downlink[ receiver ] = twoWayLinkEnds.at( receiver );
+    return downlink;
+}
+
+
+LinkEnds getSingleLegLinkEnds(
+        const LinkEnds& nWayLinkEnds, const unsigned int legIndex )
+{
+    if( legIndex > nWayLinkEnds.size( ) - 2 )
+    {
+        throw std::runtime_error( "Error when getting link ends for single n-way link, requested leg index " +
+                                  std::to_string( legIndex ) + ", for n-way link ends of size " + std::to_string( nWayLinkEnds.size( ) ) );
+    }
+
+    LinkEnds oneWayLinkEnds;
+    oneWayLinkEnds[ transmitter ] = nWayLinkEnds.at(
+            getNWayLinkEnumFromIndex( legIndex, nWayLinkEnds.size( ) ) );
+    oneWayLinkEnds[ receiver ] = nWayLinkEnds.at(
+            getNWayLinkEnumFromIndex( legIndex + 1, nWayLinkEnds.size( ) ) );
+    return oneWayLinkEnds;
+}
+
 } // namespace observation_models
 
 } // namespace tudat

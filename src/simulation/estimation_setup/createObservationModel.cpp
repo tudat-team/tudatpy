@@ -22,6 +22,18 @@ namespace tudat
 namespace observation_models
 {
 
+
+std::vector< LinkEnds > getObservationModelListLinkEnds(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList )
+{
+    std::vector< LinkEnds > linkEndsList;
+    for( unsigned int i = 0; i < observationModelList.size( ); i++ )
+    {
+        linkEndsList.push_back( observationModelList.at( i )->linkEnds_ );
+    }
+    return linkEndsList;
+}
+
 std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortObservationModelSettingsByType(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings )
 {
