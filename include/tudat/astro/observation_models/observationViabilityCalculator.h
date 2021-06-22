@@ -381,13 +381,13 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilityS
                 body_occultation, associatedLinkEnd, "", occultingBody );
 }
 
-//! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
-typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > >
-PerObservableObservationViabilityCalculatorList;
+////! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
+//typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > >
+//PerObservableObservationViabilityCalculatorList;
 
-//! Typedef for a list of observation viability calculators for a single observable type, sorted by and link ends.
-typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
-PerLinkEndsObservationViabilityCalculatorList;
+////! Typedef for a list of observation viability calculators for a single observable type, sorted by and link ends.
+//typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
+//PerLinkEndsObservationViabilityCalculatorList;
 
 //! Typedef for vector of ObservationViabilitySettings pointers
 typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;

@@ -428,94 +428,29 @@ createObservationViabilityCalculators(
     return viabilityCalculators;
 }
 
-//! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
-PerObservableObservationViabilityCalculatorList
-createObservationViabilityCalculators(
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
-        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
-{
-    PerObservableObservationViabilityCalculatorList viabilityCalculators;
-
-    for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = linkEndsPerObservable.begin( );
-         observableIterator != linkEndsPerObservable.end( ); observableIterator++ )
-    {
-        for( unsigned int i = 0; i < observableIterator->second.size( ); i++ )
-        {
-            viabilityCalculators[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                    createObservationViabilityCalculators(
-                        bodies, observableIterator->second.at( i ), observableIterator->first, observationViabilitySettings );
-        }
-    }
-
-    return viabilityCalculators;
-}
-
-
-//void addObservationViabilitySettings(
-//        std::shared_ptr< ObservationModelSettings > observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList )
+////! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
+//PerObservableObservationViabilityCalculatorList
+//createObservationViabilityCalculators(
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
 //{
-//    std::vector< std::shared_ptr< ObservationViabilitySettings > > currentSettings =
-//            std::move( observationModelSettings->viabilitySettingsList_ );
-//    currentSettings.insert( std::end( currentSettings ), std::begin( viabilitySettingsList ), std::end( viabilitySettingsList ) );
-//    observationModelSettings->viabilitySettingsList_ = std::move( currentSettings );
-//}
+//    PerObservableObservationViabilityCalculatorList viabilityCalculators;
 
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList )
-//{
-//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
+//    for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = linkEndsPerObservable.begin( );
+//         observableIterator != linkEndsPerObservable.end( ); observableIterator++ )
 //    {
-//        addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
-//    }
-//}
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const ObservableType observationType )
-//{
-//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
-//    {
-//        if( observationModelSettings.at( i )->observableType_ == observationType )
+//        for( unsigned int i = 0; i < observableIterator->second.size( ); i++ )
 //        {
-//            addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
+//            viabilityCalculators[ observableIterator->first ][ observableIterator->second.at( i ) ] =
+//                    createObservationViabilityCalculators(
+//                        bodies, observableIterator->second.at( i ), observableIterator->first, observationViabilitySettings );
 //        }
 //    }
+
+//    return viabilityCalculators;
 //}
 
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const ObservableType observationType,
-//        const std::vector< LinkEnds > linkEnds )
-//{
-//    for( unsigned int i = 0; i < observationModelSettings.size( ); i++ )
-//    {
-//        if( observationModelSettings.at( i )->observableType_ == observationType )
-//        {
-//            if( std::find( linkEnds.begin( ), linkEnds.end( ), observationModelSettings.at( i )->linkEnds_ ) !=
-//                    linkEnds.end( ) )
-//            {
-//                addObservationViabilitySettings( observationModelSettings.at( i ), viabilitySettingsList );
-//            }
-//        }
-//    }
-//}
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerType )
-//{
-//    for( auto it : linkEndsPerType )
-//    {
-//        addObservationViabilitySettings(
-//                    observationModelSettings, viabilitySettingsList, it.first, it.second );
-//    }
-//}
 
 } // namespace observation_models
 

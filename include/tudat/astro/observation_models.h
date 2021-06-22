@@ -21,7 +21,6 @@
 #include "observation_models/observationManager.h"
 #include "observation_models/observationModel.h"
 #include "observation_models/observationSimulator.h"
-#include "observation_models/observationViabilityCalculator.h"
 #include "observation_models/oneWayDifferencedRangeRateObservationModel.h"
 #include "observation_models/oneWayDopplerObservationModel.h"
 #include "observation_models/oneWayRangeObservationModel.h"

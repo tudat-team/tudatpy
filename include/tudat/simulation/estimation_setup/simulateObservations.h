@@ -43,8 +43,11 @@ struct ObservationSimulationSettings
     ObservationSimulationSettings(
             const observation_models::ObservableType observableType,
             const observation_models::LinkEnds linkEnds,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver ):
-        observableType_( observableType ), linkEnds_( linkEnds ), linkEndType_( linkEndType ){ }
+            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
+        observableType_( observableType ), linkEnds_( linkEnds ), linkEndType_( linkEndType ),
+        viabilitySettingsList_( viabilitySettingsList ){ }
 
     //! Destructor.
     virtual ~ObservationSimulationSettings( ){ }
@@ -80,8 +83,10 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
             const observation_models::ObservableType observableType,
             const observation_models::LinkEnds linkEnds,
             const std::vector< TimeType >& simulationTimes,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver ):
-        ObservationSimulationSettings< TimeType >( observableType, linkEnds, linkEndType ),
+            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
+        ObservationSimulationSettings< TimeType >( observableType, linkEnds, linkEndType, viabilitySettingsList ),
         simulationTimes_( simulationTimes ){ }
 
     //! Destructor
@@ -116,8 +121,11 @@ struct ArcLimitedObservationSimulationSettings: public ObservationSimulationSett
             const observation_models::LinkEnds linkEnds,
             const TimeType startTime, const TimeType endTime, const TimeType observationInterval,
             const TimeType arcDuration, const int observationLimitPerArc,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver ): ObservationSimulationSettings< TimeType >(
-                                                                                                    observableType, linkEnds, linkEndType ),
+            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
+        ObservationSimulationSettings< TimeType >(
+            observableType, linkEnds, linkEndType, viabilitySettingsList ),
         startTime_( startTime ), endTime_( endTime ), observationInterval_( observationInterval ),
         arcDuration_( arcDuration ), observationLimitPerArc_( observationLimitPerArc ){ }
 
@@ -380,8 +388,6 @@ simulateSingleObservationSet(
  *  \param observationsToSimulate Object that computes/defines settings for observation times/reference link end
  *  \param observationSimulator Observation simulator for observable for which observations are to be calculated.
  *  \param linkEnds Link end set for which observations are to be calculated.
- *  \param currentObservationViabilityCalculators List of observation viability calculators, which are used to reject simulated
- *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Pair of first: vector of observations; second: vector of times at which observations are taken
  *  (reference to link end defined in observationsToSimulate).
  */

@@ -643,7 +643,6 @@ inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
-        const LinkEnds& linkEnds,
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
@@ -1787,45 +1786,21 @@ std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
-//! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
-/*!
- * Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
- * \param bodies Map of body objects that constitutes the environment
- * \param linkEndsPerObservable List of link ends, for each observable type, for which viability check object is to be made
- * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
- * \return List of obervation viability conditions for any number of sets of link ends and observable types
- */
-PerObservableObservationViabilityCalculatorList
-createObservationViabilityCalculators(
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
-        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
+////! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
+///*!
+// * Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
+// * \param bodies Map of body objects that constitutes the environment
+// * \param linkEndsPerObservable List of link ends, for each observable type, for which viability check object is to be made
+// * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
+// * \return List of obervation viability conditions for any number of sets of link ends and observable types
+// */
+//PerObservableObservationViabilityCalculatorList
+//createObservationViabilityCalculators(
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
+//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
 
-
-//void addObservationViabilitySettings(
-//        std::shared_ptr< ObservationModelSettings > observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList );
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList );
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const ObservableType observationType );
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const ObservableType observationType,
-//        const std::vector< LinkEnds > linkEnds );
-
-//void addObservationViabilitySettings(
-//        std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings,
-//        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& viabilitySettingsList,
-//        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerType );
 
 } // namespace observation_models
 
