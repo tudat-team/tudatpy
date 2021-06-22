@@ -464,6 +464,33 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     }
     int unconstrainedNumberOfObservations = unconstrainedObservationTimes.size( );
 
+
+    // Define minimum elevation angles for Earth/Mars stations
+     double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
+     double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
+
+     // Define minimum Sun avoidance angles for Earth/Mars stations
+     double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
+     double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
+
+
+     // Create observation viability settings
+     std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
+     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
+                                                 earthMinimumElevationAngle ) );
+     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                 minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
+                                                 marsMinimumElevationAngle ) );
+     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                 body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
+                                                 earthSunAvoidanceAngle ) );
+     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                 body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
+                                                 marsSunAvoidanceAngle ) );
+     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                 body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
+
     // Create observation model and observation time settings for all observables
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettings;
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettingsConstrained;
@@ -496,43 +523,23 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             }
             observationTimeSettings.push_back(
                         std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                            observableIterator->first, observableIterator->second.at( i ), referenceLinkEnd, unconstrainedObservationTimes ) );
+                            observableIterator->first, observableIterator->second.at( i ), unconstrainedObservationTimes,
+                            referenceLinkEnd ) );
             observationTimeSettingsConstrained.push_back(
                         std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                            observableIterator->first, observableIterator->second.at( i ), referenceLinkEnd, unconstrainedObservationTimes ) );
+                            observableIterator->first, observableIterator->second.at( i ), unconstrainedObservationTimes,
+                            referenceLinkEnd, observationViabilitySettings ) );
         }
     }
 
-   // Define minimum elevation angles for Earth/Mars stations
-    double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
-    double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
-
-    // Define minimum Sun avoidance angles for Earth/Mars stations
-    double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
-    double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
-
-
-    // Create observation viability settings
-    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
-                                                earthMinimumElevationAngle ) );
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
-                                                marsMinimumElevationAngle ) );
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
-                                                earthSunAvoidanceAngle ) );
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
-                                                marsSunAvoidanceAngle ) );
-    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
-
-
     // Create osbervation simulatos
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
-            createObservationSimulators( observationSettingsList , bodies );
+            createObservationSimulators( observationSettingsList, bodies );
+    std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulatorsMap;
+    for( int i = 0; i < observationSimulators.size( ); i++ )
+    {
+        observationSimulatorsMap[ observationSimulators.at( i )->getObservableType( ) ] = observationSimulators.at( i );
+    }
 
     // Simulate observations without constraints directly from simulateObservations function
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
@@ -545,57 +552,50 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             constrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
                 simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies ) );
 
-    // Simulate observations without/with viability constraints directly from ObservationSimulator objects
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
-            unconstrainedSimulatedObservablesFromObjects;
-    std::map< ObservableType, std::map< LinkEnds,  std::pair< Eigen::VectorXd, std::vector< double > > > >
-            constrainedSimulatedObservablesFromObjects;
-    for( std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > >::iterator
-         simulatorIterator = observationSimulators.begin( ); simulatorIterator != observationSimulators.end( );
-         simulatorIterator++ )
-    {
-        // Simulate unconstrained observations for current observable ObservationSimulator object
-        for( unsigned int i = 0; i < testLinkEndsList.at( simulatorIterator->first ).size( ); i++ )
-        {
-            unconstrainedSimulatedObservablesFromObjects[ simulatorIterator->first ][
-                    testLinkEndsList.at( simulatorIterator->first ).at ( i ) ] = simulatorIterator->second->simulateObservations(
-                        unconstrainedObservationTimes,  testLinkEndsList.at( simulatorIterator->first ).at ( i ),
-                        referenceLinkEnd, false );
-        }
+//    // Simulate observations without/with viability constraints directly from ObservationSimulator objects
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
+//            unconstrainedSimulatedObservablesFromObjects;
+//    std::map< ObservableType, std::map< LinkEnds,  std::pair< Eigen::VectorXd, std::vector< double > > > >
+//            constrainedSimulatedObservablesFromObjects;
+//    for( unsigned int j = 0; j < observationSimulators.size( ); j++ )
+//    {
+//        ObservableType currentObservable = observationSimulators.at( j )->getObservableType( );
+//        // Simulate unconstrained observations for current observable ObservationSimulator object
+//        for( unsigned int i = 0; i < testLinkEndsList.at( currentObservable ).size( ); i++ )
+//        {
+//            unconstrainedSimulatedObservablesFromObjects[ currentObservable ][
+//                    testLinkEndsList.at( currentObservable ).at ( i ) ] = simulatorIterator->second->simulateObservations(
+//                        unconstrainedObservationTimes,  testLinkEndsList.at( currentObservable ).at ( i ),
+//                        referenceLinkEnd, false );
+//        }
 
-        // Simulate viability-constrained observations for current observable ObservationSimulator object
-        if( viabilityCalculators.count( simulatorIterator->first ) > 0 )
-        {
-            simulatorIterator->second->setViabilityCalculators( viabilityCalculators.at( simulatorIterator->first ) );
-        }
-        for( unsigned int i = 0; i < testLinkEndsList.at( simulatorIterator->first ).size( ); i++ )
-        {
-            constrainedSimulatedObservablesFromObjects[ simulatorIterator->first ][
-                    testLinkEndsList.at( simulatorIterator->first ).at ( i ) ] = simulatorIterator->second->simulateObservations(
-                        unconstrainedObservationTimes,  testLinkEndsList.at( simulatorIterator->first ).at ( i ),
-                        referenceLinkEnd, true );
-        }
-    }
+//        // Simulate viability-constrained observations for current observable ObservationSimulator object
+//        if( viabilityCalculators.count( currentObservable ) > 0 )
+//        {
+//            simulatorIterator->second->setViabilityCalculators( viabilityCalculators.at( currentObservable ) );
+//        }
+//        for( unsigned int i = 0; i < testLinkEndsList.at( currentObservable ).size( ); i++ )
+//        {
+//            constrainedSimulatedObservablesFromObjects[ currentObservable ][
+//                    testLinkEndsList.at( currentObservable ).at( i ) ] = simulatorIterator->second->simulateObservations(
+//                        unconstrainedObservationTimes,  testLinkEndsList.at( currentObservable ).at ( i ),
+//                        referenceLinkEnd, true );
+//        }
+//    }
 
     int numberOfObsevables = testLinkEndsList.size( );
 
     // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
-    BOOST_CHECK_EQUAL( numberOfObsevables, unconstrainedSimulatedObservablesFromObjects.size( ) );
-    BOOST_CHECK_EQUAL( numberOfObsevables, constrainedSimulatedObservablesFromObjects.size( ) );
-
+    BOOST_CHECK_EQUAL( numberOfObsevables, unconstrainedSimulatedObservables.size( ) );
     BOOST_CHECK_EQUAL( numberOfObsevables, constrainedSimulatedObservables.size( ) );
-    BOOST_CHECK_EQUAL( numberOfObsevables, constrainedSimulatedObservablesFromObjects.size( ) );
 
     // Create iterators over all simulated observations
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
             unconstrainedIterator = unconstrainedSimulatedObservables.begin( );
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
-            unconstrainedIteratorFromObjects = unconstrainedSimulatedObservablesFromObjects.begin( );
+
 
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
             constrainedIterator = constrainedSimulatedObservables.begin( );
-    std::map< ObservableType, std::map< LinkEnds,  std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
-            constrainedIteratorFromObjects = constrainedSimulatedObservablesFromObjects.begin( );
 
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
@@ -608,25 +608,19 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
         // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );
-        BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIteratorFromObjects->second.size( ) );
 
         BOOST_CHECK_EQUAL( numberOfLinkEnds, constrainedIterator->second.size( ) );
-        BOOST_CHECK_EQUAL( numberOfLinkEnds, constrainedIteratorFromObjects->second.size( ) );
 
         // Create iterators over all simulated observations of current observable
         std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator unconstrainedLinkIterator =
                 unconstrainedIterator->second.begin( );
-        std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator unconstrainedLinkIteratorFromObjects =
-                unconstrainedIteratorFromObjects->second.begin( );
         std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator constrainedLinkIterator =
                 constrainedIterator->second.begin( );
-        std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator constrainedLinkIteratorFromObjects =
-                constrainedIteratorFromObjects->second.begin( );
 
         ObservableType currentObservable = unconstrainedIterator->first;
 
         std::shared_ptr< ObservationSimulatorBase< double, double > > currentObservationSimulator =
-                observationSimulators.at( currentObservable );
+                observationSimulatorsMap.at( currentObservable );
 
         // Iterate over all link ends of current observables.
         for( int j = 0; j < numberOfLinkEnds; j++ )
@@ -634,21 +628,12 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             LinkEnds currentLinkEnds = unconstrainedLinkIterator->first;
 
             std::vector< std::shared_ptr< ObservationViabilityCalculator > > currentViabilityCalculators =
-                    viabilityCalculators.at( currentObservable ).at( currentLinkEnds );
+                    tudat::observation_models::createObservationViabilityCalculators(
+                        bodies, currentLinkEnds, currentObservable, observationViabilitySettings );
 
             // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
             BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations, unconstrainedLinkIterator->second.second.size( ) );
-            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations, unconstrainedLinkIteratorFromObjects->second.second.size( ) );
-
             BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations * currentObservableSize, unconstrainedLinkIterator->second.first.rows( ) );
-            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations * currentObservableSize, unconstrainedLinkIteratorFromObjects->second.first.rows( ) );
-
-            BOOST_CHECK_EQUAL( constrainedLinkIteratorFromObjects->second.second.size( ), constrainedLinkIterator->second.second.size( ) );
-            BOOST_CHECK_EQUAL( constrainedLinkIteratorFromObjects->second.first.rows( ), constrainedLinkIterator->second.first.rows( ) );
-
-            BOOST_CHECK_EQUAL( constrainedLinkIteratorFromObjects->second.first.rows( ),
-                               constrainedLinkIteratorFromObjects->second.second.size( ) * currentObservableSize );
-
 
             int unconstrainedIndex = 0, constrainedIndex = 0;
             bool currentObservationWasViable, currentObservationIsViable, isSingleViabilityConditionMet;
@@ -679,9 +664,22 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                 }
 
                 // Re-simulate current observation
-                currentObservation = currentObservationSimulator->simulateObservation(
-                            unconstrainedObservationTimes.at( unconstrainedIndex ), currentLinkEnds, referenceLinkEnd,
-                            linkEndTimes, linkEndStates );
+                if( currentObservable == angular_position )
+                {
+                    currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 2 > >(
+                                currentObservationSimulator )->getObservationModel( currentLinkEnds )->
+                            computeObservationsWithLinkEndData(
+                                unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
+                                linkEndTimes, linkEndStates );
+                }
+                else
+                {
+                    currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 1 > >(
+                                currentObservationSimulator )->getObservationModel( currentLinkEnds )->
+                            computeObservationsWithLinkEndData(
+                                unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
+                                linkEndTimes, linkEndStates );
+                }
 
                 // Re-compute viability according to viability calculator objects.
                 currentObservationIsViable = true;
@@ -762,19 +760,15 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                 }
                 unconstrainedIndex++;
             }
-            BOOST_CHECK_EQUAL( constrainedIndex, constrainedLinkIteratorFromObjects->second.second.size( ) );
+            BOOST_CHECK_EQUAL( constrainedIndex, constrainedLinkIterator->second.second.size( ) );
 
 
             unconstrainedLinkIterator++;
-            unconstrainedLinkIteratorFromObjects++;
             constrainedLinkIterator++;
-            constrainedLinkIteratorFromObjects++;
         }
 
         unconstrainedIterator++;
-        unconstrainedIteratorFromObjects++;
         constrainedIterator++;
-        constrainedIteratorFromObjects++;
     }
 }
 
