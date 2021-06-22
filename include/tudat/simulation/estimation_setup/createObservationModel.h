@@ -232,8 +232,6 @@ inline std::shared_ptr< ObservationBiasSettings > multipleObservationBiasSetting
                 biasSettingsList );
 }
 
-
-
 //! Class used for defining the settings for an observation model that is to be created.
 /*!
  * Class used for defining the settings for an observation model that is to be created. This class allows the type, light-time
@@ -301,6 +299,9 @@ public:
     //! Settings for the observation bias model that is to be used (default none: nullptr)
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
+
+std::vector< LinkEnds > getObservationModelListLinkEnds(
+        const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList );
 
 
 
@@ -419,13 +420,17 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     TwoWayDopplerObservationSettings(
-            const LinkEnds& linkEnds,
             const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
             const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( two_way_doppler, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
+        ObservationModelSettings( two_way_doppler, mergeUpDownLink(
+                                      uplinkOneWayDopplerSettings->linkEnds_, downlinkOneWayDopplerSettings->linkEnds_ ),
+                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
-        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings ){ }
+        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
+    {
+
+    }
 
     //! Destructor
     ~TwoWayDopplerObservationSettings( ){ }
@@ -502,12 +507,12 @@ public:
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
-            const LinkEnds& linkEnds,
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::function< std::vector< double >( const double ) > retransmissionTimesFunction =
             std::function< std::vector< double >( const double  ) >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
-        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
         retransmissionTimesFunction_( retransmissionTimesFunction ){ }
 
@@ -607,13 +612,12 @@ inline std::shared_ptr< ObservationModelSettings > oneWayOpenLoopDoppler(
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
-        const LinkEnds& linkEnds,
         const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
         const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
 {
     return std::make_shared< TwoWayDopplerObservationSettings >(
-                linkEnds, uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
+                uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, biasSettings );
 }
 
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
@@ -646,7 +650,7 @@ inline std::shared_ptr< ObservationModelSettings > nWayRange(
         std::function< std::vector< double >( const double  ) >( ))
 {
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
+                oneWayRangeObsevationSettings, retransmissionTimesFunction, biasSettings );
 }
 
 //! Function to create the proper time rate calculator for use in one-way Doppler

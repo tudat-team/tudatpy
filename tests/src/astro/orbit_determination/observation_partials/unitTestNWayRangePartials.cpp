@@ -110,14 +110,16 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             {
                 legObservationModels.push_back(
                             std::make_shared< observation_models::ObservationModelSettings >(
-                                one_way_range, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                one_way_range,
+                                getSingleLegLinkEnds( linkEnds, i ),
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
 
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            linkEnds, legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
+                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -142,13 +144,14 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             {
                 legObservationModels.push_back(
                             std::make_shared< observation_models::ObservationModelSettings >(
-                                one_way_range, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                one_way_range,
+                                getSingleLegLinkEnds( linkEnds, i ),
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            linkEnds,
                             legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodies  );
 
             // Create parameter objects.

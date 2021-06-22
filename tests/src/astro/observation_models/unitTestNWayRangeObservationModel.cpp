@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             twoWayLinkSettings.push_back( uplinkObservableSettings );
             twoWayLinkSettings.push_back( downlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >
-                    ( twoWayLinkEnds, twoWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 1 ) );
+                    ( twoWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 1 ) );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourWayLinkSettings.push_back( fourthlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > fourWayObservableSettings =
                     std::make_shared< NWayRangeObservationSettings >(
-                        fourWayLinkEnds, fourWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 3 ) );
+                        fourWayLinkSettings, std::bind( &getRetransmissionDelays, std::placeholders::_1, 3 ) );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
