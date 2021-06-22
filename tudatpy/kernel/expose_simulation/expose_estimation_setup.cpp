@@ -45,27 +45,27 @@ std::shared_ptr< PodInput< > > createPodInput(
                                          initialParameterDeviationEstimate );
 }
 
-OrbitDeterminationManager< double, double > createOrbitDeterminationManager(
-        const tss::SystemOfBodies& bodies,
-        const std::shared_ptr< tep::EstimatableParameterSet< double > > parameterSet,
-        const std::vector< std::pair< tom::LinkEnds, std::shared_ptr< tom::ObservationSettings > > >&
-        observationSettings,
-        const std::shared_ptr< tni::IntegratorSettings< double > > integratorSettings,
-        const std::shared_ptr< tp::PropagatorSettings< double > > propagatorSettings,
-        const bool propagateOnCreation )
-{
-    tom::SortedObservationSettingsMap observationSettingsList;
+//OrbitDeterminationManager< double, double > createOrbitDeterminationManager(
+//        const tss::SystemOfBodies& bodies,
+//        const std::shared_ptr< tep::EstimatableParameterSet< double > > parameterSet,
+//        const std::vector< std::pair< tom::LinkEnds, std::shared_ptr< tom::ObservationSettings > > >&
+//        observationSettings,
+//        const std::shared_ptr< tni::IntegratorSettings< double > > integratorSettings,
+//        const std::shared_ptr< tp::PropagatorSettings< double > > propagatorSettings,
+//        const bool propagateOnCreation )
+//{
+//    tom::SortedObservationSettingsMap observationSettingsList;
 
-        for( int i = 0; i < observationSettings.size( ); i++ )
-        {
-            observationSettingsList[ observationSettings.at( i ).second->observableType_ ][
-                    observationSettings.at( i ).first ] = observationSettings.at( i ).second;
-        }
+//        for( int i = 0; i < observationSettings.size( ); i++ )
+//        {
+//            observationSettingsList[ observationSettings.at( i ).second->observableType_ ][
+//                    observationSettings.at( i ).first ] = observationSettings.at( i ).second;
+//        }
 
-    return OrbitDeterminationManager< double, double >(
-                bodies, parameterSet, observationSettingsList, integratorSettings, propagatorSettings,
-                propagateOnCreation );
-}
+//    return OrbitDeterminationManager< double, double >(
+//                bodies, parameterSet, observationSettingsList, integratorSettings, propagatorSettings,
+//                propagateOnCreation );
+//}
 
 }
 
@@ -99,35 +99,41 @@ void expose_observation_setup(py::module &m) {
             .value("velocity_observable_type", tom::ObservableType::velocity_observable )
             .export_values();
 
-    py::class_<tom::ObservationSettings,
-            std::shared_ptr<tom::ObservationSettings>>(
+    py::class_<tom::ObservationModelSettings,
+            std::shared_ptr<tom::ObservationModelSettings>>(
                 m, "ObservationSettings");
 
     m.def("one_way_range",
           &tom::oneWayRangeSettings,
+          py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
 
     m.def("angular",
           &tom::angularPositionSettings,
+          py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
 
 
     m.def("position",
           &tom::positionObservableSettings,
+          py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
 
     m.def("velocity",
           &tom::velocityObservableSettings,
+          py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
 
     m.def("313_euler_angle",
           &tom::eulerAngle313ObservableSettings,
+          py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
 
     m.def("one_way_open_loop_doppler",
           &tom::oneWayOpenLoopDoppler,
+          py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("transmitter_proper_time_rate_settings") = nullptr,
@@ -141,18 +147,22 @@ void expose_observation_setup(py::module &m) {
 
     m.def("one_way_closed_loop_doppler",
           py::overload_cast<
+          const tom::LinkEnds&,
           const double,
           const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
           const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
+          py::arg("link_ends" ),
           py::arg("integration_time" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
 
     m.def("one_way_closed_loop_doppler",
           py::overload_cast<
+          const tom::LinkEnds&,
           const std::function< double( const double ) >,
           const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
           const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::oneWayClosedLoopDoppler ),
+          py::arg("link_ends" ),
           py::arg("integration_time_function" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
@@ -257,10 +267,91 @@ void expose_observation_setup(py::module &m) {
           py::arg("occulting_body" ) );
 
     m.def("create_observation_simulators",
-          py::overload_cast< const tom::ObservationSettingsVector&, const tss::SystemOfBodies& >(
+          py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
               &tom::createObservationSimulators< double, double > ),
           py::arg( "observation_settings" ),
           py::arg( "bodies" ) );
+
+    py::class_<tss::ObservationSimulationSettings<double>,
+               std::shared_ptr<tss::ObservationSimulationSettings<double>>>(m, "ObservationSimulationSettings");
+
+    py::class_<tss::TabulatedObservationSimulationSettings<double>,
+               std::shared_ptr<tss::TabulatedObservationSimulationSettings<double>>,
+               tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings")
+            .def(py::init<
+                 const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType >(),
+                 py::arg("observable_type"),
+                 py::arg("link_ends"),
+                 py::arg("observation_times"),
+                 py::arg("reference_link_end") = tom::receiver );
+
+//    py::class_<tss::ArcLimitedObservationSimulationSettings<double>,
+//               std::shared_ptr<tss::ArcLimitedObservationSimulationSettings<double>>,
+//               tss::ObservationSimulationSettings<double> >(m, "ArcLimitedObservationSimulationSettings")
+//            .def(py::init<
+//                 const tom::ObservableType,
+//                 const tom::LinkEnds,
+//                 const double,
+//                 const double,
+//                 const double,
+//                 const double,
+//                 const int >(),
+//                 py::arg("observable_type"),
+//                 py::arg("link_ends"),
+//                 py::arg("start_time"),
+//                 py::arg("end_time"),
+//                 py::arg("observation_interval"),
+//                 py::arg("arc_duration"),
+//                 py::arg("observations_per_arc"),
+//                 py::arg("reference_link_end") = tom::receiver );
+
+//    m.def("simulate_observations",
+//          py::overload_cast<
+//          const std::map< tom::ObservableType, std::map< tom::LinkEnds, std::pair< std::vector< double >, tom::LinkEndType > > >&,
+//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
+//          const tom::PerObservableObservationViabilityCalculatorList >(
+//              &tom::simulateObservations< double, double > ),
+//          py::arg("observation_to_simulate"),
+//          py::arg("observation_simulator"),
+//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+//    m.def("simulate_observations",
+//          py::overload_cast<
+//          const std::map< tom::ObservableType, std::map< tom::LinkEnds, std::shared_ptr< tom::ObservationSimulationTimeSettings< double > > > >&,
+//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
+//          const tom::PerObservableObservationViabilityCalculatorList >(
+//              &tom::simulateObservations< double, double > ),
+//          py::arg("observation_to_simulate"),
+//          py::arg("observation_simulator"),
+//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+//    m.def("simulate_observations",
+//          py::overload_cast<
+//          const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, std::vector< double > > >&,
+//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
+//          const tom::PerObservableObservationViabilityCalculatorList >(
+//              &tom::simulateObservations< double, double > ),
+//          py::arg("observation_to_simulate"),
+//          py::arg("observation_simulator"),
+//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+//    m.def("simulate_noisy_observations",
+//          py::overload_cast<
+//          const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, std::vector< double > > >&,
+//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
+//          const std::map< tom::ObservableType, std::function< double( const double ) > >&,
+//          const tom::PerObservableObservationViabilityCalculatorList >(
+//              &tom::simulateObservationsWithNoise< double, double > ),
+//          py::arg("observation_to_simulate"),
+//          py::arg("observation_simulator"),
+//          py::arg("noise_functions"),
+//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+
+//    m.def("gaussian_noise_function",
+//              &tom::getGaussianDistributionNoiseFunction,
+//          py::arg("standard_deviation"),
+//          py::arg("mean") = 0.0,
+//          py::arg("seed") = time(NULL) );
 
 }
 
@@ -671,7 +762,7 @@ void expose_estimation_setup(py::module &m) {
             std::shared_ptr<tss::OrbitDeterminationManager<double, double>>>(m, "OrbitDeterminationManager")
             .def(py::init<const tss::SystemOfBodies&,
                  const std::shared_ptr< tep::EstimatableParameterSet< double > >,
-                 const tom::SortedObservationSettingsMap&,
+                 const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
                  const std::shared_ptr< tni::IntegratorSettings< double > >,
                  const std::shared_ptr< tp::PropagatorSettings< double > >,
                  const bool >( ),
@@ -681,18 +772,6 @@ void expose_estimation_setup(py::module &m) {
                  py::arg("integrator_settings"),
                  py::arg("propagator_settings"),
                  py::arg("integrate_on_creation") = true  )
-            .def(py::init<const tss::SystemOfBodies&,
-                 const std::shared_ptr< tep::EstimatableParameterSet< double > >,
-                 const tom::ObservationSettingsMap&,
-                 const std::shared_ptr< tni::IntegratorSettings< double > >,
-                 const std::shared_ptr< tp::PropagatorSettings< double > >,
-                 const bool >( ),
-                 py::arg("bodies"),
-                 py::arg("estimated_parameters"),
-                 py::arg("observation_settings"),
-                 py::arg("integrator_settings"),
-                 py::arg("propagator_settings"),
-                 py::arg("integrate_on_creation") = true )
             .def_property_readonly("observation_simulators",
                                    &tss::OrbitDeterminationManager<double, double>::getObservationSimulators)
             .def_property_readonly("observation_managers",
@@ -702,14 +781,14 @@ void expose_estimation_setup(py::module &m) {
                  py::arg( "estimation_input" ),
                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ) );
 
-    m.def("create_orbit_determination_manager",
-          &tss::createOrbitDeterminationManager,
-          py::arg("bodies"),
-          py::arg("estimated_parameters"),
-          py::arg("observation_settings"),
-          py::arg("integrator_settings"),
-          py::arg("propagator_settings"),
-          py::arg("integrate_on_creation") = true );
+//    m.def("create_orbit_determination_manager",
+//          &tss::createOrbitDeterminationManager,
+//          py::arg("bodies"),
+//          py::arg("estimated_parameters"),
+//          py::arg("observation_settings"),
+//          py::arg("integrator_settings"),
+//          py::arg("propagator_settings"),
+//          py::arg("integrate_on_creation") = true );
 
     m.def("pod_input",
           &tss::createPodInput,
