@@ -356,56 +356,71 @@ void expose_rotation_model_setup(py::module &m) {
                 m, "RotationalModelSettings", "<no doc>")
             .def(py::init<const tss::RotationModelType, const std::string &,
                  const std::string &>(),
-                 py::arg("rotation_type"), py::arg("original_frame"),
+                 py::arg("rotation_type"), py::arg("base_frame"),
                  py::arg("target_frame"))
-            .def("get_rotation_type", &tss::RotationModelSettings::getRotationType)
-            .def("get_original_frame", &tss::RotationModelSettings::getOriginalFrame)
-            .def("get_target_frame", &tss::RotationModelSettings::getTargetFrame)
-            .def("reset_original_frame",
-                 &tss::RotationModelSettings::resetOriginalFrame);
+            .def("get_rotation_type", &tss::RotationModelSettings::getRotationType,
+                 get_docstring("get_rotation_type").c_str()
+            )
+            .def("get_base_frame", &tss::RotationModelSettings::getOriginalFrame,
+                 get_docstring("get_base_frame").c_str()
+            )
+            .def("get_target_frame", &tss::RotationModelSettings::getTargetFrame,
+                 get_docstring("get_target_frame").c_str()
+            )
+            .def("reset_base_frame", &tss::RotationModelSettings::resetOriginalFrame,
+                 get_docstring("reset_base_frame").c_str()
+            );
 
     m.def("simple",
           py::overload_cast< const std::string&, const std::string& ,
           const Eigen::Matrix3d&, const double, const double >( &tss::simpleRotationModelSettings ),
-          py::arg("original_frame"),
+          py::arg("base_frame"),
           py::arg("target_frame"),
           py::arg("initial_orientation"),
           py::arg("initial_time"),
-          py::arg("rotation_rate")
+          py::arg("rotation_rate"),
+          get_docstring("simple").c_str()
           );
 
     m.def("simple_from_spice",
           &tss::simpleRotationModelFromSpiceSettings,
-          py::arg("original_frame"),
+          py::arg("base_frame"),
           py::arg("target_frame"),
           py::arg("target_frame_spice"),
-          py::arg("initial_time")
+          py::arg("initial_time"),
+          get_docstring("simple_from_spice").c_str()
           );
 
     m.def("synchronous",
           &tss::synchronousRotationModelSettings,
           py::arg("central_body_name"),
-          py::arg("original_frame"),
-          py::arg("target_frame")
+          py::arg("base_frame"),
+          py::arg("target_frame"),
+          get_docstring("synchronous").c_str()
           );
 
     m.def("spice",
           &tss::spiceRotationModelSettings,
-          py::arg("originalFrame"),
-          py::arg("targetFrame")
+          py::arg("base_frame"),
+          py::arg("target_frame"),
+          get_docstring("spice").c_str()
           );
 
     m.def("gcrs_to_itrs",
           &tss::gcrsToItrsRotationModelSettings,
           py::arg("precession_nutation_theory") = tba::iau_2006,
-          py::arg("original_frame") = "GCRS" );
+          py::arg("base_frame") = "GCRS" ),
+          get_docstring("gcrs_to_itrs").c_str()
+          );
 
     m.def("constant",
           py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >(
               &tss::constantRotationModelSettings ),
-          py::arg("original_frame"),
+          py::arg("base_frame"),
           py::arg("target_frame"),
-          py::arg("constant_orientation") );
+          py::arg("constant_orientation"),
+          get_docstring("constant").c_str()
+          );
 
 }
 
