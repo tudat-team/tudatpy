@@ -166,7 +166,7 @@ std::shared_ptr< TransferNode > createTransferNode(
 
             if( swingbySettings->minimumPeriapsisRadius_ != swingbySettings->minimumPeriapsisRadius_ )
             {
-                swingbySettings->minimumPeriapsisRadius_ = DEFAULT_MINIMUM_PERICENTERS.at( nodeBodyName );
+                hrow std::runtime_error("Error when making swingby node, no minimum periapsis radius is provided" );
             }
 
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
@@ -177,7 +177,6 @@ std::shared_ptr< TransferNode > createTransferNode(
                         centralBodyEphemeris,
                         centralBodyGravitationalParameter, swingbySettings->minimumPeriapsisRadius_,
                         incomingVelocityFunction, outgoingVelocityFunction );
-            std::cout<<nodeBodyName<<" "<<swingbySettings->minimumPeriapsisRadius_<<std::endl;
         }
         else
         {
