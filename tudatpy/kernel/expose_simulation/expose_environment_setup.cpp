@@ -496,22 +496,6 @@ void expose_gravity_field_setup(py::module &m) {
 
 void expose_ephemeris_setup(py::module &m) {
 
-    /////////////////////////////////////////////////////////////////////////////
-    // approximatePlanetPositionsBase.h
-    /////////////////////////////////////////////////////////////////////////////
-
-    py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
-                m, "BodiesWithEphemerisData", "<no_doc>")
-            .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
-            .value("venus", te::ApproximatePlanetPositionsBase::venus)
-            .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
-            .value("mars", te::ApproximatePlanetPositionsBase::mars)
-            .value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
-            .value("saturn", te::ApproximatePlanetPositionsBase::saturn)
-            .value("uranus", te::ApproximatePlanetPositionsBase::uranus)
-            .value("neptune", te::ApproximatePlanetPositionsBase::neptune)
-            .value("pluto", te::ApproximatePlanetPositionsBase::pluto)
-            .export_values();
 
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
@@ -561,18 +545,15 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("interpolator_settings") = std::make_shared<
             tudat::interpolators::LagrangeInterpolatorSettings>(6));
 
-    py::class_<tss::ApproximatePlanetPositionSettings,
-            std::shared_ptr<tss::ApproximatePlanetPositionSettings>,
-            tss::EphemerisSettings>(m, "ApproximatePlanetPositionSettings")
-            .def(py::init<const tudat::ephemerides::ApproximatePlanetPositionsBase::
-                 BodiesWithEphemerisData,
+    py::class_<tss::ApproximateJplEphemerisSettings,
+            std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
+            tss::EphemerisSettings>(m, "ApproximateJplEphemerisSettings")
+            .def(py::init<const std::string,
                  const bool>(),
-                 py::arg("body_identifier"),
+                 py::arg("body_name"),
                  py::arg("use_circular_coplanar_approximation"))
-            .def("get_body_identifier",
-                 &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
             .def("get_use_circular_coplanar_approximation",
-                 &tss::ApproximatePlanetPositionSettings::
+                 &tss::ApproximateJplEphemerisSettings::
                  getUseCircularCoplanarApproximation);
 
     py::class_<tss::ConstantEphemerisSettings,
@@ -660,12 +641,12 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("root_finder_maximum_iterations") = 1000.0 );
 
 
-    m.def("approximate_planet_positions",
-          py::overload_cast<  const std::string >( &tss::approximatePlanetPositionsSettings ),
-          py::arg("body_name_to_use"));
+    m.def("approximate_jpl",
+          py::overload_cast< const std::string >( &tss::approximateJplEphemerisSettings ),
+          py::arg("body_name"));
 
-    m.def("approximate_planet_positions",
-          py::overload_cast< >( &tss::approximatePlanetPositionsSettings ));
+//    m.def("approximate_planet_positions",
+//          py::overload_cast< >( &tss::approximatePlanetPositionsSettings ));
 
     m.def("direct_spice",
           py::overload_cast< const std::string, const std::string,  const std::string >(
