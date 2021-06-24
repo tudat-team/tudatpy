@@ -71,7 +71,7 @@ double TransferTrajectory::getNodeDeltaV( const int nodeIndex )
 {
     if( isComputed_ )
     {
-        return nodes_.at( nodeIndex )->getNodeDeltaV( );;
+        return nodes_.at( nodeIndex )->getNodeDeltaV( );
     }
     else
     {
@@ -90,6 +90,27 @@ double TransferTrajectory::getLegDeltaV( const int legIndex )
         throw std::runtime_error( "Error when getting single leg Delta V for transfer trajectory; transfer parameters not set!" );
     }
 }
+
+std::vector< double > TransferTrajectory::getDeltaVPerNode( )
+{
+    std::vector< double > deltaVPerNode;
+    for( unsigned int i = 0; i < nodes_.size( ); i++ )
+    {
+        deltaVPerNode.push_back( nodes_.at( i )->getNodeDeltaV( ) );
+    }
+    return deltaVPerNode;
+}
+
+std::vector< double > TransferTrajectory::getDeltaVPerLeg( )
+{
+    std::vector< double > deltaVPerLeg;
+    for( unsigned int i = 0; i < legs_.size( ); i++ )
+    {
+        deltaVPerLeg.push_back( legs_.at( i )->getLegDeltaV( ) );
+    }
+    return deltaVPerLeg;
+}
+
 
 void TransferTrajectory::getStatesAlongTrajectoryPerLeg(
         std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
