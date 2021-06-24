@@ -45,9 +45,10 @@ struct ObservationSimulationSettings
             const observation_models::LinkEnds linkEnds,
             const observation_models::LinkEndType linkEndType = observation_models::receiver,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
-            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ), linkEndType_( linkEndType ),
-        viabilitySettingsList_( viabilitySettingsList ){ }
+        viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ){ }
 
     //! Destructor.
     virtual ~ObservationSimulationSettings( ){ }
@@ -63,6 +64,108 @@ struct ObservationSimulationSettings
 
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 };
+
+
+template< typename TimeType = double >
+void clearNoiseFunctionFromObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        observationSimulationSettings.at( i )->observationNoiseFunction_ = nullptr;
+    }
+}
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+    }
+}
+
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< double( const double ) > observationNoiseFunction )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        observationSimulationSettings.at( i )->observationNoiseFunction_ =
+                [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+    }
+}
+
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
+        const observation_models::ObservableType observableType )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        {
+            observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+        }
+    }
+}
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< double( const double ) > observationNoiseFunction,
+        const observation_models::ObservableType observableType )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        {
+            observationSimulationSettings.at( i )->observationNoiseFunction_ =
+                    [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+        }
+    }
+}
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        if( observationSimulationSettings.at( i )->observableType_ == observableType &&
+                observationSimulationSettings.at( i )->linkEnds_ == linkEnds )
+        {
+            observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+        }
+    }
+}
+
+template< typename TimeType = double >
+void addNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::function< double( const double ) > observationNoiseFunction,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds& linkEnds  )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        if( observationSimulationSettings.at( i )->observableType_ == observableType  &&
+                observationSimulationSettings.at( i )->linkEnds_ == linkEnds )
+        {
+            observationSimulationSettings.at( i )->observationNoiseFunction_ =
+                    [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+        }
+    }
+}
 
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
@@ -85,8 +188,10 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
             const std::vector< TimeType >& simulationTimes,
             const observation_models::LinkEndType linkEndType = observation_models::receiver,
             const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
-            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
-        ObservationSimulationSettings< TimeType >( observableType, linkEnds, linkEndType, viabilitySettingsList ),
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+            const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  ):
+        ObservationSimulationSettings< TimeType >(
+            observableType, linkEnds, linkEndType, viabilitySettingsList, observationNoiseFunction ),
         simulationTimes_( simulationTimes ){ }
 
     //! Destructor
@@ -97,59 +202,59 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
 };
 
 
-//! Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings
-/*!
- *  Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings. This class
- *  defines an observation arc starting every X seconds, with observations simulated every M seconds from the start of this
- *  interval until N observations have been simulated, taking into account that some are discarded due to vaibiloty settings.
- */
-template< typename TimeType = double >
-struct ArcLimitedObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
-{
-    //! Constructor
-    /*!
-     * Constructor
-     * \param linkEndType Reference link end type
-     * \param startTime Time at which to start simulating observations
-     * \param endTime Time at which to end simulating observations
-     * \param observationInterval Time between two subsequent observations (e.g. integration time)
-     * \param arcDuration Duration of an arc over which observationLimitPerArc observations are to be simulated
-     * \param observationLimitPerArc Number of observations that are to be simulated per arc
-     */
-    ArcLimitedObservationSimulationSettings(
-            const observation_models::ObservableType observableType,
-            const observation_models::LinkEnds linkEnds,
-            const TimeType startTime, const TimeType endTime, const TimeType observationInterval,
-            const TimeType arcDuration, const int observationLimitPerArc,
-            const observation_models::LinkEndType linkEndType = observation_models::receiver,
-            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
-            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
-        ObservationSimulationSettings< TimeType >(
-            observableType, linkEnds, linkEndType, viabilitySettingsList ),
-        startTime_( startTime ), endTime_( endTime ), observationInterval_( observationInterval ),
-        arcDuration_( arcDuration ), observationLimitPerArc_( observationLimitPerArc ){ }
+////! Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings
+///*!
+// *  Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings. This class
+// *  defines an observation arc starting every X seconds, with observations simulated every M seconds from the start of this
+// *  interval until N observations have been simulated, taking into account that some are discarded due to vaibiloty settings.
+// */
+//template< typename TimeType = double >
+//struct ArcLimitedObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
+//{
+//    //! Constructor
+//    /*!
+//     * Constructor
+//     * \param linkEndType Reference link end type
+//     * \param startTime Time at which to start simulating observations
+//     * \param endTime Time at which to end simulating observations
+//     * \param observationInterval Time between two subsequent observations (e.g. integration time)
+//     * \param arcDuration Duration of an arc over which observationLimitPerArc observations are to be simulated
+//     * \param observationLimitPerArc Number of observations that are to be simulated per arc
+//     */
+//    ArcLimitedObservationSimulationSettings(
+//            const observation_models::ObservableType observableType,
+//            const observation_models::LinkEnds linkEnds,
+//            const TimeType startTime, const TimeType endTime, const TimeType observationInterval,
+//            const TimeType arcDuration, const int observationLimitPerArc,
+//            const observation_models::LinkEndType linkEndType = observation_models::receiver,
+//            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
+//            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) ):
+//        ObservationSimulationSettings< TimeType >(
+//            observableType, linkEnds, linkEndType, viabilitySettingsList ),
+//        startTime_( startTime ), endTime_( endTime ), observationInterval_( observationInterval ),
+//        arcDuration_( arcDuration ), observationLimitPerArc_( observationLimitPerArc ){ }
 
-    ~ArcLimitedObservationSimulationSettings( ){ }
+//    ~ArcLimitedObservationSimulationSettings( ){ }
 
-    //! Time at which to start simulating observations
-    TimeType startTime_;
+//    //! Time at which to start simulating observations
+//    TimeType startTime_;
 
-    //! Time at which to end simulating observations
-    TimeType endTime_;
+//    //! Time at which to end simulating observations
+//    TimeType endTime_;
 
-    //! Time between two subsequent observations (e.g. integration time)
-    TimeType observationInterval_;
+//    //! Time between two subsequent observations (e.g. integration time)
+//    TimeType observationInterval_;
 
-    //! Duration of an arc over which observationLimitPerArc observations are to be simulated
-    TimeType arcDuration_;
+//    //! Duration of an arc over which observationLimitPerArc observations are to be simulated
+//    TimeType arcDuration_;
 
-    //! Number of observations that are to be simulated per arc
-    int observationLimitPerArc_;
-};
+//    //! Number of observations that are to be simulated per arc
+//    int observationLimitPerArc_;
+//};
 
 template< typename TimeType >
 std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >  getObservationSimulationSettings(
-    const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >& linkEndsPerObservable,
+        const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >& linkEndsPerObservable,
         const std::vector< TimeType >& observationTimes,
         const observation_models::LinkEndType referenceLinkEnd = observation_models::receiver )
 {
@@ -205,6 +310,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
         Eigen::VectorXd noiseToAdd = noiseFunction( observationTime );
         if( noiseToAdd.rows( ) != ObservationSize )
         {
+            std::cout<<noiseToAdd.rows( )<<" "<<ObservationSize<<" "<<observationModel->getObservableType( )<<std::endl;
             throw std::runtime_error( "Error wen simulating observation noise, size of noise and observable are not compatible" );
         }
         else
@@ -329,71 +435,71 @@ simulateSingleObservationSet(
                     currentObservationViabilityCalculators, noiseFunction );
 
     }
-    // Simulate observations per arc from settings
-    else if( std::dynamic_pointer_cast< ArcLimitedObservationSimulationSettings< TimeType > >( observationsToSimulate ) != NULL )
-    {
-        std::shared_ptr< ArcLimitedObservationSimulationSettings< TimeType > > arcLimitedObservationSettings =
-                std::dynamic_pointer_cast< ArcLimitedObservationSimulationSettings< TimeType > >( observationsToSimulate );
+    //    // Simulate observations per arc from settings
+    //    else if( std::dynamic_pointer_cast< ArcLimitedObservationSimulationSettings< TimeType > >( observationsToSimulate ) != NULL )
+    //    {
+    //        std::shared_ptr< ArcLimitedObservationSimulationSettings< TimeType > > arcLimitedObservationSettings =
+    //                std::dynamic_pointer_cast< ArcLimitedObservationSimulationSettings< TimeType > >( observationsToSimulate );
 
-        // Define constituents of return pair.
-        std::vector< TimeType > times;
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations;
-        int observableSize = observationModel->getObservationSize( );
+    //        // Define constituents of return pair.
+    //        std::vector< TimeType > times;
+    //        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations;
+    //        int observableSize = observationModel->getObservationSize( );
 
-        // Define vector to be used for storing single arc observations.
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleArcObservations =
-                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero(
-                    observableSize * arcLimitedObservationSettings->observationLimitPerArc_ );
+    //        // Define vector to be used for storing single arc observations.
+    //        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleArcObservations =
+    //                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero(
+    //                    observableSize * arcLimitedObservationSettings->observationLimitPerArc_ );
 
-        // Set start and end times.
-        TimeType currentTime = arcLimitedObservationSettings->startTime_;
-        TimeType currentArcStartTime = arcLimitedObservationSettings->startTime_;
+    //        // Set start and end times.
+    //        TimeType currentTime = arcLimitedObservationSettings->startTime_;
+    //        TimeType currentArcStartTime = arcLimitedObservationSettings->startTime_;
 
-        int totalNumberOfObservations = 0;
-        int numberOfObservationsInCurrentArc = 0;
+    //        int totalNumberOfObservations = 0;
+    //        int numberOfObservationsInCurrentArc = 0;
 
-        // Simulate observations arcs until provided end time.
-        while( currentTime < arcLimitedObservationSettings->endTime_ - 0.1 )
-        {
-            // Reset variables for start of new arc.
-            numberOfObservationsInCurrentArc = 0;
-            singleArcObservations.setZero( );
+    //        // Simulate observations arcs until provided end time.
+    //        while( currentTime < arcLimitedObservationSettings->endTime_ - 0.1 )
+    //        {
+    //            // Reset variables for start of new arc.
+    //            numberOfObservationsInCurrentArc = 0;
+    //            singleArcObservations.setZero( );
 
-            // Simulate observations for sinlge arc
-            while( ( currentTime < currentArcStartTime + arcLimitedObservationSettings->arcDuration_ ) &&
-                   ( numberOfObservationsInCurrentArc < arcLimitedObservationSettings->observationLimitPerArc_ ) &&
-                   ( currentTime < arcLimitedObservationSettings->endTime_ ) )
-            {
-                // Simulate single observation
-                std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > currentObservation =
-                        simulateObservationWithCheck<
-                        ObservationSize, ObservationScalarType, TimeType >(
-                            currentTime, observationModel, observationsToSimulate->linkEndType_,
-                            currentObservationViabilityCalculators, noiseFunction );
+    //            // Simulate observations for sinlge arc
+    //            while( ( currentTime < currentArcStartTime + arcLimitedObservationSettings->arcDuration_ ) &&
+    //                   ( numberOfObservationsInCurrentArc < arcLimitedObservationSettings->observationLimitPerArc_ ) &&
+    //                   ( currentTime < arcLimitedObservationSettings->endTime_ ) )
+    //            {
+    //                // Simulate single observation
+    //                std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > currentObservation =
+    //                        simulateObservationWithCheck<
+    //                        ObservationSize, ObservationScalarType, TimeType >(
+    //                            currentTime, observationModel, observationsToSimulate->linkEndType_,
+    //                            currentObservationViabilityCalculators, noiseFunction );
 
-                // If observation is possible, set it in current arc observations.
-                if( currentObservation.second )
-                {
-                    times.push_back( currentTime );
-                    singleArcObservations.segment( numberOfObservationsInCurrentArc * observableSize, observableSize ) = currentObservation.first;
-                    numberOfObservationsInCurrentArc += observableSize;
-                }
-                currentTime += arcLimitedObservationSettings->observationInterval_;
-            }
+    //                // If observation is possible, set it in current arc observations.
+    //                if( currentObservation.second )
+    //                {
+    //                    times.push_back( currentTime );
+    //                    singleArcObservations.segment( numberOfObservationsInCurrentArc * observableSize, observableSize ) = currentObservation.first;
+    //                    numberOfObservationsInCurrentArc += observableSize;
+    //                }
+    //                currentTime += arcLimitedObservationSettings->observationInterval_;
+    //            }
 
-            // Add single arc observations to total observations.
-            observations.conservativeResize( totalNumberOfObservations + numberOfObservationsInCurrentArc );
-            observations.segment( totalNumberOfObservations, numberOfObservationsInCurrentArc ) = singleArcObservations.segment( 0, numberOfObservationsInCurrentArc );
-            totalNumberOfObservations += numberOfObservationsInCurrentArc;
+    //            // Add single arc observations to total observations.
+    //            observations.conservativeResize( totalNumberOfObservations + numberOfObservationsInCurrentArc );
+    //            observations.segment( totalNumberOfObservations, numberOfObservationsInCurrentArc ) = singleArcObservations.segment( 0, numberOfObservationsInCurrentArc );
+    //            totalNumberOfObservations += numberOfObservationsInCurrentArc;
 
-            // Update times to next arc
-            currentArcStartTime += arcLimitedObservationSettings->arcDuration_;
-            currentTime = currentArcStartTime;
+    //            // Update times to next arc
+    //            currentArcStartTime += arcLimitedObservationSettings->arcDuration_;
+    //            currentTime = currentArcStartTime;
 
-        }
+    //        }
 
-        simulatedObservations = std::make_pair( observations, std::make_pair( times, arcLimitedObservationSettings->linkEndType_ ) );
-    }
+    //        simulatedObservations = std::make_pair( observations, std::make_pair( times, arcLimitedObservationSettings->linkEndType_ ) );
+    //    }
 
     return simulatedObservations;
 }
