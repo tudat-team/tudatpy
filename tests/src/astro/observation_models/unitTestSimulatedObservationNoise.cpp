@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
     linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
 
-//    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
-//    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
     // Set range biases for two range links
     double rangeBias1 = 3.0;
@@ -247,12 +247,12 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         std::map< ObservableType, double > constantOffsets;
         constantOffsets[ one_way_range ] = -200.0;
         constantOffsets[ one_way_doppler ] = -2.8E-5;
-//        constantOffsets[ angular_position ] = 3.0E-4;
+        constantOffsets[ angular_position ] = 3.0E-4;
 
         std::map< ObservableType, double > constantStandardDeviations;
         constantStandardDeviations[ one_way_range ] = 2.4;
         constantStandardDeviations[ one_way_doppler ] = 7.5E-8;
-//        constantStandardDeviations[ angular_position ] = 6.3E-6;
+        constantStandardDeviations[ angular_position ] = 6.3E-6;
 
         clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
         // Create noise function for each observable
@@ -313,8 +313,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E-6;
         constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E-5;
 
-//        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
-//        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
+        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
+        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
 
         std::map< ObservableType, std::map< LinkEnds, double > > constantStandardDeviationsStation;
         constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 0.65;
@@ -324,8 +324,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6E-8;
         constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2E-8;;
 
-//        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
-//        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
+        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
+        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
 
         clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
 
