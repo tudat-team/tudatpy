@@ -168,8 +168,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     // Define observation simulation settings (observation type, link end, times and reference link end)
-    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationSettings< double > > > >
-            measurementSimulationInput;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
@@ -177,9 +176,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                        receiver, baseTimeList );
+            measurementSimulationInput.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                            currentObservable, currentLinkEndsList.at( i ), baseTimeList, receiver ) );
         }
     }
 
@@ -191,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     // Simulate noise-free observations
     PodInputDataType idealObservationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, observationSimulators );
+                measurementSimulationInput, observationSimulators, bodies );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > observationDifference;
     std::map< ObservableType, std::map< LinkEnds, double > > meanObservationDifference;
@@ -212,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         // Simulate noisy observables
         PodInputDataType constantNoiseObservationsAndTimes = simulateObservationsWithNoise< double, double >(
-                    measurementSimulationInput, observationSimulators, noiseFunction );
+                    measurementSimulationInput, observationSimulators, bodies, noiseFunction );
 
         // Compare ideal and noise observations for each combination of observable/link ends
         for( PodInputDataType::const_iterator dataIterator = constantNoiseObservationsAndTimes.begin( );
