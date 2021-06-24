@@ -21,6 +21,12 @@ namespace tudatpy {
 
 void expose_trajectory_design(py::module &m) {
 
+    py::enum_<tms::TransferLegTypes>(m, "TransferLegTypes")
+            .value("unpowered_unperturbed_leg_type", tms::TransferLegTypes::unpowered_unperturbed_leg)
+            .value("dsm_position_based_leg_type", tms::TransferLegTypes::dsm_position_based_leg)
+            .value("dsm_velocity_based_leg_type", tms::TransferLegTypes::dsm_velocity_based_leg)
+            .export_values();
+
     py::class_<
             tms::TransferNodeSettings,
             std::shared_ptr<tms::TransferNodeSettings> >(m, "TransferNodeSettings");
@@ -44,14 +50,29 @@ void expose_trajectory_design(py::module &m) {
             tms::TransferLegSettings,
             std::shared_ptr<tms::TransferLegSettings> >(m, "TransferLegSettings");
 
+    m.def("mga_transfer_settings",
+          py::overload_cast<
+          const std::vector< std::string >&,
+          const tms::TransferLegTypes,
+          const std::pair< double, double >,
+          const std::pair< double, double >,
+          const std::map< std::string, double >
+          >( &tms::getMgaTransferTrajectorySettings ),
+          py::arg( "body_order" ),
+          py::arg( "leg_type" ),
+          py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
+          py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS
+          );
+
     py::class_<
             tms::TransferTrajectory,
             std::shared_ptr<tms::TransferTrajectory> >(m, "TransferTrajectory")
             .def_property_readonly("delta_v", &tms::TransferTrajectory::getTotalDeltaV )
             .def("evaluate", &tms::TransferTrajectory::evaluateTrajectory,
-                                   py::arg( "times" ),
-                                   py::arg( "leg_parameters" ),
-                                   py::arg( "node_parameters" ) );
+                 py::arg( "times" ),
+                 py::arg( "leg_parameters" ),
+                 py::arg( "node_parameters" ) );
 
     m.def("unpowered_leg",
           &tms::unpoweredLeg );
