@@ -904,7 +904,7 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
-inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
+inline std::shared_ptr< EphemerisSettings > approximateJplEphemerisSettings(
         const std::string bodyName )
 {
     return std::make_shared< ApproximateJplEphemerisSettings >(
