@@ -65,6 +65,9 @@ struct ObservationSimulationSettings
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 };
 
+std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
+        const std::function< double( const double ) > singleNoiseFunction,
+        const observation_models::ObservableType observableType );
 
 template< typename TimeType = double >
 void clearNoiseFunctionFromObservationSimulationSettings(
@@ -96,7 +99,8 @@ void addNoiseFunctionToObservationSimulationSettings(
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
         observationSimulationSettings.at( i )->observationNoiseFunction_ =
-                [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+                getNoiseFunctionForObservable(
+                    observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
     }
 }
 
@@ -126,8 +130,9 @@ void addNoiseFunctionToObservationSimulationSettings(
     {
         if( observationSimulationSettings.at( i )->observableType_ == observableType )
         {
-            observationSimulationSettings.at( i )->observationNoiseFunction_ =
-                    [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+            observationSimulationSettings.at( i )->observationNoiseFunction_  =
+                    getNoiseFunctionForObservable(
+                        observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
         }
     }
 }
@@ -162,7 +167,8 @@ void addNoiseFunctionToObservationSimulationSettings(
                 observationSimulationSettings.at( i )->linkEnds_ == linkEnds )
         {
             observationSimulationSettings.at( i )->observationNoiseFunction_ =
-                    [=]( const double time ){ return ( Eigen::Vector1d( )<<observationNoiseFunction( time ) ).finished( ); };
+                    getNoiseFunctionForObservable(
+                        observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
         }
     }
 }
