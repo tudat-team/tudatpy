@@ -63,7 +63,7 @@ void expose_trajectory_design(py::module &m) {
           py::arg( "departure_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "arrival_orbit" ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ),
           py::arg( "minimum_pericenters" ) = tms::DEFAULT_MINIMUM_PERICENTERS
-          );
+            );
 
     py::class_<
             tms::TransferTrajectory,
@@ -72,7 +72,16 @@ void expose_trajectory_design(py::module &m) {
             .def("evaluate", &tms::TransferTrajectory::evaluateTrajectory,
                  py::arg( "times" ),
                  py::arg( "leg_parameters" ),
-                 py::arg( "node_parameters" ) );
+                 py::arg( "node_parameters" ) )
+            .def("single_node_delta_v", &tms::TransferTrajectory::getNodeDeltaV,
+                 py::arg( "node_index" ) )
+            .def("single_leg_delta_v", &tms::TransferTrajectory::getLegDeltaV,
+                 py::arg( "leg_index" ) )
+            .def_property_readonly("per_node_delta_v", &tms::TransferTrajectory::getDeltaVPerNode )
+            .def_property_readonly("per_leg_delta_v", &tms::TransferTrajectory::getDeltaVPerLeg )
+            .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes )
+            .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs );
+
 
     m.def("unpowered_leg",
           &tms::unpoweredLeg );
