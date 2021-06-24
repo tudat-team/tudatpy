@@ -61,7 +61,7 @@ struct ObservationSimulationSettings
 
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList_;
 
-    std::function< double( const double ) > observationNoiseFunction_;
+    std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 };
 
 
@@ -185,7 +185,8 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const observation_models::LinkEndType linkEndAssociatedWithTime,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ) )
+        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
     // Initialize vector with reception times.
     bool observationFeasible = 1;
@@ -199,6 +200,18 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
 
     observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
 
+    if( observationFeasible && ( noiseFunction != nullptr ) )
+    {
+        Eigen::VectorXd noiseToAdd = noiseFunction( observationTime );
+        if( noiseToAdd.rows( ) != ObservationSize )
+        {
+            throw std::runtime_error( "Error wen simulating observation noise, size of noise and observable are not compatible" );
+        }
+        else
+        {
+            calculatedObservation += noiseToAdd;
+        }
+    }
     // Return pair of simulated ranges and reception times.
     return std::make_pair( calculatedObservation, observationFeasible );
 }
@@ -221,7 +234,8 @@ simulateObservationsWithCheck(
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const observation_models::LinkEndType linkEndAssociatedWithTime,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ) )
+        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
     std::pair< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, bool > simulatedObservation;
@@ -229,13 +243,13 @@ simulateObservationsWithCheck(
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes.at( i ), observationModel, linkEndAssociatedWithTime, linkViabilityCalculators );
+                    observationTimes.at( i ), observationModel, linkEndAssociatedWithTime, linkViabilityCalculators, noiseFunction );
 
         // Check if receiving station can view transmitting station.
         if( simulatedObservation.second )
         {
             // If viable, add observable and time to vector of simulated data.
-            observations[ observationTimes[ i ]  ] = simulatedObservation.first;
+            observations[ observationTimes[ i ] ] = simulatedObservation.first;
         }
     }
 
@@ -262,10 +276,11 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const observation_models::LinkEndType linkEndAssociatedWithTime,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ) )
+        std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
-            simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators );
+            simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators, noiseFunction );
 
     return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
 }
@@ -299,6 +314,8 @@ simulateSingleObservationSet(
                 observationsToSimulate->observableType_,
                 observationsToSimulate->viabilitySettingsList_ );
 
+    std::function< Eigen::VectorXd( const double ) > noiseFunction = observationsToSimulate->observationNoiseFunction_;
+
     // Simulate observations from tabulated times.
     if( std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
     {
@@ -309,7 +326,7 @@ simulateSingleObservationSet(
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput<
                 ObservationSize, ObservationScalarType, TimeType >(
                     tabulatedObservationSettings->simulationTimes_, observationModel, observationsToSimulate->linkEndType_,
-                    currentObservationViabilityCalculators );
+                    currentObservationViabilityCalculators, noiseFunction );
 
     }
     // Simulate observations per arc from settings
@@ -352,7 +369,7 @@ simulateSingleObservationSet(
                         simulateObservationWithCheck<
                         ObservationSize, ObservationScalarType, TimeType >(
                             currentTime, observationModel, observationsToSimulate->linkEndType_,
-                            currentObservationViabilityCalculators );
+                            currentObservationViabilityCalculators, noiseFunction );
 
                 // If observation is possible, set it in current arc observations.
                 if( currentObservation.second )
@@ -407,64 +424,6 @@ simulateSingleObservationSet(
                 observationsToSimulate, observationSimulator->getObservationModel( observationsToSimulate->linkEnds_ ),
                 bodies );
 }
-
-////! Function to generate ObservationSimulationSettings objects from simple time list input.
-///*!
-// *  Function to generate ObservationSimulationSettings objects, as required for observation simulation from
-// *  simulateSingleObservationSet from simple time vectors input.
-// *  \param originalMap List of observation times per link end set per observable type.
-// *  \return TabulatedObservationSimulationSettings objects from time list input (originalMap)
-// */
-//template< typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::shared_ptr< ObservationSimulationSettings< TimeType > > > >
-//createObservationSimulationSettingsMap(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > >&
-//        originalMap )
-//{
-//    // Declare return map.
-//    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::shared_ptr< ObservationSimulationSettings< TimeType > > > >
-//            newMap;
-
-//    // Iterate over all observables.
-//    for( typename std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > >::
-//         const_iterator it = originalMap.begin( ); it != originalMap.end( ); it++ )
-//    {
-//        // Iterate over all link end sets
-//        for( typename std::map< observation_models::LinkEnds, std::pair< std::vector< TimeType >, observation_models::LinkEndType > >::const_iterator
-//             linkEndIterator = it->second.begin( ); linkEndIterator != it->second.end( ); linkEndIterator++ )
-//        {
-//            // Create ObservationSimulationSettings from vector of times.
-//            newMap[ it->first ][ linkEndIterator->first ] = std::make_shared<
-//                    TabulatedObservationSimulationSettings< TimeType > >(
-//                        linkEndIterator->second.second, linkEndIterator->second.first );
-//        }
-//    }
-//    return newMap;
-//}
-
-////! Function to simulate observations from set of observables and link and sets and simple vectors of requested times.
-///*!
-// *  Function to simulate observations from set of observables and link and sets and simple vectors of requested times.
-// *  Function calls function for creation of ObservationSimulationSettings and subsequently uses these for function call
-// *  to observation simulation function.
-// *  \param observationsToSimulate List of observation times per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservations(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > >&
-//        observationsToSimulate,
-//        const std::map< observation_models::ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-//        observationSimulators,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    return simulateObservations< ObservationScalarType, TimeType >(
-//                createObservationSimulationSettingsMap( observationsToSimulate ), observationSimulators, viabilityCalculatorList );
-//}
 
 //! Function to simulate observations from set of observables and link and sets
 /*!
@@ -557,279 +516,11 @@ simulateObservations(
     return observations;
 }
 
-////! Function to simulate observations with observation noise from set of observables and link and sets
-///*!
-// *  Function to simulate observations with observation noise from set of observables, link ends and observation time settings
-// *  Iterates over all observables and link ends, simulates observations and adds noise according to given noise function.
-// *  This function allows different noise functions to be defined for each observable/link ends combination
-// *  \param observationsToSimulate List of observation time settings per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \param noiseFunctions Double map with functions that return the observation noise as a function of observation time.
-// *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
-// *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
-// *  (default none).
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservationsWithNoise(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ObservationSimulationSettings< TimeType > > > >& observationsToSimulate,
-//        const std::map< observation_models::ObservableType,
-//        std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::function< Eigen::VectorXd( const double ) > > >& noiseFunctions,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    typedef std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//            std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingelTypeObservationsMap;
-//    typedef std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//            std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > > ObservationsMap;
-
-//    // Simulate noise-free observations
-//    ObservationsMap noiseFreeObservationsList = simulateObservations(
-//                observationsToSimulate, observationSimulators, viabilityCalculatorList );
-
-//    // Declare return map with noisy observations.
-//    ObservationsMap noisyObservationsList;
-
-//    // Iterate over all observable types
-//    for( typename ObservationsMap::iterator observationIterator = noiseFreeObservationsList.begin( );
-//         observationIterator != noiseFreeObservationsList.end( ); observationIterator++ )
-//    {
-//        int currentObservableSize = getObservableSize( observationIterator->first );
-
-//        // Iterate over all link ends of current observable
-//        SingelTypeObservationsMap singleObservableObservationsWithNoise;
-//        for( typename SingelTypeObservationsMap::iterator linkIterator = observationIterator->second.begin( );
-//             linkIterator != observationIterator->second.end( ); linkIterator++ )
-//        {
-//            // Retrieve noise-free observations/times
-//            std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//                    std::pair< std::vector< TimeType >, observation_models::LinkEndType > > nominalObservationsAndTimes =
-//                    linkIterator->second;
-//            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > noisyObservations = nominalObservationsAndTimes.first;
-//            std::vector< TimeType > nominalTimes = nominalObservationsAndTimes.second.first;
-
-//            // Check data consistency
-//            if( static_cast< int >( nominalTimes.size( ) ) != noisyObservations.rows( ) / currentObservableSize )
-//            {
-//                throw std::runtime_error( "Error when adding noise to observations, input data is inconsistent" );
-//            }
-
-//            // Retrieve noise function
-//            std::function< Eigen::VectorXd( const double ) > currentNoiseFunction =
-//                    noiseFunctions.at( observationIterator->first ).at( linkIterator->first );
-
-//            // Simulate noise for all observations and add to calculated values
-//            for( unsigned int i = 0; i < nominalTimes.size( ); i++ )
-//            {
-//                // Check noise function consistency
-//                if( i == 0 )
-//                {
-//                    if( currentNoiseFunction( nominalTimes.at( i ) ).rows( ) != currentObservableSize )
-//                    {
-//                        throw std::runtime_error( "Error when adding noise to observations, noise size is inconsistent" );
-//                    }
-//                }
-
-//                // Add noise to observation
-//                noisyObservations.segment( i * currentObservableSize, currentObservableSize ) +=
-//                        currentNoiseFunction( nominalTimes.at( i ) );
-//            }
-
-//            singleObservableObservationsWithNoise[ linkIterator->first ] =
-//                    std::make_pair( noisyObservations, nominalObservationsAndTimes.second );
-//        }
-//        noisyObservationsList[ observationIterator->first ] = singleObservableObservationsWithNoise;
-//    }
-//    return noisyObservationsList;
-//}
-
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
         const std::function< double( const double ) > noiseFunction,
         const int observationSize,
         const double evaluationTime );
 
-////! Function to simulate observations with observation noise from set of observables and link and sets
-///*!
-// *  Function to simulate observations with observation noise from set of observables, link ends and observation time settings
-// *  Iterates over all observables and link ends, simulates observations and adds noise according to given noise function.
-// *  This function allows different noise functions to be defined for each observable/link ends combination. However, the noise
-// *  functions required as input are defined as doubles. For multi-valued observables (e.g. angular position), the noise function
-// *  will be equal for all entries.
-// *  \param observationsToSimulate List of observation time settings per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \param noiseFunctions Double map with functions that return the observation noise as a function of observation time.
-// *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
-// *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
-// *  (default none).
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservationsWithNoise(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ObservationSimulationSettings< TimeType > > > >& observationsToSimulate,
-//        const std::map< observation_models::ObservableType,
-//        std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::function< double( const double ) > > >& noiseFunctions,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    // Create noise map for input to simulation function
-//    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::function< Eigen::VectorXd( const double ) > > > noiseVectorFunctions;
-//    for( std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::function< double( const double ) > > >::const_iterator noiseIterator =
-//         noiseFunctions.begin( ); noiseIterator != noiseFunctions.end( ); noiseIterator++ )
-//    {
-//        for( std::map< observation_models::LinkEnds, std::function< double( const double ) > >::const_iterator
-//             linkEndIterator = noiseIterator->second.begin( ); linkEndIterator != noiseIterator->second.end( ); linkEndIterator++ )
-//        {
-//            noiseVectorFunctions[ noiseIterator->first ][ linkEndIterator->first ] =
-//                    std::bind(
-//                        &getIdenticallyAndIndependentlyDistributedNoise, linkEndIterator->second,
-//                        getObservableSize( noiseIterator->first ), std::placeholders::_1 );
-//        }
-//    }
-
-//    // Simulate observations with noise
-//    return simulateObservationsWithNoise(
-//                observationsToSimulate, observationSimulators, noiseVectorFunctions, viabilityCalculatorList );
-//}
-
-////! Function to simulate observations with observation noise from set of observables and link and sets
-///*!
-// *  Function to simulate observations with observation noise from set of observables, link ends and observation time settings
-// *  Iterates over all observables and link ends, simulates observations and adds noise according to given noise function.
-// *  This function allows different noise functions to be defined for each observable, but independent of link end.
-// *  \param observationsToSimulate List of observation time settings per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \param noiseFunctions Map with functions that return the observation noise as a function of observation time.
-// *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
-// *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
-// *  (default none).
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservationsWithNoise(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ObservationSimulationSettings< TimeType > > > >& observationsToSimulate,
-//        const std::map< observation_models::ObservableType,
-//        std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-//        const std::map< observation_models::ObservableType, std::function< Eigen::VectorXd( const double ) > >& noiseFunctions,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::function< Eigen::VectorXd( const double ) > > > fullNoiseFunctions;
-
-//    // Create noise map for input to simulation function
-//    for( typename std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//         std::shared_ptr< ObservationSimulationSettings< TimeType > >  > >::const_iterator observationIterator =
-//         observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
-//    {
-//        // Check input consistency
-//        if( noiseFunctions.at( observationIterator->first ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when setting observation noise function, missing observable" );
-//        }
-
-//        for( typename std::map< observation_models::LinkEnds,
-//             std::shared_ptr< ObservationSimulationSettings< TimeType > > >::const_iterator linkEndIterator =
-//             observationIterator->second.begin( ); linkEndIterator != observationIterator->second.end( ); linkEndIterator++ )
-//        {
-//            fullNoiseFunctions[ observationIterator->first ][ linkEndIterator->first ] =
-//                   noiseFunctions .at( observationIterator->first );
-//        }
-//    }
-
-//    // Simulate observations with noise
-//    return simulateObservationsWithNoise(
-//                observationsToSimulate, observationSimulators, fullNoiseFunctions, viabilityCalculatorList );
-//}
-
-////! Function to simulate observations with observation noise from set of observables and link and sets
-///*!
-// *  Function to simulate observations with observation noise from set of observables, link ends and observation time settings
-// *  Iterates over all observables and link ends, simulates observations and adds noise according to given noise function.
-// *  This function allows different noise functions to be defined for each observable, but independent of link end. The noise
-// *  functions required as input are defined as doubles. For multi-valued observables (e.g. angular position), the noise function
-// *  will be equal for all entries.
-// *  \param observationsToSimulate List of observation time settings per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \param noiseFunctions Map with functions that return the observation noise as a function of observation time.
-// *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
-// *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
-// *  (default none).
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservationsWithNoise(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ObservationSimulationSettings< TimeType > > > >& observationsToSimulate,
-//        const std::map< observation_models::ObservableType,
-//        std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-//        const std::map< observation_models::ObservableType, std::function< double( const double ) > >& noiseFunctions,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    // Create noise map for input to simulation function
-//    std::map< observation_models::ObservableType, std::function< Eigen::VectorXd( const double ) > > noiseVectorFunctions;
-//    for( std::map< observation_models::ObservableType, std::function< double( const double ) > >::const_iterator noiseIterator =
-//         noiseFunctions.begin( ); noiseIterator != noiseFunctions.end( ); noiseIterator++ )
-//    {
-//        noiseVectorFunctions[ noiseIterator->first ] =
-//                std::bind(
-//                    &getIdenticallyAndIndependentlyDistributedNoise, noiseIterator->second,
-//                    getObservableSize( noiseIterator->first ), std::placeholders::_1 );
-//    }
-//    return simulateObservationsWithNoise(
-//                observationsToSimulate, observationSimulators, noiseVectorFunctions, viabilityCalculatorList );
-//}
-
-////! Function to simulate observations with observation noise from set of observables and link and sets
-///*!
-// *  Function to simulate observations with observation noise from set of observables, link ends and observation time settings
-// *  Iterates over all observables and link ends, simulates observations and adds noise according to given noise function.
-// *  This function allows a single noise function to be provided, which is used for each observable/link end combination
-// *  \param observationsToSimulate List of observation time settings per link end set per observable type.
-// *  \param observationSimulators List of Observation simulators per link end set per observable type.
-// *  \param noiseFunction Function that returns the observation noise as a function of observation time.
-// *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
-// *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
-// *  (default none).
-// *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
-// */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-//std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-//simulateObservationsWithNoise(
-//        const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ObservationSimulationSettings< TimeType > > > >& observationsToSimulate,
-//        const std::map< observation_models::ObservableType,
-//        std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-//        const std::function< double( const double ) >& noiseFunction,
-//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-//        PerObservableObservationViabilityCalculatorList( ) )
-//{
-//    // Create noise map for input to simulation function
-//    std::map< observation_models::ObservableType, std::function< double( const double ) > > noiseFunctionList;
-//    for( typename std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//         std::shared_ptr< ObservationSimulationSettings< TimeType > >  > >::const_iterator observationIterator =
-//         observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
-//    {
-//        noiseFunctionList[ observationIterator->first ] = noiseFunction;
-//    }
-
-//    // Simulate observations with noise
-//    return simulateObservationsWithNoise(
-//                observationsToSimulate, observationSimulators, noiseFunctionList, viabilityCalculatorList );
-//}
 
 //! Function to remove link id from the simulated observations
 /*!
