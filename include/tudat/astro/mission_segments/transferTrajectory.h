@@ -62,6 +62,20 @@ public:
 
     double getLegDeltaV( const int legIndex );
 
+    std::vector< double > getDeltaVPerNode( );
+
+    std::vector< double > getDeltaVPerLeg( );
+
+    int getNumberOfNodes( )
+    {
+        return legs_.size( );
+    }
+
+    int getNumberOfLegs( )
+    {
+        return nodes_.size( );
+    }
+
     //! Get Cartesian position and velocity along full trajectory
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
                                         const int numberOfDataPointsPerLeg );
