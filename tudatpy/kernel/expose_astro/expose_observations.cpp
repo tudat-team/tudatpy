@@ -116,51 +116,51 @@ std::vector< TimeType >, LinkEndType > > getObservationsVectorFormat(
 }
 
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-std::vector< TimeType >, LinkEndType > >
-simulateObservations(
-        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
-        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-        observationSimulators,
-        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-        PerObservableObservationViabilityCalculatorList( ) )
-{
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
-        getObservationSettingsMapFormat( observationsToSimulate );
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+//std::vector< TimeType >, LinkEndType > >
+//simulateObservations(
+//        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
+//        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+//        observationSimulators,
+//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+//        PerObservableObservationViabilityCalculatorList( ) )
+//{
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
+//        getObservationSettingsMapFormat( observationsToSimulate );
 
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservations(
-                sortedObservationsToSimulate, observationSimulators, viabilityCalculatorList );
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+//            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservations(
+//                sortedObservationsToSimulate, observationSimulators, viabilityCalculatorList );
 
-    return getObservationsVectorFormat( sortedObservations );
-}
+//    return getObservationsVectorFormat( sortedObservations );
+//}
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-std::vector< TimeType >, LinkEndType > >
-simulateObservationsWithNoise(
-        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
-        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
-        observationSimulators,
-        const std::map< ObservableType, std::function< double( const double ) > >& noiseFunctions,
-        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
-        PerObservableObservationViabilityCalculatorList( ) )
-{
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
-        getObservationSettingsMapFormat( observationsToSimulate );
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::vector< std::tuple< ObservableType, LinkEnds, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+//std::vector< TimeType >, LinkEndType > >
+//simulateObservationsWithNoise(
+//        const std::vector< std::tuple< tom::ObservableType, LinkEnds, std::vector< TimeType > > >& observationsToSimulate,
+//        const std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+//        observationSimulators,
+//        const std::map< ObservableType, std::function< double( const double ) > >& noiseFunctions,
+//        const PerObservableObservationViabilityCalculatorList viabilityCalculatorList =
+//        PerObservableObservationViabilityCalculatorList( ) )
+//{
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > sortedObservationsToSimulate =
+//        getObservationSettingsMapFormat( observationsToSimulate );
 
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservationsWithNoise(
-                createObservationSimulationTimeSettingsMap(
-                        sortedObservationsToSimulate ), observationSimulators, noiseFunctions, viabilityCalculatorList );
+//    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+//            std::pair< std::vector< TimeType >, LinkEndType > > > > sortedObservations = simulateObservationsWithNoise(
+//                createObservationSimulationTimeSettingsMap(
+//                        sortedObservationsToSimulate ), observationSimulators, noiseFunctions, viabilityCalculatorList );
 
-    return getObservationsVectorFormat( sortedObservations );
-}
+//    return getObservationsVectorFormat( sortedObservations );
+//}
 
-}
+//}
 
-}
+//}
 
 namespace tudatpy {
 
