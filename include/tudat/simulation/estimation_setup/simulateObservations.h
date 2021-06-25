@@ -340,7 +340,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
  *  \return Observations at given time (concatenated in an Eigen vector) and associated times.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > >
+std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > >
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
@@ -349,7 +349,7 @@ simulateObservationsWithCheck(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
-    std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
+    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::pair< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, bool > simulatedObservation;
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
@@ -366,7 +366,7 @@ simulateObservationsWithCheck(
     }
 
     // Return pair of simulated ranges and reception times.
-    return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
+    return std::make_pair( utilities::createVectorFromMapValues( observations ),
                            utilities::createVectorFromMapKeys( observations ) );
 }
 
@@ -382,7 +382,7 @@ simulateObservationsWithCheck(
  *  \return Observations at given times (concatenated in an Eigen vector), with associated times and reference link end.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
+std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
@@ -391,10 +391,11 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
-    std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
+    std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > > simulatedObservations =
             simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators, noiseFunction );
 
-    return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
+    return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
+                               simulatedObservations.first, simulatedObservations.second, linkEndAssociatedWithTime );
 }
 
 
@@ -409,15 +410,14 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
  */
 template< typename ObservationScalarType = double, typename TimeType = double,
           int ObservationSize = 1 >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
+std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
 simulateSingleObservationSet(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const SystemOfBodies& bodies )
 {
     // Delcare return type.
-    std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
-            simulatedObservations;
+    std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > simulatedObservations;
     //! Function to create an list of obervation viability conditions for a single set of link ends
     std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > currentObservationViabilityCalculators =
             observation_models::createObservationViabilityCalculators(
@@ -521,7 +521,7 @@ simulateSingleObservationSet(
  *  (reference to link end defined in observationsToSimulate).
  */
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
+std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
 simulateSingleObservationSet(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationsToSimulate,
         const std::shared_ptr< observation_models::ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator,
@@ -549,16 +549,13 @@ simulateSingleObservationSet(
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
-simulateObservations(
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > simulateObservations(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationsToSimulate,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
         const SystemOfBodies bodies )
 {
     // Declare return map.
-    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
-            std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > > observations;
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
 
     // Iterate over all observables.
     for( unsigned int i = 0; i < observationsToSimulate.size( ); i++ )
@@ -581,9 +578,9 @@ simulateObservations(
             }
 
             // Simulate observations for current observable and link ends set.
-            observations[ observableType ][ linkEnds ] =
+            sortedObservations[ observableType ][ linkEnds ].push_back(
                     simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies );
+                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
             break;
         }
         case 2:
@@ -597,9 +594,9 @@ simulateObservations(
             }
 
             // Simulate observations for current observable and link ends set.
-            observations[ observableType ][ linkEnds ] =
+            sortedObservations[ observableType ][ linkEnds ].push_back(
                     simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies );
+                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
             break;
         }
         case 3:
@@ -613,9 +610,9 @@ simulateObservations(
             }
 
             // Simulate observations for current observable and link ends set.
-            observations[ observableType ][ linkEnds ] =
+            sortedObservations[ observableType ][ linkEnds ].push_back(
                     simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies );
+                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
 
             break;
         }
@@ -625,7 +622,10 @@ simulateObservations(
 
         }
     }
-    return observations;
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection =
+            std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservations );
+
+    return observationCollection;
 }
 
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
