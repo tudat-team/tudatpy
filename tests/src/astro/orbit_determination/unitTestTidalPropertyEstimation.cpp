@@ -244,10 +244,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                         position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
         // Simulate observations
-        typedef Eigen::VectorXd ObservationVectorType;
-        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationCollection< > >  observationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
 
@@ -461,10 +458,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
                     position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    typedef Eigen::VectorXd ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationCollection< > >  observationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate

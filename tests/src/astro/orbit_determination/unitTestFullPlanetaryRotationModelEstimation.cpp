@@ -179,12 +179,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
         
-        // Simulate observations
-        typedef Eigen::VectorXd ObservationVectorType;
-        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
-                SingleObservablePodInputType;
-        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;        
-        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
+        // Simulate observations   
+        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
         
         

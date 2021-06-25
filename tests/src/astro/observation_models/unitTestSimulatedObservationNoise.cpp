@@ -182,14 +182,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         }
     }
 
-
-    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
-            SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
     // Simulate noise-free observations
-    PodInputDataType idealObservationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationCollection< > > idealObservationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, observationSimulators, bodies );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > observationDifference;
@@ -211,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         // Simulate noisy observables
         addNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, noiseFunction );
-        PodInputDataType constantNoiseObservationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationCollection< > > constantNoiseObservationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
@@ -271,7 +265,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         }
 
         // Simulate noisy observables
-        PodInputDataType noisyPerObservableObservationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationCollection< > >  noisyPerObservableObservationsAndTimes = simulateObservations< double, double >(
                     measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
