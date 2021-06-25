@@ -225,7 +225,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
         std::vector< int >& timeOrder )
 {
     // Retrieve unordered vector of times
-    std::vector< TimeType > concatenatedTimes = measurementData->getConcatenatedTimeVector( ) ;
+    std::vector< TimeType > concatenatedTimes = measurementData->getConcatenatedTimeVector( );
 
     // Sort the concatesnated time vector, and get the order of the sorting.
     std::pair< std::vector< int >, std::vector< TimeType > > sortOutput = utilities::getSortOrderOfVectorAndSortedVector(
@@ -236,6 +236,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
     std::vector< int > timeVectorSortOrder = sortOutput.first;
     if( static_cast< int >( timeVectorSortOrder.size( ) ) != typeAndLinkSortedInformationMatrix.rows( ) )
     {
+        std::cout<<timeVectorSortOrder.size( )<<std::endl<<typeAndLinkSortedInformationMatrix.rows( )<<std::endl;
         throw std::runtime_error( "Error when sorting information matrix by time, sizes incompatible" );
     }
 
@@ -388,15 +389,15 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
-        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
         const Eigen::VectorXd& normalizationFactors,
         const double outputTimeStep,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
-    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector(
-                getConcatenatedTimeVector( measurementData ) );
+    Eigen::VectorXd timeVector =
+            utilities::convertStlVectorToEigenVector( measurementData->getConcatenatedTimeVector( ) );
     double minimumTime = timeVector.minCoeff( );
     double maximumTime = timeVector.maxCoeff( );
     double currentTime = minimumTime;
@@ -444,7 +445,7 @@ std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
         const double outputTimeStep )
 {
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-                podInputData->getObservationsAndTimes( ), podOutputData->normalizedInformationMatrix_,
+                podInputData->getObservationCollection( ), podOutputData->normalizedInformationMatrix_,
                 podOutputData->informationMatrixTransformationDiagonal_, outputTimeStep,
                 podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
 }

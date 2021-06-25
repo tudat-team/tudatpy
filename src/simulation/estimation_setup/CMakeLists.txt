@@ -10,6 +10,7 @@
 
 # Add source files.
 set(estimation_HEADERS
+        simulateObservations.h
         createObservationModel.h
         createLightTimeCalculator.h
         createAccelerationPartials.h
@@ -34,7 +35,6 @@ set(estimation_HEADERS
         createAngularPositionPartials.h
         createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
-        simulateObservations.h
         )
 
 # Add header files.
