@@ -33,6 +33,200 @@ namespace tudat
 namespace observation_models
 {
 
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+class SingleObservationSet
+{
+public:
+    SingleObservationSet(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::vector< TimeType > observationTimes,
+            const LinkEndType referenceLinkEnd ):
+        observations_( observations ),
+        observationTimes_( observationTimes ),
+        referenceLinkEnd_( referenceLinkEnd ),
+        numberOfObservations_( observations_.size( ) )
+    {
+        if( observations_.size( ) != observationTimes_.size( ) )
+        {
+            throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." );
+        }
+
+        for( unsigned int i = 1; i < observations.size( ); i++ )
+        {
+            if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, input observables not of consistent size." );
+            }
+        }
+    }
+
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
+    {
+        return observations_;
+    }
+
+    std::vector< TimeType > getObservationTimes( )
+    {
+        return observationTimes_;
+    }
+
+    LinkEndType getReferenceLinkEnd( )
+    {
+        return referenceLinkEnd_;
+    }
+
+    int getNumberOfObservables( )
+    {
+        return numberOfObservations_;
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationsVector( )
+    {
+        int singleObservableSize = 0;
+        if( numberOfObservations_ != 0 )
+        {
+            singleObservableSize = observations_.at( 0 ).rows( );
+        }
+
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector =
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero(
+                    singleObservableSize * numberOfObservations_ );
+        for( unsigned int i = 0; i < observations_.size( ); i++ )
+        {
+            observationsVector.segment( i * singleObservableSize, singleObservableSize ) =
+                    observations_.at( i );
+        }
+        return observationsVector;
+    }
+
+private:
+
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
+
+    const std::vector< TimeType > observationTimes_;
+
+    const LinkEndType referenceLinkEnd_;
+
+    const int numberOfObservations_;
+
+};
+
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+class ObservationCollection
+{
+public:
+
+    typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > SortedObservationSets;
+
+    ObservationCollection(
+            const SortedObservationSets& observationSetList = SortedObservationSets( ) ):
+    observationSetList_( observationSetList )
+    {
+        setObservationSetIndices( );
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVector( )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationVector =
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( );
+
+        for( auto observationIterator : observationSetList_ )
+        {
+            ObservableType currentObservableType = observationIterator.first;
+            for( auto linkEndIterator : observationIterator.second )
+            {
+                LinkEnds currentLinkEnds = linkEndIterator.first;
+                for( int i = 0; i < linkEndIterator.second.size( ); i++ )
+                {
+                    std::pair< int, int > startAndSize =
+                            observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
+                    int observableSize = getObservableSize(  currentObservableType );
+                    Eigen::VectorXd currentObservables = Eigen::VectorXd::Zero( startAndSize.second );
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > currentObservationSet =
+                            linkEndIterator.second.at( i )->getObservations( );
+
+                    for( int j = 0; j < currentObservationSet.size( ); j++ )
+                    {
+                        currentObservables.segment( j * observableSize, observableSize ) = currentObservationSet.at( j );
+                    }
+                    observationVector.segment( startAndSize.first, startAndSize.second ) = currentObservables;
+                }
+            }
+        }
+    }
+
+    Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > getConcatenatedTimeVector( )
+    {
+        throw std::runtime_error( "Error, getConcatenatedTimeVector not yet implemented" );
+    }
+
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
+    {
+        return observationSetStartAndSize_;
+    }
+
+    std::map< ObservableType, std::pair< int, int > > getObservationTypeStartAndSize( )
+    {
+        return observationTypeStartAndSize_;
+    }
+
+    int getTotalObservableSize( )
+    {
+        return totalObservableSize_;
+    }
+
+    SortedObservationSets getObservations( )
+    {
+        return observationSetList_;
+    }
+
+
+private:
+
+    void setObservationSetIndices( )
+    {
+        int currentStartIndex = 0;
+        int currentTypeStartIndex = 0;
+
+
+        for( auto observationIterator : observationSetList_ )
+        {
+            ObservableType currentObservableType = observationIterator.first;
+
+            currentTypeStartIndex = currentStartIndex;
+            int currentObservableTypeSize = 0;
+
+            for( auto linkEndIterator : observationIterator.second )
+            {
+                LinkEnds currentLinkEnds = linkEndIterator.first;
+                for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
+                {
+                    int currentObservableVectorSize = linkEndIterator.second.at( i )->getNumberOfObservables( ) * getObservableSize(
+                                currentObservableType );
+                    observationSetStartAndSize_[ currentObservableType ][ currentLinkEnds ].push_back(
+                                std::make_pair( currentStartIndex, currentObservableVectorSize ) );
+                    currentStartIndex += currentObservableVectorSize;
+                    currentObservableTypeSize += currentObservableVectorSize;
+                }
+            }
+            observationTypeStartAndSize_[ currentObservableType ] = std::make_pair(
+                        currentTypeStartIndex, currentObservableTypeSize );
+        }
+        totalObservableSize_ = currentStartIndex;
+    }
+
+    const SortedObservationSets observationSetList_;
+
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
+
+    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize_;
+
+    int totalObservableSize_;
+};
+
 //! Base class for models of observables (i.e. range, range-rate, etc.).
 /*!
  *  Base class for models of observables to be used in (for instance) orbit determination.
@@ -107,10 +301,10 @@ public:
      *  \return Ideal observable.
      */
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< double >& linkEndTimes,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -125,10 +319,10 @@ public:
      *  \return Calculated observable value.
      */
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< double >& linkEndTimes ,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes ,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check if any non-ideal models are set.
         if( isBiasnullptr_ )
@@ -141,7 +335,7 @@ public:
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
                     computeIdealObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
+                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
 
             // Add correction
             return currentObservation +
@@ -194,7 +388,7 @@ public:
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
                     computeIdealObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
+                        time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
 
             // Add correction
             return currentObservation +

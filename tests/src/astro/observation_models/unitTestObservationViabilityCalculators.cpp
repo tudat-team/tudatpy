@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
     std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulatorsMap;
-    for( int i = 0; i < observationSimulators.size( ); i++ )
+    for( unsigned int i = 0; i < observationSimulators.size( ); i++ )
     {
         observationSimulatorsMap[ observationSimulators.at( i )->getObservableType( ) ] = observationSimulators.at( i );
     }
@@ -552,36 +552,6 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             constrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
                 simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies ) );
 
-//    // Simulate observations without/with viability constraints directly from ObservationSimulator objects
-//    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
-//            unconstrainedSimulatedObservablesFromObjects;
-//    std::map< ObservableType, std::map< LinkEnds,  std::pair< Eigen::VectorXd, std::vector< double > > > >
-//            constrainedSimulatedObservablesFromObjects;
-//    for( unsigned int j = 0; j < observationSimulators.size( ); j++ )
-//    {
-//        ObservableType currentObservable = observationSimulators.at( j )->getObservableType( );
-//        // Simulate unconstrained observations for current observable ObservationSimulator object
-//        for( unsigned int i = 0; i < testLinkEndsList.at( currentObservable ).size( ); i++ )
-//        {
-//            unconstrainedSimulatedObservablesFromObjects[ currentObservable ][
-//                    testLinkEndsList.at( currentObservable ).at ( i ) ] = simulatorIterator->second->simulateObservations(
-//                        unconstrainedObservationTimes,  testLinkEndsList.at( currentObservable ).at ( i ),
-//                        referenceLinkEnd, false );
-//        }
-
-//        // Simulate viability-constrained observations for current observable ObservationSimulator object
-//        if( viabilityCalculators.count( currentObservable ) > 0 )
-//        {
-//            simulatorIterator->second->setViabilityCalculators( viabilityCalculators.at( currentObservable ) );
-//        }
-//        for( unsigned int i = 0; i < testLinkEndsList.at( currentObservable ).size( ); i++ )
-//        {
-//            constrainedSimulatedObservablesFromObjects[ currentObservable ][
-//                    testLinkEndsList.at( currentObservable ).at( i ) ] = simulatorIterator->second->simulateObservations(
-//                        unconstrainedObservationTimes,  testLinkEndsList.at( currentObservable ).at ( i ),
-//                        referenceLinkEnd, true );
-//        }
-//    }
 
     int numberOfObsevables = testLinkEndsList.size( );
 
