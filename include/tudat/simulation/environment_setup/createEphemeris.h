@@ -83,10 +83,10 @@ public:
     //! Destructor
     virtual ~EphemerisSettings( ){ }
 
-    //! Function to return type of gravity field model that is to be created.
+    //! Function to return type of ephemeris that is to be created.
     /*!
-     *  Function to return type of gravity field model that is to be created.
-     *  \return Type of gravity field model that is to be created.
+     *  Function to return type of ephemeris that is to be created.
+     *  \return Type of ephemeris that is to be created.
      */
     EphemerisType getEphemerisType( ){ return ephemerisType_; }
 
@@ -482,7 +482,33 @@ public:
     /*!
      *  Function to return the constant state that will be provided as output of the ephemeris at
      *  all times.
-     *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
+     *  \return Boo  - name: ConstantEphemerisSettings
+    short_summary: "`EphemerisSettings` derived class for defining settings of an ephemeris producing a constant (time-independent) state."
+#    extended_summary: |
+
+    methods:
+      - name: __init__
+        short_summary: "Constructor."
+        extended_summary: "Constructor of settings for an ephemeris producing a constant (time-independent) state."
+
+        parameters:
+          - name: constant_state # [py]
+            type: # [py]
+          - name: constantState # [cpp]
+            type: Eigen::Vector6d # [cpp]
+            description: "Constant state that will be provided as output of the ephemeris at all times."
+
+          - name: frame_origin # [py]
+            type: str, default='SSB' # [py]
+          - name: frameOrigin # [cpp]
+            type: std::string, default='SSB' # [cpp]
+            description: "Origin of frame in which ephemeris data is defined."
+
+          - name: frame_orientation # [py]
+            type: str, default='ECLIPJ2000' # [py]
+          - name: frameOrientation # [cpp]
+            type: std::string, default='ECLIPJ2000' # [cpp]
+            description: "Orientation of frame in which ephemeris data is defined."lean defining whether a circular, coplanar orbit of the body is to be assumed.
      */
     Eigen::Vector6d getConstantState( ){ return constantState_; }
 
