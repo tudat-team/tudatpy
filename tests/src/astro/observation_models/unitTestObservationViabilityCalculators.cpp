@@ -466,30 +466,30 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
 
     // Define minimum elevation angles for Earth/Mars stations
-     double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
-     double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
+    double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
+    double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
 
-     // Define minimum Sun avoidance angles for Earth/Mars stations
-     double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
-     double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
+    // Define minimum Sun avoidance angles for Earth/Mars stations
+    double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
+    double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
 
 
-     // Create observation viability settings
-     std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
-     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
-                                                 earthMinimumElevationAngle ) );
-     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                 minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
-                                                 marsMinimumElevationAngle ) );
-     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                 body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
-                                                 earthSunAvoidanceAngle ) );
-     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                 body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
-                                                 marsSunAvoidanceAngle ) );
-     observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-                                                 body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
+    // Create observation viability settings
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
+                                                earthMinimumElevationAngle ) );
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
+                                                marsMinimumElevationAngle ) );
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
+                                                earthSunAvoidanceAngle ) );
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
+                                                marsSunAvoidanceAngle ) );
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
+                                                body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
 
     // Create observation model and observation time settings for all observables
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettings;
@@ -505,20 +505,20 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             if( observableIterator->first == one_way_differenced_range )
             {
                 observationSettingsList.push_back(
-                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >( linkEnds,
-                            [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) ) );
+                            std::make_shared< OneWayDifferencedRangeRateObservationSettings >( linkEnds,
+                                                                                               [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) ) );
             }
             else if( observableIterator->first == n_way_range )
             {
                 observationSettingsList.push_back(
-                        std::make_shared< NWayRangeObservationSettings >( linkEnds,
-                            std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) ) );
+                            std::make_shared< NWayRangeObservationSettings >( linkEnds,
+                                                                              std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) ) );
             }
             else
             {
                 observationSettingsList.push_back(
-                        std::make_shared< ObservationModelSettings >(
-                            observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
+                            std::make_shared< ObservationModelSettings >(
+                                observableIterator->first, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
 
             }
             observationTimeSettings.push_back(
@@ -542,50 +542,41 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     }
 
     // Simulate observations without constraints directly from simulateObservations function
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
-            unconstrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
-                simulateObservations( observationTimeSettings, observationSimulators, bodies ) );
+    std::shared_ptr< observation_models::ObservationCollection< > > unconstrainedSimulatedObservables =
+            simulateObservations( observationTimeSettings, observationSimulators, bodies );
 
 
     // Simulate observations with viability constraints directly from simulateObservations function
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >
-            constrainedSimulatedObservables = removeLinkIdFromSimulatedObservations(
-                simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies ) );
+    std::shared_ptr< observation_models::ObservationCollection< > > constrainedSimulatedObservables =
+            simulateObservations( observationTimeSettingsConstrained, observationSimulators, bodies );
 
 
-    int numberOfObsevables = testLinkEndsList.size( );
+    int numberOfObservables = testLinkEndsList.size( );
 
     // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
-    BOOST_CHECK_EQUAL( numberOfObsevables, unconstrainedSimulatedObservables.size( ) );
-    BOOST_CHECK_EQUAL( numberOfObsevables, constrainedSimulatedObservables.size( ) );
+    BOOST_CHECK_EQUAL( numberOfObservables, unconstrainedSimulatedObservables->getObservationTypeStartAndSize( ).size( ) );
+    BOOST_CHECK_EQUAL( numberOfObservables, constrainedSimulatedObservables->getObservationTypeStartAndSize( ).size( ) );
 
     // Create iterators over all simulated observations
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
-            unconstrainedIterator = unconstrainedSimulatedObservables.begin( );
-
-
-    std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > > >::iterator
-            constrainedIterator = constrainedSimulatedObservables.begin( );
+    auto unconstrainedIterator = unconstrainedSimulatedObservables->getObservationSetStartAndSize( ).begin( );
+    auto constrainedIterator = constrainedSimulatedObservables->getObservationSetStartAndSize( ).begin( );
 
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
 
     // Iterate over all observations and check viability constraints
-    for( int i = 0; i < numberOfObsevables; i++ )
+    for( int i = 0; i < numberOfObservables; i++ )
     {
         int numberOfLinkEnds = testLinkEndsList.at( unconstrainedIterator->first ).size( );
         int currentObservableSize = getObservableSize( unconstrainedIterator->first );
 
         // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );
-
         BOOST_CHECK_EQUAL( numberOfLinkEnds, constrainedIterator->second.size( ) );
 
         // Create iterators over all simulated observations of current observable
-        std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator unconstrainedLinkIterator =
-                unconstrainedIterator->second.begin( );
-        std::map< LinkEnds, std::pair< Eigen::VectorXd, std::vector< double > > >::iterator constrainedLinkIterator =
-                constrainedIterator->second.begin( );
+        auto unconstrainedLinkIterator = unconstrainedIterator->second.begin( );
+        auto constrainedLinkIterator = constrainedIterator->second.begin( );
 
         ObservableType currentObservable = unconstrainedIterator->first;
 
@@ -602,137 +593,143 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                         bodies, currentLinkEnds, currentObservable, observationViabilitySettings );
 
             // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
-            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations, unconstrainedLinkIterator->second.second.size( ) );
-            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations * currentObservableSize, unconstrainedLinkIterator->second.first.rows( ) );
+//            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations, unconstrainedLinkIterator->second.second.size( ) );
+//            BOOST_CHECK_EQUAL( unconstrainedNumberOfObservations * currentObservableSize, unconstrainedLinkIterator->second.first.rows( ) );
 
             int unconstrainedIndex = 0, constrainedIndex = 0;
             bool currentObservationWasViable, currentObservationIsViable, isSingleViabilityConditionMet;
             Eigen::VectorXd currentObservation;
 
             // Retrieve observations for current link ends/observable type
-            std::pair< Eigen::VectorXd, std::vector< double > > unconstrainedSingleLinkObservations
-                    = unconstrainedLinkIterator->second;
-            std::pair< Eigen::VectorXd, std::vector< double > > constrainedSingleLinkObservations
-                    = constrainedLinkIterator->second;
+            std::vector< std::pair< int, int > > constrainedIndices = constrainedLinkIterator->second;
+            std::vector< std::pair< int, int > > unconstrainedIndices = unconstrainedLinkIterator->second;
 
-            // Iterate over all unconstrained observations for current observable/link ends
-            while( unconstrainedIndex < unconstrainedNumberOfObservations )
+            BOOST_CHECK_EQUAL( constrainedIndices.size( ), unconstrainedIndices.size( ) );
+
+
+            for( unsigned int k = 0; k < constrainedIndices.size( ); k++ )
             {
-                // Check if current observation was rejected by viability calculators
-                if( constrainedIndex >= static_cast< int >( constrainedSingleLinkObservations.second.size( ) ) )
-                {
-                    currentObservationWasViable = false;
-                }
-                else if( unconstrainedSingleLinkObservations.second.at( unconstrainedIndex ) ==
-                         constrainedSingleLinkObservations.second.at( constrainedIndex ) )
-                {
-                    currentObservationWasViable = true;
-                }
-                else
-                {
-                    currentObservationWasViable = false;
-                }
+                std::pair< Eigen::VectorXd, std::vector< double > > unconstrainedSingleLinkObservations;
+                std::pair< Eigen::VectorXd, std::vector< double > > constrainedSingleLinkObservations;
 
-                // Re-simulate current observation
-                if( currentObservable == angular_position )
+                // Iterate over all unconstrained observations for current observable/link ends
+                while( unconstrainedIndex < unconstrainedNumberOfObservations )
                 {
-                    currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 2 > >(
-                                currentObservationSimulator )->getObservationModel( currentLinkEnds )->
-                            computeObservationsWithLinkEndData(
-                                unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
-                                linkEndTimes, linkEndStates );
-                }
-                else
-                {
-                    currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 1 > >(
-                                currentObservationSimulator )->getObservationModel( currentLinkEnds )->
-                            computeObservationsWithLinkEndData(
-                                unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
-                                linkEndTimes, linkEndStates );
-                }
-
-                // Re-compute viability according to viability calculator objects.
-                currentObservationIsViable = true;
-                for( unsigned int k = 0; k < currentViabilityCalculators.size( ); k++ )
-                {
-                    isSingleViabilityConditionMet = currentViabilityCalculators.at( k )->isObservationViable(
-                                linkEndStates, linkEndTimes );
-                    if( !isSingleViabilityConditionMet )
+                    // Check if current observation was rejected by viability calculators
+                    if( constrainedIndex >= static_cast< int >( constrainedSingleLinkObservations.second.size( ) ) )
                     {
-                        currentObservationIsViable = false;
+                        currentObservationWasViable = false;
                     }
-                }
-
-                // Manually recompute mars elevation angle condition
-                std::vector< double > marsElevationAngles = getBodyLinkElevationAngles(
-                            currentLinkEnds, currentObservable, "Mars", linkEndStates, linkEndTimes, bodies );
-                bool computedViability = true;
-                for( unsigned int l = 0; l < marsElevationAngles.size( ); l++ )
-                {
-                    if( marsElevationAngles.at( l ) < marsMinimumElevationAngle )
+                    else if( unconstrainedSingleLinkObservations.second.at( unconstrainedIndex ) ==
+                             constrainedSingleLinkObservations.second.at( constrainedIndex ) )
                     {
-                        computedViability =  false;
+                        currentObservationWasViable = true;
                     }
-                }
-
-                // Manually recompute earth elevation angle condition
-                std::vector< double > earthElevationAngles = getBodyLinkElevationAngles(
-                            currentLinkEnds, currentObservable, "Earth", linkEndStates, linkEndTimes, bodies );
-                for( unsigned int l = 0; l < earthElevationAngles.size( ); l++ )
-                {
-                    if( earthElevationAngles.at( l ) < earthMinimumElevationAngle )
+                    else
                     {
-                        computedViability =  false;
+                        currentObservationWasViable = false;
                     }
-                }
 
-                // Manually recompute earth-Sun avoidance angle condition
-                std::vector< double > earthSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
-                            currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodies );
-                for( unsigned int l = 0; l < earthSunCosineAvoidanceAngles.size( ); l++ )
-                {
-                    if( earthSunCosineAvoidanceAngles.at( l ) > std::cos( earthSunAvoidanceAngle ) )
+                    // Re-simulate current observation
+                    if( currentObservable == angular_position )
                     {
-                        computedViability =  false;
+                        currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 2 > >(
+                                    currentObservationSimulator )->getObservationModel( currentLinkEnds )->
+                                computeObservationsWithLinkEndData(
+                                    unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
+                                    linkEndTimes, linkEndStates );
                     }
-                }
-
-                // Manually recompute mars-Sun avoidance angle condition
-                std::vector< double > marsSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
-                            currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodies );
-                for( unsigned int l = 0; l < marsSunCosineAvoidanceAngles.size( ); l++ )
-                {
-                    if( marsSunCosineAvoidanceAngles.at( l ) > std::cos( marsSunAvoidanceAngle ) )
+                    else
                     {
-                        computedViability =  false;
+                        currentObservation = std::dynamic_pointer_cast< ObservationSimulator< 1 > >(
+                                    currentObservationSimulator )->getObservationModel( currentLinkEnds )->
+                                computeObservationsWithLinkEndData(
+                                    unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
+                                    linkEndTimes, linkEndStates );
                     }
-                }
 
-                // Manually recompute occultataion consition
-                std::vector< double > moonLineOfSightDistances = getDistanceBetweenLineOfSightVectorAndPoint(
-                            "Moon", linkEndStates, linkEndTimes, bodies );
-                for( unsigned int l = 0; l < moonLineOfSightDistances.size( ); l++ )
-                {
-                    if( moonLineOfSightDistances.at( l ) < moonRadius )
+                    // Re-compute viability according to viability calculator objects.
+                    currentObservationIsViable = true;
+                    for( unsigned int k = 0; k < currentViabilityCalculators.size( ); k++ )
                     {
-                        computedViability =  false;
+                        isSingleViabilityConditionMet = currentViabilityCalculators.at( k )->isObservationViable(
+                                    linkEndStates, linkEndTimes );
+                        if( !isSingleViabilityConditionMet )
+                        {
+                            currentObservationIsViable = false;
+                        }
                     }
+
+                    // Manually recompute mars elevation angle condition
+                    std::vector< double > marsElevationAngles = getBodyLinkElevationAngles(
+                                currentLinkEnds, currentObservable, "Mars", linkEndStates, linkEndTimes, bodies );
+                    bool computedViability = true;
+                    for( unsigned int l = 0; l < marsElevationAngles.size( ); l++ )
+                    {
+                        if( marsElevationAngles.at( l ) < marsMinimumElevationAngle )
+                        {
+                            computedViability =  false;
+                        }
+                    }
+
+                    // Manually recompute earth elevation angle condition
+                    std::vector< double > earthElevationAngles = getBodyLinkElevationAngles(
+                                currentLinkEnds, currentObservable, "Earth", linkEndStates, linkEndTimes, bodies );
+                    for( unsigned int l = 0; l < earthElevationAngles.size( ); l++ )
+                    {
+                        if( earthElevationAngles.at( l ) < earthMinimumElevationAngle )
+                        {
+                            computedViability =  false;
+                        }
+                    }
+
+                    // Manually recompute earth-Sun avoidance angle condition
+                    std::vector< double > earthSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
+                                currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodies );
+                    for( unsigned int l = 0; l < earthSunCosineAvoidanceAngles.size( ); l++ )
+                    {
+                        if( earthSunCosineAvoidanceAngles.at( l ) > std::cos( earthSunAvoidanceAngle ) )
+                        {
+                            computedViability =  false;
+                        }
+                    }
+
+                    // Manually recompute mars-Sun avoidance angle condition
+                    std::vector< double > marsSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
+                                currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodies );
+                    for( unsigned int l = 0; l < marsSunCosineAvoidanceAngles.size( ); l++ )
+                    {
+                        if( marsSunCosineAvoidanceAngles.at( l ) > std::cos( marsSunAvoidanceAngle ) )
+                        {
+                            computedViability =  false;
+                        }
+                    }
+
+                    // Manually recompute occultataion consition
+                    std::vector< double > moonLineOfSightDistances = getDistanceBetweenLineOfSightVectorAndPoint(
+                                "Moon", linkEndStates, linkEndTimes, bodies );
+                    for( unsigned int l = 0; l < moonLineOfSightDistances.size( ); l++ )
+                    {
+                        if( moonLineOfSightDistances.at( l ) < moonRadius )
+                        {
+                            computedViability =  false;
+                        }
+                    }
+
+                    // Check manual/automatic viability check
+                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+                    BOOST_CHECK_EQUAL( computedViability, currentObservationWasViable );
+
+
+                    if( currentObservationWasViable )
+                    {
+                        constrainedIndex++;
+                    }
+                    unconstrainedIndex++;
                 }
+                BOOST_CHECK_EQUAL( constrainedIndex, constrainedLinkIterator->second.second.size( ) );
 
-                // Check manual/automatic viability check
-                BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
-                BOOST_CHECK_EQUAL( computedViability, currentObservationWasViable );
-
-
-                if( currentObservationWasViable )
-                {
-                    constrainedIndex++;
-                }
-                unconstrainedIndex++;
             }
-            BOOST_CHECK_EQUAL( constrainedIndex, constrainedLinkIterator->second.second.size( ) );
-
-
             unconstrainedLinkIterator++;
             constrainedLinkIterator++;
         }

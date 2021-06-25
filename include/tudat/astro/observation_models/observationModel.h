@@ -160,6 +160,35 @@ public:
         return observationSetList_;
     }
 
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
+            const ObservableType observableType,
+            const LinkEnds& linkEnds )
+    {
+        if( observationSetStartAndSize_.count( observableType ) == 0 )
+        {
+            throw std::runtime_error( " Error when getting single link observations, not observations of type "
+                                      + std::to_string( observableType ) );
+        }
+        else
+        {
+            if( observationSetStartAndSize_.at( observableType ).count( linkEnds ) == 0 )
+            {
+                throw std::runtime_error( " Error when getting single link observations, not observations of type "
+                                          + std::to_string( observableType ) + " for given link ends." );
+            }
+            else
+            {
+                std::vector< std::pair< int, int > > combinedIndices =
+                        observationSetStartAndSize_.at( observableType ).at( linkEnds );
+                int startIndex = combinedIndices.at( 0 ).first;
+                int finalEntry = combinedIndices.size( ) - 1;
+
+                int numberOfObservables = ( combinedIndices.at( finalEntry ).first - startIndex ) +
+                        combinedIndices.at( finalEntry ).second;
+                return concatenatedObservations_.segment( startIndex, numberOfObservables );
+            }
+        }
+    }
 
 private:
 
