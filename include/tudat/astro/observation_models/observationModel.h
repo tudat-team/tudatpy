@@ -22,6 +22,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
+#include "tudat/basics/utilities.h"
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -126,41 +127,17 @@ public:
     observationSetList_( observationSetList )
     {
         setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVector( )
     {
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationVector =
-                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( );
-
-        for( auto observationIterator : observationSetList_ )
-        {
-            ObservableType currentObservableType = observationIterator.first;
-            for( auto linkEndIterator : observationIterator.second )
-            {
-                LinkEnds currentLinkEnds = linkEndIterator.first;
-                for( int i = 0; i < linkEndIterator.second.size( ); i++ )
-                {
-                    std::pair< int, int > startAndSize =
-                            observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
-                    int observableSize = getObservableSize(  currentObservableType );
-                    Eigen::VectorXd currentObservables = Eigen::VectorXd::Zero( startAndSize.second );
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > currentObservationSet =
-                            linkEndIterator.second.at( i )->getObservations( );
-
-                    for( int j = 0; j < currentObservationSet.size( ); j++ )
-                    {
-                        currentObservables.segment( j * observableSize, observableSize ) = currentObservationSet.at( j );
-                    }
-                    observationVector.segment( startAndSize.first, startAndSize.second ) = currentObservables;
-                }
-            }
-        }
+        return concatenatedObservations_;
     }
 
-    Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > getConcatenatedTimeVector( )
+    std::vector< TimeType > getConcatenatedTimeVector( )
     {
-        throw std::runtime_error( "Error, getConcatenatedTimeVector not yet implemented" );
+        return concatenatedTimes_;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
@@ -190,13 +167,16 @@ private:
     {
         int currentStartIndex = 0;
         int currentTypeStartIndex = 0;
-
+        totalNumberOfObservables_ = 0;
+        totalObservableSize_ = 0;
 
         for( auto observationIterator : observationSetList_ )
         {
             ObservableType currentObservableType = observationIterator.first;
 
             currentTypeStartIndex = currentStartIndex;
+            int observableSize = getObservableSize(  currentObservableType );
+
             int currentObservableTypeSize = 0;
 
             for( auto linkEndIterator : observationIterator.second )
@@ -204,27 +184,79 @@ private:
                 LinkEnds currentLinkEnds = linkEndIterator.first;
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
                 {
-                    int currentObservableVectorSize = linkEndIterator.second.at( i )->getNumberOfObservables( ) * getObservableSize(
-                                currentObservableType );
+                    int currentNumberOfObservables = linkEndIterator.second.at( i )->getNumberOfObservables( );
+                    int currentObservableVectorSize = currentNumberOfObservables * observableSize;
+
                     observationSetStartAndSize_[ currentObservableType ][ currentLinkEnds ].push_back(
                                 std::make_pair( currentStartIndex, currentObservableVectorSize ) );
                     currentStartIndex += currentObservableVectorSize;
                     currentObservableTypeSize += currentObservableVectorSize;
+
+                    totalObservableSize_ += currentObservableVectorSize;
+                    totalNumberOfObservables_ += currentNumberOfObservables;
                 }
             }
             observationTypeStartAndSize_[ currentObservableType ] = std::make_pair(
                         currentTypeStartIndex, currentObservableTypeSize );
         }
-        totalObservableSize_ = currentStartIndex;
+    }
+
+    void setConcatenatedObservationsAndTimes( )
+    {
+        concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
+        concatenatedTimes_.resize( totalObservableSize_ );
+
+        int observationCounter = 0;
+
+        for( auto observationIterator : observationSetList_ )
+        {
+            ObservableType currentObservableType = observationIterator.first;
+            int observableSize = getObservableSize(  currentObservableType );
+
+            for( auto linkEndIterator : observationIterator.second )
+            {
+                LinkEnds currentLinkEnds = linkEndIterator.first;
+                for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
+                {
+                    std::pair< int, int > startAndSize =
+                        observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
+                    Eigen::VectorXd currentObservables = Eigen::VectorXd::Zero( startAndSize.second );
+
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > currentObservationSet =
+                            linkEndIterator.second.at( i )->getObservations( );
+                    std::vector< TimeType > currentObservationTimes =
+                                linkEndIterator.second.at( i )->getObservationTimes( );
+                    for( unsigned int j = 0; j < currentObservationSet.size( ); j++ )
+                    {
+                        currentObservables.segment( j * observableSize, observableSize ) = currentObservationSet.at( j );
+                        for( int k = 0; k < observableSize; k++ )
+                        {
+                            concatenatedTimes_[ observationCounter ] = currentObservationTimes.at( j );
+                            observationCounter++;
+                        }
+                    }
+                    concatenatedObservations_.segment( startAndSize.first, startAndSize.second ) = currentObservables;
+                }
+            }
+        }
     }
 
     const SortedObservationSets observationSetList_;
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
+
+    std::vector< TimeType > concatenatedTimes_;
+
+
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
 
     std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize_;
 
     int totalObservableSize_;
+
+    int totalNumberOfObservables_;
+
 };
 
 //! Base class for models of observables (i.e. range, range-rate, etc.).

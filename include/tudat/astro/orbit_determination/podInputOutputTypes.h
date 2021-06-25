@@ -114,12 +114,15 @@ public:
             observation_models::ObservableType currentObservable = observableIterator.first;
             if( observationTypeStartAndSize.count( observableIterator.first ) == 0 )
             {
-                throw std::runtime_error( "Error when setting weights for data type " + std::to_string( observableIterator.first ) + ". " +
-                                          " No data of given type found." );
+                std::cerr<<"Warning when setting weights for data type " <<std::to_string( observableIterator.first )<< ". "<<
+                           " No data of given type found."<<std::endl;
             }
-            weightsMatrixDiagonals_.segment( observationTypeStartAndSize.at( currentObservable ).first,
-                                             observationTypeStartAndSize.at( currentObservable ).second ) =
-                    Eigen::VectorXd::Constant( observationTypeStartAndSize.at( currentObservable ).second, observableIterator.second );
+            else
+            {
+                weightsMatrixDiagonals_.segment( observationTypeStartAndSize.at( currentObservable ).first,
+                                                 observationTypeStartAndSize.at( currentObservable ).second ) =
+                        Eigen::VectorXd::Constant( observationTypeStartAndSize.at( currentObservable ).second, observableIterator.second );
+            }
 
         }
     }
@@ -142,26 +145,32 @@ public:
             observation_models::ObservableType currentObservable = observableIterator.first;
             if( observationSetStartAndSize.count( currentObservable) == 0 )
             {
-                throw std::runtime_error( "Error when setting weights for data type " + std::to_string( currentObservable) + ". " +
-                                          " No data of given type found." );
+                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                            " No data of given type found." <<std::endl;
             }
-            for( auto linkEndIterator : observableIterator.second )
+            else
             {
-                observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
-                if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                for( auto linkEndIterator : observableIterator.second )
                 {
+                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                    {
 
-                    throw std::runtime_error( "Error when setting weights for data type " + std::to_string( currentObservable) + " and link ends " +
-                                              //static_cast< std::string >( currentLinkEnds ) +
-                                              ". No data of given type and link ends found." );
-                }
-                std::vector< std::pair< int, int > > indicesToUse =
-                        observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
-                for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
-                {
-                    weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first,
-                                                     indicesToUse.at( i ).second ) =
-                            Eigen::VectorXd::Constant( indicesToUse.at( i ).second, linkEndIterator.second );
+                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                                    //static_cast< std::string >( currentLinkEnds ) +
+                                    ". No data of given type and link ends found." <<std::endl;
+                    }
+                    else
+                    {
+                        std::vector< std::pair< int, int > > indicesToUse =
+                                observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
+                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
+                        {
+                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first,
+                                                             indicesToUse.at( i ).second ) =
+                                    Eigen::VectorXd::Constant( indicesToUse.at( i ).second, linkEndIterator.second );
+                        }
+                    }
                 }
             }
 

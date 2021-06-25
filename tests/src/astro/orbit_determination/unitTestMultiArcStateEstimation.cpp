@@ -235,11 +235,7 @@ Eigen::VectorXd  executeParameterEstimation(
                 std::make_shared< TabulatedObservationSimulationSettings< > >(
                     one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );
 
-    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
-    PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
 
@@ -522,10 +518,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     }
 
     // Simulate observations
-    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-    PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
 
     // Perturb initial states
