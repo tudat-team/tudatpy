@@ -209,7 +209,6 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
 
     // Define observation simulation settings
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
-    std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
     if( observableType == 0 )
     {
@@ -257,14 +256,8 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
         }
     }
 
-    singleObservableSimulationInput.clear( );
-
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
     // Simulate observations
-    PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations = simulateObservations< StateScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
@@ -283,7 +276,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     // Define estimation input
     std::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             std::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
+                simulatedObservations, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
                 initialParameterEstimate - truthParameters );
     if( observableType == 4 )
     {
@@ -589,12 +582,9 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             getObservationSimulationSettings< TimeType >(
                 linkEndsPerObservable, baseTimeList, receiver );
 
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
     // Simulate observations
-    PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservations< StateScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
@@ -621,7 +611,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Define estimation input
     std::shared_ptr< PodInput< StateScalarType, TimeType  > > podInput =
             std::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
+                simulatedObservations, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                 initialParameterEstimate - truthParameters );
 
@@ -1026,12 +1016,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     }
 
 
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
     // Simulate observations
-    PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations = simulateObservations< StateScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
@@ -1071,7 +1057,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     // Define estimation input
     std::shared_ptr< PodInput< StateScalarType, TimeType  > > podInput =
             std::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
+                simulatedObservations, initialParameterEstimate.rows( ),
                 Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
                 initialParameterEstimate - truthParameters );
 
