@@ -51,6 +51,8 @@ enum RotationModelType
  *  addition to their type. Rotation model classes defining requiring additional information
  *  must be created using an object derived from this class.
  */
+
+//! @get_docstring(RotationModelSettings.__docstring__)
 class RotationModelSettings
 {
 public:
@@ -64,6 +66,8 @@ public:
      *  \param originalFrame Base frame of rotation model.
      *  \param targetFrame Target frame of rotation model.
      */
+
+    //! @get_docstring(RotationModelSettings.__init__)
     RotationModelSettings( const RotationModelType rotationType,
                            const std::string& originalFrame,
                            const std::string& targetFrame ):
@@ -78,6 +82,8 @@ public:
      *  Function to return the type of rotation model that is to be created.
      *  \return Type of rotation model that is to be created.
      */
+
+    //! @get_docstring(RotationModelSettings.getRotationType)
     RotationModelType getRotationType( ){ return rotationType_; }
 
     //! Function to return the base frame of rotation model.
@@ -85,6 +91,8 @@ public:
      *  Function to return the base frame of rotation model.
      *  \return Base frame of rotation model.
      */
+
+    //! @get_docstring(RotationModelSettings.getOriginalFrame)
     std::string getOriginalFrame( ){ return originalFrame_; }
 
     //! Function to return the target frame of rotation model.
@@ -92,14 +100,18 @@ public:
      *  Function to return the target frame of rotation model.
      *  \return Target frame of rotation model.
      */
+
+    //! @get_docstring(RotationModelSettings.getTargetFrame)
     std::string getTargetFrame( ){ return targetFrame_; }
 
 
-    //! Function to rese the orientation of the base frame.
+    //! Function to reset the orientation of the base frame.
     /*!
      * Function to reset the orientation of the base frame.
      * \param originalFrame New base frame orientation
      */
+
+    //! @get_docstring(RotationModelSettings.resetOriginalFrame)
     void resetOriginalFrame( const std::string& originalFrame )
     {
         originalFrame_ = originalFrame;
@@ -631,6 +643,8 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  * \param bodies List of body objects
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
+
+
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
