@@ -358,18 +358,13 @@ void expose_rotation_model_setup(py::module &m) {
                  const std::string &>(),
                  py::arg("rotation_type"), py::arg("base_frame"),
                  py::arg("target_frame"))
-            .def("get_rotation_type", &tss::RotationModelSettings::getRotationType,
-                 get_docstring("get_rotation_type").c_str()
-            )
-            .def("get_base_frame", &tss::RotationModelSettings::getOriginalFrame,
-                 get_docstring("get_base_frame").c_str()
-            )
-            .def("get_target_frame", &tss::RotationModelSettings::getTargetFrame,
-                 get_docstring("get_target_frame").c_str()
-            )
-            .def("reset_base_frame", &tss::RotationModelSettings::resetOriginalFrame,
-                 get_docstring("reset_base_frame").c_str()
-            );
+            .def_property_readonly("rotation_type", &tss::RotationModelSettings::getRotationType,
+                 get_docstring("rotation_type").c_str())
+            .def_property("base_frame", &tss::RotationModelSettings::getOriginalFrame, &tss::RotationModelSettings::resetOriginalFrame,
+                 get_docstring("base_frame").c_str())
+            .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame,
+                 get_docstring("target_frame").c_str());
+
 
     m.def("simple",
           py::overload_cast< const std::string&, const std::string& ,
@@ -418,7 +413,7 @@ void expose_rotation_model_setup(py::module &m) {
               &tss::constantRotationModelSettings ),
           py::arg("base_frame"),
           py::arg("target_frame"),
-          py::arg("constant_orientation"),
+          py::arg("initial_orientation"),
           get_docstring("constant").c_str()
           );
 
@@ -448,7 +443,7 @@ void expose_gravity_field_setup(py::module &m) {
                 m, "GravityFieldSettings", "<no doc>")
             .def(py::init<const tss::GravityFieldType>(),
                  py::arg("gravity_field_type"))
-            .def("get_gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType);
+            .def_property_readonly("gravity_field_type", &tss::GravityFieldSettings::getGravityFieldType);
 
     py::class_<tss::CentralGravityFieldSettings, std::shared_ptr<tss::CentralGravityFieldSettings>,
             tss::GravityFieldSettings>(m, "CentralGravityFieldSettings", "<no doc>")
@@ -462,33 +457,29 @@ void expose_gravity_field_setup(py::module &m) {
             .def(py::init<const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string&>(),
                  py::arg("gravitational_parameter"), py::arg("reference_radius"), py::arg("cosine_coefficients"),
                  py::arg("sine_coefficients"), py::arg("associated_reference_frame"))
-            .def("get_gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter)
-            .def("reset_gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter)
-            .def("get_reference_radius", &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius)
-            .def("get_cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients)
-            .def("get_sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients)
-            .def("get_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame)
-            .def("reset_associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame,
-                 py::arg( "associated_reference_frame" ) )
-            .def("get_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField)
-            .def("set_create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
-                 py::arg( "create_time_dependent_field" ) )
             .def_property("gravitational_parameter", &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter,
                           &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter )
-            .def_property("cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients,
+            .def_property("normalized_cosine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getCosineCoefficients,
                           &tss::SphericalHarmonicsGravityFieldSettings::resetCosineCoefficients )
-            .def_property("sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients,
-                          &tss::SphericalHarmonicsGravityFieldSettings::resetSineCoefficients );
+            .def_property("normalized_sine_coefficients", &tss::SphericalHarmonicsGravityFieldSettings::getSineCoefficients,
+                          &tss::SphericalHarmonicsGravityFieldSettings::resetSineCoefficients )
+            .def_property("associated_reference_frame", &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame,
+                          &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame )
+            .def_property("create_time_dependent_field", &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField,
+                          &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField )
+            .def_property_readonly("reference_radius", &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
+             );
 
     py::class_<tss::FromFileSphericalHarmonicsGravityFieldSettings, std::shared_ptr<tss::FromFileSphericalHarmonicsGravityFieldSettings>,
             tss::SphericalHarmonicsGravityFieldSettings>(m, "FromFileSphericalHarmonicsGravityFieldSettings", "<no doc>");
 
 
     m.def("central",
-          &tss::centralGravitySettings);
+          &tss::centralGravitySettings,
+          py::arg("gravitational_parameter");
 
     m.def("central_spice",
-          &tss::centralGravitySettings);
+          &tss::centralGravityFromSpiceSettings);
 
     m.def("spherical_harmonic",
           &tss::sphericalHarmonicsGravitySettings,
@@ -539,13 +530,13 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("ephemeris_type"),
                  py::arg("frame_origin") = "SSB",
                  py::arg("frame_orientation") = "ECLIPJ2000")
-            .def("get_ephemeris_type", &tss::EphemerisSettings::getEphemerisType)
-            .def("get_frame_origin", &tss::EphemerisSettings::getFrameOrigin)
-            .def("get_frame_orientation", &tss::EphemerisSettings::getFrameOrientation)
-            .def("get_multi_arc_ephemeris", &tss::EphemerisSettings::getMakeMultiArcEphemeris)
-            .def("reset_frame_origin", &tss::EphemerisSettings::resetFrameOrigin)
-            .def("reset_frame_orientation", &tss::EphemerisSettings::resetFrameOrientation)
-            .def("reset_make_multi_arc_ephemeris", &tss::EphemerisSettings::resetMakeMultiArcEphemeris);
+            .def_property("frame_origin", &tss::EphemerisSettings::getFrameOrigin,
+                          &tss::EphemerisSettings::resetFrameOrigin)
+            .def_property("frame_orientation", &tss::EphemerisSettings::getFrameOrientation,
+                          &tss::EphemerisSettings::resetFrameOrientation)
+            .def_property("make_multi_arc_ephemeris", &tss::EphemerisSettings::getMakeMultiArcEphemeris,
+                          &tss::EphemerisSettings::resetMakeMultiArcEphemeris)
+            .def_property_readonly("ephemeris_type", &tss::EphemerisSettings::getEphemerisTyp);
 
     py::class_<tss::DirectSpiceEphemerisSettings,
             std::shared_ptr<tss::DirectSpiceEphemerisSettings>,
@@ -558,11 +549,11 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("correct_for_light_time_aberration") = false,
                  py::arg("converge_light_time_aberration") = false,
                  py::arg("ephemeris_type") = tss::direct_spice_ephemeris)
-            .def("get_correct_for_steller_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration)
-            .def("get_correct_for_steller_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration)
-            .def("get_converge_light_time_aberration",
-                 // TODO : Fix getConvergeLighTimeAberration typo in Tudat.
-                 &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration);
+            .def_property_readonly("correct_for_stellar_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration)
+            .def_property_readonly("correct_for_light_time_aberration", &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration)
+            .def_property_readonly("converge_light_time_aberration",
+                    // TODO : Fix getConvergeLighTimeAberration typo in Tudat.
+                                   &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration);
 
     py::class_<tss::InterpolatedSpiceEphemerisSettings,
             std::shared_ptr<tss::InterpolatedSpiceEphemerisSettings>,
@@ -574,7 +565,10 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("frame_origin") = "SSB",
                  py::arg("frame_orientation") = "ECLIPJ2000",
                  py::arg("interpolator_settings") = std::make_shared<
-            tudat::interpolators::LagrangeInterpolatorSettings>(6));
+            tudat::interpolators::LagrangeInterpolatorSettings>(6))
+            .def_property_readonly("initial_time", &tss::InterpolatedSpiceEphemerisSettings::getInitialTime)
+            .def_property_readonly("final_time", &tss::InterpolatedSpiceEphemerisSettings::getFinalTime)
+            .def_property_readonly("time_step", &tss::InterpolatedSpiceEphemerisSettings::getTimeStep);
 
     py::class_<tss::ApproximatePlanetPositionSettings,
             std::shared_ptr<tss::ApproximatePlanetPositionSettings>,
@@ -621,33 +615,30 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("initial_state_in_keplerian_elements"),
                  py::arg("epoch_of_initial_state"),
                  py::arg("central_body_gravitational_parameter"),
-                 py::arg("reference_frame_origin") = "SSB",
-                 py::arg("reference_frame_orientation") = "ECLIPJ2000",
+                 py::arg("frame_origin") = "SSB",
+                 py::arg("frame_orientation") = "ECLIPJ2000",
                  py::arg("root_finder_absolute_tolerance") =
             200.0 * std::numeric_limits<double>::epsilon(),
                  py::arg("root_finder_maximum_number_of_iterations") = 1000.0)
-            .def("get_initial_state_in_keplerian_elements",
+            .def_property_readonly("initial_state_in_keplerian_elements",
                  &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements)
-            .def("get_epoch_of_initial_state",
+            .def_property_readonly("epoch_of_initial_state",
                  &tss::KeplerEphemerisSettings::getEpochOfInitialState)
-            .def("get_central_body_gravitational_parameter",
+            .def_property_readonly("central_body_gravitational_parameter",
                  &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter)
-            .def("get_root_finder_absolute_tolerance",
+            .def_property_readonly("root_finder_absolute_tolerance",
                  &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance)
-            .def("get_root_finder_maximum_number_of_iterations",
-                 &tss::KeplerEphemerisSettings::
-                 getRootFinderMaximumNumberOfIterations);
+            .def_property_readonly("root_finder_maximum_number_of_iterations",
+                 &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations);
 
     py::class_<tss::TabulatedEphemerisSettings,
             std::shared_ptr<tss::TabulatedEphemerisSettings>,
             tss::EphemerisSettings>(m, "TabulatedEphemerisSettings")
             .def(py::init<const std::map<double, Eigen::Vector6d> &, std::string,
                  std::string>())
-            .def("get_body_state_history",
+            .def_property_readonly("body_state_history",
                  &tss::TabulatedEphemerisSettings::getBodyStateHistory)
-            .def("get_use_long_double_states",
-                 &tss::TabulatedEphemerisSettings::getUseLongDoubleStates)
-            .def("set_use_long_double_states",
+            .def_property("use_long_double_states", &tss::TabulatedEphemerisSettings::getUseLongDoubleStates,
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
 
     m.def("create_ephemeris", &tss::createBodyEphemeris,
@@ -731,7 +722,6 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_vector_function"),
           py::arg("is_scaling_absolute") = false  );
-
 
     m.def("custom",
           &tss::customEphemerisSettings,
