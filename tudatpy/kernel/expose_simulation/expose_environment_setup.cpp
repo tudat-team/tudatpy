@@ -358,12 +358,9 @@ void expose_rotation_model_setup(py::module &m) {
                  const std::string &>(),
                  py::arg("rotation_type"), py::arg("base_frame"),
                  py::arg("target_frame"))
-            .def_property_readonly("rotation_type", &tss::RotationModelSettings::getRotationType,
-                 get_docstring("rotation_type").c_str())
-            .def_property("base_frame", &tss::RotationModelSettings::getOriginalFrame, &tss::RotationModelSettings::resetOriginalFrame,
-                 get_docstring("base_frame").c_str())
-            .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame,
-                 get_docstring("target_frame").c_str());
+            .def_property_readonly("rotation_type", &tss::RotationModelSettings::getRotationType)
+            .def_property("base_frame", &tss::RotationModelSettings::getOriginalFrame, &tss::RotationModelSettings::resetOriginalFrame)
+            .def_property_readonly("target_frame", &tss::RotationModelSettings::getTargetFrame);
 
 
     m.def("simple",
@@ -476,10 +473,12 @@ void expose_gravity_field_setup(py::module &m) {
 
     m.def("central",
           &tss::centralGravitySettings,
-          py::arg("gravitational_parameter");
+          py::arg("gravitational_parameter"),
+          get_docstring("central").c_str());
 
     m.def("central_spice",
-          &tss::centralGravityFromSpiceSettings);
+          &tss::centralGravityFromSpiceSettings),
+          get_docstring("central_spice").c_str());
 
     m.def("spherical_harmonic",
           &tss::sphericalHarmonicsGravitySettings,
@@ -487,7 +486,8 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("reference_radius"),
           py::arg("normalized_cosine_coefficients"),
           py::arg("normalized_sine_coefficients"),
-          py::arg("associated_reference_frame"));
+          py::arg("associated_reference_frame"),
+          get_docstring("spherical_harmonic").c_str());
 
     m.def("spherical_harmonic_triaxial_body",
           &tss::createHomogeneousTriAxialEllipsoidGravitySettings,
@@ -497,7 +497,8 @@ void expose_gravity_field_setup(py::module &m) {
           py::arg("density"),
           py::arg("maximum_degree"),
           py::arg("maximum_order"),
-          py::arg("associated_reference_frame"));
+          py::arg("associated_reference_frame"),
+          get_docstring("spherical_harmonic_triaxial_body").c_str());
 }
 
 void expose_ephemeris_setup(py::module &m) {
@@ -642,7 +643,8 @@ void expose_ephemeris_setup(py::module &m) {
                  &tss::TabulatedEphemerisSettings::setUseLongDoubleStates);
 
     m.def("create_ephemeris", &tss::createBodyEphemeris,
-          py::arg("ephemeris_settings"), py::arg("body_name"));
+          py::arg("ephemeris_settings"), py::arg("body_name"),
+          get_docstring("create_ephemeris").c_str());
 
 
     m.def("keplerian",
@@ -653,7 +655,8 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("frame_origin") = "SSB" ,
           py::arg("frame_orientation") = "ECLIPJ2000" ,
           py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
-          py::arg("root_finder_maximum_iterations") = 1000.0 );
+          py::arg("root_finder_maximum_iterations") = 1000.0,
+          get_docstring("keplerian").c_str());
 
     m.def("keplerian_from_spice",
           &tss::keplerEphemerisFromSpiceSettings,
@@ -663,22 +666,26 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("frame_origin") = "SSB" ,
           py::arg("frame_orientation") = "ECLIPJ2000" ,
           py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
-          py::arg("root_finder_maximum_iterations") = 1000.0 );
+          py::arg("root_finder_maximum_iterations") = 1000.0,
+          get_docstring("keplerian_from_spice").c_str());
 
 
     m.def("approximate_planet_positions",
           py::overload_cast<  const std::string >( &tss::approximatePlanetPositionsSettings ),
-          py::arg("body_name_to_use"));
+          py::arg("body_name_to_use"),
+          get_docstring("approximate_planet_positions").c_str());
 
     m.def("approximate_planet_positions",
           py::overload_cast< >( &tss::approximatePlanetPositionsSettings ));
+    // (%! overload) get_docstring("approximate_planet_positions").c_str()
 
     m.def("direct_spice",
           py::overload_cast< const std::string, const std::string,  const std::string >(
               &tss::directSpiceEphemerisSettings ),
           py::arg("frame_origin") = "SSB",
           py::arg("frame_orientation") = "ECLIPJ2000",
-          py::arg("body_name_to_use") = "" );
+          py::arg("body_name_to_use") = "",
+          get_docstring("direct_spice").c_str());
 
     m.def("interpolated_spice",
           &tss::interpolatedSpiceEphemerisSettings,
@@ -688,46 +695,53 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("frame_origin") = "SSB",
           py::arg("frame_orientation") = "ECLIPJ2000",
           py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6),
-          py::arg("body_name_to_use") = "" );
+          py::arg("body_name_to_use") = "",
+          get_docstring("interpolated_spice").c_str());
 
     m.def("tabulated",
           &tss::tabulatedEphemerisSettings,
           py::arg("body_state_history"),
           py::arg("frame_origin") = "SSB",
-          py::arg("frame_orientation") = "ECLIPJ2000");
+          py::arg("frame_orientation") = "ECLIPJ2000",
+          get_docstring("tabulated").c_str());
 
     m.def("constant",
           &tss::constantEphemerisSettings,
           py::arg("constant_state"),
           py::arg("frame_origin") = "SSB",
-          py::arg("frame_orientation") = "ECLIPJ2000");
+          py::arg("frame_orientation") = "ECLIPJ2000",
+          get_docstring("constant").c_str());
 
     m.def("scaled",
           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
           const double, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_constant"),
-          py::arg("is_scaling_absolute") = false  );
+          py::arg("is_scaling_absolute") = false,
+          get_docstring("scaled").c_str());
 
     m.def("scaled",
           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
           const Eigen::Vector6d, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_vector"),
-          py::arg("is_scaling_absolute") = false );
+          py::arg("is_scaling_absolute") = false,
+          get_docstring("scaled").c_str());
 
     m.def("scaled",
           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
           const std::function< Eigen::Vector6d( const double ) >, const bool >( &tss::scaledEphemerisSettings ),
           py::arg("unscaled_ephemeris_settings"),
           py::arg("scaling_vector_function"),
-          py::arg("is_scaling_absolute") = false  );
+          py::arg("is_scaling_absolute") = false,
+          get_docstring("scaled").c_str());
 
     m.def("custom",
           &tss::customEphemerisSettings,
           py::arg("custom_state_function"),
           py::arg("frame_origin") = "SSB",
-          py::arg("frame_orientation") = "ECLIPJ2000");
+          py::arg("frame_orientation") = "ECLIPJ2000",
+          get_docstring("custom").c_str());
 }
 
 void expose_shape_setup(py::module &m){
