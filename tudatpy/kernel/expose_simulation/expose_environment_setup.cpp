@@ -1100,6 +1100,10 @@ void expose_environment_setup(py::module &m) {
           py::arg( "ground_station_position" ),
           py::arg( "position_type" ) = tcc::cartesian_position );
 
+    m.def("get_ground_station_list",
+          &tss::getGroundStationsLinkEndList,
+          py::arg( "body" ) );
+
     m.def("create_radiation_pressure_interface",
           &tss::createRadiationPressureInterface,
           py::arg("radiationPressureInterfaceSettings"), py::arg("body_name"),
