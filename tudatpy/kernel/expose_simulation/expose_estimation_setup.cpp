@@ -26,51 +26,6 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 
-namespace tudat
-{
-
-namespace simulation_setup
-{
-
-std::shared_ptr< PodInput< > > createPodInput(
-        const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, Eigen::VectorXd,
-        std::vector< double >, tom::LinkEndType > >& tudatpyObservationsAndTimes,
-          const int numberOfEstimatedParameters,
-          const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-          const Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
-        Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( 0, 0 ) )
-{
-    auto tudatObservationsAndTimes = getTudatCompatibleObservationsAndTimes( tudatpyObservationsAndTimes );
-    return std::make_shared< PodInput< > >( tudatObservationsAndTimes, numberOfEstimatedParameters, inverseOfAprioriCovariance,
-                                         initialParameterDeviationEstimate );
-}
-
-//OrbitDeterminationManager< double, double > createOrbitDeterminationManager(
-//        const tss::SystemOfBodies& bodies,
-//        const std::shared_ptr< tep::EstimatableParameterSet< double > > parameterSet,
-//        const std::vector< std::pair< tom::LinkEnds, std::shared_ptr< tom::ObservationSettings > > >&
-//        observationSettings,
-//        const std::shared_ptr< tni::IntegratorSettings< double > > integratorSettings,
-//        const std::shared_ptr< tp::PropagatorSettings< double > > propagatorSettings,
-//        const bool propagateOnCreation )
-//{
-//    tom::SortedObservationSettingsMap observationSettingsList;
-
-//        for( int i = 0; i < observationSettings.size( ); i++ )
-//        {
-//            observationSettingsList[ observationSettings.at( i ).second->observableType_ ][
-//                    observationSettings.at( i ).first ] = observationSettings.at( i ).second;
-//        }
-
-//    return OrbitDeterminationManager< double, double >(
-//                bodies, parameterSet, observationSettingsList, integratorSettings, propagatorSettings,
-//                propagateOnCreation );
-//}
-
-}
-
-}
-
 namespace tudatpy {
 
 void expose_observation_setup(py::module &m) {
@@ -86,6 +41,17 @@ void expose_observation_setup(py::module &m) {
             .value("receiver", tom::LinkEndType::receiver )
             .value("observed_body", tom::LinkEndType::observed_body )
             .export_values();
+
+
+    m.def("one_way_downlink_link_ends",
+          &tom::getOneWayDownlinkLinkEndsList,
+          py::arg("transmitter"),
+          py::arg("receivers") );
+
+    m.def("one_way_uplink_link_ends",
+          &tom::getOneWayUplinkLinkEndsList,
+          py::arg("transmitters"),
+          py::arg("receiver") );
 
     py::enum_< tom::ObservableType >(m, "ObservableType")
             .value("one_way_range_type", tom::ObservableType::one_way_range )
@@ -279,41 +245,35 @@ void expose_observation_setup(py::module &m) {
                std::shared_ptr<tss::TabulatedObservationSimulationSettings<double>>,
                tss::ObservationSimulationSettings<double> >(m, "TabulatedObservationSimulationSettings")
             .def(py::init<
-                 const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType >(),
+                 const tom::ObservableType, const tom::LinkEnds, const std::vector< double >, const tom::LinkEndType,
+                 const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
+                 const std::function< Eigen::VectorXd( const double ) > >(),
                  py::arg("observable_type"),
                  py::arg("link_ends"),
                  py::arg("observation_times"),
-                 py::arg("reference_link_end") = tom::receiver );
+                 py::arg("reference_link_end") = tom::receiver,
+                 py::arg("viability_settings") = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+                 py::arg("noise_function") = nullptr );
 
-//    py::class_<tss::ArcLimitedObservationSimulationSettings<double>,
-//               std::shared_ptr<tss::ArcLimitedObservationSimulationSettings<double>>,
-//               tss::ObservationSimulationSettings<double> >(m, "ArcLimitedObservationSimulationSettings")
-//            .def(py::init<
-//                 const tom::ObservableType,
-//                 const tom::LinkEnds,
-//                 const double,
-//                 const double,
-//                 const double,
-//                 const double,
-//                 const int >(),
-//                 py::arg("observable_type"),
-//                 py::arg("link_ends"),
-//                 py::arg("start_time"),
-//                 py::arg("end_time"),
-//                 py::arg("observation_interval"),
-//                 py::arg("arc_duration"),
-//                 py::arg("observations_per_arc"),
-//                 py::arg("reference_link_end") = tom::receiver );
+    m.def("create_tabulated_simulation_settings",
+              &tss::createTabulatedObservationSimulationSettingsList< double >,
+          py::arg("link_ends_per_observable"),
+          py::arg("simulation_times" ) );
 
-//    m.def("simulate_observations",
-//          py::overload_cast<
-//          const std::map< tom::ObservableType, std::map< tom::LinkEnds, std::pair< std::vector< double >, tom::LinkEndType > > >&,
-//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
-//          const tom::PerObservableObservationViabilityCalculatorList >(
-//              &tom::simulateObservations< double, double > ),
-//          py::arg("observation_to_simulate"),
-//          py::arg("observation_simulator"),
-//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
+    m.def("add_noise_to_settings",
+          py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::function<  Eigen::VectorXd( const double ) >,
+          const tom::ObservableType >(
+                &tss::addNoiseFunctionToObservationSimulationSettings< double > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("noise_functiton"),
+            py::arg("observable_type") );
+
+    m.def("simulate_observations",
+              &tss::simulateObservations< >,
+          py::arg("observation_to_simulate"),
+          py::arg("observation_simulators" ),
+          py::arg("bodies") );
 
 //    m.def("simulate_observations",
 //          py::overload_cast<
@@ -347,11 +307,12 @@ void expose_observation_setup(py::module &m) {
 //          py::arg("noise_functions"),
 //          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
 
-//    m.def("gaussian_noise_function",
-//              &tom::getGaussianDistributionNoiseFunction,
-//          py::arg("standard_deviation"),
-//          py::arg("mean") = 0.0,
-//          py::arg("seed") = time(NULL) );
+    m.def("gaussian_noise_function",
+              &tss::getGaussianDistributionNoiseFunction,
+          py::arg("standard_deviation"),
+          py::arg("mean") = 0.0,
+          py::arg("seed") = time(NULL),
+          py::arg("observable_size") = 1);
 
 }
 
@@ -713,7 +674,7 @@ void expose_estimation_setup(py::module &m) {
             tss::PodInput<double, double>,
             std::shared_ptr<tss::PodInput<double, double>>>(m, "PodInput")
             .def(py::init<
-                 const tss::PodInput<double, double>::PodInputDataType&,
+                 const std::shared_ptr< tom::ObservationCollection< > >&,
                  const int,
                  const Eigen::MatrixXd,
                  const Eigen::VectorXd >( ),
@@ -790,12 +751,6 @@ void expose_estimation_setup(py::module &m) {
 //          py::arg("propagator_settings"),
 //          py::arg("integrate_on_creation") = true );
 
-    m.def("pod_input",
-          &tss::createPodInput,
-          py::arg("observations_and_times"),
-          py::arg("number_of_parameters"),
-          py::arg("inverse_a_priori_covariance") = Eigen::MatrixXd( 0, 0 ),
-          py::arg("initial_parameter_deviation") = Eigen::VectorXd( 0 ) );
 
 
     m.def("create_parameters_to_estimate",
