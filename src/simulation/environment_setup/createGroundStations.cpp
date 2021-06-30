@@ -81,6 +81,18 @@ void createGroundStation(
     }
 }
 
+std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList(
+        const std::shared_ptr< Body > body )
+{
+    std::vector< std::pair< std::string, std::string > > stationList;
+
+    std::map<std::string, std::shared_ptr<ground_stations::GroundStation> > groundStationsMap = body->getGroundStationMap();
+    for( auto stationIterator : groundStationsMap )
+    {
+        stationList.push_back( std::make_pair( body->getBodyName( ), stationIterator.first ) );
+    }
+    return stationList;
+}
 
 }
 

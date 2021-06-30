@@ -170,6 +170,11 @@ getObservationSimulatorOfType(
             }
         }
     }
+    if( observationSimulator == nullptr )
+    {
+        throw std::runtime_error( "Error when retrieving observation simulator from list for type " +
+                                  std::to_string( observableType ) + ", no simualtor found" );
+    }
     return observationSimulator;
 }
 

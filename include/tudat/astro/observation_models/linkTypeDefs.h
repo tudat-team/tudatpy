@@ -127,6 +127,14 @@ LinkEnds getSingleLegLinkEnds(
 LinkEnds mergeOneWayLinkEnds(
         const std::vector< LinkEnds >& linkEnds );
 
+std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
+        const LinkEndId singleTransmitter,
+        const std::vector< LinkEndId >& listOfReceivers );
+
+std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
+        const std::vector< LinkEndId > listOfTransmitters,
+        const LinkEndId singleReceivers );
+
 } // namespace observation_models
 
 } // namespace tudat

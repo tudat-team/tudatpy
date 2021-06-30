@@ -207,6 +207,24 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
     std::vector< TimeType > simulationTimes_;
 };
 
+template< typename TimeType = double >
+std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > createTabulatedObservationSimulationSettingsList(
+        const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable,
+        const std::vector< TimeType >& simulationTimes )
+{
+    std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
+    for( auto observableIterator : linkEndsPerObservable )
+    {
+        for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
+        {
+            observationSimulationSettingsList.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+                            observableIterator.first, observableIterator.second.at( i ), simulationTimes ) );
+        }
+    }
+    return observationSimulationSettingsList;
+}
+
 
 ////! Function to simulate a fixed number of simulations, in an arcwise manner, taking into account viability settings
 ///*!
@@ -574,7 +592,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             if( derivedObservationSimulator == nullptr )
             {
-                throw std::runtime_error( "Error when simulating observation: dynamic case to size 1 is nullptr" );
+                throw std::runtime_error( "Error when simulating observation: dynamic cast to size 1 is nullptr" );
             }
 
             // Simulate observations for current observable and link ends set.
@@ -590,7 +608,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             if( derivedObservationSimulator == nullptr )
             {
-                throw std::runtime_error( "Error when simulating observation: dynamic case to size 2 is nullptr" );
+                throw std::runtime_error( "Error when simulating observation: dynamic cast to size 2 is nullptr" );
             }
 
             // Simulate observations for current observable and link ends set.
@@ -606,7 +624,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             if( derivedObservationSimulator == nullptr )
             {
-                throw std::runtime_error( "Error when simulating observation: dynamic case to size 3 is nullptr" );
+                throw std::runtime_error( "Error when simulating observation: dynamic cast to size 3 is nullptr" );
             }
 
             // Simulate observations for current observable and link ends set.
@@ -663,15 +681,39 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
-inline std::function< double( const double ) > getGaussianDistributionNoiseFunction(
+inline std::function< Eigen::VectorXd( const double ) > getGaussianDistributionNoiseFunction(
         const double standardDeviation,
         const double mean = 0.0,
-        const double seed = 0.0 )
+        const double seed = 0.0,
+        const int observableSize = 1 )
 {
     std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
                 statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
-    return std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                      inputFreeNoiseFunction, std::placeholders::_1 );
+    if( observableSize == 1 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 2 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 3 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 6 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ),
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else
+    {
+        throw std::runtime_error( "Cannot simulate observation noise of size " + std::to_string( observableSize ) );
+    }
 }
 
 }
