@@ -230,6 +230,38 @@ LinkEnds getSingleLegLinkEnds(
     return oneWayLinkEnds;
 }
 
+std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
+        const LinkEndId singleTransmitter,
+        const std::vector< LinkEndId >& listOfReceivers )
+{
+    std::vector< LinkEnds > linkEndsList;
+
+    LinkEnds currentLinkEnds;
+    currentLinkEnds[ transmitter ] = singleTransmitter;
+    for( unsigned int i = 0; i < listOfReceivers.size( ); i++ )
+    {
+        currentLinkEnds[ receiver ] = listOfReceivers.at( i );
+        linkEndsList.push_back( currentLinkEnds );
+    }
+    return linkEndsList;
+}
+
+std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
+        const std::vector< LinkEndId > listOfTransmitters,
+        const LinkEndId singleReceivers )
+{
+    std::vector< LinkEnds > linkEndsList;
+
+    LinkEnds currentLinkEnds;
+    currentLinkEnds[ receiver ] = singleReceivers;
+    for( unsigned int i = 0; i < listOfTransmitters.size( ); i++ )
+    {
+        currentLinkEnds[ transmitter ] = listOfTransmitters.at( i );
+        linkEndsList.push_back( currentLinkEnds );
+    }
+    return linkEndsList;
+}
+
 } // namespace observation_models
 
 } // namespace tudat
