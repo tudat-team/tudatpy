@@ -130,7 +130,7 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
             isObservationPossible = 0;
             break;
         }
-    }//
+    }
 
     return isObservationPossible;
 }
