@@ -102,6 +102,9 @@ void createGroundStation(
         const std::string& bodyName,
         const std::shared_ptr< GroundStationSettings > groundStationSettings );
 
+std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndList(
+        const std::shared_ptr< Body > body );
+
 
 } // namespace simulation_setup
 
