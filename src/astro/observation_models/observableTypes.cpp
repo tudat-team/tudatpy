@@ -368,6 +368,47 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     return linkEndIndices;
 }
 
+
+LinkEndType getDefaultReferenceLinkEndType(
+        const ObservableType observableType )
+{
+    LinkEndType referenceLinkEndType;
+    switch( observableType )
+    {
+    case one_way_range:
+        referenceLinkEndType = receiver;
+        break;
+    case angular_position:
+        referenceLinkEndType = receiver;
+        break;
+    case one_way_doppler:
+        referenceLinkEndType = receiver;
+        break;
+    case one_way_differenced_range:
+        referenceLinkEndType = receiver;
+        break;
+    case n_way_range:
+        referenceLinkEndType = receiver;
+        break;
+    case two_way_doppler:
+        referenceLinkEndType = receiver;
+        break;
+    case position_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    case velocity_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    case euler_angle_313_observable:
+        referenceLinkEndType = observed_body;
+        break;
+    default:
+        throw std::runtime_error( "Error, default reference link end not defined for observable " +
+                                  std::to_string( observableType ) );
+    }
+    return referenceLinkEndType;
+}
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationResidualBlock,
         const ObservableType observableType )

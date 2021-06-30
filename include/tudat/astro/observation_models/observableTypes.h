@@ -80,6 +80,10 @@ int getObservableSize( const ObservableType observableType );
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
 
+
+LinkEndType getDefaultReferenceLinkEndType(
+        const ObservableType observableType );
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,
         const ObservableType observableType );
