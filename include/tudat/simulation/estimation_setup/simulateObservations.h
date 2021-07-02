@@ -69,6 +69,69 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType );
 
+
+template< typename TimeType = double >
+void addViabilityToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
+        for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
+        {
+            if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->linkEnds_,
+                                                      viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
+            {
+                viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
+            }
+        }
+
+        if( viabilitySettingsToAdd.size( ) > 0 )
+        {
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > currentViabilitySettingsList =
+                    observationSimulationSettings.at( i )->viabilitySettingsList_;
+            currentViabilitySettingsList.insert(
+                        currentViabilitySettingsList.end( ), viabilitySettingsToAdd.begin( ), viabilitySettingsToAdd.end( ) );
+            observationSimulationSettings.at( i )->viabilitySettingsList_ = currentViabilitySettingsList;
+        }
+    }
+}
+
+template< typename TimeType = double >
+void addViabilityToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+        const observation_models::ObservableType observableType )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        {
+            std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
+            for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
+            {
+                if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->linkEnds_,
+                                                          viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
+                {
+                    viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
+                }
+            }
+
+            if( viabilitySettingsToAdd.size( ) > 0 )
+            {
+                std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > currentViabilitySettingsList =
+                        observationSimulationSettings.at( i )->viabilitySettingsList_;
+                currentViabilitySettingsList.insert(
+                            currentViabilitySettingsList.end( ), viabilitySettingsToAdd.begin( ), viabilitySettingsToAdd.end( ) );
+                observationSimulationSettings.at( i )->viabilitySettingsList_ = currentViabilitySettingsList;
+            }
+        }
+    }
+}
+
+
+
 template< typename TimeType = double >
 void clearNoiseFunctionFromObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings )
@@ -76,6 +139,42 @@ void clearNoiseFunctionFromObservationSimulationSettings(
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
         observationSimulationSettings.at( i )->observationNoiseFunction_ = nullptr;
+    }
+}
+
+
+inline std::function< Eigen::VectorXd( const double ) > getGaussianDistributionNoiseFunction(
+        const double standardDeviation,
+        const double mean = 0.0,
+        const double seed = 0.0,
+        const int observableSize = 1 )
+{
+    std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
+                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
+    if( observableSize == 1 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 2 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 3 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else if( observableSize == 6 )
+    {
+        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ),
+                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+    }
+    else
+    {
+        throw std::runtime_error( "Cannot simulate observation noise of size " + std::to_string( observableSize ) );
     }
 }
 
@@ -104,7 +203,6 @@ void addNoiseFunctionToObservationSimulationSettings(
     }
 }
 
-
 template< typename TimeType = double >
 void addNoiseFunctionToObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
@@ -118,6 +216,20 @@ void addNoiseFunctionToObservationSimulationSettings(
             observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
         }
     }
+}
+
+template< typename TimeType = double >
+void addGaussianNoiseFunctionToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude,
+        const observation_models::ObservableType observableType,
+        const int noiseSeed = 0 )
+{
+    std::function< Eigen::VectorXd( const double ) > noiseFunction =
+            getGaussianDistributionNoiseFunction(
+                observationNoiseAmplitude, 0.0, noiseSeed, observation_models::getObservableSize( observableType ) );
+    addNoiseFunctionToObservationSimulationSettings< TimeType >(
+                observationSimulationSettings, noiseFunction, observableType );
 }
 
 template< typename TimeType = double >
@@ -681,40 +793,6 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
-inline std::function< Eigen::VectorXd( const double ) > getGaussianDistributionNoiseFunction(
-        const double standardDeviation,
-        const double mean = 0.0,
-        const double seed = 0.0,
-        const int observableSize = 1 )
-{
-    std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
-                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
-    if( observableSize == 1 )
-    {
-        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
-                                           inputFreeNoiseFunction( ) ).finished( ); };
-    }
-    else if( observableSize == 2 )
-    {
-        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
-    }
-    else if( observableSize == 3 )
-    {
-        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
-    }
-    else if( observableSize == 6 )
-    {
-        return [=](const double){ return ( Eigen::VectorXd( observableSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ),
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
-    }
-    else
-    {
-        throw std::runtime_error( "Cannot simulate observation noise of size " + std::to_string( observableSize ) );
-    }
-}
 
 }
 
