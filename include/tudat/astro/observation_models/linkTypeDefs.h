@@ -135,6 +135,11 @@ std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
         const std::vector< LinkEndId > listOfTransmitters,
         const LinkEndId singleReceivers );
 
+bool isLinkEndPresent(
+        const LinkEnds linkEnds,
+        const LinkEndId linkEndToSearch );
+
+
 } // namespace observation_models
 
 } // namespace tudat

@@ -243,11 +243,11 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
     std::string groundStationNameToUse;
     if( observationViabilitySettings->getAssociatedLinkEnd( ).second != "" )
     {
+        groundStationNameToUse = observationViabilitySettings->getAssociatedLinkEnd( ).second;
         if( groundStationNameToUse != stationName )
         {
             throw std::runtime_error( "Error when making minimum elevation angle calculator, inconsistent station input" );
         }
-        groundStationNameToUse = observationViabilitySettings->getAssociatedLinkEnd( ).second;
     }
     else
     {

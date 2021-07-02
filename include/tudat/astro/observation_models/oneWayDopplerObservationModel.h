@@ -502,9 +502,9 @@ public:
     {
         if( ( transmitterProperTimeRateCalculator == nullptr ) || (
                     receiverProperTimeRateFunction == nullptr ) )
-        {
-            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
-        }
+//        {
+//            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
+//        }
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
         taylorSeriesExpansionOrder_ = 3;
     }

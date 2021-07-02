@@ -1048,16 +1048,30 @@ public:
             {
                 std::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerSettings =
                         std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
+                std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRate = nullptr;
+                std::shared_ptr< DopplerProperTimeRateInterface > receiverProperTimeRate = nullptr;
+                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                {
+                    transmitterProperTimeRate =
+                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
+                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter );
+                }
+
+                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                {
+                    receiverProperTimeRate =
+                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
+                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodies, receiver );
+                }
+
                 // Create observation model
                 observationModel = std::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
                                 bodies, observationSettings->lightTimeCorrectionsList_ ),
-                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter ),
-                            createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
-                                oneWayDopplerSettings->receiverProperTimeRateSettings_, linkEnds, bodies, receiver ),
+                                transmitterProperTimeRate,
+                                receiverProperTimeRate,
                             observationBias );
             }
 

@@ -356,12 +356,43 @@ protected:
     double doubleParameter_;
 };
 
+inline std::vector< std::shared_ptr< ObservationViabilitySettings > > elevationAngleViabilitySettings(
+        const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
+        const double elevationAngle )
+{
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
+    for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
+    {
+        viabilitySettingsList.push_back(
+                    std::make_shared< ObservationViabilitySettings >(
+                                    minimum_elevation_angle, associatedLinkEnds.at( i ), "", elevationAngle ) );
+    }
+    return viabilitySettingsList;
+}
+
 inline std::shared_ptr< ObservationViabilitySettings > elevationAngleViabilitySettings(
         const std::pair< std::string, std::string > associatedLinkEnd,
         const double elevationAngle )
 {
     return std::make_shared< ObservationViabilitySettings >(
                 minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
+}
+
+
+
+inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyAvoidanceAngleViabilitySettings(
+        const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
+        const std::string bodyToAvoid,
+        const double avoidanceAngle )
+{
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
+    for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
+    {
+        viabilitySettingsList.push_back(
+                    std::make_shared< ObservationViabilitySettings >(
+                                    body_avoidance_angle, associatedLinkEnds.at( i ), bodyToAvoid, avoidanceAngle ) );
+    }
+    return viabilitySettingsList;
 }
 
 inline std::shared_ptr< ObservationViabilitySettings > bodyAvoidanceAngleViabilitySettings(
@@ -373,12 +404,28 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyAvoidanceAngleViabili
                 body_avoidance_angle, associatedLinkEnd, bodyToAvoid, avoidanceAngle );
 }
 
+
+
+inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyOccultationViabilitySettings(
+        const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
+        const std::string occultingBody )
+{
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
+    for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
+    {
+        viabilitySettingsList.push_back(
+                    std::make_shared< ObservationViabilitySettings >(
+                                    body_occultation, associatedLinkEnds.at( i ), occultingBody ) );
+    }
+    return viabilitySettingsList;
+}
+
 inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilitySettings(
         const std::pair< std::string, std::string > associatedLinkEnd,
-        const double occultingBody )
+        const std::string occultingBody )
 {
     return std::make_shared< ObservationViabilitySettings >(
-                body_occultation, associatedLinkEnd, "", occultingBody );
+                body_occultation, associatedLinkEnd, occultingBody );
 }
 
 ////! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
