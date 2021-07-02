@@ -592,6 +592,26 @@ struct PodOutput
         }
     }
 
+    Eigen::MatrixXd getNormalizedInformationMatrix( )
+    {
+
+    }
+
+    Eigen::MatrixXd getUnnormalizedInformationMatrix( )
+    {
+
+    }
+
+    Eigen::MatrixXd getNormalizedWeightedInformationMatrix( )
+    {
+
+    }
+
+    Eigen::MatrixXd getUnnormalizedWeightedInformationMatrix( )
+    {
+
+    }
+
     //! Function to set the full state histories of numerical solutions and dependent variables
     /*!
      * Function to set the full state histories of numerical solutions and dependent variables

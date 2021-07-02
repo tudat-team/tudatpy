@@ -262,6 +262,22 @@ std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
     return linkEndsList;
 }
 
+bool isLinkEndPresent(
+        const LinkEnds linkEnds,
+        const LinkEndId linkEndToSearch )
+{
+    bool linkEndIsPresent = false;
+
+    for( auto linkEndIterator : linkEnds )
+    {
+        if( linkEndIterator.second == linkEndToSearch )
+        {
+            linkEndIsPresent = true;
+        }
+    }
+    return linkEndIsPresent;
+}
+
 } // namespace observation_models
 
 } // namespace tudat
