@@ -68,12 +68,12 @@ public:
 
     int getNumberOfNodes( )
     {
-        return legs_.size( );
+        return nodes_.size( );
     }
 
     int getNumberOfLegs( )
     {
-        return nodes_.size( );
+        return legs_.size( );
     }
 
     //! Get Cartesian position and velocity along full trajectory

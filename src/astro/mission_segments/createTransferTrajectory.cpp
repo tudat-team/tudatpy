@@ -166,7 +166,7 @@ std::shared_ptr< TransferNode > createTransferNode(
 
             if( swingbySettings->minimumPeriapsisRadius_ != swingbySettings->minimumPeriapsisRadius_ )
             {
-                hrow std::runtime_error("Error when making swingby node, no minimum periapsis radius is provided" );
+                throw std::runtime_error("Error when making swingby node, no minimum periapsis radius is provided" );
             }
 
             std::function< Eigen::Vector3d( ) > incomingVelocityFunction =
