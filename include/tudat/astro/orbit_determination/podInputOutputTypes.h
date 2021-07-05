@@ -415,6 +415,9 @@ protected:
     unsigned int numberOfIterationsWithoutImprovement_;
 };
 
+void scaleInformationMatrixWithWeights(
+        Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& weightsDiagonal );
 
 //! Data structure through which the output of the orbit determination is communicated
 template< typename ObservationScalarType = double, typename TimeType = double  >
@@ -509,7 +512,7 @@ struct PodOutput
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
      * \return Matrix of unnormalized partial derivatives
      */
-    Eigen::MatrixXd getUnnormalizedPartialDerivatives( )
+    Eigen::MatrixXd getUnnormalizedInformationMatrix( )
     {
         Eigen::MatrixXd unnormalizedPartialDerivatives = Eigen::MatrixXd::Zero(
                     normalizedInformationMatrix_.rows( ), normalizedInformationMatrix_.cols( ) );
@@ -521,8 +524,31 @@ struct PodOutput
                     informationMatrixTransformationDiagonal_( i );
         }
         return unnormalizedPartialDerivatives;
-
     }
+
+    Eigen::MatrixXd getNormalizedInformationMatrix( )
+    {
+        return normalizedInformationMatrix_;
+    }
+
+    Eigen::MatrixXd getNormalizedWeightedInformationMatrix( )
+    {
+        Eigen::MatrixXd weightedNormalizedInformationMatrix = normalizedInformationMatrix_;
+        scaleInformationMatrixWithWeights(
+                weightedNormalizedInformationMatrix,
+                weightsMatrixDiagonal_ );
+        return weightedNormalizedInformationMatrix;
+    }
+
+    Eigen::MatrixXd getUnnormalizedWeightedInformationMatrix( )
+    {
+        Eigen::MatrixXd weightedUnnormalizedInformationMatrix = getUnnormalizedInformationMatrix( );
+        scaleInformationMatrixWithWeights(
+                weightedUnnormalizedInformationMatrix,
+                weightsMatrixDiagonal_ );
+        return weightedUnnormalizedInformationMatrix;
+    }
+
 
 
     //! Function to retrieve the unnormalized formal error vector of the estimation result.
@@ -592,25 +618,6 @@ struct PodOutput
         }
     }
 
-    Eigen::MatrixXd getNormalizedInformationMatrix( )
-    {
-
-    }
-
-    Eigen::MatrixXd getUnnormalizedInformationMatrix( )
-    {
-
-    }
-
-    Eigen::MatrixXd getNormalizedWeightedInformationMatrix( )
-    {
-
-    }
-
-    Eigen::MatrixXd getUnnormalizedWeightedInformationMatrix( )
-    {
-
-    }
 
     //! Function to set the full state histories of numerical solutions and dependent variables
     /*!

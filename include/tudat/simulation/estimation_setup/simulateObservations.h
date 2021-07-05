@@ -415,7 +415,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >  get
  *  (if viability calculators are passed to this function).
  *  \param observationTime Time at which observable is to be computed
  *  \param observationModel Model used to compute observable
- *  \param linkEndAssociatedWithTime Model Reference link end for observable
+ *  \param referenceLinkEnd Model Reference link end for observable
  *  \param linkViabilityCalculators List of observation viability calculators, which are used to reject simulated
  *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Observation at given time.
@@ -424,37 +424,40 @@ template< int ObservationSize = 1, typename ObservationScalarType = double, type
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > simulateObservationWithCheck(
         const TimeType& observationTime,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const observation_models::LinkEndType linkEndAssociatedWithTime,
+        const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
-    // Initialize vector with reception times.
-    bool observationFeasible = 1;
-
+    // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
-
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > calculatedObservation =
             observationModel->computeObservationsWithLinkEndData(
-                observationTime, linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates );
+                observationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates );
 
-    observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
+    // Check if observation is feasible
+    bool observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
 
+    // Add noise if needed.
     if( observationFeasible && ( noiseFunction != nullptr ) )
     {
         Eigen::VectorXd noiseToAdd = noiseFunction( observationTime );
         if( noiseToAdd.rows( ) != ObservationSize )
         {
             std::cout<<noiseToAdd.rows( )<<" "<<ObservationSize<<" "<<observationModel->getObservableType( )<<std::endl;
-            throw std::runtime_error( "Error wen simulating observation noise, size of noise and observable are not compatible" );
+            throw std::runtime_error(
+                        "Error wen simulating observation noise, size of noise (" + std::to_string( noiseToAdd.rows( ) ) +
+                        ") and size of observable (" + std::to_string( ObservationSize ) +
+                        ") are not compatible for observable type: " + observation_models::getObservableName( observationModel->getObservableType( ) ) );
         }
         else
         {
             calculatedObservation += noiseToAdd;
         }
     }
-    // Return pair of simulated ranges and reception times.
+
+    // Return simulated observable and viability
     return std::make_pair( calculatedObservation, observationFeasible );
 }
 
@@ -464,7 +467,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
  *  (if viability calculators are passed to this function).
  *  \param observationTimes Times at which observables are to be computed
  *  \param observationModel Model used to compute observables
- *  \param linkEndAssociatedWithTime Model Reference link end for observables
+ *  \param referenceLinkEnd Model Reference link end for observables
  *  \param linkViabilityCalculators List of observation viability calculators, which are used to reject simulated
  *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Observations at given time (concatenated in an Eigen vector) and associated times.
@@ -474,7 +477,7 @@ std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const observation_models::LinkEndType linkEndAssociatedWithTime,
+        const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
@@ -485,7 +488,7 @@ simulateObservationsWithCheck(
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes.at( i ), observationModel, linkEndAssociatedWithTime, linkViabilityCalculators, noiseFunction );
+                    observationTimes.at( i ), observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction );
 
         // Check if receiving station can view transmitting station.
         if( simulatedObservation.second )
@@ -506,7 +509,7 @@ simulateObservationsWithCheck(
  *  (if viability calculators are passed to this function).
  *  \param observationTimes Times at which observables are to be computed
  *  \param observationModel Model used to compute observables
- *  \param linkEndAssociatedWithTime Model Reference link end for observables
+ *  \param referenceLinkEnd Model Reference link end for observables
  *  \param linkViabilityCalculators List of observation viability calculators, which are used to reject simulated
  *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Observations at given times (concatenated in an Eigen vector), with associated times and reference link end.
@@ -516,16 +519,16 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const observation_models::LinkEndType linkEndAssociatedWithTime,
+        const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
 {
     std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > > simulatedObservations =
-            simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators, noiseFunction );
+            simulateObservationsWithCheck( observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction );
 
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                               simulatedObservations.first, simulatedObservations.second, linkEndAssociatedWithTime );
+                               simulatedObservations.first, simulatedObservations.second, referenceLinkEnd );
 }
 
 
