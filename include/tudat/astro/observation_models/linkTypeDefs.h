@@ -135,6 +135,15 @@ std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
         const std::vector< LinkEndId > listOfTransmitters,
         const LinkEndId singleReceivers );
 
+std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft );
+
+std::vector< LinkEnds > getTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft );
+
+
 bool isLinkEndPresent(
         const LinkEnds linkEnds,
         const LinkEndId linkEndToSearch );

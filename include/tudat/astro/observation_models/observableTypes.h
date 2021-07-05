@@ -51,7 +51,7 @@ std::pair< std::vector< double >, LinkEndType > > > > getTudatCompatibleObservat
  * \param numberOfLinkEnds Number of link ends in observable
  * \return Name of observable
  */
-std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds );
+std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds = 0 );
 
 //! Function to get the observable type.ssociated with the name (string) of observable.
 /*!

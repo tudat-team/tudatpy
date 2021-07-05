@@ -262,6 +262,46 @@ std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
     return linkEndsList;
 }
 
+std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft )
+{
+    std::vector< LinkEnds > linkEndsList;
+
+    LinkEnds currentLinkEnds;
+    currentLinkEnds[ retransmitter ] = spacecraft;
+    for( unsigned int i = 0; i < listOfStations.size( ); i++ )
+    {
+        currentLinkEnds[ transmitter ] = listOfStations.at( i );
+        currentLinkEnds[ receiver ] = listOfStations.at( i );
+
+        linkEndsList.push_back( currentLinkEnds );
+    }
+    return linkEndsList;
+}
+
+std::vector< LinkEnds > getTwoWayLinkEndsList(
+        const std::vector< LinkEndId > listOfStations,
+        const LinkEndId spacecraft )
+{
+    std::vector< LinkEnds > linkEndsList;
+
+    LinkEnds currentLinkEnds;
+    currentLinkEnds[ retransmitter ] = spacecraft;
+    for( unsigned int i = 0; i < listOfStations.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < listOfStations.size( ); j++ )
+        {
+            currentLinkEnds[ transmitter ] = listOfStations.at( i );
+            currentLinkEnds[ receiver ] = listOfStations.at( j );
+
+            linkEndsList.push_back( currentLinkEnds );
+        }
+    }
+    return linkEndsList;
+}
+
+
 bool isLinkEndPresent(
         const LinkEnds linkEnds,
         const LinkEndId linkEndToSearch )
