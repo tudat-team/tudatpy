@@ -57,6 +57,8 @@ enum EphemerisType
  *  addition to their type (and frame origin and orientation). Ephemeris model classes defining
  *  requiring additional information must be created using an object derived from this class.
  */
+
+//! @get_docstring(EphemerisSettings.__docstring__)
 class EphemerisSettings
 {
 public:
@@ -159,6 +161,7 @@ protected:
 };
 
 
+//! @get_docstring(ScaledEphemerisSettings.__docstring__)
 class ScaledEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -210,6 +213,7 @@ protected:
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.
+//! @get_docstring(DirectSpiceEphemerisSettings.__docstring__)
 class DirectSpiceEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -307,6 +311,8 @@ protected:
  *  many numerical integration scenarios, this approach may be faster than using
  *  DirectSpiceEphemerisSettings, with negligible influence on accuracy.
  */
+
+//! @get_docstring(InterpolatedSpiceEphemerisSettings.__docstring__)
 class InterpolatedSpiceEphemerisSettings: public DirectSpiceEphemerisSettings
 {
 public:
@@ -402,6 +408,8 @@ private:
  *  planets, as inplemented in ApproximatePlanetPositions class and derived class,
  *  described on http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf.
  */
+
+//! @get_docstring(ApproximatePlanetPositionSettings.__docstring__)
 class ApproximatePlanetPositionSettings: public EphemerisSettings
 {
 public:
@@ -460,6 +468,8 @@ private:
 
 //! EphemerisSettings derived class for defining settings of an ephemeris producing a constant
 //! (time-independent) state
+
+//! @get_docstring(ConstantEphemerisSettings.__docstring__)
 class ConstantEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -556,6 +566,8 @@ private:
 
 //! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
 //! Kepler orbit.
+
+//! @get_docstring(KeplerEphemerisSettings.__docstring__)
 class KeplerEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -672,6 +684,8 @@ private:
  *  from the data that is provided. Note that at the edges of the interpolation interval, a
  *  Cubic spline interpolator is used to suppres the influence of Runge's phenomenon.
  */
+
+//! @get_docstring(TabulatedEphemerisSettings.__docstring__)
 class TabulatedEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -895,6 +909,7 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromTLE(
 			interpolator, observerName, referenceFrameName );
 }
 
+//! @get_docstring(keplerEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
         const Eigen::Vector6d& initialStateInKeplerianElements,
         const double epochOfInitialState,
@@ -911,6 +926,7 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
+//! @get_docstring(keplerEphemerisFromSpiceSettings)
 inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
         const std::string body,
         const double epochOfInitialState,
@@ -931,6 +947,7 @@ inline std::shared_ptr< EphemerisSettings > keplerEphemerisFromSpiceSettings(
                 rootFinderMaximumNumberOfIterations );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
 		const ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData
         bodyIdentifier )
@@ -939,6 +956,7 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
             bodyIdentifier, false );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings,1)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
         const std::string bodyName )
 {
@@ -955,13 +973,14 @@ inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings(
             bodyIdentifier, false );
 }
 
+//! @get_docstring(approximatePlanetPositionsSettings,2)
 inline std::shared_ptr< EphemerisSettings > approximatePlanetPositionsSettings( )
 {
     return std::make_shared< ApproximatePlanetPositionSettings >(
                 ephemerides::ApproximatePlanetPositionsBase::undefined, false );
 }
 
-
+//! @get_docstring(directSpiceEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
 		const std::string frameOrigin = "SSB",
 		const std::string frameOrientation = "ECLIPJ2000",
@@ -974,6 +993,7 @@ inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
             correctForLightTimeAberration, convergeLightTimeAberration );
 }
 
+//! @get_docstring(directSpiceEphemerisSettings,1)
 inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
         const std::string frameOrigin = "SSB",
         const std::string frameOrientation = "ECLIPJ2000",
@@ -983,6 +1003,7 @@ inline std::shared_ptr< EphemerisSettings > directSpiceEphemerisSettings(
             frameOrigin, frameOrientation, bodyNameOverride);
 }
 
+//! @get_docstring(interpolatedSpiceEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
 		double initialTime,
 		double finalTime,
@@ -997,6 +1018,7 @@ inline std::shared_ptr< EphemerisSettings > interpolatedSpiceEphemerisSettings(
             initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings, bodyNameOverride );
 }
 
+//! @get_docstring(tabulatedEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
 		const std::map< double, Eigen::Vector6d >& bodyStateHistory,
 		std::string frameOrigin = "SSB",
@@ -1006,6 +1028,7 @@ inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings(
 			bodyStateHistory, frameOrigin, frameOrientation	);
 }
 
+//! @get_docstring(constantEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > constantEphemerisSettings(
 		const Eigen::Vector6d& constantState,
 		const std::string& frameOrigin = "SSB",
@@ -1015,6 +1038,7 @@ inline std::shared_ptr< EphemerisSettings > constantEphemerisSettings(
 			constantState, frameOrigin, frameOrientation );
 }
 
+//! @get_docstring(customEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > customEphemerisSettings(
 		const std::function< Eigen::Vector6d( const double ) > customStateFunction,
 		const std::string& frameOrigin = "SSB",
@@ -1045,6 +1069,7 @@ inline std::shared_ptr< EphemerisSettings > interpolatedTleEphemerisSettings(
 			frameOrigin, frameOrientation );
 }
 
+//! @get_docstring(scaledEphemerisSettings)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const double scaling,
@@ -1053,6 +1078,7 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+//! @get_docstring(scaledEphemerisSettings, 1)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const Eigen::Vector6d scaling,
@@ -1061,6 +1087,7 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+//! @get_docstring(scaledEphemerisSettings, 2)
 inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings(
         const std::shared_ptr< EphemerisSettings > baseSettings,
         const std::function< Eigen::Vector6d( const double ) > scaling,
