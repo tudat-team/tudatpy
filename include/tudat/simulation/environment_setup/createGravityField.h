@@ -49,6 +49,8 @@ enum GravityFieldType
  *  addition to their type. Gravity field model classes defining requiring additional information
  *  must be created using an object derived from this class.
  */
+
+//! @get_docstring(GravityFieldSettings.__docstring__)
 class GravityFieldSettings
 {
 public:
@@ -79,6 +81,7 @@ protected:
 };
 
 //! Derived class of GravityFieldSettings defining settings of point mass gravity field.
+//! @get_docstring(CentralGravityFieldSettings.__docstring__)
 class CentralGravityFieldSettings: public GravityFieldSettings
 {
 public:
@@ -111,6 +114,7 @@ private:
 
 //! Derived class of GravityFieldSettings defining settings of spherical harmonic gravity
 //! field representation.
+//! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
 class SphericalHarmonicsGravityFieldSettings: public GravityFieldSettings
 {
 public:
@@ -273,6 +277,7 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
 
 //! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
 //! field representation to be loaded from a spherical harmonics model file.
+//! @get_docstring(FromFileSphericalHarmonicsGravityFieldSettings.__docstring__)
 class FromFileSphericalHarmonicsGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
 {
 public:
@@ -453,6 +458,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
         std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 
+//! @get_docstring(centralGravitySettings)
 inline std::shared_ptr< GravityFieldSettings > centralGravitySettings(
 		const double gravitationalParameter
 		)
@@ -460,12 +466,14 @@ inline std::shared_ptr< GravityFieldSettings > centralGravitySettings(
 	return std::make_shared< CentralGravityFieldSettings >( gravitationalParameter );
 }
 
+//! @get_docstring(centralGravityFromSpiceSettings)
 inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings(
 		)
 {
 	return std::make_shared< GravityFieldSettings >( central_spice );
 }
 
+//! @get_docstring(sphericalHarmonicsGravitySettings)
 inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings(
 		const double gravitationalParameter,
 		const double referenceRadius,
