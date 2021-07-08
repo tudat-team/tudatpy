@@ -19,6 +19,7 @@
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat
 {
@@ -53,15 +54,63 @@ struct ObservationSimulationSettings
     //! Destructor.
     virtual ~ObservationSimulationSettings( ){ }
 
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+    observation_models::LinkEnds getLinkEnds( )
+    {
+        return linkEnds_;
+    }
+
+    observation_models::LinkEndType getReferenceLinkEndType( )
+    {
+        return linkEndType_;
+    }
+
+    std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > getViabilitySettingsList( )
+    {
+        return viabilitySettingsList_;
+    }
+
+    void setViabilitySettingsList(
+            const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
+    {
+        viabilitySettingsList_ = viabilitySettingsList;
+    }
+
+    std::function< Eigen::VectorXd( const double ) > getObservationNoiseFunction( )
+    {
+        return observationNoiseFunction_;
+    }
+
+    void setObservationNoiseFunction(
+            const std::function< Eigen::VectorXd( const double ) >& observationNoiseFunction )
+    {
+
+        observationNoiseFunction_ = observationNoiseFunction;
+    }
+
+
+protected:
+
+    // Type of observable to be simulated
     observation_models::ObservableType observableType_;
 
+    // List of link ends for the observations to be simulated
     observation_models::LinkEnds linkEnds_;
 
-    //! Link end type from which observations are to be simulated.
+    // Reference link end type from which observations are to be simulated.
     observation_models::LinkEndType linkEndType_;
 
+    // Settings used to check whether observtion is possible (non-viable observations are not simulated)
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList_;
 
+    // Settings for variables that are to be saved along with the observables.
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > observationDependentVariableSettings_;
+
+    // Function to generate noise to add to observations that are to be simulated
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 };
 
@@ -80,7 +129,7 @@ void addViabilityToObservationSimulationSettings(
         std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
         for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
         {
-            if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->linkEnds_,
+            if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->getLinkEnds( ),
                                                       viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
             {
                 viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
@@ -90,10 +139,10 @@ void addViabilityToObservationSimulationSettings(
         if( viabilitySettingsToAdd.size( ) > 0 )
         {
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > currentViabilitySettingsList =
-                    observationSimulationSettings.at( i )->viabilitySettingsList_;
+                    observationSimulationSettings.at( i )->getViabilitySettingsList( );
             currentViabilitySettingsList.insert(
                         currentViabilitySettingsList.end( ), viabilitySettingsToAdd.begin( ), viabilitySettingsToAdd.end( ) );
-            observationSimulationSettings.at( i )->viabilitySettingsList_ = currentViabilitySettingsList;
+            observationSimulationSettings.at( i )->setViabilitySettingsList( currentViabilitySettingsList );
         }
     }
 }
@@ -106,12 +155,12 @@ void addViabilityToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        if( observationSimulationSettings.at( i )->getObservableType( ) == observableType )
         {
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsToAdd;
             for( unsigned int j = 0; j < viabilitySettingsList.size( ); j++ )
             {
-                if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->linkEnds_,
+                if( observation_models::isLinkEndPresent( observationSimulationSettings.at( i )->getLinkEnds( ),
                                                           viabilitySettingsList.at( j )->getAssociatedLinkEnd( ) ) )
                 {
                     viabilitySettingsToAdd.push_back( viabilitySettingsList.at( j ) );
@@ -121,10 +170,10 @@ void addViabilityToObservationSimulationSettings(
             if( viabilitySettingsToAdd.size( ) > 0 )
             {
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > currentViabilitySettingsList =
-                        observationSimulationSettings.at( i )->viabilitySettingsList_;
+                        observationSimulationSettings.at( i )->getViabilitySettingsList( );
                 currentViabilitySettingsList.insert(
                             currentViabilitySettingsList.end( ), viabilitySettingsToAdd.begin( ), viabilitySettingsToAdd.end( ) );
-                observationSimulationSettings.at( i )->viabilitySettingsList_ = currentViabilitySettingsList;
+                observationSimulationSettings.at( i )->setViabilitySettingsList( currentViabilitySettingsList );
             }
         }
     }
@@ -138,7 +187,7 @@ void clearNoiseFunctionFromObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        observationSimulationSettings.at( i )->observationNoiseFunction_ = nullptr;
+        observationSimulationSettings.at( i )->setObservationNoiseFunction( nullptr );
     }
 }
 
@@ -185,7 +234,7 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+        observationSimulationSettings.at( i )->setObservationNoiseFunction( observationNoiseFunction );
     }
 }
 
@@ -197,9 +246,9 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        observationSimulationSettings.at( i )->observationNoiseFunction_ =
+        observationSimulationSettings.at( i )->setObservationNoiseFunction(
                 getNoiseFunctionForObservable(
-                    observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
+                    observationNoiseFunction, observationSimulationSettings.at( i )->getObservableType( ) ) );
     }
 }
 
@@ -211,9 +260,9 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        if( observationSimulationSettings.at( i )->getObservableType( ) == observableType )
         {
-            observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+            observationSimulationSettings.at( i )->setObservationNoiseFunction( observationNoiseFunction );
         }
     }
 }
@@ -240,11 +289,11 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        if( observationSimulationSettings.at( i )->observableType_ == observableType )
+        if( observationSimulationSettings.at( i )->getObservableType( ) == observableType )
         {
-            observationSimulationSettings.at( i )->observationNoiseFunction_  =
+            observationSimulationSettings.at( i )->setObservationNoiseFunction(
                     getNoiseFunctionForObservable(
-                        observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
+                        observationNoiseFunction, observationSimulationSettings.at( i )->getObservableType( ) ) );
         }
     }
 }
@@ -258,10 +307,10 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        if( observationSimulationSettings.at( i )->observableType_ == observableType &&
-                observationSimulationSettings.at( i )->linkEnds_ == linkEnds )
+        if( observationSimulationSettings.at( i )->getObservableType( ) == observableType &&
+                observationSimulationSettings.at( i )->getLinkEnds( ) == linkEnds )
         {
-            observationSimulationSettings.at( i )->observationNoiseFunction_ = observationNoiseFunction;
+            observationSimulationSettings.at( i )->setObservationNoiseFunction( observationNoiseFunction );
         }
     }
 }
@@ -275,12 +324,12 @@ void addNoiseFunctionToObservationSimulationSettings(
 {
     for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
     {
-        if( observationSimulationSettings.at( i )->observableType_ == observableType  &&
-                observationSimulationSettings.at( i )->linkEnds_ == linkEnds )
+        if( observationSimulationSettings.at( i )->getObservableType( ) == observableType  &&
+                observationSimulationSettings.at( i )->getLinkEnds( ) == linkEnds )
         {
-            observationSimulationSettings.at( i )->observationNoiseFunction_ =
+            observationSimulationSettings.at( i )->setObservationNoiseFunction(
                     getNoiseFunctionForObservable(
-                        observationNoiseFunction, observationSimulationSettings.at( i )->observableType_ );
+                        observationNoiseFunction, observationSimulationSettings.at( i )->getObservableType( ) ) );
         }
     }
 }
@@ -528,7 +577,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             simulateObservationsWithCheck( observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction );
 
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                               simulatedObservations.first, simulatedObservations.second, referenceLinkEnd );
+                simulatedObservations.first, simulatedObservations.second, referenceLinkEnd );
 }
 
 
@@ -555,11 +604,11 @@ simulateSingleObservationSet(
     std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > currentObservationViabilityCalculators =
             observation_models::createObservationViabilityCalculators(
                 bodies,
-                observationsToSimulate->linkEnds_,
-                observationsToSimulate->observableType_,
-                observationsToSimulate->viabilitySettingsList_ );
+                observationsToSimulate->getLinkEnds( ),
+                observationsToSimulate->getObservableType( ),
+                observationsToSimulate->getViabilitySettingsList( ) );
 
-    std::function< Eigen::VectorXd( const double ) > noiseFunction = observationsToSimulate->observationNoiseFunction_;
+    std::function< Eigen::VectorXd( const double ) > noiseFunction = observationsToSimulate->getObservationNoiseFunction( );
 
     // Simulate observations from tabulated times.
     if( std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
@@ -570,7 +619,8 @@ simulateSingleObservationSet(
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput<
                 ObservationSize, ObservationScalarType, TimeType >(
-                    tabulatedObservationSettings->simulationTimes_, observationModel, observationsToSimulate->linkEndType_,
+                    tabulatedObservationSettings->simulationTimes_, observationModel,
+                    observationsToSimulate->getReferenceLinkEndType( ),
                     currentObservationViabilityCalculators, noiseFunction );
 
     }
@@ -613,7 +663,7 @@ simulateSingleObservationSet(
     //                std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > currentObservation =
     //                        simulateObservationWithCheck<
     //                        ObservationSize, ObservationScalarType, TimeType >(
-    //                            currentTime, observationModel, observationsToSimulate->linkEndType_,
+    //                            currentTime, observationModel, observationsToSimulate->getReferenceLinkEndType( ),
     //                            currentObservationViabilityCalculators, noiseFunction );
 
     //                // If observation is possible, set it in current arc observations.
@@ -637,7 +687,7 @@ simulateSingleObservationSet(
 
     //        }
 
-    //        simulatedObservations = std::make_pair( observations, std::make_pair( times, arcLimitedObservationSettings->linkEndType_ ) );
+    //        simulatedObservations = std::make_pair( observations, std::make_pair( times, arcLimitedObservationSettings->getReferenceLinkEndType( ) ) );
     //    }
 
     return simulatedObservations;
@@ -666,7 +716,7 @@ simulateSingleObservationSet(
     }
 
     return simulateSingleObservationSet< ObservationScalarType, TimeType, ObservationSize >(
-                observationsToSimulate, observationSimulator->getObservationModel( observationsToSimulate->linkEnds_ ),
+                observationsToSimulate, observationSimulator->getObservationModel( observationsToSimulate->getLinkEnds( ) ),
                 bodies );
 }
 
@@ -693,8 +743,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     // Iterate over all observables.
     for( unsigned int i = 0; i < observationsToSimulate.size( ); i++ )
     {
-        observation_models::ObservableType observableType = observationsToSimulate.at( i )->observableType_;
-        observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->linkEnds_;
+        observation_models::ObservableType observableType = observationsToSimulate.at( i )->getObservableType( );
+        observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( );
 
         int observationSize = observation_models::getObservableSize( observableType );
 
@@ -712,8 +762,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Simulate observations for current observable and link ends set.
             sortedObservations[ observableType ][ linkEnds ].push_back(
-                    simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
+                            observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
             break;
         }
         case 2:
@@ -728,8 +778,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Simulate observations for current observable and link ends set.
             sortedObservations[ observableType ][ linkEnds ].push_back(
-                    simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
+                            observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
             break;
         }
         case 3:
@@ -744,8 +794,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Simulate observations for current observable and link ends set.
             sortedObservations[ observableType ][ linkEnds ].push_back(
-                    simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
-                        observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
+                            observationsToSimulate.at( i ), derivedObservationSimulator, bodies ) );
 
             break;
         }

@@ -149,6 +149,7 @@ bool isLinkEndPresent(
         const LinkEndId linkEndToSearch );
 
 
+
 } // namespace observation_models
 
 } // namespace tudat

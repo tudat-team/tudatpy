@@ -94,6 +94,37 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
     return stationList;
 }
 
+std::vector< double >  getTargetElevationAngles(
+        const std::shared_ptr< Body > observingBody,
+        const std::shared_ptr< Body > targetBody,
+        const std::string groundStationName,
+        const std::vector< double > times )
+{
+    if( observingBody->getGroundStationMap( ).count( groundStationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when computing elevating angle, station " + groundStationName +
+                                  " not found on body " + observingBody->getBodyName( ) );
+    }
+
+    std::function< Eigen::Vector6d( const double& ) > groundStationStateFunction =
+            getLinkEndCompleteEphemerisFunction(
+                observingBody, std::make_pair( observingBody->getBodyName( ), groundStationName ) );
+
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            observingBody->getGroundStationMap( ).at( groundStationName )->getPointingAnglesCalculator( );
+
+    Eigen::Vector3d relativePosition;
+    std::vector< double > elevationAngles;
+    for( unsigned int i = 0; i < times.size( ); i++ )
+    {
+        relativePosition = ( targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) ) -
+                groundStationStateFunction( times.at( i ) ) ).segment( 0, 3 );
+        elevationAngles.push_back( pointingAnglesCalculator->calculateElevationAngle( relativePosition, times.at( i ) ) );
+    }
+
+    return elevationAngles;
+}
+
 }
 
 }
