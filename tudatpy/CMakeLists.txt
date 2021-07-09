@@ -71,6 +71,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_reference_frames.cpp
         kernel/expose_astro/expose_shape.cpp
         kernel/expose_astro/expose_observations.cpp
+        kernel/expose_astro/expose_ground_stations.cpp
 
 
         # kernel/constants
