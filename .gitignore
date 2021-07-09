@@ -36,4 +36,5 @@ cmake-build-*/
 # Rever
 rever/
 
-__pycache__
+__pycache__/*
+__pycache__*
