@@ -28,6 +28,8 @@ namespace tudat
 namespace simulation_setup
 {
 
+extern int noiseSeed;
+
 std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType );
@@ -126,6 +128,16 @@ protected:
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 };
 
+template< typename TimeType = double >
+void clearNoiseFunctionFromObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        observationSimulationSettings.at( i )->setObservationNoiseFunction( std::function< Eigen::VectorXd( const double ) >( ) );
+    }
+}
+
 
 template< typename TimeType = double >
 void addViabilityToSingleObservationSimulationSettings(
@@ -162,27 +174,13 @@ void addNoiseToSingleObservationSimulationSettings(
 
 template< typename TimeType = double >
 void addGaussianNoiseToSingleObservationSimulationSettings(
-        const std::shared_ptr< ObservationSimulationSettings< TimeType > > observationSimulationSettings,
-        const double observationNoiseAmplitude,
-        const observation_models::ObservableType observableType,
-        const int noiseSeed )
-{
-    std::function< Eigen::VectorXd( const double ) > noiseFunction =
-            statistics::getIndependentGaussianNoiseFunction(
-                observationNoiseAmplitude, 0.0, noiseSeed, observation_models::getObservableSize( observableType ) );
-    observationSimulationSettings->setObservationNoiseFunction( noiseFunction );
-}
-
-template< typename TimeType = double >
-void addGaussianNoiseToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
-        const double observationNoiseAmplitude,
-        const observation_models::ObservableType observableType )
+        const double observationNoiseAmplitude )
 {
-    static int noiseSeed = 0;
     std::function< Eigen::VectorXd( const double ) > noiseFunction =
             statistics::getIndependentGaussianNoiseFunction(
-                observationNoiseAmplitude, 0.0, noiseSeed, observation_models::getObservableSize( observableType ) );
+                observationNoiseAmplitude, 0.0, noiseSeed, observation_models::getObservableSize(
+                    observationSimulationSettings->getObservableType( ) ) );
     noiseSeed++;
 
     observationSimulationSettings->setObservationNoiseFunction( noiseFunction );
@@ -245,47 +243,6 @@ void addViabilityToObservationSimulationSettings(
                 modificationFunction, args ... );
 }
 
-//template< typename TimeType = double >
-//void addViabilityToObservationSimulationSettings(
-//        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-//        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
-//        const observation_models::ObservableType observableType )
-//{
-//    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
-//            std::bind( &addViabilityToSingleObservationSimulationSettings< TimeType >,
-//                       std::placeholders::_1, viabilitySettingsList );
-//    modifyObservationSimulationSettings(
-//                observationSimulationSettings,
-//                modificationFunction,
-//                observableType );
-//}
-
-//template< typename TimeType = double >
-//void addViabilityToObservationSimulationSettings(
-//        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-//        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
-//        const observation_models::ObservableType observableType,
-//        const observation_models::LinkEnds& linkEnds )
-//{
-//    modifyObservationSimulationSettings(
-//                observationSimulationSettings,
-//                std::bind( &addViabilityToSingleObservationSimulationSettings< TimeType >,
-//                           std::placeholders::_1, viabilitySettingsList ), observableType, linkEnds );
-//}
-
-
-
-
-template< typename TimeType = double >
-void clearNoiseFunctionFromObservationSimulationSettings(
-        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings )
-{
-    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
-    {
-        observationSimulationSettings.at( i )->setObservationNoiseFunction( std::function< Eigen::VectorXd( const double ) >( ) );
-    }
-}
-
 
 template< typename TimeType = double, typename DataType = double, typename... ArgTypes >
 void addNoiseFunctionToObservationSimulationSettings(
@@ -300,46 +257,17 @@ void addNoiseFunctionToObservationSimulationSettings(
                 observationSimulationSettings, modificationFunction, args ... );
 }
 
-
-//template< typename TimeType = double, typename DataType = double >
-//void addNoiseFunctionToObservationSimulationSettings(
-//        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-//        const std::function< DataType( const double ) > observationNoiseFunction,
-//        const observation_models::ObservableType observableType )
-//{
-//    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
-//            std::bind( &addNoiseToSingleObservationSimulationSettings< TimeType, DataType >,
-//                       std::placeholders::_1, observationNoiseFunction );
-//    modifyObservationSimulationSettings(
-//                observationSimulationSettings, modificationFunction, observableType );
-//}
-
-//template< typename TimeType = double, typename DataType = double >
-//void addNoiseFunctionToObservationSimulationSettings(
-//        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-//        const std::function< DataType( const double ) > observationNoiseFunction,
-//        const observation_models::ObservableType observableType,
-//        const observation_models::LinkEnds linkEnds)
-//{
-//    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
-//            std::bind( &addNoiseToSingleObservationSimulationSettings< TimeType, DataType >,
-//                       std::placeholders::_1, observationNoiseFunction );
-//    modifyObservationSimulationSettings(
-//                observationSimulationSettings, modificationFunction, observableType, linkEnds );
-//}
-
-template< typename TimeType = double >
+template< typename TimeType = double, typename... ArgTypes  >
 void addGaussianNoiseFunctionToObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
         const double observationNoiseAmplitude,
-        const observation_models::ObservableType observableType,
-        const int noiseSeed )
+        ArgTypes... args )
 {
-    std::function< Eigen::VectorXd( const double ) > noiseFunction =
-            statistics::getIndependentGaussianNoiseFunction(
-                observationNoiseAmplitude, 0.0, noiseSeed, observation_models::getObservableSize( observableType ) );
-    addNoiseFunctionToObservationSimulationSettings< TimeType >(
-                observationSimulationSettings, noiseFunction, observableType );
+    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            std::bind( &addGaussianNoiseToSingleObservationSimulationSettings< TimeType >,
+                       std::placeholders::_1, observationNoiseAmplitude );
+    modifyObservationSimulationSettings(
+                observationSimulationSettings, modificationFunction, args ... );
 }
 
 

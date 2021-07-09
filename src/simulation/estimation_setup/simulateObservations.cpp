@@ -6,6 +6,8 @@ namespace tudat
 namespace simulation_setup
 {
 
+int noiseSeed = 0;
+
 std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType )
