@@ -338,7 +338,7 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
         const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
         const Eigen::VectorXd& observation )
 {
-    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( totalDependentVariableSize_ );
+    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Constant( totalDependentVariableSize_, TUDAT_NAN );
 
     for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
