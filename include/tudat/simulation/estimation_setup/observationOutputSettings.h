@@ -117,46 +117,14 @@ public:
 std::string getObservationDependentVariableName(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
+bool isObservationDependentVariableVectorial(
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
 bool isObservationDependentVariableGroundStationProperty(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
-void checkObservationDependentVariableEnvironment(
-        const SystemOfBodies& bodies,
+int getObservationDependentVariableSize(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
-typedef std::function< double( const std::vector< double >& ,
-                               const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-                               const Eigen::VectorXd& ) > DoubleObservationDependentVariableFunction;
-
-typedef std::function< Eigen::VectorXd( const std::vector< double >& ,
-                               const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-                               const Eigen::VectorXd& ) > VectorObservationDependentVariableFunction;
-
-DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< BodyAvoidanceObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
-
-DoubleObservationDependentVariableFunction getTargetRangeFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
-
-DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
-
-DoubleObservationDependentVariableFunction getObservationDoubleDependentVariableFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds linkEnds );
-
-
 }
 
 }

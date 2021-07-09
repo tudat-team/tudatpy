@@ -38,6 +38,7 @@ set(estimation_HEADERS
         createDifferencedOneWayRangeRatePartials.h
         createNWayRangePartials.h
         observationOutputSettings.h
+        observationOutput.h
         )
 
 # Add header files.
@@ -63,6 +64,7 @@ set(estimation_SOURCES
         createAngularPositionPartials.cpp
         simulateObservations.cpp
         observationOutputSettings.cpp
+        observationOutput.cpp
         )
 
 # Add library.
