@@ -68,7 +68,6 @@ void expose_observation_setup(py::module &m) {
             .export_values();
 
 
-
     py::class_<tom::DopplerProperTimeRateSettings,
             std::shared_ptr<tom::DopplerProperTimeRateSettings>>(
                 m, "DopplerProperTimeRateSettings");
@@ -319,13 +318,11 @@ void expose_observation_setup(py::module &m) {
           py::overload_cast<
           const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
           const double,
-          const tom::ObservableType,
-          const int >(
-                &tss::addGaussianNoiseFunctionToObservationSimulationSettings< double > ),
+          const tom::ObservableType >(
+                &tss::addGaussianNoiseFunctionToObservationSimulationSettings< double, const tom::ObservableType > ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_amplitude"),
-            py::arg("observable_type"),
-            py::arg("random_noise_seed") = 0 );
+            py::arg("observable_type") );
 
 
     m.def("add_viability_check_to_settings",
@@ -346,6 +343,19 @@ void expose_observation_setup(py::module &m) {
             py::arg("viability_settings"),
             py::arg("observable_type") );
 
+    py::class_<tss::ObservationDependentVariableSettings,
+            std::shared_ptr<tss::ObservationDependentVariableSettings>>(
+                m, "ObservationDependentVariableSettings");
+
+    m.def("add_dependent_variables_to_settings",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
+          const tss::SystemOfBodies& >(
+                &tss::addDependentVariablesToObservationSimulationSettings< double > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("dependent_variable_settings" ),
+            py::arg("bodies" ) );
 
 
     m.def("simulate_observations",
