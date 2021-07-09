@@ -21,6 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
+#include "tudat/simulation/estimation_setup/observationOutput.h"
 
 namespace tudat
 {
@@ -56,7 +57,11 @@ struct ObservationSimulationSettings
             std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
             const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ), linkEndType_( linkEndType ),
-        viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ){ }
+        viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction )
+    {
+        dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >(
+                    observableType_, linkEnds_ );
+    }
 
     //! Destructor.
     virtual ~ObservationSimulationSettings( ){ }
@@ -105,7 +110,10 @@ struct ObservationSimulationSettings
                     observationNoiseFunction, observableType_ );
     }
 
-
+    std::shared_ptr< ObservationDependentVariableCalculator > getDependentVariableCalculator( )
+    {
+        return dependentVariableCalculator_;
+    }
 
 protected:
 
@@ -126,6 +134,8 @@ protected:
 
     // Function to generate noise to add to observations that are to be simulated
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
+
+    std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator_;
 };
 
 template< typename TimeType = double >
@@ -138,6 +148,19 @@ void clearNoiseFunctionFromObservationSimulationSettings(
     }
 }
 
+void addDependentVariables(
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
+        const SystemOfBodies& bodies );
+
+template< typename TimeType = double >
+void addDependentVariableToSingleObservationSimulationSettings(
+        const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
+        const SystemOfBodies& bodies )
+{
+    observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables(
+                dependentVariableList, bodies );
+}
 
 template< typename TimeType = double >
 void addViabilityToSingleObservationSimulationSettings(
@@ -270,6 +293,19 @@ void addGaussianNoiseFunctionToObservationSimulationSettings(
                 observationSimulationSettings, modificationFunction, args ... );
 }
 
+template< typename TimeType = double, typename... ArgTypes  >
+void addDependentVariablesToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
+        const SystemOfBodies& bodies,
+        ArgTypes... args )
+{
+    std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            std::bind( &addDependentVariableToSingleObservationSimulationSettings< TimeType >,
+                       std::placeholders::_1, dependentVariableList, bodies );
+    modifyObservationSimulationSettings(
+                observationSimulationSettings, modificationFunction, args ... );
+}
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
 /*!
@@ -406,13 +442,14 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >  get
  *  \return Observation at given time.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > simulateObservationWithCheck(
+std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulateObservationWithCheck(
         const TimeType& observationTime,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
-        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
+        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
 {
     // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
@@ -420,7 +457,12 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > calculatedObservation =
             observationModel->computeObservationsWithLinkEndData(
                 observationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates );
-
+    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
+    if( dependentVariableCalculator != nullptr )
+    {
+        dependentVariables = dependentVariableCalculator->calculateDependentVariables(
+                    vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ) );
+    }
     // Check if observation is feasible
     bool observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
 
@@ -443,7 +485,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
     }
 
     // Return simulated observable and viability
-    return std::make_pair( calculatedObservation, observationFeasible );
+    return std::make_tuple( calculatedObservation, observationFeasible, dependentVariables );
 }
 
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function
@@ -458,34 +500,40 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
  *  \return Observations at given time (concatenated in an Eigen vector) and associated times.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > >
+std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
+std::vector< TimeType >,
+std::vector< Eigen::VectorXd > >
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
-        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
+        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr  )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
-    std::pair< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, bool > simulatedObservation;
+    std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
+    std::vector< Eigen::VectorXd > dependentVariables;
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes.at( i ), observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction );
+                    observationTimes.at( i ), observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
 
         // Check if receiving station can view transmitting station.
-        if( simulatedObservation.second )
+        if( std::get< 1 >( simulatedObservation ) )
         {
             // If viable, add observable and time to vector of simulated data.
-            observations[ observationTimes[ i ] ] = simulatedObservation.first;
+            observations[ observationTimes[ i ] ] = std::get< 0 >( simulatedObservation );
+            dependentVariables.push_back( std::get< 2 >( simulatedObservation ) );
         }
     }
 
     // Return pair of simulated ranges and reception times.
-    return std::make_pair( utilities::createVectorFromMapValues( observations ),
-                           utilities::createVectorFromMapKeys( observations ) );
+    return std::make_tuple( utilities::createVectorFromMapValues( observations ),
+                            utilities::createVectorFromMapKeys( observations ),
+                            dependentVariables );
 }
 
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function
@@ -507,13 +555,17 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > linkViabilityCalculators =
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
-        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr )
+        const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
+        const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
 {
-    std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< TimeType > > simulatedObservations =
-            simulateObservationsWithCheck( observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction );
+    std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
+    std::vector< TimeType >,
+    std::vector< Eigen::VectorXd > >
+            simulatedObservations =
+            simulateObservationsWithCheck( observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators, noiseFunction, dependentVariableCalculator );
 
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                simulatedObservations.first, simulatedObservations.second, referenceLinkEnd );
+                std::get< 0 >( simulatedObservations ), std::get< 1 >( simulatedObservations ), referenceLinkEnd, std::get< 2 >( simulatedObservations ) );
 }
 
 
@@ -557,7 +609,8 @@ simulateSingleObservationSet(
                 ObservationSize, ObservationScalarType, TimeType >(
                     tabulatedObservationSettings->simulationTimes_, observationModel,
                     observationsToSimulate->getReferenceLinkEndType( ),
-                    currentObservationViabilityCalculators, noiseFunction );
+                    currentObservationViabilityCalculators, noiseFunction,
+                    observationsToSimulate->getDependentVariableCalculator( ) );
 
     }
     //    // Simulate observations per arc from settings

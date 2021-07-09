@@ -75,7 +75,10 @@ public:
 
     ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
                                             const observation_models::LinkEnds& linkEnds ):
-    observableType_( observableType ), linkEnds_( linkEnds ){ }
+    observableType_( observableType ), linkEnds_( linkEnds )
+    {
+        totalDependentVariableSize_ = 0.0;
+    }
 
     Eigen::VectorXd calculateDependentVariables(
             const std::vector< double >& linkEndTimes,
@@ -84,6 +87,10 @@ public:
 
     void addDependentVariable(
             const std::shared_ptr< ObservationDependentVariableSettings > settings,
+            const SystemOfBodies& bodies );
+
+    void addDependentVariables(
+            const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
             const SystemOfBodies& bodies );
 
 private:
