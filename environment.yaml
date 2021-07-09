@@ -12,4 +12,6 @@ dependencies:
   - pybind11
   - pybind11-abi
   - numpy
+  - matplotlib # for tudat.plotting
+  - basemap # for tudat.plotting
   - pytest

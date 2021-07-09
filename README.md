@@ -8,6 +8,7 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 - [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10))
   - All procedures, including the following prerequisite, assume the use of WSL. Power users who wish to do otherwise,
     must do so at their own risk, with reduced support from the team.
+  - **Important**: WSL is itself a clean Linux system existing on your Windows, you cannot use your existing Windows conda environments. You will need to carry out the Linux installation process for Miniconda/Anaconda in the WSL terminal.
 - Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
 
 ## Setup
@@ -15,7 +16,7 @@ This repository facillitates parallel development between the `tudat` (C++) and 
 1. Clone the repository and enter directory
 
 ````
-git clone --single-branch --branch minimal https://github.com/tudat-team/tudat-bundle
+git clone --single-branch --branch <branch-name> https://github.com/tudat-team/tudat-bundle
 cd tudat-bundle
 ````
 
