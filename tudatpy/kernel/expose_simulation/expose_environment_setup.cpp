@@ -1059,8 +1059,7 @@ void expose_environment_setup(py::module &m) {
           py::arg("ephemeris_origin" ) = "" );
 
     // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
-    m.def(
-                "create_tabulated_ephemeris_from_spice",
+    m.def( "create_tabulated_ephemeris_from_spice",
                 &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
                 py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
                 py::arg("observer_name"), py::arg("reference_frame_name"),
@@ -1103,6 +1102,13 @@ void expose_environment_setup(py::module &m) {
     m.def("get_ground_station_list",
           &tss::getGroundStationsLinkEndList,
           py::arg( "body" ) );
+
+    m.def("get_target_elevation_angles",
+          &tss::getTargetElevationAngles,
+          py::arg( "observing_body" ),
+          py::arg( "target_body" ),
+          py::arg( "station_name" ),
+          py::arg( "times" ) );
 
     m.def("create_radiation_pressure_interface",
           &tss::createRadiationPressureInterface,

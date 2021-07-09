@@ -22,9 +22,11 @@
 namespace py = pybind11;
 namespace tep = tudat::estimatable_parameters;
 namespace tp = tudat::propagators;
+namespace ts = tudat::statistics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
+
 
 namespace tudatpy {
 
@@ -65,6 +67,12 @@ void expose_observation_setup(py::module &m) {
             .value("velocity_observable_type", tom::ObservableType::velocity_observable )
             .export_values();
 
+
+
+    py::class_<tom::DopplerProperTimeRateSettings,
+            std::shared_ptr<tom::DopplerProperTimeRateSettings>>(
+                m, "DopplerProperTimeRateSettings");
+
     py::class_<tom::ObservationModelSettings,
             std::shared_ptr<tom::ObservationModelSettings>>(
                 m, "ObservationSettings");
@@ -75,24 +83,23 @@ void expose_observation_setup(py::module &m) {
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
 
-    m.def("angular",
+    m.def("angular_position",
           &tom::angularPositionSettings,
           py::arg("link_ends"),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr );
 
-
-    m.def("position",
+    m.def("cartesian_position",
           &tom::positionObservableSettings,
           py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
 
-    m.def("velocity",
+    m.def("cartesian_velocity",
           &tom::velocityObservableSettings,
           py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
 
-    m.def("313_euler_angle",
+    m.def("313_euler_angles",
           &tom::eulerAngle313ObservableSettings,
           py::arg("link_ends"),
           py::arg("bias_settings") = nullptr );
@@ -216,19 +223,57 @@ void expose_observation_setup(py::module &m) {
                  py::arg("double_input") );
 
     m.def("elevation_angle_viability",
-          &tom::elevationAngleViabilitySettings,
+          py::overload_cast<
+          const std::vector< std::pair< std::string, std::string > >,
+          const double >(
+          &tom::elevationAngleViabilitySettings ),
+          py::arg("link_ends_list" ),
+          py::arg("elevationAngle" ) );
+
+    m.def("elevation_angle_viability",
+          py::overload_cast<
+          const std::pair< std::string, std::string >,
+          const double >(
+          &tom::elevationAngleViabilitySettings ),
           py::arg("link_end" ),
           py::arg("elevationAngle" ) );
 
 
     m.def("body_avoidance_viability",
-          &tom::bodyAvoidanceAngleViabilitySettings,
+          py::overload_cast<
+          const std::pair< std::string, std::string >,
+          const std::string,
+          const double >(
+          &tom::bodyAvoidanceAngleViabilitySettings ),
           py::arg("link_end" ),
           py::arg("body_to_avoid" ),
           py::arg("avoidance_angle") );
 
+    m.def("body_avoidance_viability",
+          py::overload_cast<
+          const std::vector< std::pair< std::string, std::string > >,
+          const std::string,
+          const double >(
+          &tom::bodyAvoidanceAngleViabilitySettings ),
+          py::arg("link_ends_list" ),
+          py::arg("body_to_avoid" ),
+          py::arg("avoidance_angle") );
+
+
     m.def("body_occultation_viability",
-          &tom::bodyOccultationViabilitySettings,
+          py::overload_cast<
+          const std::vector< std::pair< std::string, std::string > >,
+          const std::string >(
+          &tom::bodyOccultationViabilitySettings ),
+          py::arg("link_ends_list" ),
+          py::arg("occulting_body" ) );
+
+
+    m.def("body_occultation_viability",
+          py::overload_cast<
+          const std::pair< std::string, std::string >,
+          const std::string >(
+          &tom::bodyOccultationViabilitySettings ),
           py::arg("link_end" ),
           py::arg("occulting_body" ) );
 
@@ -261,13 +306,47 @@ void expose_observation_setup(py::module &m) {
           py::arg("simulation_times" ) );
 
     m.def("add_noise_to_settings",
-          py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
-          const std::function<  Eigen::VectorXd( const double ) >,
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::function< Eigen::VectorXd( const double ) >,
           const tom::ObservableType >(
-                &tss::addNoiseFunctionToObservationSimulationSettings< double > ),
+                &tss::addNoiseFunctionToObservationSimulationSettings< double, Eigen::VectorXd, const tom::ObservableType > ),
             py::arg("observation_simulation_settings"),
             py::arg("noise_functiton"),
             py::arg("observable_type") );
+
+    m.def("add_gaussian_noise_to_settings",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const double,
+          const tom::ObservableType,
+          const int >(
+                &tss::addGaussianNoiseFunctionToObservationSimulationSettings< double > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("noise_amplitude"),
+            py::arg("observable_type"),
+            py::arg("random_noise_seed") = 0 );
+
+
+    m.def("add_viability_check_to_settings",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
+                &tss::addViabilityToObservationSimulationSettings< double > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("viability_settings") );
+
+    m.def("add_viability_check_to_settings",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< double > > >&,
+          const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
+          const tom::ObservableType >(
+                &tss::addViabilityToObservationSimulationSettings< double, const tom::ObservableType > ),
+            py::arg("observation_simulation_settings"),
+            py::arg("viability_settings"),
+            py::arg("observable_type") );
+
+
 
     m.def("simulate_observations",
               &tss::simulateObservations< >,
@@ -275,45 +354,12 @@ void expose_observation_setup(py::module &m) {
           py::arg("observation_simulators" ),
           py::arg("bodies") );
 
-//    m.def("simulate_observations",
-//          py::overload_cast<
-//          const std::map< tom::ObservableType, std::map< tom::LinkEnds, std::shared_ptr< tom::ObservationSimulationTimeSettings< double > > > >&,
-//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
-//          const tom::PerObservableObservationViabilityCalculatorList >(
-//              &tom::simulateObservations< double, double > ),
-//          py::arg("observation_to_simulate"),
-//          py::arg("observation_simulator"),
-//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
-
-//    m.def("simulate_observations",
-//          py::overload_cast<
-//          const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, std::vector< double > > >&,
-//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
-//          const tom::PerObservableObservationViabilityCalculatorList >(
-//              &tom::simulateObservations< double, double > ),
-//          py::arg("observation_to_simulate"),
-//          py::arg("observation_simulator"),
-//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
-
-//    m.def("simulate_noisy_observations",
-//          py::overload_cast<
-//          const std::vector< std::tuple< tom::ObservableType, tom::LinkEnds, std::vector< double > > >&,
-//          const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationSimulatorBase< double, double > > >&,
-//          const std::map< tom::ObservableType, std::function< double( const double ) > >&,
-//          const tom::PerObservableObservationViabilityCalculatorList >(
-//              &tom::simulateObservationsWithNoise< double, double > ),
-//          py::arg("observation_to_simulate"),
-//          py::arg("observation_simulator"),
-//          py::arg("noise_functions"),
-//          py::arg("observation_viability_calculators") = tom::PerObservableObservationViabilityCalculatorList( ) );
-
-    m.def("gaussian_noise_function",
-              &tss::getGaussianDistributionNoiseFunction,
-          py::arg("standard_deviation"),
-          py::arg("mean") = 0.0,
-          py::arg("seed") = time(NULL),
-          py::arg("observable_size") = 1);
-
+//    m.def("gaussian_noise_function",
+//              &ts::getGaussianDistributionNoiseFunction,
+//          py::arg("standard_deviation"),
+//          py::arg("mean") = 0.0,
+//          py::arg("seed") = time(NULL),
+//          py::arg("observable_size") = 1);
 }
 
 void expose_estimated_parameter_setup(py::module &m) {
@@ -631,7 +677,25 @@ void expose_estimation_setup(py::module &m) {
                 &tp::CombinedStateTransitionAndSensitivityMatrixInterface::getFullParameterVectorSize);;
 
     m.def("propagate_covariance",
-          py::overload_cast< const Eigen::MatrixXd&,
+          py::overload_cast<
+          const Eigen::MatrixXd,
+          const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+          const std::vector< double > >(
+          &tp::propagateCovariance ),
+          py::arg("initial_covariance"),
+          py::arg("state_transition_interface"),
+          py::arg("output_times") );
+
+    m.def("propagate_formal_errors",
+          py::overload_cast< const Eigen::MatrixXd,
+          const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+          const std::vector< double > >( &tp::propagateFormalErrors ),
+          py::arg("initial_covariance"),
+          py::arg("state_transition_interface"),
+          py::arg("output_times") );
+
+    m.def("propagate_covariance",
+          py::overload_cast< const Eigen::MatrixXd,
           const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
           const std::vector< double > >( &tp::propagateCovariance ),
           py::arg("initial_covariance"),
@@ -716,7 +780,14 @@ void expose_estimation_setup(py::module &m) {
                 .def_property_readonly("parameter_history",
                                         &tss::PodOutput<double, double>::getParameterHistoryMatrix)
                 .def_property_readonly("design_matrix",
-                                        &tss::PodOutput<double, double>::getUnnormalizedPartialDerivatives);
+                                        &tss::PodOutput<double, double>::getUnnormalizedInformationMatrix)
+                .def_property_readonly("normalized_design_matrix",
+                                        &tss::PodOutput<double, double>::getNormalizedInformationMatrix)
+                .def_property_readonly("weighted_design_matrix",
+                                        &tss::PodOutput<double, double>::getUnnormalizedWeightedInformationMatrix)
+                .def_property_readonly("weighted_normalized_design_matrix",
+                                        &tss::PodOutput<double, double>::getNormalizedWeightedInformationMatrix);
+
 
     py::class_<
             tss::OrbitDeterminationManager<double, double>,
@@ -737,6 +808,9 @@ void expose_estimation_setup(py::module &m) {
                                    &tss::OrbitDeterminationManager<double, double>::getObservationSimulators)
             .def_property_readonly("observation_managers",
                                    &tss::OrbitDeterminationManager<double, double>::getObservationManagers)
+            .def_property_readonly("state_transition_interface",
+                                   &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface)
+
             .def("perform_estimation",
                  &tss::OrbitDeterminationManager<double, double>::estimateParameters,
                  py::arg( "estimation_input" ),
