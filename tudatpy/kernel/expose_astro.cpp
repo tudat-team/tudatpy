@@ -20,6 +20,7 @@
 #include "expose_astro/expose_two_body_dynamics.h"
 #include "expose_astro/expose_observations.h"
 #include "expose_astro/expose_shape.h"
+#include "expose_astro/expose_ground_stations.h"
 
 #include <pybind11/pybind11.h>
 
@@ -58,6 +59,10 @@ void expose_astro(py::module &m) {
 
   auto observations = m.def_submodule("observations");
   expose_observations(observations);
+
+  auto ground_stations = m.def_submodule("ground_stations");
+  expose_ground_stations(ground_stations);
+
 
 //  auto shape_based_thrust = m.def_submodule("shape_based_thrust");
 //  expose_shape_based_thrust(shape_based_thrust);
