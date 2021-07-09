@@ -122,8 +122,7 @@ enum PropagationDependentVariables
  *  Functional base class for defining settings for dependent variables that are to be saved during propagation.
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
- */
-class SingleDependentVariableSaveSettings : public VariableSettings
+ */class SingleDependentVariableSaveSettings : public VariableSettings
 {
 public:
 
