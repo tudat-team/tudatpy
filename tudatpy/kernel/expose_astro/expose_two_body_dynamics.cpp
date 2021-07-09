@@ -12,7 +12,6 @@
 
 #include <tudat/astro/mission_segments.h>
 #include <tudat/astro/basic_astro.h>
-#include <docstrings/astro/two_body.hpp>
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
@@ -205,7 +204,7 @@ void expose_two_body_dynamics(py::module &m) {
            py::arg("departure_position"),
            py::arg("arrival_position"),
            py::arg("time_of_flight"),
-           py::arg("gravitational_parameter"), lambert_targeter_ctor_docstring().c_str())
+           py::arg("gravitational_parameter"))
       .def("get_departure_velocity", &tms::LambertTargeter::getInertialVelocityAtDeparture)
       .def("get_arrival_velocity", &tms::LambertTargeter::getInertialVelocityAtArrival)
       .def("get_velocity_vectors", &tms::LambertTargeter::getInertialVelocityVectors);

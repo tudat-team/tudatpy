@@ -24,7 +24,7 @@ void expose_interface(py::module &m) {
 
   auto spice = m.def_submodule("spice");
   expose_spice(spice);
-  m.attr("spice_interface") = m.attr("spice")
+  m.attr("spice_interface") = m.attr("spice");
 
   //  auto json_interface = m.def_submodule("json_interface");
   //  expose_json_interface(sofa_interface);
