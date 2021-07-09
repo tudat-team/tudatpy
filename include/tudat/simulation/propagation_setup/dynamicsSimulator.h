@@ -253,7 +253,9 @@ public:
             const bool setIntegratedResult = true ):
         bodies_( bodies ),
         clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult ){ }
+        setIntegratedResult_( setIntegratedResult )
+    {
+    }
 
     //! Virtual destructor
     virtual ~DynamicsSimulator( ) { }
