@@ -17,7 +17,7 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_environment_setup(py::module &m);
+    void expose_environment_setup(py::module &m);
 
 }// namespace tudatpy
 

@@ -10,7 +10,7 @@
 
 #include "expose_simulation.h"
 
-#include "expose_simulation/expose_environment_setup.h"
+#include "expose_simulation/expose_environment.h"
 #include "expose_simulation/expose_estimation_setup.h"
 #include "expose_simulation/expose_propagation_setup.h"
 #include "expose_simulation/expose_shape_based_thrust.h"
