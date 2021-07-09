@@ -22,8 +22,23 @@ message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 # Specific Tudat project name.
 project(TudatBundle)
 
+# As both project share the same API docstrings, the solution is to add an external step to generate documented
+#  versions of the sources. In this case, tudat-bundle/tudat-docstrings/main.py will need to be executed, if
+#  documented versions of the source is desired. This step is OPTIONAL, so if development is not related to
+#  docstrings present in the releases, then no need to worry.
 # Tudat project.
-add_subdirectory(tudat)
-
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudat-documented)
+    message(STATUS "Using DOCUMENTED tudat")
+    add_subdirectory(".tudat-documented")
+else ()
+    message(STATUS "Using UNDOCUMENTED tudat")
+    add_subdirectory(tudat)
+endif ()
 # TudatPy project.
-add_subdirectory(tudatpy)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudatpy-documented)
+    message(STATUS "Using DOCUMENTED tudatpy")
+    add_subdirectory(".tudatpy-documented")
+else ()
+    message(STATUS "Using UNDOCUMENTED tudatpy")
+    add_subdirectory(tudatpy)
+endif ()
