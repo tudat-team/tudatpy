@@ -51,6 +51,8 @@ enum RotationModelType
  *  addition to their type. Rotation model classes defining requiring additional information
  *  must be created using an object derived from this class.
  */
+
+//! @get_docstring(RotationModelSettings.__docstring__)
 class RotationModelSettings
 {
 public:
@@ -64,6 +66,7 @@ public:
      *  \param originalFrame Base frame of rotation model.
      *  \param targetFrame Target frame of rotation model.
      */
+
     RotationModelSettings( const RotationModelType rotationType,
                            const std::string& originalFrame,
                            const std::string& targetFrame ):
@@ -78,6 +81,7 @@ public:
      *  Function to return the type of rotation model that is to be created.
      *  \return Type of rotation model that is to be created.
      */
+
     RotationModelType getRotationType( ){ return rotationType_; }
 
     //! Function to return the base frame of rotation model.
@@ -85,6 +89,7 @@ public:
      *  Function to return the base frame of rotation model.
      *  \return Base frame of rotation model.
      */
+
     std::string getOriginalFrame( ){ return originalFrame_; }
 
     //! Function to return the target frame of rotation model.
@@ -92,14 +97,16 @@ public:
      *  Function to return the target frame of rotation model.
      *  \return Target frame of rotation model.
      */
+
     std::string getTargetFrame( ){ return targetFrame_; }
 
 
-    //! Function to rese the orientation of the base frame.
+    //! Function to reset the orientation of the base frame.
     /*!
      * Function to reset the orientation of the base frame.
      * \param originalFrame New base frame orientation
      */
+
     void resetOriginalFrame( const std::string& originalFrame )
     {
         originalFrame_ = originalFrame;
@@ -119,6 +126,7 @@ protected:
 };
 
 //! RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
+//! @get_docstring(SimpleRotationModelSettings.__docstring__)
 class SimpleRotationModelSettings: public RotationModelSettings
 {
 public:
@@ -209,6 +217,7 @@ struct EopCorrectionSettings
 };
 
 //! Settings for creating a GCRS<->ITRS rotation model
+//! @get_docstring(GcrsToItrsRotationModelSettings.__docstring__)
 class GcrsToItrsRotationModelSettings: public RotationModelSettings
 {
 public:
@@ -343,6 +352,7 @@ private:
 
 //! RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
 //! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
+//! @get_docstring(SynchronousRotationModelSettings.__docstring__)
 class SynchronousRotationModelSettings: public RotationModelSettings
 {
 public:
@@ -631,11 +641,14 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  * \param bodies List of body objects
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
+
+
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
         const SystemOfBodies& bodies = SystemOfBodies( ) );
 
+//! @get_docstring(simpleRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame,
@@ -647,6 +660,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
             originalFrame, targetFrame, initialOrientation, initialTime, rotationRate );
 }
 
+//! @get_docstring(simpleRotationModelSettings, 1)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
         const std::string& originalFrame,
         const std::string& targetFrame,
@@ -658,7 +672,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings(
             originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), initialTime, rotationRate );
 }
 
-
+//! @get_docstring(simpleRotationModelFromSpiceSettings)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings(
         const std::string& originalFrame,
         const std::string& targetFrame,
@@ -672,6 +686,7 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSett
                     originalFrame, targetFrameSpice, initialTime ).norm( ) );
 }
 
+//! @get_docstring(constantRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame,
@@ -681,6 +696,7 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
                                                          0.0, 0.0 );
 }
 
+//! @get_docstring(constantRotationModelSettings, 1)
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
         const std::string& originalFrame,
         const std::string& targetFrame,
@@ -690,6 +706,7 @@ inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings(
                 originalFrame, targetFrame, Eigen::Quaterniond( initialOrientation ), 0.0, 0.0 );
 }
 
+//! @get_docstring(spiceRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
 		const std::string& originalFrame,
 		const std::string& targetFrame
@@ -699,6 +716,7 @@ inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
 			spice_rotation_model, originalFrame, targetFrame );
 }
 
+//! @get_docstring(gcrsToItrsRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
 		const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
 		const std::string baseFrameName = "GCRS" )
@@ -708,6 +726,7 @@ inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
 	);
 }
 
+//! @get_docstring(synchronousRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > synchronousRotationModelSettings(
         const std::string& centralBodyName,
         const std::string& baseFrameOrientation,
