@@ -835,7 +835,6 @@ std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(
     return observationsWithoutLinkEndId;
 }
 
-
 }
 
 }
