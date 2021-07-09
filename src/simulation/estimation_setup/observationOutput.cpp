@@ -245,6 +245,23 @@ DoubleObservationDependentVariableFunction getObservationDoubleDependentVariable
     return outputFunction;
 }
 
+VectorObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEnds linkEnds )
+{
+    VectorObservationDependentVariableFunction outputFunction;
+    switch( variableSettings->variableType_ )
+    {
+
+    default:
+        throw std::runtime_error( "Error when parsing vector observation dependent variable, did not recognize variable" +
+                                  getObservationDependentVariableName( variableSettings ) );
+    }
+    return outputFunction;
+}
+
 void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies& bodies )
@@ -305,6 +322,16 @@ void ObservationDependentVariableCalculator::addDependentVariable(
     totalDependentVariableSize_ += parameterSize;
 }
 
+void ObservationDependentVariableCalculator::addDependentVariables(
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
+        const SystemOfBodies& bodies )
+{
+    for( unsigned int i = 0; i < settingsList.size( ); i++ )
+    {
+        addDependentVariable( settingsList.at( i ), bodies );
+    }
+}
+
 
 Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariables(
         const std::vector< double >& linkEndTimes,
@@ -313,7 +340,7 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
 {
     Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( totalDependentVariableSize_ );
 
-    for( int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
+    for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
         dependentVariableAddFunctions_.at( i )(
                     dependentVariables, linkEndTimes, linkEndStates, observation );

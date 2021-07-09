@@ -42,11 +42,15 @@ public:
     SingleObservationSet(
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
-            const LinkEndType referenceLinkEnd ):
+            const LinkEndType referenceLinkEnd,
+            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables =
+            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) ):
         observations_( observations ),
         observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ),
+        observationsDependentVariables_( observationsDependentVariables ),
         numberOfObservations_( observations_.size( ) )
+
     {
         if( observations_.size( ) != observationTimes_.size( ) )
         {
@@ -108,6 +112,8 @@ private:
     const std::vector< TimeType > observationTimes_;
 
     const LinkEndType referenceLinkEnd_;
+
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsDependentVariables_;
 
     const int numberOfObservations_;
 
