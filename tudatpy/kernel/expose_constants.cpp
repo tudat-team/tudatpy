@@ -27,7 +27,7 @@ namespace tudatpy {
 namespace constants {
 void expose_constants(py::module &m) {
 
-  m.attr("__doc__") = tudatpy::get_docstring("constants").c_str();
+  m.attr("__doc__") = get_docstring("constants").c_str();
 
   // celestialBodyConstants.h
   m.attr("EARTH_EQUATORIAL_RADIUS") = tbc::EARTH_EQUATORIAL_RADIUS;
