@@ -3,7 +3,6 @@ lib/
 libs/
 CMakeFiles/
 _CPack_Packages/
-Makefile
 CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
@@ -38,3 +37,4 @@ rever/
 
 __pycache__/*
 __pycache__*
+.DS_Store
