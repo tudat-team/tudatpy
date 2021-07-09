@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             for( std::map< ObservableType, double >::const_iterator typeIterator = constantOffsets.begin( );
                  typeIterator != constantOffsets.end( ); typeIterator++ )
             {
-                auto noiseFunction =  std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                std::function< double( const double ) > noiseFunction =  std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
                                                  createBoostContinuousRandomVariableGeneratorFunction(
                                                      normal_boost_distribution,
                 { constantOffsets.at( typeIterator->first ), constantStandardDeviations.at( typeIterator->first ) },
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 for( std::map< LinkEnds, double >::const_iterator linkEndIterator = typeIterator->second.begin( );
                      linkEndIterator != typeIterator->second.end( ); linkEndIterator++ )
                 {
-                    auto noiseFunction =
+                    std::function< double( const double ) > noiseFunction =
                             std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
                                        createBoostContinuousRandomVariableGeneratorFunction(
                                            normal_boost_distribution,
