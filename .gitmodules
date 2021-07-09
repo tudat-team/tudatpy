@@ -4,3 +4,6 @@
 [submodule "tudatpy"]
 	path = tudatpy
 	url = https://github.com/tudat-team/tudatpy.git
+[submodule "tudat-multidoc"]
+	path = tudat-multidoc
+	url = https://github.com/tudat-team/tudat-multidoc.git
