@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE( test_physical_constants )
 
 //! Test if the physical constants have the correct relations (ratios/offsets).
 BOOST_AUTO_TEST_CASE( testRelationsBetweenPhysicalConstant )
-{    
+{
     using namespace physical_constants;
 
     // Test for the number of seconds in a year.
