@@ -10,6 +10,7 @@
 
 #include "expose_simulation.h"
 
+#include "expose_simulation/expose_astro_setup.h"
 #include "expose_simulation/expose_environment_setup.h"
 #include "expose_simulation/expose_estimation_setup.h"
 #include "expose_simulation/expose_propagation_setup.h"
@@ -33,6 +34,10 @@ void expose_simulation(py::module &m) {
 
   auto shape_based_thrust = m.def_submodule("shape_based_thrust");
   expose_shape_based_thrust(shape_based_thrust);
+
+  auto astro_setup = m.def_submodule("astro_setup");
+  expose_astro_setup(astro_setup);
+
 };
 
 }// namespace tudatpy
