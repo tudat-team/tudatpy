@@ -194,13 +194,13 @@ void expose_atmosphere_setup(py::module &m) {
             .def_property("wind_settings", &tss::AtmosphereSettings::getWindSettings,
                           &tss::AtmosphereSettings::setWindSettings );
 
-        py::class_<tss::ExponentialAtmosphereSettings,
-                std::shared_ptr<tss::ExponentialAtmosphereSettings >,
-                tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings");
+    py::class_<tss::ExponentialAtmosphereSettings,
+            std::shared_ptr<tss::ExponentialAtmosphereSettings >,
+            tss::AtmosphereSettings>(m, "ExponentialAtmosphereSettings");
 
-        py::class_<tss::TabulatedAtmosphereSettings,
-                std::shared_ptr<tss::TabulatedAtmosphereSettings >,
-                tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings");
+    py::class_<tss::TabulatedAtmosphereSettings,
+            std::shared_ptr<tss::TabulatedAtmosphereSettings >,
+            tss::AtmosphereSettings>(m, "TabulatedAtmosphereSettings");
 
 
     py::class_<tss::WindModelSettings,
@@ -497,23 +497,6 @@ void expose_gravity_field_setup(py::module &m) {
 void expose_ephemeris_setup(py::module &m) {
 
     /////////////////////////////////////////////////////////////////////////////
-    // approximatePlanetPositionsBase.h
-    /////////////////////////////////////////////////////////////////////////////
-
-    py::enum_<te::ApproximatePlanetPositionsBase::BodiesWithEphemerisData>(
-                m, "BodiesWithEphemerisData", "<no_doc>")
-            .value("mercury", te::ApproximatePlanetPositionsBase::mercury)
-            .value("venus", te::ApproximatePlanetPositionsBase::venus)
-            .value("earth_moon_barycenter", te::ApproximatePlanetPositionsBase::earthMoonBarycenter)
-            .value("mars", te::ApproximatePlanetPositionsBase::mars)
-            .value("jupiter", te::ApproximatePlanetPositionsBase::jupiter)
-            .value("saturn", te::ApproximatePlanetPositionsBase::saturn)
-            .value("uranus", te::ApproximatePlanetPositionsBase::uranus)
-            .value("neptune", te::ApproximatePlanetPositionsBase::neptune)
-            .value("pluto", te::ApproximatePlanetPositionsBase::pluto)
-            .export_values();
-
-    /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
     /////////////////////////////////////////////////////////////////////////////
     py::class_<tss::EphemerisSettings,
@@ -561,18 +544,15 @@ void expose_ephemeris_setup(py::module &m) {
                  py::arg("interpolator_settings") = std::make_shared<
             tudat::interpolators::LagrangeInterpolatorSettings>(6));
 
-    py::class_<tss::ApproximatePlanetPositionSettings,
-            std::shared_ptr<tss::ApproximatePlanetPositionSettings>,
-            tss::EphemerisSettings>(m, "ApproximatePlanetPositionSettings")
-            .def(py::init<const tudat::ephemerides::ApproximatePlanetPositionsBase::
-                 BodiesWithEphemerisData,
+    py::class_<tss::ApproximateJplEphemerisSettings,
+            std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
+            tss::EphemerisSettings>(m, "ApproximateJplEphemerisSettings")
+            .def(py::init<const std::string,
                  const bool>(),
-                 py::arg("body_identifier"),
+                 py::arg("body_name"),
                  py::arg("use_circular_coplanar_approximation"))
-            .def("get_body_identifier",
-                 &tss::ApproximatePlanetPositionSettings::getBodyIdentifier)
             .def("get_use_circular_coplanar_approximation",
-                 &tss::ApproximatePlanetPositionSettings::
+                 &tss::ApproximateJplEphemerisSettings::
                  getUseCircularCoplanarApproximation);
 
     py::class_<tss::ConstantEphemerisSettings,
@@ -659,29 +639,15 @@ void expose_ephemeris_setup(py::module &m) {
           py::arg("root_finder_absolute_tolerance") = 200.0 * std::numeric_limits< double >::epsilon(),
           py::arg("root_finder_maximum_iterations") = 1000.0 );
 
-
-    m.def("approximate_planet_positions",
-          py::overload_cast<  const std::string >( &tss::approximatePlanetPositionsSettings ),
-          py::arg("body_name_to_use"));
-
-    m.def("approximate_planet_positions",
-          py::overload_cast< >( &tss::approximatePlanetPositionsSettings ));
+    m.def("approximate_jpl",
+          py::overload_cast< const std::string >( &tss::approximateJplEphemerisSettings ),
+          py::arg("body_name"));
 
     m.def("direct_spice",
           py::overload_cast< const std::string, const std::string,  const std::string >(
               &tss::directSpiceEphemerisSettings ),
           py::arg("frame_origin") = "SSB",
           py::arg("frame_orientation") = "ECLIPJ2000",
-          py::arg("body_name_to_use") = "" );
-
-    m.def("interpolated_spice",
-          &tss::interpolatedSpiceEphemerisSettings,
-          py::arg("initial_time"),
-          py::arg("final_time"),
-          py::arg("time_step"),
-          py::arg("frame_origin") = "SSB",
-          py::arg("frame_orientation") = "ECLIPJ2000",
-          py::arg("interpolator_settings") = std::make_shared< ti::LagrangeInterpolatorSettings >(6),
           py::arg("body_name_to_use") = "" );
 
     m.def("tabulated",
@@ -900,6 +866,8 @@ void expose_environment_setup(py::module &m) {
             .def("set_ephemeris", &tss::Body::setEphemeris)
             .def("get_atmosphere_model", &tss::Body::getAtmosphereModel)
             .def("set_atmosphere_model", &tss::Body::setAtmosphereModel)
+            .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris)
+            .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel)
             .def("get_gravity_field_model", &tss::Body::getGravityFieldModel)
             .def("get_shape_model", &tss::Body::getShapeModel)
             .def("set_shape_model", &tss::Body::setShapeModel)
@@ -913,10 +881,10 @@ void expose_environment_setup(py::module &m) {
             .def_property("aerodynamic_coefficient_interface", &    tss::Body::getAerodynamicCoefficientInterface, &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_body_mass", &tss::Body::getBodyMass)
             .def("set_constant_mass", &tss::Body::setConstantBodyMass)
-//            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
-//            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface,
-//                 py::arg( "radiating_body" ),
-//                 py::arg( "radiation_pressure_interface" ) )
+            //            .def("get_radiation_pressure_interfaces", &tss::Body::getRadiationPressureInterfaces)
+            //            .def("set_radiation_pressure_interface", &tss::Body::setRadiationPressureInterface,
+            //                 py::arg( "radiating_body" ),
+            //                 py::arg( "radiation_pressure_interface" ) )
             .def("set_aerodynamic_coefficient_interface", &tss::Body::setAerodynamicCoefficientInterface)
             .def("get_aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface)
             .def("get_flight_conditions", &tss::Body::getFlightConditions)
@@ -960,20 +928,20 @@ void expose_environment_setup(py::module &m) {
                  py::arg("body_name") )
             .def("processBodyFrameDefinitions", &tss::SystemOfBodies::processBodyFrameDefinitions)
             .def(py::pickle(
-                    [](const tss::SystemOfBodies &p) { // __getstate__
-                        /* Return a tuple that fully encodes the state of the object */
-                        return py::make_tuple(p.getFrameOrigin(), p.getMap());
-                    },
-                    [](py::tuple t) { // __setstate__
-                        if (t.size() != 3)
-                            throw std::runtime_error("Invalid state for SystemOfBodies!");
+                     [](const tss::SystemOfBodies &p) { // __getstate__
+        /* Return a tuple that fully encodes the state of the object */
+        return py::make_tuple(p.getFrameOrigin(), p.getMap());
+    },
+    [](py::tuple t) { // __setstate__
+                      if (t.size() != 3)
+                      throw std::runtime_error("Invalid state for SystemOfBodies!");
 
-                        /* Create a new C++ instance */
-                        tss::SystemOfBodies p(t[0].cast<std::string>());
+                      /* Create a new C++ instance */
+                      tss::SystemOfBodies p(t[0].cast<std::string>());
 
-                        return p;
-                    }
-                ));
+                      return p;
+                 }
+                 ));
 
 
 
@@ -1060,16 +1028,18 @@ void expose_environment_setup(py::module &m) {
 
     // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
     m.def( "create_tabulated_ephemeris_from_spice",
-                &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
-                py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
-                py::arg("observer_name"), py::arg("reference_frame_name"),
-                py::arg("interpolator_settings") =
+           &tss::createTabulatedEphemerisFromSpice<>, py::arg("body"),
+           py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
+           py::arg("observer_name"), py::arg("reference_frame_name"),
+           py::arg("interpolator_settings") =
             std::make_shared<tudat::interpolators::LagrangeInterpolatorSettings>(
                 8));
 
     // Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.cpp
     m.def("create_body_ephemeris", &tss::createBodyEphemeris,
           py::arg("ephemeris_settings"), py::arg("body_name"));
+
+    m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies);
 
     m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
           py::arg("ephemeris_model"));

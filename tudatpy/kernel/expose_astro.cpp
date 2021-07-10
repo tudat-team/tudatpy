@@ -21,6 +21,7 @@
 #include "expose_astro/expose_observations.h"
 #include "expose_astro/expose_shape.h"
 #include "expose_astro/expose_ground_stations.h"
+#include "expose_astro/expose_trajectory_design.h"
 
 #include <pybind11/pybind11.h>
 
@@ -63,9 +64,10 @@ void expose_astro(py::module &m) {
   auto ground_stations = m.def_submodule("ground_stations");
   expose_ground_stations(ground_stations);
 
+  auto trajectory_design = m.def_submodule("trajectory_design");
+  expose_trajectory_design(trajectory_design);
 
-//  auto shape_based_thrust = m.def_submodule("shape_based_thrust");
-//  expose_shape_based_thrust(shape_based_thrust);
-};
 
-};// namespace tudatpy
+}
+
+}// namespace tudatpy
