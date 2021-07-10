@@ -162,6 +162,9 @@ SystemOfBodies createSystemOfBodies(
         const BodyListSettings& bodySettings );
 
 
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( );
+
+
 } // namespace simulation_setup
 
 } // namespace tudat
