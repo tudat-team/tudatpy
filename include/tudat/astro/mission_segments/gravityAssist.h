@@ -36,6 +36,31 @@ namespace tudat
 namespace mission_segments
 {
 
+double calculateUnpoweredGravityAssistPericenter(
+        const double absoluteIncomingSemiMajorAxis,
+        const double absoluteOutgoingSemiMajorAxis,
+        const double bendingAngle,
+        const double initialGuess,
+        const root_finders::RootFinderPointer rootFinder =
+        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+
+double calculateGravityAssistDeltaVThroughPericenter(
+        const double centralBodyGravitationalParameter,
+        const double absoluteIncomingExcessVelocity,
+        const double absoluteOutgoingExcessVelocity,
+        const double bendingAngle,
+        const double initialGuess,
+        const root_finders::RootFinderPointer rootFinder =
+        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+
+double calculateGravityAssistDeltaVThroughEccentricity(
+        const double centralBodyGravitationalParameter,
+        const double absoluteIncomingExcessVelocity,
+        const double absoluteOutgoingExcessVelocity,
+        const double bendingAngle,
+        const root_finders::RootFinderPointer rootFinder =
+        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+
 //! Calculate deltaV of a gravity assist.
 /*!
  * Calculates the deltaV required to perform a certain gravity assist. This function essentially
@@ -55,15 +80,28 @@ namespace mission_segments
  *          using 1000 iterations as maximum and 1.0e-12 relative X-tolerance.
  * \return deltaV The deltaV required for the gravity assist maneuver.                     [m s^-1]
  */
-double gravityAssist( const double centralBodyGravitationalParameter,
-                      const Eigen::Vector3d& centralBodyVelocity,
-                      const Eigen::Vector3d& incomingVelocity,
-                      const Eigen::Vector3d& outgoingVelocity,
-                      const double smallestPeriapsisDistance,
-                      const bool useEccentricityInsteadOfPericenter = true,
-                      const double speedTolerance = 1.0e-6,
-                      root_finders::RootFinderPointer rootFinder
-                        = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+//<<<<<<< HEAD
+//double gravityAssist( const double centralBodyGravitationalParameter,
+//                      const Eigen::Vector3d& centralBodyVelocity,
+//                      const Eigen::Vector3d& incomingVelocity,
+//                      const Eigen::Vector3d& outgoingVelocity,
+//                      const double smallestPeriapsisDistance,
+//                      const bool useEccentricityInsteadOfPericenter = true,
+//                      const double speedTolerance = 1.0e-6,
+//                      root_finders::RootFinderPointer rootFinder
+//                        = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+//=======
+double calculateGravityAssistDeltaV(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& incomingVelocity,
+        const Eigen::Vector3d& outgoingVelocity,
+        const double smallestPeriapsisDistance,
+        const bool useEccentricityInsteadOfPericenter = true,
+        const double speedTolerance = 1.0e-6,
+        root_finders::RootFinderPointer rootFinder
+        = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+//>>>>>>> feature/mga_dsm_refactor
 
 //! Propagate an unpowered gravity assist.
 /*!
@@ -76,11 +114,12 @@ double gravityAssist( const double centralBodyGravitationalParameter,
  * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
  */
-Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
-                               const Eigen::Vector3d& centralBodyVelocity,
-                               const Eigen::Vector3d& incomingVelocity,
-                               const double rotationAngle,
-                               const double pericenterRadius );
+Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& incomingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius );
 
 //! Propagate a powered gravity assist.
 /*!
@@ -95,12 +134,13 @@ Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
  * \param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
  */
-Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
-                               const Eigen::Vector3d& centralBodyVelocity,
-                               const Eigen::Vector3d& incomingVelocity,
-                               const double rotationAngle,
-                               const double pericenterRadius,
-                               const double deltaV );
+Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& centralBodyVelocity,
+        const Eigen::Vector3d& incomingVelocity,
+        const double rotationAngle,
+        const double pericenterRadius,
+        const double deltaV );
 
 //! Pericenter finding functions class.
 /*!
