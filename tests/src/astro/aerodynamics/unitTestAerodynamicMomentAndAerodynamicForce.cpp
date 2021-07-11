@@ -114,7 +114,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         {
             aerodynamicCoefficientInterface->getIndependentVariableName( 0 );
         }
-        catch ( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             isVariableIndexTooHigh = 1;
         }

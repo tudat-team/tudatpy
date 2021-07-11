@@ -13,13 +13,15 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <functional>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "tudat/basics/basicTypedefs.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {

@@ -284,7 +284,8 @@ void from_json( const nlohmann::json& jsonObject,
                         getValue< std::string >( jsonObject, K::centralBody ),
                         getValue< std::string >( jsonObject, K::frameOrientation ) );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             parameterSettings =
                     std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
