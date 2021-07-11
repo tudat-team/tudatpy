@@ -101,7 +101,8 @@ BOOST_AUTO_TEST_CASE( testCubicSplineInterpolation_exception_empty_vectors )
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
-    catch ( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         areDependentAndIndependentVariablesInitialized = false;
     }
@@ -245,7 +246,8 @@ BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_boundary_case )
             {
                 linearInterpolator.interpolate( valueBelowMinimumValue );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 exceptionIsCaught = true;
             }
@@ -256,7 +258,8 @@ BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_boundary_case )
             {
                 linearInterpolator.interpolate( valueAboveMaximumValue );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 exceptionIsCaught = true;
             }

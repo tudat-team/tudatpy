@@ -318,7 +318,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
 
                     }
-                    catch( std::runtime_error )
+                    catch( std::runtime_error const& )
+
                     {
                         runtimeErrorOccurred = 1;
                     }
@@ -346,7 +347,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
 
                     }
-                    catch( std::runtime_error )
+                    catch( std::runtime_error const& )
+
                     {
                         runtimeErrorOccurred = true;
                     }
@@ -379,7 +381,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         dataMap, 8, interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
@@ -397,7 +400,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
@@ -416,7 +420,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
@@ -443,7 +448,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         dataMap, 8, interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
@@ -469,7 +475,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
@@ -499,7 +506,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                             dataMap, numberOfStages, interpolators::huntingAlgorithm,
                             interpolators::lagrange_no_boundary_interpolation );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 runtimeErrorOccurred = true;
             }
@@ -524,7 +532,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                             interpolators::huntingAlgorithm,
                             interpolators::lagrange_no_boundary_interpolation );
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 runtimeErrorOccurred = true;
             }
@@ -554,7 +563,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                         interpolators::huntingAlgorithm,
                         interpolators::lagrange_no_boundary_interpolation );
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             runtimeErrorOccurred = true;
         }
