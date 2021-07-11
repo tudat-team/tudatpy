@@ -12,7 +12,9 @@
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
 #include <string>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"

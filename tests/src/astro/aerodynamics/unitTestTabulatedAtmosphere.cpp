@@ -310,7 +310,8 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
                                             tabulatedAtmosphere.getDensity( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                             tolerance );
             }
-            catch ( std::runtime_error )
+            catch( std::runtime_error const& )
+
             {
                 exception = true;
             }

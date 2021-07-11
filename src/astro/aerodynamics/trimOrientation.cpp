@@ -89,7 +89,8 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
                     untrimmedIndependentVariables.at( variableIndex_ ) );
     }
     // Throw error if not converged
-    catch( std::runtime_error )
+    catch( std::runtime_error const& )
+
     {
         throw std::runtime_error( "Error when getting trim angle of attack, root finder did not converge." );
 

@@ -39,11 +39,12 @@ extensions = [
     'sphinxcontrib.napoleon',
     'breathe',
 ]
+import os
 
 # Breathe
 breathe_default_project = "Tudat"
 breathe_projects = {}
-breathe_projects["Tudat"] = "../../doxygen/xml"
+breathe_projects["Tudat"] = os.path.join(os.environ.pop("DOXYGEN_OUTPUT_DIRECTORY", "../doxygen"), "xml")
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

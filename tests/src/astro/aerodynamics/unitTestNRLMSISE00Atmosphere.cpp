@@ -21,7 +21,9 @@
 #include <vector>
 #include <utility>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"

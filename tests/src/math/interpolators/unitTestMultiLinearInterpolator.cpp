@@ -242,7 +242,8 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
                 {
                     twoDimensionalInterpolator.interpolate( targetValue.at( j ) );
                 }
-                catch( std::runtime_error )
+                catch( std::runtime_error const& )
+
                 {
                     exceptionIsCaught = true;
                 }
