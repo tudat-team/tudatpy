@@ -35,3 +35,6 @@ cmake-build-*/
 *.sublime-workspace
 # Rever
 rever/
+/.tudat-documented/
+/.tudatpy-documented/
+/.docs-output/
