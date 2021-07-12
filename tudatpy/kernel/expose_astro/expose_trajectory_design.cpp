@@ -77,11 +77,13 @@ void expose_trajectory_design(py::module &m) {
                  py::arg( "node_index" ) )
             .def("single_leg_delta_v", &tms::TransferTrajectory::getLegDeltaV,
                  py::arg( "leg_index" ) )
+            .def("states_along_trajectory",
+                 py::overload_cast<const int> (&tms::TransferTrajectory::getStatesAlongTrajectory),
+                 py::arg("number_of_data_points_per_leg") )
             .def_property_readonly("per_node_delta_v", &tms::TransferTrajectory::getDeltaVPerNode )
             .def_property_readonly("per_leg_delta_v", &tms::TransferTrajectory::getDeltaVPerLeg )
             .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes )
             .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs );
-
 
     m.def("unpowered_leg",
           &tms::unpoweredLeg );
