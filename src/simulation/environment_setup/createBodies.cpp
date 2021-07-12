@@ -17,6 +17,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 
@@ -265,28 +266,30 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( )
     bodies.createEmptyBody( "Mars" );
     bodies.createEmptyBody( "Jupiter" );
     bodies.createEmptyBody( "Saturn" );
+    bodies.createEmptyBody( "Uranus" );
+    // bodies.createEmptyBody( "Neptune" );
 
     bodies.getBody( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
-    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                            "Mercury" ) );
-    bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          "Venus" ) );
-    bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          "Earth" ) );
-    bodies.getBody( "Mars" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                          "Mars" ) );
-    bodies.getBody( "Jupiter" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                            "Jupiter" ) );
-    bodies.getBody( "Saturn" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >(
-                                           "Saturn" ) );
+    bodies.getBody( "Mercury" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Mercury" ) );
+    bodies.getBody( "Venus" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Venus" ) );
+    bodies.getBody( "Earth" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Earth" ) );
+    bodies.getBody( "Mars" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Mars" ) );
+    bodies.getBody( "Jupiter" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Jupiter" ) );
+    bodies.getBody( "Saturn" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Saturn" ) );
+    bodies.getBody( "Uranus" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Uranus" ) );
+    // bodies.getBody( "Neptune" )->setEphemeris( std::make_shared< ApproximateGtopEphemeris >("Neptune" ) );
 
-    bodies.getBody( "Sun" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.32712428e20 ) );
-    bodies.getBody( "Mercury" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 2.2321e13 ) );
-    bodies.getBody( "Venus" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.24860e14 ) );
-    bodies.getBody( "Earth" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.9860119e14 ) );
-//    bodies.getBody( "Mars" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.9860119e14 ) );
-    bodies.getBody( "Jupiter" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.267e17 ) );
-    bodies.getBody( "Saturn" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( 3.79e16 ) );
+    bodies.getBody( "Sun" )->setGravityFieldModel( std::make_shared< GravityFieldModel >(celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Mercury" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Venus" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Earth" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Mars" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Jupiter" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::JUPITER_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Saturn" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::SATURN_GRAVITATIONAL_PARAMETER ) );
+    bodies.getBody( "Uranus" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::URANUS_GRAVITATIONAL_PARAMETER ) );
+    // bodies.getBody( "Neptune" )->setGravityFieldModel( std::make_shared< GravityFieldModel >( celestial_body_constants::NEPTUNE_GRAVITATIONAL_PARAMETER ) );
+
+    // bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeSettings >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
 
     return bodies;
 }
