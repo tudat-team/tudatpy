@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
-#define TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
+#ifndef TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
+#define TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -25,8 +25,8 @@ namespace tp = tudat::propagators;
 
 namespace tudatpy {
 
-    void expose_dependent_variable_setup(py::module &m);
+    void expose_acceleration_setup(py::module &m);
 
 
 }// namespace tudatpy
-#endif //TUDATBUNDLE_EXPOSE_DEPENDENT_VARIABLE_SETUP_H
+#endif //TUDATBUNDLE_EXPOSE_ACCELERATION_SETUP_H
