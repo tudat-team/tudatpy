@@ -219,7 +219,8 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     {
         legTest.calculateLeg( resultingVelocity, resultingDeltaV );
     }
-    catch ( std::runtime_error ) { }
+    catch( std::runtime_error const& )
+ { }
 
     // Specify the values for the parameters that are to be updated.
     // Set the planetary positions and velocities.
