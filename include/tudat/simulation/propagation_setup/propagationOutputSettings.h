@@ -84,7 +84,7 @@ enum PropagationDependentVariables
     single_acceleration_dependent_variable = 12,
     aerodynamic_force_coefficients_dependent_variable = 13,
     aerodynamic_moment_coefficients_dependent_variable = 14,
-    rotation_matrix_to_body_fixed_frame_variable = 15,
+    inertial_to_body_fixed_rotation_matrix_variable = 15,
     intermediate_aerodynamic_rotation_matrix_variable = 16,
     relative_body_aerodynamic_orientation_angle_variable = 17,
     body_fixed_airspeed_based_velocity_variable = 18,
@@ -758,12 +758,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentC
                 aerodynamic_moment_coefficients_dependent_variable, associatedBody );
 }
 
-//! @get_docstring(rotationMatrixToBodyFixedFrameVariable)
-inline std::shared_ptr< SingleDependentVariableSaveSettings > rotationMatrixToBodyFixedFrameVariable(
+//! @get_docstring(inertialToBodyFixedRotationMatrixVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > inertialToBodyFixedRotationMatrixVariable(
         const std::string& associatedBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-                rotation_matrix_to_body_fixed_frame_variable, associatedBody );
+            inertial_to_body_fixed_rotation_matrix_variable, associatedBody );
 }
 
 //! @get_docstring(intermediateAerodynamicRotationMatrixVariable)
