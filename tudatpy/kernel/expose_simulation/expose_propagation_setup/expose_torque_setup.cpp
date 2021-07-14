@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_propagation_setup/expose_dependent_variable_setup.h"
+#include "expose_torque_setup.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -61,6 +61,7 @@ namespace tudatpy {
               py::arg("torque_function"),
               py::arg("scaling_function") = nullptr);
 
+        // TODO: only unexposed torque model is dissipativeTorque
     }
 
 } // namespace tudatpy
