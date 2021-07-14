@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                       std::make_shared< ThrustDirectionGuidanceSettings >(
+                                                       std::make_shared< ThrustDirectionSettings >(
                                                            thrust_direction_from_existing_body_orientation ),
                                                        std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
@@ -772,7 +772,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         double thrustMagnitude = 1.0E-3;
         double specificImpulse = 250.0;
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                         std::make_shared< ThrustDirectionGuidanceSettings >(
+                                                         std::make_shared< ThrustDirectionSettings >(
                                                              thrust_direction_from_existing_body_orientation ),
                                                          std::make_shared< ConstantThrustMagnitudeSettings >(
                                                              thrustMagnitude, specificImpulse ) ) );
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                         "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
         dependentVariables.push_back(
                     std::make_shared< SingleDependentVariableSaveSettings >(
-                        rotation_matrix_to_body_fixed_frame_variable, "Apollo" ) );
+                            inertial_to_body_fixed_rotation_matrix_variable, "Apollo" ) );
         dependentVariables.push_back(
                     std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Apollo", "Earth", 0 ) );
@@ -1377,7 +1377,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
@@ -1388,7 +1388,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
@@ -1406,7 +1406,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation ),
                                 createParameterizedThrustMagnitudeSettings(
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
@@ -1417,7 +1417,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             std::make_shared< ThrustAccelerationSettings >(
-                                std::make_shared< ThrustDirectionGuidanceSettings >(
+                                std::make_shared< ThrustDirectionSettings >(
                                     thrust_direction_from_existing_body_orientation ),
                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                     thrustMagnitudeInterpolator, thrustDependencies,
@@ -1667,7 +1667,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     accelerationsOfApollo[ "Apollo" ].push_back(
                 std::make_shared< ThrustAccelerationSettings >(
-                    std::make_shared< ThrustDirectionGuidanceSettings >(
+                    std::make_shared< ThrustDirectionSettings >(
                         thrust_direction_from_existing_body_orientation ),
                     createAccelerationLimitedParameterizedThrustMagnitudeSettings(
                         bodies, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
@@ -1823,7 +1823,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
         Eigen::VectorXd costates = Eigen::VectorXd::Zero( 5 );
         costates( i ) = 100.0;
 
-        std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
+        std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings =
                 std::make_shared< MeeCostateBasedThrustDirectionSettings >(
                     "Asterix", "Earth", [ & ]( const double ){ return costates; } );
         std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings =

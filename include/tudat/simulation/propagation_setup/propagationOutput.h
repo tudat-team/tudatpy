@@ -764,7 +764,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         break;
     }
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
     {
         std::function< Eigen::Quaterniond( ) > rotationFunction =
                 std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodies.at( bodyWithProperty ) );
