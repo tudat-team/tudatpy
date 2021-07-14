@@ -40,7 +40,7 @@ namespace simulation_setup
 {
 
 //! List of available types of thust direction guidance
-enum ThrustDirectionGuidanceTypes
+enum ThrustDirectionTypes
 {
     colinear_with_state_segment_thrust_direction,
     thrust_direction_from_existing_body_orientation,
@@ -74,7 +74,7 @@ std::vector< std::function< double( ) > > getPropulsionInputVariables(
  *  settings of thrust direction that require no information in addition to their type.
  *  Classes defining settings for thrust direction requiring additional information must be derived from this class.
  */
-class ThrustDirectionGuidanceSettings
+class ThrustDirectionSettings
 {
 public:
 
@@ -84,16 +84,16 @@ public:
     * \param thrustDirectionType Type of thrust direction that is to be used.
     * \param relativeBody Body relative to which thrust guidance algorithm is defined (empty if N/A).
     */
-    ThrustDirectionGuidanceSettings(
-            const ThrustDirectionGuidanceTypes thrustDirectionType,
+    ThrustDirectionSettings(
+            const ThrustDirectionTypes thrustDirectionType,
             const std::string relativeBody = "" ):
         thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody ){ }
 
     //! Destructor.
-    virtual ~ThrustDirectionGuidanceSettings( ){ }
+    virtual ~ThrustDirectionSettings( ){ }
 
     //! Type of thrust direction that is to be used.
-    ThrustDirectionGuidanceTypes thrustDirectionType_;
+    ThrustDirectionTypes thrustDirectionType_;
 
     //! Body relative to which thrust guidance algorithm is defined.
     std::string relativeBody_;
@@ -101,7 +101,7 @@ public:
 };
 
 //! Thrust guidance settings for thrust that is colinear with position/velocity vector
-class ThrustDirectionFromStateGuidanceSettings: public ThrustDirectionGuidanceSettings
+class ThrustDirectionFromStateGuidanceSettings: public ThrustDirectionSettings
 {
 public:
 
@@ -119,9 +119,9 @@ public:
             const std::string& centralBody,
             const bool isColinearWithVelocity,
             const bool directionIsOppositeToVector ):
-        ThrustDirectionGuidanceSettings( colinear_with_state_segment_thrust_direction, centralBody ),
-        isColinearWithVelocity_( isColinearWithVelocity ),
-        directionIsOppositeToVector_( directionIsOppositeToVector ){ }
+            ThrustDirectionSettings(colinear_with_state_segment_thrust_direction, centralBody ),
+            isColinearWithVelocity_( isColinearWithVelocity ),
+            directionIsOppositeToVector_( directionIsOppositeToVector ){ }
 
     //! Destructor
     ~ThrustDirectionFromStateGuidanceSettings( ){ }
@@ -135,7 +135,7 @@ public:
 };
 
 //! Class for defining custom thrust direction (i.e. predefined thrust function of time)
-class CustomThrustDirectionSettings: public ThrustDirectionGuidanceSettings
+class CustomThrustDirectionSettings: public ThrustDirectionSettings
 {
 public:
 
@@ -146,8 +146,8 @@ public:
      */
     CustomThrustDirectionSettings(
             const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
-        ThrustDirectionGuidanceSettings( custom_thrust_direction, "" ),
-        thrustDirectionFunction_( thrustDirectionFunction ){ }
+            ThrustDirectionSettings(custom_thrust_direction, "" ),
+            thrustDirectionFunction_( thrustDirectionFunction ){ }
 
     //! Destructor.
     ~CustomThrustDirectionSettings( ){ }
@@ -162,7 +162,7 @@ public:
  *  Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time).
  *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustMagnitudeSettings).
  */
-class CustomThrustOrientationSettings: public ThrustDirectionGuidanceSettings
+class CustomThrustOrientationSettings: public ThrustDirectionSettings
 {
 public:
 
@@ -174,13 +174,13 @@ public:
      */
     CustomThrustOrientationSettings(
             const std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction ):
-        ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
-        thrustOrientationFunction_( thrustOrientationFunction ){ }
+            ThrustDirectionSettings(custom_thrust_orientation, "" ),
+            thrustOrientationFunction_( thrustOrientationFunction ){ }
 
     CustomThrustOrientationSettings(
             const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction ):
-        ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
-        thrustOrientationFunction_(
+            ThrustDirectionSettings(custom_thrust_orientation, "" ),
+            thrustOrientationFunction_(
             [=]( const double time ){ return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } ){ }
 
     //! Destructor.
@@ -197,7 +197,7 @@ public:
  *  Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for
  *  constant costates, and costates from an interpolator, are also provided.
  */
-class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionGuidanceSettings
+class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionSettings
 {
 public:
 
@@ -212,8 +212,8 @@ public:
             const std::string& vehicleName,
             const std::string& centralBodyName,
             const std::function< Eigen::VectorXd( const double ) > costateFunction ):
-        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-        vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
+            ThrustDirectionSettings(mee_costate_based_thrust_direction, centralBodyName ),
+            vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
 
     //! Constructor with costate function
     /*!
@@ -226,9 +226,9 @@ public:
             const std::string& vehicleName,
             const std::string& centralBodyName,
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > costateInterpolator ):
-        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-        vehicleName_( vehicleName ),
-        costateFunction_(
+            ThrustDirectionSettings(mee_costate_based_thrust_direction, centralBodyName ),
+            vehicleName_( vehicleName ),
+            costateFunction_(
             std::bind( static_cast< Eigen::VectorXd( interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::* )
                        ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
                        costateInterpolator, std::placeholders::_1 ) ){ }
@@ -244,8 +244,8 @@ public:
             const std::string& vehicleName,
             const std::string& centralBodyName,
             const Eigen::VectorXd constantCostates ):
-        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-        vehicleName_( vehicleName ), costateFunction_( [ = ]( const double ){ return constantCostates; } ){ }
+            ThrustDirectionSettings(mee_costate_based_thrust_direction, centralBodyName ),
+            vehicleName_( vehicleName ), costateFunction_( [ = ]( const double ){ return constantCostates; } ){ }
 
 
     //! Destructor.
@@ -260,7 +260,7 @@ public:
 };
 
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionFromStateGuidanceSettings(
+inline std::shared_ptr< ThrustDirectionSettings > thrustDirectionFromStateGuidanceSettings(
         const std::string& centralBody,
         const bool isColinearWithVelocity,
         const bool directionIsOppositeToVector  )
@@ -269,18 +269,18 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionFromSta
                 centralBody, isColinearWithVelocity, directionIsOppositeToVector );
 }
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > thrustFromExistingBodyOrientation(  )
+inline std::shared_ptr< ThrustDirectionSettings > thrustFromExistingBodyOrientation(  )
 {
-    return std::make_shared< ThrustDirectionGuidanceSettings >( thrust_direction_from_existing_body_orientation );
+    return std::make_shared< ThrustDirectionSettings >(thrust_direction_from_existing_body_orientation );
 }
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientationSettings(
+inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSettings(
         const std::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction  )
 {
     return std::make_shared< CustomThrustOrientationSettings >( thrustOrientationFunction );
 }
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientationSettings(
+inline std::shared_ptr< ThrustDirectionSettings > customThrustOrientationSettings(
         const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction  )
 {
     return std::make_shared< CustomThrustOrientationSettings >(
@@ -288,13 +288,13 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustOrientatio
 }
 
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > customThrustDirectionSettings(
+inline std::shared_ptr< ThrustDirectionSettings > customThrustDirectionSettings(
         const std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction  )
 {
     return std::make_shared< CustomThrustDirectionSettings >( thrustDirectionFunction );
 }
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustDirectionSettings(
+inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirectionSettings(
         const std::string& vehicleName,
         const std::string& centralBodyName,
         const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > costateInterpolator )
@@ -303,7 +303,7 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustD
                 vehicleName, centralBodyName, costateInterpolator );
 }
 
-inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustDirectionSettings(
+inline std::shared_ptr< ThrustDirectionSettings > meeCostateBasedThrustDirectionSettings(
         const std::string& vehicleName,
         const std::string& centralBodyName,
         const Eigen::VectorXd constantCostates )
@@ -325,7 +325,7 @@ inline std::shared_ptr< ThrustDirectionGuidanceSettings > meeCostateBasedThrustD
  * \return Function determining the thrust direction in the propagation frame according to given requirements.
  */
 std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
-        const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
         const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
@@ -354,20 +354,20 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param thrustMagnitudeGuidanceType Type of thrust magnitude guidance that is to be used
+     * \param thrustMagnitudeType Type of thrust magnitude guidance that is to be used
      * \param thrustOriginId Reference id of thrust origin that is to be used (empty if N/A).
      */
     ThrustMagnitudeSettings(
-            const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
+            const ThrustMagnitudeTypes thrustMagnitudeType,
             const std::string& thrustOriginId ):
-        thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
-        thrustOriginId_( thrustOriginId ){ }
+            thrustMagnitudeType_(thrustMagnitudeType ),
+            thrustOriginId_( thrustOriginId ){ }
 
     //! Destructor
     virtual ~ThrustMagnitudeSettings( ){ }
 
     //! Type of thrust magnitude guidance that is to be used
-    ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
+    ThrustMagnitudeTypes thrustMagnitudeType_;
 
     //! Reference id of thrust origin that is to be used (empty if N/A).
     std::string thrustOriginId_;
