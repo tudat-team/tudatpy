@@ -1,5 +1,0 @@
-var searchData=
-[
-  ['terminationfunction_7597',['TerminationFunction',['../classtudat_1_1root__finders_1_1Bisection.html#a6fbc07ded9876bfc5098d38ec3fd921e',1,'tudat::root_finders::Bisection::TerminationFunction()'],['../classtudat_1_1root__finders_1_1HalleyRootFinder.html#accbc81cdc796deb2ad58ca10a97ed1dc',1,'tudat::root_finders::HalleyRootFinder::TerminationFunction()'],['../classtudat_1_1root__finders_1_1NewtonRaphson.html#a8d9e7586f7d35c623256115f0df4ac1d',1,'tudat::root_finders::NewtonRaphson::TerminationFunction()'],['../classtudat_1_1root__finders_1_1RootFinder.html#aa4219a6dfcc1e36985b65245a32ff673',1,'tudat::root_finders::RootFinder::TerminationFunction()'],['../classtudat_1_1root__finders_1_1SecantRootFinder.html#a03e942259161a73acca6d1f5ad4b08ac',1,'tudat::root_finders::SecantRootFinder::TerminationFunction()']]],
-  ['timereturningfunction_7598',['TimeReturningFunction',['../classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel.html#a2c1c58f3a90044d279dbd11ea72cae22',1,'tudat::unit_tests::AnotherDerivedAccelerationModel']]]
-];
