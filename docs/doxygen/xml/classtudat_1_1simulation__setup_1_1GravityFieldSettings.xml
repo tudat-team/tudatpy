@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1GravityFieldSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::GravityFieldSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings" prot="public" virt="non-virtual">tudat::simulation_setup::CentralGravityFieldSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings" prot="public" virt="non-virtual">tudat::simulation_setup::SphericalHarmonicsGravityFieldSettings</derivedcompoundref>
+    <includes refid="createGravityField_8h" local="no">createGravityField.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1ab9d4396fbf0b4c66710b78eb14928056" prot="protected" static="no" mutable="no">
+        <type>GravityFieldType</type>
+        <definition>GravityFieldType tudat::simulation_setup::GravityFieldSettings::gravityFieldType_</definition>
+        <argsstring></argsstring>
+        <name>gravityFieldType_</name>
+        <briefdescription>
+<para>Type of gravity field model that is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="80" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a410bdae779dd436f713d4116b64a0601" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::GravityFieldSettings::GravityFieldSettings</definition>
+        <argsstring>(const GravityFieldType gravityFieldType)</argsstring>
+        <name>GravityFieldSettings</name>
+        <param>
+          <type>const GravityFieldType</type>
+          <declname>gravityFieldType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor, sets type of gravity field model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets type of gravity field model. Settings for gravity field models requiring additional information should be defined in a derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravityFieldType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of gravity field model that is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="64" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="64" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a1c09b45caa37db3c2e17ebf1fac98d7c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::GravityFieldSettings::~GravityFieldSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~GravityFieldSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="68" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="68" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a186ea91c0ece0951f21ec4280f277f71" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>GravityFieldType</type>
+        <definition>GravityFieldType tudat::simulation_setup::GravityFieldSettings::getGravityFieldType</definition>
+        <argsstring>()</argsstring>
+        <name>getGravityFieldType</name>
+        <briefdescription>
+<para>Function to return type of gravity field model that is to be created. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return type of gravity field model that is to be created. <simplesect kind="return"><para>Type of gravity field model that is to be created. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="75" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="75" bodyend="75"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for providing settings for gravity field model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for providing settings for automatic gravity field model creation. This class is a functional (base) class for settings of gravity field models that require no information in addition to their type. Gravity field model classes defining requiring additional information must be created using an object derived from this class. @get_docstring(GravityFieldSettings.__docstring__) </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::GravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings"/>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::CentralGravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CentralGravityFieldSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::simulation_setup::SphericalHarmonicsGravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SphericalHarmonicsGravityFieldSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::simulation_setup::FromFileSphericalHarmonicsGravityFieldSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1FromFileSphericalHarmonicsGravityFieldSettings"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" line="54" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createGravityField.h" bodystart="55" bodyend="81"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a186ea91c0ece0951f21ec4280f277f71" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GravityFieldSettings</scope><name>getGravityFieldType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a410bdae779dd436f713d4116b64a0601" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::GravityFieldSettings</scope><name>GravityFieldSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1ab9d4396fbf0b4c66710b78eb14928056" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::GravityFieldSettings</scope><name>gravityFieldType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1GravityFieldSettings_1a1c09b45caa37db3c2e17ebf1fac98d7c" prot="public" virt="virtual"><scope>tudat::simulation_setup::GravityFieldSettings</scope><name>~GravityFieldSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

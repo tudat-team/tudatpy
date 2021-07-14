@@ -1,0 +1,136 @@
+\hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{}\doxysection{tudat\+::interpolators\+::Piecewise\+Constant\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$ Class Template Reference}
+\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}\index{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+
+
+Piecewise constant interpolator class.  
+
+
+
+
+{\ttfamily \#include $<$piecewise\+Constant\+Interpolator.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Piecewise\+Constant\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.736156cm]{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a532fa829fa246e34aea1e29daced97c4}{Piecewise\+Constant\+Interpolator}} (const std\+::vector$<$ Independent\+Variable\+Type $>$ independent\+Variables, const std\+::vector$<$ Dependent\+Variable\+Type $>$ dependent\+Variables, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} selected\+Lookup\+Scheme=hunting\+Algorithm, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} boundary\+Handling=extrapolate\+\_\+at\+\_\+boundary, const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&default\+Extrapolation\+Value=std\+::make\+\_\+pair(\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$(), \mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$()))
+\begin{DoxyCompactList}\small\item\em Constructor from vectors of independent/dependent data. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_afbafe35e71cd416d8d12cf34714ad835}{Piecewise\+Constant\+Interpolator}} (const std\+::map$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$ data\+Map, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} selected\+Lookup\+Scheme=hunting\+Algorithm, const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} boundary\+Handling=extrapolate\+\_\+at\+\_\+boundary, const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&default\+Extrapolation\+Value=std\+::make\+\_\+pair(\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$(), \mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$()))
+\begin{DoxyCompactList}\small\item\em Constructor from map of independent/dependent data. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a9d627db642fbbb7fe33c1d1583d13382}\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a9d627db642fbbb7fe33c1d1583d13382}} 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a9d627db642fbbb7fe33c1d1583d13382}{$\sim$\+Piecewise\+Constant\+Interpolator}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a74b0575d1afe7c135a834c80bd23043d}{interpolate}} (const Independent\+Variable\+Type target\+Independent\+Variable\+Value)
+\begin{DoxyCompactList}\small\item\em Function interpolates dependent variable value at given independent variable value. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a1d6a36175f3b8b1f2766f05bfd90dba7}{reset\+Dependent\+Values}} (const std\+::vector$<$ Dependent\+Variable\+Type $>$ \&dependent\+Values)
+\begin{DoxyCompactList}\small\item\em Function to reset the values of dependent variables used by interpolator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type, typename Dependent\+Variable\+Type$>$\newline
+class tudat\+::interpolators\+::\+Piecewise\+Constant\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}
+
+Piecewise constant interpolator class. 
+
+This class is used to perform piecewise constant interpolation in a single dimension from a set of data in independent and dependent variables. The interpolated values is equal to the dependent variable at the nearest lower neighbour at a given independent variable. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a532fa829fa246e34aea1e29daced97c4}\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a532fa829fa246e34aea1e29daced97c4}} 
+\index{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}!PiecewiseConstantInterpolator@{PiecewiseConstantInterpolator}}
+\index{PiecewiseConstantInterpolator@{PiecewiseConstantInterpolator}!tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{PiecewiseConstantInterpolator()}{PiecewiseConstantInterpolator()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{tudat\+::interpolators\+::\+Piecewise\+Constant\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{Piecewise\+Constant\+Interpolator}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Independent\+Variable\+Type $>$}]{independent\+Variables,  }\item[{const std\+::vector$<$ Dependent\+Variable\+Type $>$}]{dependent\+Variables,  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}}}]{selected\+Lookup\+Scheme = {\ttfamily huntingAlgorithm},  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}}}]{boundary\+Handling = {\ttfamily extrapolate\+\_\+at\+\_\+boundary},  }\item[{const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&}]{default\+Extrapolation\+Value = {\ttfamily std\+:\+:make\+\_\+pair(~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~),~~~~~~~~~~~~~~~~~~~~~~~~~~~~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~)~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor from vectors of independent/dependent data. 
+
+This constructor initializes the interpolator from two vectors containing the independent variables and dependent variables. A look-\/up scheme can be provided to override the given default. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variables} & Vector of values of independent variables that are used, must be sorted in ascending order. \\
+\hline
+{\em dependent\+Variables} & Vector of values of dependent variables that are used. \\
+\hline
+{\em selected\+Lookup\+Scheme} & Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. \\
+\hline
+{\em boundary\+Handling} & Boundary handling method, in case the independent variable is outside the specified range. \\
+\hline
+{\em default\+Extrapolation\+Value} & Pair of default values to be used for extrapolation, in case of use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning as methods for boundary\+Handling. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_afbafe35e71cd416d8d12cf34714ad835}\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_afbafe35e71cd416d8d12cf34714ad835}} 
+\index{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}!PiecewiseConstantInterpolator@{PiecewiseConstantInterpolator}}
+\index{PiecewiseConstantInterpolator@{PiecewiseConstantInterpolator}!tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{PiecewiseConstantInterpolator()}{PiecewiseConstantInterpolator()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{tudat\+::interpolators\+::\+Piecewise\+Constant\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{Piecewise\+Constant\+Interpolator}} (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}]{data\+Map,  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}}}]{selected\+Lookup\+Scheme = {\ttfamily huntingAlgorithm},  }\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}}}]{boundary\+Handling = {\ttfamily extrapolate\+\_\+at\+\_\+boundary},  }\item[{const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&}]{default\+Extrapolation\+Value = {\ttfamily std\+:\+:make\+\_\+pair(~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~),~~~~~~~~~~~~~~~~~~~~~~~~~~~~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~)~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor from map of independent/dependent data. 
+
+This constructor initializes the interpolator from a map containing independent variables as key and dependent variables as value. A look-\/up scheme can be provided to override the given default. 
+\begin{DoxyParams}{Parameters}
+{\em data\+Map} & Map containing independent variables as key and dependent variables as value. \\
+\hline
+{\em selected\+Lookup\+Scheme} & Identifier of lookupscheme from enum. This algorithm is used to find the nearest lower data point in the independent variables when requesting interpolation. \\
+\hline
+{\em boundary\+Handling} & Boundary handling method, in case the independent variable is outside the specified range. \\
+\hline
+{\em default\+Extrapolation\+Value} & Pair of default values to be used for extrapolation, in case of use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning as methods for boundary\+Handling. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a74b0575d1afe7c135a834c80bd23043d}\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a74b0575d1afe7c135a834c80bd23043d}} 
+\index{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}!interpolate@{interpolate}}
+\index{interpolate@{interpolate}!tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{interpolate()}{interpolate()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{tudat\+::interpolators\+::\+Piecewise\+Constant\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::interpolate (\begin{DoxyParamCaption}\item[{const Independent\+Variable\+Type}]{target\+Independent\+Variable\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function interpolates dependent variable value at given independent variable value. 
+
+Function interpolates dependent variable value at given independent variable value using piecewise constant algorithm. 
+\begin{DoxyParams}{Parameters}
+{\em target\+Independent\+Variable\+Value} & Value of independent variable at which interpolation is to take place. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Interpolated value of dependent variable. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1interpolators_1_1OneDimensionalInterpolator_a1756cce160465357493e18221aa49dee}{tudat\+::interpolators\+::\+One\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a1d6a36175f3b8b1f2766f05bfd90dba7}\label{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator_a1d6a36175f3b8b1f2766f05bfd90dba7}} 
+\index{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}!resetDependentValues@{resetDependentValues}}
+\index{resetDependentValues@{resetDependentValues}!tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$@{tudat::interpolators::PiecewiseConstantInterpolator$<$ IndependentVariableType, DependentVariableType $>$}}
+\doxysubsubsection{\texorpdfstring{resetDependentValues()}{resetDependentValues()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type $>$ \\
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1PiecewiseConstantInterpolator}{tudat\+::interpolators\+::\+Piecewise\+Constant\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$\+::reset\+Dependent\+Values (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Dependent\+Variable\+Type $>$ \&}]{dependent\+Values }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the values of dependent variables used by interpolator. 
+
+Function to reset the values of dependent variables used by interpolator 
+\begin{DoxyParams}{Parameters}
+{\em dependent\+Values} & New list of values of dependent variables. List must be of same size as original list \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/piecewise\+Constant\+Interpolator.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,81 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Tabulated\+Ephemeris\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings}\index{tudat::simulation\_setup::TabulatedEphemerisSettings@{tudat::simulation\_setup::TabulatedEphemerisSettings}}
+
+
+@get\+\_\+docstring(Tabulated\+Ephemeris\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+)  
+
+
+
+
+{\ttfamily \#include $<$create\+Ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Tabulated\+Ephemeris\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a1f3fbe7fd3d4b73a5044c9f35ef671ec}{Tabulated\+Ephemeris\+Settings}} (const std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&body\+State\+History, std\+::string frame\+Origin=\char`\"{}SSB\char`\"{}, std\+::string frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a3520d3144676b27dc2d3d59a7c3dfc87}{get\+Body\+State\+History}} ()
+\begin{DoxyCompactList}\small\item\em Function returning data map defining discrete data from which an ephemeris is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a4a76cb8afce8ed3179d0b179b11a319d}\label{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a4a76cb8afce8ed3179d0b179b11a319d}} 
+bool {\bfseries get\+Use\+Long\+Double\+States} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a4b8c6d55e61196d6004c34c05503309a}\label{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a4b8c6d55e61196d6004c34c05503309a}} 
+void {\bfseries set\+Use\+Long\+Double\+States} (const bool use\+Long\+Double\+States)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+@get\+\_\+docstring(Tabulated\+Ephemeris\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+) 
+
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EphemerisSettings}{Ephemeris\+Settings}} derived class for defining settings of an ephemeris created from tabulated data.
+
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EphemerisSettings}{Ephemeris\+Settings}} derived class for defining settings of an ephemeris created from tabulated data. Currently the use of an 6th order Lagrange interpolator is hardcoded, which is created from the data that is provided. Note that at the edges of the interpolation interval, a Cubic spline interpolator is used to suppres the influence of Runge\textquotesingle{}s phenomenon. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a1f3fbe7fd3d4b73a5044c9f35ef671ec}\label{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a1f3fbe7fd3d4b73a5044c9f35ef671ec}} 
+\index{tudat::simulation\_setup::TabulatedEphemerisSettings@{tudat::simulation\_setup::TabulatedEphemerisSettings}!TabulatedEphemerisSettings@{TabulatedEphemerisSettings}}
+\index{TabulatedEphemerisSettings@{TabulatedEphemerisSettings}!tudat::simulation\_setup::TabulatedEphemerisSettings@{tudat::simulation\_setup::TabulatedEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{TabulatedEphemerisSettings()}{TabulatedEphemerisSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Ephemeris\+Settings\+::\+Tabulated\+Ephemeris\+Settings (\begin{DoxyParamCaption}\item[{const std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&}]{body\+State\+History,  }\item[{std\+::string}]{frame\+Origin = {\ttfamily \char`\"{}SSB\char`\"{}},  }\item[{std\+::string}]{frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em body\+State\+History} & Data map (time as key, Cartesian state as values) defining data from which an interpolated ephemeris is to be created. \\
+\hline
+{\em frame\+Origin} & Name of body relative to which the ephemeris is to be calculated (optional \char`\"{}\+SSB\char`\"{} by default). \\
+\hline
+{\em frame\+Orientation} & Orientatioan of the reference frame in which the epehemeris is to be calculated (optional, \char`\"{}\+ECLIPJ2000\char`\"{} by default). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a3520d3144676b27dc2d3d59a7c3dfc87}\label{classtudat_1_1simulation__setup_1_1TabulatedEphemerisSettings_a3520d3144676b27dc2d3d59a7c3dfc87}} 
+\index{tudat::simulation\_setup::TabulatedEphemerisSettings@{tudat::simulation\_setup::TabulatedEphemerisSettings}!getBodyStateHistory@{getBodyStateHistory}}
+\index{getBodyStateHistory@{getBodyStateHistory}!tudat::simulation\_setup::TabulatedEphemerisSettings@{tudat::simulation\_setup::TabulatedEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getBodyStateHistory()}{getBodyStateHistory()}}
+{\footnotesize\ttfamily std\+::map$<$ double, Eigen\+::\+Vector6d $>$ tudat\+::simulation\+\_\+setup\+::\+Tabulated\+Ephemeris\+Settings\+::get\+Body\+State\+History (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function returning data map defining discrete data from which an ephemeris is to be created. 
+
+Function returning data map defining discrete data from which an ephemeris is to be created. \begin{DoxyReturn}{Returns}
+Data map defining discrete data from which an ephemeris is to be created. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Ephemeris.\+h\end{DoxyCompactItemize}

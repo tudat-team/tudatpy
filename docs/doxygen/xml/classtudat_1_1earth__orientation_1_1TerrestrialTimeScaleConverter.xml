@@ -1,0 +1,555 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::TerrestrialTimeScaleConverter</compoundname>
+    <includes refid="terrestrialTimeScaleConverter_8h" local="no">terrestrialTimeScaleConverter.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae62b0bcf4a25b87465550dd7d991d71d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator &lt; double, double &gt; &gt; tudat::earth_orientation::TerrestrialTimeScaleConverter::dailyUtcUt1CorrectionInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>dailyUtcUt1CorrectionInterpolator_</name>
+        <briefdescription>
+<para>Interpolator for UT1 corrections, values published daily by IERS. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="324" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae4b8d52fb3c94c9a89beb3d061602597" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kindref="compound">ShortPeriodEarthOrientationCorrectionCalculator</ref>&lt; double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; ShortPeriodEarthOrientationCorrectionCalculator&lt; double &gt; &gt; tudat::earth_orientation::TerrestrialTimeScaleConverter::shortPeriodUt1CorrectionCalculator_</definition>
+        <argsstring></argsstring>
+        <name>shortPeriodUt1CorrectionCalculator_</name>
+        <briefdescription>
+<para>Object to compute the short-period variations in UT1. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="327" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aafd088bd9bfd2288c465b1b14798e9f8" prot="private" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref>&lt; double &gt;</type>
+        <definition>CurrentTimes&lt; double &gt; tudat::earth_orientation::TerrestrialTimeScaleConverter::currentTimes_</definition>
+        <argsstring></argsstring>
+        <name>currentTimes_</name>
+        <briefdescription>
+<para>Object containing current times, as set by last updateTimes&lt; double &gt; function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="330" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a61dd7fad4bc15c26590a9be0dc9fffd9" prot="private" static="no" mutable="no">
+        <type><ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt;</type>
+        <definition>CurrentTimes&lt; Time &gt; tudat::earth_orientation::TerrestrialTimeScaleConverter::currentTimesSplit_</definition>
+        <argsstring></argsstring>
+        <name>currentTimesSplit_</name>
+        <briefdescription>
+<para>Object containing current times, as set by last updateTimes&lt; Time &gt; function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="333" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="333" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a784b1060754060533abb43b4316a9802" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::earth_orientation::TerrestrialTimeScaleConverter::previousEarthFixedPosition_</definition>
+        <argsstring></argsstring>
+        <name>previousEarthFixedPosition_</name>
+        <briefdescription>
+<para>Value of ground station position used on last call to updateTimes&lt; double &gt; function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="336" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae6f7941e35ba4d1c729c2d0cb55db629" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::earth_orientation::TerrestrialTimeScaleConverter::previousEarthFixedPositionSplit_</definition>
+        <argsstring></argsstring>
+        <name>previousEarthFixedPositionSplit_</name>
+        <briefdescription>
+<para>Value of ground station position used on last call to updateTimes&lt; Time &gt; function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="339" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1afaccd419667981e96dabab64acdf8828" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::TerrestrialTimeScaleConverter::TerrestrialTimeScaleConverter</definition>
+        <argsstring>(const std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, double &gt; &gt; dailyUtcUt1CorrectionInterpolator=std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, double &gt; &gt;(), const std::shared_ptr&lt; ShortPeriodEarthOrientationCorrectionCalculator&lt; double &gt; &gt; shortPeriodUt1CorrectionCalculator=getDefaultUT1CorrectionCalculator())</argsstring>
+        <name>TerrestrialTimeScaleConverter</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, double &gt; &gt;</type>
+          <declname>dailyUtcUt1CorrectionInterpolator</declname>
+          <defval>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, double &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1ShortPeriodEarthOrientationCorrectionCalculator" kindref="compound">ShortPeriodEarthOrientationCorrectionCalculator</ref>&lt; double &gt; &gt;</type>
+          <declname>shortPeriodUt1CorrectionCalculator</declname>
+          <defval>getDefaultUT1CorrectionCalculator()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of time scale conversion object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of time scale conversion object. Input values are required for to/from UT1. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dailyUtcUt1CorrectionInterpolator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to interpolate daily corrections between UT1 and UTC, typically from IERS products. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shortPeriodUt1CorrectionCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to calculate (sub-)diurnal variations in UT1 not captured by (typically daily) values given by interpolator. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="98" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="98" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ab9aa365afea89d6725a6999f91ab870c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>TimeType</type>
+        <definition>TimeType tudat::earth_orientation::TerrestrialTimeScaleConverter::getCurrentTime</definition>
+        <argsstring>(const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale, const TimeType &amp;inputTimeValue, const Eigen::Vector3d &amp;earthFixedPosition=Eigen::Vector3d::Zero())</argsstring>
+        <name>getCurrentTime</name>
+        <param>
+          <type>const basic_astrodynamics::TimeScales</type>
+          <declname>inputScale</declname>
+        </param>
+        <param>
+          <type>const basic_astrodynamics::TimeScales</type>
+          <declname>outputScale</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>inputTimeValue</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>earthFixedPosition</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Function to convert a time value from the input to the output scale. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function converts a time value from the input to the output scale. The availabel time scales are defined in the TimeScales enum. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputScale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> scale of inputTimeValue. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputScale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired time scale for output value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputTimeValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> value that is to be converted. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>earthFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Earth-fixed position at which time conversions are to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Converted time value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="120" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="120" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aedb04bdfc6d3a762776e03bbcd2d8ec3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::resetTimes</definition>
+        <argsstring>()</argsstring>
+        <name>resetTimes</name>
+        <briefdescription>
+<para>Function to reset all current times at given precision to NaN. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="147" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="147" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aa1b7ce9de4cd4fe08f3824097cebfe9c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::updateTimes</definition>
+        <argsstring>(const basic_astrodynamics::TimeScales inputScale, const TimeType &amp;inputTimeValue, const Eigen::Vector3d &amp;earthFixedPosition)</argsstring>
+        <name>updateTimes</name>
+        <param>
+          <type>const basic_astrodynamics::TimeScales</type>
+          <declname>inputScale</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>inputTimeValue</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>earthFixedPosition</declname>
+        </param>
+        <briefdescription>
+<para>Function to recalculate time-values at all time scales from given unput values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to recalculate time-values at all time scales from given unput values. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputScale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> scale of inputTimeValue. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputTimeValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> value from which there is to be converted. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>earthFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Earth-fixed position at which time conversions are to be evaluated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="165" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="165" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aac7a03edf97b3038aad5362820704ce0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>double</type>
+        <definition>double tudat::earth_orientation::TerrestrialTimeScaleConverter::getUt1Correction</definition>
+        <argsstring>(const basic_astrodynamics::TimeScales inputScale, const TimeType &amp;inputTimeValue, const Eigen::Vector3d currentPosition=Eigen::Vector3d::Zero())</argsstring>
+        <name>getUt1Correction</name>
+        <param>
+          <type>const basic_astrodynamics::TimeScales</type>
+          <declname>inputScale</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>inputTimeValue</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>currentPosition</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="263" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="263" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aeb32bca2650e3d360a84c6bf4b1294f2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, double &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator &lt; double, double &gt; &gt; tudat::earth_orientation::TerrestrialTimeScaleConverter::getDailyUtcUt1CorrectionInterpolator</definition>
+        <argsstring>()</argsstring>
+        <name>getDailyUtcUt1CorrectionInterpolator</name>
+        <briefdescription>
+<para>Interpolator for UT1 corrections, values published daily by IERS. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="276" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="276" bodyend="279"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a62a54324422ab32907419f1facba9fd9" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type><ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref>&lt; TimeType &gt; &amp;</type>
+        <definition>CurrentTimes&lt; TimeType &gt;&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getCurrentTimeList</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentTimeList</name>
+        <briefdescription>
+<para>Function to get current time list at requested numerical precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get current time list at requested numerical precision <simplesect kind="return"><para>Current time list at requested numerical precision </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="289" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac3d58551ea9e73343092de6a2bb1479d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Vector3d &amp;</type>
+        <definition>Eigen::Vector3d&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getPreviousGroundStationPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousGroundStationPosition</name>
+        <briefdescription>
+<para>Function to get ground station position used on last call to updateTimes function at requested numerical precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get ground station position used on last call to updateTimes function at requested numerical precision <simplesect kind="return"><para>Ground station position used on last call to updateTimes function at requested numerical precision </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="297" column="21"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a337fb4397232ed7fd6fc0d45b041989e" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::setCurrentGroundStation</definition>
+        <argsstring>(const Eigen::Vector3d &amp;currentGroundStation)</argsstring>
+        <name>setCurrentGroundStation</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>currentGroundStation</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset ground station position used on last call to updateTimes function at requested numerical precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset ground station position used on last call to updateTimes function at requested numerical precision <simplesect kind="return"><para>Ground station position used on last call to updateTimes function at requested numerical precision </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="305" column="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a89d83846a746518db08b07d6c8f76915" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::calculateUniversalTimes</definition>
+        <argsstring>()</argsstring>
+        <name>calculateUniversalTimes</name>
+        <briefdescription>
+<para>Function to update the universal times (UT1 and UTC) in <ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref> member at requested precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="309" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="309" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aa7341d70df996127ff75aa0ce6410548" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type><ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref>&lt; double &gt; &amp;</type>
+        <definition>CurrentTimes&lt; double &gt;&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getCurrentTimeList</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentTimeList</name>
+        <briefdescription>
+<para>Function to get current time list at double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="1" column="0" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="24" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a53161d52e2f2ebd9a76cd41ac7920c6a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type><ref refid="structtudat_1_1earth__orientation_1_1CurrentTimes" kindref="compound">CurrentTimes</ref>&lt; <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> &gt; &amp;</type>
+        <definition>CurrentTimes&lt; Time &gt;&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getCurrentTimeList</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentTimeList</name>
+        <briefdescription>
+<para>Function to get current time list at <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="1" column="0" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="31" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac9e4dc66bad29084ef87eb66cfb9b85a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>Eigen::Vector3d &amp;</type>
+        <definition>Eigen::Vector3d&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getPreviousGroundStationPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousGroundStationPosition</name>
+        <briefdescription>
+<para>Function to get ground station position used on last call to updateTimes function at double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="38" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="38" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac9e4dc66bad29084ef87eb66cfb9b85a" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>Eigen::Vector3d &amp;</type>
+        <definition>Eigen::Vector3d&amp; tudat::earth_orientation::TerrestrialTimeScaleConverter::getPreviousGroundStationPosition</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousGroundStationPosition</name>
+        <briefdescription>
+<para>Function to get ground station position used on last call to updateTimes function at <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="45" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="45" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ad4d0908565280a02dadf3b015d1a4f23" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::setCurrentGroundStation</definition>
+        <argsstring>(const Eigen::Vector3d &amp;currentGroundStation)</argsstring>
+        <name>setCurrentGroundStation</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>currentGroundStation</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset ground station position used on last call to updateTimes function at double precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="52" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ad4d0908565280a02dadf3b015d1a4f23" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void tudat::earth_orientation::TerrestrialTimeScaleConverter::setCurrentGroundStation</definition>
+        <argsstring>(const Eigen::Vector3d &amp;currentGroundStation)</argsstring>
+        <name>setCurrentGroundStation</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>currentGroundStation</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset ground station position used on last call to updateTimes function at <ref refid="classtudat_1_1Time" kindref="compound">Time</ref> precision. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" line="59" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/earth_orientation/terrestrialTimeScaleConverter.cpp" bodystart="59" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class used to convert between terrestrial time scales TAI, TT, TDB, UTC ans UT1. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" line="86" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h" bodystart="87" bodyend="340"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a89d83846a746518db08b07d6c8f76915" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>calculateUniversalTimes</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aafd088bd9bfd2288c465b1b14798e9f8" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>currentTimes_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a61dd7fad4bc15c26590a9be0dc9fffd9" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>currentTimesSplit_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae62b0bcf4a25b87465550dd7d991d71d" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>dailyUtcUt1CorrectionInterpolator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ab9aa365afea89d6725a6999f91ab870c" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getCurrentTime</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a62a54324422ab32907419f1facba9fd9" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getCurrentTimeList</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aa7341d70df996127ff75aa0ce6410548" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getCurrentTimeList</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a53161d52e2f2ebd9a76cd41ac7920c6a" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getCurrentTimeList</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aeb32bca2650e3d360a84c6bf4b1294f2" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getDailyUtcUt1CorrectionInterpolator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac3d58551ea9e73343092de6a2bb1479d" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getPreviousGroundStationPosition</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac9e4dc66bad29084ef87eb66cfb9b85a" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getPreviousGroundStationPosition</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ac9e4dc66bad29084ef87eb66cfb9b85a" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getPreviousGroundStationPosition</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aac7a03edf97b3038aad5362820704ce0" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>getUt1Correction</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a784b1060754060533abb43b4316a9802" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>previousEarthFixedPosition_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae6f7941e35ba4d1c729c2d0cb55db629" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>previousEarthFixedPositionSplit_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aedb04bdfc6d3a762776e03bbcd2d8ec3" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>resetTimes</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1a337fb4397232ed7fd6fc0d45b041989e" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>setCurrentGroundStation</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ad4d0908565280a02dadf3b015d1a4f23" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>setCurrentGroundStation</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ad4d0908565280a02dadf3b015d1a4f23" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>setCurrentGroundStation</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1ae4b8d52fb3c94c9a89beb3d061602597" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>shortPeriodUt1CorrectionCalculator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1afaccd419667981e96dabab64acdf8828" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>TerrestrialTimeScaleConverter</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter_1aa1b7ce9de4cd4fe08f3824097cebfe9c" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::TerrestrialTimeScaleConverter</scope><name>updateTimes</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

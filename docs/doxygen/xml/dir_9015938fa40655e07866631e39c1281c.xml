@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_9015938fa40655e07866631e39c1281c" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic</compoundname>
+    <innerfile refid="basicMathematicsFunctions_8cpp">basicMathematicsFunctions.cpp</innerfile>
+    <innerfile refid="coordinateConversions_8cpp">coordinateConversions.cpp</innerfile>
+    <innerfile refid="leastSquaresEstimation_8cpp">leastSquaresEstimation.cpp</innerfile>
+    <innerfile refid="legendrePolynomials_8cpp">legendrePolynomials.cpp</innerfile>
+    <innerfile refid="linearAlgebra_8cpp">linearAlgebra.cpp</innerfile>
+    <innerfile refid="nearestNeighbourSearch_8cpp">nearestNeighbourSearch.cpp</innerfile>
+    <innerfile refid="numericalDerivative_8cpp">numericalDerivative.cpp</innerfile>
+    <innerfile refid="rotationAboutArbitraryAxis_8cpp">rotationAboutArbitraryAxis.cpp</innerfile>
+    <innerfile refid="rotationRepresentations_8cpp">rotationRepresentations.cpp</innerfile>
+    <innerfile refid="sphericalHarmonics_8cpp">sphericalHarmonics.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/"/>
+  </compounddef>
+</doxygen>

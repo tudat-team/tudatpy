@@ -1,0 +1,217 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::earth_orientation::EarthOrientationAnglesCalculator</compoundname>
+    <includes refid="earthOrientationCalculator_8h" local="no">earthOrientationCalculator.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a00b84508c54942d5866e3179717ff1cb" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator" kindref="compound">PolarMotionCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; PolarMotionCalculator &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::polarMotionCalculator_</definition>
+        <argsstring></argsstring>
+        <name>polarMotionCalculator_</name>
+        <briefdescription>
+<para>Pointer to object for calculating position of pole in ITRS (polarm motion). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to object for calculating position of pole in ITRS (polarm motion). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="276" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="276" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a8341c95c54c33dfc9459e43fad6efb49" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator" kindref="compound">PrecessionNutationCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; PrecessionNutationCalculator &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::precessionNutationCalculator_</definition>
+        <argsstring></argsstring>
+        <name>precessionNutationCalculator_</name>
+        <briefdescription>
+<para>Pointer to object for calculating position of pole in GCRS (precession/nutation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to object for calculating position of pole in GCRS (precession/nutation). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="282" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="282" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a553022f4a397b15b2f8bc7282590e62f" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter" kindref="compound">TerrestrialTimeScaleConverter</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; TerrestrialTimeScaleConverter &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::terrestrialTimeScaleConverter_</definition>
+        <argsstring></argsstring>
+        <name>terrestrialTimeScaleConverter_</name>
+        <briefdescription>
+<para>Pointer to object to convert between different time scales. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to object to convert between different time scales. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="288" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="288" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a33ffefa10831c8b1e5343e16ad7e9053" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::earth_orientation::EarthOrientationAnglesCalculator::EarthOrientationAnglesCalculator</definition>
+        <argsstring>(const std::shared_ptr&lt; PolarMotionCalculator &gt; polarMotionCalculator, const std::shared_ptr&lt; PrecessionNutationCalculator &gt; precessionNutationCalculator, const std::shared_ptr&lt; TerrestrialTimeScaleConverter &gt; terrestrialTimeScaleConverter)</argsstring>
+        <name>EarthOrientationAnglesCalculator</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator" kindref="compound">PolarMotionCalculator</ref> &gt;</type>
+          <declname>polarMotionCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator" kindref="compound">PrecessionNutationCalculator</ref> &gt;</type>
+          <declname>precessionNutationCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter" kindref="compound">TerrestrialTimeScaleConverter</ref> &gt;</type>
+          <declname>terrestrialTimeScaleConverter</declname>
+        </param>
+        <briefdescription>
+<para>Constructor from objects calculating three sub-parts of earth orientation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor from objects calculating sub-parts of earth orientation and time conversion, i.e. polar motion, precession/nutation and conversion between TT,TDB,UTC and UT1. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>polarMotionCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to object for calcu2012lating position of pole in ITRS (polarm motion). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>precessionNutationCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to object for calculating position of pole in GCRS (precession/nutation). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terrestrialTimeScaleConverter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to object to convert between different time scales. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="198" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="198" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a030465c0f6499fbde39d79a0febf9671" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename TimeType</type>
+          </param>
+        </templateparamlist>
+        <type>std::pair&lt; Eigen::Vector5d, TimeType &gt;</type>
+        <definition>std::pair&lt; Eigen::Vector5d, TimeType &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs</definition>
+        <argsstring>(const double timeValue, basic_astrodynamics::TimeScales timeScale=basic_astrodynamics::tt_scale)</argsstring>
+        <name>getRotationAnglesFromItrsToGcrs</name>
+        <param>
+          <type>const double</type>
+          <declname>timeValue</declname>
+        </param>
+        <param>
+          <type>basic_astrodynamics::TimeScales</type>
+          <declname>timeScale</declname>
+          <defval>basic_astrodynamics::tt_scale</defval>
+        </param>
+        <briefdescription>
+<para>Calculate rotation angles from ITRS to GCRS at given time value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate rotation angles from ITRS to GCRS at given time value. Any time scale combined with any time value can be used as input. TIO locator is not included in output as its value is minute and cal be easily evaluated, with no regard for time conversions in input value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of seconds since J2000 at which orientation is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeScale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> scale in which the timeValue is given. To be taken from TimeScales enum. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Rotation angles for ITRS&lt;-&gt;GCRS transformation at given epoch. First pair entry is: X, Y, s, x_p, y_p. Second defines UT1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="217" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="217" bodyend="246"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a66f065c53c26036e66af2b1461d718bd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PolarMotionCalculator" kindref="compound">PolarMotionCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; PolarMotionCalculator &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::getPolarMotionCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getPolarMotionCalculator</name>
+        <briefdescription>
+<para>Function to get object that calculates polar motion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get object that calculates polar motion. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="253" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="253" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a17d25fb9da4f49bdd0942cacbd67b366" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1PrecessionNutationCalculator" kindref="compound">PrecessionNutationCalculator</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; PrecessionNutationCalculator &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::getPrecessionNutationCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getPrecessionNutationCalculator</name>
+        <briefdescription>
+<para>Function to get object that calculates precession/nutation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get object that calculates precession/nutation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="260" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="260" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1ab3248d4bc9457db385cd20e3b6913bb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1earth__orientation_1_1TerrestrialTimeScaleConverter" kindref="compound">TerrestrialTimeScaleConverter</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; TerrestrialTimeScaleConverter &gt; tudat::earth_orientation::EarthOrientationAnglesCalculator::getTerrestrialTimeScaleConverter</definition>
+        <argsstring>()</argsstring>
+        <name>getTerrestrialTimeScaleConverter</name>
+        <briefdescription>
+<para>Function to get object that converts between time scales. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get object that converts between time scales. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="267" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="267" bodyend="268"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" line="186" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation/earthOrientationCalculator.h" bodystart="187" bodyend="289"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a33ffefa10831c8b1e5343e16ad7e9053" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>EarthOrientationAnglesCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a66f065c53c26036e66af2b1461d718bd" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>getPolarMotionCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a17d25fb9da4f49bdd0942cacbd67b366" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>getPrecessionNutationCalculator</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a030465c0f6499fbde39d79a0febf9671" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>getRotationAnglesFromItrsToGcrs</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1ab3248d4bc9457db385cd20e3b6913bb4" prot="public" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>getTerrestrialTimeScaleConverter</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a00b84508c54942d5866e3179717ff1cb" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>polarMotionCalculator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a8341c95c54c33dfc9459e43fad6efb49" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>precessionNutationCalculator_</name></member>
+      <member refid="classtudat_1_1earth__orientation_1_1EarthOrientationAnglesCalculator_1a553022f4a397b15b2f8bc7282590e62f" prot="private" virt="non-virtual"><scope>tudat::earth_orientation::EarthOrientationAnglesCalculator</scope><name>terrestrialTimeScaleConverter_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

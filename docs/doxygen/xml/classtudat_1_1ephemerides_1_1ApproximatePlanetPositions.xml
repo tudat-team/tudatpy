@@ -1,0 +1,344 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions" kind="class" language="C++" prot="public">
+    <compoundname>tudat::ephemerides::ApproximatePlanetPositions</compoundname>
+    <basecompoundref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase" prot="public" virt="non-virtual">tudat::ephemerides::ApproximatePlanetPositionsBase</basecompoundref>
+    <includes refid="approximatePlanetPositions_8h" local="no">approximatePlanetPositions.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a781de59df9cea8c788c1ca12f2267639" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::ApproximatePlanetPositions::eccentricAnomalyAtGivenJulianDate_</definition>
+        <argsstring></argsstring>
+        <name>eccentricAnomalyAtGivenJulianDate_</name>
+        <briefdescription>
+<para>Eccentric anomaly at given Julian date. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Eccentric anomaly of planet at given Julian date. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="103" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a8d8c87d3d606f1bf0ea06af5fc88aae3" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::ApproximatePlanetPositions::longitudeOfPerihelionAtGivenJulianDate_</definition>
+        <argsstring></argsstring>
+        <name>longitudeOfPerihelionAtGivenJulianDate_</name>
+        <briefdescription>
+<para>Longitude of perihelion at given Julian date. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Longitude of perihelion of planet at given Julian date. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="109" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a569fd80f2f528445650e8f133e4683ce" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::ApproximatePlanetPositions::meanAnomalyAtGivenJulianDate_</definition>
+        <argsstring></argsstring>
+        <name>meanAnomalyAtGivenJulianDate_</name>
+        <briefdescription>
+<para>Mean anomaly at given Julian date. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Mean anomaly of planet at given Julian date. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="115" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1ab4b1bf1b5ceedd41fe3ccafeb38bc27e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::ephemerides::ApproximatePlanetPositions::trueAnomalyAtGivenJulianData_</definition>
+        <argsstring></argsstring>
+        <name>trueAnomalyAtGivenJulianData_</name>
+        <briefdescription>
+<para>True anomaly at given Julian date. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>True anomaly of planet at given Julian date. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="121" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a68d514d14da3cec5e8d507853ee1e031" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::ApproximatePlanetPositions::ApproximatePlanetPositions</definition>
+        <argsstring>(BodiesWithEphemerisData bodyWithEphemerisData, const double sunGravitationalParameter=1.32712440018e20)</argsstring>
+        <name>ApproximatePlanetPositions</name>
+        <param>
+          <type><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">BodiesWithEphemerisData</ref></type>
+          <declname>bodyWithEphemerisData</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sunGravitationalParameter</declname>
+          <defval>1.32712440018e20</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor that initializes the class from the body for which the position is approximated and the gravitational parameter of the Sun (default 1.32712440018e20). Other members are initialized to default values (NAN).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyWithEphemerisData</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The body for which the position is approximated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sunGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The gravitational parameter of the Sun [m^3/s^2]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" kindref="member">BodiesWithEphemerisData</ref>, <ref refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase" kindref="compound">ApproximatePlanetPositionsBase</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="53" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a6e2b689f9388fdf72e9d55f0da538992" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::ephemerides::ApproximatePlanetPositions::ApproximatePlanetPositions</definition>
+        <argsstring>(const std::string &amp;bodyName, const double sunGravitationalParameter=1.32712440018e20)</argsstring>
+        <name>ApproximatePlanetPositions</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sunGravitationalParameter</declname>
+          <defval>1.32712440018e20</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="64" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="64" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a76a58a0bc977fb72020cda1837be1ddf" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::ApproximatePlanetPositions::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getCartesianState</name>
+        <reimplements refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9ffa2e6b00aa190385d87266bc6ca091">getCartesianState</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get cartesian state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get state from ephemeris.</para>
+<para>Returns cartesian state from ephemeris. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State in Cartesian elements from ephemeris. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="83" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositions.cpp" bodystart="31" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a28a9f6436a540037f9da7a2d59d2342b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::ephemerides::ApproximatePlanetPositions::getKeplerianStateFromEphemeris</definition>
+        <argsstring>(const double secondsSinceEpoch)</argsstring>
+        <name>getKeplerianStateFromEphemeris</name>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get keplerian state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns keplerian state in from ephemeris. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State in Keplerian elements from ephemeris. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="92" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/ephemerides/approximatePlanetPositions.cpp" bodystart="42" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>virtual Eigen::Vector6d tudat::ephemerides::Ephemeris::getCartesianState</definition>
+        <argsstring>(const double secondsSinceEpoch)=0</argsstring>
+        <name>getCartesianState</name>
+        <param>
+          <type>const double</type>
+          <declname>secondsSinceEpoch</declname>
+        </param>
+        <briefdescription>
+<para>Get state from ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns state from ephemeris at given time <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secondsSinceEpoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since epoch at which ephemeris is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>State from ephemeris. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="41" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> class using JPL &quot;Approximate Positions of Major Planets&quot;. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1ephemerides_1_1Ephemeris" kindref="compound">Ephemeris</ref> class using JPL &quot;Approximate Positions of Major Planets&quot;. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+      </node>
+      <node id="1">
+        <label>tudat::ephemerides::ApproximatePlanetPositions</label>
+        <link refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::ApproximatePlanetPositionsBase</label>
+        <link refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="4">
+        <label>string</label>
+      </node>
+      <node id="5">
+        <label>tudat::ephemerides::ApproximatePlanetPositionsDataContainer</label>
+        <link refid="structtudat_1_1ephemerides_1_1ApproximatePlanetPositionsDataContainer"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>planetName_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::ephemerides::Ephemeris</label>
+        <link refid="classtudat_1_1ephemerides_1_1Ephemeris"/>
+        <childnode refid="4" relation="usage">
+          <edgelabel>referenceFrameOrientation_</edgelabel>
+          <edgelabel>referenceFrameOrigin_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::ephemerides::ApproximatePlanetPositions</label>
+        <link refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::ephemerides::ApproximatePlanetPositionsBase</label>
+        <link refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+        <childnode refid="5" relation="usage">
+          <edgelabel>approximatePlanetPositionsDataContainer_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" line="37" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides/approximatePlanetPositions.h" bodystart="38" bodyend="122"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a68d514d14da3cec5e8d507853ee1e031" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>ApproximatePlanetPositions</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a6e2b689f9388fdf72e9d55f0da538992" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>ApproximatePlanetPositions</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a1a16ba86f279f5b020d02559f735f055" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>ApproximatePlanetPositionsBase</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a04dafb484427c3a552fb4a7f6f456ea0" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>approximatePlanetPositionsDataContainer_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>BodiesWithEphemerisData</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1acfc0c1fc4289411b5d90d1fae6058629" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>containerOfDataFromEphemerisFile_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2a490ce9f1bd773018a93e4eaa16349fae" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>earthMoonBarycenter</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a781de59df9cea8c788c1ca12f2267639" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>eccentricAnomalyAtGivenJulianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a84b2fe561ee07d270ed3cb5e0738b6cb" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>Ephemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a9c8716b05a0b4611ba7d25138cf6e9f5" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>ephemerisLineData_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a09e3ed2a5ac9c9087e8d50b30293ff2f" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getBodiesWithEphemerisDataId</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a2b4485db49528e74903e2448e9a277ea" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianLongState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0dc15b6ec16fea02fa3af1a7ffbdeefe" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianLongStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a11508af5994ac79a571b8c7c53c2f01a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianPosition</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a76a58a0bc977fb72020cda1837be1ddf" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a9ffa2e6b00aa190385d87266bc6ca091" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianState</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a4953c48335220b8c1b46fcd6c408b2d3" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianStateFromExtendedTime</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a1b18b53a45423bd1b17f0e0c0f459e32" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getCartesianVelocity</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a28a9f6436a540037f9da7a2d59d2342b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getKeplerianStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a3484ae0aa93541d7e551803daed5d9fd" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getPlanetGravitationalParameter</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a9c03fe22d322ffecda1f60d91021f842" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getReferenceFrameOrientation</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a6a81880bac3b4737ea522e232b40807b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getReferenceFrameOrigin</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1abc58628f9a8defcd5bc8b8d9df778f98" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getSunGravitationalParameter</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1aab6239fef97c6bc476ba7c0ea9c6e10b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a74f968788b24caea12669f65f66b691a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a0ec66ebe15e2bf0516448ff79cdd3012" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>getTemplatedStateFromEphemeris</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a6d6e4fdfb1666474b8e5647bfcf3746f" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>julianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2ae44153c007ea220f4fdbf9c8d7c96e92" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>jupiter</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a8d8c87d3d606f1bf0ea06af5fc88aae3" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>longitudeOfPerihelionAtGivenJulianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2a409ba0d2d509e9ec7845027ec4a2b89a" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>mars</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1a569fd80f2f528445650e8f133e4683ce" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>meanAnomalyAtGivenJulianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1ad63ef8202dfe8a0a04feb350344ee7e7" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>meanLongitudeAtGivenJulianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2aec6727909e851f5c3eb1817de85c2409" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>mercury</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2a18a5db078a6559bba8fbb4f696602fdb" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>neptune</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa967cb9533b467af0cf22d5bb5ed8501" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>numberOfCenturiesPastJ2000_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aef19d67979b73f546c2fa448bcbfcbed" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>parseEphemerisLineData_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1af5aa54a364f7cc6429e4df57438236be" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>parseExtraTermsEphemerisLineData_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a0e5446da86a9c882666bb39a2c70f077" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>planetGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a872f2535642808c26097146d513a1b3c" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>planetKeplerianElementsAtGivenJulianDate_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2aa51b1aa3e94dcf9a400df6049a80b4e6" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>pluto</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a423f4cfbc075f421a16b07bea53ca939" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>referenceFrameOrientation_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1a69d6996ff459ef971f07b4f826528531" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>referenceFrameOrigin_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a568eb00d49ec2d6ddda6fe353b20975b" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>reloadData</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2a74850c1286b6158917b58bca6154fc60" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>saturn</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aec3603d568cec958c2aef70100645c1b" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>setPlanet</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aebcb97a446b2662b8626e3cecc6fc54f" prot="protected" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>sunGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositions_1ab4b1bf1b5ceedd41fe3ccafeb38bc27e" prot="private" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>trueAnomalyAtGivenJulianData_</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2aab5524dd921f4c1ad8fa02135fbbe063" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>undefined</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2ae72bb569459ea0d2949e672df256fefa" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>uranus</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1aa698885dcabac2815a6205d5502724d2a35039927e0c2af19ede8fa602f246778" prot="public" virt="non-virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>venus</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1ApproximatePlanetPositionsBase_1a9e8f9ead05a2dc897153caed1fbbbf78" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>~ApproximatePlanetPositionsBase</name></member>
+      <member refid="classtudat_1_1ephemerides_1_1Ephemeris_1ac9c54e2db132b832948e18267736fcdb" prot="public" virt="virtual"><scope>tudat::ephemerides::ApproximatePlanetPositions</scope><name>~Ephemeris</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

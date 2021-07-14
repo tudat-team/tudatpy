@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1MultiTypeObservationBias" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::MultiTypeObservationBias</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationBias" prot="public" virt="non-virtual">tudat::observation_models::ObservationBias&lt; 1 &gt;</basecompoundref>
+    <includes refid="observationBias_8h" local="no">observationBias.h</includes>
+    <templateparamlist>
+      <param>
+        <type>int</type>
+        <declname>ObservationSize</declname>
+        <defname>ObservationSize</defname>
+        <defval>1</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1a96e334283d2c53d28aa9f09631ae442e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; ObservationSize &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; ObservationBias&lt; ObservationSize &gt; &gt; &gt; tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;::biasList_</definition>
+        <argsstring></argsstring>
+        <name>biasList_</name>
+        <briefdescription>
+<para>List of bias objects that are to be combined. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="646" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="646" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1abb1e664140c39b951fa15db1ffb8a98f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;::MultiTypeObservationBias</definition>
+        <argsstring>(const std::vector&lt; std::shared_ptr&lt; ObservationBias&lt; ObservationSize &gt; &gt; &gt; biasList)</argsstring>
+        <name>MultiTypeObservationBias</name>
+        <param>
+          <type>const std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; ObservationSize &gt; &gt; &gt;</type>
+          <declname>biasList</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>biasList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bias objects that are to be combined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="604" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="604" bodyend="605"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1adbced98881cb3984dfccf7c4622e2a99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;::~MultiTypeObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>~MultiTypeObservationBias</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="608" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="608" bodyend="608"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1ab502439d9b4116f4be9fddb64bb8794f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, ObservationSize, 1 &gt; tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;::getObservationBias</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates, const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;currentObservableValue)</argsstring>
+        <name>getObservationBias</name>
+        <reimplements refid="classtudat_1_1observation__models_1_1ObservationBias_1af90beeae19a9c220994d7410baab945d">getObservationBias</reimplements>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;</type>
+          <declname>currentObservableValue</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the total observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the total observation bias. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unbiased value of the observable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total observation bias. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="618" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="618" bodyend="629"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1aa5755aee70c16dc73c31500afaa38da8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; ObservationSize &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; ObservationBias&lt; ObservationSize &gt; &gt; &gt; tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;::getBiasList</definition>
+        <argsstring>()</argsstring>
+        <name>getBiasList</name>
+        <briefdescription>
+<para>Function to retrieve the list of bias objects that are to be combined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the list of bias objects that are to be combined. <simplesect kind="return"><para>The list of bias objects that are to be combined. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="636" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="636" bodyend="639"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for combining multiple observation bias models into a single bias value. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for combining multiple observation bias models into a single bias value. This class computes a list of biases, all based on the nominal, unbiased, observation and sums them up to form the total observation bias. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBias&lt; 1 &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBias"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBias&lt; 1 &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBias"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::MultiTypeObservationBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="595" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="596" bodyend="648"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1a96e334283d2c53d28aa9f09631ae442e" prot="private" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>biasList_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1aa5755aee70c16dc73c31500afaa38da8" prot="public" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>getBiasList</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1ab502439d9b4116f4be9fddb64bb8794f" prot="public" virt="virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>getObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1adaa0258566dfe1e9438afbcfb57ccddb" prot="public" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1abb1e664140c39b951fa15db1ffb8a98f" prot="public" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>MultiTypeObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a31ad7d28d9b81c4c0df65fd47e39f3ea" prot="public" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>ObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1MultiTypeObservationBias_1adbced98881cb3984dfccf7c4622e2a99" prot="public" virt="non-virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>~MultiTypeObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a5e9f892808937f518b7398f6cfcd19de" prot="public" virt="virtual"><scope>tudat::observation_models::MultiTypeObservationBias</scope><name>~ObservationBias</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

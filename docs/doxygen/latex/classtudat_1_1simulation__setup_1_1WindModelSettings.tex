@@ -1,0 +1,83 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Wind\+Model\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1WindModelSettings}\index{tudat::simulation\_setup::WindModelSettings@{tudat::simulation\_setup::WindModelSettings}}
+
+
+Class for providing settings for wind model.  
+
+
+
+
+{\ttfamily \#include $<$create\+Atmosphere\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Wind\+Model\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.824104cm]{classtudat_1_1simulation__setup_1_1WindModelSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1WindModelSettings_a61856d5bd8d10d726afdd36814971c13}{Wind\+Model\+Settings}} (const Wind\+Model\+Types wind\+Model\+Type, const reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames associated\+Frame=reference\+\_\+frames\+::vertical\+\_\+frame)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_a21f3cb2bf2147286afc1662df50da1af}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_a21f3cb2bf2147286afc1662df50da1af}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1WindModelSettings_a21f3cb2bf2147286afc1662df50da1af}{$\sim$\+Wind\+Model\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Wind\+Model\+Types \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1WindModelSettings_a1b98ab565b7a0a02dd018dcdd7bca511}{get\+Wind\+Model\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve type of wind model that is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_a5d75cc484c3cc00433e9385abd1415a4}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_a5d75cc484c3cc00433e9385abd1415a4}} 
+reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames {\bfseries get\+Associated\+Frame} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_af91c5f7dc6d8950cf591ef9ad86c8466}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_af91c5f7dc6d8950cf591ef9ad86c8466}} 
+Wind\+Model\+Types \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1WindModelSettings_af91c5f7dc6d8950cf591ef9ad86c8466}{wind\+Model\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of wind model that is to be created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_a341089072bbcf1086d628515efe099a8}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_a341089072bbcf1086d628515efe099a8}} 
+reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames {\bfseries associated\+Frame\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing settings for wind model. 
+
+Class for providing settings for automatic wind model creation. This class is a functional (base) class for settings of wind models that require no information in addition to their type. Wind model classes defining requiring additional information must be created using an object derived from this class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_a61856d5bd8d10d726afdd36814971c13}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_a61856d5bd8d10d726afdd36814971c13}} 
+\index{tudat::simulation\_setup::WindModelSettings@{tudat::simulation\_setup::WindModelSettings}!WindModelSettings@{WindModelSettings}}
+\index{WindModelSettings@{WindModelSettings}!tudat::simulation\_setup::WindModelSettings@{tudat::simulation\_setup::WindModelSettings}}
+\doxysubsubsection{\texorpdfstring{WindModelSettings()}{WindModelSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Wind\+Model\+Settings\+::\+Wind\+Model\+Settings (\begin{DoxyParamCaption}\item[{const Wind\+Model\+Types}]{wind\+Model\+Type,  }\item[{const reference\+\_\+frames\+::\+Aerodynamics\+Reference\+Frames}]{associated\+Frame = {\ttfamily reference\+\_\+frames\+:\+:vertical\+\_\+frame} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em wind\+Model\+Type} & Type of wind model that is to be created \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1WindModelSettings_a1b98ab565b7a0a02dd018dcdd7bca511}\label{classtudat_1_1simulation__setup_1_1WindModelSettings_a1b98ab565b7a0a02dd018dcdd7bca511}} 
+\index{tudat::simulation\_setup::WindModelSettings@{tudat::simulation\_setup::WindModelSettings}!getWindModelType@{getWindModelType}}
+\index{getWindModelType@{getWindModelType}!tudat::simulation\_setup::WindModelSettings@{tudat::simulation\_setup::WindModelSettings}}
+\doxysubsubsection{\texorpdfstring{getWindModelType()}{getWindModelType()}}
+{\footnotesize\ttfamily Wind\+Model\+Types tudat\+::simulation\+\_\+setup\+::\+Wind\+Model\+Settings\+::get\+Wind\+Model\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve type of wind model that is to be created. 
+
+Function to retrieve type of wind model that is to be created \begin{DoxyReturn}{Returns}
+Type of wind model that is to be created 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Atmosphere\+Model.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ConstantObservationBias" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::ConstantObservationBias</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationBias" prot="public" virt="non-virtual">tudat::observation_models::ObservationBias&lt; 1 &gt;</basecompoundref>
+    <includes refid="observationBias_8h" local="no">observationBias.h</includes>
+    <templateparamlist>
+      <param>
+        <type>int</type>
+        <declname>ObservationSize</declname>
+        <defname>ObservationSize</defname>
+        <defval>1</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1a81e5599f781e9c05aa47dff303a35c89" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, ObservationSize, 1 &gt; tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::observationBias_</definition>
+        <argsstring></argsstring>
+        <name>observationBias_</name>
+        <briefdescription>
+<para>Constant (entry-wise) observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="180" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1a216252c1c33f3cbcee7bf3114fb1c720" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::ConstantObservationBias</definition>
+        <argsstring>(const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; observationBias)</argsstring>
+        <name>ConstantObservationBias</name>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+          <declname>observationBias</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant (entry-wise) observation bias. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="104" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="104" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1ab6f48f10712444f0ab736eea7bd89a47" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::~ConstantObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>~ConstantObservationBias</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="108" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="108" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1a118c219c5cc5e34fd5c976dc24f4b827" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, ObservationSize, 1 &gt; tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::getObservationBias</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;linkEndTimes, const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates, const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;currentObservableValue=(Eigen::Matrix&lt; double, ObservationSize, 1 &gt;()&lt;&lt; TUDAT_NAN).finished())</argsstring>
+        <name>getObservationBias</name>
+        <reimplements refid="classtudat_1_1observation__models_1_1ObservationBias_1af90beeae19a9c220994d7410baab945d">getObservationBias</reimplements>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;</type>
+          <declname>currentObservableValue</declname>
+          <defval>(Eigen::Matrix&lt; double, ObservationSize, 1 &gt;()&lt;&lt; TUDAT_NAN).finished()</defval>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the constant observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the constant observation bias. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation (unused). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation (unused). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservableValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unbiased value of the observable (unused and default NAN). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Constant observation bias. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="118" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="118" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1aef7ce0f3e269fdd9b042b7e69953e244" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, ObservationSize, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, ObservationSize, 1 &gt; tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::getConstantObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantObservationBias</name>
+        <briefdescription>
+<para>Function retrieve the constant (entry-wise) absolute observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function retrieve the constant (entry-wise) absolute observation bias. <simplesect kind="return"><para>The constant (entry-wise) absolute observation bias. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="133" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="133" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1abf4bebd73e0f8dd6e7b27f1056ea3b01" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::resetConstantObservationBias</definition>
+        <argsstring>(const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;observationBias)</argsstring>
+        <name>resetConstantObservationBias</name>
+        <param>
+          <type>const Eigen::Matrix&lt; double, ObservationSize, 1 &gt; &amp;</type>
+          <declname>observationBias</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the constant (entry-wise) absolute observation bias. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the constant (entry-wise) absolute observation bias. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new constant (entry-wise) absolute observation bias. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="143" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="143" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1a95a391bef4b6062ad236ccb7410f59df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::getTemplateFreeConstantObservationBias</definition>
+        <argsstring>()</argsstring>
+        <name>getTemplateFreeConstantObservationBias</name>
+        <briefdescription>
+<para>Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector <simplesect kind="return"><para>The constant (entry-wise) absolute observation bias. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="153" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="153" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ConstantObservationBias_1ab1882e3483b3afd0e9b101ee17832274" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;::resetConstantObservationBiasTemplateFree</definition>
+        <argsstring>(const Eigen::VectorXd &amp;observationBias)</argsstring>
+        <name>resetConstantObservationBiasTemplateFree</name>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>observationBias</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the constant (entry-wise) absolute observation bias with variable-size input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the constant (entry-wise) absolute observation bias with variable-size input. Input VectorXd size must match ObservationSize class template parameter. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>observationBias</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The new constant (entry-wise) absolute observation bias. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="164" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="164" bodyend="174"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for a constant absolute observation bias of a given size. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for a constant absolute observation bias of a given size. For unbiases observation h and bias A, the biased observation is computed as h + A </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBias&lt; 1 &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBias"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ConstantObservationBias"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::observation_models::ObservationBias&lt; 1 &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationBias"/>
+      </node>
+      <node id="1">
+        <label>tudat::observation_models::ConstantObservationBias&lt; ObservationSize &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ConstantObservationBias"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" line="95" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationBias.h" bodystart="96" bodyend="182"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1a216252c1c33f3cbcee7bf3114fb1c720" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>ConstantObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1aef7ce0f3e269fdd9b042b7e69953e244" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>getConstantObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1a118c219c5cc5e34fd5c976dc24f4b827" prot="public" virt="virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>getObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1adaa0258566dfe1e9438afbcfb57ccddb" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1a95a391bef4b6062ad236ccb7410f59df" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>getTemplateFreeConstantObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a31ad7d28d9b81c4c0df65fd47e39f3ea" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>ObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1a81e5599f781e9c05aa47dff303a35c89" prot="private" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>observationBias_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1abf4bebd73e0f8dd6e7b27f1056ea3b01" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>resetConstantObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1ab1882e3483b3afd0e9b101ee17832274" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>resetConstantObservationBiasTemplateFree</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ConstantObservationBias_1ab6f48f10712444f0ab736eea7bd89a47" prot="public" virt="non-virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>~ConstantObservationBias</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationBias_1a5e9f892808937f518b7398f6cfcd19de" prot="public" virt="virtual"><scope>tudat::observation_models::ConstantObservationBias</scope><name>~ObservationBias</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

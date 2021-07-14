@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution" kind="class" language="C++" prot="public">
+    <compoundname>tudat::statistics::EpanechnikovKernelDistribution</compoundname>
+    <basecompoundref refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution" prot="public" virt="non-virtual">tudat::statistics::ContinuousProbabilityDistribution&lt; double &gt;</basecompoundref>
+    <includes refid="kernelDensityDistribution_8h" local="no">kernelDensityDistribution.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a685ca2841e047b4d07675e99b521a9ae" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::statistics::EpanechnikovKernelDistribution::mean_</definition>
+        <argsstring></argsstring>
+        <name>mean_</name>
+        <briefdescription>
+<para>Mean of the kernel. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="61" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a07120f065479804b512a3c39a8f3991d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::statistics::EpanechnikovKernelDistribution::bandWidth_</definition>
+        <argsstring></argsstring>
+        <name>bandWidth_</name>
+        <briefdescription>
+<para>Bandwidth of the kernel. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="64" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a4ff2b8492862b80c9cf51dc9ca30c881" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::statistics::EpanechnikovKernelDistribution::EpanechnikovKernelDistribution</definition>
+        <argsstring>(const double mean, const double bandWidth)</argsstring>
+        <name>EpanechnikovKernelDistribution</name>
+        <param>
+          <type>const double</type>
+          <declname>mean</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bandWidth</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mean</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel mean </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandWidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel bandwidth </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="37" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="37" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1ad4ef6494dd02a5efae26ffe69e1f8008" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::EpanechnikovKernelDistribution::evaluatePdf</definition>
+        <argsstring>(const double &amp;independentVariable)</argsstring>
+        <name>evaluatePdf</name>
+        <reimplements refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a7edfe6753ce63fe4e12409d3fb88e499">evaluatePdf</reimplements>
+        <param>
+          <type>const double &amp;</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate pdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get probability density.</para>
+<para>Function to evaluate probability distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated pdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="46" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="22" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a168c6dc6cec1b90c5eb98fc04509a980" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::statistics::EpanechnikovKernelDistribution::evaluateCdf</definition>
+        <argsstring>(const double &amp;independentVariable)</argsstring>
+        <name>evaluateCdf</name>
+        <reimplements refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1ad60887b5623ded9e73456dedcbf32a8a">evaluateCdf</reimplements>
+        <param>
+          <type>const double &amp;</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+<para>Function to evaluate cdf of distribution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get probability mass.</para>
+<para>Function to evaluate cumulative distribution function at given independentVariable value. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of independent variable </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Evaluated cdf </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="54" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/statistics/kernelDensityDistribution.cpp" bodystart="35" bodyend="52"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for Probability distribution using a single Epanechnikov kernel. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::statistics::EpanechnikovKernelDistribution</label>
+        <link refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::statistics::ContinuousProbabilityDistribution&lt; double &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::statistics::EpanechnikovKernelDistribution</label>
+        <link refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::statistics::ContinuousProbabilityDistribution&lt; double &gt;</label>
+        <link refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" line="27" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/statistics/kernelDensityDistribution.h" bodystart="28" bodyend="65"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a07120f065479804b512a3c39a8f3991d" prot="private" virt="non-virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>bandWidth_</name></member>
+      <member refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a4ff2b8492862b80c9cf51dc9ca30c881" prot="public" virt="non-virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>EpanechnikovKernelDistribution</name></member>
+      <member refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a168c6dc6cec1b90c5eb98fc04509a980" prot="public" virt="virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>evaluateCdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1ad4ef6494dd02a5efae26ffe69e1f8008" prot="public" virt="virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>evaluatePdf</name></member>
+      <member refid="classtudat_1_1statistics_1_1EpanechnikovKernelDistribution_1a685ca2841e047b4d07675e99b521a9ae" prot="private" virt="non-virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>mean_</name></member>
+      <member refid="classtudat_1_1statistics_1_1ContinuousProbabilityDistribution_1a621a691342d27745eb2e9f617372e075" prot="public" virt="virtual"><scope>tudat::statistics::EpanechnikovKernelDistribution</scope><name>~ContinuousProbabilityDistribution</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

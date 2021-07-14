@@ -1,0 +1,242 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Arc\+Wise\+Observation\+Bias\+Parameter Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter}\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+
+
+Interface class for the estimation of an arc-\/wise constant absolute or relative observation bias.  
+
+
+
+
+{\ttfamily \#include $<$observation\+Bias\+Parameter.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Arc\+Wise\+Observation\+Bias\+Parameter\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a4bfffa7f38d84deab36a8052d43885a1}{Arc\+Wise\+Observation\+Bias\+Parameter}} (const std\+::vector$<$ double $>$ arc\+Start\+Times, const std\+::function$<$ std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$() $>$ get\+Bias\+List, const std\+::function$<$ void(const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&) $>$ reset\+Bias\+List, const int link\+End\+Index, const observation\+\_\+models\+::\+Link\+Ends link\+Ends, const observation\+\_\+models\+::\+Observable\+Type observable\+Type, const bool bias\+Is\+Absolute)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a9298301f40c7cdefd4821573efc8b95a}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a9298301f40c7cdefd4821573efc8b95a}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a9298301f40c7cdefd4821573efc8b95a}{$\sim$\+Arc\+Wise\+Observation\+Bias\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a361577529520f9a590f289c5e7282d1c}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the current value of the arc-\/wise observation bias that is to be estimated. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a331a08debdeae06fbd6df6f9dccf7691}{set\+Parameter\+Value}} (Eigen\+::\+Vector\+Xd parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the value of the arc-\/wise constant observation bias that is to be estimated. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a1ab5c19cc04a0e3690180afcfbc57561}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter (equal to the size of the observable). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a47ea62394c6dd3d3f5706ad10d8c9690}{set\+Observation\+Bias\+Functions}} (const std\+::function$<$ std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$() $>$ get\+Bias\+List, const std\+::function$<$ void(const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&) $>$ reset\+Bias\+List)
+\begin{DoxyCompactList}\small\item\em Function to reset the get/set function of the observation bias list. \end{DoxyCompactList}\item 
+observation\+\_\+models\+::\+Link\+Ends \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_afe64e1f83e94d0d0bc0ae8755a96c75b}{get\+Link\+Ends}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the observation link ends for which the bias is active. \end{DoxyCompactList}\item 
+observation\+\_\+models\+::\+Observable\+Type \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_af73adc48664329705ee6c095980951b1}{get\+Observable\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the observable type for which the bias is active. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_af03c58ff2b6466e2741008c7eebe5171}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_af03c58ff2b6466e2741008c7eebe5171}} 
+std\+::string {\bfseries get\+Parameter\+Description} ()
+\item 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_ada31a7b010bd640af3b9891c327ff724}{get\+Arc\+Start\+Times}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve start times for arcs in which biases are defined. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a113f79bf485147cba725ae0ea9943260}{get\+Link\+End\+Index}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve link end index from which the \textquotesingle{}current time\textquotesingle{} is determined. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{interpolators\+::\+Look\+Up\+Scheme}}$<$ double $>$ $>$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_aea140297ef0ac2b5824df47261f74310}{get\+Lookup\+Scheme}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve object used to determine the current arc, based on the current time. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a484e949996ddc518a3ca32f2e65d0045}{set\+Lookup\+Scheme}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{interpolators\+::\+Look\+Up\+Scheme}}$<$ double $>$ $>$ lookup\+Scheme)
+\begin{DoxyCompactList}\small\item\em Function to reset object used to determine the current arc, based on the current time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for the estimation of an arc-\/wise constant absolute or relative observation bias. 
+
+Interface class for the estimation of aan arc-\/wise constant absolute or relative observation bias (at given link ends and observable type). Unlike most other \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter}{Estimatable\+Parameter}} derived classes, this class does not have direct access to the class (Constant\+Arc\+Wise\+Observation\+Bias/ Constant\+Relative\+Arc\+Wise\+Observation\+Bias) used in the simulations for the observation bias. This is due to the fact that the Constant\+Arc\+Wise\+Observation\+Bias and Constant\+Relative\+Arc\+Wise\+Observation\+Bias class are templated by the observable size, while this class is not. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a4bfffa7f38d84deab36a8052d43885a1}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a4bfffa7f38d84deab36a8052d43885a1}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!ArcWiseObservationBiasParameter@{ArcWiseObservationBiasParameter}}
+\index{ArcWiseObservationBiasParameter@{ArcWiseObservationBiasParameter}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{ArcWiseObservationBiasParameter()}{ArcWiseObservationBiasParameter()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::\+Arc\+Wise\+Observation\+Bias\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$}]{arc\+Start\+Times,  }\item[{const std\+::function$<$ std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$() $>$}]{get\+Bias\+List,  }\item[{const std\+::function$<$ void(const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&) $>$}]{reset\+Bias\+List,  }\item[{const int}]{link\+End\+Index,  }\item[{const observation\+\_\+models\+::\+Link\+Ends}]{link\+Ends,  }\item[{const observation\+\_\+models\+::\+Observable\+Type}]{observable\+Type,  }\item[{const bool}]{bias\+Is\+Absolute }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em arc\+Start\+Times} & Start times for arcs in which biases are defined \\
+\hline
+{\em get\+Bias\+List} & Function to retrieve the current observation bias list. \\
+\hline
+{\em reset\+Bias\+List} & Function to reset the current observation bias list \\
+\hline
+{\em link\+End\+Index} & Link end index from which the \textquotesingle{}current time\textquotesingle{} is determined \\
+\hline
+{\em link\+Ends} & Observation link ends for which the bias is active. \\
+\hline
+{\em observable\+Type} & Observable type for which the bias is active. \\
+\hline
+{\em bias\+Is\+Absolute} & Boolean denoting whether the bias is absolute or relative \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_ada31a7b010bd640af3b9891c327ff724}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_ada31a7b010bd640af3b9891c327ff724}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getArcStartTimes@{getArcStartTimes}}
+\index{getArcStartTimes@{getArcStartTimes}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getArcStartTimes()}{getArcStartTimes()}}
+{\footnotesize\ttfamily std\+::vector$<$ double $>$ tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Arc\+Start\+Times (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve start times for arcs in which biases are defined. 
+
+Function to retrieve start times for arcs in which biases are defined \begin{DoxyReturn}{Returns}
+Start times for arcs in which biases are defined 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a113f79bf485147cba725ae0ea9943260}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a113f79bf485147cba725ae0ea9943260}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getLinkEndIndex@{getLinkEndIndex}}
+\index{getLinkEndIndex@{getLinkEndIndex}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getLinkEndIndex()}{getLinkEndIndex()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Link\+End\+Index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve link end index from which the \textquotesingle{}current time\textquotesingle{} is determined. 
+
+Function to retrieve link end index from which the \textquotesingle{}current time\textquotesingle{} is determined \begin{DoxyReturn}{Returns}
+Link end index from which the \textquotesingle{}current time\textquotesingle{} is determined 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_afe64e1f83e94d0d0bc0ae8755a96c75b}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_afe64e1f83e94d0d0bc0ae8755a96c75b}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getLinkEnds@{getLinkEnds}}
+\index{getLinkEnds@{getLinkEnds}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getLinkEnds()}{getLinkEnds()}}
+{\footnotesize\ttfamily observation\+\_\+models\+::\+Link\+Ends tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Link\+Ends (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the observation link ends for which the bias is active. 
+
+Function to retrieve the observation link ends for which the bias is active. \begin{DoxyReturn}{Returns}
+Observation link ends for which the bias is active. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_aea140297ef0ac2b5824df47261f74310}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_aea140297ef0ac2b5824df47261f74310}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getLookupScheme@{getLookupScheme}}
+\index{getLookupScheme@{getLookupScheme}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getLookupScheme()}{getLookupScheme()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{interpolators\+::\+Look\+Up\+Scheme}}$<$ double $>$ $>$ tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Lookup\+Scheme (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve object used to determine the current arc, based on the current time. 
+
+Function to retrieve object used to determine the current arc, based on the current time. \begin{DoxyReturn}{Returns}
+Object used to determine the current arc, based on the current time. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_af73adc48664329705ee6c095980951b1}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_af73adc48664329705ee6c095980951b1}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getObservableType@{getObservableType}}
+\index{getObservableType@{getObservableType}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getObservableType()}{getObservableType()}}
+{\footnotesize\ttfamily observation\+\_\+models\+::\+Observable\+Type tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Observable\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the observable type for which the bias is active. 
+
+Function to retrieve the observable type ends for which the bias is active. \begin{DoxyReturn}{Returns}
+Observable type for which the bias is active. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a1ab5c19cc04a0e3690180afcfbc57561}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a1ab5c19cc04a0e3690180afcfbc57561}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter (equal to the size of the observable). 
+
+Function to retrieve the size of the parameter (equal to the size of the observable). \begin{DoxyReturn}{Returns}
+Size of parameter value (equal to the size of the observable). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a361577529520f9a590f289c5e7282d1c}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a361577529520f9a590f289c5e7282d1c}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the current value of the arc-\/wise observation bias that is to be estimated. 
+
+Function to get the current value of the arc-\/wise observation bias that is to be estimated. \begin{DoxyReturn}{Returns}
+Current value of the arc-\/wise observation bias that is to be estimated. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a484e949996ddc518a3ca32f2e65d0045}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a484e949996ddc518a3ca32f2e65d0045}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!setLookupScheme@{setLookupScheme}}
+\index{setLookupScheme@{setLookupScheme}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{setLookupScheme()}{setLookupScheme()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::set\+Lookup\+Scheme (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{interpolators\+::\+Look\+Up\+Scheme}}$<$ double $>$ $>$}]{lookup\+Scheme }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset object used to determine the current arc, based on the current time. 
+
+Function to reset object used to determine the current arc, based on the current time. 
+\begin{DoxyParams}{Parameters}
+{\em lookup\+Scheme} & Object used to determine the current arc, based on the current time. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a47ea62394c6dd3d3f5706ad10d8c9690}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a47ea62394c6dd3d3f5706ad10d8c9690}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!setObservationBiasFunctions@{setObservationBiasFunctions}}
+\index{setObservationBiasFunctions@{setObservationBiasFunctions}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{setObservationBiasFunctions()}{setObservationBiasFunctions()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::set\+Observation\+Bias\+Functions (\begin{DoxyParamCaption}\item[{const std\+::function$<$ std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$() $>$}]{get\+Bias\+List,  }\item[{const std\+::function$<$ void(const std\+::vector$<$ Eigen\+::\+Vector\+Xd $>$ \&) $>$}]{reset\+Bias\+List }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to reset the get/set function of the observation bias list. 
+
+Function to reset the get/set function of the observation bias list. This function is needed since te observation models/biases are typically created after the estimated parameter objects 
+\begin{DoxyParams}{Parameters}
+{\em get\+Bias\+List} & New function to retrieve the current observation bias list. \\
+\hline
+{\em reset\+Bias\+List} & New function to reset the current observation bias list \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a331a08debdeae06fbd6df6f9dccf7691}\label{classtudat_1_1estimatable__parameters_1_1ArcWiseObservationBiasParameter_a331a08debdeae06fbd6df6f9dccf7691}} 
+\index{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::ArcWiseObservationBiasParameter@{tudat::estimatable\_parameters::ArcWiseObservationBiasParameter}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Arc\+Wise\+Observation\+Bias\+Parameter\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{Eigen\+::\+Vector\+Xd}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the value of the arc-\/wise constant observation bias that is to be estimated. 
+
+Function to reset the value of the arc-\/wise constant observation bias that is to be estimated. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of the arc-\/wise constant observation bias that is to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ Eigen\+::\+Vector\+Xd $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/observation\+Bias\+Parameter.\+h\end{DoxyCompactItemize}

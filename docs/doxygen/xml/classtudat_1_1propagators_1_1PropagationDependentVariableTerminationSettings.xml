@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::PropagationDependentVariableTerminationSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1PropagationTerminationSettings" prot="public" virt="non-virtual">tudat::propagators::PropagationTerminationSettings</basecompoundref>
+    <includes refid="propagationTerminationSettings_8h" local="no">propagationTerminationSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a445ff968af7c9d1c843ebf25ad73f32c" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" kindref="compound">SingleDependentVariableSaveSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; SingleDependentVariableSaveSettings &gt; tudat::propagators::PropagationDependentVariableTerminationSettings::dependentVariableSettings_</definition>
+        <argsstring></argsstring>
+        <name>dependentVariableSettings_</name>
+        <briefdescription>
+<para>Settings for dependent variable that is to be checked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="172" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1abd20020a0d0c71c95073ec55a77f7116" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::propagators::PropagationDependentVariableTerminationSettings::limitValue_</definition>
+        <argsstring></argsstring>
+        <name>limitValue_</name>
+        <briefdescription>
+<para>Value at which the propagation is to be stopped. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="175" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a7dc06eb4a8f0134d458185ef9d54a878" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::propagators::PropagationDependentVariableTerminationSettings::useAsLowerLimit_</definition>
+        <argsstring></argsstring>
+        <name>useAsLowerLimit_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above (if false) limitingValue </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="179" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a01dd0ba57e734095bce202c503ec6a9b" prot="public" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1root__finders_1_1RootFinderSettings" kindref="compound">root_finders::RootFinderSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; root_finders::RootFinderSettings &gt; tudat::propagators::PropagationDependentVariableTerminationSettings::terminationRootFinderSettings_</definition>
+        <argsstring></argsstring>
+        <name>terminationRootFinderSettings_</name>
+        <briefdescription>
+<para>Settings to create root finder used to converge on exact final condition. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="182" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a02ee0039ef04d30ff6b73db7671f2ac7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationDependentVariableTerminationSettings::PropagationDependentVariableTerminationSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; SingleDependentVariableSaveSettings &gt; dependentVariableSettings, const double limitValue, const bool useAsLowerLimit, const bool checkTerminationToExactCondition=false, const std::shared_ptr&lt; root_finders::RootFinderSettings &gt; terminationRootFinderSettings=nullptr)</argsstring>
+        <name>PropagationDependentVariableTerminationSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings" kindref="compound">SingleDependentVariableSaveSettings</ref> &gt;</type>
+          <declname>dependentVariableSettings</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>limitValue</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useAsLowerLimit</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>checkTerminationToExactCondition</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1root__finders_1_1RootFinderSettings" kindref="compound">root_finders::RootFinderSettings</ref> &gt;</type>
+          <declname>terminationRootFinderSettings</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentVariableSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings for dependent variable that is to be checked </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>limitValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value at which the propagation is to be stopped </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useAsLowerLimit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above (if false) limitingValue </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>checkTerminationToExactCondition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>terminationRootFinderSettings</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings to create root finder used to converge on exact final condition. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="150" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="150" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1afe286f4a746984bb130683954da31d5b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::PropagationDependentVariableTerminationSettings::~PropagationDependentVariableTerminationSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~PropagationDependentVariableTerminationSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="169" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="169" bodyend="169"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a certain value.</para>
+<para>Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a certain value. The limit value may be set as both an upper or lower bound (i.e. the propagation continues while the value is below or above some given value). Note that the propagator will finish a given time step, slightly surpassing the defined limit value of the dependent variable </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationDependentVariableTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::PropagationTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationTerminationSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::PropagationDependentVariableTerminationSettings</label>
+        <link refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" line="135" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationTerminationSettings.h" bodystart="136" bodyend="183"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1a94d5f16bf334194fa59c21ce5356be4a" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>checkTerminationToExactCondition_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a445ff968af7c9d1c843ebf25ad73f32c" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>dependentVariableSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1abd20020a0d0c71c95073ec55a77f7116" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>limitValue_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a02ee0039ef04d30ff6b73db7671f2ac7" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>PropagationDependentVariableTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1af47e954aa67d5871f55e6259febbca70" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>PropagationTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a01dd0ba57e734095bce202c503ec6a9b" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>terminationRootFinderSettings_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1a678f5eca53de6e9a7c5c00666d6dfda3" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>terminationType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1a7dc06eb4a8f0134d458185ef9d54a878" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>useAsLowerLimit_</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_1afe286f4a746984bb130683954da31d5b" prot="public" virt="non-virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>~PropagationDependentVariableTerminationSettings</name></member>
+      <member refid="classtudat_1_1propagators_1_1PropagationTerminationSettings_1aca71c6fc4cfcd0c2206cb4b850821cef" prot="public" virt="virtual"><scope>tudat::propagators::PropagationDependentVariableTerminationSettings</scope><name>~PropagationTerminationSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

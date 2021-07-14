@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1ObservationViabilityCalculator" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::observation_models::ObservationViabilityCalculator</compoundname>
+    <derivedcompoundref refid="classtudat_1_1observation__models_1_1BodyAvoidanceAngleCalculator" prot="public" virt="non-virtual">tudat::observation_models::BodyAvoidanceAngleCalculator</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator" prot="public" virt="non-virtual">tudat::observation_models::MinimumElevationAngleCalculator</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1observation__models_1_1OccultationCalculator" prot="public" virt="non-virtual">tudat::observation_models::OccultationCalculator</derivedcompoundref>
+    <includes refid="observationViabilityCalculator_8h" local="no">observationViabilityCalculator.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a3fc6b1b8e740c2de0a2ecdeb9f411b3a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::ObservationViabilityCalculator::ObservationViabilityCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>ObservationViabilityCalculator</name>
+        <briefdescription>
+<para>Base class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a2d946b60b63096edf768e7dfbf5eafe6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::observation_models::ObservationViabilityCalculator::~ObservationViabilityCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>~ObservationViabilityCalculator</name>
+        <briefdescription>
+<para>Base class destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="48" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="48" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a10e0bb328451764f39e626d2b11141ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::observation_models::ObservationViabilityCalculator::isObservationViable</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;linkEndTimes)=0</argsstring>
+        <name>isObservationViable</name>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator_1a441156af13ab44cb48481e8c97de3b82">isObservationViable</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1BodyAvoidanceAngleCalculator_1a69f728895bb75c8dd1ac994ddb493a1e">isObservationViable</reimplementedby>
+        <reimplementedby refid="classtudat_1_1observation__models_1_1OccultationCalculator_1a838b4613709b827018ba1955fdc877cc">isObservationViable</reimplementedby>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual base class function for determining whether an observation is viable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual base class function for determining whether an observation is viable. The input from which the viability of an observation is calculated is a vector of times and states of the link ends involved in the observation for which the viability is checked. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of states of the link ends involved in the observation, in the order as provided by the function computeObservationsAndLinkEndData of the associated <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of times of the link ends involved in the observation, in the order as provided by the of function computeObservationsAndLinkEndData of the associated <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if observation is viable, false if not. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="61" column="18"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for determining whether an observation is possible or not. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for determining whether an observation is possible or not. Derived classes implement specific checks, such as minimum elevation angle, body occultation, etc. The input from which the viability of an observation is calculated is a vector of times and states of the link ends involved in the observation for which the viability is checked, in the order as provided by the computeObservationsAndLinkEndData of the associated <ref refid="classtudat_1_1observation__models_1_1ObservationModel" kindref="compound">ObservationModel</ref>. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_models::ObservationViabilityCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator"/>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::BodyAvoidanceAngleCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1BodyAvoidanceAngleCalculator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::observation_models::MinimumElevationAngleCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1MinimumElevationAngleCalculator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::observation_models::OccultationCalculator</label>
+        <link refid="classtudat_1_1observation__models_1_1OccultationCalculator"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationViabilityCalculator.h" bodystart="41" bodyend="63"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a10e0bb328451764f39e626d2b11141ee" prot="public" virt="pure-virtual"><scope>tudat::observation_models::ObservationViabilityCalculator</scope><name>isObservationViable</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a3fc6b1b8e740c2de0a2ecdeb9f411b3a" prot="public" virt="non-virtual"><scope>tudat::observation_models::ObservationViabilityCalculator</scope><name>ObservationViabilityCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationViabilityCalculator_1a2d946b60b63096edf768e7dfbf5eafe6" prot="public" virt="virtual"><scope>tudat::observation_models::ObservationViabilityCalculator</scope><name>~ObservationViabilityCalculator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

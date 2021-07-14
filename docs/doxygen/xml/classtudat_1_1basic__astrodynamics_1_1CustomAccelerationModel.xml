@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_astrodynamics::CustomAccelerationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::AccelerationModel&lt; &gt;</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a78c2fc83b31a0614ccdbd2ecb840b646" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::basic_astrodynamics::CustomAccelerationModel::accelerationFunction_</definition>
+        <argsstring></argsstring>
+        <name>accelerationFunction_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="43" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a7ff8041ca4bbd59e8777a8d9739fecb8" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::CustomAccelerationModel::currentAcceleration_</definition>
+        <argsstring></argsstring>
+        <name>currentAcceleration_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="45" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a0c8ed45e87df3e40b263b82dc1d879df" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::CustomAccelerationModel::CustomAccelerationModel</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double) &gt; accelerationFunction)</argsstring>
+        <name>CustomAccelerationModel</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>accelerationFunction</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="24" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="24" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1ab3dcc99da7bb98850550205f8395e023" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::CustomAccelerationModel::getAcceleration</definition>
+        <argsstring>()</argsstring>
+        <name>getAcceleration</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750">getAcceleration</reimplements>
+        <briefdescription>
+<para>Get acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the acceleration. No arguments are passed to this function for generality. Instead, all data required for computation is to be obtained from pointers to functions/ classes/structs, etc which are to be set in a derived class and evaluated by the <ref refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a4f7f311f0b5fca739deb793856dfe085" kindref="member">updateMembers()</ref> function below. <simplesect kind="return"><para>Acceleration. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a4f7f311f0b5fca739deb793856dfe085" kindref="member">updateMembers()</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="28" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="28" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a4f7f311f0b5fca739deb793856dfe085" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::basic_astrodynamics::CustomAccelerationModel::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the acceleration model. In the case of acceleration models containing varying parameters, function-pointers returning such a parameter (for instance the Cartesian state of a body) will be set as a member variable. This function evaluates such function-pointers and updates member variables to the &apos;current&apos; values of these parameters. Only these current values, not the function-pointers are then used by the <ref refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1ab3dcc99da7bb98850550205f8395e023" kindref="member">getAcceleration()</ref> function.</para>
+<para>N.B.: This pure virtual function must be overridden by derived classes! <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="33" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="33" bodyend="40"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::CustomAccelerationModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>basic_astrodynamics::AccelerationModel3d</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::CustomAccelerationModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>basic_astrodynamics::AccelerationModel3d</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" line="21" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/customAccelerationModel.h" bodystart="22" bodyend="47"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a78c2fc83b31a0614ccdbd2ecb840b646" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>accelerationFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a7ff8041ca4bbd59e8777a8d9739fecb8" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>currentAcceleration_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a0c8ed45e87df3e40b263b82dc1d879df" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>CustomAccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1ab3dcc99da7bb98850550205f8395e023" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a4f7f311f0b5fca739deb793856dfe085" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomAccelerationModel</scope><name>~AccelerationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

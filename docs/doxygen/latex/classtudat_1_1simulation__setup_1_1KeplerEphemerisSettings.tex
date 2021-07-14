@@ -1,0 +1,135 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Kepler\+Ephemeris\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings}\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+
+
+@get\+\_\+docstring(Kepler\+Ephemeris\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+)  
+
+
+
+
+{\ttfamily \#include $<$create\+Ephemeris.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Kepler\+Ephemeris\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_af359ded5cee4bbcf19e226d29a929a37}{Kepler\+Ephemeris\+Settings}} (const Eigen\+::\+Vector6d \&initial\+State\+In\+Keplerian\+Elements, const double epoch\+Of\+Initial\+State, const double central\+Body\+Gravitational\+Parameter, const std\+::string \&reference\+Frame\+Origin=\char`\"{}SSB\char`\"{}, const std\+::string \&reference\+Frame\+Orientation=\char`\"{}ECLIPJ2000\char`\"{}, const double root\+Finder\+Absolute\+Tolerance=200.\+0 $\ast$std\+::numeric\+\_\+limits$<$ double $>$\+::epsilon(), const double root\+Finder\+Maximum\+Number\+Of\+Iterations=1000.\+0)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_ab08e160ca168b5296434fb2f6f36e310}{get\+Initial\+State\+In\+Keplerian\+Elements}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the kepler elements at time epoch\+Of\+Initial\+State. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a8fbfc310d0b5ceffe29faea308faf5db}{get\+Epoch\+Of\+Initial\+State}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the initial epoch from which propagation of Kepler orbit is performed. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a33af0e38d1f3cf55bc7f68ff446d96c0}{get\+Central\+Body\+Gravitational\+Parameter}} ()
+\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a214b4611c699ef8d9b2c15395f6a6115}{get\+Root\+Finder\+Absolute\+Tolerance}} ()
+\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_acb7bc87bb785de555ccdd9bb56d39f6d}{get\+Root\+Finder\+Maximum\+Number\+Of\+Iterations}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+@get\+\_\+docstring(Kepler\+Ephemeris\+Settings.\+\_\+\+\_\+docstring\+\_\+\+\_\+) 
+
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1EphemerisSettings}{Ephemeris\+Settings}} derived class for defining settings of an ephemeris representing an ideal Kepler orbit. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_af359ded5cee4bbcf19e226d29a929a37}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_af359ded5cee4bbcf19e226d29a929a37}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!KeplerEphemerisSettings@{KeplerEphemerisSettings}}
+\index{KeplerEphemerisSettings@{KeplerEphemerisSettings}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{KeplerEphemerisSettings()}{KeplerEphemerisSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::\+Kepler\+Ephemeris\+Settings (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector6d \&}]{initial\+State\+In\+Keplerian\+Elements,  }\item[{const double}]{epoch\+Of\+Initial\+State,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter,  }\item[{const std\+::string \&}]{reference\+Frame\+Origin = {\ttfamily \char`\"{}SSB\char`\"{}},  }\item[{const std\+::string \&}]{reference\+Frame\+Orientation = {\ttfamily \char`\"{}ECLIPJ2000\char`\"{}},  }\item[{const double}]{root\+Finder\+Absolute\+Tolerance = {\ttfamily 200.0~$\ast$~std\+:\+:numeric\+\_\+limits$<$~double~$>$\+:\+:epsilon(~)},  }\item[{const double}]{root\+Finder\+Maximum\+Number\+Of\+Iterations = {\ttfamily 1000.0} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em initial\+State\+In\+Keplerian\+Elements} & Kepler elements at time epoch\+Of\+Initial\+State. \\
+\hline
+{\em epoch\+Of\+Initial\+State} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which initial\+State\+In\+Keplerian\+Elements represents the Keplerian state. \\
+\hline
+{\em central\+Body\+Gravitational\+Parameter} & Gravitational parameter of the central body that is used in the computations. \\
+\hline
+{\em reference\+Frame\+Origin} & Origin of reference frame (string identifier). \\
+\hline
+{\em reference\+Frame\+Orientation} & Orientation of reference frame (string identifier) \\
+\hline
+{\em root\+Finder\+Absolute\+Tolerance} & Convergence tolerance for root finder used to convert mean to eccentric anomaly on each call to get\+Cartesian\+State. \\
+\hline
+{\em root\+Finder\+Maximum\+Number\+Of\+Iterations} & Maximum iteration for root finder used to convert mean to eccentric anomaly on each call to get\+Cartesian\+State. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a33af0e38d1f3cf55bc7f68ff446d96c0}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a33af0e38d1f3cf55bc7f68ff446d96c0}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!getCentralBodyGravitationalParameter@{getCentralBodyGravitationalParameter}}
+\index{getCentralBodyGravitationalParameter@{getCentralBodyGravitationalParameter}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getCentralBodyGravitationalParameter()}{getCentralBodyGravitationalParameter()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::get\+Central\+Body\+Gravitational\+Parameter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function to return the gravitational parameter of central body about which the Kepler orbit is defined.
+
+Function to return the gravitational parameter of central body about which the Kepler orbit is defined. \begin{DoxyReturn}{Returns}
+Gravitational parameter of central body about which the Kepler orbit is defined. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a8fbfc310d0b5ceffe29faea308faf5db}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a8fbfc310d0b5ceffe29faea308faf5db}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!getEpochOfInitialState@{getEpochOfInitialState}}
+\index{getEpochOfInitialState@{getEpochOfInitialState}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getEpochOfInitialState()}{getEpochOfInitialState()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::get\+Epoch\+Of\+Initial\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the initial epoch from which propagation of Kepler orbit is performed. 
+
+Function to return the initial epoch from which propagation of Kepler orbit is performed. \begin{DoxyReturn}{Returns}
+Initial epoch from which propagation of Kepler orbit is performed. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_ab08e160ca168b5296434fb2f6f36e310}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_ab08e160ca168b5296434fb2f6f36e310}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!getInitialStateInKeplerianElements@{getInitialStateInKeplerianElements}}
+\index{getInitialStateInKeplerianElements@{getInitialStateInKeplerianElements}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getInitialStateInKeplerianElements()}{getInitialStateInKeplerianElements()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::get\+Initial\+State\+In\+Keplerian\+Elements (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the kepler elements at time epoch\+Of\+Initial\+State. 
+
+Function to return the kepler elements at time epoch\+Of\+Initial\+State. \begin{DoxyReturn}{Returns}
+Kepler elements at time epoch\+Of\+Initial\+State. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a214b4611c699ef8d9b2c15395f6a6115}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_a214b4611c699ef8d9b2c15395f6a6115}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!getRootFinderAbsoluteTolerance@{getRootFinderAbsoluteTolerance}}
+\index{getRootFinderAbsoluteTolerance@{getRootFinderAbsoluteTolerance}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getRootFinderAbsoluteTolerance()}{getRootFinderAbsoluteTolerance()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::get\+Root\+Finder\+Absolute\+Tolerance (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly
+
+Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly \begin{DoxyReturn}{Returns}
+Convergence tolerance for root finder used to convert mean to eccentric anomaly 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_acb7bc87bb785de555ccdd9bb56d39f6d}\label{classtudat_1_1simulation__setup_1_1KeplerEphemerisSettings_acb7bc87bb785de555ccdd9bb56d39f6d}} 
+\index{tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}!getRootFinderMaximumNumberOfIterations@{getRootFinderMaximumNumberOfIterations}}
+\index{getRootFinderMaximumNumberOfIterations@{getRootFinderMaximumNumberOfIterations}!tudat::simulation\_setup::KeplerEphemerisSettings@{tudat::simulation\_setup::KeplerEphemerisSettings}}
+\doxysubsubsection{\texorpdfstring{getRootFinderMaximumNumberOfIterations()}{getRootFinderMaximumNumberOfIterations()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Kepler\+Ephemeris\+Settings\+::get\+Root\+Finder\+Maximum\+Number\+Of\+Iterations (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly
+
+Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly \begin{DoxyReturn}{Returns}
+Maximum iteration for root finder used to convert mean to eccentric anomaly 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Ephemeris.\+h\end{DoxyCompactItemize}

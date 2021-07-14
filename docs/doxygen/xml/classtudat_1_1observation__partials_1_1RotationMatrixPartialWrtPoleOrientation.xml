@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial" prot="public" virt="non-virtual">tudat::observation_partials::RotationMatrixPartial</basecompoundref>
+    <includes refid="rotationMatrixPartial_8h" local="no">rotationMatrixPartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1aa37bde2989f5173f71ce43de18057c1d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris" kindref="compound">ephemerides::SimpleRotationalEphemeris</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ephemerides::SimpleRotationalEphemeris &gt; tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation::bodyRotationModel_</definition>
+        <argsstring></argsstring>
+        <name>bodyRotationModel_</name>
+        <briefdescription>
+<para>Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="445" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="445" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1af659d2be43f373595bbda6b7ac230efa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation::RotationMatrixPartialWrtPoleOrientation</definition>
+        <argsstring>(const std::shared_ptr&lt; ephemerides::SimpleRotationalEphemeris &gt; bodyRotationModel)</argsstring>
+        <name>RotationMatrixPartialWrtPoleOrientation</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris" kindref="compound">ephemerides::SimpleRotationalEphemeris</ref> &gt;</type>
+          <declname>bodyRotationModel</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyRotationModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation model for which the partial derivative w.r.t. the pole position is to be taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="399" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="399" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a7dd9bedf18040b689fc2deb444497701" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation::~RotationMatrixPartialWrtPoleOrientation</definition>
+        <argsstring>()</argsstring>
+        <name>~RotationMatrixPartialWrtPoleOrientation</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="405" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="405" bodyend="405"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a71d9dc1d5b75f3ca59621a680d494d54" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; Eigen::Matrix3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix3d &gt; tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation::calculatePartialOfRotationMatrixToBaseFrameWrParameter</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>calculatePartialOfRotationMatrixToBaseFrameWrParameter</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a758db711ec18f3efbaa759488e45daf1">calculatePartialOfRotationMatrixToBaseFrameWrParameter</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt pole right ascension and declination.</para>
+<para>Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt pole right ascension and declination, using the properties of the bodyRotationModel_ member. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the partial is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of size 2 containing partials of rotation matrix from body-fixed to inertial frame right ascension (entry 0) and declination (entry 1) of pole. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="416" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="416" bodyend="422"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a23a552c424979c94778e71eb9dc6b3c6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::vector&lt; Eigen::Matrix3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Matrix3d &gt; tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a21af519e8a78ffd2978586549f3569c4">calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt pole right ascension and declination.</para>
+<para>Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt pole right ascension and declination, using the properties of the bodyRotationModel_ member. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which the partial is to be evaluated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of size 2 containing partials of rotation matrix derivative from body-fixed to inertial frame right ascension ascension (entry 0) and declination (entry 1) of pole. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="433" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="433" bodyend="440"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right ascension and declination</para>
+<para>Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the SimpleRotationalEphemeris class, w.r.t. the constant pole right ascension and declination </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::RotationMatrixPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::RotationMatrixPartial</label>
+        <link refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" line="390" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h" bodystart="391" bodyend="446"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1aa37bde2989f5173f71ce43de18057c1d" prot="private" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>bodyRotationModel_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1ac71e83a0bce8b3b19b687d050eabb1a9" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>calculatePartialOfInertialPositionWrtParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a3cda8d4ab37d7bab0a8d20a9dd67a298" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>calculatePartialOfInertialVelocityWrtParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a23a552c424979c94778e71eb9dc6b3c6" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a71d9dc1d5b75f3ca59621a680d494d54" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>calculatePartialOfRotationMatrixToBaseFrameWrParameter</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a0e55c2d7ab65b053705dcfa3e37048b5" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>getSecondaryIdentifier</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a9d452105ad40e0190f103a9475e9db42" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>RotationMatrixPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1af659d2be43f373595bbda6b7ac230efa" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>RotationMatrixPartialWrtPoleOrientation</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1ac90b8767b8be5c52ee6b919ab384f227" prot="protected" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>rotationModel_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartial_1a74a1aafeff8ba51c4020aef18ec4d42b" prot="public" virt="virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>~RotationMatrixPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtPoleOrientation_1a7dd9bedf18040b689fc2deb444497701" prot="public" virt="non-virtual"><scope>tudat::observation_partials::RotationMatrixPartialWrtPoleOrientation</scope><name>~RotationMatrixPartialWrtPoleOrientation</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

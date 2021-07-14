@@ -1,0 +1,327 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::BodyShapeModel</basecompoundref>
+    <includes refid="oblateSpheroidBodyShapeModel_8h" local="no">oblateSpheroidBodyShapeModel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9a3462f05dbd37895e3bd2b5cd2610b9" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::equatorialRadius_</definition>
+        <argsstring></argsstring>
+        <name>equatorialRadius_</name>
+        <briefdescription>
+<para>Equatorial radius of the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="133" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a3b96be5759b464d35a62f866d302159b" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::polarRadius_</definition>
+        <argsstring></argsstring>
+        <name>polarRadius_</name>
+        <briefdescription>
+<para>Polar radius of the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="136" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9453c94bfd2b2a9886aad70f4927a220" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::flattening_</definition>
+        <argsstring></argsstring>
+        <name>flattening_</name>
+        <briefdescription>
+<para>Flattening of the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="139" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1aebf1990811f769576c13381ce78a015b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::OblateSpheroidBodyShapeModel</definition>
+        <argsstring>(const double equatorialRadius, const double flattening)</argsstring>
+        <name>OblateSpheroidBodyShapeModel</name>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets the geomtric properties of the shape. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of the oblate spheroid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of the oblate spheroid </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="44" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="44" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a950481963aae3938aaf993c80f5aba79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::~OblateSpheroidBodyShapeModel</definition>
+        <argsstring>()</argsstring>
+        <name>~OblateSpheroidBodyShapeModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="52" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9a4e37d448cb35c1a34259a11832eeb0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getAltitude</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition)</argsstring>
+        <name>getAltitude</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a8439cdf3a6dd14875fb8892341bde3ee">getAltitude</reimplements>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <briefdescription>
+<para>Calculates the altitude above the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the altitude above the oblate spheroid from a body fixed position. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian, body-fixed position of the point at which the altitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Altitude above the oblate spheroid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="61" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="61" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1aded23b1755f1cc33dacaa0c4b9544bf6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticPositionWrtShape</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition, const double tolerance=1.0E-4)</argsstring>
+        <name>getGeodeticPositionWrtShape</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+          <defval>1.0E-4</defval>
+        </param>
+        <briefdescription>
+<para>Calculates the geodetic position w.r.t. the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the geodetic position w.r.t. the oblate spheroid. <simplesect kind="see"><para>convertCartesianToGeodeticCoordinates </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian, body-fixed position of the point at which the geodetic position is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodetic coordinates at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="77" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="77" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a3d69a2f5417e69eadac8e2ced7b2a131" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticLatitude</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition, const double tolerance=1.0E-4)</argsstring>
+        <name>getGeodeticLatitude</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+          <defval>1.0E-4</defval>
+        </param>
+        <briefdescription>
+<para>Calculates the geodetic latitude w.r.t. the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the geodetic latitude w.r.t. the oblate spheroid. <simplesect kind="see"><para>convertCartesianToGeodeticCoordinates </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian, body-fixed position of the point at which the geodetic latitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodetic latitude at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="94" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="94" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1ad7f4f8bc028731164d1ae39a373e39a7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getAverageRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getAverageRadius</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a36f348a51efc73a5414d55438d4347eb">getAverageRadius</reimplements>
+        <briefdescription>
+<para>Function to return the mean radius of the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the mean radius of the oblate spheroid. <simplesect kind="return"><para>Average radius of oblate spheroid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="106" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="106" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a25c7eeff7bb98a99860b71872b8365e0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getEquatorialRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getEquatorialRadius</name>
+        <briefdescription>
+<para>Function to obtain the equatorial radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to obtain the equatorial radius <simplesect kind="return"><para>Equatorial radius of the oblate spheroid </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="116" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a15a0caded02c3b00dd14dbf2e344995b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel::getFlattening</definition>
+        <argsstring>()</argsstring>
+        <name>getFlattening</name>
+        <briefdescription>
+<para>Function to obtain the flattening of the oblate spheroid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to obtain the flattening of the oblate spheroid <simplesect kind="return"><para>Flattening radius of the oblate spheroid </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="126" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="126" bodyend="129"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Body shape model for an oblate spheroid. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Body shape model for an oblate spheroid (flattened sphere), typically used as approximation for planets and large moons. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::BodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::BodyShapeModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" line="34" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h" bodystart="35" bodyend="140"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a9afa14876ae1e01c193995c53c443f8e" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>BodyShapeModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9a3462f05dbd37895e3bd2b5cd2610b9" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>equatorialRadius_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9453c94bfd2b2a9886aad70f4927a220" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>flattening_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a9a4e37d448cb35c1a34259a11832eeb0" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getAltitude</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1ad7f4f8bc028731164d1ae39a373e39a7" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getAverageRadius</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a25c7eeff7bb98a99860b71872b8365e0" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getEquatorialRadius</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a15a0caded02c3b00dd14dbf2e344995b" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getFlattening</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a3d69a2f5417e69eadac8e2ced7b2a131" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getGeodeticLatitude</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1aded23b1755f1cc33dacaa0c4b9544bf6" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>getGeodeticPositionWrtShape</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1aebf1990811f769576c13381ce78a015b" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>OblateSpheroidBodyShapeModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a3b96be5759b464d35a62f866d302159b" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>polarRadius_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_1a614eec798723a1f059436fb033a946ed" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>~BodyShapeModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1OblateSpheroidBodyShapeModel_1a950481963aae3938aaf993c80f5aba79" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::OblateSpheroidBodyShapeModel</scope><name>~OblateSpheroidBodyShapeModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

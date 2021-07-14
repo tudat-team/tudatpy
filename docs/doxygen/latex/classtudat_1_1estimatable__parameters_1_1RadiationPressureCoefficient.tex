@@ -1,0 +1,116 @@
+\hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient}{}\doxysection{tudat\+::estimatable\+\_\+parameters\+::Radiation\+Pressure\+Coefficient Class Reference}
+\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient}\index{tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}}
+
+
+Interface class for the estimation of a radiation pressure coefficient.  
+
+
+
+
+{\ttfamily \#include $<$radiation\+Pressure\+Coefficient.\+h$>$}
+
+Inheritance diagram for tudat\+::estimatable\+\_\+parameters\+::Radiation\+Pressure\+Coefficient\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a686c7c036c761d3d6e3504de6ed825ee}{Radiation\+Pressure\+Coefficient}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{electromagnetism\+::\+Radiation\+Pressure\+Interface}} $>$ radiation\+Pressure\+Interface, std\+::string \&associated\+Body)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_aa5ccfd45857f8c67bf52cc1f860559a8}\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_aa5ccfd45857f8c67bf52cc1f860559a8}} 
+\mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_aa5ccfd45857f8c67bf52cc1f860559a8}{$\sim$\+Radiation\+Pressure\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a1ff0890df59c45352030750744f9d121}{get\+Parameter\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Function to get the current value of the radiation pressure coefficient that is to be estimated. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_afa6dd3600b17a9d92c64c804e3596319}{set\+Parameter\+Value}} (double parameter\+Value)
+\begin{DoxyCompactList}\small\item\em Function to reset the value of the radiation pressure coefficient that is to be estimated. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_ae7282eeffa763137a4d633d7dec4e10f}{get\+Parameter\+Size}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the size of the parameter (always 1). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Interface class for the estimation of a radiation pressure coefficient. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a686c7c036c761d3d6e3504de6ed825ee}\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a686c7c036c761d3d6e3504de6ed825ee}} 
+\index{tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}!RadiationPressureCoefficient@{RadiationPressureCoefficient}}
+\index{RadiationPressureCoefficient@{RadiationPressureCoefficient}!tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}}
+\doxysubsubsection{\texorpdfstring{RadiationPressureCoefficient()}{RadiationPressureCoefficient()}}
+{\footnotesize\ttfamily tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient\+::\+Radiation\+Pressure\+Coefficient (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{electromagnetism\+::\+Radiation\+Pressure\+Interface}} $>$}]{radiation\+Pressure\+Interface,  }\item[{std\+::string \&}]{associated\+Body }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em radiation\+Pressure\+Interface} & Object containing the radiation pressure coefficient to be estimated. \\
+\hline
+{\em associated\+Body} & Name of body containing the radiation\+Pressure\+Interface object \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_ae7282eeffa763137a4d633d7dec4e10f}\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_ae7282eeffa763137a4d633d7dec4e10f}} 
+\index{tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}!getParameterSize@{getParameterSize}}
+\index{getParameterSize@{getParameterSize}!tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}}
+\doxysubsubsection{\texorpdfstring{getParameterSize()}{getParameterSize()}}
+{\footnotesize\ttfamily int tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient\+::get\+Parameter\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve the size of the parameter (always 1). 
+
+Function to retrieve the size of the parameter (always 1). \begin{DoxyReturn}{Returns}
+Size of parameter value (always 1). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a989d54bab5c5e09ab6f1b709755b22e8}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a1ff0890df59c45352030750744f9d121}\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_a1ff0890df59c45352030750744f9d121}} 
+\index{tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}!getParameterValue@{getParameterValue}}
+\index{getParameterValue@{getParameterValue}!tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}}
+\doxysubsubsection{\texorpdfstring{getParameterValue()}{getParameterValue()}}
+{\footnotesize\ttfamily double tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient\+::get\+Parameter\+Value (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to get the current value of the radiation pressure coefficient that is to be estimated. 
+
+Function to get the current value of the radiation pressure coefficient that is to be estimated. \begin{DoxyReturn}{Returns}
+Current value of the radiation pressure coefficient that is to be estimated. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a63413b914f9e8b68705aba7048780200}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_afa6dd3600b17a9d92c64c804e3596319}\label{classtudat_1_1estimatable__parameters_1_1RadiationPressureCoefficient_afa6dd3600b17a9d92c64c804e3596319}} 
+\index{tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}!setParameterValue@{setParameterValue}}
+\index{setParameterValue@{setParameterValue}!tudat::estimatable\_parameters::RadiationPressureCoefficient@{tudat::estimatable\_parameters::RadiationPressureCoefficient}}
+\doxysubsubsection{\texorpdfstring{setParameterValue()}{setParameterValue()}}
+{\footnotesize\ttfamily void tudat\+::estimatable\+\_\+parameters\+::\+Radiation\+Pressure\+Coefficient\+::set\+Parameter\+Value (\begin{DoxyParamCaption}\item[{double}]{parameter\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the value of the radiation pressure coefficient that is to be estimated. 
+
+Function to reset the value of the radiation pressure coefficient that is to be estimated. 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+Value} & New value of the radiation pressure coefficient that is to be estimated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameter_a5df35bde257a6db401ca3c3613056554}{tudat\+::estimatable\+\_\+parameters\+::\+Estimatable\+Parameter$<$ double $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/estimatable\+\_\+parameters/radiation\+Pressure\+Coefficient.\+h\end{DoxyCompactItemize}

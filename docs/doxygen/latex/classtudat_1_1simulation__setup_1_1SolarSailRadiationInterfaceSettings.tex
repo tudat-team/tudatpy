@@ -1,0 +1,373 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Solar\+Sail\+Radiation\+Interface\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings}\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+
+
+Class providing settings for the creation of a solar sail radiation pressure interface.  
+
+
+
+
+{\ttfamily \#include $<$create\+Radiation\+Pressure\+Interface.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Solar\+Sail\+Radiation\+Interface\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ad6d005241a14a53e11ade9bb472c886b}{Solar\+Sail\+Radiation\+Interface\+Settings}} (const std\+::string \&source\+Body, const double area, const std\+::function$<$ double(const double) $>$ cone\+Angle, const std\+::function$<$ double(const double) $>$ clock\+Angle, const double front\+Emissivity\+Coefficient, const double back\+Emissivity\+Coefficient, const double front\+Lambertian\+Coefficient, const double back\+Lambertian\+Coefficient, const double reflectivity\+Coefficient, const double specular\+Reflection\+Coefficient, const std\+::vector$<$ std\+::string $>$ \&occulting\+Bodies=std\+::vector$<$ std\+::string $>$(), const std\+::string \&central\+Body=std\+::string())
+\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a03649b48216cd73fb2a6277fb766a302}{get\+Area}} ()
+\begin{DoxyCompactList}\small\item\em Function to return surface area that undergoes radiation pressure. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af64f5fbf6bb4eb58bbc750d7460ba9e1}{set\+Area}} (double area)
+\begin{DoxyCompactList}\small\item\em Function to set surface area that undergoes radiation pressure. \end{DoxyCompactList}\item 
+std\+::function$<$ double(const double) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a6ddf7954c911ea94c6f723865dd0eb7f}{get\+Cone\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Returns the function returning the current sail cone angle. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a8e27b057ca7e1779079b73135f789e07}{set\+Cone\+Angle}} (std\+::function$<$ double(const double) $>$ cone\+Angle)
+\begin{DoxyCompactList}\small\item\em Resets the function returning the current sail cone angle. \end{DoxyCompactList}\item 
+std\+::function$<$ double(const double) $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ac0b6c2d85615ee33b4a88a87baabfdd1}{get\+Clock\+Angle}} ()
+\begin{DoxyCompactList}\small\item\em Returns the function returning the current sail clock angle. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae42c8a7b76131cabc8188e0645d89121}{set\+Clock\+Angle}} (std\+::function$<$ double(const double) $>$ clock\+Angle)
+\begin{DoxyCompactList}\small\item\em Resets the function returning the current sail clock angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a15e9346ada567c639c6fb3e1729839cd}{get\+Front\+Emissivity\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns front emissivity coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aacf98065501f5f0ab88fb7db98e25650}{set\+Front\+Emissivity\+Coefficient}} (double front\+Emissivity\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets front emissivity coefficient. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a234684b1762501ae082bd04d2e3ea615}{get\+Back\+Emissivity\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns back emissivity coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae869ad358a0e4a36123fa2b99ae36eeb}{set\+Back\+Emissivity\+Coefficient}} (double back\+Emissivity\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets back emissivity coefficient. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a2d15e83c8433a571b008511c18ac265c}{get\+Front\+Lambertian\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns front Lambertian coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa8a738d7dae06d19ccbcb319bbbb67f3}{set\+Front\+Lambertian\+Coefficient}} (double front\+Lambertian\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets front Lambertian coefficient. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa7d97f46d1d2f51c63d043622c6ec7a2}{get\+Back\+Lambertian\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns back Lambertian coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ab0c0cee4cc75e197df099467d65e7ec0}{set\+Back\+Lambertian\+Coefficient}} (double back\+Lambertian\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets back Lambertian coefficient. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aea2ffd78be298f5a98d5e441b0ced704}{get\+Reflectivity\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns reflectivity coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_abe37ff3a173c82f6cd9df77a78457d1f}{set\+Reflectivity\+Coefficient}} (double reflectivity\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets reflectivity coefficient. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a0da1812ff97731bb06cfb03cffe1bd92}{get\+Specular\+Reflection\+Coefficient}} ()
+\begin{DoxyCompactList}\small\item\em Returns specular reflection coefficient. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa3bed84f061e24e3becc5b0423fa19f8}{set\+Specular\+Reflection\+Coefficient}} (double specular\+Reflection\+Coefficient)
+\begin{DoxyCompactList}\small\item\em Resets specular reflection coefficient. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af36f3af1aa555b91f571fcd2a697f047}{get\+Central\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Returns the name of the central body. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class providing settings for the creation of a solar sail radiation pressure interface. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ad6d005241a14a53e11ade9bb472c886b}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ad6d005241a14a53e11ade9bb472c886b}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!SolarSailRadiationInterfaceSettings@{SolarSailRadiationInterfaceSettings}}
+\index{SolarSailRadiationInterfaceSettings@{SolarSailRadiationInterfaceSettings}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{SolarSailRadiationInterfaceSettings()}{SolarSailRadiationInterfaceSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::\+Solar\+Sail\+Radiation\+Interface\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{source\+Body,  }\item[{const double}]{area,  }\item[{const std\+::function$<$ double(const double) $>$}]{cone\+Angle,  }\item[{const std\+::function$<$ double(const double) $>$}]{clock\+Angle,  }\item[{const double}]{front\+Emissivity\+Coefficient,  }\item[{const double}]{back\+Emissivity\+Coefficient,  }\item[{const double}]{front\+Lambertian\+Coefficient,  }\item[{const double}]{back\+Lambertian\+Coefficient,  }\item[{const double}]{reflectivity\+Coefficient,  }\item[{const double}]{specular\+Reflection\+Coefficient,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{occulting\+Bodies = {\ttfamily std\+:\+:vector$<$~std\+:\+:string~$>$(~)},  }\item[{const std\+::string \&}]{central\+Body = {\ttfamily std\+:\+:string(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructor Constructor 
+\begin{DoxyParams}{Parameters}
+{\em source\+Body} & Name of body emitting the radiation. \\
+\hline
+{\em area} & Surface area that undergoes radiation pressure \mbox{[}m$^\wedge$2\mbox{]}. \\
+\hline
+{\em cone\+Angle} & Function returning the current sail cone angle (in rad). \\
+\hline
+{\em clock\+Angle} & Function returning the current sail clock angle (in rad). \\
+\hline
+{\em front\+Emissivity\+Coefficient} & Emissivity coefficient of the front of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em back\+Emissivity\+Coefficient} & Emissivity coefficient of the back of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em front\+Lambertian\+Coefficient} & Lambertian coefficient of the front of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em back\+Lambertian\+Coefficient} & Lambertian coefficient of the back of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em reflectivity\+Coefficient} & Reflectivity coefficient of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em specular\+Reflection\+Coefficient} & Specular reflection coefficient of the sail \mbox{[}-\/\mbox{]}. \\
+\hline
+{\em occulting\+Bodies} & List of bodies causing (partial) occultation. \\
+\hline
+{\em central\+Body} & Name of the central body. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a03649b48216cd73fb2a6277fb766a302}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a03649b48216cd73fb2a6277fb766a302}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getArea@{getArea}}
+\index{getArea@{getArea}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getArea()}{getArea()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Area (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return surface area that undergoes radiation pressure. 
+
+Function to return surface area that undergoes radiation pressure. \begin{DoxyReturn}{Returns}
+Surface area that undergoes radiation pressure \mbox{[}m$^\wedge$2\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a234684b1762501ae082bd04d2e3ea615}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a234684b1762501ae082bd04d2e3ea615}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getBackEmissivityCoefficient@{getBackEmissivityCoefficient}}
+\index{getBackEmissivityCoefficient@{getBackEmissivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getBackEmissivityCoefficient()}{getBackEmissivityCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Back\+Emissivity\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns back emissivity coefficient. 
+
+Returns back emissivity coefficient. \begin{DoxyReturn}{Returns}
+Back emissivity coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa7d97f46d1d2f51c63d043622c6ec7a2}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa7d97f46d1d2f51c63d043622c6ec7a2}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getBackLambertianCoefficient@{getBackLambertianCoefficient}}
+\index{getBackLambertianCoefficient@{getBackLambertianCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getBackLambertianCoefficient()}{getBackLambertianCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Back\+Lambertian\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns back Lambertian coefficient. 
+
+Returns back Lambertian coefficient. \begin{DoxyReturn}{Returns}
+Back Lambertian coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af36f3af1aa555b91f571fcd2a697f047}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af36f3af1aa555b91f571fcd2a697f047}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getCentralBody@{getCentralBody}}
+\index{getCentralBody@{getCentralBody}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getCentralBody()}{getCentralBody()}}
+{\footnotesize\ttfamily std\+::string tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Central\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the name of the central body. 
+
+Returns the name of the central body. \begin{DoxyReturn}{Returns}
+Name of the central body. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ac0b6c2d85615ee33b4a88a87baabfdd1}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ac0b6c2d85615ee33b4a88a87baabfdd1}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getClockAngle@{getClockAngle}}
+\index{getClockAngle@{getClockAngle}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getClockAngle()}{getClockAngle()}}
+{\footnotesize\ttfamily std\+::function$<$ double( const double ) $>$ tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Clock\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the function returning the current sail clock angle. 
+
+Returns the function returning the current sail clock angle. \begin{DoxyReturn}{Returns}
+Function returning the current clock angle (in rad). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a6ddf7954c911ea94c6f723865dd0eb7f}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a6ddf7954c911ea94c6f723865dd0eb7f}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getConeAngle@{getConeAngle}}
+\index{getConeAngle@{getConeAngle}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getConeAngle()}{getConeAngle()}}
+{\footnotesize\ttfamily std\+::function$<$ double( const double ) $>$ tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Cone\+Angle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the function returning the current sail cone angle. 
+
+Returns the function returning the current sail cone angle. \begin{DoxyReturn}{Returns}
+Function returning the current sail cone angle (in rad). 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a15e9346ada567c639c6fb3e1729839cd}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a15e9346ada567c639c6fb3e1729839cd}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getFrontEmissivityCoefficient@{getFrontEmissivityCoefficient}}
+\index{getFrontEmissivityCoefficient@{getFrontEmissivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getFrontEmissivityCoefficient()}{getFrontEmissivityCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Front\+Emissivity\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns front emissivity coefficient. 
+
+Returns front emissivity coefficient. \begin{DoxyReturn}{Returns}
+Front emissivity coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a2d15e83c8433a571b008511c18ac265c}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a2d15e83c8433a571b008511c18ac265c}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getFrontLambertianCoefficient@{getFrontLambertianCoefficient}}
+\index{getFrontLambertianCoefficient@{getFrontLambertianCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getFrontLambertianCoefficient()}{getFrontLambertianCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Front\+Lambertian\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns front Lambertian coefficient. 
+
+Returns front Lambertian coefficient. \begin{DoxyReturn}{Returns}
+Front Lambertian coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aea2ffd78be298f5a98d5e441b0ced704}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aea2ffd78be298f5a98d5e441b0ced704}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getReflectivityCoefficient@{getReflectivityCoefficient}}
+\index{getReflectivityCoefficient@{getReflectivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getReflectivityCoefficient()}{getReflectivityCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Reflectivity\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns reflectivity coefficient. 
+
+Returns reflectivity coefficient. \begin{DoxyReturn}{Returns}
+Reflectivity coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a0da1812ff97731bb06cfb03cffe1bd92}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a0da1812ff97731bb06cfb03cffe1bd92}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!getSpecularReflectionCoefficient@{getSpecularReflectionCoefficient}}
+\index{getSpecularReflectionCoefficient@{getSpecularReflectionCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{getSpecularReflectionCoefficient()}{getSpecularReflectionCoefficient()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::get\+Specular\+Reflection\+Coefficient (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns specular reflection coefficient. 
+
+Returns specular reflection coefficient. \begin{DoxyReturn}{Returns}
+Specular reflection coefficient \mbox{[}-\/\mbox{]}. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af64f5fbf6bb4eb58bbc750d7460ba9e1}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_af64f5fbf6bb4eb58bbc750d7460ba9e1}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setArea@{setArea}}
+\index{setArea@{setArea}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setArea()}{setArea()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Area (\begin{DoxyParamCaption}\item[{double}]{area }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to set surface area that undergoes radiation pressure. 
+
+Function to set surface area that undergoes radiation pressure. 
+\begin{DoxyParams}{Parameters}
+{\em area} & Surface area that undergoes radiation pressure \mbox{[}m$^\wedge$2\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae869ad358a0e4a36123fa2b99ae36eeb}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae869ad358a0e4a36123fa2b99ae36eeb}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setBackEmissivityCoefficient@{setBackEmissivityCoefficient}}
+\index{setBackEmissivityCoefficient@{setBackEmissivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setBackEmissivityCoefficient()}{setBackEmissivityCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Back\+Emissivity\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{back\+Emissivity\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets back emissivity coefficient. 
+
+Resets back emissivity coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em back\+Emissivity\+Coefficient} & Back emissivity coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ab0c0cee4cc75e197df099467d65e7ec0}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ab0c0cee4cc75e197df099467d65e7ec0}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setBackLambertianCoefficient@{setBackLambertianCoefficient}}
+\index{setBackLambertianCoefficient@{setBackLambertianCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setBackLambertianCoefficient()}{setBackLambertianCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Back\+Lambertian\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{back\+Lambertian\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets back Lambertian coefficient. 
+
+Resets back Lambertian coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em back\+Lambertian\+Coefficient} & Back Lambertian coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae42c8a7b76131cabc8188e0645d89121}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_ae42c8a7b76131cabc8188e0645d89121}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setClockAngle@{setClockAngle}}
+\index{setClockAngle@{setClockAngle}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setClockAngle()}{setClockAngle()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Clock\+Angle (\begin{DoxyParamCaption}\item[{std\+::function$<$ double(const double) $>$}]{clock\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets the function returning the current sail clock angle. 
+
+Resets the function returning the current sail clock angle. 
+\begin{DoxyParams}{Parameters}
+{\em clock\+Angle} & Function returning the current clock angle (in rad). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a8e27b057ca7e1779079b73135f789e07}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_a8e27b057ca7e1779079b73135f789e07}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setConeAngle@{setConeAngle}}
+\index{setConeAngle@{setConeAngle}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setConeAngle()}{setConeAngle()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Cone\+Angle (\begin{DoxyParamCaption}\item[{std\+::function$<$ double(const double) $>$}]{cone\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets the function returning the current sail cone angle. 
+
+Resets the function returning the current sail cone angle. 
+\begin{DoxyParams}{Parameters}
+{\em cone\+Angle} & Function returning the current sail cone angle (in rad). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aacf98065501f5f0ab88fb7db98e25650}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aacf98065501f5f0ab88fb7db98e25650}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setFrontEmissivityCoefficient@{setFrontEmissivityCoefficient}}
+\index{setFrontEmissivityCoefficient@{setFrontEmissivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setFrontEmissivityCoefficient()}{setFrontEmissivityCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Front\+Emissivity\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{front\+Emissivity\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets front emissivity coefficient. 
+
+Resets front emissivity coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em front\+Emissivity\+Coefficient} & Front emissivity coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa8a738d7dae06d19ccbcb319bbbb67f3}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa8a738d7dae06d19ccbcb319bbbb67f3}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setFrontLambertianCoefficient@{setFrontLambertianCoefficient}}
+\index{setFrontLambertianCoefficient@{setFrontLambertianCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setFrontLambertianCoefficient()}{setFrontLambertianCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Front\+Lambertian\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{front\+Lambertian\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets front Lambertian coefficient. 
+
+Resets front Lambertian coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em front\+Lambertian\+Coefficient} & Front Lambertian coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_abe37ff3a173c82f6cd9df77a78457d1f}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_abe37ff3a173c82f6cd9df77a78457d1f}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setReflectivityCoefficient@{setReflectivityCoefficient}}
+\index{setReflectivityCoefficient@{setReflectivityCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setReflectivityCoefficient()}{setReflectivityCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Reflectivity\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{reflectivity\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets reflectivity coefficient. 
+
+Resets reflectivity coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em reflectivity\+Coefficient} & Reflectivity coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa3bed84f061e24e3becc5b0423fa19f8}\label{classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_aa3bed84f061e24e3becc5b0423fa19f8}} 
+\index{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}!setSpecularReflectionCoefficient@{setSpecularReflectionCoefficient}}
+\index{setSpecularReflectionCoefficient@{setSpecularReflectionCoefficient}!tudat::simulation\_setup::SolarSailRadiationInterfaceSettings@{tudat::simulation\_setup::SolarSailRadiationInterfaceSettings}}
+\doxysubsubsection{\texorpdfstring{setSpecularReflectionCoefficient()}{setSpecularReflectionCoefficient()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Solar\+Sail\+Radiation\+Interface\+Settings\+::set\+Specular\+Reflection\+Coefficient (\begin{DoxyParamCaption}\item[{double}]{specular\+Reflection\+Coefficient }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Resets specular reflection coefficient. 
+
+Resets specular reflection coefficient. 
+\begin{DoxyParams}{Parameters}
+{\em specular\+Reflection\+Coefficient} & Specular reflection coefficient \mbox{[}-\/\mbox{]}. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/environment\+\_\+setup/create\+Radiation\+Pressure\+Interface.\+h\end{DoxyCompactItemize}

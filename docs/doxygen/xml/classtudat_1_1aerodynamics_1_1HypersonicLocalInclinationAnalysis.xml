@@ -1,0 +1,920 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator" prot="public" virt="non-virtual">tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; 3, 6 &gt;</basecompoundref>
+    <includes refid="hypersonicLocalInclinationAnalysis_8h" local="no">hypersonicLocalInclinationAnalysis.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aa97ce24c3b8e8a5f0e9d0ccfe79c767a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">geometric_shapes::LawgsPartGeometry</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; geometric_shapes::LawgsPartGeometry &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::vehicleParts_</definition>
+        <argsstring></argsstring>
+        <name>vehicleParts_</name>
+        <briefdescription>
+<para>Array of vehicle parts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Array of vehicle parts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="297" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="297" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aaa919b70c85b783a98707e05ce709676" prot="private" static="no" mutable="no">
+        <type>boost::multi_array&lt; bool, 3 &gt;</type>
+        <definition>boost::multi_array&lt; bool, 3 &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::isCoefficientGenerated_</definition>
+        <argsstring></argsstring>
+        <name>isCoefficientGenerated_</name>
+        <briefdescription>
+<para>Multi-array as which indicates which coefficients have been calculated already. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Multi-array as which indicates which coefficients have been calculated already. Indices of entries coincide with indices of aerodynamicCoefficients_. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="304" column="24" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="304" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aa83295a0008e8e5805c159ace298caba" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::inclination_</definition>
+        <argsstring></argsstring>
+        <name>inclination_</name>
+        <briefdescription>
+<para>Three-dimensional array of panel inclination angles. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Three-dimensional array of panel inclination angles at current values of independent variables. Indices indicate part-line-point. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="311" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="311" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a6960fe538c1d749aee0e180ef8c7543f" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::pair&lt; double, double &gt;, std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; &gt;</type>
+        <definition>std::map&lt; std::pair&lt; double, double &gt;, std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::previouslyComputedInclinations_</definition>
+        <argsstring></argsstring>
+        <name>previouslyComputedInclinations_</name>
+        <briefdescription>
+<para>Map of angle of attack and -sideslip pair and associated panel inclinations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Map of angle of attack and -sideslip pair and associated panel inclinations. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="318" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="318" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a4385a6a760710882acbe02d218240c0e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::pressureCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>pressureCoefficient_</name>
+        <briefdescription>
+<para>Three-dimensional array of panel pressure coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Three-dimensional array of panel pressure coefficients at current values of independent variables. Indices indicate part-line-point. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="325" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="325" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a7baa6ff50d29db9341f5dea0ba11a61a" prot="private" static="no" mutable="no">
+        <type>std::map&lt; boost::array&lt; int, 3 &gt;, std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; &gt;</type>
+        <definition>std::map&lt; boost::array&lt; int, 3 &gt;, std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::pressureCoefficientList_</definition>
+        <argsstring></argsstring>
+        <name>pressureCoefficientList_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="327" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a65307df67489665c0f7d00137898aad6" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::HypersonicLocalInclinationAnalysis::stagnationPressureCoefficient</definition>
+        <argsstring></argsstring>
+        <name>stagnationPressureCoefficient</name>
+        <briefdescription>
+<para>Stagnation pressure coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Stagnation pressure coefficient for flow which has passed through a normal shock wave at current Mach number. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="334" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="334" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a779f0bf96ff6cd01df0addbc0682a574" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::aerodynamics::HypersonicLocalInclinationAnalysis::ratioOfSpecificHeats</definition>
+        <argsstring></argsstring>
+        <name>ratioOfSpecificHeats</name>
+        <briefdescription>
+<para>Ratio of specific heats. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ratio of specific heat at constant pressure to specific heat at constant pressure. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="340" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a5258bdd48aef14939b5276541dec947b" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::vector&lt; int &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; int &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::selectedMethods_</definition>
+        <argsstring></argsstring>
+        <name>selectedMethods_</name>
+        <briefdescription>
+<para>Array of selected methods. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Array of selected methods, first index represents compression/expansion, second index represents vehicle part. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="347" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1adfb8bf0857014644e7a736209c77e3f5" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::aerodynamics::HypersonicLocalInclinationAnalysis::savePressureCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>savePressureCoefficients_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="349" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a36a22df8e7e04bf42bdd8650dfacb6ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis</definition>
+        <argsstring>(const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;dataPointsOfIndependentVariables, const std::shared_ptr&lt; SurfaceGeometry &gt; inputVehicleSurface, const std::vector&lt; int &gt; &amp;numberOfLines, const std::vector&lt; int &gt; &amp;numberOfPoints, const std::vector&lt; bool &gt; &amp;invertOrders, const std::vector&lt; std::vector&lt; int &gt; &gt; &amp;selectedMethods, const double referenceArea, const double referenceLength, const Eigen::Vector3d &amp;momentReferencePoint, const bool savePressureCoefficients=false)</argsstring>
+        <name>HypersonicLocalInclinationAnalysis</name>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;</type>
+          <declname>dataPointsOfIndependentVariables</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1SurfaceGeometry" kindref="compound">SurfaceGeometry</ref> &gt;</type>
+          <declname>inputVehicleSurface</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>numberOfLines</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; int &gt; &amp;</type>
+          <declname>numberOfPoints</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; bool &gt; &amp;</type>
+          <declname>invertOrders</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::vector&lt; int &gt; &gt; &amp;</type>
+          <declname>selectedMethods</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceArea</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceLength</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>momentReferencePoint</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>savePressureCoefficients</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor of class, specified vehicle geometry, discretization properties, independent variable ranges, reference values and local inclination methods that are to be used <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dataPointsOfIndependentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of vector, with each subvector containing the data points of each of the independent variables for the coefficient generation. The physical meaning of each of the three independent variables is: 0 = mach numner, 1 = angle of attack, 2 = angle of sideslip. Each of the subvectors must be sorted in ascending order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputVehicleSurface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vehicle surface geometry for which the coefficients are to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfLines</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of discretization points in the first independent surface variable of each of the subparts of inputVehicleSurface. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfPoints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of discretization points in the second independent surface variable of each of the subparts of inputVehicleSurface. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>invertOrders</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Booleans to denote whether the surface normals of the panels of each discretized inputVehicleSurface subpart are to be inverted (i.e. inward-facing-&gt;outward facing or vice versa) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>selectedMethods</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of selected local inclination methods, the first index represents compression/expansion, the second index denotes the vehicle part index. The value for each separate method can be found in the updateCompressionPressures and updateExpansionPressures functions, respectively. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceArea</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference area used to non-dimensionalize aerodynamic forces and moments. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference length used to non-dimensionalize aerodynamic moments. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>momentReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point wrt which aerodynamic moments are calculated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>savePressureCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether to save the pressure coefficients that are computed to files </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="104" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="169" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ab2103af7d1c4307ba63c355890161b39" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis</definition>
+        <argsstring>()</argsstring>
+        <name>~HypersonicLocalInclinationAnalysis</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="120" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="120" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afa3ab626ce49d0ac1311d68a13f55693" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint</definition>
+        <argsstring>(const boost::array&lt; int, 3 &gt; independentVariables)</argsstring>
+        <name>getAerodynamicCoefficientsDataPoint</name>
+        <param>
+          <type>const boost::array&lt; int, 3 &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+<para>Get aerodynamic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns aerodynamic coefficients. The physical meaning of each of the three independent variables is: 0 = mach number, 1 = angle of attack, 2 = angle of sideslip. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariables</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of values of independent variable indices in dataPointsOfIndependentVariables_. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>vector of coefficients at specified independent variable indices. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="131" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="287" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afd7c40ebd7440f831f83ee2784408fad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::determineInclinations</definition>
+        <argsstring>(const double angleOfAttack, const double angleOfSideslip)</argsstring>
+        <name>determineInclinations</name>
+        <param>
+          <type>const double</type>
+          <declname>angleOfAttack</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfSideslip</declname>
+        </param>
+        <briefdescription>
+<para>Determine inclination angles of panels on a given part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determines the inclination angle of panels on a single part.</para>
+<para>Determines panel inclinations for all panels on all parts for given attitude. Outward pointing surface-normals are assumed! <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleOfAttack</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle of attack at which to determine inclination angles. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfSideslip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle of sideslip at which to determine inclination angles. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="141" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="470" bodyend="506"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ad3d035250b5e0a374da6a46b79ef229b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getNumberOfVehicleParts</definition>
+        <argsstring>() const</argsstring>
+        <name>getNumberOfVehicleParts</name>
+        <briefdescription>
+<para>Get the number of vehicle parts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the number of vehicle parts. <simplesect kind="return"><para>The number of vehicle parts. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="149" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ae74e0a1ceb5ed4c35f8c71d0a20a1b6b" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1geometric__shapes_1_1LawgsPartGeometry" kindref="compound">geometric_shapes::LawgsPartGeometry</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; geometric_shapes::LawgsPartGeometry &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getVehiclePart</definition>
+        <argsstring>(const int vehicleIndex) const</argsstring>
+        <name>getVehiclePart</name>
+        <param>
+          <type>const int</type>
+          <declname>vehicleIndex</declname>
+        </param>
+        <briefdescription>
+<para>Get a vehicle part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a vehicle part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vehicleIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index in vehicleParts_ to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Requested vehicle part. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="160" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="160" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a505521e3681e0522034d2a90ced09bf5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; boost::multi_array&lt; Eigen::Vector3d, 2 &gt; &gt;</type>
+        <definition>std::vector&lt; boost::multi_array&lt; Eigen::Vector3d, 2 &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getMeshPoints</definition>
+        <argsstring>()</argsstring>
+        <name>getMeshPoints</name>
+        <briefdescription>
+<para>Function to retrieve a list of mesh panel centroids for the full vehicle geometry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a list of mesh panel centroids for the full vehicle geometry <simplesect kind="return"><para>List of mesh panel centroids for the full vehicle geometry </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="184" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="184" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a00e3195954d90e99169d67074a9466eb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; boost::multi_array&lt; Eigen::Vector3d, 2 &gt; &gt;</type>
+        <definition>std::vector&lt; boost::multi_array&lt; Eigen::Vector3d, 2 &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getPanelSurfaceNormals</definition>
+        <argsstring>()</argsstring>
+        <name>getPanelSurfaceNormals</name>
+        <briefdescription>
+<para>Function to retrieve a list of mesh panel surface normals for the full vehicle geometry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a list of mesh panel surface normals for the full vehicle geometry <simplesect kind="return"><para>List of mesh panel surface normals for the full vehicle geometry </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="199" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="199" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1af6b838f9e52e49eac05febbb6f1f8dfa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt;</type>
+        <definition>std::vector&lt; std::vector&lt; std::vector&lt; double &gt; &gt; &gt; tudat::aerodynamics::HypersonicLocalInclinationAnalysis::getPressureCoefficientList</definition>
+        <argsstring>(const boost::array&lt; int, 3 &gt; independentVariables)</argsstring>
+        <name>getPressureCoefficientList</name>
+        <param>
+          <type>const boost::array&lt; int, 3 &gt;</type>
+          <declname>independentVariables</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="209" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="209" bodyend="213"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a087c421e8b4964b89a921caf810e6bfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::ostream &amp;</type>
+        <definition>std::ostream&amp; operator&lt;&lt;</definition>
+        <argsstring>(std::ostream &amp;stream, HypersonicLocalInclinationAnalysis &amp;hypersonicLocalInclinationAnalysis)</argsstring>
+        <name>operator&lt;&lt;</name>
+        <param>
+          <type>std::ostream &amp;</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type><ref refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis" kindref="compound">HypersonicLocalInclinationAnalysis</ref> &amp;</type>
+          <declname>hypersonicLocalInclinationAnalysis</declname>
+        </param>
+        <briefdescription>
+<para>Overload ostream to print class information. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Overloads ostream to print class information, prints the number of lawgs geometry parts and names. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hypersonicLocalInclinationAnalysis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hypersonic local inclination analysis. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Stream object. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="175" column="12"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a598edf788167446e87df9db972ddf56f" prot="private" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::generateCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>generateCoefficients</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a33f99bba58afd64d95b5c896b29234fb">generateCoefficients</reimplements>
+        <briefdescription>
+<para>Generate aerodynamic database. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Generates aerodynamic database. Settings of geometry, reference quantities, database point settings and analysis methods should have been set previously. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="224" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="300" bodyend="323"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1adedc8f404ded4785991bf687e82ffc77" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::determineVehicleCoefficients</definition>
+        <argsstring>(const boost::array&lt; int, 3 &gt; independentVariableIndices)</argsstring>
+        <name>determineVehicleCoefficients</name>
+        <param>
+          <type>const boost::array&lt; int, 3 &gt;</type>
+          <declname>independentVariableIndices</declname>
+        </param>
+        <briefdescription>
+<para>Generate aerodynamic coefficients at a single set of independent variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Generates aerodynamic coefficients at a single set of independent variables. Determines values and sets corresponding entry in vehicleCoefficients_ array. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>independentVariableIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of indices from lists of Mach number, angle of attack and angle of sideslip points at which to perform analysis. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="233" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="326" bodyend="346"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afe9c1665fb201348e8cc4757b5559d89" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Vector6d tudat::aerodynamics::HypersonicLocalInclinationAnalysis::determinePartCoefficients</definition>
+        <argsstring>(const int partNumber, const boost::array&lt; int, 3 &gt; independentVariableIndices)</argsstring>
+        <name>determinePartCoefficients</name>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <param>
+          <type>const boost::array&lt; int, 3 &gt;</type>
+          <declname>independentVariableIndices</declname>
+        </param>
+        <briefdescription>
+<para>Determine aerodynamic coefficients for a single LaWGS part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine aerodynamic coefficients of a single vehicle part.</para>
+<para>Determines aerodynamic coefficients for a single LaWGS part, calls determinepressureCoefficient_ function for given vehicle part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from vehicleParts_ array for which to determine coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of indices of independent variables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Force and moment coefficients for requested vehicle part. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="243" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="349" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a29d7a5b780b96e86197e2c66d64396bf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::determinePressureCoefficients</definition>
+        <argsstring>(const int partNumber, const boost::array&lt; int, 3 &gt; independentVariableIndices)</argsstring>
+        <name>determinePressureCoefficients</name>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <param>
+          <type>const boost::array&lt; int, 3 &gt;</type>
+          <declname>independentVariableIndices</declname>
+        </param>
+        <briefdescription>
+<para>Determine pressure coefficients on a given part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine the pressure coefficients on a single vehicle part.</para>
+<para>Determines pressure coefficients on a single vehicle part. Calls the updateExpansionPressures and updateCompressionPressures for given vehicle part. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from vehicleParts_ array for which to determine coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>independentVariableIndices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of indices of independent variables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="253" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="394" bodyend="408"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1abfd55ab802b1b69cbabceaef14720251" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::HypersonicLocalInclinationAnalysis::calculateForceCoefficients</definition>
+        <argsstring>(const int partNumber)</argsstring>
+        <name>calculateForceCoefficients</name>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <briefdescription>
+<para>Determine force coefficients of a part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine force coefficients from pressure coefficients.</para>
+<para>Sums the pressure coefficients of given part and determines force coefficients from it by non-dimensionalization with reference area. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from vehicleParts_ array for which determine coefficients. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Force coefficients for requested vehicle part. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="263" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="411" bodyend="434"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a0fe95111980b0b7c63c0232e524c5dbf" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::HypersonicLocalInclinationAnalysis::calculateMomentCoefficients</definition>
+        <argsstring>(const int partNumber)</argsstring>
+        <name>calculateMomentCoefficients</name>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <briefdescription>
+<para>Determine moment coefficients of a part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine moment coefficients from pressure coefficients.</para>
+<para>Determines the moment coefficients of a given part by summing the contributions of all panels on the part. Moment arms are taken from panel centroid to momentReferencePoint. Non- dimensionalization is performed by product of referenceLength and referenceArea. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from vehicleParts_ array for which to determine coefficients. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Moment coefficients for requested vehicle part. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="273" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="437" bodyend="467"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a0c7b70526fbb1206ab753ce40f0bcfff" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::updateCompressionPressures</definition>
+        <argsstring>(const double machNumber, const int partNumber)</argsstring>
+        <name>updateCompressionPressures</name>
+        <param>
+          <type>const double</type>
+          <declname>machNumber</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <briefdescription>
+<para>Determine the compression pressure coefficients of a given part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determine compression pressure coefficients on all parts.</para>
+<para>Sets the values of pressureCoefficient_ on given part and at given Mach number for which inclination &gt; 0. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>machNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mach number at which to perform analysis. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of part from vehicleParts_ which is to be analyzed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="282" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="509" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ad7baa07614860c1a4d7ddb8aa69e5df8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::aerodynamics::HypersonicLocalInclinationAnalysis::updateExpansionPressures</definition>
+        <argsstring>(const double machNumber, const int partNumber)</argsstring>
+        <name>updateExpansionPressures</name>
+        <param>
+          <type>const double</type>
+          <declname>machNumber</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>partNumber</declname>
+        </param>
+        <briefdescription>
+<para>Determine the expansion pressure coefficients of a given part. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Determines expansion pressure coefficients on all parts.</para>
+<para>Determine the values of pressureCoefficient_ on given part and at given Mach number for which inclination &lt;= 0. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>machNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mach number at which to perform analysis. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of part from vehicleParts_ which is to be analyzed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="291" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp" bodystart="593" bodyend="691"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for inviscid hypersonic aerodynamic analysis using local inclination methods. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for inviscid hypersonic aerodynamic analysis using local inclination methods. These methods assume that the local pressure on the vehicle is only dependent on the local inclination angle w.r.t. the freestream flow and freestream conditions, such as Mach number and ratio of specific heats. All aerodynamic coefficients can be calculated using the generateCoefficients function, or on an as needed basis by using the getAerodynamicCoefficientsDataPoint function. Note that during the panel inclination determination process, a geometry with outward surface-normals is assumed. The resulting coefficients are expressed in the same reference frame as that of the input geometry. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</label>
+        <link refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; 3, 6 &gt;</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</label>
+        <link refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::aerodynamics::AerodynamicCoefficientGenerator&lt; 3, 6 &gt;</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::aerodynamics::AerodynamicCoefficientInterface</label>
+        <link refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" line="71" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h" bodystart="72" bodyend="350"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a469808ab7a0fe9491562b8f46fe3c0c6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>AerodynamicCoefficientGenerator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1afcf63dcf774ca65e91ce8449f3e22d74" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>AerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ad6fc1e382d822715b80f9a1636e5ce53" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>aerodynamicCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a29e32be7cec1045dba10c7a60182ad05" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>areCoefficientsInAerodynamicFrame_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6ede4ceff6ef3a4eb91e4061750e5c19" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>areCoefficientsInNegativeAxisDirection_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1abfd55ab802b1b69cbabceaef14720251" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>calculateForceCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a0fe95111980b0b7c63c0232e524c5dbf" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>calculateMomentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac74ac5b066446d059fcb2cad7411ac62" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>coefficientInterpolator_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a904ec19864b2a25cd1db606bbb22aa81" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>controlSurfaceIncrementInterfaces_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab14a77a9c578c1153ec128fc927fc4f9" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>controlSurfaceNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8e6f4b78c17854f5cab41f5c404fca00" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>createInterpolator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac2e2b9a55f0269a611599a652a556c9a" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>currentForceCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a421867bb3bd06711019c80621ac75473" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>currentMomentCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a14278ec758b9bfbfa73c5564abce310f" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>dataPointsOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afd7c40ebd7440f831f83ee2784408fad" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>determineInclinations</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afe9c1665fb201348e8cc4757b5559d89" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>determinePartCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a29d7a5b780b96e86197e2c66d64396bf" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>determinePressureCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1adedc8f404ded4785991bf687e82ffc77" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>determineVehicleCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a598edf788167446e87df9db972ddf56f" prot="private" virt="virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>generateCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1afa3ab626ce49d0ac1311d68a13f55693" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getAerodynamicCoefficientsDataPoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1abb510c0b6d78349c6e41658ea8b63bc8" prot="public" virt="pure-virtual" ambiguityscope="AerodynamicCoefficientGenerator&lt; 3, 6 &gt;::"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getAerodynamicCoefficientsDataPoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a8d45750ac8b56931b3ee805cefd5a9da" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1acc664214ae5fee886b3a2ffa22dce2d9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getAreCoefficientsInAerodynamicFrame</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a55875655a4a678eaa5fdb80cb4827e9f" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getAreCoefficientsInNegativeAxisDirection</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ad5c005acfa80f3761f20850a855d1644" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getControlSurfaceIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a63f2ffc4d03a6902e0760f93b1931b5a" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a69a2aa883a2fba8bc918dcd60a654eb9" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getControlSurfaceName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a6b2eee400f93606c83e0429ab8b974d6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getCurrentAerodynamicCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1d482f3c4cba5a2354d12610319aa7af" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getCurrentForceCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a81b6c6f36bea4e10bdde1d67f95740d7" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getCurrentMomentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1aa114019ee49550774f570990712ddbfd" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getDataPointsOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a91798427fd03d66a696f97f9c01292c4" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getIndependentVariableName</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a605d78a84519402354ac1551e7eb2d0d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a9d7115d794324cf9e42eed27bc0f28ed" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getIndependentVariablePoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ac340c18b6cb008955c8dc426c31d6adb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getLateralReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a505521e3681e0522034d2a90ced09bf5" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getMeshPoints</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab940adb9ffb34d7910bdb11ca06143f6" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getMomentReferencePoint</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a1ca99957277b60ca79aaf4eb48e3f003" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getNumberOfControlSurfaceIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aeec44dc3a056968cb685dd3f0642bf5d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getNumberOfControlSurfaces</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af10cc21f485df4f2c877f827c7a38493" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getNumberOfIndependentVariables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1acb3c4f4b8332af012032a6300bc30e7b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getNumberOfValuesOfIndependentVariable</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ad3d035250b5e0a374da6a46b79ef229b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getNumberOfVehicleParts</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a00e3195954d90e99169d67074a9466eb" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getPanelSurfaceNormals</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1af6b838f9e52e49eac05febbb6f1f8dfa" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getPressureCoefficientList</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aaf0325453208d06cfbf8aa7a854d6875" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getReferenceArea</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a8bf7126281dbe7017490e77768e23670" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getReferenceLength</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a116a427562ff47a5cfb717fc5931171b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getReferenceLengths</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ae74e0a1ceb5ed4c35f8c71d0a20a1b6b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>getVehiclePart</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a36a22df8e7e04bf42bdd8650dfacb6ec" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>HypersonicLocalInclinationAnalysis</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aa83295a0008e8e5805c159ace298caba" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>inclination_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5e0570c4a1562fa17fde2fa5c5e2b3a8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>independentVariableNames_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aaa919b70c85b783a98707e05ce709676" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>isCoefficientGenerated_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1addb200a9776750fdc60ae9d5f9291fc8" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>lateralReferenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a88e4085f5377db07dece01f46badc536" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>momentReferencePoint_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1ab8d9151ab40af2f5bce2cf0208020e1b" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>numberOfIndependentVariables_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a087c421e8b4964b89a921caf810e6bfa" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>operator&lt;&lt;</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a4385a6a760710882acbe02d218240c0e" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>pressureCoefficient_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a7baa6ff50d29db9341f5dea0ba11a61a" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>pressureCoefficientList_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a6960fe538c1d749aee0e180ef8c7543f" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>previouslyComputedInclinations_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a779f0bf96ff6cd01df0addbc0682a574" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>ratioOfSpecificHeats</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af4588066ab70f6866f5754016c7876c3" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>referenceArea_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a37ca00d965d756bbf54b727516a33a57" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>referenceLength_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1af170e69f9c689cce254dbf9b7d0fb2ab" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>referenceLengths_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a4000ce99127f0aa63d10eaa986d57b3b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>saveAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1af84b7325a95c9c4468a53f3edcf0d39e" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>saveAerodynamicCoefficientsTables</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1adfb8bf0857014644e7a736209c77e3f5" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>savePressureCoefficients_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a5258bdd48aef14939b5276541dec947b" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>selectedMethods_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a5b6637fe09eee857978eae3ff94db959" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>setControlSurfaceIncrements</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a65307df67489665c0f7d00137898aad6" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>stagnationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1a0c7b70526fbb1206ab753ce40f0bcfff" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>updateCompressionPressures</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1ac9fa0edb774691693299291eccc100e5" prot="public" virt="virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>updateCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1a59727b07127b2e8ef0af43b3177a0808" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>updateCurrentControlSurfaceCoefficientsCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ad7baa07614860c1a4d7ddb8aa69e5df8" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>updateExpansionPressures</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa32aa23f6d4e140130a44a74f60893dc" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>updateFullCurrentCoefficients</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1aa97ce24c3b8e8a5f0e9d0ccfe79c767a" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>vehicleParts_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientGenerator_1a3d460a387284388a7c0cb2517288df5c" prot="public" virt="virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>~AerodynamicCoefficientGenerator</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1AerodynamicCoefficientInterface_1aa1df9aca23300659cd752d9afa42efa4" prot="public" virt="virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>~AerodynamicCoefficientInterface</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1HypersonicLocalInclinationAnalysis_1ab2103af7d1c4307ba63c355890161b39" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::HypersonicLocalInclinationAnalysis</scope><name>~HypersonicLocalInclinationAnalysis</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

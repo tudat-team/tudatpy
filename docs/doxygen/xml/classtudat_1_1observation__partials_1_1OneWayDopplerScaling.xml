@@ -1,0 +1,527 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_partials::OneWayDopplerScaling</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__partials_1_1PositionPartialScaling" prot="public" virt="non-virtual">tudat::observation_partials::PositionPartialScaling</basecompoundref>
+    <includes refid="oneWayDopplerPartial_8h" local="no">oneWayDopplerPartial.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a56b57ab25647ef0e54cd8d9a14832402" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, 1, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 1, 3 &gt; tudat::observation_partials::OneWayDopplerScaling::positionScalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>positionScalingFactor_</name>
+        <briefdescription>
+<para>Computed position scaling factor, for relative position vector (transmitter to receiver) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="329" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="329" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1adad5d4f29045f4492a1f7dbb2b41a373" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::observation_partials::OneWayDopplerScaling::lightTimeEffectPositionScalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>lightTimeEffectPositionScalingFactor_</name>
+        <briefdescription>
+<para>Factor by which light time correction state partial is to be scaled to be added to one-way Doppler partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Factor by which light time correction state partial is to be scaled to be added to one-way Doppler partial. ALso forms part of the total partial w.r.t. the relative position. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="336" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aef8fe956163f579e029b89954bf20c1c" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, 1, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 1, 3 &gt; tudat::observation_partials::OneWayDopplerScaling::receiverVelocityScalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>receiverVelocityScalingFactor_</name>
+        <briefdescription>
+<para>Computed scaling factor for receiver velocity partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="339" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="339" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1af96b8c0e395f5d7544e625dc08e08bbc" prot="private" static="no" mutable="no">
+        <type>Eigen::Matrix&lt; double, 1, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 1, 3 &gt; tudat::observation_partials::OneWayDopplerScaling::transmitterVelocityScalingFactor_</definition>
+        <argsstring></argsstring>
+        <name>transmitterVelocityScalingFactor_</name>
+        <briefdescription>
+<para>Computed scaling factor for transmitter velocity partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="342" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="342" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ac626e30e0e4f59b5dc710eabc0a05369" prot="private" static="no" mutable="no">
+        <type>observation_models::LinkEndType</type>
+        <definition>observation_models::LinkEndType tudat::observation_partials::OneWayDopplerScaling::currentLinkEndType_</definition>
+        <argsstring></argsstring>
+        <name>currentLinkEndType_</name>
+        <briefdescription>
+<para>Fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" kindref="member">update()</ref> function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="345" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a07bc17e7e957c885e105b49685843da2" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::observation_partials::OneWayDopplerScaling::transmitterAccelerationFunction_</definition>
+        <argsstring></argsstring>
+        <name>transmitterAccelerationFunction_</name>
+        <briefdescription>
+<para>Function returning the Cartesian acceleration of the transmitter as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="348" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="348" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a2a080ee0b77058c3be929f6a5e47b37d" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::observation_partials::OneWayDopplerScaling::receiverAccelerationFunction_</definition>
+        <argsstring></argsstring>
+        <name>receiverAccelerationFunction_</name>
+        <briefdescription>
+<para>Function returning the Cartesian acceleration of the receiver as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="351" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="351" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aab7bd6d78aed9d6886637aae2544ad98" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; tudat::observation_partials::OneWayDopplerScaling::transmitterProperTimePartials_</definition>
+        <argsstring></argsstring>
+        <name>transmitterProperTimePartials_</name>
+        <briefdescription>
+<para>Object used to compute the contribution of receiver proper time rate to the scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="354" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1af76a1d5971ba416062b668c82496bfeb" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; tudat::observation_partials::OneWayDopplerScaling::receiverProperTimePartials_</definition>
+        <argsstring></argsstring>
+        <name>receiverProperTimePartials_</name>
+        <briefdescription>
+<para>Object used to compute the contribution of transmitter proper time rate to the scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="357" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="357" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a4a6c80a41f8b91a6fc0e95c3ac581737" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::OneWayDopplerScaling::OneWayDopplerScaling</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double) &gt; transmitterAccelerationFunction, const std::function&lt; Eigen::Vector3d(const double) &gt; receiverAccelerationFunction, const std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; transmitterProperTimePartials=nullptr, const std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; receiverProperTimePartials=nullptr)</argsstring>
+        <name>OneWayDopplerScaling</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>transmitterAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>receiverAccelerationFunction</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+          <declname>transmitterProperTimePartials</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+          <declname>receiverProperTimePartials</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Destructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>transmitterAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Cartesian acceleration of the transmitter as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiverAccelerationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the Cartesian acceleration of the receiver as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transmitterProperTimePartials</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object used to compute the contribution of receiver proper time rate to the scaling </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>receiverProperTimePartials</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object used to compute the contribution of transmitter proper time rate to the scaling </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="220" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="220" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a100ed7fa5aa815596cff57b9e8958ac4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_partials::OneWayDopplerScaling::~OneWayDopplerScaling</definition>
+        <argsstring>()</argsstring>
+        <name>~OneWayDopplerScaling</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="231" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="231" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::observation_partials::OneWayDopplerScaling::update</definition>
+        <argsstring>(const std::vector&lt; Eigen::Vector6d &gt; &amp;linkEndStates, const std::vector&lt; double &gt; &amp;times, const observation_models::LinkEndType fixedLinkEnd, const Eigen::VectorXd currentObservation=Eigen::VectorXd::Constant(1, TUDAT_NAN))</argsstring>
+        <name>update</name>
+        <reimplements refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a7bf12506127c4527eacae23c6a9cf469">update</reimplements>
+        <param>
+          <type>const std::vector&lt; Eigen::Vector6d &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>times</declname>
+        </param>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>fixedLinkEnd</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd</type>
+          <declname>currentObservation</declname>
+          <defval>Eigen::VectorXd::Constant(1, TUDAT_NAN)</defval>
+        </param>
+        <briefdescription>
+<para>Update the scaling object to the current times and states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update the scaling object to the current times and states <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation Index of vector maps to link end for a given ObsevableType through getLinkEndIndex function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>times</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fixedLinkEnd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which observation time is defined, i.e. link end for which associated time is kept constant when computing observable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentObservation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of observation for which partial scaling is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="243" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/oneWayDopplerPartial.cpp" bodystart="136" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a20cec2ebb561059b184051160408acf6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 1, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 1, 3 &gt; tudat::observation_partials::OneWayDopplerScaling::getPositionScalingFactor</definition>
+        <argsstring>(const observation_models::LinkEndType linkEndType)</argsstring>
+        <name>getPositionScalingFactor</name>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>linkEndType</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the position scaling factor for specific link end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the position scaling factor for specific link end <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end for which scaling factor is to be returned </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Position partial scaling factor at current link end </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="255" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/oneWayDopplerPartial.cpp" bodystart="230" bodyend="246"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a0d5da8e5746cb9dcf0bf94921ca72943" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix&lt; double, 1, 3 &gt;</type>
+        <definition>Eigen::Matrix&lt; double, 1, 3 &gt; tudat::observation_partials::OneWayDopplerScaling::getVelocityScalingFactor</definition>
+        <argsstring>(const observation_models::LinkEndType linkEndType)</argsstring>
+        <name>getVelocityScalingFactor</name>
+        <param>
+          <type>const observation_models::LinkEndType</type>
+          <declname>linkEndType</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the velocity scaling factor for specific link end. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the velocity scaling factor for specific link end <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>linkEndType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end for which scaling factor is to be returned </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Velocity partial scaling factor at current link end </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="263" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/oneWayDopplerPartial.cpp" bodystart="249" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a5075a3ddeac4f8d5ff87865a27bece86" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>observation_models::LinkEndType</type>
+        <definition>observation_models::LinkEndType tudat::observation_partials::OneWayDopplerScaling::getCurrentLinkEndType</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentLinkEndType</name>
+        <briefdescription>
+<para>Function to get the fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" kindref="member">update()</ref> function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" kindref="member">update()</ref> function. <simplesect kind="return"><para>Function to get the fixed link end for last computation of <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" kindref="member">update()</ref> function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="270" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="270" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a0ad9f53bf56553e7c75bf819b341dc8d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::observation_partials::OneWayDopplerScaling::getLightTimeCorrectionPartialScaling</definition>
+        <argsstring>()</argsstring>
+        <name>getLightTimeCorrectionPartialScaling</name>
+        <briefdescription>
+<para>Function to return factor by which light-time correction state partial is to be scaled for one-way Doppler partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return factor by which light-time correction state partial is to be scaled to be added to one-way <simplesect kind="return"><para>Factor by which light-time correction state partial is to be scaled for one-way Doppler partial </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="280" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="280" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ae3a3d187d6d0d74d0fe4879ad41775af" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; tudat::observation_partials::OneWayDopplerScaling::getTransmitterProperTimePartials</definition>
+        <argsstring>()</argsstring>
+        <name>getTransmitterProperTimePartials</name>
+        <briefdescription>
+<para>Function to return object used to compute the contribution of transmitter proper time rate to the scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return object used to compute the contribution of transmitter proper time rate to the scaling <simplesect kind="return"><para>Object used to compute the contribution of transmitter proper time rate to the scaling </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="290" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="290" bodyend="293"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ab69ee7ff8c45f79f373f5693de4a94c9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__partials_1_1OneWayDopplerProperTimeComponentScaling" kindref="compound">OneWayDopplerProperTimeComponentScaling</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; OneWayDopplerProperTimeComponentScaling &gt; tudat::observation_partials::OneWayDopplerScaling::getReceiverProperTimePartials</definition>
+        <argsstring>()</argsstring>
+        <name>getReceiverProperTimePartials</name>
+        <briefdescription>
+<para>Function to return object used to compute the contribution of receiver proper time rate to the scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return object used to compute the contribution of receiver proper time rate to the scaling <simplesect kind="return"><para>Object used to compute the contribution of receiver proper time rate to the scaling </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="300" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="300" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aa29ba120b913a6d6477afa0a062dd1cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::observation_partials::OneWayDopplerScaling::getProperTimeParameterDependencySize</definition>
+        <argsstring>(const estimatable_parameters::EstimatebleParameterIdentifier parameterType)</argsstring>
+        <name>getProperTimeParameterDependencySize</name>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParameterIdentifier</type>
+          <declname>parameterType</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the size of the direct dependency of proper time rate on parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the size of the direct dependency (e.g. independent of state dependency) of proper time rate on parameter. Returns zero for no dependency. Requires that the transmitter/receiver have the same size of dependency, or that one of them has dependency size zero (no dependency). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter for which dependency is to be checked. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of columns in direct partial derivative of proper time rates w.r.t. parameterType </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="313" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/oneWayDopplerPartial.cpp" bodystart="269" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aadb315ac8a9cada3f2bacfac12ccd957" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, 1, Eigen::Dynamic &gt;, double &gt; &gt;</type>
+        <definition>std::vector&lt; std::pair&lt; Eigen::Matrix&lt; double, 1, Eigen::Dynamic &gt;, double &gt; &gt; tudat::observation_partials::OneWayDopplerScaling::getProperTimeParameterPartial</definition>
+        <argsstring>(const estimatable_parameters::EstimatebleParameterIdentifier parameterType)</argsstring>
+        <name>getProperTimeParameterPartial</name>
+        <param>
+          <type>const estimatable_parameters::EstimatebleParameterIdentifier</type>
+          <declname>parameterType</declname>
+        </param>
+        <briefdescription>
+<para>Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the direct partial derivatives (e.g. independent of state partials), and associated times, of proper time components of Doppler partials, w.r.t. parameter defined by parameterType. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameterType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter for which partial is to be checked </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Direct partial derivatives, and associated times, of proper time components of Doppler partials </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="323" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/orbit_determination/observation_partials/oneWayDopplerPartial.cpp" bodystart="306" bodyend="336"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Derived class for scaling three-dimensional position partial to one-way doppler observable partial. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Derived class for scaling three-dimensional position partial to one-way doppler observable partial. Implementation is taken from Moyer(2000) and is separately implemented for fixed receiver and transmitter. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_partials::OneWayDopplerScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_partials::OneWayDopplerScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_partials::PositionPartialScaling</label>
+        <link refid="classtudat_1_1observation__partials_1_1PositionPartialScaling"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" line="206" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h" bodystart="207" bodyend="358"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ac626e30e0e4f59b5dc710eabc0a05369" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>currentLinkEndType_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a5075a3ddeac4f8d5ff87865a27bece86" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getCurrentLinkEndType</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a0ad9f53bf56553e7c75bf819b341dc8d" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getLightTimeCorrectionPartialScaling</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a20cec2ebb561059b184051160408acf6" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getPositionScalingFactor</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aa29ba120b913a6d6477afa0a062dd1cf" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getProperTimeParameterDependencySize</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aadb315ac8a9cada3f2bacfac12ccd957" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getProperTimeParameterPartial</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ab69ee7ff8c45f79f373f5693de4a94c9" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getReceiverProperTimePartials</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1ae3a3d187d6d0d74d0fe4879ad41775af" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getTransmitterProperTimePartials</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a0d5da8e5746cb9dcf0bf94921ca72943" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>getVelocityScalingFactor</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1adad5d4f29045f4492a1f7dbb2b41a373" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>lightTimeEffectPositionScalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a4a6c80a41f8b91a6fc0e95c3ac581737" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>OneWayDopplerScaling</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a56b57ab25647ef0e54cd8d9a14832402" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>positionScalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a2a080ee0b77058c3be929f6a5e47b37d" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>receiverAccelerationFunction_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1af76a1d5971ba416062b668c82496bfeb" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>receiverProperTimePartials_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aef8fe956163f579e029b89954bf20c1c" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>receiverVelocityScalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a07bc17e7e957c885e105b49685843da2" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>transmitterAccelerationFunction_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1aab7bd6d78aed9d6886637aae2544ad98" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>transmitterProperTimePartials_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1af96b8c0e395f5d7544e625dc08e08bbc" prot="private" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>transmitterVelocityScalingFactor_</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a82f4cb66608317633db61e6751812b63" prot="public" virt="virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>update</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1OneWayDopplerScaling_1a100ed7fa5aa815596cff57b9e8958ac4" prot="public" virt="non-virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>~OneWayDopplerScaling</name></member>
+      <member refid="classtudat_1_1observation__partials_1_1PositionPartialScaling_1a434c37b9140a2f1c0c916ab1eb332564" prot="public" virt="virtual"><scope>tudat::observation_partials::OneWayDopplerScaling</scope><name>~PositionPartialScaling</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

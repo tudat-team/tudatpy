@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_dc637f6903e54835bc2f54d519d11e97" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics</compoundname>
+    <innerfile refid="aerodynamicAcceleration_8cpp">aerodynamicAcceleration.cpp</innerfile>
+    <innerfile refid="aerodynamicCoefficientGenerator_8cpp">aerodynamicCoefficientGenerator.cpp</innerfile>
+    <innerfile refid="aerodynamicForce_8cpp">aerodynamicForce.cpp</innerfile>
+    <innerfile refid="astro_2aerodynamics_2aerodynamics_8cpp">aerodynamics.cpp</innerfile>
+    <innerfile refid="aerodynamicTorque_8cpp">aerodynamicTorque.cpp</innerfile>
+    <innerfile refid="customConstantTemperatureAtmosphere_8cpp">customConstantTemperatureAtmosphere.cpp</innerfile>
+    <innerfile refid="equilibriumWallTemperature_8cpp">equilibriumWallTemperature.cpp</innerfile>
+    <innerfile refid="exponentialAtmosphere_8cpp">exponentialAtmosphere.cpp</innerfile>
+    <innerfile refid="flightConditions_8cpp">flightConditions.cpp</innerfile>
+    <innerfile refid="hypersonicLocalInclinationAnalysis_8cpp">hypersonicLocalInclinationAnalysis.cpp</innerfile>
+    <innerfile refid="nrlmsise00Atmosphere_8cpp">nrlmsise00Atmosphere.cpp</innerfile>
+    <innerfile refid="nrlmsise00InputFunctions_8cpp">nrlmsise00InputFunctions.cpp</innerfile>
+    <innerfile refid="tabulatedAtmosphere_8cpp">tabulatedAtmosphere.cpp</innerfile>
+    <innerfile refid="trimOrientation_8cpp">trimOrientation.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/"/>
+  </compounddef>
+</doxygen>

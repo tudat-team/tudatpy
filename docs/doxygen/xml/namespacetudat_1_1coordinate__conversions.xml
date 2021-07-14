@@ -1,0 +1,1274 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1coordinate__conversions" kind="namespace" language="C++">
+    <compoundname>tudat::coordinate_conversions</compoundname>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586" prot="public" static="no" strong="no">
+        <type></type>
+        <name>StateElementTypes</name>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586a196031f20e3a89aeba236c93bd6847bd" prot="public">
+          <name>cartesian_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586a42ace40c5a97139d9ca61aeb9af16e17" prot="public">
+          <name>keplerian_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586ad168417d7d7980a7eae4e05c13eb5789" prot="public">
+          <name>modified_equinoctial_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586a3afce2f3d6691df696c5e82726aea2da" prot="public">
+          <name>unified_state_model_quaternions_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586a20326a506d57dc61361dfb68b78e8557" prot="public">
+          <name>unified_state_model_modified_rodrigues_parameters_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1aff78ce49131008b3ee13015cc7114586ad9036d766c347a864ebe4598a3bf38f7" prot="public">
+          <name>unified_state_model_exponential_map_state</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum defining available types of position representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/stateRepresentationConversions.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/stateRepresentationConversions.h" bodystart="33" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="enum" id="stateRepresentationConversions_8h_1a4e504281e15b897419420663300c106e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>PositionElementTypes</name>
+        <enumvalue id="stateRepresentationConversions_8h_1a4e504281e15b897419420663300c106ea641f0af1ef657ae42b959ee6f988a6a3" prot="public">
+          <name>cartesian_position</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1a4e504281e15b897419420663300c106ea5f31201b9463b4bbd079378db4181828" prot="public">
+          <name>spherical_position</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stateRepresentationConversions_8h_1a4e504281e15b897419420663300c106ea747df972a51b4f58fd49792836e75a50" prot="public">
+          <name>geodetic_position</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Enum defining available types of position representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/stateRepresentationConversions.h" line="43" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/stateRepresentationConversions.h" bodystart="44" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="enum" id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SphericalCoordinateIndices</name>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840ca7074a15eee73e60af3b82279fde8d9b0" prot="public">
+          <name>radiusSphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840cab2c0704d1a58f152cb64a694f3a68eac" prot="public">
+          <name>azimuthSphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840ca4ea66f82a71fd66d95c2d77e4e20590d" prot="public">
+          <name>elevationSphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840ca4595d181bc65b1d236332e266b7a9c2e" prot="public">
+          <name>radialVelocitySphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840ca57de322cd1fc1a215f38b1efa7ce00a0" prot="public">
+          <name>azimuthVelocitySphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1abb6d2084cdf9790a922a6db2e8b5840ca7f7603fe6b2f1ae6bb690a291a882331" prot="public">
+          <name>elevationVelocitySphericalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Spherical coordinate indices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Spherical coordinate indices, for position and velocity components. With r the radius, theta the azimuthal angle, phi the elevational angle. Vr, Vtheta, Vphi are the velocities along the corresponding base vectors of r, theta, phi. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" line="121" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" bodystart="122" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="enum" id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50ee" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CylindricalCoordinateIndices</name>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eea7d2bfec7fb93d117387abf3a7b23998c" prot="public">
+          <name>rCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eea3eb72df42b4c40a607835437481443b3" prot="public">
+          <name>thetaCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eea00c10bd07d1c40247ab6c8478c3972e1" prot="public">
+          <name>zCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eea5deb8fbd197d973ffcc46cb42b03853b" prot="public">
+          <name>rDotCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eeada801aade4f6b827507509529a5af6ac" prot="public">
+          <name>vThetaCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1af7fa82bea6358f0d3e26482aa11a50eeaba4feec5b2ef495fcf10efd77a0b8c15" prot="public">
+          <name>zDotCylindricalCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Cylindrical coordinate indices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cylindrical coordinate vector indices, for position and velocity components. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" line="135" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" bodystart="136" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="enum" id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88ea" prot="public" static="no" strong="no">
+        <type></type>
+        <name>CartesianCoordinateIndices</name>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaab772b62b1d6d4f8975883bafa8512f0b" prot="public">
+          <name>xCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaab21d79431b6645ae5491b9bea1660fc9" prot="public">
+          <name>yCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaaf51c9c83a5b2d22739edae60c4cd011f" prot="public">
+          <name>zCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaa49dd89be31f1a72935f2499dcb6c3866" prot="public">
+          <name>xDotCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaa819a1ec07aacfd6aa910bea30262e537" prot="public">
+          <name>yDotCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="coordinateConversions_8h_1ae79813c5dfc8119739a637cabd5f88eaae89d0b57911de2749977df4c1647d89c" prot="public">
+          <name>zDotCartesianCoordinateIndex</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Cartesian coordinate indices. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian coordinate vector indices, for position and velocity components. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" line="149" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" bodystart="150" bodyend="157"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a04c0028e09b2dbefab4d99d6441075b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::coordinate_conversions::calculateEllipticity</definition>
+        <argsstring>(const double flattening)</argsstring>
+        <name>calculateEllipticity</name>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the ellipticity of an ellipsoid. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the ellipticity of an ellipsoid from its flattening. From Montenbruck &amp; Gill (2000). Note: The ellipticity is not to be confused with the eccentricity. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of the ellipsoid. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ellipticity of the ellipsoid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="29" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="29" bodyend="33" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="35" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a72424718a5041d49cd42aa7c16a031df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; double, double &gt;</type>
+        <definition>std::pair&lt; double, double &gt; tudat::coordinate_conversions::calculateGeodeticCoordinatesAuxiliaryQuantities</definition>
+        <argsstring>(const Eigen::Vector3d cartesianPosition, const double equatorialRadius, const double ellipticity, const double tolerance)</argsstring>
+        <name>calculateGeodeticCoordinatesAuxiliaryQuantities</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ellipticity</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+        </param>
+        <briefdescription>
+<para>Calculate auxiliary quantities for geodetic coordinate conversions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates auxiliary quantities for geodetic coordinate conversions. (Montenbruck &amp; Gill, 2010, Fig 5.12). The auxiliary quantities are determined by creating a line through the cartesianPosition, perpendicular to the surface and finding its intercept with the z-axis. The distance between the body surface and the z-axis intercept is the first auxiliary quantity, the offset in z-direction of the intersect point from the origin is the second auxiliary variable. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where altitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ellipticity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ellipticity of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Auxiliary parameters for geodetic coordinate conversions. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="36" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="36" bodyend="79" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="53" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1af815bd9c14e04060c3764727c05aaac3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertGeodeticToCartesianCoordinates</definition>
+        <argsstring>(const Eigen::Vector3d geodeticCoordinates, const double equatorialRadius, const double flattening)</argsstring>
+        <name>convertGeodeticToCartesianCoordinates</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>geodeticCoordinates</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the Cartesian position from geodetic coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the Cartesian position from geodetic coordinates (altitude, geodetic latitude, longitude). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>geodeticCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Geodetic coordinates w.r.t. given body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cartesian position in body-fixed frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="82" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="82" bodyend="102" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="68" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a44f38aa4b22448117e939078e706b910" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::coordinate_conversions::calculateAltitudeOverOblateSpheroid</definition>
+        <argsstring>(const Eigen::Vector3d cartesianPosition, const double zInterceptOffset, const double interceptToSurfaceDistance)</argsstring>
+        <name>calculateAltitudeOverOblateSpheroid</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>zInterceptOffset</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>interceptToSurfaceDistance</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the altitude over an oblate spheroid of a position vector from auxiliary variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the altitude over an oblate spheroid of a position vector. This function gets the auxiliary variables(see calculateGeodeticCoordinatesAuxiliaryQuantities) as input. These values are determined by drawing the line L from cartesianPosition perpendicular to the ellipsoid and calculating the intercept with the z-axis. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where altitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>zInterceptOffset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Offset of intercept of line L with z-axis from origin in z-direction. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interceptToSurfaceDistance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from intercept of line L with z-axis to body surface </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Altitude above specified oblate spheroid at requested point. </para>
+</simplesect>
+<simplesect kind="see"><para>calculateGeodeticCoordinatesAuxiliaryQuantities </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="105" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="105" bodyend="114" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="85" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a7f88a6844607e524898562ad291c387f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::coordinate_conversions::calculateAltitudeOverOblateSpheroid</definition>
+        <argsstring>(const Eigen::Vector3d cartesianPosition, const double equatorialRadius, const double flattening, const double tolerance)</argsstring>
+        <name>calculateAltitudeOverOblateSpheroid</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the altitude over an oblate spheroid of a position vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the altitude over an oblate spheroid of a position vector. The algorithm that is used is iterative, so that it requires a tolerance (in m) for the difference of associated geodetic position between two iterations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where altitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Altitude above specified oblate spheroid at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="117" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="117" bodyend="130" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="102" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a249c89ce611c8e0dc1ad8bb5838f714d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::coordinate_conversions::calculateGeodeticLatitude</definition>
+        <argsstring>(const Eigen::Vector3d cartesianPosition, const double zInterceptOffset)</argsstring>
+        <name>calculateGeodeticLatitude</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>zInterceptOffset</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the geodetic latitude from Cartesian position and offset of z-intercept. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the geodetic latitude from Cartesian position and offset of z-intercept. This intercept is determined by drawing the line from cartesianPosition perpendicular to the ellipsoid and calculating the offset from the origin where it intercepts the z-axis. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where geodetic latitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>zInterceptOffset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Offset from origin of intersection with z-axis of line perpendicular to surface from cartesianPosition. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodetic latitude above specified oblate spheroid at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="133" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="133" bodyend="141" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="118" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1a446328e5d9a106fcb9613dcda29a8789" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::coordinate_conversions::calculateGeodeticLatitude</definition>
+        <argsstring>(const Eigen::Vector3d cartesianPosition, const double equatorialRadius, const double flattening, const double tolerance)</argsstring>
+        <name>calculateGeodeticLatitude</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the geodetic latitude of a position vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates the geodetic latitude of a position vector on an oblate spheroid. The algorithm that is used is iterative, so that it requires a tolerance (in m) for the difference of associated geodetic position between two iterations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where geodetic latitude is to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodetic latitude above specified oblate spheroid at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="144" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="144" bodyend="157" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="134" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="geodeticCoordinateConversions_8h_1acf167dfb5de2f5d2caf5bd159630ff08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertCartesianToGeodeticCoordinates</definition>
+        <argsstring>(const Eigen::Vector3d cartesianCoordinates, const double equatorialRadius, const double flattening, const double tolerance)</argsstring>
+        <name>convertCartesianToGeodeticCoordinates</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>flattening</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+        </param>
+        <briefdescription>
+<para>Calculate geodetic coordinates (altitude, geodetic latitude, longitude) of a position vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate geodetic coordinates ( altitude, geodetic latitude, longitude ) of a position vector.</para>
+<para>Calculates the geodetic coordinates (altitude, geodetic latitude, longitude) of a position vector. The algorithm that is used is iterative, so that it requires a tolerance (in m) for the difference of associated geodetic position between two iterations. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position in body-fixed frame where geodetic coordinates are to be determined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flattening</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flattening of oblate spheroid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Convergence criterion for iterative algorithm that is employed. Represents the required change of position (in m) between two iterations. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Geodetic coordinates at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" line="160" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/geodeticCoordinateConversions.cpp" bodystart="160" bodyend="189" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" declline="152" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="stateRepresentationConversions_8h_1a7870c9422ca92a7f8f6fe226ade8962e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertPositionElements</definition>
+        <argsstring>(const Eigen::Vector3d &amp;originalElements, const PositionElementTypes originalElementTypes, const PositionElementTypes convertedElementTypes, const std::shared_ptr&lt; basic_astrodynamics::BodyShapeModel &gt; shapeModel=nullptr, const double tolerance=1.0E-4)</argsstring>
+        <name>convertPositionElements</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>originalElements</declname>
+        </param>
+        <param>
+          <type>const PositionElementTypes</type>
+          <declname>originalElementTypes</declname>
+        </param>
+        <param>
+          <type>const PositionElementTypes</type>
+          <declname>convertedElementTypes</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1basic__astrodynamics_1_1BodyShapeModel" kindref="compound">basic_astrodynamics::BodyShapeModel</ref> &gt;</type>
+          <declname>shapeModel</declname>
+          <defval>nullptr</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>tolerance</declname>
+          <defval>1.0E-4</defval>
+        </param>
+        <briefdescription>
+<para>Function to convert a position from one representation to another. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert a position from one representation to another <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalElements</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position in element type given by originalElementTypes </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>originalElementTypes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Element type used for input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>convertedElementTypes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Element type to which originalElements is to be converted. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shapeModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shape model associated with position (only required for specific element types, e.g. geodetic) default nullptr. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tolerance used for conversion (only required for specific element types, e.g. geodetic), default 0.1 mm. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Position in requested element type. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/stateRepresentationConversions.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/basic_astro/stateRepresentationConversions.cpp" bodystart="23" bodyend="153" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/stateRepresentationConversions.h" declline="61" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a1cb5f8b82ba585939c5f70f7e6bb1ecd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename StateScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; StateScalarType, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; StateScalarType, 3, 1 &gt; tudat::coordinate_conversions::convertSphericalToCartesian</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, 3, 1 &gt; &amp;sphericalCoordinates)</argsstring>
+        <name>convertSphericalToCartesian</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, 3, 1 &gt; &amp;</type>
+          <declname>sphericalCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Convert spherical (radius, zenith, azimuth) to Cartesian (x,y,z) coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts spherical to cartesian coordinates. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/SphericalCoordinates.html">http://mathworld.wolfram.com/SphericalCoordinates.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius, <formula id="65">$ \theta $</formula> the azimuth angle and <formula id="84">$ \phi $</formula> the zenith angle: <formula id="105">\begin{eqnarray*} x &amp;=&amp; r\cos\theta\sin\phi \\ y &amp;=&amp; r\sin\theta\sin\phi \\ z &amp;=&amp; r\cos\phi \\ \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing radius, zenith and azimuth (in that order). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector containing Cartesian coordinates, as calculated from sphericalCoordinates. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" line="50" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" bodystart="50" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a8ebbda12f726ee9964d2c0e82f7b06b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Matrix&lt; ScalarType, 3, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ScalarType, 3, 1 &gt; tudat::coordinate_conversions::convertCartesianToSpherical</definition>
+        <argsstring>(const Eigen::Matrix&lt; ScalarType, 3, 1 &gt; &amp;cartesianCoordinates)</argsstring>
+        <name>convertCartesianToSpherical</name>
+        <param>
+          <type>const Eigen::Matrix&lt; ScalarType, 3, 1 &gt; &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Convert Cartesian (x,y,z) to spherical (radius, zenith, azimuth) coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts Cartesian to spherical coordinates. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/SphericalCoordinates.html">http://mathworld.wolfram.com/SphericalCoordinates.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius, <formula id="65">$ \theta $</formula> the azimuth angle and <formula id="84">$ \phi $</formula> the zenith angle: <formula id="106">\begin{eqnarray*} r &amp;=&amp; \sqrt{ x^{ 2 } + y^{ 2 } + z^{ 2 } } \\ \theta &amp;=&amp; \arctan\frac{ y }{ x } \\ \phi &amp;=&amp; \arccos\frac{ z }{ r } \\ \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing Cartesian coordinates. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector containing sphericalCoordinates radius, zenith and azimuth (in that order), as calculated from sphericalCoordinates. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" line="88" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" bodystart="88" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1af4f6a63fbfb9f2b90af9d48d9e56339e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertCylindricalToCartesian</definition>
+        <argsstring>(const double radius, const double azimuthAngle, const double z)</argsstring>
+        <name>convertCylindricalToCartesian</name>
+        <param>
+          <type>const double</type>
+          <declname>radius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>azimuthAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Convert cylindrical to Cartesian coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts cylindrical to Cartesian coordinates. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/CylindricalCoordinates.html">http://mathworld.wolfram.com/CylindricalCoordinates.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius and <formula id="65">$ \theta $</formula> the azimuth angle [rad]: <formula id="107">\begin{eqnarray*} x &amp;=&amp; r\cos \theta \\ y &amp;=&amp; r\sin \theta \\ z &amp;=&amp; z \\ \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cylindrical radial coordinate r. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>azimuthAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cylindrical azimuthal coordinate <formula id="65">$ \theta $</formula> [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cylindrical height coordinate z. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of Cartesian coordinates [x,y,z]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="36" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="36" bodyend="54" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="175" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a8806b6ecf13d70823b93a086c3be92e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertCylindricalToCartesian</definition>
+        <argsstring>(const Eigen::Vector3d &amp;cylindricalCoordinates)</argsstring>
+        <name>convertCylindricalToCartesian</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cylindricalCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Convert cylindrical to cartesian coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts cylindrical to cartesian coordinates. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/CylindricalCoordinates.html">http://mathworld.wolfram.com/CylindricalCoordinates.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius and <formula id="65">$ \theta $</formula> the azimuth angle [rad]: <formula id="107">\begin{eqnarray*} x &amp;=&amp; r\cos \theta \\ y &amp;=&amp; r\sin \theta \\ z &amp;=&amp; z \\ \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cylindricalCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of cylindrical coordinates [r,theta,z]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of Cartesian coordinates [x,y,z]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="57" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="57" bodyend="77" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="192" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1ad7981d0d2432051871fc32faea2b5c98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::coordinate_conversions::convertCylindricalToCartesianState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;cylindricalState)</argsstring>
+        <name>convertCylindricalToCartesianState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>cylindricalState</declname>
+        </param>
+        <briefdescription>
+<para>Convert cylindrical to Cartesian state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts cylindrical to Cartesian state. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/CylindricalCoordinates.html">http://mathworld.wolfram.com/CylindricalCoordinates.html</ulink> and <ulink url="http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html">http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius and <formula id="65">$ \theta $</formula> the azimuth angle [rad]: <formula id="108">\begin{eqnarray*} x &amp;=&amp; r\cos \theta \\ y &amp;=&amp; r\sin \theta \\ z &amp;=&amp; z \\ \dot{x} &amp;=&amp; V_r\cos{\theta} - V_{\theta}\sin{theta} \\ \dot{y} &amp;=&amp; V_r\sin{\theta} + V_{\theta}\cos{theta} \\ \dot{z} &amp;=&amp; V_z \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cylindricalState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of Cartesian state [x,y,z,xdot,ydot,zdot]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="80" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="80" bodyend="118" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="213" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a59382fb61e05acb0988cf99e02990839" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertCartesianToCylindrical</definition>
+        <argsstring>(const Eigen::Vector3d &amp;cartesianCoordinates)</argsstring>
+        <name>convertCartesianToCylindrical</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Convert Cartesian to cylindrical coordinates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts Cartesian to cylindrical coordinates. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/CylindricalCoordinates.html">http://mathworld.wolfram.com/CylindricalCoordinates.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius and <formula id="65">$ \theta $</formula> the azimuth angle [rad] [0,2 <formula id="109">$ \pi $</formula>]: <formula id="110">\begin{eqnarray*} r &amp;=&amp; \sqrt{x^2+y^2} \\ \theta &amp;=&amp; \arctan{\frac{y}{x}} \\ z &amp;=&amp; z \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of Cartesian coordinates [x,y,z]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of cylindrical coordinates [r,theta,z]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="121" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="121" bodyend="156" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="230" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a7808dee47f1bb62b963b7c48105fd9ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::coordinate_conversions::convertCartesianToCylindricalState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;cartesianState)</argsstring>
+        <name>convertCartesianToCylindricalState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>cartesianState</declname>
+        </param>
+        <briefdescription>
+<para>Convert Cartesian to cylindrical state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts Cartesian to cylindrical state. Schematic representation can be found on, e.g., <ulink url="http://mathworld.wolfram.com/CylindricalCoordinates.html">http://mathworld.wolfram.com/CylindricalCoordinates.html</ulink> and <ulink url="http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html">http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html</ulink>. The transformation equations are the following, with <formula id="67">$ r $</formula> the radius, <formula id="65">$ \theta $</formula> the azimuth angle [rad] [0,2 <formula id="111">$\pi$</formula>] and <formula id="112">$ V_r $</formula>, <formula id="113">$ V_{\theta} $</formula> and <formula id="114">$ V_z $</formula> the linear cylindrical velocities: <formula id="115">\begin{eqnarray*} r &amp;=&amp; \sqrt{x^2+y^2} \\ \theta &amp;=&amp; \arctan{\frac{y}{x}} \\ z &amp;=&amp; z \\ V_r = \dot{r} &amp;=&amp; \frac{x\dot{x}+y\dot{y}}{\sqrt{x^2+y^2}} \\ V_{\theta} = r\dot{\theta} &amp;=&amp; \frac{x\dot{y}-y\dot{x}}{\sqrt{x^2+y^2}} \\ V_z = \dot{z} \end{eqnarray*}</formula> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of Cartesian state [x,y,z,xdot,ydot,zdot]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="159" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="159" bodyend="192" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="251" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a94662f4fc9f695ac06bb30bf6f261074" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::coordinate_conversions::getSphericalToCartesianGradientMatrix</definition>
+        <argsstring>(const Eigen::Vector3d &amp;cartesianCoordinates)</argsstring>
+        <name>getSphericalToCartesianGradientMatrix</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with Cartesian position at which gradient is computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="195" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="195" bodyend="222" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="260" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1af82d139463ffbe918e976dc8c57c62e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::coordinate_conversions::convertSphericalToCartesianGradient</definition>
+        <argsstring>(const Eigen::Vector3d &amp;sphericalGradient, const Eigen::Vector3d &amp;cartesianCoordinates)</argsstring>
+        <name>convertSphericalToCartesianGradient</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sphericalGradient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <briefdescription>
+<para>Convert spherical to Cartesian gradient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function converts a gradient vector with respect to spherical coordinates to a gradient vector with respect to Cartesian coordinates. The partial derivatives are calculated according to Vallado [2001] as: <formula id="116">\begin{eqnarray*} \frac{ \partial U }{ \partial x } &amp; = &amp; \frac{ x }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r } - \frac{ x z }{ ( x^2 + y^2 +z^2 ) \sqrt{ x^2 + y^2 } } \frac{ \partial U }{ \partial \phi } - \frac{ y }{ x^2 + y^2 } \frac{ \partial U }{ \partial \lambda } \\ \frac{ \partial U }{ \partial y } &amp; = &amp; \frac{ y }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r } - \frac{ y z }{ ( x^2 + y^2 +z^2 ) \sqrt{ x^2 + y^2 } } \frac{ \partial U }{ \partial \phi } + \frac{ x }{ x^2 + y^2 } \frac{ \partial U }{ \partial \lambda } \\ \frac{ \partial U }{ \partial z } &amp; = &amp; \frac{ z }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r } + \frac{ \sqrt{ x^2 + y^2 } } { x^2 + y^2 +z^2 } \frac{ \partial U }{ \partial \phi } \end{eqnarray*}</formula> in which <formula id="82">$ x $</formula>, <formula id="117">$ y $</formula> and <formula id="118">$ z $</formula> are the Cartesian coordinates. <formula id="119">$ U $</formula> is an arbitrary scalar. Radius <formula id="67">$ r $</formula> is the length of the position vector. Elevation <formula id="84">$ \phi $</formula> is the the angle between the position vector and the XY-plane (with the positive direction towards the Z-axis). Azimuth <formula id="120">$ \lambda $</formula> is the dihedral angle about the Z-axis between the X-axis and the position vector (with the positive direction being right-handed about the Z-axis). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalGradient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with partial derivatives with respect to spherical coordinates. The order is important! sphericalGradient( 0 ) = partial derivative with respect to radius, sphericalGradient( 1 ) = partial derivative with respect to elevation, sphericalGradient( 2 ) = partial derivative with respect to azimuth. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector with Cartesian coordinates. The order is important! cartesianCoordinates( 0 ) = x coordinate, cartesianCoordinates( 1 ) = y coordinate, cartesianCoordinates( 2 ) = z coordinate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector with partial derivatives with respect to Cartesian coordinates. The order is important! cartesianGradient( 0 ) = partial derivative with respect to x coordinate, cartesianGradient( 1 ) = partial derivative with respect to y coordinate, cartesianGradient( 2 ) = partial derivative with respect to z coordinate. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="225" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="225" bodyend="232" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="301" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a5660622c38e6f9b5de8d37b54fa7fb5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::coordinate_conversions::getDerivativeOfSphericalToCartesianGradient</definition>
+        <argsstring>(const Eigen::Vector3d &amp;sphericalGradient, const Eigen::Vector3d &amp;cartesianCoordinates, std::vector&lt; Eigen::Matrix3d &gt; &amp;subMatrices)</argsstring>
+        <name>getDerivativeOfSphericalToCartesianGradient</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sphericalGradient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix3d &gt; &amp;</type>
+          <declname>subMatrices</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of the Cartesian gradient w.r.t. the Cartesian position, keeping the spherical gradient constant.</para>
+<para>Function to compute the derivative of the Cartesian gradient w.r.t. the Cartesian position, keeping the spherical gradient constant. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalGradient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of spherical gradient (derivatives w.r.t. radius, latitude and longitude). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position at whichr result is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subMatrices</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Subcomputations performed by this function: derivatives of results of getSphericalToCartesianGradientMatrix, w.r.t. x, y and z component of cartesianCoordinates, respectively. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Require derivative of cartesian gradient. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="234" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="234" bodyend="328" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="315" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a993ccb0d6440d40ddd73f38c71ef799e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::coordinate_conversions::getDerivativeOfSphericalToCartesianGradient</definition>
+        <argsstring>(const Eigen::Vector3d &amp;sphericalGradient, const Eigen::Vector3d &amp;cartesianCoordinates)</argsstring>
+        <name>getDerivativeOfSphericalToCartesianGradient</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>sphericalGradient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>cartesianCoordinates</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of the Cartesian gradient w.r.t. the Cartesian position, keeping the spherical gradient constant.</para>
+<para>Function to compute the derivative of the Cartesian gradient w.r.t. the Cartesian position, keeping the spherical gradient constant. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalGradient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of spherical gradient (derivatives w.r.t. radius, latitude and longitude). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cartesianCoordinates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position at whichr result is to be computed.. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Require derivative of cartesian gradient. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="330" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="330" bodyend="336" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="328" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a1064d23e1fe0993b63d635d2f18fe273" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::coordinate_conversions::convertSphericalToCartesianState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;sphericalState)</argsstring>
+        <name>convertSphericalToCartesianState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>sphericalState</declname>
+        </param>
+        <briefdescription>
+<para>Convert spherical to Cartesian state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts a spherical state to a Cartesian state. The transformation matrices are computed according to Torok [2000, pp.10-11].</para>
+<para>NOTE: This function is implemented separately from the other conversions due to a different definition of the elevation/zenith angle. This should be consolidated in a future update.</para>
+<para>The transformation equations are the following, with <formula id="67">$ r $</formula> the radius (positive from origin to the point in orbit, in meters), <formula id="65">$ \theta $</formula> the azimuth angle (positive from the x-axis to the y-axis, in radians) and <formula id="84">$ \phi $</formula> the elevation angle (positive from the xy-plane to the z-axis, in radians): <formula id="121">\begin{eqnarray*} x &amp;=&amp; r * \cos \phi * \cos \theta\\ y &amp;=&amp; r * \cos \phi * \sin \theta\\ z &amp;=&amp; r * \sin \phi\\ CartesianVelocities = T_{cyl2cart}*T_{sph2cyl}*SphericalVelocities \end{eqnarray*}</formula> with <formula id="122">\begin{eqnarray*} T_{sph2cyl} = [ \cos\phi , 0.0 , -\sin \phi ; 0.0 , 1.0 , 0.0 ; \sin\phi , 0.0 , \cos\phi ]\\ T_{cyl2cart} = [ \cos\theta , -\sin\theta , 0.0 ; \sin\theta , \cos\theta , 0.0 ; 0.0 , 0.0 , 1.0 ]\\ \end{eqnarray*}</formula></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the spherical coordinates and spherical velocities. The order is important! sphericalState( 0 ) = radius r [m], sphericalState( 1 ) = azimuth theta [rad], sphericalState( 2 ) = elevation phi [rad], sphericalState( 3 ) = radial velocity Vr [m/s], sphericalState( 4 ) = azimuthal velocity Vtheta [m/s], sphericalState( 5 ) = elevational velocity Vphi [m/s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector containing the Cartesian state (both position and velocity, in that order). cartesianState( 0 ) = x [m], cartesianState( 1 ) = y [m], cartesianState( 2 ) = z [m], cartesianState( 3 ) = Vx [m/s], cartesianState( 4 ) = Vy [m/s], cartesianState( 5 ) = Vz [m/s].</para>
+</simplesect>
+Take care: here the elevation is used, not the zenith angle! </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="339" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="339" bodyend="388" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="377" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="coordinateConversions_8h_1a81b96aea9a80ae28341e8aef0238a65c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::coordinate_conversions::convertCartesianToSphericalState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;cartesianState)</argsstring>
+        <name>convertCartesianToSphericalState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>cartesianState</declname>
+        </param>
+        <briefdescription>
+<para>Convert Cartesian to spherical state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts a Cartesian state to a spherical state. The transformation matrices are computed according to Torok [2000, pp.10-11].</para>
+<para>NOTE: This function is implemented separately from the other conversions due to a different definition of the elevation/zenith angle. This should be consolidated in a future update.</para>
+<para>The transformation equations are the following, with <formula id="67">$ r $</formula> the radius (positive from origin to the point in orbit), <formula id="65">$ \theta $</formula> the azimuth angle (positive from the x-axis to the y-axis) and <formula id="84">$ \phi $</formula> the elevation angle (positive from the xy-plane to the z-axis): <formula id="123">\begin{eqnarray*} r &amp;=&amp; \sqrt{ x^{ 2 } + y^{ 2 } + z^{ 2 } } \\ \phi &amp;=&amp; \arcsin\frac{ z }{ r } \\ \theta &amp;=&amp; \arctan\frac{ y }{ x } \\ SphericalVelocities = T_{cyl2sph}*T_{cart2cyl}*CartesianVelocities \end{eqnarray*}</formula> with <formula id="124">\begin{eqnarray*} T_{cyl2sph} = [ \cos\phi , 0.0 , \sin \phi ; 0.0 , 1.0 , 0.0 ; -\sin\phi , 0.0 , \cos\phi ]\\ T_{cart2cyl} = [ \cos\theta , \sin\theta , 0.0 ; -\sin\theta , \cos\theta , 0.0 ; 0.0 , 0.0 , 1.0 ]\\ \end{eqnarray*}</formula></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the Cartesian coordinates and Cartesian velocities. The order is important! cartesianState( 0 ) = x [m], cartesianState( 1 ) = y [m], cartesianState( 2 ) = z [m], cartesianState( 3 ) = Vx [m/s], cartesianState( 4 ) = Vy [m/s], cartesianState( 5 ) = Vz [m/s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector containing the spherical state (both position and velocity, in that order). The order is important! sphericalState( 0 ) = radius r [m], sphericalState( 1 ) = azimuth theta [rad], sphericalState( 2 ) = elevation phi [rad], sphericalState( 3 ) = radial velocity Vr [m/s], sphericalState( 4 ) = azimuthal velocity Vtheta [m/s], sphericalState( 5 ) = elevational velocity Vphi [m/s].</para>
+</simplesect>
+Take care: here the elevation is used, not the zenith! </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" line="391" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/coordinateConversions.cpp" bodystart="391" bodyend="449" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/coordinateConversions.h" declline="426" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/geodeticCoordinateConversions.h" line="25" column="1"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,614 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity" kind="class" language="C++" prot="public">
+    <compoundname>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</compoundname>
+    <basecompoundref refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg" prot="public" virt="non-virtual">tudat::transfer_trajectories::DepartureLeg</basecompoundref>
+    <includes refid="departureLegMga1DsmVelocity_8h" local="no">departureLegMga1DsmVelocity.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ad72d90dbb80cc504317066bcec9aa74c" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::dsmTimeOfFlightFraction_</definition>
+        <argsstring></argsstring>
+        <name>dsmTimeOfFlightFraction_</name>
+        <briefdescription>
+<para>The fraction of the time of flight of the DSM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The fraction of the time of flight of the corresponding leg at which the DSM is performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="147" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a2a4efc67fb757f05d7cd3674ad3b751e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::excessVelocityMagnitude_</definition>
+        <argsstring></argsstring>
+        <name>excessVelocityMagnitude_</name>
+        <briefdescription>
+<para>The excess velocity magnitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The magnitude of the relative velocity of the spacecraft leaving the departure planet with the departure planet. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="154" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ab95b291c22f89d194406e7666a7b2e69" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::excessVelocityInPlaneAngle_</definition>
+        <argsstring></argsstring>
+        <name>excessVelocityInPlaneAngle_</name>
+        <briefdescription>
+<para>The excess velocity in plane angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The rotation angle of the excess velocity in the xy-plane of the central reference frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="160" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ab906e75e885b52b90e6e109dc4f46320" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::excessVelocityOutOfPlaneAngle_</definition>
+        <argsstring></argsstring>
+        <name>excessVelocityOutOfPlaneAngle_</name>
+        <briefdescription>
+<para>The excess velocity out of plane angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The rotation angle of the excess velocity in the z-direction of the central reference frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="166" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a46bc75a99bff99a18c756e20a5c1e927" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::dsmLocation_</definition>
+        <argsstring></argsstring>
+        <name>dsmLocation_</name>
+        <briefdescription>
+<para>The DSM location. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The position at which the deep space maneuver is performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="172" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ae4981a7c38fa4aaad3d7810c010e8a1f" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::dsmTime_</definition>
+        <argsstring></argsstring>
+        <name>dsmTime_</name>
+        <briefdescription>
+<para>The DSM time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The time at which the deep space maneuver is performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="178" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a20fc6dbea6fa8200b3ab8066aaf7f578" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::velocityBeforeDsm_</definition>
+        <argsstring></argsstring>
+        <name>velocityBeforeDsm_</name>
+        <briefdescription>
+<para>The velocity before the DSM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The velocity of the spacecraft just before the deep space maneuver is performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="184" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a029253e6d789ab8096edc49f86fc1321" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::velocityAfterDsm_</definition>
+        <argsstring></argsstring>
+        <name>velocityAfterDsm_</name>
+        <briefdescription>
+<para>The velocity after the DSM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The velocity of the spacecraft just after the deep space maneuver is performed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="190" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ada2f488bced68858950850c7fb7accc2" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::deltaVDsm_</definition>
+        <argsstring></argsstring>
+        <name>deltaVDsm_</name>
+        <briefdescription>
+<para>The deltaV of the DSM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The deltaV of the deep Space Maneuver. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="196" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a8842b3b5034e76f65cab46e59eedf612" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::DepartureLegMga1DsmVelocity</definition>
+        <argsstring>(const Eigen::Vector3d &amp;departureBodyPosition, const Eigen::Vector3d &amp;arrivalBodyPosition, const double timeOfFlight, const Eigen::Vector3d &amp;departureBodyVelocity, const double centralBodyGravitationalParameter, const double departureBodyGravitationalParameter, const double semiMajorAxis, const double eccentricity, const double dsmTimeOfFlightFraction, const double excessVelocityMagnitude, const double excessVelocityInPlaneAngle, const double excessVelocityOutOfPlaneAngle, const bool includeDepartureDeltaV=true)</argsstring>
+        <name>DepartureLegMga1DsmVelocity</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyPosition</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>arrivalBodyPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>departureBodyVelocity</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>departureBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>semiMajorAxis</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>eccentricity</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>dsmTimeOfFlightFraction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>excessVelocityMagnitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>excessVelocityInPlaneAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>excessVelocityOutOfPlaneAngle</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>includeDepartureDeltaV</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, sets objects and functions from which relevant environment and state variables are retrieved. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>departureBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>location of the departure body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arrivalBodyPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>position of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeOfFlight</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the leg. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>departureBodyVelocity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>velocity of the departure body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>gravitational parameter of the cebtral body (most cases the Sun). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>departureBodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>gravitational parameter of the departure body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>semiMajorAxis</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>semi-major axis of the orbit after the capture is performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eccentricity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>eccentricity of the orbit after the capture is performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dsmTimeOfFlightFraction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the fraction of the TOF at which the DSM is performed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>excessVelocityMagnitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the magnitude of the hyperbolic excess velocity of the DSM. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>excessVelocityInPlaneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the in plane angle of the hyperbolic excess velocity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>excessVelocityOutOfPlaneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the out of plane angle of the hyperbolic excess velocity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>includeDepartureDeltaV</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether to include the Delta V of departure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="64" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="64" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a8daf0b67d6e0a86bd3d91354f294179a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::calculateLeg</definition>
+        <argsstring>(Eigen::Vector3d &amp;velocityBeforeArrivalBody, double &amp;deltaV)</argsstring>
+        <name>calculateLeg</name>
+        <reimplements refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a0bdf10878e59021546b758fdb0a9d24b">calculateLeg</reimplements>
+        <param>
+          <type>Eigen::Vector3d &amp;</type>
+          <declname>velocityBeforeArrivalBody</declname>
+        </param>
+        <param>
+          <type>double &amp;</type>
+          <declname>deltaV</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate the leg and update the Delta V and the velocity before the next body.</para>
+<para>Performs all calculations required for this leg. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>velocityBeforeArrivalBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the velocity of the spacecraft before it arrives at the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deltaV</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the delta V required to perform the leg. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="99" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/departureLegMga1DsmVelocity.cpp" bodystart="20" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1af63a51a37280eb2065343d3c6ff5e454" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::intermediatePoints</definition>
+        <argsstring>(const double maximumTimeStep, std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, const double startingTime=0.)</argsstring>
+        <name>intermediatePoints</name>
+        <reimplements refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a7f1c4013cb7deb3fdef99a906cf92c58">intermediatePoints</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>maximumTimeStep</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingTime</declname>
+          <defval>0.</defval>
+        </param>
+        <briefdescription>
+<para>Calculate intermediate positions and their corresponding times. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculates intermediate positions and their corresponding times in the leg, based on a maximum time between two points. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the maximum time between two points along the trajectory. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of positions along the orbit, space according to the maximum time step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the initial time from which the intermediate points are given. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="111" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/departureLegMga1DsmVelocity.cpp" bodystart="92" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a6e8ae0721bd205a4ded9df60077c43af" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::maneuvers</definition>
+        <argsstring>(std::vector&lt; Eigen::Vector3d &gt; &amp;positionVector, std::vector&lt; double &gt; &amp;timeVector, std::vector&lt; double &gt; &amp;deltaVVector, const double startingTime=0.)</argsstring>
+        <name>maneuvers</name>
+        <reimplements refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aa7775ea89421bce689fb774837e4cf38">maneuvers</reimplements>
+        <param>
+          <type>std::vector&lt; Eigen::Vector3d &gt; &amp;</type>
+          <declname>positionVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>timeVector</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>deltaVVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>startingTime</declname>
+          <defval>0.</defval>
+        </param>
+        <briefdescription>
+<para>Return maneuvres along the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maneuver points, times and sizes along the trajectory. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of the positions of the maneuvers. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The times corresponding to the positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deltaVVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the delta V required for each maneuver. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>startingTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the initial time from which the maneuvers are given. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="124" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/departureLegMga1DsmVelocity.cpp" bodystart="139" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a04cd2c06dddad5a9ed5b076615b10385" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::transfer_trajectories::DepartureLegMga1DsmVelocity::updateDefiningVariables</definition>
+        <argsstring>(const Eigen::VectorXd &amp;variableVector)</argsstring>
+        <name>updateDefiningVariables</name>
+        <reimplements refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aa507d6e5b1d3107e80d3af25c7c67cf4">updateDefiningVariables</reimplements>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>variableVector</declname>
+        </param>
+        <briefdescription>
+<para>Update the defining variables. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the trajectory defining variables to the newly specified values. Required for re-using the class, without re-initializing it. For this leg: time of flight, DSM time of flight fraction, excess velocity magnitude, excess velocity in plane angle and the excess velocity out of plane angle. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>variableVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new variable vector. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="137" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/trajectory_design/departureLegMga1DsmVelocity.cpp" bodystart="169" bodyend="176"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Departure Leg class of an MGA-1DSM velocity formulation trajectory model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A class that calculates the required impulses for a departure leg for an MGA-1DSM velocity formulation trajectory model. This model specifies the trajectory by defining the initial hyperbolic excess velocity (in 3D) and the moment of application of the DSM. The leg is split in two sublegs. The first subleg is analyzed using a kepler propagator, whereas the second leg is analyzed using a lambert targeter. Typically the user will be primarily interested in the total delta V and the arrival velocity of the spacecraft before the arrival planet. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::transfer_trajectories::SpaceLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::transfer_trajectories::DepartureLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::transfer_trajectories::MissionLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1MissionLeg"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>tudat::transfer_trajectories::SpaceLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg"/>
+        <childnode refid="4" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::transfer_trajectories::DepartureLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::transfer_trajectories::MissionLeg</label>
+        <link refid="classtudat_1_1transfer__trajectories_1_1MissionLeg"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" line="42" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design/departureLegMga1DsmVelocity.h" bodystart="43" bodyend="198"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aafd1693ee39624fd12945ab6b1460c14" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>arrivalBodyPosition_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a8daf0b67d6e0a86bd3d91354f294179a" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>calculateLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1ae977167cc1bc2b5eefe64729ef970d9b" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1ae0fa40d4efb56786cb052e0340663c67" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>deltaV_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ada2f488bced68858950850c7fb7accc2" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>deltaVDsm_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1ab045339873bf2d497d3c8f2e73c6fb97" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>departureBodyGravitationalParameter_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a1d0f74660ee3b15dd983bf56a9791fff" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>departureBodyPosition_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a3c9e40fc0d71bd2e63c928c7fdc2dca8" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>departureBodyVelocity_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1a8b98129b301b93cb21c6bd1ffbb88e75" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>DepartureLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a8842b3b5034e76f65cab46e59eedf612" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>DepartureLegMga1DsmVelocity</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a46bc75a99bff99a18c756e20a5c1e927" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>dsmLocation_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ae4981a7c38fa4aaad3d7810c010e8a1f" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>dsmTime_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ad72d90dbb80cc504317066bcec9aa74c" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>dsmTimeOfFlightFraction_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1a8a967b2ed276c13bebad83686a6a649f" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>eccentricity_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1a4ca4ffe039df93446c853c194ed80889" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>escapeDeltaV_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ab95b291c22f89d194406e7666a7b2e69" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>excessVelocityInPlaneAngle_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a2a4efc67fb757f05d7cd3674ad3b751e" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>excessVelocityMagnitude_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1ab906e75e885b52b90e6e109dc4f46320" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>excessVelocityOutOfPlaneAngle_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1aa794103142c9074af2bba2a617abef2b" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>getEscapeDeltaV</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1a134dccd17bd03141652dceb18eebd9df" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>includeDepartureDeltaV_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1af63a51a37280eb2065343d3c6ff5e454" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>intermediatePoints</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a6e8ae0721bd205a4ded9df60077c43af" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>maneuvers</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1aceb225a36c934cdbf61e007b68a71dae" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>MissionLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a49fde6343f3591a7b80d83a72fbc7219" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>returnDepartureVariables</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLeg_1aa189acb11fe0ee276e40d40b2452bbb9" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>semiMajorAxis_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1a0c16f186ee5fbbb41b39d57ab5c1dffb" prot="public" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>SpaceLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a4eead2edc9032dfd4e708013ca95208a" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>timeOfFlight_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a04cd2c06dddad5a9ed5b076615b10385" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>updateDefiningVariables</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1aadd829e00f099643bcd9c7da262e7ca3" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>updateEphemeris</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1acb7414acd191de6b0414df6a4587bbc0" prot="protected" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>velocityAfterDeparture_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a029253e6d789ab8096edc49f86fc1321" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>velocityAfterDsm_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1DepartureLegMga1DsmVelocity_1a20fc6dbea6fa8200b3ab8066aaf7f578" prot="private" virt="non-virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>velocityBeforeDsm_</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1MissionLeg_1a0d45afc18d82a6a7d801bc0c4d7c6a09" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>~MissionLeg</name></member>
+      <member refid="classtudat_1_1transfer__trajectories_1_1SpaceLeg_1af2f6928a9819380d67895315fca9e6a9" prot="public" virt="virtual"><scope>tudat::transfer_trajectories::DepartureLegMga1DsmVelocity</scope><name>~SpaceLeg</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

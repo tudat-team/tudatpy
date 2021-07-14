@@ -1,0 +1,726 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="stateTransitionMatrixInterface_8h" kind="file" language="C++">
+    <compoundname>stateTransitionMatrixInterface.h</compoundname>
+    <includes local="no">iostream</includes>
+    <includes local="no">vector</includes>
+    <includes local="no">memory</includes>
+    <includes local="no">Eigen/Core</includes>
+    <includes refid="oneDimensionalInterpolator_8h" local="yes">tudat/math/interpolators/oneDimensionalInterpolator.h</includes>
+    <includedby refid="observationManager_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationManager.h</includedby>
+    <includedby refid="propagateCovariance_8h" local="no">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/propagateCovariance.h</includedby>
+    <includedby refid="propagators_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</includedby>
+    <includedby refid="variationalEquationsSolver_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</includedby>
+    <includedby refid="stateTransitionMatrixInterface_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/propagators/stateTransitionMatrixInterface.cpp</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>tudat/math/interpolators/oneDimensionalInterpolator.h</label>
+        <link refid="oneDimensionalInterpolator_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="24">
+        <label>limits</label>
+      </node>
+      <node id="7">
+        <label>boost/lexical_cast.hpp</label>
+      </node>
+      <node id="21">
+        <label>tudat/basics/tudatTypeTraits.h</label>
+        <link refid="tudatTypeTraits_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateTransitionMatrixInterface.h</label>
+        <link refid="stateTransitionMatrixInterface_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>cmath</label>
+      </node>
+      <node id="11">
+        <label>stdexcept</label>
+      </node>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="10">
+        <label>map</label>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/basicMathematicsFunctions.h</label>
+        <link refid="basicMathematicsFunctions_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>boost/random/mersenne_twister.hpp</label>
+      </node>
+      <node id="19">
+        <label>tudat/basics/identityElements.h</label>
+        <link refid="identityElements_8h_source"/>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat/math/interpolators/interpolator.h</label>
+        <link refid="interpolator_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat/math/basic/nearestNeighbourSearch.h</label>
+        <link refid="nearestNeighbourSearch_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>vector</label>
+      </node>
+      <node id="13">
+        <label>tudat/basics/timeType.h</label>
+        <link refid="timeType_8h_source"/>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>tudat/basics/basicTypedefs.h</label>
+        <link refid="basicTypedefs_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>iostream</label>
+      </node>
+      <node id="22">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>type_traits</label>
+      </node>
+      <node id="23">
+        <label>complex</label>
+      </node>
+      <node id="15">
+        <label>algorithm</label>
+      </node>
+      <node id="4">
+        <label>memory</label>
+      </node>
+      <node id="8">
+        <label>tudat/math/interpolators/lookupScheme.h</label>
+        <link refid="lookupScheme_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="25">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustOptimisationSetup.h</label>
+        <link refid="lowThrustOptimisationSetup_8h_source"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/simulation.h</label>
+        <link refid="simulation_8h_source"/>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="28" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+        <childnode refid="31" relation="include">
+        </childnode>
+      </node>
+      <node id="31">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationPatchedConicFullProblem.h</label>
+        <link refid="propagationPatchedConicFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h</label>
+        <link refid="simsFlanaganOptimisationSetup_8h_source"/>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateTransitionMatrixInterface.h</label>
+        <link refid="stateTransitionMatrixInterface_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/observationManager.h</label>
+        <link refid="observationManager_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationTestCases.h</label>
+        <link refid="orbitDeterminationTestCases_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterface.h</label>
+        <link refid="jsonInterface_8h_source"/>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators.h</label>
+        <link refid="propagators_8h_source"/>
+      </node>
+      <node id="24">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanagan.h</label>
+        <link refid="simsFlanagan_8h_source"/>
+        <childnode refid="25" relation="include">
+        </childnode>
+      </node>
+      <node id="19">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createNumericalSimulator.h</label>
+        <link refid="createNumericalSimulator_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/export.h</label>
+        <link refid="export_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h</label>
+        <link refid="propagationCR3BPFullProblem_8h_source"/>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="27">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganModel.h</label>
+        <link refid="simsFlanaganModel_8h_source"/>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonEstimationInterface.h</label>
+        <link refid="jsonEstimationInterface_8h_source"/>
+      </node>
+      <node id="21">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethod.h</label>
+        <link refid="hybridMethod_8h_source"/>
+      </node>
+      <node id="17">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h</label>
+        <link refid="jsonInterfaceVariational_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/createObservationManager.h</label>
+        <link refid="createObservationManager_8h_source"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/propagator.h</label>
+        <link refid="propagator_8h_source"/>
+        <childnode refid="16" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/orbitDeterminationManager.h</label>
+        <link refid="orbitDeterminationManager_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridMethodModel.h</label>
+        <link refid="hybridMethodModel_8h_source"/>
+      </node>
+      <node id="30">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup.h</label>
+        <link refid="propagation__setup_8h_source"/>
+      </node>
+      <node id="14">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/variationalEquationsSolver.h</label>
+        <link refid="variationalEquationsSolver_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models.h</label>
+        <link refid="observation__models_8h_source"/>
+      </node>
+      <node id="26">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust.h</label>
+        <link refid="low__thrust_8h_source"/>
+      </node>
+      <node id="9">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup.h</label>
+        <link refid="estimation__setup_8h_source"/>
+      </node>
+      <node id="11">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/podProcessing.h</label>
+        <link refid="podProcessing_8h_source"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation.h</label>
+        <link refid="estimation_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/propagateCovariance.h</label>
+        <link refid="propagateCovariance_8h_source"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/hybridOptimisationSetup.h</label>
+        <link refid="hybridOptimisationSetup_8h_source"/>
+      </node>
+      <node id="8">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/determinePostFitParameterInfluence.h</label>
+        <link refid="determinePostFitParameterInfluence_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" prot="public">tudat::propagators::CombinedStateTransitionAndSensitivityMatrixInterface</innerclass>
+    <innerclass refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface" prot="public">tudat::propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface</innerclass>
+    <innerclass refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface" prot="public">tudat::propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface</innerclass>
+    <innerclass refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface" prot="public">tudat::propagators::HybridArcCombinedStateTransitionAndSensitivityMatrixInterface</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1propagators">tudat::propagators</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_STATETRANSITIONMATRIXINTERFACE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_STATETRANSITIONMATRIXINTERFACE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Core&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/interpolators/oneDimensionalInterpolator.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">propagators</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a9b6e7cdf19757be3d53adac83058583a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a9b6e7cdf19757be3d53adac83058583a" kindref="member">CombinedStateTransitionAndSensitivityMatrixInterface</ref>(</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfInitialDynamicalParameters,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfParameters<sp/>)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref><sp/>=<sp/>numberOfInitialDynamicalParameters;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref><sp/>=<sp/>numberOfParameters<sp/>-<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a6d9636366ea19edc8271d148b1d36d8f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a6d9636366ea19edc8271d148b1d36d8f" kindref="member">~CombinedStateTransitionAndSensitivityMatrixInterface</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1ac878b1cd7e3fe120915a55b8da3c5be2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1ac878b1cd7e3fe120915a55b8da3c5be2" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1aa97426509a0575040633ca39345f2bf8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1aa97426509a0575040633ca39345f2bf8" kindref="member">getFullCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a3c43147e2f396a4ac17de7aa17ba4be5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a3c43147e2f396a4ac17de7aa17ba4be5" kindref="member">getStateTransitionMatrixSize</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a395cef103204010f38262618ceb39874" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a395cef103204010f38262618ceb39874" kindref="member">getSensitivityMatrixSize</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1af8e2ec2755dfecf36731e372c7828554" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1af8e2ec2755dfecf36731e372c7828554" kindref="member">getFullParameterVectorSize</ref>(<sp/>)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">SingleArcCombinedStateTransitionAndSensitivityMatrixInterface</ref><sp/>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aa1a6eacb9083cb0b2c95353342b8eb4b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aa1a6eacb9083cb0b2c95353342b8eb4b" kindref="member">SingleArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolator,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolator,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfInitialDynamicalParameters,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfParameters,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;&amp;<sp/>statePartialAdditionIndices<sp/>):</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref>(<sp/>numberOfInitialDynamicalParameters,<sp/>numberOfParameters<sp/>),</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolator_(<sp/>stateTransitionMatrixInterpolator<sp/>),</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolator_(<sp/>sensitivityMatrixInterpolator<sp/>),</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>statePartialAdditionIndices_(<sp/>statePartialAdditionIndices<sp/>)</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>combinedStateTransitionMatrix_<sp/>=<sp/>Eigen::MatrixXd::Zero(</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>,<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref><sp/>+<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref><sp/>);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a1c54bf1d48691f3a0204ff6014f04427" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a1c54bf1d48691f3a0204ff6014f04427" kindref="member">~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a16dce89819e55077abf2b2d81960f245" kindref="member">updateMatrixInterpolators</ref>(</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolator,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolator,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;&amp;<sp/>statePartialAdditionIndices<sp/>);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="168" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1abff2e7bac7f9066d24ba6d0cce30ece3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1abff2e7bac7f9066d24ba6d0cce30ece3" kindref="member">getStateTransitionMatrixInterpolator</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stateTransitionMatrixInterpolator_;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="179" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a638dcdbe5fb7435944a7e3bb21106837" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a638dcdbe5fb7435944a7e3bb21106837" kindref="member">getSensitivityMatrixInterpolator</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensitivityMatrixInterpolator_;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aaeddcfa1c7e7ab77673d3ebf6e10b6f3" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a436d658d8eabf9ec56497d81f7c2b11c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1a436d658d8eabf9ec56497d81f7c2b11c" kindref="member">getFullCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>)</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aaeddcfa1c7e7ab77673d3ebf6e10b6f3" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210" refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aeffc7ae729edd8188b499e969f712004" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1SingleArcCombinedStateTransitionAndSensitivityMatrixInterface_1aeffc7ae729edd8188b499e969f712004" kindref="member">getFullParameterVectorSize</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref><sp/>+<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/>combinedStateTransitionMatrix_;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolator_;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolator_;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;<sp/>statePartialAdditionIndices_;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface" refkind="compound"><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">MultiArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref></highlight></codeline>
+<codeline lineno="235"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a310ee5b29f7b0f69bd83ebe784a5349d" kindref="member">MultiArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolators,</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolators,</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>arcStartTimes,</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>arcEndTimes,</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfInitialDynamicalParameters,</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfParameters,</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>statePartialAdditionIndices<sp/>);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a4b28f7be7fcb3adb9519b85ea3213d4a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a4b28f7be7fcb3adb9519b85ea3213d4a" kindref="member">~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1adf85a1ccc99403d67c9b9218eaa7b794" kindref="member">updateMatrixInterpolators</ref>(</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolators,</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/><ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt;</ref><sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolators,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>arcStartTimes,</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>double<sp/>&gt;&amp;<sp/>arcEndTimes,</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;<sp/>&gt;&amp;<sp/>statePartialAdditionIndices<sp/><sp/>);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="291" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a5944ad6588e63979a3416baefaa0c9f8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a5944ad6588e63979a3416baefaa0c9f8" kindref="member">getStateTransitionMatrixInterpolators</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stateTransitionMatrixInterpolators_;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="302" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a20875b032523b9dce92c8cefad981f59" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a20875b032523b9dce92c8cefad981f59" kindref="member">getSensitivityMatrixInterpolator</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensitivityMatrixInterpolators_;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1ab80c77c996127ec3329da31da405f525" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1ab80c77c996127ec3329da31da405f525" kindref="member">getFullParameterVectorSize</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref><sp/>+<sp/>numberOfStateArcs_<sp/>*<sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a2419c077b45a1d425985ba800760d51d" kindref="member">stateTransitionMatrixSize_</ref>;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a6bf4a9e8f236628bc210bcf266b46bcd" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>addCentralBodySensitivity<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a6bf4a9e8f236628bc210bcf266b46bcd" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a85a0c81c65df21fff5f2c931907527d0" kindref="member">getFullCombinedStateTransitionAndSensitivityMatrix</ref>(</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>addCentralBodySensitivity<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a85a0c81c65df21fff5f2c931907527d0" kindref="member">getFullCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/>std::pair&lt;<sp/>int,<sp/>double<sp/>&gt;<sp/><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1a507b558c2cb07d9eb6488312f7c5dc43" kindref="member">getCurrentArc</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355" refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1af22b943a48e368d1de871235c1d848e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1MultiArcCombinedStateTransitionAndSensitivityMatrixInterface_1af22b943a48e368d1de871235c1d848e6" kindref="member">getNumberOfArcs</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>arcStartTimes_.size(<sp/>);</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;<sp/>getStatePartialAdditionIndices(</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>arcIndex<sp/>)</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>statePartialAdditionIndices_.at(<sp/>arcIndex<sp/>);</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>stateTransitionMatrixInterpolators_;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>interpolators::OneDimensionalInterpolator&lt;<sp/>double,<sp/>Eigen::MatrixXd<sp/>&gt;<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/>sensitivityMatrixInterpolators_;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>arcStartTimes_;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>double<sp/>&gt;<sp/>arcEndTimes_;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfStateArcs_;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>interpolators::HuntingAlgorithmLookupScheme&lt;<sp/>double<sp/>&gt;<sp/>&gt;<sp/>lookUpscheme_;</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::vector&lt;<sp/>std::pair&lt;<sp/>int,<sp/>int<sp/>&gt;<sp/>&gt;<sp/>&gt;<sp/>statePartialAdditionIndices_;</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407" refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">HybridArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref></highlight></codeline>
+<codeline lineno="408"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"></highlight></codeline>
+<codeline lineno="412"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417" refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a0672bd56cdff47197650f7f0d4748367" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a0672bd56cdff47197650f7f0d4748367" kindref="member">HybridArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>SingleArcCombinedStateTransitionAndSensitivityMatrixInterface<sp/>&gt;<sp/>singleArcInterface,</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>MultiArcCombinedStateTransitionAndSensitivityMatrixInterface<sp/>&gt;<sp/>multiArcInterface<sp/>):</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface" kindref="compound">CombinedStateTransitionAndSensitivityMatrixInterface</ref>(</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>multiArcInterface-&gt;<ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a3c43147e2f396a4ac17de7aa17ba4be5" kindref="member">getStateTransitionMatrixSize</ref>(<sp/>),</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>multiArcInterface-&gt;<ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a395cef103204010f38262618ceb39874" kindref="member">getSensitivityMatrixSize</ref>(<sp/>)<sp/>+<sp/>multiArcInterface-&gt;<ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a3c43147e2f396a4ac17de7aa17ba4be5" kindref="member">getStateTransitionMatrixSize</ref>(<sp/>)<sp/>),</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>singleArcInterface_(<sp/>singleArcInterface<sp/>),<sp/>multiArcInterface_(<sp/>multiArcInterface<sp/>)</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Check<sp/>input<sp/>consistency</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal">(<sp/>multiArcInterface-&gt;getSensitivityMatrixSize(<sp/>)<sp/>!=<sp/>singleArcInterface-&gt;getSensitivityMatrixSize(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">throw</highlight><highlight class="normal"><sp/>std::runtime_error(<sp/></highlight><highlight class="stringliteral">&quot;Error<sp/>when<sp/>making<sp/>hybrid<sp/>state<sp/>transition/sensitivity<sp/>interface,<sp/>input<sp/>is<sp/>inconsistent&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"></highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>singleArcStateSize_<sp/>=<sp/>singleArcInterface_-&gt;getStateTransitionMatrixSize(<sp/>);</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>multiArcStateSize_<sp/>=<sp/>multiArcInterface_-&gt;getStateTransitionMatrixSize(<sp/>);</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>originalMultiArcStateSize_<sp/>=<sp/>multiArcStateSize_<sp/>-<sp/>singleArcStateSize_;</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfMultiArcs_<sp/>=<sp/>multiArcInterface-&gt;getNumberOfArcs(<sp/>);</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="441" refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a9b58a6ca4cdb00fe4cfc6d8a81b169c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a9b58a6ca4cdb00fe4cfc6d8a81b169c6" kindref="member">~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface</ref>(<sp/>){<sp/>}</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444"><highlight class="normal"></highlight></codeline>
+<codeline lineno="448" refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1adcfef42a112a1f70782b95d914c15120" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1adcfef42a112a1f70782b95d914c15120" kindref="member">getFullParameterVectorSize</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1propagators_1_1CombinedStateTransitionAndSensitivityMatrixInterface_1a0809a46cc2fcb71ad5bcabaf75afff20" kindref="member">sensitivityMatrixSize_</ref><sp/>+<sp/>singleArcStateSize_<sp/>+<sp/>numberOfMultiArcs_<sp/>*<sp/>originalMultiArcStateSize_;</highlight></codeline>
+<codeline lineno="451"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a94f906b95b40f8eb0e85f784528b9bf0" kindref="member">getCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal"></highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::MatrixXd<sp/><ref refid="classtudat_1_1propagators_1_1HybridArcCombinedStateTransitionAndSensitivityMatrixInterface_1a1f5e5daa169b4a5c277ed2313b3ae126" kindref="member">getFullCombinedStateTransitionAndSensitivityMatrix</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>evaluationTime<sp/>);</highlight></codeline>
+<codeline lineno="471"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>SingleArcCombinedStateTransitionAndSensitivityMatrixInterface<sp/>&gt;<sp/>singleArcInterface_;</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"></highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>MultiArcCombinedStateTransitionAndSensitivityMatrixInterface<sp/>&gt;<sp/>multiArcInterface_;</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"></highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>singleArcStateSize_;</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multiArcStateSize_;</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>originalMultiArcStateSize_;</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"></highlight></codeline>
+<codeline lineno="490"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfMultiArcs_;</highlight></codeline>
+<codeline lineno="491"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"></highlight></codeline>
+<codeline lineno="493"><highlight class="normal"></highlight></codeline>
+<codeline lineno="494"><highlight class="normal"></highlight></codeline>
+<codeline lineno="495"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>propagators</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal"></highlight></codeline>
+<codeline lineno="497"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="498"><highlight class="normal"></highlight></codeline>
+<codeline lineno="499"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_STATETRANSITIONMATRIXINTERFACE_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/stateTransitionMatrixInterface.h"/>
+  </compounddef>
+</doxygen>

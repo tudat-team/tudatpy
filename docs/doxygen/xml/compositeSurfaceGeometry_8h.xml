@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="compositeSurfaceGeometry_8h" kind="file" language="C++">
+    <compoundname>compositeSurfaceGeometry.h</compoundname>
+    <includes local="no">vector</includes>
+    <includes local="no">memory</includes>
+    <includes refid="singleSurfaceGeometry_8h" local="yes">tudat/math/geometric/singleSurfaceGeometry.h</includes>
+    <includes refid="surfaceGeometry_8h" local="yes">tudat/math/geometric/surfaceGeometry.h</includes>
+    <includedby refid="capsule_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h</includedby>
+    <includedby refid="geometricShapesToFile_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h</includedby>
+    <includedby refid="geometric_8h" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric.h</includedby>
+    <includedby refid="hypersonicLocalInclinationAnalysis_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/aerodynamics/hypersonicLocalInclinationAnalysis.cpp</includedby>
+    <includedby refid="compositeSurfaceGeometry_8cpp" local="yes">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/compositeSurfaceGeometry.cpp</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>limits</label>
+      </node>
+      <node id="8">
+        <label>cmath</label>
+      </node>
+      <node id="5">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="10">
+        <label>tudat/math/geometric/surfaceGeometry.h</label>
+        <link refid="surfaceGeometry_8h_source"/>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h</label>
+        <link refid="compositeSurfaceGeometry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat/math/geometric/singleSurfaceGeometry.h</label>
+        <link refid="singleSurfaceGeometry_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>vector</label>
+      </node>
+      <node id="6">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>complex</label>
+      </node>
+      <node id="3">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/geometricShapesToFile.h</label>
+        <link refid="geometricShapesToFile_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h</label>
+        <link refid="compositeSurfaceGeometry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h</label>
+        <link refid="testApolloCapsuleCoefficients_8h_source"/>
+      </node>
+      <node id="2">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/capsule.h</label>
+        <link refid="capsule_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric.h</label>
+        <link refid="geometric_8h_source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" prot="public">tudat::geometric_shapes::CompositeSurfaceGeometry</innerclass>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1geometric__shapes">tudat::geometric_shapes</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TUDAT_COMPOSITE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TUDAT_COMPOSITE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;vector&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;memory&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/geometric/singleSurfaceGeometry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/geometric/surfaceGeometry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="23"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">geometric_shapes</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" kindref="compound">CompositeSurfaceGeometry</ref>:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1SurfaceGeometry" kindref="compound">SurfaceGeometry</ref></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ad03dc4c7325fb765024ef0f2117a6abe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::shared_ptr&lt;<sp/>CompositeSurfaceGeometry<sp/>&gt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ad03dc4c7325fb765024ef0f2117a6abe" kindref="member">CompositeSurfaceGeometryPointer</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ab9ed61ad16ba6d4720fda53942dd7856" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ab9ed61ad16ba6d4720fda53942dd7856" kindref="member">CompositeSurfaceGeometry</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ab9ed61ad16ba6d4720fda53942dd7856" kindref="member">CompositeSurfaceGeometry</ref>(<sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>SingleSurfaceGeometry<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>singleSurfaceGeometryList,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>std::shared_ptr&lt;<sp/>CompositeSurfaceGeometry<sp/>&gt;<sp/>&gt;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>compositeSurfaceGeometryList<sp/>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1aca468e6bfcd0f755c4a269f369dcd9f4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1aca468e6bfcd0f755c4a269f369dcd9f4" kindref="member">~CompositeSurfaceGeometry</ref>(<sp/>)<sp/>{<sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a45ca53437538bc59e7a0d732a105b074" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>SingleSurfaceGeometry<sp/>&gt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a45ca53437538bc59e7a0d732a105b074" kindref="member">getSingleSurfaceGeometry</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index<sp/>)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a98349fc2023b545d49ae7f8d51967a78" kindref="member">singleSurfaceGeometryList_</ref>[<sp/>index<sp/>];</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a82ac545f98d57ad664939117d6f44f83" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::shared_ptr&lt;<sp/>CompositeSurfaceGeometry<sp/>&gt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a82ac545f98d57ad664939117d6f44f83" kindref="member">getCompositeSurfaceGeometry</ref>(</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index<sp/>)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a83b4e6b21537f894714dcc9b3fdf2c13" kindref="member">compositeSurfaceGeometryList_</ref>[<sp/>index<sp/>];</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a16f33cf68b86a0613d73d5786f4ee35f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a16f33cf68b86a0613d73d5786f4ee35f" kindref="member">getNumberOfSingleSurfaceGeometries</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a8ed9f8e2483f0cce40a90db9313844c1" kindref="member">numberOfSingleSurfaceGeometries_</ref>;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a1ccb2cfbd1663085eef8d68e61b91277" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a1ccb2cfbd1663085eef8d68e61b91277" kindref="member">getNumberOfCompositeSurfaceGeometries</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a11b903bd3673915b555e647b98388e06" kindref="member">numberOfCompositeSurfaceGeometries_</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">friend</highlight><highlight class="normal"><sp/>std::ostream<sp/>&amp;<ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ab84f7e6ad680c0300d822657c141a97a" kindref="member">operator &lt;&lt; </ref>(<sp/>std::ostream<sp/>&amp;stream,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry" kindref="compound">CompositeSurfaceGeometry</ref>&amp;<sp/>compositeSurfaceGeometry<sp/>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1aae36b7e62eb4a4272a9fa8a1f026f857" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1aae36b7e62eb4a4272a9fa8a1f026f857" kindref="member">setSingleSurfaceGeometry</ref>(<sp/>std::shared_ptr&lt;<sp/>SingleSurfaceGeometry<sp/>&gt;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>singleSurfaceGeometry,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index<sp/>)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a98349fc2023b545d49ae7f8d51967a78" kindref="member">singleSurfaceGeometryList_</ref>[<sp/>index<sp/>]<sp/>=<sp/>singleSurfaceGeometry;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1acec986000b560052f354c94607f937d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1acec986000b560052f354c94607f937d2" kindref="member">setCompositeSurfaceGeometry</ref>(<sp/>std::shared_ptr&lt;<sp/>CompositeSurfaceGeometry&gt;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>compositeSurfaceGeometry,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index<sp/>)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a83b4e6b21537f894714dcc9b3fdf2c13" kindref="member">compositeSurfaceGeometryList_</ref>[<sp/>index<sp/>]<sp/>=<sp/>compositeSurfaceGeometry;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1afd48747cbffb44c8d43c0bf9f7fa9f8e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1afd48747cbffb44c8d43c0bf9f7fa9f8e" kindref="member">setNumberOfSingleSurfaceGeometries</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>numberOfSingleSurfaceGeometries<sp/>)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a8ed9f8e2483f0cce40a90db9313844c1" kindref="member">numberOfSingleSurfaceGeometries_</ref><sp/>=<sp/>numberOfSingleSurfaceGeometries;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a98349fc2023b545d49ae7f8d51967a78" kindref="member">singleSurfaceGeometryList_</ref>.resize(<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a8ed9f8e2483f0cce40a90db9313844c1" kindref="member">numberOfSingleSurfaceGeometries_</ref><sp/>);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ac3cdda9771a521bb06221f192437d4cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ac3cdda9771a521bb06221f192437d4cd" kindref="member">setNumberOfCompositeSurfaceGeometries</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>numberOfCompositeSurfaceGeometries<sp/>)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a11b903bd3673915b555e647b98388e06" kindref="member">numberOfCompositeSurfaceGeometries_</ref><sp/>=<sp/>numberOfCompositeSurfaceGeometries;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a83b4e6b21537f894714dcc9b3fdf2c13" kindref="member">compositeSurfaceGeometryList_</ref>.resize(<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a11b903bd3673915b555e647b98388e06" kindref="member">numberOfCompositeSurfaceGeometries_</ref><sp/>);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a8ed9f8e2483f0cce40a90db9313844c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a8ed9f8e2483f0cce40a90db9313844c1" kindref="member">numberOfSingleSurfaceGeometries_</ref>;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a11b903bd3673915b555e647b98388e06" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a11b903bd3673915b555e647b98388e06" kindref="member">numberOfCompositeSurfaceGeometries_</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a98349fc2023b545d49ae7f8d51967a78" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>SingleSurfaceGeometryPointer<sp/>&gt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a98349fc2023b545d49ae7f8d51967a78" kindref="member">singleSurfaceGeometryList_</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206" refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a83b4e6b21537f894714dcc9b3fdf2c13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>std::vector&lt;<sp/>CompositeSurfaceGeometryPointer<sp/>&gt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1a83b4e6b21537f894714dcc9b3fdf2c13" kindref="member">compositeSurfaceGeometryList_</ref>;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1CompositeSurfaceGeometry_1ad03dc4c7325fb765024ef0f2117a6abe" kindref="member">CompositeSurfaceGeometry::CompositeSurfaceGeometryPointer</ref><sp/>CompositeSurfaceGeometryPointer;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>geometric_shapes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>TUDAT_COMPOSITE_SURFACE_GEOMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/geometric/compositeSurfaceGeometry.h"/>
+  </compounddef>
+</doxygen>

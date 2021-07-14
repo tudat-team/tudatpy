@@ -1,0 +1,2529 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1reference__frames" kind="namespace" language="C++">
+    <compoundname>tudat::reference_frames</compoundname>
+    <innerclass refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" prot="public">tudat::reference_frames::AerodynamicAngleCalculator</innerclass>
+    <innerclass refid="classtudat_1_1reference__frames_1_1AerodynamicAnglesClosure" prot="public">tudat::reference_frames::AerodynamicAnglesClosure</innerclass>
+    <innerclass refid="classtudat_1_1reference__frames_1_1ApparentAccelerationModel" prot="public">tudat::reference_frames::ApparentAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" prot="public">tudat::reference_frames::DependentOrientationCalculator</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AerodynamicsReferenceFrameAngles</name>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610a181308d4e18363ba28fd131f1920e5d2" prot="public">
+          <name>latitude_angle</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610ade85b894df2b93fee39bfd6ea38dd1de" prot="public">
+          <name>longitude_angle</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610a8052862cd37f0137124c9a1e28a2984d" prot="public">
+          <name>heading_angle</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610ae04ed2be96e41587aa9017f17803eb3d" prot="public">
+          <name>flight_path_angle</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610a838904c5109703f643dd16432f87d887" prot="public">
+          <name>angle_of_attack</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610a0ef1d4155c4afafee8d2f71b2fba8a4d" prot="public">
+          <name>angle_of_sideslip</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="aerodynamicAngleCalculator_8h_1ad068ab76c2367eb248432d4ed34d9610a6f08d1bea3e9b9c5bc2e23cd71bd6e26" prot="public">
+          <name>bank_angle</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Enum to define ids for various angles needed for converting between inertial and body-fixed frame, using transformation chain via aerodynamic frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" bodystart="40" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="enum" id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>AerodynamicsReferenceFrames</name>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5adf1573183453843c0f0d736b496bf39c" prot="public">
+          <name>inertial_frame</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5aedc1f83b92437512c43004e41e313f31" prot="public">
+          <name>corotating_frame</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5a3a4a99e6d6cae8d05257e733c1a9fd42" prot="public">
+          <name>vertical_frame</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5a443d2e5f17ad47dc222eff26e0d18b37" prot="public">
+          <name>trajectory_frame</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5a8e6a2ba313c7d58bfa00136881e57c4f" prot="public">
+          <name>aerodynamic_frame</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="referenceFrameTransformations_8h_1ac12482df307b5867b2572ff4323b36a5afa8cdbf516ee4394129d25af981ffdec" prot="public">
+          <name>body_frame</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Enum to define ids for various reference frames for calculating between inertial and body-fixed frame, using transformation chain via aerodynamic frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="41" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="apparentAccelerationModel_8h_1a43fe60ebd2f19a17319541c0aa4355db" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1ApparentAccelerationModel" kindref="compound">ApparentAccelerationModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; ApparentAccelerationModel &gt; tudat::reference_frames::ApparentAccelerationModelPointer</definition>
+        <argsstring></argsstring>
+        <name>ApparentAccelerationModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1reference__frames_1_1ApparentAccelerationModel" kindref="compound">ApparentAccelerationModel</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" line="286" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="referenceFrameTransformations_8h_1ac5dee4679465a9c03868328be4f0cf94" prot="public" static="yes" mutable="no">
+        <type>const Eigen::Matrix3d</type>
+        <definition>const Eigen::Matrix3d tudat::reference_frames::X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</definition>
+        <argsstring></argsstring>
+        <name>X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</name>
+        <initializer>=
+        ( Eigen::Matrix3d( ) &lt;&lt;
+          0.0, 0.0, 0.0,
+          0.0, 0.0, 1.0,
+          0.0, -1.0, 0.0 ).finished( )</initializer>
+        <briefdescription>
+<para>Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="534" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="534" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrameTransformations_8h_1a0f4abefd66ce045e70b231c1e4a27a38" prot="public" static="yes" mutable="no">
+        <type>const Eigen::Matrix3d</type>
+        <definition>const Eigen::Matrix3d tudat::reference_frames::Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</definition>
+        <argsstring></argsstring>
+        <name>Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</name>
+        <initializer>=
+        ( Eigen::Matrix3d( ) &lt;&lt;
+          0.0, 0.0, -1.0,
+          0.0, 0.0, 0.0,
+          1.0, 0.0, 0.0 ).finished( )</initializer>
+        <briefdescription>
+<para>Pre-multiplier used to take derivative of rotation matrix about y-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="541" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="541" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrameTransformations_8h_1aec20d3f4eebd725852106fea9bf95280" prot="public" static="yes" mutable="no">
+        <type>const Eigen::Matrix3d</type>
+        <definition>const Eigen::Matrix3d tudat::reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</definition>
+        <argsstring></argsstring>
+        <name>Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER</name>
+        <initializer>=
+        ( Eigen::Matrix3d( ) &lt;&lt;
+          0.0, 1.0, 0.0,
+          -1.0, 0.0, 0.0,
+          0.0, 0.0, 0.0 ).finished( )</initializer>
+        <briefdescription>
+<para>Pre-multiplier used to take derivative of rotation matrix about z-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="548" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="548" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrames_8h_1a327ce9ef3be9bcc3dcf20dccd21cdcbe" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; AerodynamicsReferenceFrames, std::string &gt;</type>
+        <definition>std::map&lt; AerodynamicsReferenceFrames, std::string &gt; tudat::reference_frames::aerodynamicsReferenceFrames</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicsReferenceFrames</name>
+        <initializer>=
+{
+    { inertial_frame, &quot;intertial&quot; },
+    { corotating_frame, &quot;corotating&quot; },
+    { vertical_frame, &quot;vertical&quot; },
+    { trajectory_frame, &quot;trajectory&quot; },
+    { aerodynamic_frame, &quot;aerodynamic&quot; },
+    { body_frame, &quot;body&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput>AerodynamicsReferenceFrames</computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="27" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrames_8h_1a34de2ed2a63db57a4683371badccbc15" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; AerodynamicsReferenceFrames &gt;</type>
+        <definition>std::vector&lt; AerodynamicsReferenceFrames &gt; tudat::reference_frames::unsupportedAerodynamicsReferenceFrames</definition>
+        <argsstring></argsstring>
+        <name>unsupportedAerodynamicsReferenceFrames</name>
+        <initializer>= { }</initializer>
+        <briefdescription>
+<para><computeroutput>AerodynamicsReferenceFrames</computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="38" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrames_8h_1ab2235b506c20e03309f82af6142d1fda" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; AerodynamicsReferenceFrameAngles, std::string &gt;</type>
+        <definition>std::map&lt; AerodynamicsReferenceFrameAngles, std::string &gt; tudat::reference_frames::aerodynamicsReferenceFrameAngles</definition>
+        <argsstring></argsstring>
+        <name>aerodynamicsReferenceFrameAngles</name>
+        <initializer>=
+{
+    { latitude_angle, &quot;latitude&quot; },
+    { longitude_angle, &quot;longitude&quot; },
+    { heading_angle, &quot;heading&quot; },
+    { flight_path_angle, &quot;flightPath&quot; },
+    { angle_of_attack, &quot;angleOfAttach&quot; },
+    { angle_of_sideslip, &quot;sideslip&quot; },
+    { bank_angle, &quot;bank&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput>AerodynamicsReferenceFrameAngles</computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="57" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="referenceFrames_8h_1ab6fb653214edffbce146089c706ccfee" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; AerodynamicsReferenceFrameAngles &gt;</type>
+        <definition>std::vector&lt; AerodynamicsReferenceFrameAngles &gt; tudat::reference_frames::unsupportedAerodynamicsReferenceFrameAngles</definition>
+        <argsstring></argsstring>
+        <name>unsupportedAerodynamicsReferenceFrameAngles</name>
+        <initializer>= { }</initializer>
+        <briefdescription>
+<para><computeroutput>AerodynamicsReferenceFrameAngles</computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="69" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="aerodynamicAngleCalculator_8h_1ac7d7f0c20432913109fa90d6a5d127cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::reference_frames::getAerodynamicAngleName</definition>
+        <argsstring>(const AerodynamicsReferenceFrameAngles angle)</argsstring>
+        <name>getAerodynamicAngleName</name>
+        <param>
+          <type>const AerodynamicsReferenceFrameAngles</type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Function to get a string representing a &apos;named identification&apos; of an aerodynamic angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get a string representing a &apos;named identification&apos; of an aerodynamic angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of aerodynamic angle </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>String withaerodynamic angle id. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="64" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="64" bodyend="97" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" declline="56" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="aerodynamicAngleCalculator_8h_1aae93ac66e0b93db93be493e1d0fd64c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt; tudat::reference_frames::getAerodynamicForceTransformationFunction</definition>
+        <argsstring>(const std::shared_ptr&lt; AerodynamicAngleCalculator &gt; aerodynamicAngleCalculator, const AerodynamicsReferenceFrames accelerationFrame, const std::function&lt; Eigen::Quaterniond() &gt; bodyFixedToInertialFrameFunction=[](){ return Eigen::Quaterniond(Eigen::Matrix3d::Identity());}, const AerodynamicsReferenceFrames propagationFrame=inertial_frame)</argsstring>
+        <name>getAerodynamicForceTransformationFunction</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">AerodynamicAngleCalculator</ref> &gt;</type>
+          <declname>aerodynamicAngleCalculator</declname>
+        </param>
+        <param>
+          <type>const AerodynamicsReferenceFrames</type>
+          <declname>accelerationFrame</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>bodyFixedToInertialFrameFunction</declname>
+          <defval>[](){ return Eigen::Quaterniond(Eigen::Matrix3d::Identity());}</defval>
+        </param>
+        <param>
+          <type>const AerodynamicsReferenceFrames</type>
+          <declname>propagationFrame</declname>
+          <defval>inertial_frame</defval>
+        </param>
+        <briefdescription>
+<para>Get a function to transform aerodynamic force from local to propagation frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get a function to transform aerodynamic force from local to propagation frame. The returned function takes the force in the accelerationFrame, and returns this force in the propagationFrame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aerodynamicAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to calculate aerodynamic angles and rotation quaternions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Id of frame in which aerodynamic force is calculated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyFixedToInertialFrameFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to get the central-body corotating frame to inertial frame quaternion. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagationFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Id of frame in which orbit propagation is done. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Aerodynamic force conversion function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="437" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="437" bodyend="480" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" declline="347" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="aerodynamicAngleCalculator_8h_1aeaeaa3fa9c5f5cc9a2159ae8744b4a30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::setAerodynamicDependentOrientationCalculatorClosure</definition>
+        <argsstring>(const std::function&lt; Eigen::Quaterniond(const double) &gt; imposedRotationFromInertialToBodyFixedFrame, std::shared_ptr&lt; AerodynamicAngleCalculator &gt; aerodynamicAngleCalculator)</argsstring>
+        <name>setAerodynamicDependentOrientationCalculatorClosure</name>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond(const double) &gt;</type>
+          <declname>imposedRotationFromInertialToBodyFixedFrame</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">AerodynamicAngleCalculator</ref> &gt;</type>
+          <declname>aerodynamicAngleCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>imposedRotationFromInertialToBodyFixedFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Inertial to body-fixed frame rotation to which the aerodynamicAngleCalculator object is to be made consistent </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aerodynamicAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object from which the aerodynamic angles are computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="500" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="500" bodyend="512" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" declline="446" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="aerodynamicAngleCalculator_8h_1ab8a95d017417ac25a3c59c0a174bfcd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::setAerodynamicDependentOrientationCalculatorClosure</definition>
+        <argsstring>(std::shared_ptr&lt; DependentOrientationCalculator &gt; dependentOrientationCalculator, std::shared_ptr&lt; AerodynamicAngleCalculator &gt; aerodynamicAngleCalculator)</argsstring>
+        <name>setAerodynamicDependentOrientationCalculatorClosure</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">DependentOrientationCalculator</ref> &gt;</type>
+          <declname>dependentOrientationCalculator</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">AerodynamicAngleCalculator</ref> &gt;</type>
+          <declname>aerodynamicAngleCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Function to make aerodynamic angle computation consistent with existing <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">DependentOrientationCalculator</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to make aerodynamic angle computation consistent with existing <ref refid="classtudat_1_1reference__frames_1_1DependentOrientationCalculator" kindref="compound">DependentOrientationCalculator</ref> <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dependentOrientationCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object computing the current orientation based on the current state of the environment. Aerodynamic angles are to be computed from output given by this class. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aerodynamicAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object from which the aerodynamic angles are computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="515" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="515" bodyend="524" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" declline="457" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="aerodynamicAngleCalculator_8h_1afa56089e43f0484f15d66200abb96b5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::setAerodynamicDependentOrientationCalculatorClosure</definition>
+        <argsstring>(std::shared_ptr&lt; ephemerides::RotationalEphemeris &gt; rotationalEphemeris, std::shared_ptr&lt; AerodynamicAngleCalculator &gt; aerodynamicAngleCalculator)</argsstring>
+        <name>setAerodynamicDependentOrientationCalculatorClosure</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1ephemerides_1_1RotationalEphemeris" kindref="compound">ephemerides::RotationalEphemeris</ref> &gt;</type>
+          <declname>rotationalEphemeris</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1reference__frames_1_1AerodynamicAngleCalculator" kindref="compound">AerodynamicAngleCalculator</ref> &gt;</type>
+          <declname>aerodynamicAngleCalculator</declname>
+        </param>
+        <briefdescription>
+<para>Function to make aerodynamic angle computation consistent with existing rotational ephemeris. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to make aerodynamic angle computation consistent with existing rotational ephemeris <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationalEphemeris</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object computing the current orientation of the body. Aerodynamic angles are to be computed from output given by this class. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aerodynamicAngleCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object from which the aerodynamic angles are computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="527" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="527" bodyend="535" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" declline="468" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="apparentAccelerationModel_8h_1a0f795f374c436dd81165d0bbce86b7ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::computeApparentAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;accelerationOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;angularVelocityOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;angularAccelerationOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;positionOfBodyInNonInertialReferenceFrame, const Eigen::Vector3d &amp;velocityOfBodyInNonInertialReferenceFrame)</argsstring>
+        <name>computeApparentAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>accelerationOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>angularVelocityOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>angularAccelerationOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyInNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityOfBodyInNonInertialReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Compute apparent acceleration due to non-inertiality of reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes apparent acceleration experienced by an object, of which the position and velocity are provided in a non-inertial (i.e. rotating and/or accelerating) reference frame. The apparent acceleration of a particle due to the non-inertiality of the reference frame in which its state is given, is given by following equation: <formula id="94">\[ \boldsymbol{a}_{apparent} = -\boldsymbol{a}_B - \dot{\boldsymbol{\omega}} \times \boldsymbol{r}_{ni} - \boldsymbol{\omega} \times (\boldsymbol{\omega} \times \boldsymbol{r}_{ni}) - 2(\boldsymbol{\omega} \times \boldsymbol{v}_{ni}) \]</formula> where <formula id="95">$\boldsymbol{a}_B$</formula> is the acceleration of the non-inertial frame with respect to an inertial reference frame, <formula id="96">$\boldsymbol{\omega}$</formula> is the respective rotation rate and <formula id="97">$\boldsymbol{r}_{ni}$</formula> and <formula id="98">$\boldsymbol{v}_{ni}$</formula> are the object&apos;s position and velocity vector in the non-inertial frame in which the apparent acceleration is computed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration vector of the non-inertial frame with respect to an inertial reference frame [m s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angularVelocityOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular velocity vector of the non-inertial frame with respect to an inertial reference frame [rad s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angularAccelerationOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular acceleration vector of the non-inertial frame with respect to an inertial reference frame [rad s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyInNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body in the non-inertial frame of reference in which the apparent acceleration is computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>velocityOfBodyInNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Velocity vector of body in the non-inertial frame of reference in which the apparent acceleration is computed [m s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Apparent acceleration as seen by an observer in the rotating and accelerating frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" bodystart="23" bodyend="37" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" declline="58" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="apparentAccelerationModel_8h_1a668b56b71f712f4bbfb44c64c5083e5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::computeCentripetalAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;angularVelocityOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;positionOfBodyInNonInertialReferenceFrame)</argsstring>
+        <name>computeCentripetalAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>angularVelocityOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyInNonInertialReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Compute centripetal acceleration due to non-inertiality of reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes centripetal acceleration experienced by an object, of which the position is provided in a rotating reference frame. The centripetal acceleration of a particle due to the non-inertiality of the reference frame in which its state is given, is given by following equation: <formula id="99">\[ \boldsymbol{a}_{centripetal} = -\boldsymbol{\omega} \times (\boldsymbol{\omega} \times \boldsymbol{r}_{ni}) \]</formula> where <formula id="96">$\boldsymbol{\omega}$</formula> is the rotation rate of the non-inertial frame with respect to an inertial reference frame and <formula id="97">$\boldsymbol{r}_{ni}$</formula> is the object&apos;s position in the non-inertial frame in which the apparent acceleration is computed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angularVelocityOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular velocity vector of the non-inertial frame with respect to an inertial reference frame [rad s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyInNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body in the non-inertial frame of reference in which the apparent acceleration is computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Centripetal acceleration as seen by an observer in the rotating frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" line="40" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" bodystart="40" bodyend="47" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" declline="84" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="apparentAccelerationModel_8h_1a52c8024d77714c27dd375ffa156d256e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::computeCoriolisAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;angularVelocityOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;velocityOfBodyInNonInertialReferenceFrame)</argsstring>
+        <name>computeCoriolisAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>angularVelocityOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityOfBodyInNonInertialReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Compute Coriolis acceleration due to non-inertiality of reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes Coriolis acceleration experienced by an object, of which the position is provided in a rotating reference frame. The Coriolis acceleration of a particle due to the non-inertiality of the reference frame in which its state is given, is given by following equation: <formula id="100">\[ \boldsymbol{a}_{Coriolis} = -2(\boldsymbol{\omega} \times \boldsymbol{v}_{ni}) \]</formula> where <formula id="96">$\boldsymbol{\omega}$</formula> is the rotation rate of the non-inertial frame with respect to an inertial reference frame and <formula id="98">$\boldsymbol{v}_{ni}$</formula> is the object&apos;s velocity in the non-inertial frame in which the apparent acceleration is computed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angularVelocityOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular velocity vector of the non-inertial frame with respect to an inertial reference frame [rad s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>velocityOfBodyInNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Velocity vector of body in the non-inertial frame of reference in which the apparent acceleration is computed [m s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Coriolis acceleration as seen by an observer in the rotating frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" line="50" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" bodystart="50" bodyend="56" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" declline="107" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="apparentAccelerationModel_8h_1ab948e1c41257869b3e5413c399314135" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::computeEulerAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;angularAccelerationOfNonInertialReferenceFrame, const Eigen::Vector3d &amp;positionOfBodyInNonInertialReferenceFrame)</argsstring>
+        <name>computeEulerAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>angularAccelerationOfNonInertialReferenceFrame</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyInNonInertialReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Compute Euler acceleration due to non-inertiality of reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes Euler acceleration experienced by an object, of which the position is provided in a rotationally accelerating reference frame. The Euler acceleration of a particle due to the non-inertiality of the reference frame in which its state is given, is given by following equation: <formula id="101">\[ \boldsymbol{a}_{Euler} = - \dot{\boldsymbol{\omega}} \times \boldsymbol{r}_{ni} \]</formula> where <formula id="102">$\dot{\boldsymbol{\omega}}$</formula> is the rate of change of the rotation rate of the non-inertial frame with respect to an inertial reference frame and <formula id="97">$\boldsymbol{r}_{ni}$</formula> is the object&apos;s position in the non-inertial frame in which the apparent acceleration is computed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angularAccelerationOfNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular acceleration vector of the non-inertial frame with respect to an inertial reference frame [rad s^-1]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyInNonInertialReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body in the non-inertial frame of reference in which the apparent acceleration is computed [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Euler acceleration as seen by an observer in the rotationally accelerating frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" line="59" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/apparentAccelerationModel.cpp" bodystart="59" bodyend="65" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/apparentAccelerationModel.h" declline="131" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1abadecc3e923c21b0119ae19555ccd889" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::reference_frames::getAerodynamicFrameName</definition>
+        <argsstring>(const AerodynamicsReferenceFrames frame)</argsstring>
+        <name>getAerodynamicFrameName</name>
+        <param>
+          <type>const AerodynamicsReferenceFrames</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Function to get a string representing a &apos;named identification&apos; of a reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get a string representing a &apos;named identification&apos; of a reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of reference frame </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>String with reference frame id. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" line="31" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/aerodynamicAngleCalculator.cpp" bodystart="31" bodyend="61" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="56" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a3d14d9b554e8dfd444e49dba83567274" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::calculateInertialToPlanetFixedRotationAnglesFromMatrix</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrixFromInertialToPlanetFixedFrame)</argsstring>
+        <name>calculateInertialToPlanetFixedRotationAnglesFromMatrix</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrixFromInertialToPlanetFixedFrame</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrixFromInertialToPlanetFixedFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix from which Euler angles are to be determined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pole right ascension and declination, and prime meridian of date, from rotation matrix </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="36" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="36" bodyend="48" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="65" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a8d84fca6dd61c7b1e2848ffb267465a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::transformVectorFromQuaternionFunction</definition>
+        <argsstring>(const Eigen::Vector3d &amp;originalVector, const std::function&lt; Eigen::Quaterniond() &gt; rotation)</argsstring>
+        <name>transformVectorFromQuaternionFunction</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>originalVector</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>rotation</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper function to transform a vector to a different frame from a single rotation function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wrapper function to transform a vector to a different frame from a single rotation function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector that is to be rotated to a new frame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current rotation to the new frame </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector originalVector, transformed to new frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="51" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="51" bodyend="56" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="75" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a84182f92975ade42b60cf1061251f5d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::transformVectorFunctionFromVectorFunctions</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d() &gt; originalVector, const std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt; transformationFunction)</argsstring>
+        <name>transformVectorFunctionFromVectorFunctions</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>originalVector</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt;</type>
+          <declname>transformationFunction</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper function to transform a vector to a different frame from a single transformation function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wrapper function to transform a vector to a different frame from a single transformation function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector that is to be transformed to a new frame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transformationFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function transforming a vector to a new frame </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector originalVector, transformed to new frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="59" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="59" bodyend="65" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="86" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a7c04e943afb4316ea94ce3e90bc0f0d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::transformVectorFromVectorFunctions</definition>
+        <argsstring>(const Eigen::Vector3d &amp;originalVector, const std::vector&lt; std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt; &gt; &amp;rotationsList)</argsstring>
+        <name>transformVectorFromVectorFunctions</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>originalVector</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d(const Eigen::Vector3d &amp;) &gt; &gt; &amp;</type>
+          <declname>rotationsList</declname>
+        </param>
+        <briefdescription>
+<para>Wrapper function to transform a vector to a different frame from a list of transformation function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Wrapper function to transform a vector to a different frame from a list of transformation function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>originalVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector that is to be transformed to a new frame </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationsList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of transformation function, each of which transforms a vector to a new frame. The functions in this list are called in descending order. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Vector originalVector, transformed to new frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="68" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="68" bodyend="82" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="98" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a320f53e3df86bef154e1eb9117ab6416" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getRotatingPlanetocentricToInertialFrameTransformationMatrix</definition>
+        <argsstring>(const double angleFromXItoXR)</argsstring>
+        <name>getRotatingPlanetocentricToInertialFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>angleFromXItoXR</declname>
+        </param>
+        <briefdescription>
+<para>Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns tranformation matrix from rotating planetocentric reference frame (R) to inertial reference frame (I). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleFromXItoXR</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle between X-axis of the planetocentric reference frame and X-axis of the inertial reference frame in [rad]. This angle is same as the rotational rate of the central body [rad/s] times the time from epoch [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Reference frame (R) to inertial reference frame (I) transformation matrix. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="85" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="85" bodyend="97" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="111" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ab79c7a7a9ec9d6a6a920b4e1f1557c5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getRotatingPlanetocentricToInertialFrameTransformationQuaternion</definition>
+        <argsstring>(const double angleFromXItoXR)</argsstring>
+        <name>getRotatingPlanetocentricToInertialFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>angleFromXItoXR</declname>
+        </param>
+        <briefdescription>
+<para>Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns tranformation quaternion from rotating planetocentric reference frame (R) to inertial reference frame (I). It&apos;s an eigen library transformation and can be applied directly to a vector Vector_new = Quaternion * Vector_old. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleFromXItoXR</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle between X-axis of the planetocentric reference frame and X-axis of the inertial reference frame in [rad]. This angle is same as the rotational rate of the central body [rad/s] times the time from epoch [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Reference frame (R) to inertial reference frame (I) transformation quaternion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="100" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="100" bodyend="111" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="124" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a00294be6d27a4c87a48b728cedf09937" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getRotatingPlanetocentricToInertialFrameTransformationQuaternion</definition>
+        <argsstring>(const double declinationOfPole, const double rightAscensionOfPole, const double longitudeOfPrimeMeridian)</argsstring>
+        <name>getRotatingPlanetocentricToInertialFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>declinationOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rightAscensionOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitudeOfPrimeMeridian</declname>
+        </param>
+        <briefdescription>
+<para>Get rotation from planet-fixed to inertial frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retuns rotation from planet-fixed to inertial frame, assuming that the equatorial plane is not equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right ascension and declination of body&apos;s pole and the location of the prime meridian (Seidelmann et al. 2005). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>declinationOfPole</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Declination of body&apos;s pole in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rightAscensionOfPole</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right ascension of body&apos;s pole in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitudeOfPrimeMeridian</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of body prime meridian. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Rotation quaternion computed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="114" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="114" bodyend="133" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="138" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ab0ac148c8d477bb6c771aa6eb456ddc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getInertialToPlanetocentricFrameTransformationMatrix</definition>
+        <argsstring>(const double angleFromXItoXR)</argsstring>
+        <name>getInertialToPlanetocentricFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>angleFromXItoXR</declname>
+        </param>
+        <briefdescription>
+<para>Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns transformation matrix from inertial referenceframe (I) to the rotating planetocentric reference frame (R). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleFromXItoXR</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle between X-axis of the planetocentric reference frame and X-axis of the inertial reference frame in [rad]. This angle is same as the rotational rate of the central body [rad/s] times the time from epoch [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial (I) to planetocentric reference frame (R) transformation matrix. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="136" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="136" bodyend="146" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="152" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1af249bbf24be320ef1e96096b9df82b7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getVelocityBasedLvlhToInertialRotation</definition>
+        <argsstring>(const Eigen::Vector6d &amp;vehicleState, const Eigen::Vector6d &amp;centralBodyState=Eigen::Vector6d::Zero(), const bool doesNaxisPointAwayFromCentralBody=true)</argsstring>
+        <name>getVelocityBasedLvlhToInertialRotation</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>vehicleState</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>centralBodyState</declname>
+          <defval>Eigen::Vector6d::Zero()</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>doesNaxisPointAwayFromCentralBody</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Get rotation from velocity based LVLH frame to inertial (I) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get rotation from velocity based LVLH frame to inertial frame (I) frame.</para>
+<para>Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is a right-handed orthogonal frame defined as follows: x-axis tangent to the velocity direction, y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false), i.e. to the left when looking in velocity-direction, z-axis normal to the orbital plane. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vehicleState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of the vehicle for which the LVLH frame is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of the central body w.r.t. which the LVLH frame is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>doesNaxisPointAwayFromCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the local y-axis points away from (if true) or towards (if false) central body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Velocity based LVLH to inertial (I) frame transformation matrix. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="149" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="149" bodyend="176" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="169" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a744dd9ce8ddc1d8a6d554a12a2f8f7cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector6d() &gt; &amp;vehicleStateFunction, const std::function&lt; Eigen::Vector6d() &gt; &amp;centralBodyStateFunction, bool doesNaxisPointAwayFromCentralBody=true)</argsstring>
+        <name>getVelocityBasedLvlhToInertialRotationFromFunctions</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt; &amp;</type>
+          <declname>vehicleStateFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector6d() &gt; &amp;</type>
+          <declname>centralBodyStateFunction</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>doesNaxisPointAwayFromCentralBody</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Get rotation from velocity based LVLH frame to inertial (I) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get rotation from velocity based LVLH frame to inertial frame (I) frame.</para>
+<para>Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is a right-handed orthogonal frame defined as follows: x-axis tangent to the velocity direction, y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false), i.e. to the left when looking in velocity-direction, z-axis normal to the orbital plane. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vehicleStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the state of the vehicle for which the LVLH frame is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBodyStateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the state of the central body w.r.t. which the LVLH frame is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>doesNaxisPointAwayFromCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether the local y-axis points away from (if true) or towards (if false) central body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Velocity based LVLH to inertial (I) frame transformation matrix. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="179" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="179" bodyend="186" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="188" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ae303adcfe345eb849c218bbfbb5453d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getVelocityBasedLvlhToPlanetocentricRotationKeplerian</definition>
+        <argsstring>(const Eigen::Matrix&lt; double, 6, 1 &gt; spacecraftKeplerianState)</argsstring>
+        <name>getVelocityBasedLvlhToPlanetocentricRotationKeplerian</name>
+        <param>
+          <type>const Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+          <declname>spacecraftKeplerianState</declname>
+        </param>
+        <briefdescription>
+<para>Get rotation from velocity based LVLH frame to planet-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get rotation from velocity based LVLH frame to planetocentric frame.</para>
+<para>Returns rotation from the velocity based LVLH frame to the planet-fixed frame. The velocity based LVLH frame is a right-handed orthogonal frame defined as follows: x-axis tangent to the velocity direction, y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction, z-axis normal to the orbital plane. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spacecraftKeplerianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>containging the following elements: semi-major axis -&gt; not used eccentricity inclination argumentOfPeriapsis longitudeOfAscendingNode trueAnomaly </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Computed rotation quaternion. Get rotation from velocity based LVLH frame to planetocentric frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="189" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="189" bodyend="217" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="210" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a70bb067159b31006eceede6fb9b33f95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix</definition>
+        <argsstring>(const Eigen::Vector6d bodyState)</argsstring>
+        <name>getInertialToRswSatelliteCenteredFrameRotationMatrix</name>
+        <param>
+          <type>const Eigen::Vector6d</type>
+          <declname>bodyState</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State for which the RSW frame rotation is to be computed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Rotation matrix to RSW frame </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="220" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="220" bodyend="243" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="219" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a9cb3497ec2c09a9105789eb45c365eec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion</definition>
+        <argsstring>(const double angleFromXItoXR)</argsstring>
+        <name>getInertialToPlanetocentricFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>angleFromXItoXR</declname>
+        </param>
+        <briefdescription>
+<para>Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.</para>
+<para>Returns transformation quaternion from inertial referenceframe (I) to the rotating planetocentric reference frame (R). It&apos;s an eigen library transformation and can be applied directly to a vector Vector_new = Quaternion * Vector_old. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleFromXItoXR</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle between X-axis of the planetocentric reference frame and X-axis of the inertial reference frame in [rad]. This angle is same as the rotational rate of the central body [rad/s] times the time from epoch [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial (I) to planetocentric reference frame (R) transformation quaternion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="246" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="246" bodyend="258" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="232" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ab77e397fe16f7f2ee1137aa561ea43f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion</definition>
+        <argsstring>(const double declinationOfPole, const double rightAscensionOfPole, const double longitudeOfPrimeMeridian)</argsstring>
+        <name>getInertialToPlanetocentricFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>declinationOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rightAscensionOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitudeOfPrimeMeridian</declname>
+        </param>
+        <briefdescription>
+<para>Get rotation from inertial to planet-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns rotation from inertial to planet-fixed frame, assuming that the equatorial plane is not equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right ascension and declination of body&apos;s pole and the location of the prime meridian (Seidelmann et al. 2005). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>declinationOfPole</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Declination of body&apos;s pole in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rightAscensionOfPole</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right ascension of body&apos;s pole in inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitudeOfPrimeMeridian</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of body prime meridian. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Rotation quaternion computed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="261" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="261" bodyend="280" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="246" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a0949af2d37edfd818711552b3273abfd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getInertialToPlanetocentricFrameTransformationMatrix</definition>
+        <argsstring>(const double declinationOfPole, const double rightAscensionOfPole, const double longitudeOfPrimeMeridian)</argsstring>
+        <name>getInertialToPlanetocentricFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>declinationOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>rightAscensionOfPole</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitudeOfPrimeMeridian</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="282" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="282" bodyend="290" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="251" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a703a91f74d167351b5f8d5f397df62e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getQuaternionObjectFromQuaternionValues</definition>
+        <argsstring>(const Eigen::Vector4d &amp;vectorWithQuaternion)</argsstring>
+        <name>getQuaternionObjectFromQuaternionValues</name>
+        <param>
+          <type>const Eigen::Vector4d &amp;</type>
+          <declname>vectorWithQuaternion</declname>
+        </param>
+        <briefdescription>
+<para>Create a Quaterniond rotation state object from four quaternion values in vector 4d. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Create a Quaterniond rotation state object from four quaternion values in a Vector4d.</para>
+<para>Creates a Quaterniond rotation state object from four quaternion values. This function is not related to any specific rotation matrix, but can be used for general purposes. It&apos;s an eigen library transformation and can be applied directly to a vector Vector_new = Quaternion * Vector_old. Note that is also possible to create a quaternion object directly from a Vector4d, but Eigen will rearrange the order of the coefficients ([q2 q3 q4 q1]). This function retreives the individual entries of the Vector4d an uses them as four doubles as input arguments for the constructor of the Quateriond. From the Eigen code documentation: <simplesect kind="warning"><para>Note the order of the arguments: the real <emphasis>w</emphasis> coefficient first, while internally the coefficients are stored in the following order: [<computeroutput>x</computeroutput>, <computeroutput>y</computeroutput>, <computeroutput>z</computeroutput>, <computeroutput>w</computeroutput>] </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vectorWithQuaternion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A vector containing the quaternions of the rotation state </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="293" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="293" bodyend="303" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="272" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a88a43dba355066177b2623f868cc9837" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix</definition>
+        <argsstring>(const double longitude, const double latitude)</argsstring>
+        <name>getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from Planetocentric (R) to the Local vertical (V) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation matrix from the Planetocentric (R) to the Local vertical (V) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not, this is in the direction of the center of the central body, depends which kind of latitude is provided (geocentric, geodetic, gravitation latitude). The X-axis is directed to the north. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The longitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The latitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from Planetocentric (R) to the local vertical (V) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="306" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="306" bodyend="311" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="286" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a78675d761ca2c1d0a6ed68f6541372c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename AngleScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Quaternion&lt; AngleScalarType &gt;</type>
+        <definition>Eigen::Quaternion&lt; AngleScalarType &gt; tudat::reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion</definition>
+        <argsstring>(const AngleScalarType longitude, const AngleScalarType latitude)</argsstring>
+        <name>getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion</name>
+        <param>
+          <type>const AngleScalarType</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const AngleScalarType</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from Planetocentric (R) to the local vertical (V) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation quaternion from the Planetocentric (R) to the Local vertical (V) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not, this is in the direction of the center of the central body, depends which kind of latitude is provided (geocentric, geodetic, gravitation latitude). The X-axis is directed to the north. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The longitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The latitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from Planetocentric (R) to the local vertical (V) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="301" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="301" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a29677e2e90e565634ea5e34a8fddbf39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix</definition>
+        <argsstring>(const double longitude, const double latitude)</argsstring>
+        <name>getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from local vertical (V) to the Planetocentric frame (R). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation matrix from the local vertical (V) to the Planetocentric frame (R) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not, this is in the direction of the center of the central body, depends which kind of latitude is provided (geocentric, geodetic, gravitation latitude). The X-axis is directed to the north. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The longitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The latitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from local vertical (V) to the Planetocentric (R) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="314" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="314" bodyend="319" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="330" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ac5dfb10a0f4ea9e567c42819d0f6e2f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename AngleScalarType</type>
+            <defval>double</defval>
+          </param>
+        </templateparamlist>
+        <type>Eigen::Quaternion&lt; AngleScalarType &gt;</type>
+        <definition>Eigen::Quaternion&lt; AngleScalarType &gt; tudat::reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion</definition>
+        <argsstring>(const AngleScalarType longitude, const AngleScalarType latitude)</argsstring>
+        <name>getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion</name>
+        <param>
+          <type>const AngleScalarType</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const AngleScalarType</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from local vertical (V) to the Planetocentric frame (R). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation quaternion from the local vertical (V) to the Planetocentric (R) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not, this is in the direction of the center of the central body, depends which kind of latitude is provided (geocentric, geodetic, gravitation latitude). The X-axis is directed to the north. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The longitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The latitude in the planetocentric reference frame in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from local vertical (V) to the Planetocentric (R) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" line="345" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" bodystart="345" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1aba50150fc7ba914aca5899c01eb3a472" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getTrajectoryToLocalVerticalFrameTransformationMatrix</definition>
+        <argsstring>(const double flightPathAngle, const double headingAngle)</argsstring>
+        <name>getTrajectoryToLocalVerticalFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>flightPathAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>headingAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from the TA/TG to the V-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation matrix from the trajectory frame (T) to the local vertical (V) reference frame. Depending on whether the flight-path angle and heading angle express the velocity relative to the rotating planetocentric frame or relative to the local atmosphere, the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based trajectory (TA) frame respectively. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flightPathAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s flight-path angle, positive upwards, in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headingAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s heading angle with respect to the North in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from trajectory frame (T) to the local vertical frame (V). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="322" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="322" bodyend="327" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="364" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1af6ae1d7d4a72abbfdf931751dee9cdf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getTrajectoryToLocalVerticalFrameTransformationQuaternion</definition>
+        <argsstring>(const double flightPathAngle, const double headingAngle)</argsstring>
+        <name>getTrajectoryToLocalVerticalFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>flightPathAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>headingAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from the TA/TG to the V-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation quaternion from the trajectory (T) to the local vertical (V) reference frame. Depending on whether the flight-path angle and heading angle express the velocity relative to the rotating planetocentric frame or relative to the local atmosphere, the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based trajectory (TA) frame respectively. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flightPathAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s flight-path angle, positive upwards, in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headingAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s heading angle with respect to the North in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from trajectory frame (T) to the local vertical frame (V). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="330" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="330" bodyend="341" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="378" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1aad2dbf9417192f28054f228b9e45558f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getLocalVerticalFrameToTrajectoryTransformationMatrix</definition>
+        <argsstring>(const double flightPathAngle, const double headingAngle)</argsstring>
+        <name>getLocalVerticalFrameToTrajectoryTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>flightPathAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>headingAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from the local V- to TA/TG-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the frame transformation matrix from the local vertical (V) to the trajectory (T) reference frame. Depending on whether the flight-path angle and heading angle express the velocity relative to the rotating planetocentric frame or relative to the local atmosphere, the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based trajectory (TA) frame respectively. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flightPathAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s flight-path angle, positive upwards, in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headingAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s heading angle with respect to the North in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from the local vertical (V) to the trajectory (T) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="344" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="344" bodyend="349" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="392" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1adda820d0f3f6c91d224de282e3f47f8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getLocalVerticalFrameToTrajectoryTransformationQuaternion</definition>
+        <argsstring>(const double flightPathAngle, const double headingAngle)</argsstring>
+        <name>getLocalVerticalFrameToTrajectoryTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>flightPathAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>headingAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from V- to the TA/TG-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation quaternion from the local vertical (V) to the trajectory (T) reference frame. Depending on whether the flight-path angle and heading angle express the velocity relative to the rotating planetocentric frame or relative to the local atmosphere, the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based trajectory (TA) frame respectively. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>flightPathAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s flight-path angle, positive upwards, in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headingAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The trajectory&apos;s heading angle with respect to the North in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from the local vertical (V) to the trajectory (T) frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="352" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="352" bodyend="357" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="406" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a08d7c65da2d173ff500a1b09f16392d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getTrajectoryToAerodynamicFrameTransformationMatrix</definition>
+        <argsstring>(const double bankAngle)</argsstring>
+        <name>getTrajectoryToAerodynamicFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>bankAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from the TA- to the AA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation matrix from the airspeed-based trajectory (TA) to the airspeed-based aerodynamic frame (AA). These frames differ from each other only by the bank-angle, representing one Euler-rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bankAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The object&apos;s bank angle in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from the TA- to the AA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="360" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="360" bodyend="365" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="417" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a6a5d370870a03551606b5e995452e0b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getTrajectoryToAerodynamicFrameTransformationQuaternion</definition>
+        <argsstring>(const double bankAngle)</argsstring>
+        <name>getTrajectoryToAerodynamicFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>bankAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from the TA- to the AA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation quaternion from the airspeed-based trajectory (TA) to the airspeed- based aerodynamic frame (AA). These frames differ from each other only by the bank-angle, representing one Euler-rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bankAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The object&apos;s bank angle in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from the TA- to the AA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="368" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="368" bodyend="376" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="427" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a26a6fbd726b18cda2173df019b64938d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getAerodynamicToTrajectoryFrameTransformationMatrix</definition>
+        <argsstring>(const double bankAngle)</argsstring>
+        <name>getAerodynamicToTrajectoryFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>bankAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix from the AA- to the TA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation matrix from the airspeed-based aerodynamic (AA) to the airspeed-based trajectory frame (TA). These frames differ from each other only by the bank-angle, representing one Euler-rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bankAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The object&apos;s bank angle in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from the AA- to the TA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="379" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="379" bodyend="383" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="438" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a5002535a7b45f0b7e54238f8e6d468d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getAerodynamicToTrajectoryFrameTransformationQuaternion</definition>
+        <argsstring>(const double bankAngle)</argsstring>
+        <name>getAerodynamicToTrajectoryFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>bankAngle</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion from the AA- to the TA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation quaternion from the airspeed-based aerodynamic (AA) to the airspeed- based trajectory frame (TA). These frames differ from each other only by the bank-angle, representing one Euler-rotation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bankAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The object&apos;s bank angle in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from the AA- to the TA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="386" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="386" bodyend="390" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="448" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a3548aa6ec99a00173d7c2def2fbd7d1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix</definition>
+        <argsstring>(const double angleOfAttack, const double angleOfSideslip)</argsstring>
+        <name>getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>angleOfAttack</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfSideslip</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix fom the B- to the AA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation matrix from the body-fixed (B) to the airspeed-based aerodynamic frame (AA). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleOfAttack</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfSideslip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of sideslip in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from the B- to the AA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="393" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="393" bodyend="398" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="459" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1afaa54b5371a7656ffe1459ebbe7dafef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion</definition>
+        <argsstring>(const double angleOfAttack, const double angleOfSideslip)</argsstring>
+        <name>getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>angleOfAttack</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfSideslip</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion fom the B- to the AA-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation quaternion from the body-fixed (B) to the airspeed-based aerodynamic frame (AA). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleOfAttack</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfSideslip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of sideslip in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from the B- to the AA-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="401" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="401" bodyend="412" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="470" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a4eb530da230ed281ca00612db6898028" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix</definition>
+        <argsstring>(const double angleOfAttack, const double angleOfSideslip)</argsstring>
+        <name>getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix</name>
+        <param>
+          <type>const double</type>
+          <declname>angleOfAttack</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfSideslip</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation matrix fom the AA- to the B-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation matrix from the airspeed-based aerodynamic (AA) to the body-fixed frame (B). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleOfAttack</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfSideslip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of sideslip in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation matrix from the AA- to the B-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="415" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="415" bodyend="420" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="481" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a52774c8f66d8f30579fc290080ab5ba6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion</definition>
+        <argsstring>(const double angleOfAttack, const double angleOfSideslip)</argsstring>
+        <name>getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>angleOfAttack</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>angleOfSideslip</declname>
+        </param>
+        <briefdescription>
+<para>Get transformation quaternion fom the AA- to the B-frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the transformation quaternion from the airspeed-based aerodynamic (AA) to the body-fixed frame (B). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angleOfAttack</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of attack in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angleOfSideslip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The angle of sideslip in [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion from the AA- to the B-frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="423" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="423" bodyend="428" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="492" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a257d4b21d1572612603e63ebfb641451" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::reference_frames::calculateHeadingAngle</definition>
+        <argsstring>(const Eigen::Vector3d &amp;velocityInVerticalFrame)</argsstring>
+        <name>calculateHeadingAngle</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityInVerticalFrame</declname>
+        </param>
+        <briefdescription>
+<para>Calculate current heading angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate heading angle from velocity in vertical (LVLH) frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>velocityInVerticalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current Cartesian velocity in vertical frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current heading angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="431" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="431" bodyend="434" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="501" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1adbdbf32b82fb4980b5e6f23d4ff0b13e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::reference_frames::calculateFlightPathAngle</definition>
+        <argsstring>(const Eigen::Vector3d &amp;velocityInVerticalFrame)</argsstring>
+        <name>calculateFlightPathAngle</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityInVerticalFrame</declname>
+        </param>
+        <briefdescription>
+<para>Calculate current flight path angle. Angle is defined positive upwards. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate current flight path angle.</para>
+<para>Calculate flight path angle from velocity in vertical (LVLH) frame. Angle is defined positive upwards. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>velocityInVerticalFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current Cartesian velocity in vertical frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current flight path angle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="437" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="437" bodyend="440" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="510" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a2eacd5aaa1901fbc4195c018473ef17b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion</definition>
+        <argsstring>(const double longitude, const double latitude)</argsstring>
+        <name>getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get ECEF to V-frame quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get transformation quaternion ECEF to ENU V-frame.</para>
+<para>Get the transformation from the co-rotating planetocentric frame to local vertical. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude of position. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="443" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="443" bodyend="448" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="519" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1ae2964d3bc253a773418344f677414ff3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Quaterniond</type>
+        <definition>Eigen::Quaterniond tudat::reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion</definition>
+        <argsstring>(const double longitude, const double latitude)</argsstring>
+        <name>getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion</name>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>latitude</declname>
+        </param>
+        <briefdescription>
+<para>Get V-frame to ECEF quaternion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get transformation quaternion between V-frame and ECEF.</para>
+<para>Get the transformation from the local vertical to the co-rotating planetocentric frame. <simplesect kind="see"><para><ulink url="http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates">http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates</ulink> </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude of position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude of position. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Transformation quaternion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="451" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="451" bodyend="467" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="530" declcolumn="20"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a1bfc022e894c481768523c5c2b16d225" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfXAxisRotationWrtAngle</definition>
+        <argsstring>(const double angle)</argsstring>
+        <name>getDerivativeOfXAxisRotationWrtAngle</name>
+        <param>
+          <type>const double</type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle about which rotation is taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="470" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="470" bodyend="476" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="560" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a5cdab1be25e742108809bf9b2e6922e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfXAxisRotationWrtAngle</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrix)</argsstring>
+        <name>getDerivativeOfXAxisRotationWrtAngle</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix for which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="479" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="479" bodyend="482" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="568" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a7d37db17dd018384431726531cc639a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfYAxisRotationWrtAngle</definition>
+        <argsstring>(const double angle)</argsstring>
+        <name>getDerivativeOfYAxisRotationWrtAngle</name>
+        <param>
+          <type>const double</type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle about which rotation is taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="485" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="485" bodyend="491" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="576" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a43f90db622e2eb769c92ea34fe79e4a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfYAxisRotationWrtAngle</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrix)</argsstring>
+        <name>getDerivativeOfYAxisRotationWrtAngle</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix for which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="494" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="494" bodyend="497" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="584" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a52ca167cfe2eb5ee611b451edb3ccf77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfZAxisRotationWrtAngle</definition>
+        <argsstring>(const double angle)</argsstring>
+        <name>getDerivativeOfZAxisRotationWrtAngle</name>
+        <param>
+          <type>const double</type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle about which rotation is taken. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="500" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="500" bodyend="506" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="592" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a3e46e42ce769e08197010bde059d6987" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::reference_frames::getDerivativeOfZAxisRotationWrtAngle</definition>
+        <argsstring>(const Eigen::Matrix3d &amp;rotationMatrix)</argsstring>
+        <name>getDerivativeOfZAxisRotationWrtAngle</name>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>rotationMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rotationMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation matrix for which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Derivative of a rotation about the x-axis w.r.t. the rotation angle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="509" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="509" bodyend="512" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="600" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a07ef6e83f832d0b97a08add8fc0e30b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::getBodyFixedCartesianPosition</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d() &gt; positionFunctionOfCentralBody, const std::function&lt; Eigen::Vector3d() &gt; positionFunctionOfRelativeBody, const std::function&lt; Eigen::Quaterniond() &gt; orientationFunctionOfCentralBody)</argsstring>
+        <name>getBodyFixedCartesianPosition</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>positionFunctionOfCentralBody</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>positionFunctionOfRelativeBody</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>orientationFunctionOfCentralBody</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute a body-fixed relative cartesian position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute a body-fixed relative cartesian position <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionFunctionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position function of central body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionFunctionOfRelativeBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position function of point of which body-fixed state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>orientationFunctionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning rotation from inertial to body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Body-fixed relative cartesian position </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="515" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="515" bodyend="522" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="610" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrameTransformations_8h_1a636dfec7a5fe4bf1a6aafc77eee7ecec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::reference_frames::getBodyFixedSphericalPosition</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d() &gt; positionFunctionOfCentralBody, const std::function&lt; Eigen::Vector3d() &gt; positionFunctionOfRelativeBody, const std::function&lt; Eigen::Quaterniond() &gt; orientationFunctionOfCentralBody)</argsstring>
+        <name>getBodyFixedSphericalPosition</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>positionFunctionOfCentralBody</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>positionFunctionOfRelativeBody</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>orientationFunctionOfCentralBody</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute a body-fixed relative spherical position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute a body-fixed relative sphericall position <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionFunctionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position function of central body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionFunctionOfRelativeBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position function of point of which body-fixed state is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>orientationFunctionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning rotation from inertial to body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Body-fixed relative sphericall position </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" line="525" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/reference_frames/referenceFrameTransformations.cpp" bodystart="525" bodyend="535" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/referenceFrameTransformations.h" declline="623" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrames_8h_1afe1bba516dac76a97184bee605cdc570" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const AerodynamicsReferenceFrames &amp;aerodynamicsReferenceFrame)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const AerodynamicsReferenceFrames &amp;</type>
+          <declname>aerodynamicsReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>AerodynamicsReferenceFrames</computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="41" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="41" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrames_8h_1a38c900ddd680435ea5eb1a9c1a162c07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, AerodynamicsReferenceFrames &amp;aerodynamicsReferenceFrame)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>AerodynamicsReferenceFrames &amp;</type>
+          <declname>aerodynamicsReferenceFrame</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput>AerodynamicsReferenceFrames</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="47" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="47" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrames_8h_1ad010e9e0a7fc9febdd27c09ee600f998" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const AerodynamicsReferenceFrameAngles &amp;aerodynamicsReferenceFrameAngle)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const AerodynamicsReferenceFrameAngles &amp;</type>
+          <declname>aerodynamicsReferenceFrameAngle</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>AerodynamicsReferenceFrameAngles</computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="72" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="72" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="referenceFrames_8h_1af0d78c3e8cb1e385a705c62cb1f5b25e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::reference_frames::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, AerodynamicsReferenceFrameAngles &amp;aerodynamicsReferenceFrameAngle)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>AerodynamicsReferenceFrameAngles &amp;</type>
+          <declname>aerodynamicsReferenceFrameAngle</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput>AerodynamicsReferenceFrameAngles</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" line="78" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/propagation/referenceFrames.h" bodystart="78" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames/aerodynamicAngleCalculator.h" line="34" column="1"/>
+  </compounddef>
+</doxygen>

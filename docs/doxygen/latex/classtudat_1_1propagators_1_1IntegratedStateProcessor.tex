@@ -1,0 +1,109 @@
+\hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor}{}\doxysection{tudat\+::propagators\+::Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1propagators_1_1IntegratedStateProcessor}\index{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}}
+
+
+Base class for settings how numerically integrated states are processed.  
+
+
+
+
+{\ttfamily \#include $<$set\+Numerically\+Integrated\+States.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.680024cm]{classtudat_1_1propagators_1_1IntegratedStateProcessor}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor_afe2a747863b453263a4398712346a9e9}{Integrated\+State\+Processor}} (const Integrated\+State\+Type state\+Type, const std\+::pair$<$ int, int $>$ start\+Index\+And\+Size)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_ab0ec743ee7b147be2e5c8ee4e25a54a1}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_ab0ec743ee7b147be2e5c8ee4e25a54a1}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor_ab0ec743ee7b147be2e5c8ee4e25a54a1}{$\sim$\+Integrated\+State\+Processor}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor_a379cb44bfbb3506b9de350719e1a05ac}{process\+Integrated\+States}} (const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&numerical\+Solution)=0
+\begin{DoxyCompactList}\small\item\em Function that processes the entries of the state\+Type\+\_\+ in the full numerical\+Solution. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_a240d49ef33209d1e237147b3172f9d60}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_a240d49ef33209d1e237147b3172f9d60}} 
+virtual void {\bfseries process\+Integrated\+Multi\+Arc\+States} (const std\+::vector$<$ std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ $>$ \&numerical\+Solution, const std\+::vector$<$ double $>$ \&arc\+Start\+Times)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_aa37431c3c4e60e9f922cc70737d5de47}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_aa37431c3c4e60e9f922cc70737d5de47}} 
+Integrated\+State\+Type \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor_aa37431c3c4e60e9f922cc70737d5de47}{state\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of state that is to be set in environment. \end{DoxyCompactList}\item 
+std\+::pair$<$ int, int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor_ae03065ec333ec767023e999ff2f884e5}{start\+Index\+And\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Start index of current state type in integrated state vector, and its size in the vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Time\+Type, typename State\+Scalar\+Type$>$\newline
+class tudat\+::propagators\+::\+Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$}
+
+Base class for settings how numerically integrated states are processed. 
+
+Base class for defining settings on how numerically integrated states are to be processed in the environment. This class is pure virtual, and a derived class must be provided for each state type. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_afe2a747863b453263a4398712346a9e9}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_afe2a747863b453263a4398712346a9e9}} 
+\index{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}!IntegratedStateProcessor@{IntegratedStateProcessor}}
+\index{IntegratedStateProcessor@{IntegratedStateProcessor}!tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{IntegratedStateProcessor()}{IntegratedStateProcessor()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+\mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{tudat\+::propagators\+::\+Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{Integrated\+State\+Processor}} (\begin{DoxyParamCaption}\item[{const Integrated\+State\+Type}]{state\+Type,  }\item[{const std\+::pair$<$ int, int $>$}]{start\+Index\+And\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em state\+Type} & Type of state that is to be set in environment. \\
+\hline
+{\em start\+Index\+And\+Size} & Start index of current state type in integrated state vector, and its size in the vector (first and second entry of pair). \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_a379cb44bfbb3506b9de350719e1a05ac}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_a379cb44bfbb3506b9de350719e1a05ac}} 
+\index{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}!processIntegratedStates@{processIntegratedStates}}
+\index{processIntegratedStates@{processIntegratedStates}!tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{processIntegratedStates()}{processIntegratedStates()}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+virtual void \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{tudat\+::propagators\+::\+Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::process\+Integrated\+States (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Time\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ \&}]{numerical\+Solution }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function that processes the entries of the state\+Type\+\_\+ in the full numerical\+Solution. 
+
+Function that processes the entries of the state\+Type\+\_\+ in the full numerical\+Solution 
+\begin{DoxyParams}{Parameters}
+{\em numerical\+Solution} & Full numerical solution, in global representation (see convert\+To\+Output\+Solution function in associated \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleStateTypeDerivative}{Single\+State\+Type\+Derivative}} derived class. \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1BodyMassIntegratedStateProcessor_a24172315a1044a3bfe4134a194b95aec}{tudat\+::propagators\+::\+Body\+Mass\+Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1RotationalStateIntegratedStateProcessor_a5fc1477a1b3cdc62cf374b13f53f6391}{tudat\+::propagators\+::\+Rotational\+State\+Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1TranslationalStateIntegratedStateProcessor_af6a1bc3febf6a960c16a7186cfd4642a}{tudat\+::propagators\+::\+Translational\+State\+Integrated\+State\+Processor$<$ Time\+Type, State\+Scalar\+Type $>$}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1IntegratedStateProcessor_ae03065ec333ec767023e999ff2f884e5}\label{classtudat_1_1propagators_1_1IntegratedStateProcessor_ae03065ec333ec767023e999ff2f884e5}} 
+\index{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}!startIndexAndSize\_@{startIndexAndSize\_}}
+\index{startIndexAndSize\_@{startIndexAndSize\_}!tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$@{tudat::propagators::IntegratedStateProcessor$<$ TimeType, StateScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{startIndexAndSize\_}{startIndexAndSize\_}}
+{\footnotesize\ttfamily template$<$typename Time\+Type , typename State\+Scalar\+Type $>$ \\
+std\+::pair$<$ int, int $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1IntegratedStateProcessor}{tudat\+::propagators\+::\+Integrated\+State\+Processor}}$<$ Time\+Type, State\+Scalar\+Type $>$\+::start\+Index\+And\+Size\+\_\+}
+
+
+
+Start index of current state type in integrated state vector, and its size in the vector. 
+
+Start index of current state type in integrated state vector, and its size in the vector (first and second entry of pair). 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/set\+Numerically\+Integrated\+States.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,83 @@
+\hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Light\+Time\+Correction\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}\index{tudat::observation\_partials::LightTimeCorrectionPartial@{tudat::observation\_partials::LightTimeCorrectionPartial}}
+
+
+Base class for computing the partial derivatives of light-\/time corrections w.\+r.\+t. estimated parameters.  
+
+
+
+
+{\ttfamily \#include $<$light\+Time\+Correction\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Light\+Time\+Correction\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}} 
+typedef std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 1, Eigen\+::\+Dynamic $>$, double $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a7a759098d3629d8d00a83648d81f9e9a}{Single\+One\+Way\+Range\+Partial\+Return\+Type}}
+\begin{DoxyCompactList}\small\item\em Typedef for return argument for light time partial (partial with vector and associated time) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a8d4651356ce91cfe43a05b2abdc8a402}{Light\+Time\+Correction\+Partial}} (const observation\+\_\+models\+::\+Light\+Time\+Correction\+Type correction\+Type)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_ad6f01f363d4f631487746aa369617cbb}\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_ad6f01f363d4f631487746aa369617cbb}} 
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_ad6f01f363d4f631487746aa369617cbb}{$\sim$\+Light\+Time\+Correction\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+observation\+\_\+models\+::\+Light\+Time\+Correction\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a709f76a236bb3bd636b886865a29c49c}{get\+Correction\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to return type of light-\/time correction for which partial is to be computed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_acf014f83567dbec1258172386a000b93}\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_acf014f83567dbec1258172386a000b93}} 
+observation\+\_\+models\+::\+Light\+Time\+Correction\+Type \mbox{\hyperlink{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_acf014f83567dbec1258172386a000b93}{correction\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of light-\/time correction for which partial is to be computed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for computing the partial derivatives of light-\/time corrections w.\+r.\+t. estimated parameters. 
+
+Base class for computing the partial derivatives of light-\/time corrections w.\+r.\+t. estimated parameters. A single derived class is implemented per light time correction type. The same derived class is used for computing partials of single correction type w.\+r.\+t. any number of physical parameters 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a8d4651356ce91cfe43a05b2abdc8a402}\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a8d4651356ce91cfe43a05b2abdc8a402}} 
+\index{tudat::observation\_partials::LightTimeCorrectionPartial@{tudat::observation\_partials::LightTimeCorrectionPartial}!LightTimeCorrectionPartial@{LightTimeCorrectionPartial}}
+\index{LightTimeCorrectionPartial@{LightTimeCorrectionPartial}!tudat::observation\_partials::LightTimeCorrectionPartial@{tudat::observation\_partials::LightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{LightTimeCorrectionPartial()}{LightTimeCorrectionPartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial\+::\+Light\+Time\+Correction\+Partial (\begin{DoxyParamCaption}\item[{const observation\+\_\+models\+::\+Light\+Time\+Correction\+Type}]{correction\+Type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em correction\+Type} & Type of light-\/time correction for which partial is to be computed \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a709f76a236bb3bd636b886865a29c49c}\label{classtudat_1_1observation__partials_1_1LightTimeCorrectionPartial_a709f76a236bb3bd636b886865a29c49c}} 
+\index{tudat::observation\_partials::LightTimeCorrectionPartial@{tudat::observation\_partials::LightTimeCorrectionPartial}!getCorrectionType@{getCorrectionType}}
+\index{getCorrectionType@{getCorrectionType}!tudat::observation\_partials::LightTimeCorrectionPartial@{tudat::observation\_partials::LightTimeCorrectionPartial}}
+\doxysubsubsection{\texorpdfstring{getCorrectionType()}{getCorrectionType()}}
+{\footnotesize\ttfamily observation\+\_\+models\+::\+Light\+Time\+Correction\+Type tudat\+::observation\+\_\+partials\+::\+Light\+Time\+Correction\+Partial\+::get\+Correction\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return type of light-\/time correction for which partial is to be computed. 
+
+Function to return type of light-\/time correction for which partial is to be computed \begin{DoxyReturn}{Returns}
+Type of light-\/time correction for which partial is to be computed 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/light\+Time\+Correction\+Partial.\+h\end{DoxyCompactItemize}

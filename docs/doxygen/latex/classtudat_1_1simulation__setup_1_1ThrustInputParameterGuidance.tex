@@ -1,0 +1,206 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Thrust\+Input\+Parameter\+Guidance Class Reference}
+\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance}\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+
+
+Interface base class that can be defined by user to make the use of the \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}{Parameterized\+Thrust\+Magnitude\+Settings}} class easier.  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Thrust\+Input\+Parameter\+Guidance\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a3e4ab4fa35c3952998f4612b77cff06a}{Thrust\+Input\+Parameter\+Guidance}} (const int number\+Of\+Thrust\+Input\+Parameters, const int number\+Of\+Specific\+Impulse\+Input\+Parameters, const bool include\+Throttle\+Setting=false, const int throttle\+Setting\+Index=-\/1)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a77b3fb63c4a7fd2b09d4ad17e4559cb4}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a77b3fb63c4a7fd2b09d4ad17e4559cb4}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a77b3fb63c4a7fd2b09d4ad17e4559cb4}{$\sim$\+Thrust\+Input\+Parameter\+Guidance}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6ac28e0721f2596e952743ebe7e15563}{get\+Number\+Of\+Thrust\+Input\+Parameters}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the number of guidance-\/input parameters that are computed for the thrust. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a55354aeee0de70b67311079e958071a7}{get\+Number\+Of\+Specific\+Impulse\+Input\+Parameters}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the number of guidance-\/input parameters that are computed for the specific impulse. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a925a916ac013f6afdd22f9f6964c8c3c}{get\+Thrust\+Input\+Guidance\+Parameter}} (const int input\+Parameter\+Index)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a guidance-\/input parameter that for the thrust. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a585be4b9929770a24eee59dc564e13d0}{get\+Specific\+Impulse\+Input\+Guidance\+Parameter}} (const int input\+Parameter\+Index)
+\begin{DoxyCompactList}\small\item\em Function to retrieve a guidance-\/input parameter that for the specific impulse. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a967821d13e2239345ac761edfa069774}{get\+Include\+Throttle\+Setting}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve whether any of the guidance-\/input parameters for the thrust define a throttle setting. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ab04a76de5687a1621a08bb9bb4d26910}{get\+Throttle\+Setting\+Index}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ae929c1969241aea9408a5ac20c2f5216}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ae929c1969241aea9408a5ac20c2f5216}} 
+virtual void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ae929c1969241aea9408a5ac20c2f5216}{update\+Guidance\+Parameters}} ()=0
+\begin{DoxyCompactList}\small\item\em Pure virtual function that updates the guidance algorithm to the current time/state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6354aa338fdcdbe8cf844011ec21e83f}{update}} (const double time)
+\begin{DoxyCompactList}\small\item\em Update function for the guidance algorithm. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a7eb9a3b218117d9563401bbe9d23e8e8}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a7eb9a3b218117d9563401bbe9d23e8e8}} 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a7eb9a3b218117d9563401bbe9d23e8e8}{current\+Thrust\+Guidance\+Parameters\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of guidance-\/input parameters that are computed for the thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad9c6cba5fe4f3513fcdeda718c88d738}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad9c6cba5fe4f3513fcdeda718c88d738}} 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad9c6cba5fe4f3513fcdeda718c88d738}{current\+Specific\+Impulse\+Parameters\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of guidance-\/input parameters that are computed for the specific impulse. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a094b1b561616559ae6dc27eb39828245}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a094b1b561616559ae6dc27eb39828245}} 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a094b1b561616559ae6dc27eb39828245}{number\+Of\+Thrust\+Input\+Parameters\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of guidance-\/input parameters that are computed for the thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a52a9cf24d20b1a71f470542975813ee7}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a52a9cf24d20b1a71f470542975813ee7}} 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a52a9cf24d20b1a71f470542975813ee7}{number\+Of\+Specific\+Impulse\+Input\+Parameters\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Number of guidance-\/input parameters that are computed for the specific impulse. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_aead2156f19faafac97b1a2e8b76492fd}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_aead2156f19faafac97b1a2e8b76492fd}} 
+bool \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_aead2156f19faafac97b1a2e8b76492fd}{include\+Throttle\+Setting\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Boolean that denotes whether any of the guidance-\/input parameters for the thrust define a throttle setting. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a953ac5f083df77b65d18f5c5cc5a1d77}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a953ac5f083df77b65d18f5c5cc5a1d77}} 
+int \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a953ac5f083df77b65d18f5c5cc5a1d77}{throttle\+Setting\+Index\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Index in list of thrust guidance parameters that denotes the throttle setting (if any) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad4cee947b4c3447fc2e125c0c6440cc0}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad4cee947b4c3447fc2e125c0c6440cc0}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ad4cee947b4c3447fc2e125c0c6440cc0}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current time of interface object (e.\+g. time to which object was last updated). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Interface base class that can be defined by user to make the use of the \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}{Parameterized\+Thrust\+Magnitude\+Settings}} class easier. 
+
+For a specific user-\/defined guidance approach, a derived class must be defined, that computes the guidance/throttle commands at each time step/vehicle state. Using the create\+Parameterized\+Thrust\+Magnitude\+Settings functions, a \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings}{Parameterized\+Thrust\+Magnitude\+Settings}} can then be made. In the derived class, the user must define an update\+Guidance\+Parameters function, which sets the entries of the current\+Thrust\+Guidance\+Parameters\+\_\+ and current\+Specific\+Impulse\+Parameters\+\_\+ vectors (size must be compatible with \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance}{Thrust\+Input\+Parameter\+Guidance}} constructor). Note that the throttle setting is simply defined as one of the entries of current\+Thrust\+Guidance\+Parameters\+\_\+. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a3e4ab4fa35c3952998f4612b77cff06a}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a3e4ab4fa35c3952998f4612b77cff06a}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!ThrustInputParameterGuidance@{ThrustInputParameterGuidance}}
+\index{ThrustInputParameterGuidance@{ThrustInputParameterGuidance}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{ThrustInputParameterGuidance()}{ThrustInputParameterGuidance()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::\+Thrust\+Input\+Parameter\+Guidance (\begin{DoxyParamCaption}\item[{const int}]{number\+Of\+Thrust\+Input\+Parameters,  }\item[{const int}]{number\+Of\+Specific\+Impulse\+Input\+Parameters,  }\item[{const bool}]{include\+Throttle\+Setting = {\ttfamily false},  }\item[{const int}]{throttle\+Setting\+Index = {\ttfamily -\/1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em number\+Of\+Thrust\+Input\+Parameters} & Number of guidance-\/input parameters that are computed for the thrust \\
+\hline
+{\em number\+Of\+Specific\+Impulse\+Input\+Parameters} & Number of guidance-\/input parameters that are computed for the specific impulse \\
+\hline
+{\em include\+Throttle\+Setting} & Boolean that denotes whether any of the guidance-\/input parameters for the thrust define a throttle setting \\
+\hline
+{\em throttle\+Setting\+Index} & Index in list of thrust guidance parameters that denotes the throttle setting (if any) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a967821d13e2239345ac761edfa069774}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a967821d13e2239345ac761edfa069774}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getIncludeThrottleSetting@{getIncludeThrottleSetting}}
+\index{getIncludeThrottleSetting@{getIncludeThrottleSetting}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getIncludeThrottleSetting()}{getIncludeThrottleSetting()}}
+{\footnotesize\ttfamily bool tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Include\+Throttle\+Setting (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve whether any of the guidance-\/input parameters for the thrust define a throttle setting. 
+
+Function to retrieve whether any of the guidance-\/input parameters for the thrust define a throttle setting \begin{DoxyReturn}{Returns}
+Boolean that denotes whether any of the guidance-\/input parameters for the thrust define a throttle setting. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a55354aeee0de70b67311079e958071a7}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a55354aeee0de70b67311079e958071a7}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getNumberOfSpecificImpulseInputParameters@{getNumberOfSpecificImpulseInputParameters}}
+\index{getNumberOfSpecificImpulseInputParameters@{getNumberOfSpecificImpulseInputParameters}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getNumberOfSpecificImpulseInputParameters()}{getNumberOfSpecificImpulseInputParameters()}}
+{\footnotesize\ttfamily int tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Number\+Of\+Specific\+Impulse\+Input\+Parameters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the number of guidance-\/input parameters that are computed for the specific impulse. 
+
+Function to retrieve the number of guidance-\/input parameters that are computed for the specific impulse \begin{DoxyReturn}{Returns}
+Number of guidance-\/input parameters that are computed for the specific impulse 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6ac28e0721f2596e952743ebe7e15563}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6ac28e0721f2596e952743ebe7e15563}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getNumberOfThrustInputParameters@{getNumberOfThrustInputParameters}}
+\index{getNumberOfThrustInputParameters@{getNumberOfThrustInputParameters}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getNumberOfThrustInputParameters()}{getNumberOfThrustInputParameters()}}
+{\footnotesize\ttfamily int tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Number\+Of\+Thrust\+Input\+Parameters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the number of guidance-\/input parameters that are computed for the thrust. 
+
+Function to retrieve the number of guidance-\/input parameters that are computed for the thrust \begin{DoxyReturn}{Returns}
+Number of guidance-\/input parameters that are computed for the thrust 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a585be4b9929770a24eee59dc564e13d0}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a585be4b9929770a24eee59dc564e13d0}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getSpecificImpulseInputGuidanceParameter@{getSpecificImpulseInputGuidanceParameter}}
+\index{getSpecificImpulseInputGuidanceParameter@{getSpecificImpulseInputGuidanceParameter}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getSpecificImpulseInputGuidanceParameter()}{getSpecificImpulseInputGuidanceParameter()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Specific\+Impulse\+Input\+Guidance\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{input\+Parameter\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a guidance-\/input parameter that for the specific impulse. 
+
+Function to retrieve a guidance-\/input parameter that for the specific impulse 
+\begin{DoxyParams}{Parameters}
+{\em input\+Parameter\+Index} & Entry of guidance-\/input vector for specific impulse that is to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Guidance-\/input parameters that for the specific impulse at given index 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ab04a76de5687a1621a08bb9bb4d26910}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ab04a76de5687a1621a08bb9bb4d26910}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getThrottleSettingIndex@{getThrottleSettingIndex}}
+\index{getThrottleSettingIndex@{getThrottleSettingIndex}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getThrottleSettingIndex()}{getThrottleSettingIndex()}}
+{\footnotesize\ttfamily int tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Throttle\+Setting\+Index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting. 
+
+Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting (-\/1 if none) \begin{DoxyReturn}{Returns}
+Index in list of thrust guidance parameters that denotes the throttle setting 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a925a916ac013f6afdd22f9f6964c8c3c}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a925a916ac013f6afdd22f9f6964c8c3c}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!getThrustInputGuidanceParameter@{getThrustInputGuidanceParameter}}
+\index{getThrustInputGuidanceParameter@{getThrustInputGuidanceParameter}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{getThrustInputGuidanceParameter()}{getThrustInputGuidanceParameter()}}
+{\footnotesize\ttfamily double tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::get\+Thrust\+Input\+Guidance\+Parameter (\begin{DoxyParamCaption}\item[{const int}]{input\+Parameter\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve a guidance-\/input parameter that for the thrust. 
+
+Function to retrieve a guidance-\/input parameter that for the thrust 
+\begin{DoxyParams}{Parameters}
+{\em input\+Parameter\+Index} & Entry of guidance-\/input vector for thrust that is to be retrieved. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Guidance-\/input parameters that for the thrust at given index 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6354aa338fdcdbe8cf844011ec21e83f}\label{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_a6354aa338fdcdbe8cf844011ec21e83f}} 
+\index{tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}!update@{update}}
+\index{update@{update}!tudat::simulation\_setup::ThrustInputParameterGuidance@{tudat::simulation\_setup::ThrustInputParameterGuidance}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance\+::update (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Update function for the guidance algorithm. 
+
+Update function for the guidance algorithm, calls the update\+Guidance\+Parameters that is to be implemented in derived class. Calling this function with NaN time signals that a new time step has commenced. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which guidance object is to be updated \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/thrust\+Settings.\+h\end{DoxyCompactItemize}

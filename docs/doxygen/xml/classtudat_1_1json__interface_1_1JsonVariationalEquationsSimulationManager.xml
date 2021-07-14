@@ -1,0 +1,331 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager" kind="class" language="C++" prot="public">
+    <compoundname>tudat::json_interface::JsonVariationalEquationsSimulationManager</compoundname>
+    <basecompoundref refid="classtudat_1_1json__interface_1_1JsonSimulationManager" prot="public" virt="non-virtual">tudat::json_interface::JsonSimulationManager&lt; double, double &gt;</basecompoundref>
+    <templateparamlist>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a1e2edd373e532349d2371d2837e70a02" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver" kindref="compound">propagators::SingleArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; propagators::SingleArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::variationalEquationsSolver_</definition>
+        <argsstring></argsstring>
+        <name>variationalEquationsSolver_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="127" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a9491a89ec08438bf3fbefce4d2eb6b88" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" kindref="compound">estimatable_parameters::EstimatableParameterSettings</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSettings &gt; &gt; tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::parameterSettings_</definition>
+        <argsstring></argsstring>
+        <name>parameterSettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="129" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1aec3cef93182b3165c0518c2df403632e" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet" kindref="compound">estimatable_parameters::EstimatableParameterSet</ref>&lt; StateScalarType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; estimatable_parameters::EstimatableParameterSet&lt; StateScalarType &gt; &gt; tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::parametersToEstimate_</definition>
+        <argsstring></argsstring>
+        <name>parametersToEstimate_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="131" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a09044a7bca91da55b9fdb1dd29d7ec70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::JsonVariationalEquationsSimulationManager</definition>
+        <argsstring>(const std::string &amp;inputFilePath, const std::chrono::steady_clock::time_point initialClockTime=std::chrono::steady_clock::now())</argsstring>
+        <name>JsonVariationalEquationsSimulationManager</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>inputFilePath</declname>
+        </param>
+        <param>
+          <type>const std::chrono::steady_clock::time_point</type>
+          <declname>initialClockTime</declname>
+          <defval>std::chrono::steady_clock::now()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="40" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="40" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a9183c67476403a1e354ae073f887395e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::JsonVariationalEquationsSimulationManager</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, const std::chrono::steady_clock::time_point initialClockTime=std::chrono::steady_clock::now())</argsstring>
+        <name>JsonVariationalEquationsSimulationManager</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const std::chrono::steady_clock::time_point</type>
+          <declname>initialClockTime</declname>
+          <defval>std::chrono::steady_clock::now()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor from JSON object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>jsonObject</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The root JSON object. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialClockTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial clock time from which the cumulative CPU time during the propagation will be computed. Default is the moment at which the constructor was called. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a2451d2f299f9f4dc06637a1d2f4c2a94" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::~JsonVariationalEquationsSimulationManager</definition>
+        <argsstring>()</argsstring>
+        <name>~JsonVariationalEquationsSimulationManager</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="57" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="57" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a6ecd25eb01bded73a4507c00a71a6ce0" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1propagators_1_1SingleArcVariationalEquationsSolver" kindref="compound">propagators::SingleArcVariationalEquationsSolver</ref>&lt; StateScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; propagators::SingleArcVariationalEquationsSolver&lt; StateScalarType, TimeType &gt; &gt; tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::getVariationalEquationsSolver</definition>
+        <argsstring>() const</argsstring>
+        <name>getVariationalEquationsSolver</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="59" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a008e346f583b8a8b5e1a6a320a7fdbe2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::resetVariationalEquationsSolver</definition>
+        <argsstring>()</argsstring>
+        <name>resetVariationalEquationsSolver</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="64" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="64" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a5610895008159c1bf668e957d60e0528" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::resetParameterSettings</definition>
+        <argsstring>()</argsstring>
+        <name>resetParameterSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="81" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="81" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1aabccdf3bcfebeffb183c52de83105a72" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::runJsonSimulation</definition>
+        <argsstring>()</argsstring>
+        <name>runJsonSimulation</name>
+        <reimplements refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a77d638e103b8bc398cf803dc395ac7ab">runJsonSimulation</reimplements>
+        <reimplementedby refid="classtudat_1_1json__interface_1_1JsonEstimationManager_1a4029bf89e4a0d29e7bb79eed267b0e4d">runJsonSimulation</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="96" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="96" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a67780341a614a4f59da8f5f536e95734" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::createSimulationObjects</definition>
+        <argsstring>()</argsstring>
+        <name>createSimulationObjects</name>
+        <reimplements refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1af62f160b434572efb4b9eb80fe325e2a">createSimulationObjects</reimplements>
+        <reimplementedby refid="classtudat_1_1json__interface_1_1JsonEstimationManager_1ac76133c3a98c86c3f46343cdcf083685">createSimulationObjects</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="102" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="102" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a169494790e6404a6b0f70d3694e182fc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::updateSettings</definition>
+        <argsstring>()</argsstring>
+        <name>updateSettings</name>
+        <reimplements refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a970e5a645f532c39b254010d4b652652">updateSettings</reimplements>
+        <reimplementedby refid="classtudat_1_1json__interface_1_1JsonEstimationManager_1a4176229b9baca1c1f04824e0f5fe7a3f">updateSettings</reimplementedby>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="108" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="108" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a6d056a66e71c3725bcb800069774470b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;::exportResults</definition>
+        <argsstring>()</argsstring>
+        <name>exportResults</name>
+        <reimplements refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a63cd3b474f6051471f3052b6ca193f4f">exportResults</reimplements>
+        <briefdescription>
+<para>Export the results of the dynamics simulation according to the export settings. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Export the results of the dynamics simulation according to the export settings. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="119" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="119" bodyend="123"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::json_interface::JsonSimulationManager&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1JsonSimulationManager"/>
+      </node>
+      <node id="1">
+        <label>tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::json_interface::JsonSimulationManager&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1JsonSimulationManager"/>
+      </node>
+      <node id="1">
+        <label>tudat::json_interface::JsonVariationalEquationsSimulationManager&lt; TimeType, StateScalarType &gt;</label>
+        <link refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" line="26" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/jsonInterfaceVariational.h" bodystart="27" bodyend="133"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a2076af94e53866ea374d3c45d2180fd8" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>addBody</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aabe4c5f89a693e9d861ff84bb0036929" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>applicationOptions_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aa3863deb2dde3357355765a9aa2e904b" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>at</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1af1abb89016aa6050d2d40fe379df8413" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>bodies_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a82b2ffafb62eef0693c73459f674c66e" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>bodySettingsMap_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a67780341a614a4f59da8f5f536e95734" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>createSimulationObjects</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ac20d6cd97d4f7a53a973616bf2c47a81" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>dynamicsSimulator_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ad5565e8a81e28da87e5a2ae934f933d4" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>exportAsJson</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a6d056a66e71c3725bcb800069774470b" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>exportResults</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ad674f6b860e8351a67b5df4df8837430" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>exportSettingsVector_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a5b899cf40c10dcd773d7a086c6d2280f" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getApplicationOptions</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ac60d3938659acae0939e19ecc25a2f0c" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getAsJson</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a6e90dad51cce2e3627b34bf4d003172d" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getBody</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a60cb755954988eb13a43e2cc1029613a" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getBodyMap</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a73fe63ebec999380ea0967ee0dea2da3" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getBodySettingsMap</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ad9476f9ac8a5fa370aadebf30f49fb1c" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getDynamicsSimulator</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ada89c9986c99874e63d9e324af27b9b6" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getEndEpoch</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aa7cd8f9b330a927fb6bb48cafa61173f" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getExportSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a2a8b13c89cba7fe08d2d2686a6bd9dc9" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getExportSettingsVector</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a9081fc6bae62f3e5841cb2600e143985" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getGlobalFrameOrientation</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a2886a3df6408004774343f6d009b2397" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getGlobalFrameOrigin</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1abf17e3a25598a6ffd85359b1ef71467e" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getIntegratorSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1abca703b1819354f019f7c96117313b34" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getJsonObject</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a8d75cd217f63b9b48cd6768507de17d7" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getOriginalJsonObject</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ac467bdf8baa1f17c60f31c3707b64379" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getPropagatorSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aa00f19d9da3543cae864db8e06f6768f" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getSpiceSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a247b437aaa8996971ca65b56dd96d4e2" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getStartEpoch</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a6ecd25eb01bded73a4507c00a71a6ce0" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>getVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ad79cd3dc59d6ded13e4da57e4d7537de" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>globalFrameOrientation_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1affb032d8bfd37de19be31a604db7acea" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>globalFrameOrigin_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a55c1d7d507bc7d3a0d4718b97469642a" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>initialClockTime_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a09ddfe469bd720f327bf9749b4c795e4" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>inputFilePath_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1af45ad2b3cc28ff62563d7982d6c1365f" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>integratorSettings_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1addaf6e2d7c26626ee5d5837756fa3eaf" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>jsonObject_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aaa3ab5a9e7c7bd3f6bc3fbb4a07e9ccd" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>JsonSimulationManager</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a5cba88036054d7644f4a95759f4b4216" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>JsonSimulationManager</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a09044a7bca91da55b9fdb1dd29d7ec70" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>JsonVariationalEquationsSimulationManager</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a9183c67476403a1e354ae073f887395e" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>JsonVariationalEquationsSimulationManager</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ac8b008fc65cb41815f2f9a18988d18a2" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>operator[]</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a8bba8c525d7d7348c34a96967f7067b7" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>originalJsonObject_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a9491a89ec08438bf3fbefce4d2eb6b88" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>parameterSettings_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1aec3cef93182b3165c0518c2df403632e" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>parametersToEstimate_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aa4d4680869e65fc0a06660d7bebd0d62" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>profiling</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a4c11c5b270dc0f112eea149f3174c56e" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>propagatorSettings_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ab299ed70fd800005901eda81d8590b3d" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetApplicationOptions</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a03a31189efab0e4fd39d13ced3d73659" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetBodies</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1acda7166bac1eba247016d3bb78428f44" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetDynamicsSimulator</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a7b07b80a1f378bc44eed66e2dc8e6655" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetExportSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a5d2292cf7ae84cb40fc7b9d51b77de43" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetInputFile</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a163f8a87d4241e58b775da05d87be0b5" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetIntegratorSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a281c02cf1a04eb174f87789e92f5fc04" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetJsonObject</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a5610895008159c1bf668e957d60e0528" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetParameterSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a204fbcb54ad54ef74506b11c47da5d26" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetPropagatorSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a0e9930c3aad056de30c2a1d05be4a28d" prot="protected" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetSpice</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a008e346f583b8a8b5e1a6a320a7fdbe2" prot="public" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>resetVariationalEquationsSolver</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1aabccdf3bcfebeffb183c52de83105a72" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>runJsonSimulation</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a661d898bdbf4feb2a9fbe9efa7a183c3" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>runPropagation</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a58805a79b4b0748d2532972aaf2b508f" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>simulationType_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1aba881eb282ce81b0ce8469637c3db7ed" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>spiceSettings_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1a3785b73e7861a050293138b888b9bfb4" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>updateJsonObjectFromSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a169494790e6404a6b0f70d3694e182fc" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>updateSettings</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a1e2edd373e532349d2371d2837e70a02" prot="protected" virt="non-virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>variationalEquationsSolver_</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonSimulationManager_1ab37a08927f7a0882ea5f5174032c2d1b" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>~JsonSimulationManager</name></member>
+      <member refid="classtudat_1_1json__interface_1_1JsonVariationalEquationsSimulationManager_1a2451d2f299f9f4dc06637a1d2f4c2a94" prot="public" virt="virtual"><scope>tudat::json_interface::JsonVariationalEquationsSimulationManager</scope><name>~JsonVariationalEquationsSimulationManager</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

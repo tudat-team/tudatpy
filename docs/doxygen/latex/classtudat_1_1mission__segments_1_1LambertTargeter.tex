@@ -1,0 +1,225 @@
+\hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter}{}\doxysection{tudat\+::mission\+\_\+segments\+::Lambert\+Targeter Class Reference}
+\label{classtudat_1_1mission__segments_1_1LambertTargeter}\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+
+
+Lambert targeting algorithm class.  
+
+
+
+
+{\ttfamily \#include $<$lambert\+Targeter.\+h$>$}
+
+Inheritance diagram for tudat\+::mission\+\_\+segments\+::Lambert\+Targeter\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.551246cm]{classtudat_1_1mission__segments_1_1LambertTargeter}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+EIGEN\+\_\+\+MAKE\+\_\+\+ALIGNED\+\_\+\+OPERATOR\+\_\+\+NEW \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a332842cdf2c2302ed2ade4c50b170ad9}{Lambert\+Targeter}} (const Eigen\+::\+Vector3d \&a\+Cartesian\+Position\+At\+Departure, const Eigen\+::\+Vector3d \&a\+Cartesian\+Position\+At\+Arrival, const double a\+Time\+Of\+Flight, const double a\+Gravitational\+Parameter)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_ab70e44ba68bb104a0d86e293e00b0ea2}{$\sim$\+Lambert\+Targeter}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_aaa55de14f573813df2ca90540ef51148}{get\+Inertial\+Velocity\+At\+Departure}} ()
+\begin{DoxyCompactList}\small\item\em Get inertial velocity at departure. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a9f04eb41af7d6ab2c3ae2597b65155fd}{get\+Inertial\+Velocity\+At\+Arrival}} ()
+\begin{DoxyCompactList}\small\item\em Get inertial velocity at arrival. \end{DoxyCompactList}\item 
+std\+::pair$<$ Eigen\+::\+Vector3d, Eigen\+::\+Vector3d $>$ \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_ae3a2c762748e3e4ed914b9b248003bf6}{get\+Inertial\+Velocity\+Vectors}} ()
+\begin{DoxyCompactList}\small\item\em Get inertial velocity vectors. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_ac022ab6c8aa0d941b1d049036a7d8054}{execute}} ()=0
+\begin{DoxyCompactList}\small\item\em Execute Lambert targeting algorithm. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a67d3a9e1b514c0ca2dad3f235c46941b}{cartesian\+Position\+At\+Departure}}
+\begin{DoxyCompactList}\small\item\em Cartesian position at departure. \end{DoxyCompactList}\item 
+const Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_ab710c1fabfd56361c457449c99efd5fa}{cartesian\+Position\+At\+Arrival}}
+\begin{DoxyCompactList}\small\item\em Cartesian position at arrival. \end{DoxyCompactList}\item 
+const double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a74f0ac221b22693ba7fe0b7398007e9b}{time\+Of\+Flight}}
+\begin{DoxyCompactList}\small\item\em Time-\/of-\/flight. \end{DoxyCompactList}\item 
+const double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_ab22c920bfc0f13cdfee122fa2bb93ea2}{gravitational\+Parameter}}
+\begin{DoxyCompactList}\small\item\em Gravitational parameter. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a461475bd753a2ba590f1a403a8695794}{cartesian\+Velocity\+At\+Departure}}
+\begin{DoxyCompactList}\small\item\em Cartesian velocity at departure. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_a7260e16ff3a70f4971945d66ef08e682}{cartesian\+Velocity\+At\+Arrival}}
+\begin{DoxyCompactList}\small\item\em Cartesian velocity at arrival. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter_aa9dd030ab3e408d72f44c4f9ea2fe03a}{solved}}
+\begin{DoxyCompactList}\small\item\em Solved boolean flag. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Lambert targeting algorithm class. 
+
+Implementation of Lambert targeting algorithm in Tudat. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a332842cdf2c2302ed2ade4c50b170ad9}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a332842cdf2c2302ed2ade4c50b170ad9}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!LambertTargeter@{LambertTargeter}}
+\index{LambertTargeter@{LambertTargeter}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{LambertTargeter()}{LambertTargeter()}}
+{\footnotesize\ttfamily EIGEN\+\_\+\+MAKE\+\_\+\+ALIGNED\+\_\+\+OPERATOR\+\_\+\+NEW tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::\+Lambert\+Targeter (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{a\+Cartesian\+Position\+At\+Departure,  }\item[{const Eigen\+::\+Vector3d \&}]{a\+Cartesian\+Position\+At\+Arrival,  }\item[{const double}]{a\+Time\+Of\+Flight,  }\item[{const double}]{a\+Gravitational\+Parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor that only initializes parameters. Execution of solving routine happens on member function call. 
+\begin{DoxyParams}{Parameters}
+{\em a\+Cartesian\+Position\+At\+Departure} & The position at departure in Cartesian coordinates. \mbox{[}m\mbox{]} \\
+\hline
+{\em a\+Cartesian\+Position\+At\+Arrival} & The position at arrival in Cartesian coordinates. \mbox{[}m\mbox{]} \\
+\hline
+{\em a\+Time\+Of\+Flight} & The time-\/of-\/flight between departure and arrival. \mbox{[}s\mbox{]} \\
+\hline
+{\em a\+Gravitational\+Parameter} & The gravitational parameter of the main body. \mbox{[}m$^\wedge$3 s$^\wedge$-\/2\mbox{]} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_ab70e44ba68bb104a0d86e293e00b0ea2}\label{classtudat_1_1mission__segments_1_1LambertTargeter_ab70e44ba68bb104a0d86e293e00b0ea2}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!````~LambertTargeter@{$\sim$LambertTargeter}}
+\index{````~LambertTargeter@{$\sim$LambertTargeter}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{$\sim$LambertTargeter()}{~LambertTargeter()}}
+{\footnotesize\ttfamily virtual tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::$\sim$\+Lambert\+Targeter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_ac022ab6c8aa0d941b1d049036a7d8054}\label{classtudat_1_1mission__segments_1_1LambertTargeter_ac022ab6c8aa0d941b1d049036a7d8054}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!execute@{execute}}
+\index{execute@{execute}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{execute()}{execute()}}
+{\footnotesize\ttfamily virtual void tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::execute (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [pure virtual]}}
+
+
+
+Execute Lambert targeting algorithm. 
+
+Executes the Lambert targeting algorithm. Since the parameters of the Lambert routine are set directly in the constructor, the same \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeter}{Lambert\+Targeter}} object cannot be reused for a different problem. This makes the class more robust, as all parameters are consistent with a single problem at all times. Since each object corresponds to a unique problem, there is no need to call this function more than once. Therefore, this function is protected and run at construction. 
+
+Implemented in \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_a1cb96dd1627e781c996d38b9303a57df}{tudat\+::mission\+\_\+segments\+::\+Zero\+Revolution\+Lambert\+Targeter\+Izzo}}, \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a12b1d8e5895d3e73bd6c8b9a462c90ae}{tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo}}, \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeterIzzo_a912b334947302675369e10f964770028}{tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+Izzo}}, and \mbox{\hyperlink{classtudat_1_1mission__segments_1_1LambertTargeterGooding_a6a8d24104f7fd12f753b0df2799b2eff}{tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+Gooding}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a9f04eb41af7d6ab2c3ae2597b65155fd}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a9f04eb41af7d6ab2c3ae2597b65155fd}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!getInertialVelocityAtArrival@{getInertialVelocityAtArrival}}
+\index{getInertialVelocityAtArrival@{getInertialVelocityAtArrival}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{getInertialVelocityAtArrival()}{getInertialVelocityAtArrival()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::get\+Inertial\+Velocity\+At\+Arrival (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get inertial velocity at arrival. 
+
+Returns the inertial velocity at arrival ( heliocentric or planetocentric ). \begin{DoxyReturn}{Returns}
+Inertial velocity at arrival. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_aaa55de14f573813df2ca90540ef51148}\label{classtudat_1_1mission__segments_1_1LambertTargeter_aaa55de14f573813df2ca90540ef51148}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!getInertialVelocityAtDeparture@{getInertialVelocityAtDeparture}}
+\index{getInertialVelocityAtDeparture@{getInertialVelocityAtDeparture}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{getInertialVelocityAtDeparture()}{getInertialVelocityAtDeparture()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::get\+Inertial\+Velocity\+At\+Departure (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get inertial velocity at departure. 
+
+Returns the inertial velocity at departure ( heliocentric or planetocentric ). \begin{DoxyReturn}{Returns}
+Inertial velocity at departure. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_ae3a2c762748e3e4ed914b9b248003bf6}\label{classtudat_1_1mission__segments_1_1LambertTargeter_ae3a2c762748e3e4ed914b9b248003bf6}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!getInertialVelocityVectors@{getInertialVelocityVectors}}
+\index{getInertialVelocityVectors@{getInertialVelocityVectors}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{getInertialVelocityVectors()}{getInertialVelocityVectors()}}
+{\footnotesize\ttfamily std\+::pair$<$ Eigen\+::\+Vector3d, Eigen\+::\+Vector3d $>$ tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::get\+Inertial\+Velocity\+Vectors (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Get inertial velocity vectors. 
+
+Returns a pair of vectors, the first corresponding to the velocity vector along the transfer ellipse, the second to the the velocity vector at arrival. \begin{DoxyReturn}{Returns}
+Pair of velocity vectors. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_ab710c1fabfd56361c457449c99efd5fa}\label{classtudat_1_1mission__segments_1_1LambertTargeter_ab710c1fabfd56361c457449c99efd5fa}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!cartesianPositionAtArrival@{cartesianPositionAtArrival}}
+\index{cartesianPositionAtArrival@{cartesianPositionAtArrival}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{cartesianPositionAtArrival}{cartesianPositionAtArrival}}
+{\footnotesize\ttfamily const Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::cartesian\+Position\+At\+Arrival\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Cartesian position at arrival. 
+
+Cartesian position at arrival. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a67d3a9e1b514c0ca2dad3f235c46941b}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a67d3a9e1b514c0ca2dad3f235c46941b}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!cartesianPositionAtDeparture@{cartesianPositionAtDeparture}}
+\index{cartesianPositionAtDeparture@{cartesianPositionAtDeparture}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{cartesianPositionAtDeparture}{cartesianPositionAtDeparture}}
+{\footnotesize\ttfamily const Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::cartesian\+Position\+At\+Departure\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Cartesian position at departure. 
+
+Cartesian position at departure. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a7260e16ff3a70f4971945d66ef08e682}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a7260e16ff3a70f4971945d66ef08e682}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!cartesianVelocityAtArrival@{cartesianVelocityAtArrival}}
+\index{cartesianVelocityAtArrival@{cartesianVelocityAtArrival}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{cartesianVelocityAtArrival}{cartesianVelocityAtArrival}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::cartesian\+Velocity\+At\+Arrival\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Cartesian velocity at arrival. 
+
+Cartesian velocity at arrival. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a461475bd753a2ba590f1a403a8695794}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a461475bd753a2ba590f1a403a8695794}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!cartesianVelocityAtDeparture@{cartesianVelocityAtDeparture}}
+\index{cartesianVelocityAtDeparture@{cartesianVelocityAtDeparture}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{cartesianVelocityAtDeparture}{cartesianVelocityAtDeparture}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::cartesian\+Velocity\+At\+Departure\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Cartesian velocity at departure. 
+
+Cartesian velocity at departure. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_ab22c920bfc0f13cdfee122fa2bb93ea2}\label{classtudat_1_1mission__segments_1_1LambertTargeter_ab22c920bfc0f13cdfee122fa2bb93ea2}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!gravitationalParameter@{gravitationalParameter}}
+\index{gravitationalParameter@{gravitationalParameter}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{gravitationalParameter}{gravitationalParameter}}
+{\footnotesize\ttfamily const double tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::gravitational\+Parameter\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Gravitational parameter. 
+
+Gravitational parameter. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_aa9dd030ab3e408d72f44c4f9ea2fe03a}\label{classtudat_1_1mission__segments_1_1LambertTargeter_aa9dd030ab3e408d72f44c4f9ea2fe03a}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!solved@{solved}}
+\index{solved@{solved}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{solved}{solved}}
+{\footnotesize\ttfamily bool tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::solved\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Solved boolean flag. 
+
+Boolean flag to indicate the problem has a computed outcome. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1LambertTargeter_a74f0ac221b22693ba7fe0b7398007e9b}\label{classtudat_1_1mission__segments_1_1LambertTargeter_a74f0ac221b22693ba7fe0b7398007e9b}} 
+\index{tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}!timeOfFlight@{timeOfFlight}}
+\index{timeOfFlight@{timeOfFlight}!tudat::mission\_segments::LambertTargeter@{tudat::mission\_segments::LambertTargeter}}
+\doxysubsubsection{\texorpdfstring{timeOfFlight}{timeOfFlight}}
+{\footnotesize\ttfamily const double tudat\+::mission\+\_\+segments\+::\+Lambert\+Targeter\+::time\+Of\+Flight\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Time-\/of-\/flight. 
+
+Time-\/of-\/flight. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/mission\+\_\+segments/lambert\+Targeter.\+h\end{DoxyCompactItemize}

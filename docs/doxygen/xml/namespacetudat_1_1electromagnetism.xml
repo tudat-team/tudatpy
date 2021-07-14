@@ -1,0 +1,805 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1electromagnetism" kind="namespace" language="C++">
+    <compoundname>tudat::electromagnetism</compoundname>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration" prot="public">tudat::electromagnetism::CannonBallRadiationPressureAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration" prot="public">tudat::electromagnetism::PanelledRadiationPressureAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" prot="public">tudat::electromagnetism::RadiationPressureInterface</innerclass>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface" prot="public">tudat::electromagnetism::PanelledRadiationPressureInterface</innerclass>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1SolarSailingRadiationPressureInterface" prot="public">tudat::electromagnetism::SolarSailingRadiationPressureInterface</innerclass>
+    <innerclass refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration" prot="public">tudat::electromagnetism::SolarSailAcceleration</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="cannonBallRadiationPressureAcceleration_8h_1aca3875b289ce04647d42154ef2822e90" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration" kindref="compound">CannonBallRadiationPressureAcceleration</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CannonBallRadiationPressureAcceleration &gt; tudat::electromagnetism::CannonBallRadiationPressurePointer</definition>
+        <argsstring></argsstring>
+        <name>CannonBallRadiationPressurePointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration" kindref="compound">CannonBallRadiationPressureAcceleration</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h" line="258" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="solarSailAcceleration_8h_1a0fe7e63c45e5bd76fc1d3aa23920c81f" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration" kindref="compound">SolarSailAcceleration</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; SolarSailAcceleration &gt; tudat::electromagnetism::SolarSailAccelerationPointer</definition>
+        <argsstring></argsstring>
+        <name>SolarSailAccelerationPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration" kindref="compound">SolarSailAcceleration</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" line="570" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" bodystart="570" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="basicElectroMagnetism_8h_1a54163f75398dd791feb058e5dc380d36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::computeBlackbodyRadiationIntensity</definition>
+        <argsstring>(const double bodyTemperature)</argsstring>
+        <name>computeBlackbodyRadiationIntensity</name>
+        <param>
+          <type>const double</type>
+          <declname>bodyTemperature</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the blackbody radiation intensity at a given body temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the blackbody radiation intensity (W/m^2) at a given body temperature. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyTemperature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Temperature of black body emitting radiation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Blackbodt radiation intensity at given temperature. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/basicElectroMagnetism.h" line="27" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/basicElectroMagnetism.h" bodystart="27" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="cannonBallRadiationPressureAcceleration_8h_1ae512f561c73c7f0df5a6d28df1b05c5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeCannonBallRadiationPressureAcceleration</definition>
+        <argsstring>(const double radiationPressure, const Eigen::Vector3d &amp;vectorToSource, const double area, const double radiationPressureCoefficient, const double mass)</argsstring>
+        <name>computeCannonBallRadiationPressureAcceleration</name>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressure</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>vectorToSource</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressureCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>mass</declname>
+        </param>
+        <briefdescription>
+<para>Compute radiation pressure acceleration using a cannon-ball model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes radiation pressure acceleration using a cannon-ball model, i.e. assuming force to be in opposite direction of the vector to the source. This function is essentially a wrapper for the function that computes the force. opposite direction of the vector to the source. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radiation pressure at target. N.B: the usual way of computing the radiation pressure at the target, in case the source is the Sun, is to take the radiation presssure at 1 AU and scale it based on the distance from the Sun [N/m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vectorToSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector pointing from target to source. N.B: this must be a unit vector! To compute the unit vector based on a given position vector, you can use the .normalize() or .normalized() member functions of an Eigen::Vector3d object. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Area on which radiation pressure is assumed to act. [m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient to scale effective force. Equal to 1 + emissivitty, assuming no diffuse reflection. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of accelerated body. [kg] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Acceleration due to radiation pressure. [m/s^2] </para>
+</simplesect>
+<simplesect kind="see"><para>computeCannonBallRadiationPressureForce(). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/cannonBallRadiationPressureAcceleration.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/cannonBallRadiationPressureAcceleration.cpp" bodystart="23" bodyend="32" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h" declline="55" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="cannonBallRadiationPressureForce_8h_1a007b12472d6f0843c09e6ee5f70ca03c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeCannonBallRadiationPressureForce</definition>
+        <argsstring>(const double radiationPressure, const Eigen::Vector3d &amp;vectorToSource, const double area, const double radiationPressureCoefficient)</argsstring>
+        <name>computeCannonBallRadiationPressureForce</name>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressure</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>vectorToSource</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressureCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Compute radiation pressure force using a cannon-ball model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes radiation pressure force using a cannon-ball model, i.e., assuming force to be in opposite direction of the vector to the source. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radiationPressure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radiation pressure at target. N.B: the usual way of computing the radiation pressure at the target, in case the source is the Sun, is to take the radiation presssure at 1 AU and scale it based on the distance from the Sun [N/m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vectorToSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector pointing from target to source. N.B: this must be a unit vector! To compute the unit vector based on a given position vector, you can use the .normalize() or .normalized() member functions of an Eigen::Vector3d object. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Area on which radiation pressure is assumed to act. [m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressureCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficient to scale effective force. Equal to 1 + emissivitty, assuming no diffuse reflection. [-] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Force due to radiation pressure. [N] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/cannonBallRadiationPressureForce.cpp" line="20" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/cannonBallRadiationPressureForce.cpp" bodystart="20" bodyend="27" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/cannonBallRadiationPressureForce.h" declline="38" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="lorentzStaticMagneticAcceleration_8h_1ae6e631dd850d7c7276a9163630801d37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeLorentzAccelerationDueToStaticMagneticField</definition>
+        <argsstring>(const Eigen::Vector3d &amp;velocityOfBodySubjectToAcceleration, const Eigen::Vector3d &amp;localMagneticField, const double chargeOfBodySubjectToAcceleration, const double massOfBodySubjectToAcceleration)</argsstring>
+        <name>computeLorentzAccelerationDueToStaticMagneticField</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>localMagneticField</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>chargeOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massOfBodySubjectToAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute Lorentz acceleration due to static magnetic field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute acceleration due to static magnetic field.</para>
+<para>Computes Lorentz acceleration due to static magnetic field on a particle in an inertial reference frame. Assumes the particle is point-like. Note: This function does not take into account any the Coulomb force between the particle and the source. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>velocityOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Velocity of body which is being accelerated by the Lorentz force. [m/s] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>localMagneticField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>local magnetic field at position of body subject to acceleration [Tm] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chargeOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Charge of body which is being accelerated by Lorentz force. [C] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of body which is being accelerated by Lorentz force [kg] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Lorentz acceleration due to static magnetic field. [N] </para>
+</simplesect>
+<simplesect kind="see"><para>computeLorentzForceDueToStaticMagneticField. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/lorentzStaticMagneticAcceleration.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/lorentzStaticMagneticAcceleration.cpp" bodystart="22" bodyend="31" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/lorentzStaticMagneticAcceleration.h" declline="38" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="lorentzStaticMagneticForce_8h_1aab24b219fd390cf2bae37fdb855baa1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeLorentzForceDueToStaticMagneticField</definition>
+        <argsstring>(const Eigen::Vector3d &amp;velocityOfBodySubjectToAcceleration, const Eigen::Vector3d &amp;localMagneticField, const double chargeOfBodySubjectToAcceleration)</argsstring>
+        <name>computeLorentzForceDueToStaticMagneticField</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>velocityOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>localMagneticField</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>chargeOfBodySubjectToAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute Lorentz force due to static magnetic field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute Lorentz Force due to static magnetic field.</para>
+<para>Computes Lorentz force due to static magnetic field on a particle in an inertial reference frame. Assumes the particle is point-like.The following equation is used to calculate the force: <formula id="22">\[ \bar{f} = q * \bar{v} x \bar{B} \]</formula> where <formula id="23">$f$</formula> is the force on the particle, <formula id="24">$q$</formula> is the charge of the accelerating particle, <formula id="25">$\bar{v}$</formula> is the velocity of the accelerating particle, and <formula id="26">$\bar{B}$</formula> is the local magnetic field. Note: This force does not take into account the Coulomb force between the particle and the source. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>velocityOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Velocity of body which is being accelerated by the Lorentz force. [m/s] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chargeOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Charge of body which is being accelerated by Lorentz force. [C] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>localMagneticField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>local magnetic field at position of body subject to acceleration [Tm] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Lorentz force due to static magnetic field [N] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/lorentzStaticMagneticForce.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/lorentzStaticMagneticForce.cpp" bodystart="22" bodyend="30" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/lorentzStaticMagneticForce.h" declline="40" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="panelledRadiationPressure_8h_1a344f60b20c7005b5efb6c7d386a7151d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeSinglePanelNormalizedRadiationPressureForce</definition>
+        <argsstring>(const Eigen::Vector3d &amp;normalizedVectorToSource, const Eigen::Vector3d &amp;panelSurfaceNormal, const double panelArea, const double panelEmissivitty, const double panelDiffuseReflectionCoefficient)</argsstring>
+        <name>computeSinglePanelNormalizedRadiationPressureForce</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>normalizedVectorToSource</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>panelSurfaceNormal</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>panelArea</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>panelEmissivitty</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>panelDiffuseReflectionCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate radiation pressure force on a single partially reflecting panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate radiation pressure force on a single partially reflecting panel. Model for calculation is according to Eq. (3.72) of Montenbruck and Gill (2000) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>normalizedVectorToSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current normalized vector from accelerated body to source </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>panelSurfaceNormal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Panel surface normal vector, in the same frame as the normalizedVectorToSource vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>panelArea</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Area of panel that is considered </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>panelEmissivitty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity of panel that is considered </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>panelDiffuseReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Diffuse reflection coefficient of panel that is considered </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The radiation pressure force on a single partially reflecting panel </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/panelledRadiationPressure.cpp" line="12" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/panelledRadiationPressure.cpp" bodystart="12" bodyend="32" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/panelledRadiationPressure.h" declline="44" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="radiationPressureInterface_8h_1ada34ed327d7f9c80706abfb4c9df8c3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::calculateRadiationPressure</definition>
+        <argsstring>(const double sourcePower, const double distanceFromSource)</argsstring>
+        <name>calculateRadiationPressure</name>
+        <param>
+          <type>const double</type>
+          <declname>sourcePower</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceFromSource</declname>
+        </param>
+        <briefdescription>
+<para>Calculate radiation pressure at certain distance from a source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Calculate radiation pressure at certain distance from a source, in N/m^2. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePower</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total power radiated by the source (isotropically) in W. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceFromSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from center of (spherical) source where radiation pressure is to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Radiation pressure at given distance from the source. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/radiationPressureInterface.cpp" line="25" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/radiationPressureInterface.cpp" bodystart="25" bodyend="29" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" declline="41" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="solarSailAcceleration_8h_1a01e2cdb9441a27f59f491f9bad6728a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeSolarSailAcceleration</definition>
+        <argsstring>(const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient, const double backLambertianCoefficient, const double reflectivityCoefficient, const double specularReflectionCoefficient, const Eigen::Vector3d &amp;normalisedVectorToSource, const Eigen::Vector3d &amp;normalisedVelocityVector, const double radiationPressure, const double area, const double coneAngle, const double clockAngle, const double mass)</argsstring>
+        <name>computeSolarSailAcceleration</name>
+        <param>
+          <type>const double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>normalisedVectorToSource</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>normalisedVelocityVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressure</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>coneAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>clockAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>mass</declname>
+        </param>
+        <briefdescription>
+<para>Compute solar sail acceleration with a non-ideal reflective model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute solar sail acceleration with a non-ideal reflective model. The acceleration is computed from the force derived from the solar sailing radiation pressure model, which is itself a function of the source power and geometry, as well as of the solar sailing model. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the front of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the back of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the front of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the back of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specular reflection coefficient of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalisedVectorToSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Normalised vector pointing from target to source. N.B: this must be a unit vector! To compute the unit vector based on a given position vector, you can use the .normalize() or .normalized() member functions of an Eigen::Vector3d object. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalisedVelocityVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Normalised velocity vector of the spacecraft w.r.t. central body. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radiation pressure at target. [N/m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Area on which radiation pressure is assumed to act. [m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sail cone angle. [rad] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sail clock angle. [rad] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of accelerated body. [kg] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Acceleration due to radiation pressure. [m/s^2] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/solarSailAcceleration.cpp" line="24" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/solarSailAcceleration.cpp" bodystart="24" bodyend="44" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailAcceleration.h" declline="60" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="solarSailForce_8h_1a9c76c8515966b6842514e610fe8aa3e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::computeSolarSailForce</definition>
+        <argsstring>(const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient, const double backLambertianCoefficient, const double reflectivityCoefficient, const double specularReflectionCoefficient, const Eigen::Vector3d &amp;normalisedVectorToSource, const Eigen::Vector3d &amp;normalisedVelocityVector, const double radiationPressure, const double area, const double coneAngle, const double clockAngle)</argsstring>
+        <name>computeSolarSailForce</name>
+        <param>
+          <type>const double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>normalisedVectorToSource</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>normalisedVelocityVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiationPressure</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>coneAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>clockAngle</declname>
+        </param>
+        <briefdescription>
+<para>Compute solar sail force using a non-ideal reflective model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes solar sail force using a non-ideal reflective model. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the front of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the back of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the front of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the back of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient of the sail. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specular reflection coefficient. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalisedVectorToSource</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Normalised vector pointing from target to source. N.B: this must be a unit vector! To compute the unit vector based on a given position vector, you can use the .normalize() or .normalized() member functions of an Eigen::Vector3d object. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalisedVelocityVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Normalised velocity vector of the target w.r.t. central body. [-] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiationPressure</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radiation pressure at target. [N/m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Area on which radiation pressure is assumed to act. [m^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sail cone angle. [rad] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sail clock angle. [rad] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Solar sail force. [N] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/solarSailForce.cpp" line="24" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/electromagnetism/solarSailForce.cpp" bodystart="24" bodyend="99" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/solarSailForce.h" declline="41" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/basicElectroMagnetism.h" line="18" column="1"/>
+  </compounddef>
+</doxygen>

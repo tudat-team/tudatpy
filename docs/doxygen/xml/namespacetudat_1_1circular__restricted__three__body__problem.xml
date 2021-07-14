@@ -1,0 +1,491 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1circular__restricted__three__body__problem" kind="namespace" language="C++">
+    <compoundname>tudat::circular_restricted_three_body_problem</compoundname>
+    <innerclass refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint" prot="public">tudat::circular_restricted_three_body_problem::LibrationPoint</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="librationPoint_8h_1a4682f60b6f5b810e5defc8a469626161" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint" kindref="compound">LibrationPoint</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; LibrationPoint &gt; tudat::circular_restricted_three_body_problem::LibrationPointPointer</definition>
+        <argsstring></argsstring>
+        <name>LibrationPointPointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="219" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="librationPoint_8h_1aec0af6b9614b03b196a652dd51a5641a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::computeMassParameter</definition>
+        <argsstring>(const double primaryGravitationalParameter, const double secondaryGravitationalParameter)</argsstring>
+        <name>computeMassParameter</name>
+        <param>
+          <type>const double</type>
+          <declname>primaryGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>secondaryGravitationalParameter</declname>
+        </param>
+        <briefdescription>
+<para>Compute mass parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes dimensionless mass parameter for the CRTBP. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>primaryGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secondaryGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dimensionless mass parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="42" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="42" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1a21d7f0d230bccbac83219d306935d126" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits</definition>
+        <argsstring>(const Eigen::Vector6d &amp;dimensionlessCartesianState, const double gravitationalParameterOfPrimaryBody, const double gravitationalParameterOfSecondaryBody, const double distanceBetweenPrimaries)</argsstring>
+        <name>convertDimensionlessCartesianStateToDimensionalUnits</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>dimensionlessCartesianState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfPrimaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfSecondaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceBetweenPrimaries</declname>
+        </param>
+        <briefdescription>
+<para>Convert dimensionless Cartesian state to dimensional units. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert dimensionless Cartesian state to dimensional units. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dimensionlessCartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimensionless Cartesian state vector. Order is important! dimensionlessCartesianState( 0 ) = x-position coordinate, [m] dimensionlessCartesianState( 1 ) = y-position coordinate, [m] dimensionlessCartesianState( 2 ) = z-position coordinate, [m] dimensionlessCartesianState( 3 ) = x-velocity coordinate, [m/s] dimensionlessCartesianState( 4 ) = y-velocity coordinate, [m/s] dimensionlessCartesianState( 5 ) = z-velocity coordinate. [m/s] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfPrimaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body. [m^3 s^-2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfSecondaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body. [m^3 s^-2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceBetweenPrimaries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries. [m] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dimensional Cartesian state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="30" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="30" bodyend="51" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="49" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1af8e463ed24791bd8258da13b4be1d252" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime</definition>
+        <argsstring>(const double timeInDimensionlessUnits, const double gravitationalParameterOfPrimaryBody, const double gravitationalParameterOfSecondaryBody, const double distanceBetweenPrimaries)</argsstring>
+        <name>convertDimensionlessTimeToDimensionalTime</name>
+        <param>
+          <type>const double</type>
+          <declname>timeInDimensionlessUnits</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfPrimaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfSecondaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceBetweenPrimaries</declname>
+        </param>
+        <briefdescription>
+<para>Convert dimensionless time to dimensional units. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert dimensionless time to dimensional units. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeInDimensionlessUnits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in normalized units. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfPrimaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body. [m^3 s^-2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfSecondaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body. [m^3 s^-2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceBetweenPrimaries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries. [m] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dimensional time. [s] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="54" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="54" bodyend="62" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="65" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1a6815412cc0479f5969d44a7692504665" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::VectorXd</type>
+        <definition>Eigen::VectorXd tudat::circular_restricted_three_body_problem::convertDimensionalCartesianStateToDimensionlessState</definition>
+        <argsstring>(const Eigen::Vector6d &amp;dimensionalCartesianState, const double gravitationalParameterOfPrimaryBody, const double gravitationalParameterOfSecondaryBody, const double distanceBetweenPrimaries)</argsstring>
+        <name>convertDimensionalCartesianStateToDimensionlessState</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>dimensionalCartesianState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfPrimaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfSecondaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceBetweenPrimaries</declname>
+        </param>
+        <briefdescription>
+<para>Convert dimensional Cartesian state to dimensionless state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert dimensional Cartesian state to dimensionless state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dimensionalCartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimensional Cartesian state vector [m]. Order is important! dimensionalCartesianState( 0 ) = x-position coordinate [m], dimensionalCartesianState( 1 ) = y-position coordinate [m], dimensionalCartesianState( 2 ) = z-position coordinate [m], dimensionalCartesianState( 3 ) = x-velocity coordinate [m/s], dimensionalCartesianState( 4 ) = y-velocity coordinate [m/s], dimensionalCartesianState( 5 ) = z-velocity coordinate [m/s]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfPrimaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfSecondaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceBetweenPrimaries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dimensionless Cartesian state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="65" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="65" bodyend="86" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="88" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1aea68916aafa7010e1acc19cda572606a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime</definition>
+        <argsstring>(const double dimensionalTime, const double gravitationalParameterOfPrimaryBody, const double gravitationalParameterOfSecondaryBody, const double distanceBetweenPrimaries)</argsstring>
+        <name>convertDimensionalTimeToDimensionlessTime</name>
+        <param>
+          <type>const double</type>
+          <declname>dimensionalTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfPrimaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfSecondaryBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distanceBetweenPrimaries</declname>
+        </param>
+        <briefdescription>
+<para>Convert dimensional time to dimensionless time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert dimensional time to dimensionless time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dimensionalTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> in dimensional units [s]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfPrimaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfSecondaryBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distanceBetweenPrimaries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Adimensional time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="91" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="91" bodyend="100" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="106" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1a409b357c191ded90f7c1f4295a0759df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::circular_restricted_three_body_problem::convertCorotatingNormalizedToCartesianCoordinates</definition>
+        <argsstring>(const double gravitationalParameterPrimary, const double gravitationalParameterSecondary, const double distancePrimarySecondary, const Eigen::Vector6d &amp;normalizedState, const double normalizedTime)</argsstring>
+        <name>convertCorotatingNormalizedToCartesianCoordinates</name>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterPrimary</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterSecondary</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distancePrimarySecondary</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>normalizedState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>normalizedTime</declname>
+        </param>
+        <briefdescription>
+<para>Convert corotating normalized state to inertial cartesian state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert corotating normalized state to inertial cartesian state <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterPrimary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterSecondary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distancePrimarySecondary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Co-rotating normalized state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>normalizedTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Adimensional time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertial cartesian state. Order is important! x-position coordinate [m], y-position coordinate [m], z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="104" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="104" bodyend="137" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="131" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="unitConversionsCircularRestrictedThreeBodyProblem_8h_1aedda3595e32952602738afe17889946b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates</definition>
+        <argsstring>(const double gravitationalParameterPrimary, const double gravitationalParameterSecondary, const double distancePrimarySecondary, const Eigen::Vector6d &amp;cartesianState, const double time)</argsstring>
+        <name>convertCartesianToCorotatingNormalizedCoordinates</name>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterPrimary</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterSecondary</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>distancePrimarySecondary</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>cartesianState</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Convert inertial cartesian state to co-rotating normalized state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convert inertial cartesian state to co-rotating normalized state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterPrimary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of primary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterSecondary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of secondary body [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>distancePrimarySecondary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance between primaries [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cartesianState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Inertial cartesian state (x-position coordinate [m], y-position coordinate [m], z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimensional time [s]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Co-rotating normalized state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" line="142" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.cpp" bodystart="142" bodyend="179" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h" declline="150" declcolumn="17"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="32" column="1"/>
+  </compounddef>
+</doxygen>

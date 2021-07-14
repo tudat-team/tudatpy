@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_astrodynamics::InertialTorqueModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::TorqueModel</basecompoundref>
+    <includes refid="torqueModel_8h" local="no">torqueModel.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1afacbff733e599ba707f9dab2ebc3c9c0" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( ) &gt; tudat::basic_astrodynamics::InertialTorqueModel::angularVelocityFunction_</definition>
+        <argsstring></argsstring>
+        <name>angularVelocityFunction_</name>
+        <briefdescription>
+<para>Function that returns body&apos;s body-fixed angular velocity vector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="146" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1aa746c7aea2d8b79fdfe9e93f70d8bc81" prot="protected" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Matrix3d() &gt;</type>
+        <definition>std::function&lt; Eigen::Matrix3d( ) &gt; tudat::basic_astrodynamics::InertialTorqueModel::inertiaTensorFunction_</definition>
+        <argsstring></argsstring>
+        <name>inertiaTensorFunction_</name>
+        <briefdescription>
+<para>Function that returns body&apos;s inertia tensor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="149" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a9692ded23892f52e60b7b3eaf5e88ef1" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::InertialTorqueModel::currentTorque_</definition>
+        <argsstring></argsstring>
+        <name>currentTorque_</name>
+        <briefdescription>
+<para>Current torque, as computed by last call to updateMembers function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="152" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a7e7ed095a4bd79a35d360795483ede71" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::InertialTorqueModel::InertialTorqueModel</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d() &gt; angularVelocityFunction, const std::function&lt; Eigen::Matrix3d() &gt; inertiaTensorFunction)</argsstring>
+        <name>InertialTorqueModel</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>angularVelocityFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Matrix3d() &gt;</type>
+          <declname>inertiaTensorFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>angularVelocityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns body&apos;s body-fixed angular velocity vector </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inertiaTensorFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns body&apos;s inertia tensor </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="106" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="106" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a758a70ce74cc06a6dfb2c1c155b3be99" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::InertialTorqueModel::~InertialTorqueModel</definition>
+        <argsstring>()</argsstring>
+        <name>~InertialTorqueModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="113" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="113" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1ae52e81a3f130cb630c4545c05efab2aa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::basic_astrodynamics::InertialTorqueModel::getTorque</definition>
+        <argsstring>()</argsstring>
+        <name>getTorque</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a6d9549c6be6ff7955697d132a5439546">getTorque</reimplements>
+        <briefdescription>
+<para>Get inertial torque. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the inertial torque. <simplesect kind="return"><para>Inertial torque. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="121" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="121" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a1e220f4217fb49fe2547599f86bb0a5c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::basic_astrodynamics::InertialTorqueModel::updateMembers</definition>
+        <argsstring>(const double currentTime)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a547de9f7c418d4721d3ae9e1b5acdcaa">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the torque model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the torque model. Function pointers to retrieve the current values of quantities from which the torque is to be calculated are set by constructor. This function calls them to update the associated variables to their current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which torque model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="134" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="134" bodyend="141"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Function to compute the inertial torque term. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Function to compute the inertial torque term, which is included as the angular velocity rate is computed in a body-fixed frame. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::InertialTorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::InertialTorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::TorqueModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" line="96" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/torqueModel.h" bodystart="97" bodyend="156"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1afacbff733e599ba707f9dab2ebc3c9c0" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>angularVelocityFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ae5996724f9801a58349d9777e5db984a" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a9692ded23892f52e60b7b3eaf5e88ef1" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>currentTorque_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1ae52e81a3f130cb630c4545c05efab2aa" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>getTorque</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a7e7ed095a4bd79a35d360795483ede71" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>InertialTorqueModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1aa746c7aea2d8b79fdfe9e93f70d8bc81" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>inertiaTensorFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a31f2d71f9cdde05f7effd84270a65205" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1ac75b7b95a3207a0152259e068d8e2aef" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>TorqueModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a1e220f4217fb49fe2547599f86bb0a5c" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1InertialTorqueModel_1a758a70ce74cc06a6dfb2c1c155b3be99" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>~InertialTorqueModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1TorqueModel_1a54fb41daa5a0cbab301e8d6e4b69c26f" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::InertialTorqueModel</scope><name>~TorqueModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

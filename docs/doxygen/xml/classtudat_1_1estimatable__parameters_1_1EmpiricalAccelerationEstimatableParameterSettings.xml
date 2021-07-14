@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings" prot="public" virt="non-virtual">tudat::estimatable_parameters::EstimatableParameterSettings</basecompoundref>
+    <includes refid="estimatableParameterSettings_8h" local="no">estimatableParameterSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings_1a0fca364ced0bbe966428f02dd7f3f250" prot="public" static="no" mutable="no">
+        <type>std::map&lt; basic_astrodynamics::EmpiricalAccelerationComponents, std::vector&lt; basic_astrodynamics::EmpiricalAccelerationFunctionalShapes &gt; &gt;</type>
+        <definition>std::map&lt; basic_astrodynamics::EmpiricalAccelerationComponents, std::vector&lt; basic_astrodynamics::EmpiricalAccelerationFunctionalShapes &gt; &gt; tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings::componentsToEstimate_</definition>
+        <argsstring></argsstring>
+        <name>componentsToEstimate_</name>
+        <briefdescription>
+<para>List of components of empirical acceleration that are to be estimated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="470" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="470" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings_1aa6bd45d846ec4d127afc1bec56ffa7b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings::EmpiricalAccelerationEstimatableParameterSettings</definition>
+        <argsstring>(const std::string associatedBody, const std::string centralBody, const std::map&lt; basic_astrodynamics::EmpiricalAccelerationComponents, std::vector&lt; basic_astrodynamics::EmpiricalAccelerationFunctionalShapes &gt; &gt; componentsToEstimate)</argsstring>
+        <name>EmpiricalAccelerationEstimatableParameterSettings</name>
+        <param>
+          <type>const std::string</type>
+          <declname>associatedBody</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>centralBody</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; basic_astrodynamics::EmpiricalAccelerationComponents, std::vector&lt; basic_astrodynamics::EmpiricalAccelerationFunctionalShapes &gt; &gt;</type>
+          <declname>componentsToEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>associatedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body undergoing acceleration </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of central body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>componentsToEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of components of empirical acceleration that are to be estimated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="460" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="460" bodyend="466"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings for estimating time-independent empirical acceleration components. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::estimatable_parameters::EstimatableParameterSettings</label>
+        <link refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" line="449" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/estimation_setup/estimatableParameterSettings.h" bodystart="450" bodyend="472"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings_1a0fca364ced0bbe966428f02dd7f3f250" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</scope><name>componentsToEstimate_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EmpiricalAccelerationEstimatableParameterSettings_1aa6bd45d846ec4d127afc1bec56ffa7b0" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</scope><name>EmpiricalAccelerationEstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a9daf25d39f47b7253d0705460760c79c" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</scope><name>EstimatableParameterSettings</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a5879aeacc6f924dd33459251044bdc6e" prot="public" virt="non-virtual"><scope>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</scope><name>parameterType_</name></member>
+      <member refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameterSettings_1a337ccc9c7a09be382677b818d3042082" prot="public" virt="virtual"><scope>tudat::estimatable_parameters::EmpiricalAccelerationEstimatableParameterSettings</scope><name>~EstimatableParameterSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,143 @@
+\hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper}{}\doxysection{tudat\+::propulsion\+::Custom\+Thrust\+Magnitude\+Wrapper Class Reference}
+\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper}\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+
+
+Class for custom computations of thrust magnitude and mass rate.  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Magnitude\+Wrapper.\+h$>$}
+
+Inheritance diagram for tudat\+::propulsion\+::Custom\+Thrust\+Magnitude\+Wrapper\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_aa7fcbe4d271c0f38d2c933075a5a2f84}{Custom\+Thrust\+Magnitude\+Wrapper}} (const std\+::function$<$ double(const double) $>$ thrust\+Magnitude\+Function, const std\+::function$<$ double(const double) $>$ specific\+Impulse\+Function, const std\+::function$<$ bool(const double) $>$ is\+Engine\+On\+Function=\mbox{[}$\,$\mbox{]}(const double)\{ return true;\}, const std\+::function$<$ void(const double) $>$ custom\+Thrust\+Reset\+Function=std\+::function$<$ void(const double) $>$())
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a9614b524a326593549730d15c6708ae2}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a9614b524a326593549730d15c6708ae2}} 
+\mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a9614b524a326593549730d15c6708ae2}{$\sim$\+Custom\+Thrust\+Magnitude\+Wrapper}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_ad018abccc9285d40a5776f706fd675a0}{update}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to update the thrust magnitude to the current time. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a8f8d5325f4570b0bd0420827386d787c}{get\+Current\+Thrust\+Magnitude}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current thrust magnitude. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a5de652e5d4f9f9e8b300c0f7ea79affc}{get\+Current\+Mass\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current mass rate. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a486076e5cf7a197691025e71b44533ee}{reset\+Derived\+Class\+Current\+Time}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Function to reset the current time of the thrust model derived class. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for custom computations of thrust magnitude and mass rate. 
+
+Class for custom computations of thrust magnitude and mass rate. Both the magnitude and specific impulse are parameterized as a function of time and provided as input, providing a flexible interface for user-\/defined thrust magnitude profiles. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_aa7fcbe4d271c0f38d2c933075a5a2f84}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_aa7fcbe4d271c0f38d2c933075a5a2f84}} 
+\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}!CustomThrustMagnitudeWrapper@{CustomThrustMagnitudeWrapper}}
+\index{CustomThrustMagnitudeWrapper@{CustomThrustMagnitudeWrapper}!tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+\doxysubsubsection{\texorpdfstring{CustomThrustMagnitudeWrapper()}{CustomThrustMagnitudeWrapper()}}
+{\footnotesize\ttfamily tudat\+::propulsion\+::\+Custom\+Thrust\+Magnitude\+Wrapper\+::\+Custom\+Thrust\+Magnitude\+Wrapper (\begin{DoxyParamCaption}\item[{const std\+::function$<$ double(const double) $>$}]{thrust\+Magnitude\+Function,  }\item[{const std\+::function$<$ double(const double) $>$}]{specific\+Impulse\+Function,  }\item[{const std\+::function$<$ bool(const double) $>$}]{is\+Engine\+On\+Function = {\ttfamily \mbox{[}~\mbox{]}(~const~double~)\{~return~true;~\}},  }\item[{const std\+::function$<$ void(const double) $>$}]{custom\+Thrust\+Reset\+Function = {\ttfamily std\+:\+:function$<$~void(~const~double~)~$>$(~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em thrust\+Magnitude\+Function} & Function returning thrust as a function of time. \\
+\hline
+{\em specific\+Impulse\+Function} & Function returning specific impulse as a function of time. \\
+\hline
+{\em is\+Engine\+On\+Function} & Function returning whether the function is on (returns true if so) at a given time. \\
+\hline
+{\em custom\+Thrust\+Reset\+Function} & Custom function that is to be called when signalling that a new time step is being started (empty by default) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a5de652e5d4f9f9e8b300c0f7ea79affc}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a5de652e5d4f9f9e8b300c0f7ea79affc}} 
+\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}!getCurrentMassRate@{getCurrentMassRate}}
+\index{getCurrentMassRate@{getCurrentMassRate}!tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+\doxysubsubsection{\texorpdfstring{getCurrentMassRate()}{getCurrentMassRate()}}
+{\footnotesize\ttfamily double tudat\+::propulsion\+::\+Custom\+Thrust\+Magnitude\+Wrapper\+::get\+Current\+Mass\+Rate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the current mass rate. 
+
+Function to return the current mass rate, computed from quantities set by last call to update member function. \begin{DoxyReturn}{Returns}
+Current mass rate. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_abea551383a711c4fe3e04a77df3d3c0c}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a8f8d5325f4570b0bd0420827386d787c}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a8f8d5325f4570b0bd0420827386d787c}} 
+\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}!getCurrentThrustMagnitude@{getCurrentThrustMagnitude}}
+\index{getCurrentThrustMagnitude@{getCurrentThrustMagnitude}!tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+\doxysubsubsection{\texorpdfstring{getCurrentThrustMagnitude()}{getCurrentThrustMagnitude()}}
+{\footnotesize\ttfamily double tudat\+::propulsion\+::\+Custom\+Thrust\+Magnitude\+Wrapper\+::get\+Current\+Thrust\+Magnitude (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the current thrust magnitude. 
+
+Function to return the current thrust magnitude, as computed by last call to update member function. \begin{DoxyReturn}{Returns}
+Current thrust magnitude 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_a303af8ecc94a8e0151a58711700dafe2}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a486076e5cf7a197691025e71b44533ee}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_a486076e5cf7a197691025e71b44533ee}} 
+\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}!resetDerivedClassCurrentTime@{resetDerivedClassCurrentTime}}
+\index{resetDerivedClassCurrentTime@{resetDerivedClassCurrentTime}!tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+\doxysubsubsection{\texorpdfstring{resetDerivedClassCurrentTime()}{resetDerivedClassCurrentTime()}}
+{\footnotesize\ttfamily virtual void tudat\+::propulsion\+::\+Custom\+Thrust\+Magnitude\+Wrapper\+::reset\+Derived\+Class\+Current\+Time (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to reset the current time of the thrust model derived class. 
+
+Function to reset the current time of the thrust model derived class. Function is typically used to reset the time to NaN, signalling the need for a recomputation of all required quantities. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & New current time to be set in model. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_acece32d609bb4946504acc94ec86504b}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+\mbox{\Hypertarget{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_ad018abccc9285d40a5776f706fd675a0}\label{classtudat_1_1propulsion_1_1CustomThrustMagnitudeWrapper_ad018abccc9285d40a5776f706fd675a0}} 
+\index{tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}!update@{update}}
+\index{update@{update}!tudat::propulsion::CustomThrustMagnitudeWrapper@{tudat::propulsion::CustomThrustMagnitudeWrapper}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::propulsion\+::\+Custom\+Thrust\+Magnitude\+Wrapper\+::update (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to update the thrust magnitude to the current time. 
+
+Function to update the thrust magnitude to the current time. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which the model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1propulsion_1_1ThrustMagnitudeWrapper_a6a515296199563f2fcece10923d6dcca}{tudat\+::propulsion\+::\+Thrust\+Magnitude\+Wrapper}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propulsion/thrust\+Magnitude\+Wrapper.\+h\end{DoxyCompactItemize}

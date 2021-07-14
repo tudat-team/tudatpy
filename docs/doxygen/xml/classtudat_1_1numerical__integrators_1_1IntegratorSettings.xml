@@ -1,0 +1,201 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__integrators_1_1IntegratorSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::IntegratorSettings</compoundname>
+    <includes refid="createNumericalIntegrator_8h" local="no">createNumericalIntegrator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a989616d69ae39a93624a306ebcd147a5" prot="public" static="no" mutable="no">
+        <type>AvailableIntegrators</type>
+        <definition>AvailableIntegrators tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::integratorType_</definition>
+        <argsstring></argsstring>
+        <name>integratorType_</name>
+        <briefdescription>
+<para>Type of numerical integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Type of numerical integrator, from enum of available integrators. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="85" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a91fdd1ba023ca139b32fccfb56ed5020" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::initialTime_</definition>
+        <argsstring></argsstring>
+        <name>initialTime_</name>
+        <briefdescription>
+<para>Start time of numerical integration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Start time (independent variable) of numerical integration. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="91" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a4d536f81d1f800b88fddd1cb8625eee4" prot="public" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::initialTimeStep_</definition>
+        <argsstring></argsstring>
+        <name>initialTimeStep_</name>
+        <briefdescription>
+<para>Initial time step used in numerical integration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Initial time (independent variable) step used in numerical integration. Adapted during integration for variable step size integrators. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="98" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1afb64bd194631ff1253c568335655467f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::saveFrequency_</definition>
+        <argsstring></argsstring>
+        <name>saveFrequency_</name>
+        <briefdescription>
+<para>Frequency which with to save numerical integration result. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Frequency at which to save the numerical integrated states (in units of i.e. per n integration time steps, with n = saveFrequency). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="105" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a15434b0bf8ae748ac016cde45024de45" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::assessTerminationOnMinorSteps_</definition>
+        <argsstring></argsstring>
+        <name>assessTerminationOnMinorSteps_</name>
+        <briefdescription>
+<para>Whether the propagation termination conditions should be evaluated during the intermediate sub-steps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Whether the propagation termination conditions should be evaluated during the intermediate updates performed by the integrator to compute the quantities necessary to integrate the state to a new epoch. The default value is false, so the propagation termination condition is only checked at the end of each integration step. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="114" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a0d398ec8098603f3592b360e1a375a9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::IntegratorSettings</definition>
+        <argsstring>(const AvailableIntegrators integratorType, const IndependentVariableType initialTime, const IndependentVariableType initialTimeStep, const int saveFrequency=1, const bool assessTerminationOnMinorSteps=false)</argsstring>
+        <name>IntegratorSettings</name>
+        <param>
+          <type>const AvailableIntegrators</type>
+          <declname>integratorType</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>initialTimeStep</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>saveFrequency</declname>
+          <defval>1</defval>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>assessTerminationOnMinorSteps</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor for integrator settings. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>integratorType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of numerical integrator </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time (independent variable) of numerical integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTimeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial time (independent variable) step used in numerical integration. Adapted during integration for variable step size integrators. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveFrequency</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frequency at which to save the numerical integrated states (in units of i.e. per n integration time steps, with n = saveFrequency). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>assessTerminationOnMinorSteps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (<computeroutput>true</computeroutput>) or only at the end of each integration step (<computeroutput>false</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="66" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="66" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a9f34eae5969213b2a1f29548573687cf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::numerical_integrators::IntegratorSettings&lt; IndependentVariableType &gt;::~IntegratorSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~IntegratorSettings</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="79" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="79" bodyend="79"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to define settings of numerical integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to define settings of numerical integrator, for instance for use in numerical integration of equations of motion/ variational equations. This class can be used for simple integrators such as fixed step RK and Euler. Integrators that require more settings to define have their own derived class (see below). </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" line="49" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/createNumericalIntegrator.h" bodystart="50" bodyend="116"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a15434b0bf8ae748ac016cde45024de45" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>assessTerminationOnMinorSteps_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a91fdd1ba023ca139b32fccfb56ed5020" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>initialTime_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a4d536f81d1f800b88fddd1cb8625eee4" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>initialTimeStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a0d398ec8098603f3592b360e1a375a9f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>IntegratorSettings</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a989616d69ae39a93624a306ebcd147a5" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>integratorType_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1afb64bd194631ff1253c568335655467f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>saveFrequency_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1IntegratorSettings_1a9f34eae5969213b2a1f29548573687cf" prot="public" virt="virtual"><scope>tudat::numerical_integrators::IntegratorSettings</scope><name>~IntegratorSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

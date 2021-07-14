@@ -1,0 +1,377 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::low_thrust_trajectories::SimsFlanaganProblem</compoundname>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a0e9a2dff16293148842e2ef0493686a0" prot="public" static="no">
+        <type>Eigen::Matrix&lt; double, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; double, 6, 1 &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="37" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1aa56a9b1daaf5149b6d5dd18a3a809417" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganProblem::stateAtDeparture_</definition>
+        <argsstring></argsstring>
+        <name>stateAtDeparture_</name>
+        <briefdescription>
+<para>State vector of the vehicle at the leg departure. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="85" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1abfe44b8b1083f22238ec5eee2dd274c8" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::low_thrust_trajectories::SimsFlanaganProblem::stateAtArrival_</definition>
+        <argsstring></argsstring>
+        <name>stateAtArrival_</name>
+        <briefdescription>
+<para>State vector of the vehicle at the leg arrival. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="88" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a37c587c24df763238bb5aa31bcb9d22d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::centralBodyGravitationalParameter_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyGravitationalParameter_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="90" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a269a3f5a77604e0c37e8bd6f1ac4d444" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::initialSpacecraftMass_</definition>
+        <argsstring></argsstring>
+        <name>initialSpacecraftMass_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="92" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a43747df26edb333e59cd23a29bc43bb9" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::maximumThrust_</definition>
+        <argsstring></argsstring>
+        <name>maximumThrust_</name>
+        <briefdescription>
+<para>Maximum allowed thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="95" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ad48d98198ad6f17a935df63594b3bdaa" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double ( const double ) &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::specificImpulseFunction_</definition>
+        <argsstring></argsstring>
+        <name>specificImpulseFunction_</name>
+        <briefdescription>
+<para>Specific impulse function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="98" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a348822d596890f20b63246a592179136" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::low_thrust_trajectories::SimsFlanaganProblem::numberSegments_</definition>
+        <argsstring></argsstring>
+        <name>numberSegments_</name>
+        <briefdescription>
+<para>Number of segments into which the leg is subdivided. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="101" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a95bb889402e2fd4ecc2dd1c7652e2a55" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::timeOfFlight_</definition>
+        <argsstring></argsstring>
+        <name>timeOfFlight_</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> of flight for the leg. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="104" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a8610f3d4ff64d2221ef48e0fa6ad4758" prot="private" static="no" mutable="no">
+        <type>std::pair&lt; std::vector&lt; double &gt;, double &gt;</type>
+        <definition>std::pair&lt; std::vector&lt; double &gt;, double &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::initialGuessThrustModel_</definition>
+        <argsstring></argsstring>
+        <name>initialGuessThrustModel_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Initial guess for the optimisation. The first element contains the thrust throttles corresponding to the initial guess for the thrust model. The second element defines the bounds around the initial time (in percentage). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="109" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ac4e6de2edcaa1625bfa9573d6d7f125c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::initialGuessThrottles_</definition>
+        <argsstring></argsstring>
+        <name>initialGuessThrottles_</name>
+        <briefdescription>
+<para>Thrust throttles for the thrust model initial guess. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="112" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ad3a90aa7cbb0a58e970ccc91ad664658" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::relativeMarginWrtInitialGuess_</definition>
+        <argsstring></argsstring>
+        <name>relativeMarginWrtInitialGuess_</name>
+        <briefdescription>
+<para>Relative margin w.r.t. initial guess. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="115" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a89e8aa2a739c7bc5a65d8bdf422e8f16" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::low_thrust_trajectories::SimsFlanaganProblem::relativeToleranceConstraints_</definition>
+        <argsstring></argsstring>
+        <name>relativeToleranceConstraints_</name>
+        <briefdescription>
+<para>Relative tolerance for optimisation constraints. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="118" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a1571751f26b1a22afbc5ba42f4e7c796" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::SimsFlanaganProblem::SimsFlanaganProblem</definition>
+        <argsstring>()</argsstring>
+        <name>SimsFlanaganProblem</name>
+        <briefdescription>
+<para>Default constructor, required for Pagmo compatibility. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="40" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="40" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1aac50da19d3c6c5a94e08deffb2a613e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::SimsFlanaganProblem::SimsFlanaganProblem</definition>
+        <argsstring>(const Eigen::Vector6d &amp;stateAtDeparture, const Eigen::Vector6d &amp;stateAtArrival, const double centralBodyGravitationalParameter, const double initialSpacecraftMass, const double maximumThrust, const std::function&lt; double(const double) &gt; specificImpulseFunction, const int numberSegments, const double timeOfFlight, const std::pair&lt; std::vector&lt; double &gt;, double &gt; initialGuessThrustModel, const double relativeToleranceConstraints=1.0e-6)</argsstring>
+        <name>SimsFlanaganProblem</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtDeparture</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>stateAtArrival</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>centralBodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialSpacecraftMass</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumThrust</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>specificImpulseFunction</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberSegments</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeOfFlight</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::vector&lt; double &gt;, double &gt;</type>
+          <declname>initialGuessThrustModel</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>relativeToleranceConstraints</declname>
+          <defval>1.0e-6</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganOptimisationSetup.cpp" bodystart="19" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a00cd1b4b8f3879008aeec2b5dfde7101" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::fitness</definition>
+        <argsstring>(const std::vector&lt; double &gt; &amp;x) const</argsstring>
+        <name>fitness</name>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the fitness as a function of the parameter vector x. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fitness function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="55" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganOptimisationSetup.cpp" bodystart="128" bodyend="221"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a5fd72d8e552fba82d9be839c482ef4d5" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt;</type>
+        <definition>std::pair&lt; std::vector&lt; double &gt;, std::vector&lt; double &gt; &gt; tudat::low_thrust_trajectories::SimsFlanaganProblem::get_bounds</definition>
+        <argsstring>() const</argsstring>
+        <name>get_bounds</name>
+        <briefdescription>
+<para>Retrieve the allowable limits of the parameter vector x: pair containing minima and maxima of parameter values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get bounds. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="58" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganOptimisationSetup.cpp" bodystart="62" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1acfdba010a7ce6b8bdf03eeea089531ff" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::low_thrust_trajectories::SimsFlanaganProblem::get_name</definition>
+        <argsstring>() const</argsstring>
+        <name>get_name</name>
+        <briefdescription>
+<para>Retrieve the name of the problem. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Descriptive name of the problem. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="61" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/simsFlanaganOptimisationSetup.cpp" bodystart="57" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a020474b49fa4c4e795efa4e44db9beb2" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>vector_double::size_type</type>
+        <definition>vector_double::size_type tudat::low_thrust_trajectories::SimsFlanaganProblem::get_nobj</definition>
+        <argsstring>() const</argsstring>
+        <name>get_nobj</name>
+        <briefdescription>
+<para>Retrieve the number of objectives in problem, e.g. the size of the vector returned by the fitness function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="64" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="64" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a75749e07d3a48eb14896a4b2c0f3ceca" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>vector_double::size_type</type>
+        <definition>vector_double::size_type tudat::low_thrust_trajectories::SimsFlanaganProblem::get_nic</definition>
+        <argsstring>() const</argsstring>
+        <name>get_nic</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="69" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="69" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ab65d4e756e2ff6fb3fc71fea7d7fd3f4" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>vector_double::size_type</type>
+        <definition>vector_double::size_type tudat::low_thrust_trajectories::SimsFlanaganProblem::get_nec</definition>
+        <argsstring>() const</argsstring>
+        <name>get_nec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="74" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="74" bodyend="77"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" line="34" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/simsFlanaganOptimisationSetup.h" bodystart="35" bodyend="121"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a37c587c24df763238bb5aa31bcb9d22d" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>centralBodyGravitationalParameter_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a00cd1b4b8f3879008aeec2b5dfde7101" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>fitness</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a5fd72d8e552fba82d9be839c482ef4d5" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>get_bounds</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1acfdba010a7ce6b8bdf03eeea089531ff" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>get_name</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ab65d4e756e2ff6fb3fc71fea7d7fd3f4" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>get_nec</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a75749e07d3a48eb14896a4b2c0f3ceca" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>get_nic</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a020474b49fa4c4e795efa4e44db9beb2" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>get_nobj</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ac4e6de2edcaa1625bfa9573d6d7f125c" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>initialGuessThrottles_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a8610f3d4ff64d2221ef48e0fa6ad4758" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>initialGuessThrustModel_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a269a3f5a77604e0c37e8bd6f1ac4d444" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>initialSpacecraftMass_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a43747df26edb333e59cd23a29bc43bb9" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>maximumThrust_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a348822d596890f20b63246a592179136" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>numberSegments_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ad3a90aa7cbb0a58e970ccc91ad664658" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>relativeMarginWrtInitialGuess_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a89e8aa2a739c7bc5a65d8bdf422e8f16" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>relativeToleranceConstraints_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a1571751f26b1a22afbc5ba42f4e7c796" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>SimsFlanaganProblem</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1aac50da19d3c6c5a94e08deffb2a613e9" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>SimsFlanaganProblem</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1ad48d98198ad6f17a935df63594b3bdaa" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>specificImpulseFunction_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1abfe44b8b1083f22238ec5eee2dd274c8" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>stateAtArrival_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1aa56a9b1daaf5149b6d5dd18a3a809417" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>stateAtDeparture_</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a0e9a2dff16293148842e2ef0493686a0" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>StateType</name></member>
+      <member refid="structtudat_1_1low__thrust__trajectories_1_1SimsFlanaganProblem_1a95bb889402e2fd4ecc2dd1c7652e2a55" prot="private" virt="non-virtual"><scope>tudat::low_thrust_trajectories::SimsFlanaganProblem</scope><name>timeOfFlight_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

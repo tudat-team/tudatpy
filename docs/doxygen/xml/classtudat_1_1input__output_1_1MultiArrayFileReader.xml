@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1MultiArrayFileReader" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::MultiArrayFileReader</compoundname>
+    <includes refid="multiDimensionalArrayReader_8h" local="no">multiDimensionalArrayReader.h</includes>
+    <templateparamlist>
+      <param>
+        <type>unsigned int</type>
+        <declname>NumberOfDimensions</declname>
+        <defname>NumberOfDimensions</defname>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-static-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MultiArrayFileReader_1a54c5d8add5a13c0ff67246d44806d114" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>boost::multi_array&lt; double, static_cast&lt; size_t &gt; NumberOfDimensions) &gt;</type>
+        <definition>static boost::multi_array&lt; double, static_cast&lt; size_t &gt; NumberOfDimensions ) &gt; tudat::input_output::MultiArrayFileReader&lt; NumberOfDimensions &gt;::readMultiArray</definition>
+        <argsstring>(const std::string fileName)</argsstring>
+        <name>readMultiArray</name>
+        <param>
+          <type>const std::string</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Function to read only a multi-array from the file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to read only a multi-array from the file, not saving the values of the independent variables it is defined. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the coefficient file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Multi-array containing file contents. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/multiDimensionalArrayReader.h" line="113" column="33"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1MultiArrayFileReader_1a389e47eb23ab362e18473a369068e688" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; boost::multi_array&lt; double, 1 &gt;, std::vector&lt; std::vector&lt; double &gt; &gt; &gt;</type>
+        <definition>static std::pair&lt; boost::multi_array&lt; double, 1 &gt;, std::vector&lt; std::vector&lt; double &gt; &gt; &gt; tudat::input_output::MultiArrayFileReader&lt; NumberOfDimensions &gt;::readMultiArrayAndIndependentVariables</definition>
+        <argsstring>(const std::string fileName)</argsstring>
+        <name>readMultiArrayAndIndependentVariables</name>
+        <param>
+          <type>const std::string</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Function to read a multi-array from the file, and the values of the independent variables at which it is defined. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to read a multi-array from the file, and the values of the independent variables at which it is defined <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the coefficient file </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair: first entry containing multi-array of double coefficients, second containing list of independent variables at which coefficients are defined. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/multiDimensionalArrayReader.h" line="124" column="5"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface class for reading coefficients as a function of N independent variables from a file. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Interface class for reading coefficients as a function of N independent variables from a file. This class is used instead of a single templated free function to allow multi-arrays of different sizes to be created using the same interface. NOTE: The possibility of using a single templated implementation for arbitrary multi-array size should be investigated in the future. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/multiDimensionalArrayReader.h" line="102" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/multiDimensionalArrayReader.h" bodystart="103" bodyend="127"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1MultiArrayFileReader_1a54c5d8add5a13c0ff67246d44806d114" prot="public" virt="non-virtual"><scope>tudat::input_output::MultiArrayFileReader</scope><name>readMultiArray</name></member>
+      <member refid="classtudat_1_1input__output_1_1MultiArrayFileReader_1a389e47eb23ab362e18473a369068e688" prot="public" virt="non-virtual"><scope>tudat::input_output::MultiArrayFileReader</scope><name>readMultiArrayAndIndependentVariables</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

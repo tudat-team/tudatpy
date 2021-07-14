@@ -1,0 +1,560 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_mathematics::SphericalHarmonicsCache</compoundname>
+    <includes refid="sphericalHarmonics_8h" local="no">sphericalHarmonics.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a6ce97d4fe73c956a168190f3addf3d0c" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::SphericalHarmonicsCache::maximumDegree_</definition>
+        <argsstring></argsstring>
+        <name>maximumDegree_</name>
+        <briefdescription>
+<para>Maximum degree of cache. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="211" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="211" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ae9dd2eefce38a22e156a3b55040bf6aa" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::SphericalHarmonicsCache::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+<para>Maximum order of cache. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="214" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a1e8342a9fb794837c56a776759629d34" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::currentLongitude_</definition>
+        <argsstring></argsstring>
+        <name>currentLongitude_</name>
+        <briefdescription>
+<para>Current longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="217" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1aaa7dadbc870d65e7120434d6a2d53600" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::referenceRadiusRatio_</definition>
+        <argsstring></argsstring>
+        <name>referenceRadiusRatio_</name>
+        <briefdescription>
+<para>Current ratio of distance to reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="220" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ac36152e82b925efde562623992407b0a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::basic_mathematics::SphericalHarmonicsCache::sinesOfLongitude_</definition>
+        <argsstring></argsstring>
+        <name>sinesOfLongitude_</name>
+        <briefdescription>
+<para>List of sines of order times longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of sines of order times longitude. Entry i denotes sin(i times longitude). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="226" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="226" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a90f56967298ec01e2acc03ba2eb550f0" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::basic_mathematics::SphericalHarmonicsCache::cosinesOfLongitude_</definition>
+        <argsstring></argsstring>
+        <name>cosinesOfLongitude_</name>
+        <briefdescription>
+<para>List of cosines of order times longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of cosines of order times longitude. Entry i denotes cos(i times longitude). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="232" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ae6e862f57afd146ffb583affaa652b2b" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::basic_mathematics::SphericalHarmonicsCache::referenceRadiusRatioPowers_</definition>
+        <argsstring></argsstring>
+        <name>referenceRadiusRatioPowers_</name>
+        <briefdescription>
+<para>List of powers of distance divided by reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>List of powers of distance divided by reference radius. Entry i denoted (distance/reference radius) to the power i. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="238" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="238" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a6f658826144bf6eafefa2750ae031cfd" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache" kindref="compound">LegendreCache</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; LegendreCache &gt; tudat::basic_mathematics::SphericalHarmonicsCache::legendreCache_</definition>
+        <argsstring></argsstring>
+        <name>legendreCache_</name>
+        <briefdescription>
+<para>Object for caching and computing Legendre polynomials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="241" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="241" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a095621c3ae66d15a4da13f42b118f38c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::SphericalHarmonicsCache::SphericalHarmonicsCache</definition>
+        <argsstring>(const bool useGeodesyNormalization=1)</argsstring>
+        <name>SphericalHarmonicsCache</name>
+        <param>
+          <type>const bool</type>
+          <declname>useGeodesyNormalization</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor, initializes cache object with 0 maximum degree and order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, initializes cache object with 0 mazimum degree and order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>useGeodesyNormalization</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter defining whether the cache is used for a normalized or unnormalized gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="43" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ad0d83a5214a9b9265a1183064e11c3a5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::SphericalHarmonicsCache::SphericalHarmonicsCache</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization=1)</argsstring>
+        <name>SphericalHarmonicsCache</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useGeodesyNormalization</declname>
+          <defval>1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree to which to update cache </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order to which to update cache </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useGeodesyNormalization</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter defining whether the cache is used for a normalized or unnormalized gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="60" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="60" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a7e962b37231d1f11ed3ce1a342aba1e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::SphericalHarmonicsCache::resetMaximumDegreeAndOrder</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>resetMaximumDegreeAndOrder</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Update maximum degree and order of cache. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update maximum degree and order of cache <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree to which to update cache </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order to which to update cache </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="76" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/basic/sphericalHarmonics.cpp" bodystart="25" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1aaeb47f6f06a4c59c72fee1176041e863" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::SphericalHarmonicsCache::update</definition>
+        <argsstring>(const double radius, const double polynomialParameter, const double longitude, const double referenceRadius)</argsstring>
+        <name>update</name>
+        <param>
+          <type>const double</type>
+          <declname>radius</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>polynomialParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <briefdescription>
+<para>Update cached variables to current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update cached variables to current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>radius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance from origin </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polynomialParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input parameter to Legendre polynomials (sine of latitude) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current latitude </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference (typically equatorial) radius of gravity field. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="87" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="87" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1acbc9bd4ed0a69f57e0cb2eb75c908cd5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::getSineOfMultipleLongitude</definition>
+        <argsstring>(const int order)</argsstring>
+        <name>getSineOfMultipleLongitude</name>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to retrieve the current sine of m times the longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to retrieve the current sine of order times the longitude. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order as input to sine( order * longitude ) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sine( order * longitude ) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="101" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="101" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a8ddfc0bda953fc78d70bd1dc9e0ce9ca" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::getCosineOfMultipleLongitude</definition>
+        <argsstring>(const int order)</argsstring>
+        <name>getCosineOfMultipleLongitude</name>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to retrieve the current cosine of m times the longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to retrieve the current cosine of order times the longitude. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order as input to cosine( order * longitude ) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cosine( order * longitude ) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="112" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="112" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1afd6196f601d58c3737abfe0d6166cc13" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::getReferenceRadiusRatioPowers</definition>
+        <argsstring>(const int degreePlusOne)</argsstring>
+        <name>getReferenceRadiusRatioPowers</name>
+        <param>
+          <type>const int</type>
+          <declname>degreePlusOne</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get an integer power of the distance divided by the reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get an integer power of the distance divided by the reference radius. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>degreePlusOne</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power to which the ratio of distance and reference radius is to be computed (typically degree + 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ratio of distance and reference radius to power of input argument. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="124" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="124" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a5c334cc9585e948a1e84d965e8c04783" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::SphericalHarmonicsCache::getMaximumDegree</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumDegree</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get the maximum degree of cache. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get the maximum degree of cache <simplesect kind="return"><para>Maximum degree of cache. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="134" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="134" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a31970fdb662cf7ad437c706d52a1beee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::basic_mathematics::SphericalHarmonicsCache::getMaximumOrder</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumOrder</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get the maximum order of cache. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get the maximum order of cache. <simplesect kind="return"><para>Maximum order of cache. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="144" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a5fd04cdaaba4a3e9e7edebec0a39ac71" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::basic_mathematics::SphericalHarmonicsCache::getCurrentLongitude</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentLongitude</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get current longitude. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get current longitude <simplesect kind="return"><para>Current longitude </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="154" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="154" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a9daf822caaa61365f8e44db3304bd44b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1LegendreCache" kindref="compound">LegendreCache</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; LegendreCache &gt; tudat::basic_mathematics::SphericalHarmonicsCache::getLegendreCache</definition>
+        <argsstring>()</argsstring>
+        <name>getLegendreCache</name>
+        <briefdescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get object for caching and computing Legendre polynomials. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><ref refid="classtudat_1_1basic__mathematics_1_1Function" kindref="compound">Function</ref> to get object for caching and computing Legendre polynomials. <simplesect kind="return"><para>Object for caching and computing Legendre polynomials. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="164" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="164" bodyend="167"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ad28a39c4a8701ab644d90d96d882727d" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::SphericalHarmonicsCache::updateSines</definition>
+        <argsstring>(const double longitude)</argsstring>
+        <name>updateSines</name>
+        <param>
+          <type>const double</type>
+          <declname>longitude</declname>
+        </param>
+        <briefdescription>
+<para>Update cached values of sines and cosines of longitude/. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update cached values of sines and cosines of longitude/ <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>longitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current longitude. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+<para>Check if update is needed.</para>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="176" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="176" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a80826faff562f92fbbac2a2503567ab1" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::basic_mathematics::SphericalHarmonicsCache::updateRadiusPowers</definition>
+        <argsstring>(const double referenceRadiusRatio)</argsstring>
+        <name>updateRadiusPowers</name>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadiusRatio</declname>
+        </param>
+        <briefdescription>
+<para>Update cached values of powers of distance over reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update cached values of powers of distance over reference radius. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>referenceRadiusRatio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Distance divided by reference radius. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+<para>Check if update is needed.</para>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="195" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="195" bodyend="208"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Cache object in which variables that are required for the computation of spherical harmonic potential are stored. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Cache object in which variables that are required for the computation of spherical harmonic potential are stored. The variables are the Legendre polynomials at the required degree and order, the cosine of the latitude, the sine and cosine of the order times the longitude, and the ratio of the distance and the reference radius to the power degree + 1. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/sphericalHarmonics.h" bodystart="34" bodyend="243"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a90f56967298ec01e2acc03ba2eb550f0" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>cosinesOfLongitude_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a1e8342a9fb794837c56a776759629d34" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>currentLongitude_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a8ddfc0bda953fc78d70bd1dc9e0ce9ca" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getCosineOfMultipleLongitude</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a5fd04cdaaba4a3e9e7edebec0a39ac71" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getCurrentLongitude</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a9daf822caaa61365f8e44db3304bd44b" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getLegendreCache</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a5c334cc9585e948a1e84d965e8c04783" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getMaximumDegree</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a31970fdb662cf7ad437c706d52a1beee" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getMaximumOrder</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1afd6196f601d58c3737abfe0d6166cc13" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getReferenceRadiusRatioPowers</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1acbc9bd4ed0a69f57e0cb2eb75c908cd5" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>getSineOfMultipleLongitude</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a6f658826144bf6eafefa2750ae031cfd" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>legendreCache_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a6ce97d4fe73c956a168190f3addf3d0c" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>maximumDegree_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ae9dd2eefce38a22e156a3b55040bf6aa" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1aaa7dadbc870d65e7120434d6a2d53600" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>referenceRadiusRatio_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ae6e862f57afd146ffb583affaa652b2b" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>referenceRadiusRatioPowers_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a7e962b37231d1f11ed3ce1a342aba1e8" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>resetMaximumDegreeAndOrder</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ac36152e82b925efde562623992407b0a" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>sinesOfLongitude_</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a095621c3ae66d15a4da13f42b118f38c" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>SphericalHarmonicsCache</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ad0d83a5214a9b9265a1183064e11c3a5" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>SphericalHarmonicsCache</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1aaeb47f6f06a4c59c72fee1176041e863" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>update</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1a80826faff562f92fbbac2a2503567ab1" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>updateRadiusPowers</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache_1ad28a39c4a8701ab644d90d96d882727d" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::SphericalHarmonicsCache</scope><name>updateSines</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

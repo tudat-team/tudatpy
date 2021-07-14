@@ -1,0 +1,93 @@
+\hypertarget{classtudat_1_1transfer__trajectories_1_1SwingbyLeg}{}\doxysection{tudat\+::transfer\+\_\+trajectories\+::Swingby\+Leg Class Reference}
+\label{classtudat_1_1transfer__trajectories_1_1SwingbyLeg}\index{tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}}
+
+
+Swingby Leg base class.  
+
+
+
+
+{\ttfamily \#include $<$swingby\+Leg.\+h$>$}
+
+Inheritance diagram for tudat\+::transfer\+\_\+trajectories\+::Swingby\+Leg\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.170543cm]{classtudat_1_1transfer__trajectories_1_1SwingbyLeg}
+\end{center}
+\end{figure}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_acfd4c7f4178a20a2441fce64d8d3b8fc}{Swingby\+Leg}} (const Eigen\+::\+Vector3d \&departure\+Body\+Position, const Eigen\+::\+Vector3d \&arrival\+Body\+Position, const double time\+Of\+Flight, const Eigen\+::\+Vector3d \&departure\+Body\+Velocity, const double central\+Body\+Gravitational\+Parameter, double swingby\+Body\+Gravitational\+Parameter, std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector3d $>$ velocity\+Before\+Departure\+Body\+Ptr)
+\begin{DoxyCompactList}\small\item\em Constructor with immediate definition of parameters. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_aa605f7e0dc38b4c9f57debd55b0c9ac3}{swingby\+Body\+Gravitational\+Parameter\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The swing-\/by body gravitational parameter. \end{DoxyCompactList}\item 
+std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector3d $>$ \mbox{\hyperlink{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_a21263e04bcb8589375fac989e1822df7}{velocity\+Before\+Departure\+Body\+Ptr\+\_\+}}
+\begin{DoxyCompactList}\small\item\em The velocity of the spacecraft at departure. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Swingby Leg base class. 
+
+A base class that calculates the required impulses for the second and subsequent interplanetary legs in a hight-\/thrust, patched-\/conics space trajectory. It inherits from the interplanetary leg base class. It is inherited by different trajectory models. In the base class the basic functionalities that are foreseen for the different trajectory models are declared and implemented. Apart from those declared in the space leg base class, these include\+: the velocity before the departure planet and the gravitational parameter of the swing-\/by body. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_acfd4c7f4178a20a2441fce64d8d3b8fc}\label{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_acfd4c7f4178a20a2441fce64d8d3b8fc}} 
+\index{tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}!SwingbyLeg@{SwingbyLeg}}
+\index{SwingbyLeg@{SwingbyLeg}!tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}}
+\doxysubsubsection{\texorpdfstring{SwingbyLeg()}{SwingbyLeg()}}
+{\footnotesize\ttfamily tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+::\+Swingby\+Leg (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Position,  }\item[{const Eigen\+::\+Vector3d \&}]{arrival\+Body\+Position,  }\item[{const double}]{time\+Of\+Flight,  }\item[{const Eigen\+::\+Vector3d \&}]{departure\+Body\+Velocity,  }\item[{const double}]{central\+Body\+Gravitational\+Parameter,  }\item[{double}]{swingby\+Body\+Gravitational\+Parameter,  }\item[{std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector3d $>$}]{velocity\+Before\+Departure\+Body\+Ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Constructor with immediate definition of parameters. 
+
+Constructor, sets objects and functions from which relevant environment and state variables are retrieved. 
+\begin{DoxyParams}{Parameters}
+{\em departure\+Body\+Position} & location of the departure body. \\
+\hline
+{\em arrival\+Body\+Position} & position of the target body. \\
+\hline
+{\em time\+Of\+Flight} & Length of the leg. \\
+\hline
+{\em departure\+Body\+Velocity} & velocity of the departure body. \\
+\hline
+{\em central\+Body\+Gravitational\+Parameter} & gravitational parameter of the cebtral body (most cases the Sun). \\
+\hline
+{\em swingby\+Body\+Gravitational\+Parameter} & gravitational parameter of the swing-\/by body. \\
+\hline
+{\em velocity\+Before\+Departure\+Body\+Ptr} & pointer to the velocity before the swing-\/by. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_aa605f7e0dc38b4c9f57debd55b0c9ac3}\label{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_aa605f7e0dc38b4c9f57debd55b0c9ac3}} 
+\index{tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}!swingbyBodyGravitationalParameter\_@{swingbyBodyGravitationalParameter\_}}
+\index{swingbyBodyGravitationalParameter\_@{swingbyBodyGravitationalParameter\_}!tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}}
+\doxysubsubsection{\texorpdfstring{swingbyBodyGravitationalParameter\_}{swingbyBodyGravitationalParameter\_}}
+{\footnotesize\ttfamily double tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+::swingby\+Body\+Gravitational\+Parameter\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The swing-\/by body gravitational parameter. 
+
+The gravitational parameter of the swing-\/by body in the leg. \mbox{\Hypertarget{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_a21263e04bcb8589375fac989e1822df7}\label{classtudat_1_1transfer__trajectories_1_1SwingbyLeg_a21263e04bcb8589375fac989e1822df7}} 
+\index{tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}!velocityBeforeDepartureBodyPtr\_@{velocityBeforeDepartureBodyPtr\_}}
+\index{velocityBeforeDepartureBodyPtr\_@{velocityBeforeDepartureBodyPtr\_}!tudat::transfer\_trajectories::SwingbyLeg@{tudat::transfer\_trajectories::SwingbyLeg}}
+\doxysubsubsection{\texorpdfstring{velocityBeforeDepartureBodyPtr\_}{velocityBeforeDepartureBodyPtr\_}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ Eigen\+::\+Vector3d $>$ tudat\+::transfer\+\_\+trajectories\+::\+Swingby\+Leg\+::velocity\+Before\+Departure\+Body\+Ptr\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The velocity of the spacecraft at departure. 
+
+The heliocentric velocity at the departure time (before gravity assist). This is passed using a pointer, because this parameter is dependent on the previous leg. The result of the previous leg is not necessarily known when this leg is initiated. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/trajectory\+\_\+design/swingby\+Leg.\+h\end{DoxyCompactItemize}

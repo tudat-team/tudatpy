@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1system__models" kind="namespace" language="C++">
+    <compoundname>tudat::system_models</compoundname>
+    <innerclass refid="classtudat_1_1system__models_1_1EngineModel" prot="public">tudat::system_models::EngineModel</innerclass>
+    <innerclass refid="classtudat_1_1system__models_1_1DirectEngineModel" prot="public">tudat::system_models::DirectEngineModel</innerclass>
+    <innerclass refid="classtudat_1_1system__models_1_1VehicleSystems" prot="public">tudat::system_models::VehicleSystems</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="24" column="1"/>
+  </compounddef>
+</doxygen>

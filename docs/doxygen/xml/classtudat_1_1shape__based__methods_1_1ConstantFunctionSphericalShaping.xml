@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping" kind="class" language="C++" prot="public">
+    <compoundname>tudat::shape_based_methods::ConstantFunctionSphericalShaping</compoundname>
+    <basecompoundref refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping" prot="public" virt="non-virtual">tudat::shape_based_methods::BaseFunctionSphericalShaping</basecompoundref>
+    <includes refid="baseFunctionsSphericalShaping_8h" local="no">baseFunctionsSphericalShaping.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1aa0b931e33823573e232ba972048accaa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::ConstantFunctionSphericalShaping::ConstantFunctionSphericalShaping</definition>
+        <argsstring>()</argsstring>
+        <name>ConstantFunctionSphericalShaping</name>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="74" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="74" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a1d18bf1a91aaeb36e32e28707468449d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::shape_based_methods::ConstantFunctionSphericalShaping::~ConstantFunctionSphericalShaping</definition>
+        <argsstring>()</argsstring>
+        <name>~ConstantFunctionSphericalShaping</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="80" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="80" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1ac38234d3deecfec3dcd25910dc564bb9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ConstantFunctionSphericalShaping::evaluateFunction</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateFunction</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a214b0edb07e72673f6b22304a3b4d905">evaluateFunction</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="82" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="82" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a4ec6f3a65ab379aa2e7f936c8c39d863" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ConstantFunctionSphericalShaping::evaluateFirstDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateFirstDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a6524e62b3d8923dce5063afc228e8d87">evaluateFirstDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="87" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="87" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a8fe41a7925b0908fac9f91e282c072f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ConstantFunctionSphericalShaping::evaluateSecondDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateSecondDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a0e07597536a67f47a532af9f792efb20">evaluateSecondDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="92" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="92" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1ae5bdca7c04ce1c4d3adfd626c0011835" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::shape_based_methods::ConstantFunctionSphericalShaping::evaluateThirdDerivative</definition>
+        <argsstring>(const double independentVariable)</argsstring>
+        <name>evaluateThirdDerivative</name>
+        <reimplements refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1af607695872f002eed93d5e9da9de53dd">evaluateThirdDerivative</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>independentVariable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="97" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="97" bodyend="100"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Constant function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ConstantFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::shape_based_methods::BaseFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping"/>
+      </node>
+      <node id="1">
+        <label>tudat::shape_based_methods::ConstantFunctionSphericalShaping</label>
+        <link refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" line="67" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/shape_based/baseFunctionsSphericalShaping.h" bodystart="68" bodyend="106"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a1c05b2f6d566cd4614f4202945db7d69" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>BaseFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1aa0b931e33823573e232ba972048accaa" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>ConstantFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a4ec6f3a65ab379aa2e7f936c8c39d863" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>evaluateFirstDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1ac38234d3deecfec3dcd25910dc564bb9" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>evaluateFunction</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a8fe41a7925b0908fac9f91e282c072f8" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>evaluateSecondDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1ae5bdca7c04ce1c4d3adfd626c0011835" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>evaluateThirdDerivative</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1BaseFunctionSphericalShaping_1a786ddbebc0ba7ee61f74667aa96a8609" prot="public" virt="virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>~BaseFunctionSphericalShaping</name></member>
+      <member refid="classtudat_1_1shape__based__methods_1_1ConstantFunctionSphericalShaping_1a1d18bf1a91aaeb36e32e28707468449d" prot="public" virt="non-virtual"><scope>tudat::shape_based_methods::ConstantFunctionSphericalShaping</scope><name>~ConstantFunctionSphericalShaping</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

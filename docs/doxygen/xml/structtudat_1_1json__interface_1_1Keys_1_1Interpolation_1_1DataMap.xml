@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Interpolation::DataMap</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a74c9db2d20ebf7924f8fdec7424df363" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataMap::map</definition>
+        <argsstring></argsstring>
+        <name>map</name>
+        <initializer>= &quot;map&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="480" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="480" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a66d20a951e9e461bfd7e83f90a33d247" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataMap::file</definition>
+        <argsstring></argsstring>
+        <name>file</name>
+        <initializer>= &quot;file&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="481" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a6b5031c0472184e1b4d0cb5c11977b8d" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataMap::independentVariableValues</definition>
+        <argsstring></argsstring>
+        <name>independentVariableValues</name>
+        <initializer>= &quot;independentVariableValues&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="482" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="482" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a705285ac9af14b1f868860a1d7917d05" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataMap::dependentVariableValues</definition>
+        <argsstring></argsstring>
+        <name>dependentVariableValues</name>
+        <initializer>= &quot;dependentVariableValues&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="483" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="483" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a3573a5e25a345524ab75343bd910a7c3" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Interpolation::DataMap::dependentVariableFirstDerivativeValues</definition>
+        <argsstring></argsstring>
+        <name>dependentVariableFirstDerivativeValues</name>
+        <initializer>= &quot;dependentVariableFirstDerivativeValues&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="484" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="484" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="478" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="479" bodyend="485"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a3573a5e25a345524ab75343bd910a7c3" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataMap</scope><name>dependentVariableFirstDerivativeValues</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a705285ac9af14b1f868860a1d7917d05" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataMap</scope><name>dependentVariableValues</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a66d20a951e9e461bfd7e83f90a33d247" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataMap</scope><name>file</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a6b5031c0472184e1b4d0cb5c11977b8d" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataMap</scope><name>independentVariableValues</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Interpolation_1_1DataMap_1a74c9db2d20ebf7924f8fdec7424df363" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Interpolation::DataMap</scope><name>map</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

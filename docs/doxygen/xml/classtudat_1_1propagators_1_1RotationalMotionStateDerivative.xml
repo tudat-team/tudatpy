@@ -1,0 +1,514 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative" kind="class" language="C++" prot="public">
+    <compoundname>tudat::propagators::RotationalMotionStateDerivative</compoundname>
+    <basecompoundref refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative" prot="public" virt="non-virtual">tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</basecompoundref>
+    <includes refid="rotationalMotionStateDerivative_8h" local="no">rotationalMotionStateDerivative.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename StateScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a54f956a03c7677f06f854ee357768fd4" prot="protected" static="no" mutable="no">
+        <type>basic_astrodynamics::TorqueModelMap</type>
+        <definition>basic_astrodynamics::TorqueModelMap tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::torqueModelsPerBody_</definition>
+        <argsstring></argsstring>
+        <name>torqueModelsPerBody_</name>
+        <briefdescription>
+<para>A map containing the list of torques acting on each body,. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>A map containing the list of torques acting on each body, identifying the body being acted on and the body acted on by an acceleration. The map has as key a string denoting the name of the body the list of torques, provided as the value corresponding to a key, is acting on. This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value a pointer to an acceleration model. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="337" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="337" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a8b69c3ba337a3d4c709aa6256b21288a" prot="protected" static="no" mutable="no">
+        <type>RotationalPropagatorType</type>
+        <definition>RotationalPropagatorType tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::propagatorType_</definition>
+        <argsstring></argsstring>
+        <name>propagatorType_</name>
+        <briefdescription>
+<para>Type of propagator that is to be used (i.e., quaternions, etc.) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="340" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1af1270faa421bb8be633573a7cc34370e" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::bodiesToPropagate_</definition>
+        <argsstring></argsstring>
+        <name>bodiesToPropagate_</name>
+        <briefdescription>
+<para>List of names of bodies for which rotational state is to be propagated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="343" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a4f909d4279986605f86b6c70cf7a0799" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; Eigen::Matrix3d( ) &gt; &gt; tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::bodyInertiaTensorFunctions_</definition>
+        <argsstring></argsstring>
+        <name>bodyInertiaTensorFunctions_</name>
+        <briefdescription>
+<para>List of functions returning inertia tensors of bodiesToPropagate (in same order) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="346" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1abe13d32b331915592f5a90cc5805da7d" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; Eigen::Matrix3d( ) &gt; &gt; tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::bodyInertiaTensorTimeDerivativeFunctions_</definition>
+        <argsstring></argsstring>
+        <name>bodyInertiaTensorTimeDerivativeFunctions_</name>
+        <briefdescription>
+<para>List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="349" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a4b2dacfc9be036b4fda455d185fab8fd" prot="protected" static="no" mutable="no">
+        <type>basic_astrodynamics::TorqueModelMap::iterator</type>
+        <definition>basic_astrodynamics::TorqueModelMap::iterator tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::torqueModelMapIterator</definition>
+        <argsstring></argsstring>
+        <name>torqueModelMapIterator</name>
+        <briefdescription>
+<para>Predefined iterator to save (de-)allocation time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="352" column="51" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="352" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ad99af62f8368c6f524cbb8a4fe5feeda" prot="protected" static="no" mutable="no">
+        <type>basic_astrodynamics::SingleBodyTorqueModelMap::iterator</type>
+        <definition>basic_astrodynamics::SingleBodyTorqueModelMap::iterator tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::innerTorqueIterator</definition>
+        <argsstring></argsstring>
+        <name>innerTorqueIterator</name>
+        <briefdescription>
+<para>Predefined iterator to save (de-)allocation time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="355" column="61" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="355" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ae387fd2dcefcceb745ba5bc84289f7fd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::RotationalMotionStateDerivative</definition>
+        <argsstring>(const basic_astrodynamics::TorqueModelMap &amp;torqueModelsPerBody, const RotationalPropagatorType propagatorType, const std::vector&lt; std::string &gt; &amp;bodiesToPropagate, std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt; bodyInertiaTensorFunctions, std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt; bodyInertiaTensorTimeDerivativeFunctions=std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;())</argsstring>
+        <name>RotationalMotionStateDerivative</name>
+        <param>
+          <type>const basic_astrodynamics::TorqueModelMap &amp;</type>
+          <declname>torqueModelsPerBody</declname>
+        </param>
+        <param>
+          <type>const RotationalPropagatorType</type>
+          <declname>propagatorType</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesToPropagate</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;</type>
+          <declname>bodyInertiaTensorFunctions</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;</type>
+          <declname>bodyInertiaTensorTimeDerivativeFunctions</declname>
+          <defval>std::vector&lt; std::function&lt; Eigen::Matrix3d() &gt; &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>torqueModelsPerBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of torque models (first map key body undergoing acceleration, second map key body exerting acceleration). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>propagatorType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagator that is to be used (i.e. quaternions, etc.) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesToPropagate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of names of bodies for which rotational state is to be propagated. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyInertiaTensorFunctions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning inertia tensors of bodiesToPropagate (in same order). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyInertiaTensorTimeDerivativeFunctions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="81" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="81" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1aa134ceec2f5960741c5953652435ece9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::~RotationalMotionStateDerivative</definition>
+        <argsstring>()</argsstring>
+        <name>~RotationalMotionStateDerivative</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="127" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="127" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a6a99a2bf6988a9eb4fcfebb0bb28cd37" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::clearDerivedRotationalStateDerivativeModel</definition>
+        <argsstring>()</argsstring>
+        <name>clearDerivedRotationalStateDerivativeModel</name>
+        <briefdescription>
+<para>Function to clear any reference/cached values of state derivative model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to clear any reference/cached values of state derivative model, in addition to those performed in the clearTranslationalStateDerivativeModel function. Default implementation is empty. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="134" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="134" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a5d6e4902631aae25b84086a6ee653d6f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::clearRotationalStateDerivativeModel</definition>
+        <argsstring>()</argsstring>
+        <name>clearRotationalStateDerivativeModel</name>
+        <briefdescription>
+<para>Function to clear reference/cached values of acceleration models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to clear reference/cached values of acceleration models, to ensure that they are all recalculated. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="140" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="140" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a059b6c1f916965c510e2fef88bb6799a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::clearStateDerivativeModel</definition>
+        <argsstring>()</argsstring>
+        <name>clearStateDerivativeModel</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a39840fb71c86fcc5e70804dd6aa7683b">clearStateDerivativeModel</reimplements>
+        <briefdescription>
+<para>Function to clear reference/cached values of translational state derivative model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to clear reference/cached values of translational state derivative model. For each derived class, this entails resetting the current time in the acceleration models to NaN (see clearRotationalStateDerivativeModel). Every derived class requiring additional values to be cleared should implement the clearDerivedRotationalStateDerivativeModel function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="163" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="163" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a58524509335a8ba57ec71258f510c7a4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::updateStateDerivativeModel</definition>
+        <argsstring>(const TimeType currentTime)</argsstring>
+        <name>updateStateDerivativeModel</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to update the state derivative model to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the state derivative model (i.e. torque models) to the current time. Note that this function only updates the state derivative model itself, the environment models must be updated before calling this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which state derivative is to be calculated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="176" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="176" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1acf70dfc37b2840764c5b7811d43a58e6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::convertCurrentStateToGlobalRepresentation</definition>
+        <argsstring>(const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;internalSolution, const TimeType &amp;time, Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt; currentRotationalState)</argsstring>
+        <name>convertCurrentStateToGlobalRepresentation</name>
+        <param>
+          <type>const Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &amp;</type>
+          <declname>internalSolution</declname>
+        </param>
+        <param>
+          <type>const TimeType &amp;</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::Matrix&lt; StateScalarType, Eigen::Dynamic, 1 &gt; &gt;</type>
+          <declname>currentRotationalState</declname>
+        </param>
+        <briefdescription>
+<para>Function to convert the propagator-specific form of the state to the conventional form in the global frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to convert the propagator-specific form of the state to the conventional form in the global frame. The conventional form for translational dynamics this is the quaternion from body-fixed to propagation frame (in vector form) and the body&apos;s angular velocity vector in body-fixed frame. For this class the &apos;conventional&apos; and &apos;propagator-specific&apos; forms are equal. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>internalSolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State in propagator-specific form (i.e. form that is used in numerical integration). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time at which the state is valid. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentRotationalState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State (internalSolution), converted to the rotational state in &apos;conventional&apos; format (equal in this case). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="204" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="204" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ab8edc4635e0361edfc9e8d3af2526d1b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; std::string &gt;</type>
+        <definition>std::vector&lt; std::string &gt; tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::getBodiesToBeIntegratedNumerically</definition>
+        <argsstring>()</argsstring>
+        <name>getBodiesToBeIntegratedNumerically</name>
+        <briefdescription>
+<para>Function to get list of names of bodies that are to be integrated numerically. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get list of names of bodies that are to be integrated numerically. <simplesect kind="return"><para>List of names of bodies that are to be integrated numerically. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="216" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="216" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1afe9ddab90e3a54aee382175cd3caadae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>int tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::getConventionalStateSize</definition>
+        <argsstring>()</argsstring>
+        <name>getConventionalStateSize</name>
+        <reimplements refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aa593f86baeb911ebaf24f849faad1867">getConventionalStateSize</reimplements>
+        <briefdescription>
+<para>Function to return the size of the state handled by the object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the size of the state handled by the object. <simplesect kind="return"><para>Size of the state under consideration (7 times the number of integrated bodies). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="226" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="226" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a060b4d20e1e81411725ba549b0cbdcd8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::getTotalTorqueForBody</definition>
+        <argsstring>(const std::string &amp;bodyName)</argsstring>
+        <name>getTotalTorqueForBody</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>bodyName</declname>
+        </param>
+        <briefdescription>
+<para>Function to get total torque acting on specific body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get total torque acting on specific body. <simplesect kind="return"><para>bodyName Name of body for which total torque needs to be retrieved. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="236" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="236" bodyend="269"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a298318367fc2aa9326ded4ed40bf8403" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>basic_astrodynamics::TorqueModelMap</type>
+        <definition>basic_astrodynamics::TorqueModelMap tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::getTorquesMap</definition>
+        <argsstring>()</argsstring>
+        <name>getTorquesMap</name>
+        <briefdescription>
+<para>Function to get map of torques acting on each body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get map of torques acting on each body. <simplesect kind="return"><para>TorqueModelMap Map of torques acting on each body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="276" column="41" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="276" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ab28c0bda284f1574ec3b805d0eb72735" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>RotationalPropagatorType</type>
+        <definition>RotationalPropagatorType tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::getRotationalPropagatorType</definition>
+        <argsstring>()</argsstring>
+        <name>getRotationalPropagatorType</name>
+        <briefdescription>
+<para>Function to get type of propagator that is to be used (i.e., quaternions, etc.). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to type of propagator that is to be used (i.e., quaternions, etc.). <simplesect kind="return"><para>Type of propagator that is to be used (i.e., quaternions, etc.). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="286" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="286" bodyend="289"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a8603cf820b0fe70622eed402b789f99d" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;::sumTorquesPerBody</definition>
+        <argsstring>()</argsstring>
+        <name>sumTorquesPerBody</name>
+        <briefdescription>
+<para>Function to get the total torques acting on each body, expressed in the body-fixed frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the total torques acting on each body, expressed in the body-fixed frames. The environment and torque models must have been updated to the current state before calling this function. <simplesect kind="return"><para>Total torques acting on each body, expressed in the body-fixed frames (in order of bodiesToPropagate_). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="300" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="300" bodyend="327"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for computing the state derivative for rotational dynamics of N bodies. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for computing the state derivative for rotational dynamics of N bodies, using quaternion from body-fixed to inertial frame (in quaternion format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a single body </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::propagators::SingleStateTypeDerivative&lt; double, double &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative"/>
+      </node>
+      <node id="1">
+        <label>tudat::propagators::RotationalMotionStateDerivative&lt; StateScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" line="64" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/rotationalMotionStateDerivative.h" bodystart="65" bodyend="357"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1af1270faa421bb8be633573a7cc34370e" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>bodiesToPropagate_</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a4f909d4279986605f86b6c70cf7a0799" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>bodyInertiaTensorFunctions_</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1abe13d32b331915592f5a90cc5805da7d" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>bodyInertiaTensorTimeDerivativeFunctions_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ae3f4427ef5aee571271cbaa23bda3cb1" prot="public" virt="pure-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>calculateSystemStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a6a99a2bf6988a9eb4fcfebb0bb28cd37" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>clearDerivedRotationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a5d6e4902631aae25b84086a6ee653d6f" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>clearRotationalStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a059b6c1f916965c510e2fef88bb6799a" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>clearStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1acf70dfc37b2840764c5b7811d43a58e6" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ac1f76ef281c53cccc0ea66a12973b916" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>convertCurrentStateToGlobalRepresentation</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1ad12197357ad23bc815274f69c0c9a6c3" prot="public" virt="pure-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>convertFromOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1aeab2b2a9eae937200a5def64dcf18960" prot="public" virt="pure-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>convertToOutputSolution</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ab8edc4635e0361edfc9e8d3af2526d1b" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getBodiesToBeIntegratedNumerically</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1afe9ddab90e3a54aee382175cd3caadae" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getConventionalStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a2dbb19e97c9fde342788832fece0a5ff" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1af203ca28dbf9eeacb76aca2a5d4f384f" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getPropagatedStateSize</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ab28c0bda284f1574ec3b805d0eb72735" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getRotationalPropagatorType</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a298318367fc2aa9326ded4ed40bf8403" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getTorquesMap</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a060b4d20e1e81411725ba549b0cbdcd8" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>getTotalTorqueForBody</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ad99af62f8368c6f524cbb8a4fe5feeda" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>innerTorqueIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a741436a816b5d018f80f061d15fdac74" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a8541ff94360e103cd1157899969c6bb3" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>isStateToBePostProcessed</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a03145882db4c90a63a72d0c855b27f11" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a90c770ae1cc36edb43d6363416f3461f" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>postProcessState</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a8b69c3ba337a3d4c709aa6256b21288a" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>propagatorType_</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1ae387fd2dcefcceb745ba5bc84289f7fd" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>RotationalMotionStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1acbb10b6a3ae3413f136520475f93ceab" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>SingleStateTypeDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a8603cf820b0fe70622eed402b789f99d" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>sumTorquesPerBody</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a4b2dacfc9be036b4fda455d185fab8fd" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>torqueModelMapIterator</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a54f956a03c7677f06f854ee357768fd4" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>torqueModelsPerBody_</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a28e844a8e7c5716d091c7504a5c98815" prot="protected" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>unprocessedState_</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1a58524509335a8ba57ec71258f510c7a4" prot="public" virt="non-virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a9542fa3986fabe6129f0bf5b788daeba" prot="public" virt="pure-virtual" ambiguityscope="SingleStateTypeDerivative&lt; double, double &gt;::"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>updateStateDerivativeModel</name></member>
+      <member refid="classtudat_1_1propagators_1_1RotationalMotionStateDerivative_1aa134ceec2f5960741c5953652435ece9" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>~RotationalMotionStateDerivative</name></member>
+      <member refid="classtudat_1_1propagators_1_1SingleStateTypeDerivative_1a08576def80c16bfe0169693d1abc0dfc" prot="public" virt="virtual"><scope>tudat::propagators::RotationalMotionStateDerivative</scope><name>~SingleStateTypeDerivative</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ConstantEphemerisSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" prot="public" virt="non-virtual">tudat::simulation_setup::EphemerisSettings</basecompoundref>
+    <includes refid="createEphemeris_8h" local="no">createEphemeris.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1aeb872d1c719d60a3fa6a2079c6eae5f1" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::ConstantEphemerisSettings::constantState_</definition>
+        <argsstring></argsstring>
+        <name>constantState_</name>
+        <briefdescription>
+<para>Constant state that will be provided as output of the ephemeris at all times. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="528" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="528" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1a8ae2c1f03a66ae4961f440b04425e58c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ConstantEphemerisSettings::ConstantEphemerisSettings</definition>
+        <argsstring>(const Eigen::Vector6d &amp;constantState, const std::string &amp;frameOrigin=&quot;SSB&quot;, const std::string &amp;frameOrientation=&quot;ECLIPJ2000&quot;)</argsstring>
+        <name>ConstantEphemerisSettings</name>
+        <param>
+          <type>const Eigen::Vector6d &amp;</type>
+          <declname>constantState</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrigin</declname>
+          <defval>&quot;SSB&quot;</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>frameOrientation</declname>
+          <defval>&quot;ECLIPJ2000&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Constructor of settings for an ephemeris producing a constant (time-independent) state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor of settings for an ephemeris producing a constant (time-independent) state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>constantState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant state that will be provided as output of the ephemeris at all times. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrigin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Origin of frame in which ephemeris data is defined. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Orientation of frame in which ephemeris data is defined. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="484" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="484" bodyend="489"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1ae8e3890781719e6d8bc6829188e50d53" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector6d</type>
+        <definition>Eigen::Vector6d tudat::simulation_setup::ConstantEphemerisSettings::getConstantState</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantState</name>
+        <briefdescription>
+<para>Function to return the constant state for output of the ephemeris at all times. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><verbatim>    Function to return the constant state that will be provided as output of the ephemeris at
+    all times.
+    \return Boo  - name: ConstantEphemerisSettings
+short_summary: &quot;`EphemerisSettings` derived class for defining settings of an ephemeris producing a constant (time-independent) state.&quot;
+</verbatim> </para>
+<sect1 id="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1autotoc_md0">
+<title>extended_summary: |</title>
+<para><verbatim>methods:
+  - name: __init__
+    short_summary: &quot;Constructor.&quot;
+    extended_summary: &quot;Constructor of settings for an ephemeris producing a constant (time-independent) state.&quot;
+
+    parameters:
+      - name: constant_state # [py]
+        type: # [py]
+      - name: constantState # [cpp]
+        type: Eigen::Vector6d # [cpp]
+        description: &quot;Constant state that will be provided as output of the ephemeris at all times.&quot;
+
+      - name: frame_origin # [py]
+        type: str, default=&apos;SSB&apos; # [py]
+      - name: frameOrigin # [cpp]
+        type: std::string, default=&apos;SSB&apos; # [cpp]
+        description: &quot;Origin of frame in which ephemeris data is defined.&quot;
+
+      - name: frame_orientation # [py]
+        type: str, default=&apos;ECLIPJ2000&apos; # [py]
+      - name: frameOrientation # [cpp]
+        type: std::string, default=&apos;ECLIPJ2000&apos; # [cpp]
+        description: &quot;Orientation of frame in which ephemeris data is defined.&quot;lean defining whether a circular, coplanar orbit of the body is to be assumed.
+</verbatim> </para>
+</sect1>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="523" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="523" bodyend="523"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>@get_docstring(ConstantEphemerisSettings.__docstring__) </para>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1EphemerisSettings" kindref="compound">EphemerisSettings</ref> derived class for defining settings of an ephemeris producing a constant (time-independent) state </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::EphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1EphemerisSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>frameOrientation_</edgelabel>
+          <edgelabel>frameOrigin_</edgelabel>
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ConstantEphemerisSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" line="473" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createEphemeris.h" bodystart="474" bodyend="529"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1a8ae2c1f03a66ae4961f440b04425e58c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>ConstantEphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1aeb872d1c719d60a3fa6a2079c6eae5f1" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>constantState_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7a92d768f7e34e35eb6be96f55dddd1b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>EphemerisSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ac988aa57dc2068b67fcc3515489577e6" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>ephemerisType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad492ff71210dd4d1b84275c7864cae6c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>frameOrientation_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2a15cbc42f0a7fd548e71b05cad51ce7" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>frameOrigin_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ConstantEphemerisSettings_1ae8e3890781719e6d8bc6829188e50d53" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>getConstantState</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a3256a2c33076cf34e070d269effa660a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>getEphemerisType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a02f84b6df414e81a4f72d6a5b2aceb33" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>getFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1ad944818e2e49e527b955b39e3d09f608" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>getFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a56eef76275cf2922ec2bb45161228fc9" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>getMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1af3964a8b9569c0d20b0c241fe40b924c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>makeMultiArcEphemeris_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1adad130efb8ba76972cb24f5787835e45" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>resetFrameOrientation</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a2dbcb55a4542b28610c2a389b89c4447" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>resetFrameOrigin</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a7c999329ffe7bbe7467bb293114c9305" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>resetMakeMultiArcEphemeris</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1EphemerisSettings_1a5b9ede78f5a09f7abbefe2631bc6f4bc" prot="public" virt="virtual"><scope>tudat::simulation_setup::ConstantEphemerisSettings</scope><name>~EphemerisSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::low_thrust_trajectories::LowThrustLegSettings</compoundname>
+    <derivedcompoundref refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings" prot="public" virt="non-virtual">tudat::low_thrust_trajectories::HodographicShapingLegSettings</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings" prot="public" virt="non-virtual">tudat::low_thrust_trajectories::SphericalShapingLegSettings</derivedcompoundref>
+    <includes refid="lowThrustLegSettings_8h" local="no">lowThrustLegSettings.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a73b5e01f5c8ab215227c54e7850ab306" prot="public" static="no" mutable="no">
+        <type>LowThrustLegTypes</type>
+        <definition>LowThrustLegTypes tudat::low_thrust_trajectories::LowThrustLegSettings::lowThrustLegType_</definition>
+        <argsstring></argsstring>
+        <name>lowThrustLegType_</name>
+        <briefdescription>
+<para>Type of low-thrust leg that is to be used. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="77" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a35d942e8113fda4ecae3b15938d2ad91" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::low_thrust_trajectories::LowThrustLegSettings::LowThrustLegSettings</definition>
+        <argsstring>(const LowThrustLegTypes lowThrustLegType)</argsstring>
+        <name>LowThrustLegSettings</name>
+        <param>
+          <type>const LowThrustLegTypes</type>
+          <declname>lowThrustLegType</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lowThrustLegType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of low-thrust leg that is to be used. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="69" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1abd9885eafca1b3bc61f6d3f765e5fb05" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::low_thrust_trajectories::LowThrustLegSettings::~LowThrustLegSettings</definition>
+        <argsstring>()</argsstring>
+        <name>~LowThrustLegSettings</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="74" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="74" bodyend="74"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class defining settings for the low-thrust leg. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class defining settings for the low-thrust leg. This class is a functional (base) class for settings of low-thrust leg that require no information in addition to their type. Classes defining settings for low-thrust leg requiring additional information must be derived from this class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::low_thrust_trajectories::LowThrustLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings"/>
+      </node>
+      <node id="2">
+        <label>tudat::low_thrust_trajectories::HodographicShapingLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1HodographicShapingLegSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::low_thrust_trajectories::SphericalShapingLegSettings</label>
+        <link refid="classtudat_1_1low__thrust__trajectories_1_1SphericalShapingLegSettings"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" line="60" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust/lowThrustLegSettings.h" bodystart="61" bodyend="79"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a35d942e8113fda4ecae3b15938d2ad91" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::LowThrustLegSettings</scope><name>LowThrustLegSettings</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1a73b5e01f5c8ab215227c54e7850ab306" prot="public" virt="non-virtual"><scope>tudat::low_thrust_trajectories::LowThrustLegSettings</scope><name>lowThrustLegType_</name></member>
+      <member refid="classtudat_1_1low__thrust__trajectories_1_1LowThrustLegSettings_1abd9885eafca1b3bc61f6d3f765e5fb05" prot="public" virt="virtual"><scope>tudat::low_thrust_trajectories::LowThrustLegSettings</scope><name>~LowThrustLegSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

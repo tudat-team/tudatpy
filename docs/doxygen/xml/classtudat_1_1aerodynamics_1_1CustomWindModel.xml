@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1aerodynamics_1_1CustomWindModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::aerodynamics::CustomWindModel</compoundname>
+    <basecompoundref refid="classtudat_1_1aerodynamics_1_1WindModel" prot="public" virt="non-virtual">tudat::aerodynamics::WindModel</basecompoundref>
+    <includes refid="windModel_8h" local="no">windModel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1aerodynamics_1_1CustomWindModel_1a293b8e7f14c22dd4ca448354e5189b83" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double, const double, const double, const double ) &gt; tudat::aerodynamics::CustomWindModel::windFunction_</definition>
+        <argsstring></argsstring>
+        <name>windFunction_</name>
+        <briefdescription>
+<para>Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" line="141" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1CustomWindModel_1a0d107abe02e9d20bf1d10b4c37ab3ad1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::CustomWindModel::CustomWindModel</definition>
+        <argsstring>(const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt; windFunction, const reference_frames::AerodynamicsReferenceFrames associatedFrame=reference_frames::vertical_frame)</argsstring>
+        <name>CustomWindModel</name>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double, const double, const double, const double) &gt;</type>
+          <declname>windFunction</declname>
+        </param>
+        <param>
+          <type>const reference_frames::AerodynamicsReferenceFrames</type>
+          <declname>associatedFrame</declname>
+          <defval>reference_frames::vertical_frame</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>windFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" line="111" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" bodystart="111" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1CustomWindModel_1ad0719259cf975bb2df109d16b9d6a10b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::aerodynamics::CustomWindModel::~CustomWindModel</definition>
+        <argsstring>()</argsstring>
+        <name>~CustomWindModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" line="118" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" bodystart="118" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1aerodynamics_1_1CustomWindModel_1a5870dafd30f437f6cb615be5dad34b8d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::aerodynamics::CustomWindModel::getCurrentBodyFixedCartesianWindVelocity</definition>
+        <argsstring>(const double currentAltitude, const double currentLongitude, const double currentLatitude, const double currentTime)</argsstring>
+        <name>getCurrentBodyFixedCartesianWindVelocity</name>
+        <reimplements refid="classtudat_1_1aerodynamics_1_1WindModel_1a28eaa8afbc9550ec3502ce11180f4391">getCurrentBodyFixedCartesianWindVelocity</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentAltitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLongitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentLatitude</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentAltitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude at which wind vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLongitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude at which wind vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentLatitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude at which wind vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which wind vector is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Wind velocity vector in body-fixed, body-centered frame of body with atmosphere </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" line="129" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" bodystart="129" bodyend="136"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for computing the wind velocity vector from a custom, user-defined function. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::aerodynamics::WindModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1WindModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::CustomWindModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1CustomWindModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::aerodynamics::WindModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1WindModel"/>
+      </node>
+      <node id="1">
+        <label>tudat::aerodynamics::CustomWindModel</label>
+        <link refid="classtudat_1_1aerodynamics_1_1CustomWindModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" line="101" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics/windModel.h" bodystart="102" bodyend="143"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1aerodynamics_1_1WindModel_1abb77be67b9f29b50f252e515adf31b4d" prot="protected" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>associatedFrame_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1CustomWindModel_1a0d107abe02e9d20bf1d10b4c37ab3ad1" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>CustomWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1WindModel_1af3e11a7a94800e4bf16b945363409d14" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>getAssociatedFrame</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1CustomWindModel_1a5870dafd30f437f6cb615be5dad34b8d" prot="public" virt="virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>getCurrentBodyFixedCartesianWindVelocity</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1CustomWindModel_1a293b8e7f14c22dd4ca448354e5189b83" prot="private" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>windFunction_</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1WindModel_1a9f81174bdb4501b8c91607d102c6399d" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>WindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1CustomWindModel_1ad0719259cf975bb2df109d16b9d6a10b" prot="public" virt="non-virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>~CustomWindModel</name></member>
+      <member refid="classtudat_1_1aerodynamics_1_1WindModel_1a8347b77296ef39e37458e123f8755d0f" prot="public" virt="virtual"><scope>tudat::aerodynamics::CustomWindModel</scope><name>~WindModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

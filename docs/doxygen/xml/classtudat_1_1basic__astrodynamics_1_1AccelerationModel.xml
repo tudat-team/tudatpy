@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::basic_astrodynamics::AccelerationModel</compoundname>
+    <derivedcompoundref refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::CustomAccelerationModel</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration" prot="public" virt="non-virtual">tudat::electromagnetism::CannonBallRadiationPressureAcceleration</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration" prot="public" virt="non-virtual">tudat::electromagnetism::SolarSailAcceleration</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" prot="public" virt="non-virtual">tudat::gravitation::DirectTidalDissipationAcceleration</derivedcompoundref>
+    <includes refid="accelerationModel_8h" local="no">accelerationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename AccelerationDataType</type>
+        <defval>Eigen::Vector3d</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+<para>Previous time to which acceleration model was updated. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="91" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::AccelerationModel</definition>
+        <argsstring>()</argsstring>
+        <name>AccelerationModel</name>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="44" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" bodystart="44" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::~AccelerationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~AccelerationModel</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual destructor, necessary to ensure that derived class destructors get called correctly. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="51" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>AccelerationDataType</type>
+        <definition>virtual AccelerationDataType tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::getAcceleration</definition>
+        <argsstring>()=0</argsstring>
+        <name>getAcceleration</name>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1AerodynamicAcceleration_1aca8adefed3eede69b980e46d045f46eb">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1ab3dcc99da7bb98850550205f8395e023">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1a47db6eb95ff14e9089658bdef02c256d">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1a18a9f073e9f83d021d94b9df8144d253">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1ab025d414ca6b01e768198e2ab1f9c9d0">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration_1ab0b6aae19d99c11968f85e00e3a811b5">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_1ac559adaac58b1ee26afecfddd18bfb06">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a7f04bb6f8b10efd1e0b9c9010d02401d">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel_1a1dc811759664e99193f323e02b0a4fe9">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_1abd75fb71f44ab8dd56edfcf9458c78eb">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1a5b067a8787c813b6b08a5b83a3f415f9">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel_1a5a8e57485fff4546caec93841a947406">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration_1a93ecaefc007cbde3b8102d67ed65bbe3">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_1a9e317eb00b45c6890cdfc6b155b68175">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel_1aae27d6f97cdbee300e8c532b2dc604b3">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration_1a691fd89ab76723ea07dd3df22468e9b2">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1ThrustAcceleration_1a85c999d6b3fc6b093e6990e2997918f6">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1MomentumWheelDesaturationThrustAcceleration_1a3fb47f3d6cea868027bdc4f34014d132">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1reference__frames_1_1ApparentAccelerationModel_1aa5c72a891752917421efb970407b2517">getAcceleration</reimplementedby>
+        <reimplementedby refid="classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_1a9692ca2bc1994606e67c22c61aac45d3">getAcceleration</reimplementedby>
+        <briefdescription>
+<para>Get acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the acceleration. No arguments are passed to this function for generality. Instead, all data required for computation is to be obtained from pointers to functions/ classes/structs, etc which are to be set in a derived class and evaluated by the <ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71" kindref="member">updateMembers()</ref> function below. <simplesect kind="return"><para>Acceleration. </para>
+</simplesect>
+<simplesect kind="see"><para><ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71" kindref="member">updateMembers()</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="62" column="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)=0</argsstring>
+        <name>updateMembers</name>
+        <reimplementedby refid="classtudat_1_1aerodynamics_1_1AerodynamicAcceleration_1a6cd45319bf7f5b7f376aa9357d1840ea">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel_1a4f7f311f0b5fca739deb793856dfe085">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1basic__astrodynamics_1_1EmpiricalAcceleration_1ae431ab2dc0d99d2f14afdcebaa95621e">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1unit__tests_1_1DerivedAccelerationModel_1ae0f1908a1c80dfafc01e4c11e69e1373">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1unit__tests_1_1AnotherDerivedAccelerationModel_1add07599d1c34c2479f2271b7703297aa">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration_1a4ec31c87d62b1672d013eef67f836022">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_1ad05ddf61744bb3c351d1b08e7ddda459">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration_1a8817cdf729b907910cfd9c1ef1a33006">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel_1a9430ea27b71056959af94b2f92353f62">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel_1a29a5ea148a2db77b0f16809c699d480a">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel_1aa9cfafbe11efb4a60bb87ee5c6c06e1a">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel_1a8cdbef1b4414bf04628e603907aaae1c">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration_1acf81f886b8ef26ce7080aaf5315e41cb">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_1a5924a6d967e6f2168c2dcc9cb8c3d627">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel_1a1da9ad8e2fd4daec7c60459175b264f6">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration_1aefb3a91250b7a304743f4dafd4f5b9e2">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1ThrustAcceleration_1a847904c69ea6ced5ac3396f7ecdf2f78">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1MomentumWheelDesaturationThrustAcceleration_1a1b89e5226e3008bb0025ef37f2a09328">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1reference__frames_1_1ApparentAccelerationModel_1ae3704bca478d47f8ceb8888a58df5ad9">updateMembers</reimplementedby>
+        <reimplementedby refid="classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_1a10d4465b67b5acfa7e69cd79e03d80df">updateMembers</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Updates member variables used by the acceleration model. In the case of acceleration models containing varying parameters, function-pointers returning such a parameter (for instance the Cartesian state of a body) will be set as a member variable. This function evaluates such function-pointers and updates member variables to the &apos;current&apos; values of these parameters. Only these current values, not the function-pointers are then used by the <ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750" kindref="member">getAcceleration()</ref> function.</para>
+<para>N.B.: This pure virtual function must be overridden by derived classes! <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="76" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;::resetTime</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>resetTime</name>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel_1a59385d672fe32ef2cc3f9cda959a0d18">resetTime</reimplementedby>
+        <reimplementedby refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration_1ad180bbba1d309a993723e12d166d0d82">resetTime</reimplementedby>
+        <reimplementedby refid="classtudat_1_1propulsion_1_1ThrustAcceleration_1a2ef613d32d6b4cad26aece57d6171127">resetTime</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the current time of the acceleration model. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current time (default NaN). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="83" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" bodystart="83" bodyend="86"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for (translational) acceleration models. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for (translational) acceleration models. Derived classes should contain implementations to perform calculations of accelerations. Therefore, the <ref refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750" kindref="member">getAcceleration()</ref> function has no arguments. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>AccelerationDataType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data type used to represent accelerations (default=Eigen::Vector3d). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::AccelerationModel&lt; AccelerationDataType &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel"/>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::CustomAccelerationModel&lt; &gt;</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1CustomAccelerationModel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::electromagnetism::CannonBallRadiationPressureAcceleration&lt; &gt;</label>
+        <link refid="classtudat_1_1electromagnetism_1_1CannonBallRadiationPressureAcceleration"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>tudat::gravitation::DirectTidalDissipationAcceleration&lt; &gt;</label>
+        <link refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::electromagnetism::SolarSailAcceleration&lt; &gt;</label>
+        <link refid="classtudat_1_1electromagnetism_1_1SolarSailAcceleration"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/accelerationModel.h" bodystart="40" bodyend="97"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a36f72cf81cc4ff658919a1b92cdc33ad" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>AccelerationModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a70f6593c9eec30136ed648ca0e6c9e88" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a1f59960bc477fc02e7d52697ced99750" prot="public" virt="pure-virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>getAcceleration</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a325aae81896137d88b756aac15e188da" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a966e85b72300b8cbc99ba60e40108d71" prot="public" virt="pure-virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1AccelerationModel_1a131bb0f8b79b410810f602d9b8865968" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::AccelerationModel</scope><name>~AccelerationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

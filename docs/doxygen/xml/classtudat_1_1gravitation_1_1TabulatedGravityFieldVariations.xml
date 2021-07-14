@@ -1,0 +1,330 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations" kind="class" language="C++" prot="public">
+    <compoundname>tudat::gravitation::TabulatedGravityFieldVariations</compoundname>
+    <basecompoundref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" prot="public" virt="non-virtual">tudat::gravitation::GravityFieldVariations</basecompoundref>
+    <includes refid="tabulatedGravityFieldVariations_8h" local="no">tabulatedGravityFieldVariations.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1ad8bad95379952750e1546b3312a7343d" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; tudat::gravitation::TabulatedGravityFieldVariations::interpolatorType_</definition>
+        <argsstring></argsstring>
+        <name>interpolatorType_</name>
+        <briefdescription>
+<para>Type of interpolator to use for calculating coefficients at any time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="119" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a132b681b51fa3be005c23b76e8b3602d" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; double, Eigen::MatrixXd &gt; tudat::gravitation::TabulatedGravityFieldVariations::cosineCoefficientCorrections_</definition>
+        <argsstring></argsstring>
+        <name>cosineCoefficientCorrections_</name>
+        <briefdescription>
+<para>Map of cosine coefficient variations, with associated times as map key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="122" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a12c17b69d881137ae3a5542c31f3a6e4" prot="private" static="no" mutable="no">
+        <type>std::map&lt; double, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; double, Eigen::MatrixXd &gt; tudat::gravitation::TabulatedGravityFieldVariations::sineCoefficientCorrections_</definition>
+        <argsstring></argsstring>
+        <name>sineCoefficientCorrections_</name>
+        <briefdescription>
+<para>Map of sine coefficient variations, with associated times as map key. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="125" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a5b003764e9827a89cbe563caff510727" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1OneDimensionalInterpolator" kindref="compound">interpolators::OneDimensionalInterpolator</ref>&lt; double, Eigen::MatrixXd &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::OneDimensionalInterpolator&lt; double, Eigen::MatrixXd &gt; &gt; tudat::gravitation::TabulatedGravityFieldVariations::variationInterpolator_</definition>
+        <argsstring></argsstring>
+        <name>variationInterpolator_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Interpolator for determining concatenated [cosine|sine] coefficients from tabulated values at discrete times.</para>
+<para>Interpolator for determining concatenated [cosine|sine] coefficients from tabulated values at discrete times. The coefficients are interpolated concurrently and then split to reduce the number of calls to the interpolator. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="135" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1ac4d257a38035f1fae2b21871c5460011" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::TabulatedGravityFieldVariations::TabulatedGravityFieldVariations</definition>
+        <argsstring>(const std::map&lt; double, Eigen::MatrixXd &gt; &amp;cosineCoefficientCorrections, const std::map&lt; double, Eigen::MatrixXd &gt; &amp;sineCoefficientCorrections, const int minimumDegree, const int minimumOrder, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorType=std::make_shared&lt; interpolators::InterpolatorSettings &gt;(interpolators::linear_interpolator, interpolators::huntingAlgorithm))</argsstring>
+        <name>TabulatedGravityFieldVariations</name>
+        <param>
+          <type>const std::map&lt; double, Eigen::MatrixXd &gt; &amp;</type>
+          <declname>cosineCoefficientCorrections</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; double, Eigen::MatrixXd &gt; &amp;</type>
+          <declname>sineCoefficientCorrections</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumOrder</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorType</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;(interpolators::linear_interpolator, interpolators::huntingAlgorithm)</defval>
+        </param>
+        <briefdescription>
+<para>Class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor, takes the maps of variations, as well as the minimum degree and order of the corrections, the corrections are applied as a rectangular block in degree and order, with the the size of the blocks determined by the contents of the maps. The matrix size of all map entries must be equal for both sine and cosine values. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficientCorrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of cosine coefficient variations, with associated times as map key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficientCorrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of sine coefficient variations, with associated times as map key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum degree of correction block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum order of correction block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interpolatorType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of interpolator to use for calculating coefficients at any time between tabulated times. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/tabulatedGravityFieldVariations.cpp" bodystart="22" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1af70f276545a56cf413c4368a59b915d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::TabulatedGravityFieldVariations::resetCoefficientInterpolator</definition>
+        <argsstring>(const std::map&lt; double, Eigen::MatrixXd &gt; &amp;cosineCoefficientCorrections, const std::map&lt; double, Eigen::MatrixXd &gt; &amp;sineCoefficientCorrections)</argsstring>
+        <name>resetCoefficientInterpolator</name>
+        <param>
+          <type>const std::map&lt; double, Eigen::MatrixXd &gt; &amp;</type>
+          <declname>cosineCoefficientCorrections</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; double, Eigen::MatrixXd &gt; &amp;</type>
+          <declname>sineCoefficientCorrections</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the tabulated spherical harmonic coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the tabulated spherical harmonic coefficients. Creates interpolator for returning the coefficients as a function of time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficientCorrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of cosine coefficient variations, with associated times as map key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficientCorrections</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Map of sine coefficient variations, with associated times as map key. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="70" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/tabulatedGravityFieldVariations.cpp" bodystart="37" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a58abfadc1b7268a7465da6990dfbf280" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::gravitation::TabulatedGravityFieldVariations::calculateSphericalHarmonicsCorrections</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>calculateSphericalHarmonicsCorrections</name>
+        <reimplements refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1ab42ff0b801e14ac4becc0619cc2a28d7">calculateSphericalHarmonicsCorrections</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Function for calculating corrections by interpolating tabulated corrections. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function for calculating corrections by interpolating tabulated corrections. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which variations are to be calculated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair of matrices containing variations in (cosine, sine) coefficients at block positions in total matrices defined by minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_; </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="82" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/tabulatedGravityFieldVariations.cpp" bodystart="107" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1af2b4499893adb532e1abfa4f17a9000a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; double, Eigen::MatrixXd &gt; tudat::gravitation::TabulatedGravityFieldVariations::getCosineCoefficientCorrections</definition>
+        <argsstring>()</argsstring>
+        <name>getCosineCoefficientCorrections</name>
+        <briefdescription>
+<para>Function to return map of cosine coefficient variations, with associated times as map key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return map of cosine coefficient variations, with associated times as map key. <simplesect kind="return"><para>Map of cosine coefficient variations, with associated times as map key. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="90" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="90" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a32b4fd0498d6192426d075fddbd1ee38" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; double, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; double, Eigen::MatrixXd &gt; tudat::gravitation::TabulatedGravityFieldVariations::getSineCoefficientCorrections</definition>
+        <argsstring>()</argsstring>
+        <name>getSineCoefficientCorrections</name>
+        <briefdescription>
+<para>Function to return map of sine coefficient variations, with associated times as map key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return map of sine coefficient variations, with associated times as map key. <simplesect kind="return"><para>Map of sine coefficient variations, with associated times as map key. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="100" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a4079c12c122dd60a1bb110aecf026925" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; tudat::gravitation::TabulatedGravityFieldVariations::getInterpolatorSettings</definition>
+        <argsstring>()</argsstring>
+        <name>getInterpolatorSettings</name>
+        <briefdescription>
+<para>Function to return type of interpolator to use for calculating coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return type of interpolator to use for calculating coefficients at any time between tabulated times. <simplesect kind="return"><para>Type of interpolator to use for calculating coefficients </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="111" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="111" bodyend="114"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for variations in spherical harmonic coefficients, directly interpolated from tables. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for variations in spherical harmonic coefficients, directly interpolated from tables. Maps of variatons of cosine and sine coefficients as a function of time are provided, as well as the type of interpolator that is to be used, from which interpolated variations are then returned at any time. The class may also be used for defining the complete gravity field (i.e. not only the variations) as a function of time when the constant coefficient contribution (i.e. not from a <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref>) is zero for all degrees and orders. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::gravitation::GravityFieldVariations</label>
+        <link refid="classtudat_1_1gravitation_1_1GravityFieldVariations"/>
+      </node>
+      <node id="1">
+        <label>tudat::gravitation::TabulatedGravityFieldVariations</label>
+        <link refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::gravitation::GravityFieldVariations</label>
+        <link refid="classtudat_1_1gravitation_1_1GravityFieldVariations"/>
+      </node>
+      <node id="1">
+        <label>tudat::gravitation::TabulatedGravityFieldVariations</label>
+        <link refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/tabulatedGravityFieldVariations.h" bodystart="34" bodyend="137"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1aafc95a18c23948b8185502d55dce013c" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>addSphericalHarmonicsCorrections</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a58abfadc1b7268a7465da6990dfbf280" prot="public" virt="virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>calculateSphericalHarmonicsCorrections</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a132b681b51fa3be005c23b76e8b3602d" prot="private" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>cosineCoefficientCorrections_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1af2b4499893adb532e1abfa4f17a9000a" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getCosineCoefficientCorrections</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a4079c12c122dd60a1bb110aecf026925" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getInterpolatorSettings</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a0dc6431b37864c1c53d57f0384b3080e" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getLastCosineCorrection</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a8b766c42ef2bda0ce8c7dfa3c9caf2f9" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getLastSineCorrection</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1adf0bf02857540c01e8ba09cfdb7f1297" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getMaximumDegree</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a7bf60004124e9b4ffb848bc65d79fffe" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getMaximumOrder</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1ac94b3de70f1076be33863e7f5dd9ee06" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getMinimumDegree</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a7441c32cc79d98603b85c404acaeb9b7" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getMinimumOrder</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a5282fb284729fde0dcafb4fe6741e258" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getNumberOfDegrees</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a24e2d4646f61f2d7368f12ad152f1efc" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getNumberOfOrders</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a32b4fd0498d6192426d075fddbd1ee38" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>getSineCoefficientCorrections</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1acda33e409345701ee320c046987f3831" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>GravityFieldVariations</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1ad8bad95379952750e1546b3312a7343d" prot="private" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>interpolatorType_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1affd6fb03a8176a8f8fa24d96210e9e05" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>lastCosineCorrection_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a91636d24b78c52e16dec28a693d13358" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>lastSineCorrection_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a5014de246777abec5b844b7585d7efea" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>maximumDegree_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1ab5d6f1bd7478e0a44dd6145cfa834242" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a9bf8b72830d19d382bcdc935cd69c69e" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>minimumDegree_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a6f6ab951e6a5ec1ca230d629ae2a1104" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>minimumOrder_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a236edca529bfd6895123089bcfaf883d" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>numberOfDegrees_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1a8235f01b085cb96035fb7473526e938b" prot="protected" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>numberOfOrders_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1af70f276545a56cf413c4368a59b915d8" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>resetCoefficientInterpolator</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a12c17b69d881137ae3a5542c31f3a6e4" prot="private" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>sineCoefficientCorrections_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1ac4d257a38035f1fae2b21871c5460011" prot="public" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>TabulatedGravityFieldVariations</name></member>
+      <member refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations_1a5b003764e9827a89cbe563caff510727" prot="private" virt="non-virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>variationInterpolator_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldVariations_1abc4ba19f0c8593ef85932fc1724626ad" prot="public" virt="virtual"><scope>tudat::gravitation::TabulatedGravityFieldVariations</scope><name>~GravityFieldVariations</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

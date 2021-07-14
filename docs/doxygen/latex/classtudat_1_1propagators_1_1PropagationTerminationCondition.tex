@@ -1,0 +1,131 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition}{}\doxysection{tudat\+::propagators\+::Propagation\+Termination\+Condition Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationTerminationCondition}\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+
+
+Base class for checking whether the numerical propagation is to be stopped at current time step or not.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Termination.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Termination\+Condition\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.532067cm]{classtudat_1_1propagators_1_1PropagationTerminationCondition}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a80a086e0b0837ee869debe7976965b5f}{Propagation\+Termination\+Condition}} (const Propagation\+Termination\+Types termination\+Type, const bool check\+Termination\+To\+Exact\+Condition=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_aa79a5db982d31bff685322320ff0bbf3}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_aa79a5db982d31bff685322320ff0bbf3}} 
+virtual \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_aa79a5db982d31bff685322320ff0bbf3}{$\sim$\+Propagation\+Termination\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a379032acf2619d19bb774bbd83316f60}{check\+Stop\+Condition}} (const double time, const double cpu\+Time)=0
+\begin{DoxyCompactList}\small\item\em (Pure virtual) function to check whether the propagation should be stopped \end{DoxyCompactList}\item 
+virtual Propagation\+Termination\+Types \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a1f8921a1494ede54640a5e425496cc88}{get\+Termination\+Type}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve type of termination condition. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_af42a3ca2352ee49a6213993619392aaa}{getcheck\+Termination\+To\+Exact\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_a7ad5f4b9cd14760784984917042444fd}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_a7ad5f4b9cd14760784984917042444fd}} 
+Propagation\+Termination\+Types \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a7ad5f4b9cd14760784984917042444fd}{termination\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of termination condition. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationTerminationCondition_a6bc2ee25c1d715aa17ea2c3fe96515f6}{check\+Termination\+To\+Exact\+Condition\+\_\+}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Base class for checking whether the numerical propagation is to be stopped at current time step or not. 
+
+Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived classes implement the various types of conditions (and associated threshold values) under which the propagation is to be stopped. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_a80a086e0b0837ee869debe7976965b5f}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_a80a086e0b0837ee869debe7976965b5f}} 
+\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}!PropagationTerminationCondition@{PropagationTerminationCondition}}
+\index{PropagationTerminationCondition@{PropagationTerminationCondition}!tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{PropagationTerminationCondition()}{PropagationTerminationCondition()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Termination\+Condition\+::\+Propagation\+Termination\+Condition (\begin{DoxyParamCaption}\item[{const Propagation\+Termination\+Types}]{termination\+Type,  }\item[{const bool}]{check\+Termination\+To\+Exact\+Condition = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em termination\+Type} & Type of termination condition \\
+\hline
+{\em check\+Termination\+To\+Exact\+Condition} & Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_a379032acf2619d19bb774bbd83316f60}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_a379032acf2619d19bb774bbd83316f60}} 
+\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}!checkStopCondition@{checkStopCondition}}
+\index{checkStopCondition@{checkStopCondition}!tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{checkStopCondition()}{checkStopCondition()}}
+{\footnotesize\ttfamily virtual bool tudat\+::propagators\+::\+Propagation\+Termination\+Condition\+::check\+Stop\+Condition (\begin{DoxyParamCaption}\item[{const double}]{time,  }\item[{const double}]{cpu\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+(Pure virtual) function to check whether the propagation should be stopped 
+
+(Pure virtual) function to check whether the propagation should be stopped. Note that the accelerations and environment must be updated (done automatically during numerical propagation) to check the stopping condition. 
+\begin{DoxyParams}{Parameters}
+{\em time} & Current time in propagation \\
+\hline
+{\em cpu\+Time} & Current CPU time in propagation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if propagation is to be stopped, false otherwise. 
+\end{DoxyReturn}
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1propagators_1_1HybridPropagationTerminationCondition_a10b26abd3f5ac009e057b331128922f0}{tudat\+::propagators\+::\+Hybrid\+Propagation\+Termination\+Condition}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1CustomTerminationCondition_aba120f47086f4cffb2a4fd48e7990ec1}{tudat\+::propagators\+::\+Custom\+Termination\+Condition}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleVariableLimitPropagationTerminationCondition_abbfe9087844acaa96854aaa48face31e}{tudat\+::propagators\+::\+Single\+Variable\+Limit\+Propagation\+Termination\+Condition}}, \mbox{\hyperlink{classtudat_1_1propagators_1_1FixedCPUTimePropagationTerminationCondition_adcf9c3d3bf9036d83d5ad44e95cb59f3}{tudat\+::propagators\+::\+Fixed\+CPUTime\+Propagation\+Termination\+Condition}}, and \mbox{\hyperlink{classtudat_1_1propagators_1_1FixedTimePropagationTerminationCondition_af4d95c083b96f386774ba43437bacfe5}{tudat\+::propagators\+::\+Fixed\+Time\+Propagation\+Termination\+Condition}}.
+
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_af42a3ca2352ee49a6213993619392aaa}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_af42a3ca2352ee49a6213993619392aaa}} 
+\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}!getcheckTerminationToExactCondition@{getcheckTerminationToExactCondition}}
+\index{getcheckTerminationToExactCondition@{getcheckTerminationToExactCondition}!tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{getcheckTerminationToExactCondition()}{getcheckTerminationToExactCondition()}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Termination\+Condition\+::getcheck\+Termination\+To\+Exact\+Condition (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition. 
+
+Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition \begin{DoxyReturn}{Returns}
+Boolean to denote whether the propagation is to terminate exactly on the final condition 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_a1f8921a1494ede54640a5e425496cc88}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_a1f8921a1494ede54640a5e425496cc88}} 
+\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}!getTerminationType@{getTerminationType}}
+\index{getTerminationType@{getTerminationType}!tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{getTerminationType()}{getTerminationType()}}
+{\footnotesize\ttfamily virtual Propagation\+Termination\+Types tudat\+::propagators\+::\+Propagation\+Termination\+Condition\+::get\+Termination\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to retrieve type of termination condition. 
+
+Function to retrieve type of termination condition \begin{DoxyReturn}{Returns}
+Type of termination condition 
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationTerminationCondition_a6bc2ee25c1d715aa17ea2c3fe96515f6}\label{classtudat_1_1propagators_1_1PropagationTerminationCondition_a6bc2ee25c1d715aa17ea2c3fe96515f6}} 
+\index{tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}!checkTerminationToExactCondition\_@{checkTerminationToExactCondition\_}}
+\index{checkTerminationToExactCondition\_@{checkTerminationToExactCondition\_}!tudat::propagators::PropagationTerminationCondition@{tudat::propagators::PropagationTerminationCondition}}
+\doxysubsubsection{\texorpdfstring{checkTerminationToExactCondition\_}{checkTerminationToExactCondition\_}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Termination\+Condition\+::check\+Termination\+To\+Exact\+Condition\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination.\+h\end{DoxyCompactItemize}

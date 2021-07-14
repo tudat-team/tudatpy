@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1json__interface_1_1KeyPath" kind="class" language="C++" prot="public">
+    <compoundname>tudat::json_interface::KeyPath</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::vector&lt; std::string &gt;</basecompoundref>
+    <includes refid="keys_8h" local="no">keys.h</includes>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1a4e22cc4ea5fad763aa4daf0f1736fd69" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::KeyPath::KeyPath</definition>
+        <argsstring>()</argsstring>
+        <name>KeyPath</name>
+        <briefdescription>
+<para>Empty constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="555" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="555" bodyend="555"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1a18bb23b6d070c0954bab31b298426f44" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::KeyPath::KeyPath</definition>
+        <argsstring>(const std::vector&lt; std::string &gt; &amp;vector)</argsstring>
+        <name>KeyPath</name>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>vector</declname>
+        </param>
+        <briefdescription>
+<para>Constructor from vector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="558" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="558" bodyend="564"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1a5b04d7e90e11d1ac1eb8b93a7d6c217b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::KeyPath::KeyPath</definition>
+        <argsstring>(const std::string &amp;keyPathStringRepresentation)</argsstring>
+        <name>KeyPath</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>keyPathStringRepresentation</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with a single key path string representation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with a single key path string representation. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>keyPathStringRepresentation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The key path string representation, such as &quot;key&quot;, &quot;key.subkey&quot;, &quot;key[1]&quot;. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="571" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/support/keys.cpp" bodystart="516" bodyend="535"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1ace34e44f197e865a38f11d8946dfa6a7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::KeyPath::KeyPath</definition>
+        <argsstring>(const char *key)</argsstring>
+        <name>KeyPath</name>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with a single char key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with a single char key. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The key to be accessed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="578" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="578" bodyend="578"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1a393abe43a6435c2c0d17f208b81dc169" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::json_interface::KeyPath::KeyPath</definition>
+        <argsstring>(unsigned int vectorIndex)</argsstring>
+        <name>KeyPath</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>vectorIndex</declname>
+        </param>
+        <briefdescription>
+<para>Constructor with an element index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor with an element index. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vectorIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The index of the element to be accessed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="585" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="585" bodyend="585"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1a8d621a9ecd70d71fdc5372d50d740cef" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::json_interface::KeyPath::isAbsolute</definition>
+        <argsstring>() const</argsstring>
+        <name>isAbsolute</name>
+        <briefdescription>
+<para>Get whether the key path is absolute. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get whether the key path is absolute. Absolute key paths begin with <computeroutput>SpecialKeys::root</computeroutput>. <simplesect kind="return"><para>Whether the key path is absolute. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="592" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="592" bodyend="599"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1json__interface_1_1KeyPath_1aa909c937d0ad08d576efb22079b130ac" prot="public" static="no" const="yes" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="classtudat_1_1json__interface_1_1KeyPath" kindref="compound">KeyPath</ref></type>
+        <definition>KeyPath tudat::json_interface::KeyPath::canonical</definition>
+        <argsstring>(const KeyPath &amp;basePath) const</argsstring>
+        <name>canonical</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1json__interface_1_1KeyPath" kindref="compound">KeyPath</ref> &amp;</type>
+          <declname>basePath</declname>
+        </param>
+        <briefdescription>
+<para>Get the canonical representation of the key path. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the canonical representation of the key path, optionally relative to <computeroutput>basePath</computeroutput>. This method is used to construct absolute paths, also navigating up and removing <computeroutput>SpecialKeys::up</computeroutput>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>basePath</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key path with respect to which the path is to be constructed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Canonical representation of the key path. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="608" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/interface/json/support/keys.cpp" bodystart="566" bodyend="599"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for specifying a key pat used to access data from <computeroutput>json</computeroutput> objects. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for specifying a key path (key.subkey.subsubkey ...) used to access data from <computeroutput>json</computeroutput> objects. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>std::vector&lt; std::string &gt;</label>
+      </node>
+      <node id="1">
+        <label>tudat::json_interface::KeyPath</label>
+        <link refid="classtudat_1_1json__interface_1_1KeyPath"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>std::vector&lt; std::string &gt;</label>
+      </node>
+      <node id="1">
+        <label>tudat::json_interface::KeyPath</label>
+        <link refid="classtudat_1_1json__interface_1_1KeyPath"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="551" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="552" bodyend="609"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1aa909c937d0ad08d576efb22079b130ac" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>canonical</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1a8d621a9ecd70d71fdc5372d50d740cef" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>isAbsolute</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1a4e22cc4ea5fad763aa4daf0f1736fd69" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>KeyPath</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1a18bb23b6d070c0954bab31b298426f44" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>KeyPath</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1a5b04d7e90e11d1ac1eb8b93a7d6c217b" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>KeyPath</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1ace34e44f197e865a38f11d8946dfa6a7" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>KeyPath</name></member>
+      <member refid="classtudat_1_1json__interface_1_1KeyPath_1a393abe43a6435c2c0d17f208b81dc169" prot="public" virt="non-virtual"><scope>tudat::json_interface::KeyPath</scope><name>KeyPath</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,739 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField" kind="class" language="C++" prot="public">
+    <compoundname>tudat::gravitation::SphericalHarmonicsGravityField</compoundname>
+    <basecompoundref refid="classtudat_1_1gravitation_1_1GravityFieldModel" prot="public" virt="non-virtual">tudat::gravitation::GravityFieldModel</basecompoundref>
+    <derivedcompoundref refid="classtudat_1_1gravitation_1_1TimeDependentSphericalHarmonicsGravityField" prot="public" virt="non-virtual">tudat::gravitation::TimeDependentSphericalHarmonicsGravityField</derivedcompoundref>
+    <includes refid="sphericalHarmonicsGravityField_8h" local="no">sphericalHarmonicsGravityField.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a30a2d290373ba058f6b908e0c006997e" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::referenceRadius_</definition>
+        <argsstring></argsstring>
+        <name>referenceRadius_</name>
+        <briefdescription>
+<para>Reference radius of spherical harmonic field expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reference radius of spherical harmonic field expansion </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="324" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a976097b5feae44132eb1867c0b538869" prot="protected" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::cosineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>cosineCoefficients_</name>
+        <briefdescription>
+<para>Cosine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cosine spherical harmonic coefficients (geodesy normalized) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="330" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1accb57f8fd5997a24737fbadf9341e3b0" prot="protected" static="no" mutable="no">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::sineCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>sineCoefficients_</name>
+        <briefdescription>
+<para>Sine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sine spherical harmonic coefficients (geodesy normalized) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="336" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a5524e491cd850068d2ea055635a5d301" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::gravitation::SphericalHarmonicsGravityField::fixedReferenceFrame_</definition>
+        <argsstring></argsstring>
+        <name>fixedReferenceFrame_</name>
+        <briefdescription>
+<para>Identifier for body-fixed reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Identifier for body-fixed reference frame </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="342" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="342" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ab26d6c244a4f2bb9ae00dc30a7a9c42e" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">basic_mathematics::SphericalHarmonicsCache</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; basic_mathematics::SphericalHarmonicsCache &gt; tudat::gravitation::SphericalHarmonicsGravityField::sphericalHarmonicsCache_</definition>
+        <argsstring></argsstring>
+        <name>sphericalHarmonicsCache_</name>
+        <briefdescription>
+<para>Cache object for potential calculations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="345" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a4ed6752e8749e05b0d95d40a89983c0f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::gravitation::SphericalHarmonicsGravityField::SphericalHarmonicsGravityField</definition>
+        <argsstring>(const double gravitationalParameter, const double referenceRadius, const Eigen::MatrixXd &amp;cosineCoefficients=Eigen::MatrixXd::Identity(1, 1), const Eigen::MatrixXd &amp;sineCoefficients=Eigen::MatrixXd::Zero(1, 1), const std::string &amp;fixedReferenceFrame=&quot;&quot;, const std::function&lt; void() &gt; updateInertiaTensor=std::function&lt; void() &gt;())</argsstring>
+        <name>SphericalHarmonicsGravityField</name>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>cosineCoefficients</declname>
+          <defval>Eigen::MatrixXd::Identity(1, 1)</defval>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>sineCoefficients</declname>
+          <defval>Eigen::MatrixXd::Zero(1, 1)</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>fixedReferenceFrame</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <param>
+          <type>const std::function&lt; void() &gt;</type>
+          <declname>updateInertiaTensor</declname>
+          <defval>std::function&lt; void() &gt;()</defval>
+        </param>
+        <briefdescription>
+<para>Class constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of massive body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of spherical harmonic field expansion </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cosine spherical harmonic coefficients (geodesy normalized) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sine spherical harmonic coefficients (geodesy normalized) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fixedReferenceFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier for body-fixed reference frame to which the field is fixed (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>updateInertiaTensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that is to be called to update the inertia tensor (typicaly in Body class; default empty) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="82" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="82" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a368ca429e816d6d62ddbe7696e228b79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::gravitation::SphericalHarmonicsGravityField::~SphericalHarmonicsGravityField</definition>
+        <argsstring>()</argsstring>
+        <name>~SphericalHarmonicsGravityField</name>
+        <briefdescription>
+<para>Virtual destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Virtual destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="102" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="102" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a39de2873ed5bb4b906e56ccc1351addb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getReferenceRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getReferenceRadius</name>
+        <briefdescription>
+<para>Function to get the reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the reference radius used for the spherical harmonics expansion in meters. <simplesect kind="return"><para>Reference radius of spherical harmonic field expansion </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="109" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="109" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a3bf8d4b53afe4cd89c0daa01e21e031c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::getCosineCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getCosineCoefficients</name>
+        <briefdescription>
+<para>Function to get the cosine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the cosine spherical harmonic coefficients (geodesy normalized) <simplesect kind="return"><para>Cosine spherical harmonic coefficients (geodesy normalized) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="119" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="119" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a3ae43643d8951471df022b0bab58d775" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::getSineCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getSineCoefficients</name>
+        <briefdescription>
+<para>Function to get the sine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the sine spherical harmonic coefficients (geodesy normalized) <simplesect kind="return"><para>Sine spherical harmonic coefficients (geodesy normalized) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="129" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="129" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1afaf543f1c8794f0af32b805dbb29730f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::SphericalHarmonicsGravityField::setCosineCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;cosineCoefficients)</argsstring>
+        <name>setCosineCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>cosineCoefficients</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the cosine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the cosine spherical harmonic coefficients (geodesy normalized) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New cosine spherical harmonic coefficients (geodesy normalized) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="139" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="139" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a04734e29e1016ad3e0ba7ae092bd9995" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::SphericalHarmonicsGravityField::setSineCoefficients</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;sineCoefficients)</argsstring>
+        <name>setSineCoefficients</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>sineCoefficients</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the cosine spherical harmonic coefficients (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the cosine spherical harmonic coefficients (geodesy normalized) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New sine spherical harmonic coefficients (geodesy normalized) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="154" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="154" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1af8ea6eb1af290b26439e2822d0547db8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::getCosineCoefficientsBlock</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>getCosineCoefficientsBlock</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Function to get a cosine spherical harmonic coefficient block (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get a cosine spherical harmonic coefficient block (geodesy normalized) up to a given degree and order <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of coefficient block </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of coefficient block </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cosine spherical harmonic coefficients (geodesy normalized) up to given degree and order </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="172" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="172" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1aad02024dbbe41120c57b6ac66de99d70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::SphericalHarmonicsGravityField::getSineCoefficientsBlock</definition>
+        <argsstring>(const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>getSineCoefficientsBlock</name>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Function to get a sine spherical harmonic coefficient block (geodesy normalized) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get a sine spherical harmonic coefficient block (geodesy normalized) up to a given degree and order <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of coefficient block </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of coefficient block </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sine spherical harmonic coefficients (geodesy normalized) up to given degree and order </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="186" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="186" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ad0c6a6b513a1d7f6807fb3ea5dfd87c8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getDegreeOfExpansion</definition>
+        <argsstring>()</argsstring>
+        <name>getDegreeOfExpansion</name>
+        <briefdescription>
+<para>Get maximum degree of spherical harmonics gravity field expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum degree of the spherical harmonics gravity field expansion. <simplesect kind="return"><para>Degree of spherical harmonics expansion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="196" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="196" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1afe9bf8e063be715be4478828759ad988" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getOrderOfExpansion</definition>
+        <argsstring>()</argsstring>
+        <name>getOrderOfExpansion</name>
+        <briefdescription>
+<para>Get maximum order of spherical harmonics gravity field expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the maximum order of the spherical harmonics gravity field expansion. <simplesect kind="return"><para>Order of spherical harmonics expansion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="206" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="206" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a2c36df54fbe2c2160761e90e882f7a61" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getGravitationalPotential</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition)</argsstring>
+        <name>getGravitationalPotential</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the gravitational potential at a given point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the gravitational potential due to this body at a given point. Note that this function, which has the same interface as in the base class and expands the gravity field to its maximum degree and order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of point at which potential is to be calculated, in body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational potential at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="220" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="220" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ac8ce49184aee17c15460841d6b30890e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getGravitationalPotential</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition, const double maximumDegree, const double maximumOrder, const double minimumDegree=0, const double minimumOrder=0)</argsstring>
+        <name>getGravitationalPotential</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumDegree</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>minimumOrder</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the gravitational potential due to terms up to given degree and order at a given point</para>
+<para>Function to calculate the gravitational potential due to terms up to given degree and order due to this body at a given point. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of point at which potential is to be calculate, in body-fixed frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of spherical harmonic coefficients to include. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of spherical harmonic coefficients to include. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum degree of spherical harmonic coefficients to include, default 0 </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of spherical harmonic coefficients to include, default 0 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational potential due to terms up to given degree and order at requested point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="240" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="240" bodyend="252"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a7e24f9dd380f6d26572f263f79809bdd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::SphericalHarmonicsGravityField::getGradientOfPotential</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition)</argsstring>
+        <name>getGradientOfPotential</name>
+        <reimplements refid="classtudat_1_1gravitation_1_1GravityFieldModel_1a9b33395ebfd2a6bb1ee69c92a5b44b6b">getGradientOfPotential</reimplements>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <briefdescription>
+<para>Get the gradient of the potential. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the gradient of the potential for the gravity field selected. Note that this function, which has the same interface as in the base class and expands the gravity field to its maximum degree and order. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position at which gradient of potential is to be determined </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gradient of potential. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="262" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="262" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a11f957ce082b81c5f44b3665de6f83b6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::SphericalHarmonicsGravityField::getGradientOfPotential</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition, const double maximumDegree, const double maximumOrder)</argsstring>
+        <name>getGradientOfPotential</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Get the gradient of the potential. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the gradient of the potential for the gravity field selected. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position at which gradient of potential is to be determined </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of spherical harmonic coefficients to include. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of spherical harmonic coefficients to include. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gradient of potential. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="276" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="276" bodyend="286"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ab9a883874e78a54c197f63614cd910d6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::gravitation::SphericalHarmonicsGravityField::getFixedReferenceFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getFixedReferenceFrame</name>
+        <briefdescription>
+<para>Function to retrieve the tdentifier for body-fixed reference frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the tdentifier for body-fixed reference frame <simplesect kind="return"><para>Function to retrieve the tdentifier for body-fixed reference frame. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="293" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="293" bodyend="296"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1accdb5d3883ae4c72c72e44bafe6d4525" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::gravitation::SphericalHarmonicsGravityField::areCoefficientsGeodesyNormalized</definition>
+        <argsstring>()</argsstring>
+        <name>areCoefficientsGeodesyNormalized</name>
+        <briefdescription>
+<para>Function to retrieve if spherical harmonic coefficients are normalized. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve if spherical harmonic coefficients are normalized <simplesect kind="return"><para>Boolean stating whether spherical harmonic coefficients are normalized </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="303" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="303" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1acaf0ef29541d1511f72255141f659166" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor</definition>
+        <argsstring>()</argsstring>
+        <name>getInertiaTensorNormalizationFactor</name>
+        <briefdescription>
+<para>Function to get inertia tensor normalization factor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get inertia tensor normalization factor (M*R^2) <simplesect kind="return"><para>Inertia tensor normalization factor (M*R^2) </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="313" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="313" bodyend="316"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class to represent a spherical harmonic gravity field expansion. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class to represent a spherical harmonic gravity field expansion of a massive body with time-independent spherical harmonic gravity field coefficients. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="3">
+        <label>tudat::gravitation::TimeDependentSphericalHarmonicsGravityField</label>
+        <link refid="classtudat_1_1gravitation_1_1TimeDependentSphericalHarmonicsGravityField"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::gravitation::SphericalHarmonicsGravityField</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::gravitation::GravityFieldModel</label>
+        <link refid="classtudat_1_1gravitation_1_1GravityFieldModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::gravitation::SphericalHarmonicsGravityField</label>
+        <link refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="usage">
+          <edgelabel>fixedReferenceFrame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::gravitation::GravityFieldModel</label>
+        <link refid="classtudat_1_1gravitation_1_1GravityFieldModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" line="67" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" bodystart="68" bodyend="346"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1accdb5d3883ae4c72c72e44bafe6d4525" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>areCoefficientsGeodesyNormalized</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a976097b5feae44132eb1867c0b538869" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>cosineCoefficients_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a5524e491cd850068d2ea055635a5d301" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>fixedReferenceFrame_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a3bf8d4b53afe4cd89c0daa01e21e031c" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getCosineCoefficients</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1af8ea6eb1af290b26439e2822d0547db8" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getCosineCoefficientsBlock</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ad0c6a6b513a1d7f6807fb3ea5dfd87c8" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getDegreeOfExpansion</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ab9a883874e78a54c197f63614cd910d6" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getFixedReferenceFrame</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a7e24f9dd380f6d26572f263f79809bdd" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getGradientOfPotential</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a11f957ce082b81c5f44b3665de6f83b6" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getGradientOfPotential</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1a3bc2da209f97a04d2a79dd6e029e02d5" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getGravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a2c36df54fbe2c2160761e90e882f7a61" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getGravitationalPotential</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ac8ce49184aee17c15460841d6b30890e" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getGravitationalPotential</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1acaf0ef29541d1511f72255141f659166" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getInertiaTensorNormalizationFactor</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1afe9bf8e063be715be4478828759ad988" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getOrderOfExpansion</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a39de2873ed5bb4b906e56ccc1351addb" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getReferenceRadius</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a3ae43643d8951471df022b0bab58d775" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getSineCoefficients</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1aad02024dbbe41120c57b6ac66de99d70" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>getSineCoefficientsBlock</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1a09f7494a3ec50394da0bfd859473d546" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>gravitationalParameter_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1aa38dbeeea6453a0fe5b12755644ae4a9" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>GravityFieldModel</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a30a2d290373ba058f6b908e0c006997e" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>referenceRadius_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1abfd190adae679f7de648c44196415315" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>resetGravitationalParameter</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1afaf543f1c8794f0af32b805dbb29730f" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>setCosineCoefficients</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a04734e29e1016ad3e0ba7ae092bd9995" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>setSineCoefficients</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1accb57f8fd5997a24737fbadf9341e3b0" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>sineCoefficients_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1ab26d6c244a4f2bb9ae00dc30a7a9c42e" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>sphericalHarmonicsCache_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a4ed6752e8749e05b0d95d40a89983c0f" prot="public" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>SphericalHarmonicsGravityField</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1ac7ce28f91a1f515acb40e3ff638f6e8a" prot="protected" virt="non-virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>updateInertiaTensor_</name></member>
+      <member refid="classtudat_1_1gravitation_1_1GravityFieldModel_1ac07d5622f8ab741498c4f09891539378" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>~GravityFieldModel</name></member>
+      <member refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField_1a368ca429e816d6d62ddbe7696e228b79" prot="public" virt="virtual"><scope>tudat::gravitation::SphericalHarmonicsGravityField</scope><name>~SphericalHarmonicsGravityField</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

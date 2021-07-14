@@ -1,0 +1,79 @@
+\hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings}{}\doxysection{tudat\+::propagators\+::Propagation\+Dependent\+Variable\+Termination\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings}\index{tudat::propagators::PropagationDependentVariableTerminationSettings@{tudat::propagators::PropagationDependentVariableTerminationSettings}}
+
+
+{\ttfamily \#include $<$propagation\+Termination\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Propagation\+Dependent\+Variable\+Termination\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a02ee0039ef04d30ff6b73db7671f2ac7}{Propagation\+Dependent\+Variable\+Termination\+Settings}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings}{Single\+Dependent\+Variable\+Save\+Settings}} $>$ dependent\+Variable\+Settings, const double limit\+Value, const bool use\+As\+Lower\+Limit, const bool check\+Termination\+To\+Exact\+Condition=false, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ termination\+Root\+Finder\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_afe286f4a746984bb130683954da31d5b}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_afe286f4a746984bb130683954da31d5b}} 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_afe286f4a746984bb130683954da31d5b}{$\sim$\+Propagation\+Dependent\+Variable\+Termination\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a445ff968af7c9d1c843ebf25ad73f32c}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a445ff968af7c9d1c843ebf25ad73f32c}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings}{Single\+Dependent\+Variable\+Save\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a445ff968af7c9d1c843ebf25ad73f32c}{dependent\+Variable\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings for dependent variable that is to be checked. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_abd20020a0d0c71c95073ec55a77f7116}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_abd20020a0d0c71c95073ec55a77f7116}} 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_abd20020a0d0c71c95073ec55a77f7116}{limit\+Value\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Value at which the propagation is to be stopped. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a7dc06eb4a8f0134d458185ef9d54a878}{use\+As\+Lower\+Limit\+\_\+}}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a01dd0ba57e734095bce202c503ec6a9b}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a01dd0ba57e734095bce202c503ec6a9b}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a01dd0ba57e734095bce202c503ec6a9b}{termination\+Root\+Finder\+Settings\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Settings to create root finder used to converge on exact final condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for propagation stopping conditions settings\+: stopping the propagation after a given dependent variable reaches a certain value.
+
+Class for propagation stopping conditions settings\+: stopping the propagation after a given dependent variable reaches a certain value. The limit value may be set as both an upper or lower bound (i.\+e. the propagation continues while the value is below or above some given value). Note that the propagator will finish a given time step, slightly surpassing the defined limit value of the dependent variable 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a02ee0039ef04d30ff6b73db7671f2ac7}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a02ee0039ef04d30ff6b73db7671f2ac7}} 
+\index{tudat::propagators::PropagationDependentVariableTerminationSettings@{tudat::propagators::PropagationDependentVariableTerminationSettings}!PropagationDependentVariableTerminationSettings@{PropagationDependentVariableTerminationSettings}}
+\index{PropagationDependentVariableTerminationSettings@{PropagationDependentVariableTerminationSettings}!tudat::propagators::PropagationDependentVariableTerminationSettings@{tudat::propagators::PropagationDependentVariableTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{PropagationDependentVariableTerminationSettings()}{PropagationDependentVariableTerminationSettings()}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Propagation\+Dependent\+Variable\+Termination\+Settings\+::\+Propagation\+Dependent\+Variable\+Termination\+Settings (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SingleDependentVariableSaveSettings}{Single\+Dependent\+Variable\+Save\+Settings}} $>$}]{dependent\+Variable\+Settings,  }\item[{const double}]{limit\+Value,  }\item[{const bool}]{use\+As\+Lower\+Limit,  }\item[{const bool}]{check\+Termination\+To\+Exact\+Condition = {\ttfamily false},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1root__finders_1_1RootFinderSettings}{root\+\_\+finders\+::\+Root\+Finder\+Settings}} $>$}]{termination\+Root\+Finder\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em dependent\+Variable\+Settings} & Settings for dependent variable that is to be checked \\
+\hline
+{\em limit\+Value} & Value at which the propagation is to be stopped \\
+\hline
+{\em use\+As\+Lower\+Limit} & Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above (if false) limiting\+Value \\
+\hline
+{\em check\+Termination\+To\+Exact\+Condition} & Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated. \\
+\hline
+{\em termination\+Root\+Finder\+Settings} & Settings to create root finder used to converge on exact final condition. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a7dc06eb4a8f0134d458185ef9d54a878}\label{classtudat_1_1propagators_1_1PropagationDependentVariableTerminationSettings_a7dc06eb4a8f0134d458185ef9d54a878}} 
+\index{tudat::propagators::PropagationDependentVariableTerminationSettings@{tudat::propagators::PropagationDependentVariableTerminationSettings}!useAsLowerLimit\_@{useAsLowerLimit\_}}
+\index{useAsLowerLimit\_@{useAsLowerLimit\_}!tudat::propagators::PropagationDependentVariableTerminationSettings@{tudat::propagators::PropagationDependentVariableTerminationSettings}}
+\doxysubsubsection{\texorpdfstring{useAsLowerLimit\_}{useAsLowerLimit\_}}
+{\footnotesize\ttfamily bool tudat\+::propagators\+::\+Propagation\+Dependent\+Variable\+Termination\+Settings\+::use\+As\+Lower\+Limit\+\_\+}
+
+Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above (if false) limiting\+Value 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Termination\+Settings.\+h\end{DoxyCompactItemize}

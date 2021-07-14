@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_5707492f47294499ce6ccb14d2a75241" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup</compoundname>
+    <innerfile refid="simulation_2environment__setup_2body_8cpp">body.cpp</innerfile>
+    <innerfile refid="createAerodynamicCoefficientInterface_8cpp">createAerodynamicCoefficientInterface.cpp</innerfile>
+    <innerfile refid="createAerodynamicControlSurfaces_8cpp">createAerodynamicControlSurfaces.cpp</innerfile>
+    <innerfile refid="createAtmosphereModel_8cpp">createAtmosphereModel.cpp</innerfile>
+    <innerfile refid="createBodies_8cpp">createBodies.cpp</innerfile>
+    <innerfile refid="createBodyShapeModel_8cpp">createBodyShapeModel.cpp</innerfile>
+    <innerfile refid="createEphemeris_8cpp">createEphemeris.cpp</innerfile>
+    <innerfile refid="createFlightConditions_8cpp">createFlightConditions.cpp</innerfile>
+    <innerfile refid="createGravityField_8cpp">createGravityField.cpp</innerfile>
+    <innerfile refid="createGravityFieldVariations_8cpp">createGravityFieldVariations.cpp</innerfile>
+    <innerfile refid="createGroundStations_8cpp">createGroundStations.cpp</innerfile>
+    <innerfile refid="createRadiationPressureInterface_8cpp">createRadiationPressureInterface.cpp</innerfile>
+    <innerfile refid="createRotationModel_8cpp">createRotationModel.cpp</innerfile>
+    <innerfile refid="defaultBodies_8cpp">defaultBodies.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/simulation/environment_setup/"/>
+  </compounddef>
+</doxygen>

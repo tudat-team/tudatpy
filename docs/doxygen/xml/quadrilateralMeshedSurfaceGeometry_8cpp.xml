@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="quadrilateralMeshedSurfaceGeometry_8cpp" kind="file" language="C++">
+    <compoundname>quadrilateralMeshedSurfaceGeometry.cpp</compoundname>
+    <includes local="no">boost/multi_array.hpp</includes>
+    <includes local="no">iostream</includes>
+    <includes local="no">limits</includes>
+    <includes local="no">Eigen/Geometry</includes>
+    <includes refid="quadrilateralMeshedSurfaceGeometry_8h" local="yes">tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>limits</label>
+      </node>
+      <node id="5">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="12">
+        <label>cmath</label>
+      </node>
+      <node id="7">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="6">
+        <label>tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h</label>
+        <link refid="quadrilateralMeshedSurfaceGeometry_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat/math/geometric/surfaceGeometry.h</label>
+        <link refid="surfaceGeometry_8h_source"/>
+      </node>
+      <node id="8">
+        <label>tudat/math/geometric/singleSurfaceGeometry.h</label>
+        <link refid="singleSurfaceGeometry_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/quadrilateralMeshedSurfaceGeometry.cpp</label>
+        <link refid="quadrilateralMeshedSurfaceGeometry_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>iostream</label>
+      </node>
+      <node id="10">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost/multi_array.hpp</label>
+      </node>
+      <node id="11">
+        <label>complex</label>
+      </node>
+      <node id="9">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1geometric__shapes">tudat::geometric_shapes</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>An<sp/>example<sp/>of<sp/>a<sp/>heritage<sp/>code<sp/>which<sp/>uses<sp/>such<sp/>a<sp/>mesh<sp/>is<sp/>found<sp/>in:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>The<sp/>Mark<sp/>IV<sp/>Supersonic-Hypersonic<sp/>Arbitrary<sp/>Body<sp/>Program,<sp/>Volume</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>II-Program<sp/>Formulation,<sp/>Douglas<sp/>Aircraft<sp/>Company,<sp/>AFFDL-TR-73-159,</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Volume<sp/>II.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>Notes</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>The<sp/>numberOfLines_<sp/>and<sp/>numberOfPoints_<sp/>member<sp/>variables<sp/>denote<sp/>the<sp/>number<sp/>of<sp/>mesh<sp/>points.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>The<sp/>number<sp/>of<sp/>panels<sp/>in<sp/>the<sp/>mesh<sp/>will<sp/>be<sp/>numberOfLines_<sp/>-<sp/>1<sp/>by<sp/>numberOfPoints_<sp/>-<sp/>1.</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;boost/multi_array.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Geometry&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/math/geometric/quadrilateralMeshedSurfaceGeometry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">geometric_shapes</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a76af62d5ebe8603a4712b5992ae30a90" kindref="member">QuadrilateralMeshedSurfaceGeometry::performPanelCalculations</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Allocate<sp/>memory<sp/>for<sp/>panel<sp/>properties.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a715ff3e3943b8c60fe5bcd0f64163a67" kindref="member">panelCentroids_</ref>.resize(boost::extents[<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1eeb4e61e296455cf92a869f043f5341" kindref="member">numberOfLines_</ref><sp/>-<sp/>1<sp/>][<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a8d2057019d4b46515e48dfa196ac4af0" kindref="member">numberOfPoints_</ref><sp/>-<sp/>1<sp/>]);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" kindref="member">panelSurfaceNormals_</ref>.resize(boost::extents[<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1eeb4e61e296455cf92a869f043f5341" kindref="member">numberOfLines_</ref><sp/>-<sp/>1<sp/>][<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a8d2057019d4b46515e48dfa196ac4af0" kindref="member">numberOfPoints_</ref><sp/>-<sp/>1<sp/>]);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" kindref="member">panelAreas_</ref>.resize(boost::extents[<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1eeb4e61e296455cf92a869f043f5341" kindref="member">numberOfLines_</ref><sp/>-<sp/>1<sp/>][<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a8d2057019d4b46515e48dfa196ac4af0" kindref="member">numberOfPoints_</ref><sp/>-<sp/>1<sp/>]);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Declare<sp/>local<sp/>variables<sp/>for<sp/>normal<sp/>and<sp/>area<sp/>determination.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>crossVector1;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>crossVector2;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Reset<sp/>total<sp/>area.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a976236e69019a26244beecb29b650112" kindref="member">totalArea_</ref><sp/>=<sp/>0.0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Loop<sp/>over<sp/>all<sp/>panels<sp/>to<sp/>determine<sp/>properties.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a1eeb4e61e296455cf92a869f043f5341" kindref="member">numberOfLines_</ref><sp/>-<sp/>1;<sp/>i++<sp/>)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a8d2057019d4b46515e48dfa196ac4af0" kindref="member">numberOfPoints_</ref><sp/>-<sp/>1;<sp/>j++<sp/>)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>panel<sp/>centroid.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a715ff3e3943b8c60fe5bcd0f64163a67" kindref="member">panelCentroids_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>=<sp/>(<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>+</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>+<sp/>1<sp/>][<sp/>j<sp/>]<sp/>+</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>][<sp/>j<sp/>+<sp/>1<sp/>]<sp/>+</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>+<sp/>1<sp/>][<sp/>j<sp/>+<sp/>1<sp/>]<sp/>)<sp/>/<sp/>4;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>panel<sp/>cross<sp/>vectors.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crossVector1<sp/>=<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>+<sp/>1<sp/>][<sp/>j<sp/>+<sp/>1<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>][<sp/>j<sp/>];</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crossVector2<sp/>=<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>+<sp/>1<sp/>][<sp/>j<sp/>]<sp/>-<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aaa6f41fadbe6a187c441ab23feba8e68" kindref="member">meshPoints_</ref>[<sp/>i<sp/>][<sp/>j<sp/>+<sp/>1<sp/>];</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>panel<sp/>normal<sp/>(not<sp/>yet<sp/>normalized).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" kindref="member">panelSurfaceNormals_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>=<sp/>crossVector1.cross(<sp/>crossVector2<sp/>);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>panel<sp/>area<sp/>(not<sp/>yet<sp/>correct<sp/>size).</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" kindref="member">panelAreas_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>=<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" kindref="member">panelSurfaceNormals_</ref>[<sp/>i<sp/>][<sp/>j<sp/>].norm(<sp/>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" kindref="member">panelAreas_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>&lt;<sp/>std::numeric_limits&lt;<sp/>double<sp/>&gt;::epsilon(<sp/>)<sp/>)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>std::cerr<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;Warning,<sp/>panel<sp/>area<sp/>is<sp/>zero<sp/>in<sp/>part<sp/>at<sp/>panel&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>i</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;,<sp/>&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>j<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Normalize<sp/>panel<sp/>normal<sp/>and,<sp/>if<sp/>necessary,<sp/>invert<sp/>normal<sp/>direction.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" kindref="member">panelSurfaceNormals_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>*=<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ac5de108458e15b4f1884c6e3ad2a1043" kindref="member">reversalOperator_</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ad4ce6acf3444f33b85e4835d9288bf26" kindref="member">panelSurfaceNormals_</ref>[<sp/>i<sp/>][<sp/>j<sp/>].normalize(<sp/>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>panel<sp/>area<sp/>to<sp/>correct<sp/>size.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" kindref="member">panelAreas_</ref>[<sp/>i<sp/>][<sp/>j<sp/>]<sp/>*=<sp/>0.5;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Add<sp/>panel<sp/>area<sp/>to<sp/>total<sp/>area.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a976236e69019a26244beecb29b650112" kindref="member">totalArea_</ref><sp/>+=<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a9da840716adb5449b740250976e3111c" kindref="member">panelAreas_</ref>[<sp/>i<sp/>][<sp/>j<sp/>];</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1a6061bf3b165f5aa1fe9dd0678da3ab2f" kindref="member">QuadrilateralMeshedSurfaceGeometry::setReversalOperator</ref>(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMeshInverted<sp/>)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/>isMeshInverted<sp/>==<sp/>0<sp/>)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ac5de108458e15b4f1884c6e3ad2a1043" kindref="member">reversalOperator_</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ac5de108458e15b4f1884c6e3ad2a1043" kindref="member">reversalOperator_</ref><sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1aa780bc0a12d1936cde32809c44e697a7" kindref="member">QuadrilateralMeshedSurfaceGeometry::getReversalOperator</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>isMeshInverted;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<sp/><ref refid="classtudat_1_1geometric__shapes_1_1QuadrilateralMeshedSurfaceGeometry_1ac5de108458e15b4f1884c6e3ad2a1043" kindref="member">reversalOperator_</ref><sp/>==<sp/>1<sp/>)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>isMeshInverted<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>isMeshInverted<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>isMeshInverted;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">std::ostream&amp;<sp/>operator<sp/>&lt;&lt;<sp/>(<sp/>std::ostream&amp;<sp/>stream,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QuadrilateralMeshedSurfaceGeometry&amp;<sp/>quadrilateralMeshedSurfaceGeometry<sp/>)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;This<sp/>is<sp/>a<sp/>quadrilateral<sp/>meshed<sp/>surface<sp/>geometry&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;<sp/>of<sp/>a<sp/>single<sp/>part.&quot;</highlight><highlight class="normal"><sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>number<sp/>of<sp/>lines<sp/>(<sp/>contours<sp/>)<sp/>is:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>quadrilateralMeshedSurfaceGeometry.numberOfLines_<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>stream<sp/>&lt;&lt;<sp/></highlight><highlight class="stringliteral">&quot;The<sp/>number<sp/>of<sp/>points<sp/>per<sp/>line<sp/>is:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;&lt;<sp/>quadrilateralMeshedSurfaceGeometry.numberOfPoints_<sp/>&lt;&lt;<sp/>std::endl;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Return<sp/>stream.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stream;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>geometric_shapes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/math/geometric/quadrilateralMeshedSurfaceGeometry.cpp"/>
+  </compounddef>
+</doxygen>

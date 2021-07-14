@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_74080c43813cea247fb7c518c557ccb5" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based</compoundname>
+    <innerfile refid="baseFunctionsHodographicShaping_8cpp">baseFunctionsHodographicShaping.cpp</innerfile>
+    <innerfile refid="baseFunctionsSphericalShaping_8cpp">baseFunctionsSphericalShaping.cpp</innerfile>
+    <innerfile refid="compositeFunctionHodographicShaping_8cpp">compositeFunctionHodographicShaping.cpp</innerfile>
+    <innerfile refid="compositeFunctionSphericalShaping_8cpp">compositeFunctionSphericalShaping.cpp</innerfile>
+    <innerfile refid="createBaseFunctionHodographicShaping_8cpp">createBaseFunctionHodographicShaping.cpp</innerfile>
+    <innerfile refid="getRecommendedBaseFunctionsHodographicShaping_8cpp">getRecommendedBaseFunctionsHodographicShaping.cpp</innerfile>
+    <innerfile refid="hodographicShaping_8cpp">hodographicShaping.cpp</innerfile>
+    <innerfile refid="hodographicShapingOptimisationSetup_8cpp">hodographicShapingOptimisationSetup.cpp</innerfile>
+    <innerfile refid="shapeBasedMethod_8cpp">shapeBasedMethod.cpp</innerfile>
+    <innerfile refid="sphericalShaping_8cpp">sphericalShaping.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/low_thrust/shape_based/"/>
+  </compounddef>
+</doxygen>

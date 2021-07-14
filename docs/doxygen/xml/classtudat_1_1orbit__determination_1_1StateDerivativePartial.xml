@@ -1,0 +1,1072 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::orbit_determination::StateDerivativePartial</compoundname>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial" prot="public" virt="non-virtual">tudat::acceleration_partials::AccelerationPartial</derivedcompoundref>
+    <derivedcompoundref refid="classtudat_1_1acceleration__partials_1_1TorquePartial" prot="public" virt="non-virtual">tudat::acceleration_partials::TorquePartial</derivedcompoundref>
+    <includes refid="stateDerivativePartial_8h" local="no">stateDerivativePartial.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" prot="protected" static="no" mutable="no">
+        <type>propagators::IntegratedStateType</type>
+        <definition>propagators::IntegratedStateType tudat::orbit_determination::StateDerivativePartial::integratedStateType_</definition>
+        <argsstring></argsstring>
+        <name>integratedStateType_</name>
+        <briefdescription>
+<para>Type of state for which partials are to be computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="461" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="461" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::orbit_determination::StateDerivativePartial::accelerationSize_</definition>
+        <argsstring></argsstring>
+        <name>accelerationSize_</name>
+        <briefdescription>
+<para>Size of the single order state derivative model (i.e. 3 for translational dynamics). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="464" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="464" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" prot="protected" static="no" mutable="no">
+        <type>std::pair&lt; std::string, std::string &gt;</type>
+        <definition>std::pair&lt; std::string, std::string &gt; tudat::orbit_determination::StateDerivativePartial::integrationReferencePoint_</definition>
+        <argsstring></argsstring>
+        <name>integrationReferencePoint_</name>
+        <briefdescription>
+<para>Identifier for body/reference point for which propagation is performed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Identifier for body/reference point for which propagation is performed. First entry represents the body being propagated. Second entry is empty for propagation of entire bodies (translational, rotational), but must be set for propagation of local dynamics (i.e. observer proper time). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="472" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="472" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;, bool &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt;, bool &gt; tudat::orbit_determination::StateDerivativePartial::isCurrentDoubleParameterPartialSet_</definition>
+        <argsstring></argsstring>
+        <name>isCurrentDoubleParameterPartialSet_</name>
+        <briefdescription>
+<para>List of booleans defining whether the partial w.r.t. the current double parameter (key) has been computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="477" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="477" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;, bool &gt;::iterator</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt;, bool &gt;::iterator tudat::orbit_determination::StateDerivativePartial::isCurrentDoubleParameterPartialSetIterator_</definition>
+        <argsstring></argsstring>
+        <name>isCurrentDoubleParameterPartialSetIterator_</name>
+        <briefdescription>
+<para>Iterator for list defining whether the partial w.r.t. the current double parameter (key) has been computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="481" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt;, Eigen::MatrixXd &gt; tudat::orbit_determination::StateDerivativePartial::currentDoubleParameterPartials_</definition>
+        <argsstring></argsstring>
+        <name>currentDoubleParameterPartials_</name>
+        <briefdescription>
+<para>List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="487" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;, std::function&lt; void(Eigen::MatrixXd &amp;) &gt; &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt;, std::function&lt; void( Eigen::MatrixXd&amp; ) &gt; &gt; tudat::orbit_determination::StateDerivativePartial::parameterDoublePartialFunctions_</definition>
+        <argsstring></argsstring>
+        <name>parameterDoublePartialFunctions_</name>
+        <briefdescription>
+<para>List of functions to compute (return by reference) values of partials w.r.t. doule parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="491" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="491" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;, std::function&lt; void(Eigen::MatrixXd &amp;) &gt; &gt;::iterator</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt;, std::function&lt; void( Eigen::MatrixXd&amp; ) &gt; &gt;::iterator tudat::orbit_determination::StateDerivativePartial::parameterDoublePartialFunctionIterator_</definition>
+        <argsstring></argsstring>
+        <name>parameterDoublePartialFunctionIterator_</name>
+        <briefdescription>
+<para>Iterator over list of functions to compute values of partials w.r.t. double parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="495" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="495" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;, bool &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt;, bool &gt; tudat::orbit_determination::StateDerivativePartial::isCurrentVectorParameterPartialSet_</definition>
+        <argsstring></argsstring>
+        <name>isCurrentVectorParameterPartialSet_</name>
+        <briefdescription>
+<para>List of booleans defining whether the partial w.r.t. the current vector parameter (key) has been computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="501" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="501" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;, bool &gt;::iterator</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt;, bool &gt;::iterator tudat::orbit_determination::StateDerivativePartial::isCurrentVectorParameterPartialSetIterator_</definition>
+        <argsstring></argsstring>
+        <name>isCurrentVectorParameterPartialSetIterator_</name>
+        <briefdescription>
+<para>Iterator for list defining whether the partial w.r.t. the current vector parameter (key) has been computed. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="505" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="505" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;, Eigen::MatrixXd &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt;, Eigen::MatrixXd &gt; tudat::orbit_determination::StateDerivativePartial::currentVectorParameterPartials_</definition>
+        <argsstring></argsstring>
+        <name>currentVectorParameterPartials_</name>
+        <briefdescription>
+<para>List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="511" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="511" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;, std::function&lt; void(Eigen::MatrixXd &amp;) &gt; &gt;</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt;, std::function&lt; void( Eigen::MatrixXd&amp; ) &gt; &gt; tudat::orbit_determination::StateDerivativePartial::parameterVectorPartialFunctions_</definition>
+        <argsstring></argsstring>
+        <name>parameterVectorPartialFunctions_</name>
+        <briefdescription>
+<para>List of functions to compute (return by reference) values of partials w.r.t. vector parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="515" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="515" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" prot="protected" static="no" mutable="no">
+        <type>std::map&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;, std::function&lt; void(Eigen::MatrixXd &amp;) &gt; &gt;::iterator</type>
+        <definition>std::map&lt; std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt;, std::function&lt; void( Eigen::MatrixXd&amp; ) &gt; &gt;::iterator tudat::orbit_determination::StateDerivativePartial::parameterVectorPartialFunctionIterator_</definition>
+        <argsstring></argsstring>
+        <name>parameterVectorPartialFunctionIterator_</name>
+        <briefdescription>
+<para>Iterator over list of functions to compute values of partials w.r.t. vector parameter partials. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="519" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="519" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1abbca0ac294a29b7d1efc16a68d7c4582" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::orbit_determination::StateDerivativePartial::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="522" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="522" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::orbit_determination::StateDerivativePartial::StateDerivativePartial</definition>
+        <argsstring>(const propagators::IntegratedStateType integratedStateType, const std::pair&lt; std::string, std::string &gt; &amp;integrationReferencePoint)</argsstring>
+        <name>StateDerivativePartial</name>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>integrationReferencePoint</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of dynamics for which partials are to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integrationReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point (i.e. propagated body and point) for which the dynamics is propagated. First entry denotes the full body, second entry the reference point on the body that is propagated (empty for translational, rotational dynamics). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="53" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="53" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::orbit_determination::StateDerivativePartial::~StateDerivativePartial</definition>
+        <argsstring>()</argsstring>
+        <name>~StateDerivativePartial</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="62" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ab4fa1fbffa888476633642ca3e1a1dd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::Block&lt; Eigen::MatrixXd &gt;) &gt;, int &gt;</type>
+        <definition>virtual std::pair&lt; std::function&lt; void( Eigen::Block&lt; Eigen::MatrixXd &gt; ) &gt;, int &gt; tudat::orbit_determination::StateDerivativePartial::getDerivativeFunctionWrtStateOfIntegratedBody</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)=0</argsstring>
+        <name>getDerivativeFunctionWrtStateOfIntegratedBody</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a1b40573f9d0a7ad203e379327f13757e">getDerivativeFunctionWrtStateOfIntegratedBody</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1a00abe63e3789cd2f42bc1b0c7d1fdb9e">getDerivativeFunctionWrtStateOfIntegratedBody</reimplementedby>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to retrieve the function that returns the partial derivative w.r.t. a propagated state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to retrieve the function that returns the partial derivative w.r.t. a propagated state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point (id) for propagated state (i.e. body name for translational dynamics). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair with function, returning partial derivative, and number of columns in partial vector, </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="72" column="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7d6dc0c6a70e33af5aefedf00dee1959" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::orbit_determination::StateDerivativePartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes</definition>
+        <argsstring>(const std::pair&lt; std::string, std::string &gt; &amp;stateReferencePoint, const propagators::IntegratedStateType integratedStateType)=0</argsstring>
+        <name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial_1a94b95390a37109627270bd8dfbca5342">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_1a0a61b86bf520d9d668c87eb8b5cd9d94">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_1ae34f4b0350fb63296433e29f1ede15ae">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_1a8b2783d84e2d5d6692887b9b30c9d598">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1ad9eac4e9f3b342b6bd3c7fe6031dc37f">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_1acb1a163e59f398cba8929feb0c64627d">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_1a655cf2b7a07572b8af83b42c11e667fb">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a46303a708d5697dff414538e8dc42912">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1a3b2270ed356d4d160791f27e08abddfd">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_1a5ce17e25105436d860a7e6d4545cecc2">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1aec785a36a4fab48930ca67263da3a469">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a6c7db8f8ebb688b9281316cc78012a17">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1TorquePartial_1abd32c3a39bd48fe77a2223580d44ea57">isStateDerivativeDependentOnIntegratedAdditionalStateTypes</reimplementedby>
+        <param>
+          <type>const std::pair&lt; std::string, std::string &gt; &amp;</type>
+          <declname>stateReferencePoint</declname>
+        </param>
+        <param>
+          <type>const propagators::IntegratedStateType</type>
+          <declname>integratedStateType</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to check whether a partial w.r.t. some integrated state is non-zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to check whether a partial w.r.t. some integrated state is non-zero. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateReferencePoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference point (id) for propagated state (i.e. body name for translational dynamics). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>integratedStateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of propagated state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if dependency exists, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="83" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::orbit_determination::StateDerivativePartial::wrtParameter</definition>
+        <argsstring>(const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter)</argsstring>
+        <name>wrtParameter</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to directly compute the partial of the state derivative w.r.t. a double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to directly compute the partial of the state derivative w.r.t. a double parameter. NOTE: This function is incldued for testing purposes, and is not to be used during propagation (highly inefficient). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Partial of state derivative w.r.t. given parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="94" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="94" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>virtual std::pair&lt; std::function&lt; void( Eigen::MatrixXd&amp; ) &gt;, int &gt; tudat::orbit_determination::StateDerivativePartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_1a5b243ad2d7fe069d9af4d6ca20ffd9b1">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_1af4915ffd97c18ae894aeb302af2e5e16">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_1a0a8691ec5d4b03293cfe122976a68cff">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a6b140963d7564525e00fee292c75f59b">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1a241b255164f25da4bd5cbc9c4afa807c">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_1af7cc881fead76db604465d28d91e5d92">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_1a70136429a80f09e972dc865f933f49f2">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a47b1b544bfab892216d8f66d5e66f724">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1aa3c7d3780d4e91a42656210494973169">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_1aced267e729ef613715b2a5370695e58e">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_1acb6f5e7a412a8a17fba74fb97e74b8ff">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial_1abe169cb26ea78ab953062fa6b2a41bd9">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1a5000ecdbfaa71aad686a970663d1d198">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a5b01a276e1be12005799a1d49e553c6c">getParameterPartialFunction</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the function that computes (by reference) a given double parameter partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the function that computes (by reference) a given double parameter partial. NOTE: this function is implemented in this base class with default no dependency. If any double parameter dependencioes exists, this function should be overriden in derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="125" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="125" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::orbit_determination::StateDerivativePartial::wrtParameter</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter)</argsstring>
+        <name>wrtParameter</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to directly compute the partial of the state derivative w.r.t. a vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to directly compute the partial of the state derivative w.r.t. a vector parameter. NOTE: This function is incldued for testing purposes, and is not to be used during propagation (highly inefficient). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Partial of state derivative w.r.t. given parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="139" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="139" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>std::pair&lt; std::function&lt; void(Eigen::MatrixXd &amp;) &gt;, int &gt;</type>
+        <definition>virtual std::pair&lt; std::function&lt; void( Eigen::MatrixXd&amp; ) &gt;, int &gt; tudat::orbit_determination::StateDerivativePartial::getParameterPartialFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter)</argsstring>
+        <name>getParameterPartialFunction</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_1abfb24927d2a23b3c2eb47a77ae873110">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_1a6ccd2c5d479c82c7637ca210fa38b27c">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_1a9ce68e594f2ad57b7deab1ef952e3d1b">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_1a450c3f2be2a765c9f057ff93017e6167">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a2d44ec5d917aaaae8b63fe37b318e66e">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab5e76171822c3694cd1fb698b7876520">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_1ada6608f46cde95e33cf6f31f6b2a332b">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_1a5a94db06085bf145865d9b58b26ebe9a">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a8e5a5268d81802ce08a6ee258d89799a">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1a23c1b474e6de1143d18ca08786aa04c1">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_1ac86a6391373c0f24075a23ff4b69abb7">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_1ab542c8d0f4b0f7a01ddb2705f8eec03c">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial_1af3e1401cddb47a569b99672ba391308f">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1a7578059084d9a216e133cb3020454a6c">getParameterPartialFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1a03018f40496c5de51f454a4548cae5f3">getParameterPartialFunction</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the function that computes (by reference) a given vector parameter partial. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the function that computes (by reference) a given vector parameter partial. NOTE: this function is implemented in this base class with default no dependency. If any double parameter dependencioes exists, this function should be overriden in derived class. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter w.r.t. which partial is to be computed </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="169" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="169" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::orbit_determination::StateDerivativePartial::update</definition>
+        <argsstring>(const double currentTime)=0</argsstring>
+        <name>update</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1abff1814094093bf2104e730d1f533cb3">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1ac200d4b69bc1409a6f0c6cc62daba93f">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial_1ac146f0ef1adda30ba9657bac6e563692">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial_1a1d05e14668c9dd5433fe17332afc726b">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1CentralGravitationPartial_1a340849314fd38579fdbf17d58b197be8">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial_1a6151a26e5a5baf0cceeee9fbbcf24e4f">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial_1a935abdcf0f1f833f2481c8598fe36d57">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial_1ab32fc99fb794b72a6cbdbbcb122e6d6d">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial_1a3141f02f866f71df4f9509daad0e0fe3">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a581667836418faf4f1a6e9c79f898e6a">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial_1aaf93b152fe0f1679dd29f6d143fb66fe">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial_1abd5d0ac79bbb95adc2db171a7e12fa46">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial_1a3dc807eef09e683da68acdca271862f6">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial_1a0b0b872b220ff546290f1f8f7b5ea087">update</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial_1aa8f21b1b5df8a2e498c46c863ba8406e">update</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual for updating the common parts of the partial object to current state and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual for updating the common parts of the partial object to current state and time. Note that this function is distinct from the updateParameterPartials, which only updates the specific required partial derivatives w.r.t. required parameters. This function computes variables that are always required when the derived class partial is used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which partials are to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="184" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>propagators::IntegratedStateType</type>
+        <definition>propagators::IntegratedStateType tudat::orbit_determination::StateDerivativePartial::getIntegratedStateType</definition>
+        <argsstring>()</argsstring>
+        <name>getIntegratedStateType</name>
+        <briefdescription>
+<para>Function to get the type of state for which partials are to be computed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the type of state for which partials are to be computed. <simplesect kind="return"><para>Type of state for which partials are to be computed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="191" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="191" bodyend="194"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::pair&lt; std::string, std::string &gt;</type>
+        <definition>std::pair&lt; std::string, std::string &gt; tudat::orbit_determination::StateDerivativePartial::getIntegrationReferencePoint</definition>
+        <argsstring>()</argsstring>
+        <name>getIntegrationReferencePoint</name>
+        <briefdescription>
+<para>Function to get the identifier for body/reference point for which propagation is performed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the identifier for body/reference point for which propagation is performed. <simplesect kind="return"><para>Identifier for body/reference point for which propagation is performed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="201" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::resetTime</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>resetTime</name>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Function to reset the object to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the object to the current time, recomputing partials to current state. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which partials are to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="211" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="211" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::getCurrentParameterPartial</definition>
+        <argsstring>(const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter, Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix)</argsstring>
+        <name>getCurrentParameterPartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a partial w.r.t. a double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a partial w.r.t. a double parameter. An error is thrown if there is no dependency w.r.t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which a parameter is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial of state derivative w.r.t. given parameter (return by &apos;reference&apos;, amking use of Eigen::Block architecture). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="233" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="233" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::getCurrentDoubleParameterPartial</definition>
+        <argsstring>(const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter, Eigen::MatrixXd &amp;parameterPartial)</argsstring>
+        <name>getCurrentDoubleParameterPartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>parameterPartial</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a partial w.r.t. a double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a partial w.r.t. a double parameter. An error is thrown if there is no dependency w.r.t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which a parameter is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial of state derivative w.r.t. given parameter (return by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="267" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="267" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::getCurrentParameterPartial</definition>
+        <argsstring>(const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter, Eigen::Block&lt; Eigen::MatrixXd &gt; partialMatrix)</argsstring>
+        <name>getCurrentParameterPartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <param>
+          <type>Eigen::Block&lt; Eigen::MatrixXd &gt;</type>
+          <declname>partialMatrix</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a partial w.r.t. a vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a partial w.r.t. a vector parameter. An error is thrown if there is no dependency w.r.t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which a parameter is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>partialMatrix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial of state derivative w.r.t. given parameter (return by &apos;reference&apos;, amking use of Eigen::Block architecture). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="284" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="284" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::getCurrentVectorParameterPartial</definition>
+        <argsstring>(const std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter, Eigen::MatrixXd &amp;parameterPartial)</argsstring>
+        <name>getCurrentVectorParameterPartial</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>parameterPartial</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a partial w.r.t. a vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a partial w.r.t. a vector parameter. An error is thrown if there is no dependency w.r.t. the requested parameter. A warning is printed if the dependency exists, but has not yet been computed for the current time step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which a parameter is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parameterPartial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial of state derivative w.r.t. given parameter (return by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="316" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="316" bodyend="323"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int tudat::orbit_determination::StateDerivativePartial::setParameterPartialUpdateFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; double &gt; &gt; parameter)</argsstring>
+        <name>setParameterPartialUpdateFunction</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a7c2d48e799cee6d669b4342c1e215faa">setParameterPartialUpdateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1a1ec85f9f6063993b01dfe83407c5ba3e">setParameterPartialUpdateFunction</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; double &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to set a dependency of this partial object w.r.t. a given double parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a dependency of this partial object w.r.t. a given double parameter. If a dependency exists, the given partial is recomputed on every call of updateParameterPartials. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which dependency is to be checked and set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="332" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="332" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>int</type>
+        <definition>virtual int tudat::orbit_determination::StateDerivativePartial::setParameterPartialUpdateFunction</definition>
+        <argsstring>(std::shared_ptr&lt; estimatable_parameters::EstimatableParameter&lt; Eigen::VectorXd &gt; &gt; parameter)</argsstring>
+        <name>setParameterPartialUpdateFunction</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a0951e63ab3dd4f252ef62a61f74fcb36">setParameterPartialUpdateFunction</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1aa5d17fcbd0514e51ab6aa4fbef89c17f">setParameterPartialUpdateFunction</reimplementedby>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1estimatable__parameters_1_1EstimatableParameter" kindref="compound">estimatable_parameters::EstimatableParameter</ref>&lt; Eigen::VectorXd &gt; &gt;</type>
+          <declname>parameter</declname>
+        </param>
+        <briefdescription>
+<para>Function to set a dependency of this partial object w.r.t. a given vector parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a dependency of this partial object w.r.t. a given vector parameter. If a dependency exists, the given partial is recomputed on every call of updateParameterPartials. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Partial w.r.t. which dependency is to be checked and set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="361" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="361" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::updateParameterPartials</definition>
+        <argsstring>()</argsstring>
+        <name>updateParameterPartials</name>
+        <briefdescription>
+<para>Function to update the values partial derivatives to current state and time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to update the values partial derivatives to current state and time. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="388" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="388" bodyend="416"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::orbit_determination::StateDerivativePartial::updateParameterPartialsOfMemberObjects</definition>
+        <argsstring>()</argsstring>
+        <name>updateParameterPartialsOfMemberObjects</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a49274238763d4dc15d5acdd7ea656d09">updateParameterPartialsOfMemberObjects</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a689a4e11722f9552b91a0be493fb4fc4">updateParameterPartialsOfMemberObjects</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1abe59cad0fa867a62e29ffa1761cc4d39">updateParameterPartialsOfMemberObjects</reimplementedby>
+        <briefdescription>
+<para>Function to compute parameter partials of member objects. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute parameter partials of member objects. By default (implemented here) no computations are performed. For certain derived classed (i.e. ThirdBodyGravityPartial), there are member <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> objects that need to be updated when calling updateParameterPartials, for which this function should be redefined. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="426" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="426" bodyend="429"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void tudat::orbit_determination::StateDerivativePartial::resetTimeOfMemberObjects</definition>
+        <argsstring>()</argsstring>
+        <name>resetTimeOfMemberObjects</name>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial_1a2e3c904dd2ba9be3349111899991c3e4">resetTimeOfMemberObjects</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial_1a615bd69cfc7a7ea6a91ea50d506f02c3">resetTimeOfMemberObjects</reimplementedby>
+        <reimplementedby refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial_1a6bc1d79dc73aba002ba8dd56f82bf3c2">resetTimeOfMemberObjects</reimplementedby>
+        <briefdescription>
+<para>Function to reset the member object to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the member object to the current time. By default (implemented here) no computations are performed. For certain derived classed (i.e. ThirdBodyGravityPartial), there are member <ref refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial" kindref="compound">StateDerivativePartial</ref> objects that need to be updated when calling resetTime, for which this function should be redefined. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="437" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="437" bodyend="440"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::orbit_determination::StateDerivativePartial::resetCurrentParameterValues</definition>
+        <argsstring>()</argsstring>
+        <name>resetCurrentParameterValues</name>
+        <briefdescription>
+<para>Function to define all current parameter partials as &apos;not computed&apos;. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="443" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="443" bodyend="458"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for computing the partial derivatives of a state derivative model. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for computing the partial derivatives of a state derivative model (i.e. acceleration model for translational dynamics, torque model for rottional dynamics, etc.). Typically, two levels of derived classes are required: one for the type of dynamics, and one for the type of model (e.g. one level for acceleration model, and one level for central gravitational, spherical harmonic model, etc.). </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="5">
+        <label>tudat::acceleration_partials::CentralGravitationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1CentralGravitationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>tudat::acceleration_partials::MomentumWheelDesaturationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1MomentumWheelDesaturationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>tudat::acceleration_partials::RelativisticAccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1RelativisticAccelerationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::acceleration_partials::AccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AccelerationPartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+      </node>
+      <node id="18">
+        <label>tudat::acceleration_partials::SphericalHarmonicGravitationalTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicGravitationalTorquePartial"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>tudat::acceleration_partials::EmpiricalAccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1EmpiricalAccelerationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>tudat::acceleration_partials::ThirdBodyGravityPartial&lt; DirectGravityPartial, type &gt;</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1ThirdBodyGravityPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat::acceleration_partials::PanelledRadiationPressurePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1PanelledRadiationPressurePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>tudat::acceleration_partials::InertialTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1InertialTorquePartial"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>tudat::acceleration_partials::TorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1TorquePartial"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>tudat::acceleration_partials::CannonBallRadiationPressurePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1CannonBallRadiationPressurePartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>tudat::acceleration_partials::MutualSphericalHarmonicsGravityPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1MutualSphericalHarmonicsGravityPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::acceleration_partials::AerodynamicAccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1AerodynamicAccelerationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>tudat::acceleration_partials::SecondDegreeGravitationalTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SecondDegreeGravitationalTorquePartial"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>tudat::acceleration_partials::SphericalHarmonicsGravityPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1SphericalHarmonicsGravityPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tudat::acceleration_partials::DirectTidalDissipationAccelerationPartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1DirectTidalDissipationAccelerationPartial"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>tudat::acceleration_partials::ConstantTorquePartial</label>
+        <link refid="classtudat_1_1acceleration__partials_1_1ConstantTorquePartial"/>
+        <childnode refid="14" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>iterator</label>
+      </node>
+      <node id="1">
+        <label>tudat::orbit_determination::StateDerivativePartial</label>
+        <link refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>isCurrentDoubleParameterPartialSetIterator_</edgelabel>
+          <edgelabel>isCurrentVectorParameterPartialSetIterator_</edgelabel>
+          <edgelabel>parameterDoublePartialFunctionIterator_</edgelabel>
+          <edgelabel>parameterVectorPartialFunctionIterator_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" line="40" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination/stateDerivativePartial.h" bodystart="41" bodyend="524"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aacaaf221e1d39de40b6d9e3b881b9e42" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>accelerationSize_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6699f3159f79975406d3fcc1f9002d1b" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>currentDoubleParameterPartials_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1abbca0ac294a29b7d1efc16a68d7c4582" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a1091be37858cb2fbef57b803e944ac60" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>currentVectorParameterPartials_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ac31393221aeef20ea4ee5d7d0ad59aba" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getCurrentDoubleParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adf72962ebc3a9a2008170009c26f553c" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1acdfcbf63330d5b2b04fbaeb3787c8f68" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getCurrentParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a2ba60d5dd1c131412a8f1aae8dd47a21" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getCurrentVectorParameterPartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ab4fa1fbffa888476633642ca3e1a1dd1" prot="public" virt="pure-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getDerivativeFunctionWrtStateOfIntegratedBody</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a01893338e6faedd93cc0410bb692ce12" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getIntegratedStateType</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adbe24dfd4085ec6343ccf18478b52bc0" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getIntegrationReferencePoint</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a69a7807aefb5f8d5972718d36a96635f" prot="public" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a849b14fede905e4e26ee2e752fbc95cc" prot="public" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>getParameterPartialFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aad4f9e664da456462d4cb8b764679f1f" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>integratedStateType_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a0c30598298c59647e997203dc0ad664c" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>integrationReferencePoint_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ad91136949f633458e8b970a5baacb9ce" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>isCurrentDoubleParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aebd9e9721d7194fea38a286e94391d97" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>isCurrentDoubleParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a90cb1a317764b060601778e2a515d305" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>isCurrentVectorParameterPartialSet_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1adc2943bcf127c42d392e57e574b0fa1f" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>isCurrentVectorParameterPartialSetIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7d6dc0c6a70e33af5aefedf00dee1959" prot="public" virt="pure-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>isStateDerivativeDependentOnIntegratedAdditionalStateTypes</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a300a3a9234fd8eb9fd4f5d50778a4321" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>parameterDoublePartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3e7c12925372ee2844f8f76d2dae4a77" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>parameterDoublePartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae86be0f3c3a487ce1706e0829caca26e" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>parameterVectorPartialFunctionIterator_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a799da4695ca3bea29aaed8b761c9c3b3" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>parameterVectorPartialFunctions_</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7b26a08bb4990220a7d2f40f3681274a" prot="protected" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>resetCurrentParameterValues</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a3654d540045886559b6592dc4f30bab8" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1aa0245f5f6b58423905b64709dac39a4c" prot="protected" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>resetTimeOfMemberObjects</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a481fc771c0a87996bc469b34ead49db9" prot="public" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a646f021c7c884446d482b9b0ab1e14f4" prot="public" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>setParameterPartialUpdateFunction</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a4827d172b38b466f65f4da68500f53ea" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>StateDerivativePartial</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a6801a8f31cc0fcdb9679c2db6be3b157" prot="public" virt="pure-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>update</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a7a6f8bf919e2a0c16bc254738123b5b4" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>updateParameterPartials</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a53491f7d5c94bd64b71c5190b9793a64" prot="protected" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>updateParameterPartialsOfMemberObjects</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a17003fa377113426b3e556a78f147941" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1ae12101f97027e73084d3d80dbc7059b3" prot="public" virt="non-virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>wrtParameter</name></member>
+      <member refid="classtudat_1_1orbit__determination_1_1StateDerivativePartial_1a05f085a890b27518ca24446ac22bdb3e" prot="public" virt="virtual"><scope>tudat::orbit_determination::StateDerivativePartial</scope><name>~StateDerivativePartial</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

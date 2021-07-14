@@ -1,0 +1,71 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Momentum\+Wheel\+Desaturation\+Acceleration\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings}\index{tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings@{tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings}}
+
+
+Class for providing acceleration settings for a momentum wheel desaturation acceleration model.  
+
+
+
+
+{\ttfamily \#include $<$acceleration\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Momentum\+Wheel\+Desaturation\+Acceleration\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_aede13cf4fbcf09166c67aaa96d3f0531}{Momentum\+Wheel\+Desaturation\+Acceleration\+Settings}} (const std\+::vector$<$ double $>$ thrust\+Mid\+Times, const std\+::vector$<$ Eigen\+::\+Vector3d $>$ delta\+VValues, const double total\+Maneuver\+Time, const double maneuver\+Rise\+Time)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_ab235e862fb34f728f76e5bde5def30ed}\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_ab235e862fb34f728f76e5bde5def30ed}} 
+std\+::vector$<$ double $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_ab235e862fb34f728f76e5bde5def30ed}{thrust\+Mid\+Times\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector containing the midtime of each desaturation maneuver. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acff9401e507d299c727b83db6eb641b0}\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acff9401e507d299c727b83db6eb641b0}} 
+std\+::vector$<$ Eigen\+::\+Vector3d $>$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acff9401e507d299c727b83db6eb641b0}{delta\+VValues\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector containing the deltaV values of the momentum wheel desaturation maneuvers. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acf8de6446bcc709a535dc802bd92c11b}\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acf8de6446bcc709a535dc802bd92c11b}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_acf8de6446bcc709a535dc802bd92c11b}{total\+Maneuver\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Total desaturation maneuver time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_a6cb1c413fd068c2d3fc648b53ae34876}\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_a6cb1c413fd068c2d3fc648b53ae34876}} 
+double \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_a6cb1c413fd068c2d3fc648b53ae34876}{maneuver\+Rise\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Desaturation maneuvers rise time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for providing acceleration settings for a momentum wheel desaturation acceleration model. 
+
+Class for providing acceleration settings for a momentum wheel desaturation acceleration model. The deltaV values for each of the desaturation maneuvers are provided by the user. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_aede13cf4fbcf09166c67aaa96d3f0531}\label{classtudat_1_1simulation__setup_1_1MomentumWheelDesaturationAccelerationSettings_aede13cf4fbcf09166c67aaa96d3f0531}} 
+\index{tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings@{tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings}!MomentumWheelDesaturationAccelerationSettings@{MomentumWheelDesaturationAccelerationSettings}}
+\index{MomentumWheelDesaturationAccelerationSettings@{MomentumWheelDesaturationAccelerationSettings}!tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings@{tudat::simulation\_setup::MomentumWheelDesaturationAccelerationSettings}}
+\doxysubsubsection{\texorpdfstring{MomentumWheelDesaturationAccelerationSettings()}{MomentumWheelDesaturationAccelerationSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Momentum\+Wheel\+Desaturation\+Acceleration\+Settings\+::\+Momentum\+Wheel\+Desaturation\+Acceleration\+Settings (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ double $>$}]{thrust\+Mid\+Times,  }\item[{const std\+::vector$<$ Eigen\+::\+Vector3d $>$}]{delta\+VValues,  }\item[{const double}]{total\+Maneuver\+Time,  }\item[{const double}]{maneuver\+Rise\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em thrust\+Mid\+Times} & Vector containing the midtime of each desaturation maneuver. \\
+\hline
+{\em delta\+VValues} & Vector containing the deltaV values of the desaturation maneuvers. \\
+\hline
+{\em total\+Maneuver\+Time} & Total duration of the desaturation maneuvers. \\
+\hline
+{\em maneuver\+Rise\+Time} & Rise time of the desaturation maneuvers. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/acceleration\+Settings.\+h\end{DoxyCompactItemize}

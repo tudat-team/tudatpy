@@ -1,0 +1,105 @@
+\hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate}{}\doxysection{tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate Class Reference}
+\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate}\index{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}}
+
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. a constant rotation rate.  
+
+
+
+
+{\ttfamily \#include $<$rotation\+Matrix\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ad70b5c43ad5d53e6b97da71c1d5bff29}{Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris}{ephemerides\+::\+Simple\+Rotational\+Ephemeris}} $>$ body\+Rotation\+Model)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ab726f050920eed1aac62134722b337c5}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ab726f050920eed1aac62134722b337c5}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ab726f050920eed1aac62134722b337c5}{$\sim$\+Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_af7cfb6213d9fd66a0db3851082ac57e9}{calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to calculate partial of rotation matrix from the body-\/fixed to the inertial frame wrt a rotation rate. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_a39fef0df8a611b437c64b20dbcda715c}{calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to calculate partial of rotation matrix derivative from the body-\/fixed to inertial frame wrt a rotation rate. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. a constant rotation rate. 
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame, as computed by the Simple\+Rotational\+Ephemeris class, w.\+r.\+t. the constant rotation rate. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ad70b5c43ad5d53e6b97da71c1d5bff29}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_ad70b5c43ad5d53e6b97da71c1d5bff29}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}!RotationMatrixPartialWrtConstantRotationRate@{RotationMatrixPartialWrtConstantRotationRate}}
+\index{RotationMatrixPartialWrtConstantRotationRate@{RotationMatrixPartialWrtConstantRotationRate}!tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}}
+\doxysubsubsection{\texorpdfstring{RotationMatrixPartialWrtConstantRotationRate()}{RotationMatrixPartialWrtConstantRotationRate()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate\+::\+Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1ephemerides_1_1SimpleRotationalEphemeris}{ephemerides\+::\+Simple\+Rotational\+Ephemeris}} $>$}]{body\+Rotation\+Model }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em body\+Rotation\+Model} & Rotation model for which the partial derivative w.\+r.\+t. the rotation rate is to be taken. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_a39fef0df8a611b437c64b20dbcda715c}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_a39fef0df8a611b437c64b20dbcda715c}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}!calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate\+::calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate partial of rotation matrix derivative from the body-\/fixed to inertial frame wrt a rotation rate. 
+
+Function to calculate partial of rotation matrix derivative from the body-\/fixed to inertial frame wrt a rotation rate, using the properties of the body\+Rotation\+Model\+\_\+ member. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the partial is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 1 containing partials of rotation derivative matrix from body-\/fixed to inertial frame wrt rotation rate. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a21af519e8a78ffd2978586549f3569c4}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_af7cfb6213d9fd66a0db3851082ac57e9}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtConstantRotationRate_af7cfb6213d9fd66a0db3851082ac57e9}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}!calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate@{tudat::observation\_partials::RotationMatrixPartialWrtConstantRotationRate}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Constant\+Rotation\+Rate\+::calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to calculate partial of rotation matrix from the body-\/fixed to the inertial frame wrt a rotation rate. 
+
+Function to calculate partial of rotation matrix from the body-\/fixed to the inertial frame wrt a rotation rate, using the properties of the body\+Rotation\+Model\+\_\+ member. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which the partial is to be evaluated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 1 containing partials of rotation matrix from body-\/fixed to inertial frame wrt rotation rate. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a758db711ec18f3efbaa759488e45daf1}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/rotation\+Matrix\+Partial.\+h\end{DoxyCompactItemize}

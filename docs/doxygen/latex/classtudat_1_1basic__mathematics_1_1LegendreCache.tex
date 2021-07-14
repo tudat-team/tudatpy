@@ -1,0 +1,269 @@
+\hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache}{}\doxysection{tudat\+::basic\+\_\+mathematics\+::Legendre\+Cache Class Reference}
+\label{classtudat_1_1basic__mathematics_1_1LegendreCache}\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+
+
+Class for creating and accessing a back-\/end cache of Legendre polynomials.  
+
+
+
+
+{\ttfamily \#include $<$legendre\+Polynomials.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a2082994daad91c11ed18595f0f734087}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a2082994daad91c11ed18595f0f734087}} 
+typedef std\+::function$<$ double(int, int, \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache}{Legendre\+Cache}} \&) $>$ \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a2082994daad91c11ed18595f0f734087}{Legendre\+Polynomial\+Function}}
+\begin{DoxyCompactList}\small\item\em Define Legendre polynomial function pointer. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_ace17d10db3c668eaea0a28fd4633bc7c}{Legendre\+Cache}} (const bool use\+Geodesy\+Normalization=1)
+\begin{DoxyCompactList}\small\item\em Default constructor, initializes cache object with 0 maximum degree and order. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a69fc5726b1c8e5f45e712bf4791bd394}{Legendre\+Cache}} (const int maximum\+Degree, const int maximum\+Order, const bool use\+Geodesy\+Normalization=1)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_aabb909b51bb51bc99e7c76f26b8b57ca}{reset\+Maximum\+Degree\+And\+Order}} (const int maximum\+Degree, const int maximum\+Order)
+\begin{DoxyCompactList}\small\item\em Update maximum degree and order of cache. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_ad3d0056011b0b9b312ff38b85ff43e60}{update}} (const double polynomial\+Parameter)
+\begin{DoxyCompactList}\small\item\em Update cache with new polynomial parameter (sine of latitude) \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_ac9ce6352fca3d5b62d46f5cb670806ce}{get\+Current\+Polynomial\+Parameter}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the current polynomial parameter (typically sine of latitude) \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a5a532a0f385e531180aa43604ad68ec5}{get\+Current\+Polynomial\+Parameter\+Complement}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the complement to the current polynomial parameter (typically cosine of latitude) \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a02a77fc013d30dc211432d4e52945971}{get\+Legendre\+Polynomial}} (const int degree, const int order)
+\begin{DoxyCompactList}\small\item\em Get Legendre polynomial value from the cache. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_af87bdafb61a50dad488f17aedf0cd4a3}{get\+Legendre\+Polynomial\+Derivative}} (const int degree, const int order)
+\begin{DoxyCompactList}\small\item\em Get first derivative of Legendre polynomial value from the cache. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a75e0dca6ef4b5a740e9a28decac1d2d2}{get\+Legendre\+Polynomial\+Second\+Derivative}} (const int degree, const int order)
+\begin{DoxyCompactList}\small\item\em Get second derivative of Legendre polynomial value from the cache. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_ab1fb7963e60da2209408559c6ea3471f}{get\+Maximum\+Degree}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_aa4504f508c9f1ff20f94ef4e31cf6433}{get\+Maximum\+Order}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_aafa44f5eda0e117ac13e086b25912e1c}{get\+Use\+Geodesy\+Normalization}} ()
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get whether the Legendre polynomials are geodesy-\/normalized or unnormalized. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1LegendreCache_a7d45643f87339dffc39baf7ca472182c}{set\+Compute\+Second\+Derivatives}} (const bool compute\+Second\+Derivatives)
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to reset whether the second derivatives are to be computed when calling update function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for creating and accessing a back-\/end cache of Legendre polynomials. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_ace17d10db3c668eaea0a28fd4633bc7c}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_ace17d10db3c668eaea0a28fd4633bc7c}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!LegendreCache@{LegendreCache}}
+\index{LegendreCache@{LegendreCache}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{LegendreCache()}{LegendreCache()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::\+Legendre\+Cache (\begin{DoxyParamCaption}\item[{const bool}]{use\+Geodesy\+Normalization = {\ttfamily 1} }\end{DoxyParamCaption})}
+
+
+
+Default constructor, initializes cache object with 0 maximum degree and order. 
+
+Default constructor, initializes cache object with 0 mazimum degree and order. 
+\begin{DoxyParams}{Parameters}
+{\em use\+Geodesy\+Normalization} & Parameter defining whether the cache is used for a normalized or unnormalized gravity field. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a69fc5726b1c8e5f45e712bf4791bd394}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a69fc5726b1c8e5f45e712bf4791bd394}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!LegendreCache@{LegendreCache}}
+\index{LegendreCache@{LegendreCache}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{LegendreCache()}{LegendreCache()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::\+Legendre\+Cache (\begin{DoxyParamCaption}\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order,  }\item[{const bool}]{use\+Geodesy\+Normalization = {\ttfamily 1} }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Degree} & Maximum degree to which to update cache \\
+\hline
+{\em maximum\+Order} & Maximum order to which to update cache \\
+\hline
+{\em use\+Geodesy\+Normalization} & Parameter defining whether the cache is used for a normalized or unnormalized gravity field. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_ac9ce6352fca3d5b62d46f5cb670806ce}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_ac9ce6352fca3d5b62d46f5cb670806ce}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getCurrentPolynomialParameter@{getCurrentPolynomialParameter}}
+\index{getCurrentPolynomialParameter@{getCurrentPolynomialParameter}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getCurrentPolynomialParameter()}{getCurrentPolynomialParameter()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Current\+Polynomial\+Parameter (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the current polynomial parameter (typically sine of latitude) 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the current polynomial parameter (typically sine of latitude) \begin{DoxyReturn}{Returns}
+Current polynomial parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a5a532a0f385e531180aa43604ad68ec5}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a5a532a0f385e531180aa43604ad68ec5}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getCurrentPolynomialParameterComplement@{getCurrentPolynomialParameterComplement}}
+\index{getCurrentPolynomialParameterComplement@{getCurrentPolynomialParameterComplement}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getCurrentPolynomialParameterComplement()}{getCurrentPolynomialParameterComplement()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Current\+Polynomial\+Parameter\+Complement (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the complement to the current polynomial parameter (typically cosine of latitude) 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to return the complement to the current polynomial parameter (typically cosine of latitude) \begin{DoxyReturn}{Returns}
+Complement to the current polynomial parameter 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a02a77fc013d30dc211432d4e52945971}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a02a77fc013d30dc211432d4e52945971}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getLegendrePolynomial@{getLegendrePolynomial}}
+\index{getLegendrePolynomial@{getLegendrePolynomial}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getLegendrePolynomial()}{getLegendrePolynomial()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Legendre\+Polynomial (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const int}]{order }\end{DoxyParamCaption})}
+
+
+
+Get Legendre polynomial value from the cache. 
+
+Get Legendre polynomial value from the cache, as computed by last call to update function. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of requested Legendre polynomial. \\
+\hline
+{\em order} & Order of requested Legendre polynomial. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Legendre polynomial value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_af87bdafb61a50dad488f17aedf0cd4a3}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_af87bdafb61a50dad488f17aedf0cd4a3}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getLegendrePolynomialDerivative@{getLegendrePolynomialDerivative}}
+\index{getLegendrePolynomialDerivative@{getLegendrePolynomialDerivative}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getLegendrePolynomialDerivative()}{getLegendrePolynomialDerivative()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Legendre\+Polynomial\+Derivative (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const int}]{order }\end{DoxyParamCaption})}
+
+
+
+Get first derivative of Legendre polynomial value from the cache. 
+
+Get first derivative of Legendre polynomial value from the cache, as computed by last call to update function. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of requested Legendre polynomial. \\
+\hline
+{\em order} & Order of requested Legendre polynomial. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+First derivative of Legendre polynomial value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a75e0dca6ef4b5a740e9a28decac1d2d2}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a75e0dca6ef4b5a740e9a28decac1d2d2}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getLegendrePolynomialSecondDerivative@{getLegendrePolynomialSecondDerivative}}
+\index{getLegendrePolynomialSecondDerivative@{getLegendrePolynomialSecondDerivative}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getLegendrePolynomialSecondDerivative()}{getLegendrePolynomialSecondDerivative()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Legendre\+Polynomial\+Second\+Derivative (\begin{DoxyParamCaption}\item[{const int}]{degree,  }\item[{const int}]{order }\end{DoxyParamCaption})}
+
+
+
+Get second derivative of Legendre polynomial value from the cache. 
+
+Get second derivative of Legendre polynomial value from the cache, as computed by last call to update function. 
+\begin{DoxyParams}{Parameters}
+{\em degree} & Degree of requested Legendre polynomial. \\
+\hline
+{\em order} & Order of requested Legendre polynomial. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Second derivative of Legendre polynomial value. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_ab1fb7963e60da2209408559c6ea3471f}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_ab1fb7963e60da2209408559c6ea3471f}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getMaximumDegree@{getMaximumDegree}}
+\index{getMaximumDegree@{getMaximumDegree}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getMaximumDegree()}{getMaximumDegree()}}
+{\footnotesize\ttfamily int tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Maximum\+Degree (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum degree of cache \begin{DoxyReturn}{Returns}
+Maximum degree of cache. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_aa4504f508c9f1ff20f94ef4e31cf6433}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_aa4504f508c9f1ff20f94ef4e31cf6433}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getMaximumOrder@{getMaximumOrder}}
+\index{getMaximumOrder@{getMaximumOrder}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getMaximumOrder()}{getMaximumOrder()}}
+{\footnotesize\ttfamily int tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Maximum\+Order (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get the maximum order of cache. \begin{DoxyReturn}{Returns}
+Maximum order of cache. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_aafa44f5eda0e117ac13e086b25912e1c}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_aafa44f5eda0e117ac13e086b25912e1c}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!getUseGeodesyNormalization@{getUseGeodesyNormalization}}
+\index{getUseGeodesyNormalization@{getUseGeodesyNormalization}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{getUseGeodesyNormalization()}{getUseGeodesyNormalization()}}
+{\footnotesize\ttfamily bool tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::get\+Use\+Geodesy\+Normalization (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get whether the Legendre polynomials are geodesy-\/normalized or unnormalized. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to get whether the Legendre polynomials are geodesy-\/normalized or unnormalized \begin{DoxyReturn}{Returns}
+Boolean denoting to get whether the Legendre polynomials are geodesy-\/normalized or unnormalized 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_aabb909b51bb51bc99e7c76f26b8b57ca}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_aabb909b51bb51bc99e7c76f26b8b57ca}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!resetMaximumDegreeAndOrder@{resetMaximumDegreeAndOrder}}
+\index{resetMaximumDegreeAndOrder@{resetMaximumDegreeAndOrder}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{resetMaximumDegreeAndOrder()}{resetMaximumDegreeAndOrder()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::reset\+Maximum\+Degree\+And\+Order (\begin{DoxyParamCaption}\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order }\end{DoxyParamCaption})}
+
+
+
+Update maximum degree and order of cache. 
+
+Update maximum degree and order of cache 
+\begin{DoxyParams}{Parameters}
+{\em maximum\+Degree} & Maximum degree to which to update cache \\
+\hline
+{\em maximum\+Order} & Maximum order to which to update cache \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_a7d45643f87339dffc39baf7ca472182c}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_a7d45643f87339dffc39baf7ca472182c}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!setComputeSecondDerivatives@{setComputeSecondDerivatives}}
+\index{setComputeSecondDerivatives@{setComputeSecondDerivatives}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{setComputeSecondDerivatives()}{setComputeSecondDerivatives()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::set\+Compute\+Second\+Derivatives (\begin{DoxyParamCaption}\item[{const bool}]{compute\+Second\+Derivatives }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to reset whether the second derivatives are to be computed when calling update function. 
+
+\mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function}{Function}} to reset whether the second derivatives are to be computed when calling update function 
+\begin{DoxyParams}{Parameters}
+{\em compute\+Second\+Derivatives} & Boolean denoting whether the second derivatives of the Legendre polynomials are to be computed when calling update function. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1basic__mathematics_1_1LegendreCache_ad3d0056011b0b9b312ff38b85ff43e60}\label{classtudat_1_1basic__mathematics_1_1LegendreCache_ad3d0056011b0b9b312ff38b85ff43e60}} 
+\index{tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}!update@{update}}
+\index{update@{update}!tudat::basic\_mathematics::LegendreCache@{tudat::basic\_mathematics::LegendreCache}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily void tudat\+::basic\+\_\+mathematics\+::\+Legendre\+Cache\+::update (\begin{DoxyParamCaption}\item[{const double}]{polynomial\+Parameter }\end{DoxyParamCaption})}
+
+
+
+Update cache with new polynomial parameter (sine of latitude) 
+
+Get Legendre polynomial from cache when possible, and from direct computation otherwise.
+
+Update cache with new polynomial parameter (sine of latitude). 
+\begin{DoxyParams}{Parameters}
+{\em polynomial\+Parameter} & Parameter used as input argument for Legendre polynomials, in astro applications, this is typically the sine of the body-\/fixed latitude. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/basic/legendre\+Polynomials.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/math/basic/legendre\+Polynomials.\+cpp\end{DoxyCompactItemize}

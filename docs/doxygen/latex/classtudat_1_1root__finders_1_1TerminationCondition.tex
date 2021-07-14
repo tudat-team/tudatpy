@@ -1,0 +1,62 @@
+\hypertarget{classtudat_1_1root__finders_1_1TerminationCondition}{}\doxysection{tudat\+::root\+\_\+finders\+::Termination\+Condition$<$ Scalar\+Type $>$ Class Template Reference}
+\label{classtudat_1_1root__finders_1_1TerminationCondition}\index{tudat::root\_finders::TerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::TerminationCondition$<$ ScalarType $>$}}
+
+
+Termination condition base class.  
+
+
+
+
+{\ttfamily \#include $<$termination\+Conditions.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1TerminationCondition_a7e5a2e0b3948c40e379d496b8bb6f781}\label{classtudat_1_1root__finders_1_1TerminationCondition_a7e5a2e0b3948c40e379d496b8bb6f781}} 
+virtual \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition_a7e5a2e0b3948c40e379d496b8bb6f781}{$\sim$\+Termination\+Condition}} ()
+\begin{DoxyCompactList}\small\item\em Virtual destructor. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition_a30ea1b5811f2ec46f1e328a1e7d2d5e3}{check\+Termination\+Condition}} (const Scalar\+Type current\+Root\+Guess, const Scalar\+Type previous\+Root\+Guess, const Scalar\+Type current\+Root\+Function\+Value, const Scalar\+Type previous\+Root\+Function\+Value, const unsigned int number\+Of\+Iterations)=0
+\begin{DoxyCompactList}\small\item\em Check termination condition. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Scalar\+Type = double$>$\newline
+class tudat\+::root\+\_\+finders\+::\+Termination\+Condition$<$ Scalar\+Type $>$}
+
+Termination condition base class. 
+
+This base class should be used for all termination condition classes, as it specifies the \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition_a30ea1b5811f2ec46f1e328a1e7d2d5e3}{check\+Termination\+Condition()}}-\/function used by the root-\/finders in Tudat. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1root__finders_1_1TerminationCondition_a30ea1b5811f2ec46f1e328a1e7d2d5e3}\label{classtudat_1_1root__finders_1_1TerminationCondition_a30ea1b5811f2ec46f1e328a1e7d2d5e3}} 
+\index{tudat::root\_finders::TerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::TerminationCondition$<$ ScalarType $>$}!checkTerminationCondition@{checkTerminationCondition}}
+\index{checkTerminationCondition@{checkTerminationCondition}!tudat::root\_finders::TerminationCondition$<$ ScalarType $>$@{tudat::root\_finders::TerminationCondition$<$ ScalarType $>$}}
+\doxysubsubsection{\texorpdfstring{checkTerminationCondition()}{checkTerminationCondition()}}
+{\footnotesize\ttfamily template$<$typename Scalar\+Type  = double$>$ \\
+virtual bool \mbox{\hyperlink{classtudat_1_1root__finders_1_1TerminationCondition}{tudat\+::root\+\_\+finders\+::\+Termination\+Condition}}$<$ Scalar\+Type $>$\+::check\+Termination\+Condition (\begin{DoxyParamCaption}\item[{const Scalar\+Type}]{current\+Root\+Guess,  }\item[{const Scalar\+Type}]{previous\+Root\+Guess,  }\item[{const Scalar\+Type}]{current\+Root\+Function\+Value,  }\item[{const Scalar\+Type}]{previous\+Root\+Function\+Value,  }\item[{const unsigned int}]{number\+Of\+Iterations }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Check termination condition. 
+
+Checks termination condition with standard input arguments passed on by root-\/finder that this function is used in. This function returns a flag indicating whether the termination condition has been reached (true if the termination condition is achieved, indicating that the root-\/finder should stop its search). 
+\begin{DoxyParams}{Parameters}
+{\em current\+Root\+Guess} & Current root value. \\
+\hline
+{\em previous\+Root\+Guess} & Previous root value. \\
+\hline
+{\em current\+Root\+Function\+Value} & Current root function value. \\
+\hline
+{\em previous\+Root\+Function\+Value} & Previous root function value. \\
+\hline
+{\em number\+Of\+Iterations} & Number of iterations that have been completed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Flag indicating if termination condition has been reached. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/root\+\_\+finders/termination\+Conditions.\+h\end{DoxyCompactItemize}

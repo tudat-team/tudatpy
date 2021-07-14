@@ -1,0 +1,183 @@
+\hypertarget{classtudat_1_1propagators_1_1VariationalEquations}{}\doxysection{tudat\+::propagators\+::Variational\+Equations Class Reference}
+\label{classtudat_1_1propagators_1_1VariationalEquations}\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+
+
+Class from which the variational equations can be evaluated.  
+
+
+
+
+{\ttfamily \#include $<$variational\+Equations.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Parameter\+Type $>$ }\\\mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_ad7e9a38351cb12ebca3d6be64f0d8851}{Variational\+Equations}} (const std\+::map$<$ Integrated\+State\+Type, orbit\+\_\+determination\+::\+State\+Derivative\+Partials\+Map $>$ state\+Derivative\+Partial\+List, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ Parameter\+Type $>$ $>$ parameters\+To\+Estimate, const std\+::map$<$ Integrated\+State\+Type, int $>$ \&state\+Type\+Start\+Indices, const int current\+Arc\+Index=-\/1)
+\begin{DoxyCompactList}\small\item\em Constructor of variation equations class. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_aee04f729bd529d7e4776723fdfd94655}{set\+Body\+State\+Partial\+Matrix}} ()
+\begin{DoxyCompactList}\small\item\em Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. body state. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type $>$ }\\void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_add39319ae361cee09d2d98a79c7ab86b}{get\+Body\+Initial\+State\+Partial\+Matrix}} (const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&state\+Transition\+And\+Sensitivity\+Matrices, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$ current\+Matrix\+Derivative)
+\begin{DoxyCompactList}\small\item\em Function to compute the contribution of the derivatives w.\+r.\+t. current states in the variational equations. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type $>$ }\\void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_a80a1982caf9c333f07fe7909da4f693e}{get\+Parameter\+Partial\+Matrix}} (Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$ current\+Matrix\+Derivative)
+\begin{DoxyCompactList}\small\item\em Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. parameters. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type $>$ }\\void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_ae9c3c5031af179bd999b41c06615e62a}{evaluate\+Variational\+Equations}} (const double time, const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&state\+Transition\+And\+Sensitivity\+Matrices, Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$ current\+Matrix\+Derivative)
+\begin{DoxyCompactList}\small\item\em Evaluates the complete variational equations. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_a1b07b80017664dc56701fe89b77d9fd6}{clear\+Partials}} ()
+\begin{DoxyCompactList}\small\item\em Function to clear reference/cached values of state derivative partials. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename State\+Scalar\+Type $>$ }\\void \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_a0c13b8623110f40426db9eac6cca0a62}{update\+Partials}} (const double current\+Time, const std\+::unordered\+\_\+map$<$ Integrated\+State\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$ current\+States\+Per\+Type\+In\+Conventional\+Representation)
+\begin{DoxyCompactList}\small\item\em This function updates all state derivative models to the current time and state. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquations_a04796ab4c2dd1c1d24f09d39204b0a0d}{get\+Number\+Of\+Parameter\+Values}} ()
+\begin{DoxyCompactList}\small\item\em Returns the number of parameter values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a98fb359ba40195218f8b00722218ffbf}\label{classtudat_1_1propagators_1_1VariationalEquations_a98fb359ba40195218f8b00722218ffbf}} 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ {\bfseries get\+State\+Partial\+Addition\+Indices} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a4e4729d841c6d3d8dcb909c2013fa55a}\label{classtudat_1_1propagators_1_1VariationalEquations_a4e4729d841c6d3d8dcb909c2013fa55a}} 
+void {\bfseries suppress\+Parameter\+Coupling} (const int coupling\+Entries\+To\+Suppress)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class from which the variational equations can be evaluated. 
+
+Class from which the variational equations can be evaluated. The time derivative of the state transition and sensitivity matrices are computed from a set of state derivative partials objects, at the current time and state. This class performs all required bookkeeping to update, evaluate and combine these state derivative partials into the variational equations. The \mbox{\hyperlink{classtudat_1_1propagators_1_1VariationalEquationsSolver}{Variational\+Equations\+Solver}} object is used to manage and execute the full numerical integration of these variational equations and equations of motion. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_ad7e9a38351cb12ebca3d6be64f0d8851}\label{classtudat_1_1propagators_1_1VariationalEquations_ad7e9a38351cb12ebca3d6be64f0d8851}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!VariationalEquations@{VariationalEquations}}
+\index{VariationalEquations@{VariationalEquations}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{VariationalEquations()}{VariationalEquations()}}
+{\footnotesize\ttfamily template$<$typename Parameter\+Type $>$ \\
+tudat\+::propagators\+::\+Variational\+Equations\+::\+Variational\+Equations (\begin{DoxyParamCaption}\item[{const std\+::map$<$ Integrated\+State\+Type, orbit\+\_\+determination\+::\+State\+Derivative\+Partials\+Map $>$}]{state\+Derivative\+Partial\+List,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1estimatable__parameters_1_1EstimatableParameterSet}{estimatable\+\_\+parameters\+::\+Estimatable\+Parameter\+Set}}$<$ Parameter\+Type $>$ $>$}]{parameters\+To\+Estimate,  }\item[{const std\+::map$<$ Integrated\+State\+Type, int $>$ \&}]{state\+Type\+Start\+Indices,  }\item[{const int}]{current\+Arc\+Index = {\ttfamily -\/1} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor of variation equations class. 
+
+Constructor of variation equations class. Since the vehicle state must be integrated along with the variational equations, an object calculating the state derivative is required. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Partial\+List} & List partials of state derivative models from which the variational equations are set up. The key is the type of dynamics for which partials are taken, the values are State\+Derivative\+Partials\+Map (see State\+Derivative\+Partials\+Map definition for details) \\
+\hline
+{\em parameters\+To\+Estimate} & Object containing all parameters that are to be estimated and their current settings and values. \\
+\hline
+{\em state\+Type\+Start\+Indices} & Start index (value) in vector of propagated state for each type of state (key) \\
+\hline
+{\em current\+Arc\+Index} & Index of current arc (-\/1 if not multi-\/arc) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a1b07b80017664dc56701fe89b77d9fd6}\label{classtudat_1_1propagators_1_1VariationalEquations_a1b07b80017664dc56701fe89b77d9fd6}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!clearPartials@{clearPartials}}
+\index{clearPartials@{clearPartials}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{clearPartials()}{clearPartials()}}
+{\footnotesize\ttfamily void tudat\+::propagators\+::\+Variational\+Equations\+::clear\+Partials (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Function to clear reference/cached values of state derivative partials. 
+
+Function to clear reference/cached values of state derivative partials, to ensure that they are all recalculated. \mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_ae9c3c5031af179bd999b41c06615e62a}\label{classtudat_1_1propagators_1_1VariationalEquations_ae9c3c5031af179bd999b41c06615e62a}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!evaluateVariationalEquations@{evaluateVariationalEquations}}
+\index{evaluateVariationalEquations@{evaluateVariationalEquations}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{evaluateVariationalEquations()}{evaluateVariationalEquations()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type $>$ \\
+void tudat\+::propagators\+::\+Variational\+Equations\+::evaluate\+Variational\+Equations (\begin{DoxyParamCaption}\item[{const double}]{time,  }\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{state\+Transition\+And\+Sensitivity\+Matrices,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$}]{current\+Matrix\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Evaluates the complete variational equations. 
+
+Evaluates the complete variational equations at a given time and state transition matrix, sensitivity matrix and state (accessed indirectly). This function evaluates the complete Eq. (7.\+45) from (Montenbruck \& Gill, 2000). 
+\begin{DoxyParams}{Parameters}
+{\em time} & Current time \\
+\hline
+{\em state\+Transition\+And\+Sensitivity\+Matrices} & Combined state transition and sensitivity matrix. \\
+\hline
+{\em current\+Matrix\+Derivative} & Variation equations result (returned by reference). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_add39319ae361cee09d2d98a79c7ab86b}\label{classtudat_1_1propagators_1_1VariationalEquations_add39319ae361cee09d2d98a79c7ab86b}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!getBodyInitialStatePartialMatrix@{getBodyInitialStatePartialMatrix}}
+\index{getBodyInitialStatePartialMatrix@{getBodyInitialStatePartialMatrix}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{getBodyInitialStatePartialMatrix()}{getBodyInitialStatePartialMatrix()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type $>$ \\
+template void tudat\+::propagators\+::\+Variational\+Equations\+::get\+Body\+Initial\+State\+Partial\+Matrix$<$ long double $>$ (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ \&}]{state\+Transition\+And\+Sensitivity\+Matrices,  }\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$}]{current\+Matrix\+Derivative }\end{DoxyParamCaption})}
+
+
+
+Function to compute the contribution of the derivatives w.\+r.\+t. current states in the variational equations. 
+
+Function to compute the contribution of the derivatives w.\+r.\+t. current states in the variational equations, e.\+g. first term in Eq. (7.\+45) in (Montenbruck \& Gill, 2000). 
+\begin{DoxyParams}{Parameters}
+{\em state\+Transition\+And\+Sensitivity\+Matrices} & Current combined state transition and sensitivity matric \\
+\hline
+{\em current\+Matrix\+Derivative} & Matrix block which is to return (by reference) the given contribution to the variational equations. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a04796ab4c2dd1c1d24f09d39204b0a0d}\label{classtudat_1_1propagators_1_1VariationalEquations_a04796ab4c2dd1c1d24f09d39204b0a0d}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!getNumberOfParameterValues@{getNumberOfParameterValues}}
+\index{getNumberOfParameterValues@{getNumberOfParameterValues}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{getNumberOfParameterValues()}{getNumberOfParameterValues()}}
+{\footnotesize\ttfamily double tudat\+::propagators\+::\+Variational\+Equations\+::get\+Number\+Of\+Parameter\+Values (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the number of parameter values. 
+
+Returns the number of parameter values (i.\+e. number of columns in state transition matrix). \begin{DoxyReturn}{Returns}
+Number of parameter values. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a80a1982caf9c333f07fe7909da4f693e}\label{classtudat_1_1propagators_1_1VariationalEquations_a80a1982caf9c333f07fe7909da4f693e}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!getParameterPartialMatrix@{getParameterPartialMatrix}}
+\index{getParameterPartialMatrix@{getParameterPartialMatrix}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{getParameterPartialMatrix()}{getParameterPartialMatrix()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type $>$ \\
+void tudat\+::propagators\+::\+Variational\+Equations\+::get\+Parameter\+Partial\+Matrix (\begin{DoxyParamCaption}\item[{Eigen\+::\+Block$<$ Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, Eigen\+::\+Dynamic $>$ $>$}]{current\+Matrix\+Derivative }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. parameters. 
+
+Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. parameters, i.\+e. second matrix in rhs of Eq. (7.\+45) in (Montenbruck \& Gill, 2000). 
+\begin{DoxyParams}{Parameters}
+{\em current\+Matrix\+Derivative} & Matrix block containing partial derivatives of accelerarion w.\+r.\+t. parameters (returned by reference). \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_aee04f729bd529d7e4776723fdfd94655}\label{classtudat_1_1propagators_1_1VariationalEquations_aee04f729bd529d7e4776723fdfd94655}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!setBodyStatePartialMatrix@{setBodyStatePartialMatrix}}
+\index{setBodyStatePartialMatrix@{setBodyStatePartialMatrix}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{setBodyStatePartialMatrix()}{setBodyStatePartialMatrix()}}
+{\footnotesize\ttfamily void tudat\+::propagators\+::\+Variational\+Equations\+::set\+Body\+State\+Partial\+Matrix (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. body state. 
+
+Calculates matrix containing partial derivatives of state derivatives w.\+r.\+t. body state, i.\+e. first matrix in right hand side of Eq. (7.\+45) in (Montenbruck \& Gill, 2000). \begin{DoxyReturn}{Returns}
+Matrix containing partial derivatives of state derivative w.\+r.\+t. body state 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1VariationalEquations_a0c13b8623110f40426db9eac6cca0a62}\label{classtudat_1_1propagators_1_1VariationalEquations_a0c13b8623110f40426db9eac6cca0a62}} 
+\index{tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}!updatePartials@{updatePartials}}
+\index{updatePartials@{updatePartials}!tudat::propagators::VariationalEquations@{tudat::propagators::VariationalEquations}}
+\doxysubsubsection{\texorpdfstring{updatePartials()}{updatePartials()}}
+{\footnotesize\ttfamily template$<$typename State\+Scalar\+Type $>$ \\
+void tudat\+::propagators\+::\+Variational\+Equations\+::update\+Partials (\begin{DoxyParamCaption}\item[{const double}]{current\+Time,  }\item[{const std\+::unordered\+\_\+map$<$ Integrated\+State\+Type, Eigen\+::\+Matrix$<$ State\+Scalar\+Type, Eigen\+::\+Dynamic, 1 $>$ $>$}]{current\+States\+Per\+Type\+In\+Conventional\+Representation }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+This function updates all state derivative models to the current time and state. 
+
+This function updates all state derivative models to the current time and state. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} to which the system is to be updated. \\
+\hline
+{\em current\+States\+Per\+Type\+In\+Conventional\+Representation} & Current states, in conventional representation (e.\+g. transformed from specific propagator) sorted per state type. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/propagators/variational\+Equations.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/propagators/variational\+Equations.\+cpp\end{DoxyCompactItemize}

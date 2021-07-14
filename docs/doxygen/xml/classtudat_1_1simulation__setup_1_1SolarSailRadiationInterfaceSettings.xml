@@ -1,0 +1,811 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings" prot="public" virt="non-virtual">tudat::simulation_setup::RadiationPressureInterfaceSettings</basecompoundref>
+    <includes refid="createRadiationPressureInterface_8h" local="no">createRadiationPressureInterface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a6b60acbebd5cc327f6dd71540011e674" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::area_</definition>
+        <argsstring></argsstring>
+        <name>area_</name>
+        <briefdescription>
+<para>Surface area that undergoes radiation pressure [m^2]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="483" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="483" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a3b7c19e0054373fcbcc9e9949eb3972f" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::SolarSailRadiationInterfaceSettings::coneAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>coneAngleFunction_</name>
+        <briefdescription>
+<para>Cone angle of the sail [rad]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="486" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="486" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a986f3eda00b843c95f36684091e16d76" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::SolarSailRadiationInterfaceSettings::clockAngleFunction_</definition>
+        <argsstring></argsstring>
+        <name>clockAngleFunction_</name>
+        <briefdescription>
+<para>Clock angle of the sail [rad]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="489" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="489" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1acb1c0b7ac5236601d567d05069b83828" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::frontEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>frontEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Front emissivity coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="492" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="492" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a488f976f0a7c7eefcef9446ebbcf62df" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::backEmissivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>backEmissivityCoefficient_</name>
+        <briefdescription>
+<para>Back emissivity coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="495" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="495" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a0790226538458dffd3e91f61471f64c4" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::frontLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>frontLambertianCoefficient_</name>
+        <briefdescription>
+<para>Front Lambertian coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="498" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="498" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae067c85432aca00ccef6cad331916771" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::backLambertianCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>backLambertianCoefficient_</name>
+        <briefdescription>
+<para>Back lambertian coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="501" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="501" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af32f527bea8a1a0bcb3effe9a3d9e13d" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::reflectivityCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>reflectivityCoefficient_</name>
+        <briefdescription>
+<para>Reflectivity coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="504" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="504" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a9d2dbf045110c06c833e9e112a225069" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::specularReflectionCoefficient_</definition>
+        <argsstring></argsstring>
+        <name>specularReflectionCoefficient_</name>
+        <briefdescription>
+<para>Specular reflection coefficient of the sail [-]. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="507" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="507" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a7caeefb7565fdda47b3ca9cd81be20af" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::SolarSailRadiationInterfaceSettings::centralBody_</definition>
+        <argsstring></argsstring>
+        <name>centralBody_</name>
+        <briefdescription>
+<para>Name of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="510" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="510" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ad6d005241a14a53e11ade9bb472c886b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::SolarSailRadiationInterfaceSettings::SolarSailRadiationInterfaceSettings</definition>
+        <argsstring>(const std::string &amp;sourceBody, const double area, const std::function&lt; double(const double) &gt; coneAngle, const std::function&lt; double(const double) &gt; clockAngle, const double frontEmissivityCoefficient, const double backEmissivityCoefficient, const double frontLambertianCoefficient, const double backLambertianCoefficient, const double reflectivityCoefficient, const double specularReflectionCoefficient, const std::vector&lt; std::string &gt; &amp;occultingBodies=std::vector&lt; std::string &gt;(), const std::string &amp;centralBody=std::string())</argsstring>
+        <name>SolarSailRadiationInterfaceSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>sourceBody</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>area</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>coneAngle</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>clockAngle</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>occultingBodies</declname>
+          <defval>std::vector&lt; std::string &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBody</declname>
+          <defval>std::string()</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourceBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body emitting the radiation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Surface area that undergoes radiation pressure [m^2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current sail cone angle (in rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clockAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current sail clock angle (in rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the front of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Emissivity coefficient of the back of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the front of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lambertian coefficient of the back of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specular reflection coefficient of the sail [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodies</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies causing (partial) occultation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>centralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the central body. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="323" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="323" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a03649b48216cd73fb2a6277fb766a302" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getArea</definition>
+        <argsstring>()</argsstring>
+        <name>getArea</name>
+        <briefdescription>
+<para>Function to return surface area that undergoes radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return surface area that undergoes radiation pressure. <simplesect kind="return"><para>Surface area that undergoes radiation pressure [m^2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="351" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="351" bodyend="351"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af64f5fbf6bb4eb58bbc750d7460ba9e1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setArea</definition>
+        <argsstring>(double area)</argsstring>
+        <name>setArea</name>
+        <param>
+          <type>double</type>
+          <declname>area</declname>
+        </param>
+        <briefdescription>
+<para>Function to set surface area that undergoes radiation pressure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set surface area that undergoes radiation pressure. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>area</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Surface area that undergoes radiation pressure [m^2]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="358" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="358" bodyend="358"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a6ddf7954c911ea94c6f723865dd0eb7f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getConeAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getConeAngle</name>
+        <briefdescription>
+<para>Returns the function returning the current sail cone angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the function returning the current sail cone angle. <simplesect kind="return"><para>Function returning the current sail cone angle (in rad). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="365" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="365" bodyend="365"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a8e27b057ca7e1779079b73135f789e07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setConeAngle</definition>
+        <argsstring>(std::function&lt; double(const double) &gt; coneAngle)</argsstring>
+        <name>setConeAngle</name>
+        <param>
+          <type>std::function&lt; double(const double) &gt;</type>
+          <declname>coneAngle</declname>
+        </param>
+        <briefdescription>
+<para>Resets the function returning the current sail cone angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets the function returning the current sail cone angle. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>coneAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current sail cone angle (in rad). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="372" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="372" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ac0b6c2d85615ee33b4a88a87baabfdd1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getClockAngle</definition>
+        <argsstring>()</argsstring>
+        <name>getClockAngle</name>
+        <briefdescription>
+<para>Returns the function returning the current sail clock angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the function returning the current sail clock angle. <simplesect kind="return"><para>Function returning the current clock angle (in rad). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="379" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="379" bodyend="379"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae42c8a7b76131cabc8188e0645d89121" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setClockAngle</definition>
+        <argsstring>(std::function&lt; double(const double) &gt; clockAngle)</argsstring>
+        <name>setClockAngle</name>
+        <param>
+          <type>std::function&lt; double(const double) &gt;</type>
+          <declname>clockAngle</declname>
+        </param>
+        <briefdescription>
+<para>Resets the function returning the current sail clock angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets the function returning the current sail clock angle. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>clockAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current clock angle (in rad). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="386" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="386" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a15e9346ada567c639c6fb3e1729839cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getFrontEmissivityCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getFrontEmissivityCoefficient</name>
+        <briefdescription>
+<para>Returns front emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns front emissivity coefficient. <simplesect kind="return"><para>Front emissivity coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="393" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="393" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aacf98065501f5f0ab88fb7db98e25650" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setFrontEmissivityCoefficient</definition>
+        <argsstring>(double frontEmissivityCoefficient)</argsstring>
+        <name>setFrontEmissivityCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>frontEmissivityCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets front emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets front emissivity coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frontEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Front emissivity coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="400" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="400" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a234684b1762501ae082bd04d2e3ea615" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getBackEmissivityCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getBackEmissivityCoefficient</name>
+        <briefdescription>
+<para>Returns back emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns back emissivity coefficient. <simplesect kind="return"><para>Back emissivity coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="407" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="407" bodyend="407"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae869ad358a0e4a36123fa2b99ae36eeb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setBackEmissivityCoefficient</definition>
+        <argsstring>(double backEmissivityCoefficient)</argsstring>
+        <name>setBackEmissivityCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>backEmissivityCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets back emissivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets back emissivity coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>backEmissivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Back emissivity coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="414" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="414" bodyend="414"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a2d15e83c8433a571b008511c18ac265c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getFrontLambertianCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getFrontLambertianCoefficient</name>
+        <briefdescription>
+<para>Returns front Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns front Lambertian coefficient. <simplesect kind="return"><para>Front Lambertian coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="421" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="421" bodyend="421"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa8a738d7dae06d19ccbcb319bbbb67f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setFrontLambertianCoefficient</definition>
+        <argsstring>(double frontLambertianCoefficient)</argsstring>
+        <name>setFrontLambertianCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>frontLambertianCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets front Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets front Lambertian coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frontLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Front Lambertian coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="428" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="428" bodyend="428"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa7d97f46d1d2f51c63d043622c6ec7a2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getBackLambertianCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getBackLambertianCoefficient</name>
+        <briefdescription>
+<para>Returns back Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns back Lambertian coefficient. <simplesect kind="return"><para>Back Lambertian coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="435" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="435" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ab0c0cee4cc75e197df099467d65e7ec0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setBackLambertianCoefficient</definition>
+        <argsstring>(double backLambertianCoefficient)</argsstring>
+        <name>setBackLambertianCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>backLambertianCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets back Lambertian coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets back Lambertian coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>backLambertianCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Back Lambertian coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="442" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="442" bodyend="442"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aea2ffd78be298f5a98d5e441b0ced704" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getReflectivityCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getReflectivityCoefficient</name>
+        <briefdescription>
+<para>Returns reflectivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns reflectivity coefficient. <simplesect kind="return"><para>Reflectivity coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="449" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="449" bodyend="449"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1abe37ff3a173c82f6cd9df77a78457d1f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setReflectivityCoefficient</definition>
+        <argsstring>(double reflectivityCoefficient)</argsstring>
+        <name>setReflectivityCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>reflectivityCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets reflectivity coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets reflectivity coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>reflectivityCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reflectivity coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="456" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="456" bodyend="456"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a0da1812ff97731bb06cfb03cffe1bd92" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getSpecularReflectionCoefficient</definition>
+        <argsstring>()</argsstring>
+        <name>getSpecularReflectionCoefficient</name>
+        <briefdescription>
+<para>Returns specular reflection coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns specular reflection coefficient. <simplesect kind="return"><para>Specular reflection coefficient [-]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="463" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="463" bodyend="463"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa3bed84f061e24e3becc5b0423fa19f8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::SolarSailRadiationInterfaceSettings::setSpecularReflectionCoefficient</definition>
+        <argsstring>(double specularReflectionCoefficient)</argsstring>
+        <name>setSpecularReflectionCoefficient</name>
+        <param>
+          <type>double</type>
+          <declname>specularReflectionCoefficient</declname>
+        </param>
+        <briefdescription>
+<para>Resets specular reflection coefficient. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resets specular reflection coefficient. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>specularReflectionCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specular reflection coefficient [-]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="470" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="470" bodyend="470"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af36f3af1aa555b91f571fcd2a697f047" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::SolarSailRadiationInterfaceSettings::getCentralBody</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBody</name>
+        <briefdescription>
+<para>Returns the name of the central body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the name of the central body. <simplesect kind="return"><para>Name of the central body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="477" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="477" bodyend="477"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class providing settings for the creation of a solar sail radiation pressure interface. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::RadiationPressureInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::RadiationPressureInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>sourceBody_</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" line="303" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRadiationPressureInterface.h" bodystart="304" bodyend="512"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a6b60acbebd5cc327f6dd71540011e674" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>area_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a488f976f0a7c7eefcef9446ebbcf62df" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>backEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae067c85432aca00ccef6cad331916771" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>backLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a7caeefb7565fdda47b3ca9cd81be20af" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>centralBody_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a986f3eda00b843c95f36684091e16d76" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>clockAngleFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a3b7c19e0054373fcbcc9e9949eb3972f" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>coneAngleFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1acb1c0b7ac5236601d567d05069b83828" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>frontEmissivityCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a0790226538458dffd3e91f61471f64c4" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>frontLambertianCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a03649b48216cd73fb2a6277fb766a302" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getArea</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a234684b1762501ae082bd04d2e3ea615" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getBackEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa7d97f46d1d2f51c63d043622c6ec7a2" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getBackLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af36f3af1aa555b91f571fcd2a697f047" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getCentralBody</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ac0b6c2d85615ee33b4a88a87baabfdd1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getClockAngle</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a6ddf7954c911ea94c6f723865dd0eb7f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getConeAngle</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a15e9346ada567c639c6fb3e1729839cd" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getFrontEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a2d15e83c8433a571b008511c18ac265c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getFrontLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1ae7f543eb145ddf4bb7ade5c844a6f924" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getOccultingBodies</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1ab827822c9f9c45051cdc4cc1eaa6c992" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getRadiationPressureType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aea2ffd78be298f5a98d5e441b0ced704" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getReflectivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1a09c4c2f0c8bde51a1920f854debb9d04" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getSourceBody</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a0da1812ff97731bb06cfb03cffe1bd92" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>getSpecularReflectionCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1a6d6175886647df2f5f990efe1ded7eba" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>occultingBodies_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1a0eb8b65046fa6d31c153ec046ae64a34" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>RadiationPressureInterfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1a68b9103328b192c90d7beb7ce084f998" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>radiationPressureType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af32f527bea8a1a0bcb3effe9a3d9e13d" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>reflectivityCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1af64f5fbf6bb4eb58bbc750d7460ba9e1" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setArea</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae869ad358a0e4a36123fa2b99ae36eeb" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setBackEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ab0c0cee4cc75e197df099467d65e7ec0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setBackLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ae42c8a7b76131cabc8188e0645d89121" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setClockAngle</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a8e27b057ca7e1779079b73135f789e07" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setConeAngle</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aacf98065501f5f0ab88fb7db98e25650" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setFrontEmissivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa8a738d7dae06d19ccbcb319bbbb67f3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setFrontLambertianCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1abe37ff3a173c82f6cd9df77a78457d1f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setReflectivityCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1aa3bed84f061e24e3becc5b0423fa19f8" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>setSpecularReflectionCoefficient</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1ad6d005241a14a53e11ade9bb472c886b" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>SolarSailRadiationInterfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1af442152cd28a6d9aca11490342baca8c" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>sourceBody_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SolarSailRadiationInterfaceSettings_1a9d2dbf045110c06c833e9e112a225069" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>specularReflectionCoefficient_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RadiationPressureInterfaceSettings_1a1ee2146986b286987c1e89de0f0874cf" prot="public" virt="virtual"><scope>tudat::simulation_setup::SolarSailRadiationInterfaceSettings</scope><name>~RadiationPressureInterfaceSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

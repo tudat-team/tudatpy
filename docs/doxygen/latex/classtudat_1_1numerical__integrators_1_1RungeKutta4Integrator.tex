@@ -1,0 +1,366 @@
+\hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{}\doxysection{tudat\+::numerical\+\_\+integrators\+::Runge\+Kutta4\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ Class Template Reference}
+\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+
+
+Class that implements the Runge-\/\+Kutta 4 integrator.  
+
+
+
+
+{\ttfamily \#include $<$runge\+Kutta4\+Integrator.\+h$>$}
+
+Inheritance diagram for tudat\+::numerical\+\_\+integrators\+::Runge\+Kutta4\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.237017cm]{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{numerical\+\_\+integrators\+::\+Reinitializable\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87be34775c0f99b2b0087aa2f1b438fd}{Reinitializable\+Numerical\+Integrator\+Base}}
+\begin{DoxyCompactList}\small\item\em Typedef for the base class. \end{DoxyCompactList}\item 
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ac4a61ecbab0945f9c899808c95bed0b7}{Reinitializable\+Numerical\+Integrator\+Base\+::\+Numerical\+Integrator\+Base\+::\+State\+Derivative\+Function}} \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}{State\+Derivative\+Function}}
+\begin{DoxyCompactList}\small\item\em Typedef for the state derivative function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aea7ff2f42b499184b8378bc45fc8deef}{Runge\+Kutta4\+Integrator}} (const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}{State\+Derivative\+Function}} \&state\+Derivative\+Function, const Independent\+Variable\+Type interval\+Start, const State\+Type \&initial\+State)
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a2610c7023f4d40cc8a527f7cf7bcdae4}{get\+Next\+Step\+Size}} () const
+\begin{DoxyCompactList}\small\item\em Get step size of the next step. \end{DoxyCompactList}\item 
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abe3ecf4a93113153cc9282e21b615f1c}{get\+Current\+State}} () const
+\begin{DoxyCompactList}\small\item\em Get current state. \end{DoxyCompactList}\item 
+virtual Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af8c68d827ad7f4910854a76364935900}{get\+Current\+Independent\+Variable}} () const
+\begin{DoxyCompactList}\small\item\em Returns the current independent variable. \end{DoxyCompactList}\item 
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step}} (const Time\+Step\+Type step\+Size)
+\begin{DoxyCompactList}\small\item\em Perform a single integration step. \end{DoxyCompactList}\item 
+virtual bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5c08ffb9818f8e3d0de77cc3a91348ba}{rollback\+To\+Previous\+State}} ()
+\begin{DoxyCompactList}\small\item\em Rollback internal state to the last state. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87ba6be339e90adce1becb443f364e36}{get\+Previous\+Independent\+Variable}} ()
+\begin{DoxyCompactList}\small\item\em Get previous independent variable. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a747141d03439ee6c916fe18d84705e9c}{get\+Previous\+State}} ()
+\begin{DoxyCompactList}\small\item\em Get previous state value. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aac86de39d3d4ec756b326fed6fb8ff94}{modify\+Current\+State}} (const State\+Type \&new\+State, const bool allow\+Rollback=false)
+\begin{DoxyCompactList}\small\item\em Replace the state with a new value. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a121d549a418edf5d699298303c246fa3}{modify\+Current\+Integration\+Variables}} (const State\+Type \&new\+State, const Independent\+Variable\+Type new\+Time, const bool allow\+Rollback=false)
+\begin{DoxyCompactList}\small\item\em Modify the state and time for the current step. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5a2e3512005fd7fbaed4bef510482d20}{step\+Size\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last used step size. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_acff656a92bdf99fac8e9164678f826b8}{current\+Independent\+Variable\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current independent variable. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5baed5beb7ead145c26e8de0d85345dd}{current\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Current state. \end{DoxyCompactList}\item 
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aa9662c91e40f32f2d64aac3354364780}{last\+Independent\+Variable\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last independent variable. \end{DoxyCompactList}\item 
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af20fd47fb589df540481aaf47c093efd}{last\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Last state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type = double, typename State\+Type = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type = Independent\+Variable\+Type$>$\newline
+class tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$}
+
+Class that implements the Runge-\/\+Kutta 4 integrator. 
+
+Class that implements the Runge-\/\+Kutta 4, fixed order, fixed step size integrator. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em State\+Type} & The type of the state. This type should support addition with State\+Derivative\+Type. \\
+\hline
+{\em State\+Derivative\+Type} & The type of the state derivative. This type should support multiplication with Independent\+Variable\+Type and doubles. \\
+\hline
+{\em Independent\+Variable\+Type} & The type of the independent variable. \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator}{Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Typedef Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87be34775c0f99b2b0087aa2f1b438fd}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87be34775c0f99b2b0087aa2f1b438fd}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!ReinitializableNumericalIntegratorBase@{ReinitializableNumericalIntegratorBase}}
+\index{ReinitializableNumericalIntegratorBase@{ReinitializableNumericalIntegratorBase}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{ReinitializableNumericalIntegratorBase}{ReinitializableNumericalIntegratorBase}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+typedef \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator}{numerical\+\_\+integrators\+::\+Reinitializable\+Numerical\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$ \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87be34775c0f99b2b0087aa2f1b438fd}{Reinitializable\+Numerical\+Integrator\+Base}}}
+
+
+
+Typedef for the base class. 
+
+Typedef of the base class with all template parameters filled in. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!StateDerivativeFunction@{StateDerivativeFunction}}
+\index{StateDerivativeFunction@{StateDerivativeFunction}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{StateDerivativeFunction}{StateDerivativeFunction}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+typedef Reinitializable\+Numerical\+Integrator\+Base\+::\+Numerical\+Integrator\+Base\+:: \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}{State\+Derivative\+Function}} \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}{State\+Derivative\+Function}}}
+
+
+
+Typedef for the state derivative function. 
+
+Typedef to the state derivative function inherited from the base class. \begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ac4a61ecbab0945f9c899808c95bed0b7}{Numerical\+Integrator\+::\+State\+Derivative\+Function}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aea7ff2f42b499184b8378bc45fc8deef}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aea7ff2f42b499184b8378bc45fc8deef}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!RungeKutta4Integrator@{RungeKutta4Integrator}}
+\index{RungeKutta4Integrator@{RungeKutta4Integrator}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{RungeKutta4Integrator()}{RungeKutta4Integrator()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{Runge\+Kutta4\+Integrator}} (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a53d233a642d328b40ea1ccc0bd218cd1}{State\+Derivative\+Function}} \&}]{state\+Derivative\+Function,  }\item[{const Independent\+Variable\+Type}]{interval\+Start,  }\item[{const State\+Type \&}]{initial\+State }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor, taking a state derivative function as argument. 
+\begin{DoxyParams}{Parameters}
+{\em state\+Derivative\+Function} & State derivative function. \\
+\hline
+{\em interval\+Start} & The start of the integration interval. \\
+\hline
+{\em initial\+State} & The initial state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_abc2bd9d5804101036116510ce87be2db}{Numerical\+Integrator\+::\+Numerical\+Integrator}}. 
+\end{DoxySeeAlso}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af8c68d827ad7f4910854a76364935900}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af8c68d827ad7f4910854a76364935900}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getCurrentIndependentVariable@{getCurrentIndependentVariable}}
+\index{getCurrentIndependentVariable@{getCurrentIndependentVariable}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getCurrentIndependentVariable()}{getCurrentIndependentVariable()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Current\+Independent\+Variable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Returns the current independent variable. 
+
+Returns the current value of the independent variable of the integrator. \begin{DoxyReturn}{Returns}
+Current independent variable. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a8ca318a39081842472ccd1a165ec06a4}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abe3ecf4a93113153cc9282e21b615f1c}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abe3ecf4a93113153cc9282e21b615f1c}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getCurrentState@{getCurrentState}}
+\index{getCurrentState@{getCurrentState}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getCurrentState()}{getCurrentState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Current\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get current state. 
+
+Returns the current state of the integrator. \begin{DoxyReturn}{Returns}
+Current integrated state, 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a90b09d8d6a9b07d495bfabe9122748a1}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a2610c7023f4d40cc8a527f7cf7bcdae4}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a2610c7023f4d40cc8a527f7cf7bcdae4}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getNextStepSize@{getNextStepSize}}
+\index{getNextStepSize@{getNextStepSize}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getNextStepSize()}{getNextStepSize()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Next\+Step\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get step size of the next step. 
+
+Returns the step size of the next step. \begin{DoxyReturn}{Returns}
+Step size to be used for the next step. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_ab8b38ad002b10d53adf7b2c2282a86cc}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87ba6be339e90adce1becb443f364e36}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a87ba6be339e90adce1becb443f364e36}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getPreviousIndependentVariable@{getPreviousIndependentVariable}}
+\index{getPreviousIndependentVariable@{getPreviousIndependentVariable}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getPreviousIndependentVariable()}{getPreviousIndependentVariable()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Previous\+Independent\+Variable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get previous independent variable. 
+
+Returns the previoius value of the independent variable of the integrator. \begin{DoxyReturn}{Returns}
+Previous independent variable. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a5a1c2e20cb6ca8ddcb51bab3b1c5bc39}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a747141d03439ee6c916fe18d84705e9c}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a747141d03439ee6c916fe18d84705e9c}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!getPreviousState@{getPreviousState}}
+\index{getPreviousState@{getPreviousState}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{getPreviousState()}{getPreviousState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::get\+Previous\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get previous state value. 
+
+Returns the previous value of the state. \begin{DoxyReturn}{Returns}
+Previous state 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a83ea0ccadf61e7d630ea692b4f8454a8}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a121d549a418edf5d699298303c246fa3}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a121d549a418edf5d699298303c246fa3}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!modifyCurrentIntegrationVariables@{modifyCurrentIntegrationVariables}}
+\index{modifyCurrentIntegrationVariables@{modifyCurrentIntegrationVariables}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{modifyCurrentIntegrationVariables()}{modifyCurrentIntegrationVariables()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::modify\+Current\+Integration\+Variables (\begin{DoxyParamCaption}\item[{const State\+Type \&}]{new\+State,  }\item[{const Independent\+Variable\+Type}]{new\+Time,  }\item[{const bool}]{allow\+Rollback = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Modify the state and time for the current step. 
+
+Modify the state and time for the current step. 
+\begin{DoxyParams}{Parameters}
+{\em new\+State} & The new state to set the current state to. \\
+\hline
+{\em new\+Time} & The time to set the current time to. \\
+\hline
+{\em allow\+Rollback} & Boolean denoting whether roll-\/back should be allowed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aac86de39d3d4ec756b326fed6fb8ff94}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aac86de39d3d4ec756b326fed6fb8ff94}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!modifyCurrentState@{modifyCurrentState}}
+\index{modifyCurrentState@{modifyCurrentState}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{modifyCurrentState()}{modifyCurrentState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+void \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::modify\+Current\+State (\begin{DoxyParamCaption}\item[{const State\+Type \&}]{new\+State,  }\item[{const bool}]{allow\+Rollback = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Replace the state with a new value. 
+
+Replace the state with a new value. This allows for discrete jumps in the state, often used in simulations of discrete events. In astro, this relates to simulations of rocket staging, impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either set the flag to true, or store the state before calling this function the first time, and call it again with the initial state as parameter to revert to the state before the discrete change. 
+\begin{DoxyParams}{Parameters}
+{\em new\+State} & The value of the new state. \\
+\hline
+{\em allow\+Rollback} & Boolean denoting whether roll-\/back should be allowed. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!performIntegrationStep@{performIntegrationStep}}
+\index{performIntegrationStep@{performIntegrationStep}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{performIntegrationStep()}{performIntegrationStep()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::perform\+Integration\+Step (\begin{DoxyParamCaption}\item[{const Time\+Step\+Type}]{step\+Size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Perform a single integration step. 
+
+Perform a single integration step. 
+\begin{DoxyParams}{Parameters}
+{\em step\+Size} & The step size to take. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The state at the end of the interval, 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5c08ffb9818f8e3d0de77cc3a91348ba}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5c08ffb9818f8e3d0de77cc3a91348ba}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!rollbackToPreviousState@{rollbackToPreviousState}}
+\index{rollbackToPreviousState@{rollbackToPreviousState}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{rollbackToPreviousState()}{rollbackToPreviousState()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+virtual bool \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::rollback\+To\+Previous\+State (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Rollback internal state to the last state. 
+
+Performs rollback of internal state to the last state. This function can only be called once after calling \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_aed0dfa86d274bd9e71c2fd6428edfd3e}{integrate\+To()}} or \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}} unless specified otherwise by implementations, and can not be called before any of these functions have been called. Will return true if the rollback was succesful, and false otherwise. \begin{DoxyReturn}{Returns}
+True if the rollback was successful. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_a87d34e8535b55d430a511fb7e345dc2b}{tudat\+::numerical\+\_\+integrators\+::\+Numerical\+Integrator$<$ double, Eigen\+::\+Vector\+Xd, Eigen\+::\+Vector\+Xd, double $>$}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_acff656a92bdf99fac8e9164678f826b8}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_acff656a92bdf99fac8e9164678f826b8}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!currentIndependentVariable\_@{currentIndependentVariable\_}}
+\index{currentIndependentVariable\_@{currentIndependentVariable\_}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{currentIndependentVariable\_}{currentIndependentVariable\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::current\+Independent\+Variable\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current independent variable. 
+
+Current independent variable as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5baed5beb7ead145c26e8de0d85345dd}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5baed5beb7ead145c26e8de0d85345dd}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!currentState\_@{currentState\_}}
+\index{currentState\_@{currentState\_}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{currentState\_}{currentState\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::current\+State\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current state. 
+
+Current state as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aa9662c91e40f32f2d64aac3354364780}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_aa9662c91e40f32f2d64aac3354364780}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastIndependentVariable\_@{lastIndependentVariable\_}}
+\index{lastIndependentVariable\_@{lastIndependentVariable\_}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastIndependentVariable\_}{lastIndependentVariable\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Independent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+Independent\+Variable\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last independent variable. 
+
+Last independent variable value as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af20fd47fb589df540481aaf47c093efd}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_af20fd47fb589df540481aaf47c093efd}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!lastState\_@{lastState\_}}
+\index{lastState\_@{lastState\_}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{lastState\_}{lastState\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+State\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::last\+State\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last state. 
+
+Last state as computed by \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}}. \mbox{\Hypertarget{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5a2e3512005fd7fbaed4bef510482d20}\label{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_a5a2e3512005fd7fbaed4bef510482d20}} 
+\index{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}!stepSize\_@{stepSize\_}}
+\index{stepSize\_@{stepSize\_}!tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$@{tudat::numerical\_integrators::RungeKutta4Integrator$<$ IndependentVariableType, StateType, StateDerivativeType, TimeStepType $>$}}
+\doxysubsubsection{\texorpdfstring{stepSize\_}{stepSize\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type  = double, typename State\+Type  = Eigen\+::\+Vector\+Xd, typename State\+Derivative\+Type  = Eigen\+::\+Vector\+Xd, typename Time\+Step\+Type  = Independent\+Variable\+Type$>$ \\
+Time\+Step\+Type \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator}{tudat\+::numerical\+\_\+integrators\+::\+Runge\+Kutta4\+Integrator}}$<$ Independent\+Variable\+Type, State\+Type, State\+Derivative\+Type, Time\+Step\+Type $>$\+::step\+Size\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Last used step size. 
+
+Last used step size, passed to either \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1NumericalIntegrator_aed0dfa86d274bd9e71c2fd6428edfd3e}{integrate\+To()}} or \mbox{\hyperlink{classtudat_1_1numerical__integrators_1_1RungeKutta4Integrator_abaa09d78b7b023d900cecb8fcbdcdca6}{perform\+Integration\+Step()}}. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/integrators/runge\+Kutta4\+Integrator.\+h\end{DoxyCompactItemize}

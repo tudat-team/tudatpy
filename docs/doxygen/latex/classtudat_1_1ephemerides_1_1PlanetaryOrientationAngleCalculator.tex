@@ -1,0 +1,95 @@
+\hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator}{}\doxysection{tudat\+::ephemerides\+::Planetary\+Orientation\+Angle\+Calculator Class Reference}
+\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator}\index{tudat::ephemerides::PlanetaryOrientationAngleCalculator@{tudat::ephemerides::PlanetaryOrientationAngleCalculator}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa5e1016aed81b6fad84231a3adc02111}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa5e1016aed81b6fad84231a3adc02111}} 
+{\bfseries Planetary\+Orientation\+Angle\+Calculator} (const double angle\+Psi\+At\+Epoch, const double angle\+Psi\+Rate\+At\+Epoch, const double angle\+IAt\+Epoch, const double angle\+IRate\+At\+Epoch, const double angle\+Phi\+At\+Epoch, const double angle\+Phi\+Rate\+At\+Epoch, const double core\+Factor, const double free\+Core\+Nutation\+Rate, const double body\+Mean\+Motion, const double body\+Mean\+Anomaly\+At\+Epoch, const std\+::string base\+Frame, const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ mean\+Motion\+Direct\+Nutation\+Corrections=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), const std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$ mean\+Motion\+Time\+Dependent\+Phase\+Nutation\+Corrections=(std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$()), const std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$ phase\+Angle\+Correction\+Functions=(std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ rotation\+Rate\+Corrections=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ x\+Polar\+Motion\+Coefficients=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()), const std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ y\+Polar\+Motion\+Coefficients=(std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$()))
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa23bb905c5f26043c2d158b7016b5130}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa23bb905c5f26043c2d158b7016b5130}} 
+Eigen\+::\+Vector3d {\bfseries update\+And\+Get\+Rotation\+Angles} (const double ephemeris\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a8dd2b7007be3c386669d115e8e939ceb}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a8dd2b7007be3c386669d115e8e939ceb}} 
+Eigen\+::\+Quaterniond {\bfseries get\+Rotation\+Matrix\+From\+Mean\+Of\+Date\+Equator\+To\+Inertial\+Planet\+Centered\+At\+Epoch} (const double ephemeris\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a69c69023c5b2c241f57fc5ef86ab22be}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a69c69023c5b2c241f57fc5ef86ab22be}} 
+double {\bfseries get\+Current\+Angle\+Psi} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a8b2225a4f366f811f7c0805e24002cb7}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a8b2225a4f366f811f7c0805e24002cb7}} 
+double {\bfseries get\+Current\+AngleI} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_afdbd2cbf1ae04bf97c5236ff887be6f8}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_afdbd2cbf1ae04bf97c5236ff887be6f8}} 
+double {\bfseries get\+Current\+Angle\+Phi} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a49c23670f2bb201f9e11dfc5563fbd6c}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a49c23670f2bb201f9e11dfc5563fbd6c}} 
+double {\bfseries get\+Mean\+Phi\+Angle\+Derivative} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa3ac1f79ab15f8a0677e0430a167859b}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_aa3ac1f79ab15f8a0677e0430a167859b}} 
+double {\bfseries get\+Corefactor} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a174b30996ecb7e142c63c6d011a40be3}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a174b30996ecb7e142c63c6d011a40be3}} 
+double {\bfseries get\+Free\+Core\+Nutation\+Rate} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ab2f64023c69df4c509d8c92ce76cf4d7}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ab2f64023c69df4c509d8c92ce76cf4d7}} 
+std\+::string {\bfseries get\+Base\+Frame} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ab0b8f064e7a80f8795ae61445a526f58}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ab0b8f064e7a80f8795ae61445a526f58}} 
+double {\bfseries get\+Angle\+Psi\+Rate\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ae778dcab98ede5f76ef0e368112af1d5}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_ae778dcab98ede5f76ef0e368112af1d5}} 
+void {\bfseries set\+Angle\+Psi\+Rate\+At\+Epoch} (const double angle\+Psi\+Rate\+At\+Epoch)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a42e82350839c54fc92850e71db918e2b}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a42e82350839c54fc92850e71db918e2b}} 
+Eigen\+::\+Vector2d {\bfseries get\+Polar\+Motion} (const double ephemeris\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a95ff1231108be761bba5bb771e4c165b}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a95ff1231108be761bba5bb771e4c165b}} 
+double {\bfseries getcurrent\+Mean\+Phi\+Angle\+Derivative} (const double ephemeris\+Time)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a59e992784bd7e8618452a39af7008e19}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a59e992784bd7e8618452a39af7008e19}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Rotation\+Rate\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a16e69e4cd64cb2669be9746b61172a15}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a16e69e4cd64cb2669be9746b61172a15}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Mean\+Motion\+Direct\+Nutation\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a1dd63f1925b7fafeede47b437a244631}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a1dd63f1925b7fafeede47b437a244631}} 
+std\+::vector$<$ std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ $>$ {\bfseries get\+Mean\+Motion\+Time\+Dependent\+Phase\+Nutation\+Corrections} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a9f2a12377b57cfb3f90dbf7c2ddcdf39}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a9f2a12377b57cfb3f90dbf7c2ddcdf39}} 
+std\+::vector$<$ std\+::function$<$ double(const double) $>$ $>$ {\bfseries getphase\+Angle\+Correction\+Functions} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a32b77187d1174e212349f451116d0a29}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a32b77187d1174e212349f451116d0a29}} 
+double {\bfseries get\+Body\+Mean\+Motion} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a201e27802532bb8935b24658e76bd9e6}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a201e27802532bb8935b24658e76bd9e6}} 
+double {\bfseries get\+Body\+Mean\+Anomaly\+At\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a1253a69ae507ad578a1e9e071078a1a5}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a1253a69ae507ad578a1e9e071078a1a5}} 
+double {\bfseries get\+Angle\+IAt\+Epoch} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a2538aa48f4502bd6b0aa7824e2dca320}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a2538aa48f4502bd6b0aa7824e2dca320}} 
+void {\bfseries reset\+Rotation\+Rate\+Corrections} (std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ rotation\+Rate\+Corrections)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a924e2ef899adfa50b01676b402f5004b}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a924e2ef899adfa50b01676b402f5004b}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Xpolar\+Motion\+Coefficients} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_add8d7765a066da827fff8c8daafe68de}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_add8d7765a066da827fff8c8daafe68de}} 
+std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ {\bfseries get\+Ypolar\+Motion\+Coefficients} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a582157c1da270df1f37a4bea843927b9}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a582157c1da270df1f37a4bea843927b9}} 
+void {\bfseries reset\+Xpolar\+Motion\+Coefficients} (std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ x\+Polar\+Motion\+Coefficients)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a32bdcf49673bcf06969f301886fc970d}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a32bdcf49673bcf06969f301886fc970d}} 
+void {\bfseries reset\+Ypolar\+Motion\+Coefficients} (std\+::map$<$ double, std\+::pair$<$ double, double $>$ $>$ y\+Polar\+Motion\+Coefficients)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a4372924b81a2bb1a50c38d19600f4ffd}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a4372924b81a2bb1a50c38d19600f4ffd}} 
+void {\bfseries reset\+Core\+Factor} (const double core\+Factor)
+\item 
+\mbox{\Hypertarget{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a0ca8dd9644840dd52f722a36e1b3afca}\label{classtudat_1_1ephemerides_1_1PlanetaryOrientationAngleCalculator_a0ca8dd9644840dd52f722a36e1b3afca}} 
+void {\bfseries reset\+Free\+Core\+Nutation\+Rate} (const double free\+Core\+Nutation\+Rate)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/ephemerides/full\+Planetary\+Rotation\+Model.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/ephemerides/full\+Planetary\+Rotation\+Model.\+cpp\end{DoxyCompactItemize}

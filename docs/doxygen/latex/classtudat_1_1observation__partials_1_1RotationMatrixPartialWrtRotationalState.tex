@@ -1,0 +1,105 @@
+\hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState}{}\doxysection{tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State Class Reference}
+\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState}\index{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}}
+
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the rotational state.  
+
+
+
+
+{\ttfamily \#include $<$rotation\+Matrix\+Partial.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_a2a4111906ef7390ddbccb45e59de959d}{Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State}} (const std\+::function$<$ Eigen\+::\+Quaterniond(const double) $>$ current\+Rotation\+To\+Inertial\+Frame\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_ab8263ee0f86eb405cb6fe193ab9753af}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_ab8263ee0f86eb405cb6fe193ab9753af}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_ab8263ee0f86eb405cb6fe193ab9753af}{$\sim$\+Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_aa78fff3274ad7afd6d0f4ce81c1f6c90}{calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to compute the required partial derivative of rotation matrix. \end{DoxyCompactList}\item 
+std\+::vector$<$ Eigen\+::\+Matrix3d $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_afd6782822a11194024aa42cf177cc2d5}{calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter}} (const double time)
+\begin{DoxyCompactList}\small\item\em Function to compute the required partial derivative of rotation matrix derivative. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the rotational state. 
+
+Class to calculate a rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the rotational state, consisting of the associated quaternion elements and body-\/fixed angular velocity vector. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_a2a4111906ef7390ddbccb45e59de959d}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_a2a4111906ef7390ddbccb45e59de959d}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}!RotationMatrixPartialWrtRotationalState@{RotationMatrixPartialWrtRotationalState}}
+\index{RotationMatrixPartialWrtRotationalState@{RotationMatrixPartialWrtRotationalState}!tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}}
+\doxysubsubsection{\texorpdfstring{RotationMatrixPartialWrtRotationalState()}{RotationMatrixPartialWrtRotationalState()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State\+::\+Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Quaterniond(const double) $>$}]{current\+Rotation\+To\+Inertial\+Frame\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em current\+Rotation\+To\+Inertial\+Frame\+Function} & Function returning the current quaternion for body-\/fixed to inertial rotation \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_afd6782822a11194024aa42cf177cc2d5}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_afd6782822a11194024aa42cf177cc2d5}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}!calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter@{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State\+::calculate\+Partial\+Of\+Rotation\+Matrix\+Derivative\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to compute the required partial derivative of rotation matrix derivative. 
+
+Function to compute the partial derivative of derivative of rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the rotational state vector. NOTE\+: function not yet implemented 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which partials are to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 7 containing partials of rotation matrix derivative from body-\/fixed to inertial frame w.\+r.\+t. the rotational state vector 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a21af519e8a78ffd2978586549f3569c4}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_aa78fff3274ad7afd6d0f4ce81c1f6c90}\label{classtudat_1_1observation__partials_1_1RotationMatrixPartialWrtRotationalState_aa78fff3274ad7afd6d0f4ce81c1f6c90}} 
+\index{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}!calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}}
+\index{calculatePartialOfRotationMatrixToBaseFrameWrParameter@{calculatePartialOfRotationMatrixToBaseFrameWrParameter}!tudat::observation\_partials::RotationMatrixPartialWrtRotationalState@{tudat::observation\_partials::RotationMatrixPartialWrtRotationalState}}
+\doxysubsubsection{\texorpdfstring{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}{calculatePartialOfRotationMatrixToBaseFrameWrParameter()}}
+{\footnotesize\ttfamily std\+::vector$<$ Eigen\+::\+Matrix3d $>$ tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial\+Wrt\+Rotational\+State\+::calculate\+Partial\+Of\+Rotation\+Matrix\+To\+Base\+Frame\+Wr\+Parameter (\begin{DoxyParamCaption}\item[{const double}]{time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to compute the required partial derivative of rotation matrix. 
+
+Function to compute the partial derivative of rotation matrix from a body-\/fixed to inertial frame w.\+r.\+t. the rotational state. Only derivatives w.\+r.\+t. quaternion elements are non-\/zero 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which partials are to be computed \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of size 7 containing partials of rotation matrix from body-\/fixed to inertial frame w.\+r.\+t. the four associated rotational state 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1observation__partials_1_1RotationMatrixPartial_a758db711ec18f3efbaa759488e45daf1}{tudat\+::observation\+\_\+partials\+::\+Rotation\+Matrix\+Partial}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/rotation\+Matrix\+Partial.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment" kind="class" language="C++" prot="public">
+    <compoundname>tudat::input_output::stream_filters::RemoveComment</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">boost::iostreams::line_filter</basecompoundref>
+    <includes refid="streamFilters_8h" local="no">streamFilters.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1a1202d91be5b1c5a07e23b1fa1f6feb76" prot="private" static="no" mutable="no">
+        <type>char</type>
+        <definition>char tudat::input_output::stream_filters::RemoveComment::skipCharacter_</definition>
+        <argsstring></argsstring>
+        <name>skipCharacter_</name>
+        <briefdescription>
+<para>Skip character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Character that initiates a comment. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="74" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1a4c9a8d26d9293fb483d9d1ab8fa21ce3" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::input_output::stream_filters::RemoveComment::isOmitIfEmpty_</definition>
+        <argsstring></argsstring>
+        <name>isOmitIfEmpty_</name>
+        <briefdescription>
+<para>Omit state for filtered line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If filtered line is empty, and omit flag is set to true, no newline empty line is returned. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="80" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1ad0f6dbdc2677078cfc64d824b7d4797f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::input_output::stream_filters::RemoveComment::RemoveComment</definition>
+        <argsstring>(char skipCharacter=&apos;#&apos;, bool isOmitIfEmpty=true)</argsstring>
+        <name>RemoveComment</name>
+        <param>
+          <type>char</type>
+          <declname>skipCharacter</declname>
+          <defval>&apos;#&apos;</defval>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>isOmitIfEmpty</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Create a comment filter for a given start comment character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a comment filter for a given start comment character. Note that the variable &quot;line_filter&quot; is set to true, to indicate to Boost not to append newline characters. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>skipCharacter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Character that initiates a comment. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>isOmitIfEmpty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if a line should be removed when a complete line is filtered away. (When the &apos;skipCharacter&apos; is the first character on the line) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="52" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="52" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1aec88aaed0afacd0ea960d07b39597a9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::input_output::stream_filters::RemoveComment::do_filter</definition>
+        <argsstring>(const std::string &amp;line)</argsstring>
+        <name>do_filter</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+<para>Remove comments in a single line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executes filter to remove comments from input line of data. For more information see boost::iostreams::line_filter (overrides definition of line_filter to enable chaining of filters). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unfiltered line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered line. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="66" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/io/streamFilters.cpp" bodystart="26" bodyend="42"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Filter that removes comments from a stream. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class allows for a data stream to be filtered to remove comments starting with a given character, e.g., &quot;#&quot;. When this character is the first of a line, the entire line is considered comment, and is removed. When the comment appears in the middle of a line, only the text after this line is removed. NOTE: The start of a comment is always a single character! NOTE: You cannot escape the comment character! NOTE: A comment always runs until the end of the same line! </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::RemoveComment</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::input_output::stream_filters::RemoveComment</label>
+        <link refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::iostreams::line_filter</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" line="39" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io/streamFilters.h" bodystart="40" bodyend="81"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1aec88aaed0afacd0ea960d07b39597a9d" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::RemoveComment</scope><name>do_filter</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1a4c9a8d26d9293fb483d9d1ab8fa21ce3" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::RemoveComment</scope><name>isOmitIfEmpty_</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1ad0f6dbdc2677078cfc64d824b7d4797f" prot="public" virt="non-virtual"><scope>tudat::input_output::stream_filters::RemoveComment</scope><name>RemoveComment</name></member>
+      <member refid="classtudat_1_1input__output_1_1stream__filters_1_1RemoveComment_1a1202d91be5b1c5a07e23b1fa1f6feb76" prot="private" virt="non-virtual"><scope>tudat::input_output::stream_filters::RemoveComment</scope><name>skipCharacter_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

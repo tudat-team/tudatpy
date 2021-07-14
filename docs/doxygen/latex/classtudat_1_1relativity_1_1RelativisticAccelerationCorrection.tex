@@ -1,0 +1,292 @@
+\hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection}{}\doxysection{tudat\+::relativity\+::Relativistic\+Acceleration\+Correction Class Reference}
+\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection}\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+
+
+Class to compute typical relativistic corrections to the dynamics of an orbiter.  
+
+
+
+
+{\ttfamily \#include $<$relativistic\+Acceleration\+Correction.\+h$>$}
+
+Inheritance diagram for tudat\+::relativity\+::Relativistic\+Acceleration\+Correction\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a311f36c9c92bec08e89408db8c646117}{Relativistic\+Acceleration\+Correction}} (std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Accelerated\+Body, std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Central\+Body, std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Primary\+Body, std\+::function$<$ double() $>$ gravitational\+Parameter\+Function\+Of\+Central\+Body, std\+::function$<$ double() $>$ gravitational\+Parameter\+Function\+Of\+Primary\+Body, std\+::string primary\+Body\+Name, std\+::function$<$ Eigen\+::\+Vector3d() $>$ cental\+Body\+Angular\+Momentum\+Function=std\+::function$<$ Eigen\+::\+Vector3d() $>$(), std\+::function$<$ double() $>$ ppn\+Parameter\+Gamma\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\}, std\+::function$<$ double() $>$ ppn\+Parameter\+Beta\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\}, const bool calculate\+Schwarzschild\+Correction=true)
+\begin{DoxyCompactList}\small\item\em Constructor, used when including de\+Sitter acceleration. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a8b4d3184acebb6dba2c5fb17aea4e693}{Relativistic\+Acceleration\+Correction}} (std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Accelerated\+Body, std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Central\+Body, std\+::function$<$ double() $>$ gravitational\+Parameter\+Function\+Of\+Central\+Body, std\+::function$<$ Eigen\+::\+Vector3d() $>$ cental\+Body\+Angular\+Momentum\+Function, std\+::function$<$ double() $>$ ppn\+Parameter\+Gamma\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\}, std\+::function$<$ double() $>$ ppn\+Parameter\+Beta\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\}, const bool calculate\+Schwarzschild\+Correction=true)
+\begin{DoxyCompactList}\small\item\em Constructor, used when including Lense-\/\+Thirring, but not de Sitter, acceleration. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a972bf8200e37182ab0ce4bfa6b74ae5c}{Relativistic\+Acceleration\+Correction}} (std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Accelerated\+Body, std\+::function$<$ Eigen\+::\+Vector6d() $>$ state\+Function\+Of\+Central\+Body, std\+::function$<$ double() $>$ gravitational\+Parameter\+Function\+Of\+Central\+Body, std\+::function$<$ double() $>$ ppn\+Parameter\+Gamma\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\}, std\+::function$<$ double() $>$ ppn\+Parameter\+Beta\+Function=\mbox{[}$\,$\mbox{]}()\{ return 1.\+0;\})
+\begin{DoxyCompactList}\small\item\em Constructor, used for Schwarzschild term only. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b198905493d7a907b5057566fb10c2a}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b198905493d7a907b5057566fb10c2a}} 
+\mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b198905493d7a907b5057566fb10c2a}{$\sim$\+Relativistic\+Acceleration\+Correction}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a9692ca2bc1994606e67c22c61aac45d3}{get\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a10d4465b67b5acfa7e69cd79e03d80df}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update member variables used by the relativistic correction acceleration model. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Vector6d() $>$ \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a60325c766529ccd971adcadaf822e13a}{get\+State\+Function\+Of\+Accelerated\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current state of the body undergoing acceleration. \end{DoxyCompactList}\item 
+std\+::function$<$ Eigen\+::\+Vector6d() $>$ \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b37de170b30e60eae655fd9efcc9ef4}{get\+State\+Function\+Of\+Central\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current state of the main body exerting acceleration. \end{DoxyCompactList}\item 
+std\+::function$<$ double() $>$ \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a1cd40665184b47596a58b41e9c73ee95}{get\+Gravitational\+Parameter\+Function\+Of\+Central\+Body}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current gravitational parameter of central body. \end{DoxyCompactList}\item 
+std\+::function$<$ double() $>$ \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a764e7b30cb158f41ed2be2c9731b89ab}{get\+Ppn\+Parameter\+Gamma\+Function\+\_\+}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current PPN parameter gamma. \end{DoxyCompactList}\item 
+std\+::function$<$ double() $>$ \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a5c72bbf921ba8a4b9e2bfa26b97ff357}{get\+Ppn\+Parameter\+Beta\+Function\+\_\+}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the current PPN parameter beta. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a011172cd4d863b08949a58328e319aa8}{get\+Calculate\+Schwarzschild\+Correction}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting wheter the Schwarzschild term is used. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_aa7ded055a366100612caa590e1a1201f}{get\+Calculate\+De\+Sitter\+Correction}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting wheter the de Sitter term is used. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_ac8126d372227d6c8ae93a237b6c24d76}{get\+Calculate\+Lense\+Thirring\+Correction}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the boolean denoting wheter the Lense-\/\+Thirring term is used. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a69901f8ff8916a121c3309c6b5ac5b22}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a69901f8ff8916a121c3309c6b5ac5b22}} 
+std\+::string {\bfseries get\+Primary\+Body\+Name} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to compute typical relativistic corrections to the dynamics of an orbiter. 
+
+Class to compute typical relativistic corrections to the dynamics of an orbiter. The model allows the inclusion of the Schwarzschild, Lense-\/\+Thirring and de Sitter terms (any one of them may be turned on and off). An excellent introduction to these models is given in \textquotesingle{}General relativity and Space Geodesy\textquotesingle{} by L. Combrinck (2012). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a311f36c9c92bec08e89408db8c646117}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a311f36c9c92bec08e89408db8c646117}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}}
+\index{RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{RelativisticAccelerationCorrection()}{RelativisticAccelerationCorrection()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::\+Relativistic\+Acceleration\+Correction (\begin{DoxyParamCaption}\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Accelerated\+Body,  }\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Primary\+Body,  }\item[{std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Function\+Of\+Primary\+Body,  }\item[{std\+::string}]{primary\+Body\+Name,  }\item[{std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{cental\+Body\+Angular\+Momentum\+Function = {\ttfamily std\+:\+:function$<$~Eigen\+:\+:Vector3d(~)~$>$(~)},  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Gamma\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}},  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Beta\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}},  }\item[{const bool}]{calculate\+Schwarzschild\+Correction = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, used when including de\+Sitter acceleration. 
+
+Constructor, used when including de\+Sitter acceleration 
+\begin{DoxyParams}{Parameters}
+{\em state\+Function\+Of\+Accelerated\+Body} & State function of vehicle undergoing acceleration \\
+\hline
+{\em state\+Function\+Of\+Central\+Body} & State function of main body exerting acceleration (e.\+g. Earth for an Earth-\/orbiting satellite). \\
+\hline
+{\em state\+Function\+Of\+Primary\+Body} & State function of large body primarily responsible for motion of central body (e.\+g. Sun for acceleration acting on an Earth-\/orbiting satellite). \\
+\hline
+{\em gravitational\+Parameter\+Function\+Of\+Central\+Body} & Function returning the gravitational parameter of the central body \\
+\hline
+{\em gravitational\+Parameter\+Function\+Of\+Primary\+Body} & Function returning the gravitational parameter of the primary body \\
+\hline
+{\em primary\+Body\+Name} & Name of primary body (e.\+g. Sun for acceleration acting on an Earth-\/orbiting satellite) \\
+\hline
+{\em cental\+Body\+Angular\+Momentum\+Function} & Function returning the angular momenum of the central body, expressed in the propagation frame (default empty; no Lense-\/\+Thirring acceleration if empty). \\
+\hline
+{\em ppn\+Parameter\+Gamma\+Function} & Function returning the PPN parameter gamma (default 1) \\
+\hline
+{\em ppn\+Parameter\+Beta\+Function} & Function returning the PPN parameter beta (default 1) \\
+\hline
+{\em calculate\+Schwarzschild\+Correction} & Boolean denoting whether the schwarzschild term is to be used. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a8b4d3184acebb6dba2c5fb17aea4e693}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a8b4d3184acebb6dba2c5fb17aea4e693}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}}
+\index{RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{RelativisticAccelerationCorrection()}{RelativisticAccelerationCorrection()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::\+Relativistic\+Acceleration\+Correction (\begin{DoxyParamCaption}\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Accelerated\+Body,  }\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{cental\+Body\+Angular\+Momentum\+Function,  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Gamma\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}},  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Beta\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}},  }\item[{const bool}]{calculate\+Schwarzschild\+Correction = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, used when including Lense-\/\+Thirring, but not de Sitter, acceleration. 
+
+Constructor, used when including Lense-\/\+Thirring, but not de Sitter, acceleration 
+\begin{DoxyParams}{Parameters}
+{\em state\+Function\+Of\+Accelerated\+Body} & State function of vehicle undergoing acceleration \\
+\hline
+{\em state\+Function\+Of\+Central\+Body} & State function of main body exerting acceleration (e.\+g. Earth for an Earth-\/orbiting satellite). \\
+\hline
+{\em gravitational\+Parameter\+Function\+Of\+Central\+Body} & Function returning the gravitational parameter of the central body \\
+\hline
+{\em cental\+Body\+Angular\+Momentum\+Function} & Function returning the angular momenum of the central body, expressed in the propagation frame (default empty; no Lense-\/\+Thirring acceleration if empty). \\
+\hline
+{\em ppn\+Parameter\+Gamma\+Function} & Function returning the PPN parameter gamma (default 1) \\
+\hline
+{\em ppn\+Parameter\+Beta\+Function} & Function returning the PPN parameter beta (default 1) \\
+\hline
+{\em calculate\+Schwarzschild\+Correction} & Boolean denoting whether the schwarzschild term is to be used. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a972bf8200e37182ab0ce4bfa6b74ae5c}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a972bf8200e37182ab0ce4bfa6b74ae5c}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}}
+\index{RelativisticAccelerationCorrection@{RelativisticAccelerationCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{RelativisticAccelerationCorrection()}{RelativisticAccelerationCorrection()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::\+Relativistic\+Acceleration\+Correction (\begin{DoxyParamCaption}\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Accelerated\+Body,  }\item[{std\+::function$<$ Eigen\+::\+Vector6d() $>$}]{state\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ double() $>$}]{gravitational\+Parameter\+Function\+Of\+Central\+Body,  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Gamma\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}},  }\item[{std\+::function$<$ double() $>$}]{ppn\+Parameter\+Beta\+Function = {\ttfamily \mbox{[}~\mbox{]}(~)\{~return~1.0;~\}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor, used for Schwarzschild term only. 
+
+Constructor, used for Schwarzschild term only 
+\begin{DoxyParams}{Parameters}
+{\em state\+Function\+Of\+Accelerated\+Body} & State function of vehicle undergoing acceleration \\
+\hline
+{\em state\+Function\+Of\+Central\+Body} & State function of main body exerting acceleration (e.\+g. Earth for an Earth-\/orbiting satellite). \\
+\hline
+{\em gravitational\+Parameter\+Function\+Of\+Central\+Body} & Function returning the gravitational parameter of the central body \\
+\hline
+{\em ppn\+Parameter\+Gamma\+Function} & Function returning the PPN parameter gamma (default 1) \\
+\hline
+{\em ppn\+Parameter\+Beta\+Function} & Function returning the PPN parameter beta (default 1) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a9692ca2bc1994606e67c22c61aac45d3}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a9692ca2bc1994606e67c22c61aac45d3}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the current acceleration. 
+
+Returns the relativistic correction acceleration. Value is computed by update\+Members function \begin{DoxyReturn}{Returns}
+Acceleration. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_aa7ded055a366100612caa590e1a1201f}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_aa7ded055a366100612caa590e1a1201f}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getCalculateDeSitterCorrection@{getCalculateDeSitterCorrection}}
+\index{getCalculateDeSitterCorrection@{getCalculateDeSitterCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getCalculateDeSitterCorrection()}{getCalculateDeSitterCorrection()}}
+{\footnotesize\ttfamily bool tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Calculate\+De\+Sitter\+Correction (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting wheter the de Sitter term is used. 
+
+Function to return the boolean denoting wheter the de Sitter term is used. \begin{DoxyReturn}{Returns}
+Boolean denoting wheter the de Sitter term is used. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_ac8126d372227d6c8ae93a237b6c24d76}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_ac8126d372227d6c8ae93a237b6c24d76}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getCalculateLenseThirringCorrection@{getCalculateLenseThirringCorrection}}
+\index{getCalculateLenseThirringCorrection@{getCalculateLenseThirringCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getCalculateLenseThirringCorrection()}{getCalculateLenseThirringCorrection()}}
+{\footnotesize\ttfamily bool tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Calculate\+Lense\+Thirring\+Correction (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting wheter the Lense-\/\+Thirring term is used. 
+
+Function to return the boolean denoting wheter the Lense-\/\+Thirring term is used. \begin{DoxyReturn}{Returns}
+Boolean denoting wheter the Lense-\/\+Thirring term is used. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a011172cd4d863b08949a58328e319aa8}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a011172cd4d863b08949a58328e319aa8}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getCalculateSchwarzschildCorrection@{getCalculateSchwarzschildCorrection}}
+\index{getCalculateSchwarzschildCorrection@{getCalculateSchwarzschildCorrection}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getCalculateSchwarzschildCorrection()}{getCalculateSchwarzschildCorrection()}}
+{\footnotesize\ttfamily bool tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Calculate\+Schwarzschild\+Correction (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the boolean denoting wheter the Schwarzschild term is used. 
+
+Function to return the boolean denoting wheter the Schwarzschild term is used. \begin{DoxyReturn}{Returns}
+Boolean denoting wheter the Schwarzschild term is used. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a1cd40665184b47596a58b41e9c73ee95}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a1cd40665184b47596a58b41e9c73ee95}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getGravitationalParameterFunctionOfCentralBody@{getGravitationalParameterFunctionOfCentralBody}}
+\index{getGravitationalParameterFunctionOfCentralBody@{getGravitationalParameterFunctionOfCentralBody}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getGravitationalParameterFunctionOfCentralBody()}{getGravitationalParameterFunctionOfCentralBody()}}
+{\footnotesize\ttfamily std\+::function$<$ double( ) $>$ tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Gravitational\+Parameter\+Function\+Of\+Central\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the current gravitational parameter of central body. 
+
+Function to return the current gravitational parameter of central body \begin{DoxyReturn}{Returns}
+Current gravitational parameter of central body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a5c72bbf921ba8a4b9e2bfa26b97ff357}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a5c72bbf921ba8a4b9e2bfa26b97ff357}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getPpnParameterBetaFunction\_@{getPpnParameterBetaFunction\_}}
+\index{getPpnParameterBetaFunction\_@{getPpnParameterBetaFunction\_}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getPpnParameterBetaFunction\_()}{getPpnParameterBetaFunction\_()}}
+{\footnotesize\ttfamily std\+::function$<$ double( ) $>$ tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Ppn\+Parameter\+Beta\+Function\+\_\+ (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the current PPN parameter beta. 
+
+Function to return the current PPN parameter beta \begin{DoxyReturn}{Returns}
+Current PPN parameter beta 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a764e7b30cb158f41ed2be2c9731b89ab}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a764e7b30cb158f41ed2be2c9731b89ab}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getPpnParameterGammaFunction\_@{getPpnParameterGammaFunction\_}}
+\index{getPpnParameterGammaFunction\_@{getPpnParameterGammaFunction\_}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getPpnParameterGammaFunction\_()}{getPpnParameterGammaFunction\_()}}
+{\footnotesize\ttfamily std\+::function$<$ double( ) $>$ tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+Ppn\+Parameter\+Gamma\+Function\+\_\+ (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the current PPN parameter gamma. 
+
+Function to return the current PPN parameter gamma \begin{DoxyReturn}{Returns}
+Current PPN parameter gamma 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a60325c766529ccd971adcadaf822e13a}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a60325c766529ccd971adcadaf822e13a}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getStateFunctionOfAcceleratedBody@{getStateFunctionOfAcceleratedBody}}
+\index{getStateFunctionOfAcceleratedBody@{getStateFunctionOfAcceleratedBody}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getStateFunctionOfAcceleratedBody()}{getStateFunctionOfAcceleratedBody()}}
+{\footnotesize\ttfamily std\+::function$<$ Eigen\+::\+Vector6d( ) $>$ tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+State\+Function\+Of\+Accelerated\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the current state of the body undergoing acceleration. 
+
+Function to return the current state of the body undergoing acceleration \begin{DoxyReturn}{Returns}
+Current state of the body undergoing acceleration 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b37de170b30e60eae655fd9efcc9ef4}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a4b37de170b30e60eae655fd9efcc9ef4}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!getStateFunctionOfCentralBody@{getStateFunctionOfCentralBody}}
+\index{getStateFunctionOfCentralBody@{getStateFunctionOfCentralBody}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{getStateFunctionOfCentralBody()}{getStateFunctionOfCentralBody()}}
+{\footnotesize\ttfamily std\+::function$<$ Eigen\+::\+Vector6d( ) $>$ tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::get\+State\+Function\+Of\+Central\+Body (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the current state of the main body exerting acceleration. 
+
+Function to return the current state of the main body exerting acceleration \begin{DoxyReturn}{Returns}
+Current state of the main body exerting acceleration 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a10d4465b67b5acfa7e69cd79e03d80df}\label{classtudat_1_1relativity_1_1RelativisticAccelerationCorrection_a10d4465b67b5acfa7e69cd79e03d80df}} 
+\index{tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::relativity::RelativisticAccelerationCorrection@{tudat::relativity::RelativisticAccelerationCorrection}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily void tudat\+::relativity\+::\+Relativistic\+Acceleration\+Correction\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables used by the relativistic correction acceleration model. 
+
+Updates member variables used by the relativistic correction acceleration model. Function pointers to retrieve the current values of quantities from which the acceleration is to be calculated are set by constructor. This function calls them to update the associated variables to their current state. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which acceleration model is to be updated. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/relativity/relativistic\+Acceleration\+Correction.\+h\end{DoxyCompactItemize}

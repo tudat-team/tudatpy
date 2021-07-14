@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AtmosphereSettings</basecompoundref>
+    <includes refid="createAtmosphereModel_8h" local="no">createAtmosphereModel.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" prot="public" static="no">
+        <type>std::function&lt; double(const double, const double, const double, const double) &gt;</type>
+        <definition>typedef std::function&lt; double( const double, const double, const double, const double ) &gt; tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::DensityFunction</definition>
+        <argsstring></argsstring>
+        <name>DensityFunction</name>
+        <briefdescription>
+<para>Typedef for density function. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="361" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="361" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a61dbb7def2fa7102158eaec789f15496" prot="private" static="no" mutable="no">
+        <type><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref></type>
+        <definition>DensityFunction tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::densityFunction_</definition>
+        <argsstring></argsstring>
+        <name>densityFunction_</name>
+        <briefdescription>
+<para>Function to compute the density at the current conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the density at the current conditions. Note that the independent variables need to be altitude, longitude, latitude and time, in this precise order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="460" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="460" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1afe5f4cc4acf16ad930d122e3ccb78312" prot="private" static="no" mutable="no">
+        <type>AvailableConstantTemperatureAtmosphereModels</type>
+        <definition>AvailableConstantTemperatureAtmosphereModels tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::densityFunctionType_</definition>
+        <argsstring></argsstring>
+        <name>densityFunctionType_</name>
+        <briefdescription>
+<para>Enumeration denoting which density function to implement. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Enumeration denoting which density function to implement </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="466" column="50" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="466" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a83abd8af3c793984baf2d7531e5db783" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::constantTemperature_</definition>
+        <argsstring></argsstring>
+        <name>constantTemperature_</name>
+        <briefdescription>
+<para>Constant temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The atmospheric temperature (constant, property of exponential atmosphere) in Kelvin. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="472" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="472" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a58bf92c50bb9a0df44757d36dd3c8072" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::specificGasConstant_</definition>
+        <argsstring></argsstring>
+        <name>specificGasConstant_</name>
+        <briefdescription>
+<para>Specific gas constant. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Specific gas constant of the atmosphere, its value is assumed constant, due to the assumption of constant atmospheric composition. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="479" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="479" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a6625f1908eabaa094a02b57c08c0e5bf" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::ratioOfSpecificHeats_</definition>
+        <argsstring></argsstring>
+        <name>ratioOfSpecificHeats_</name>
+        <briefdescription>
+<para>Ratio of specific heats at constant pressure and constant volume. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Ratio of specific heats of the atmosphere at constant pressure and constant volume. This value is set to a constant, implying constant atmospheric composition. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="486" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="486" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a3ae2b0919e5d8696eb2ea42423282cd2" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::modelSpecificParameters_</definition>
+        <argsstring></argsstring>
+        <name>modelSpecificParameters_</name>
+        <briefdescription>
+<para>Vector of parameters to be used to set up the density function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector of parameters to be used to set up the density function. Both meaning and number of parameters depends on the model. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="492" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="492" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a27bd0672ba4e6de57c3d877464ba470a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::CustomConstantTemperatureAtmosphereSettings</definition>
+        <argsstring>(const DensityFunction &amp;densityFunction, const double constantTemperature, const double specificGasConstant=physical_constants::SPECIFIC_GAS_CONSTANT_AIR, const double ratioOfSpecificHeats=1.4)</argsstring>
+        <name>CustomConstantTemperatureAtmosphereSettings</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref> &amp;</type>
+          <declname>densityFunction</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>constantTemperature</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specificGasConstant</declname>
+          <defval>physical_constants::SPECIFIC_GAS_CONSTANT_AIR</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ratioOfSpecificHeats</declname>
+          <defval>1.4</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor setting all parameters manually. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>densityFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function to retireve the density at the current altitude, longitude, latitude and time. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>constantTemperature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant atmospheric temperature. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificGasConstant</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The constant specific gas constant of the atmosphere. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ratioOfSpecificHeats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The constant ratio of specific heats of the atmosphere. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="372" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="372" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5e402078dbf7dd54ff9e6628546df166" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::CustomConstantTemperatureAtmosphereSettings</definition>
+        <argsstring>(const AvailableConstantTemperatureAtmosphereModels densityFunctionType, const double constantTemperature, const double specificGasConstant, const double ratioOfSpecificHeats, const std::vector&lt; double &gt; &amp;modelSpecificParameters)</argsstring>
+        <name>CustomConstantTemperatureAtmosphereSettings</name>
+        <param>
+          <type>const AvailableConstantTemperatureAtmosphereModels</type>
+          <declname>densityFunctionType</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>constantTemperature</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>specificGasConstant</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>ratioOfSpecificHeats</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt; &amp;</type>
+          <declname>modelSpecificParameters</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor which uses one of the built-in density functions as input. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>densityFunctionType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enumeration denoting which density function to implement. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>constantTemperature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Constant atmospheric temperature. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>specificGasConstant</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The constant specific gas constant of the atmosphere. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ratioOfSpecificHeats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The constant ratio of specific heats of the atmosphere. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>modelSpecificParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector of parameters to be used to set up the density function. Both meaning and number of parameters depends on the model. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="394" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="394" bodyend="406"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a9e25d4dc93946573476a75d76936813e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" kindref="member">DensityFunction</ref></type>
+        <definition>DensityFunction tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getDensityFunction</definition>
+        <argsstring>()</argsstring>
+        <name>getDensityFunction</name>
+        <briefdescription>
+<para>Get the function to compute the density at the current conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the function to compute the density at the current conditions. <simplesect kind="return"><para>Function to compute the density at the current conditions. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="413" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="413" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1abfe4dda5aaee39ae621e6c8175ed0eed" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>AvailableConstantTemperatureAtmosphereModels</type>
+        <definition>AvailableConstantTemperatureAtmosphereModels tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getDensityFunctionType</definition>
+        <argsstring>()</argsstring>
+        <name>getDensityFunctionType</name>
+        <briefdescription>
+<para>Get the type of function to compute the density at the current conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get the type of function to compute the density at the current conditions. <simplesect kind="return"><para>Type of function to compute the density at the current conditions. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="420" column="50" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="420" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a8604dd73120977000b85a27af811abb3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getConstantTemperature</definition>
+        <argsstring>()</argsstring>
+        <name>getConstantTemperature</name>
+        <briefdescription>
+<para>Get constant temperature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin. <simplesect kind="return"><para>constantTemperature Constant atmospheric temperature in exponential atmosphere. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="428" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="428" bodyend="428"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2328bc9583c91efadb7c0a3a6f94605a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getSpecificGasConstant</definition>
+        <argsstring>()</argsstring>
+        <name>getSpecificGasConstant</name>
+        <briefdescription>
+<para>Get specific gas constant. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the specific gas constant of the atmosphere in J/(kg K), its value is assumed constant, due to the assumption of constant atmospheric composition. <simplesect kind="return"><para>Specific gas constant in exponential atmosphere. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="436" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="436" bodyend="436"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1aff758be0111dff0d240059ee25b18b2c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getRatioOfSpecificHeats</definition>
+        <argsstring>()</argsstring>
+        <name>getRatioOfSpecificHeats</name>
+        <briefdescription>
+<para>Get ratio of specific heats. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the ratio of specific hears of the atmosphere, its value is assumed constant, due to the assumption of constant atmospheric composition. <simplesect kind="return"><para>Ratio of specific heats exponential atmosphere. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="444" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="444" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2c94f245b43118608ed4da1737ec6210" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings::getModelSpecificParameters</definition>
+        <argsstring>()</argsstring>
+        <name>getModelSpecificParameters</name>
+        <briefdescription>
+<para>Get model specific parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Get model specific parameters. <simplesect kind="return"><para>Vector of parameters to be used to set up the density function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="451" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="451" bodyend="451"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings" kindref="compound">AtmosphereSettings</ref> for defining custom constant temperature atmosphere. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AtmosphereSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" line="356" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAtmosphereModel.h" bodystart="357" bodyend="494"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a82760111a1975705c2bd939836e8486a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>AtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a83abd8af3c793984baf2d7531e5db783" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>constantTemperature_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a27bd0672ba4e6de57c3d877464ba470a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>CustomConstantTemperatureAtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5e402078dbf7dd54ff9e6628546df166" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>CustomConstantTemperatureAtmosphereSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a5ef2c0f72e642a5cb09f47228ecd135d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>DensityFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a61dbb7def2fa7102158eaec789f15496" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>densityFunction_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1afe5f4cc4acf16ad930d122e3ccb78312" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>densityFunctionType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1aec4287b357a3bb6abc189f7c27474531" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getAtmosphereType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a8604dd73120977000b85a27af811abb3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getConstantTemperature</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a9e25d4dc93946573476a75d76936813e" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getDensityFunction</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1abfe4dda5aaee39ae621e6c8175ed0eed" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getDensityFunctionType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2c94f245b43118608ed4da1737ec6210" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getModelSpecificParameters</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1aff758be0111dff0d240059ee25b18b2c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getRatioOfSpecificHeats</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a2328bc9583c91efadb7c0a3a6f94605a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getSpecificGasConstant</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a65fbe7e983518c965f99b9b8cb4891e0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>getWindSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a3ae2b0919e5d8696eb2ea42423282cd2" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>modelSpecificParameters_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a6625f1908eabaa094a02b57c08c0e5bf" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>ratioOfSpecificHeats_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1ab140972c4f4657425eff7e21ed8f0631" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>setWindSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1CustomConstantTemperatureAtmosphereSettings_1a58bf92c50bb9a0df44757d36dd3c8072" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>specificGasConstant_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AtmosphereSettings_1a5d315b52924a7f82d4e269402c60a51c" prot="public" virt="virtual"><scope>tudat::simulation_setup::CustomConstantTemperatureAtmosphereSettings</scope><name>~AtmosphereSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1observation__models_1_1AngularPositionObservationModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::observation_models::AngularPositionObservationModel</compoundname>
+    <basecompoundref refid="classtudat_1_1observation__models_1_1ObservationModel" prot="public" virt="non-virtual">tudat::observation_models::ObservationModel&lt; 2, double, double &gt;</basecompoundref>
+    <includes refid="angularPositionObservationModel_8h" local="no">angularPositionObservationModel.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename ObservationScalarType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename TimeType</type>
+        <defval>double</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1aa27c590a945f43440568818a22e6aaa4" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::StateType</definition>
+        <argsstring></argsstring>
+        <name>StateType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="38" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a5d26450ba1dd55d23ac3f3a636ae0ad6" prot="public" static="no">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt;</type>
+        <definition>typedef Eigen::Matrix&lt; ObservationScalarType, 6, 1 &gt; tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::PositionType</definition>
+        <argsstring></argsstring>
+        <name>PositionType</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="39" column="27" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a16e4ac92f32c3cf027f0347752124bef" prot="private" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::lightTimeCalculator_</definition>
+        <argsstring></argsstring>
+        <name>lightTimeCalculator_</name>
+        <briefdescription>
+<para>Object to calculate light time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="146" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a068312c4c4c7eb164d5c0a78a0875822" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::AngularPositionObservationModel</definition>
+        <argsstring>(const std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; lightTimeCalculator, const std::shared_ptr&lt; ObservationBias&lt; 2 &gt; &gt; observationBiasCalculator=nullptr)</argsstring>
+        <name>AngularPositionObservationModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+          <declname>lightTimeCalculator</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1ObservationBias" kindref="compound">ObservationBias</ref>&lt; 2 &gt; &gt;</type>
+          <declname>observationBiasCalculator</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor, <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lightTimeCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object to compute the light-time (including any corrections w.r.t. Euclidean case) between source and receiver </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>observationBiasCalculator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object for calculating system-dependent errors in the observable, i.e. deviations from the physically ideal observable between reference points (default none). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="49" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="49" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a5f6ad2a2cb4c725458eb8e4d82efd972" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::~AngularPositionObservationModel</definition>
+        <argsstring>()</argsstring>
+        <name>~AngularPositionObservationModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="56" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="56" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a2289e13efc50aeb0e636a75c78e828d9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Matrix&lt; ObservationScalarType, 2, 1 &gt;</type>
+        <definition>Eigen::Matrix&lt; ObservationScalarType, 2, 1 &gt; tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::computeIdealObservationsWithLinkEndData</definition>
+        <argsstring>(const TimeType time, const LinkEndType linkEndAssociatedWithTime, std::vector&lt; double &gt; &amp;linkEndTimes, std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;linkEndStates)</argsstring>
+        <name>computeIdealObservationsWithLinkEndData</name>
+        <param>
+          <type>const TimeType</type>
+          <declname>time</declname>
+        </param>
+        <param>
+          <type>const LinkEndType</type>
+          <declname>linkEndAssociatedWithTime</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; double &gt; &amp;</type>
+          <declname>linkEndTimes</declname>
+        </param>
+        <param>
+          <type>std::vector&lt; Eigen::Matrix&lt; double, 6, 1 &gt; &gt; &amp;</type>
+          <declname>linkEndStates</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute ideal angular position observation at given time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function compute ideal angular position observation at a given time. The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input). Note that this observable does include e.g. light-time corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement. The times and states of the link ends are also returned in full precision (determined by class template arguments). These states and times are returned by reference. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which observation is to be simulated </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndAssociatedWithTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link end at which given time is valid, i.e. link end for which associated time is kept constant (to input value) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndTimes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of times at each link end during observation (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linkEndStates</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of states at each link end during observation (returned by reference). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated angular position observable values. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="73" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="73" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a62fa9f5221030ce49de02fe505350dcf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1observation__models_1_1LightTimeCalculator" kindref="compound">observation_models::LightTimeCalculator</ref>&lt; ObservationScalarType, TimeType &gt; &gt;</type>
+        <definition>std::shared_ptr&lt; observation_models::LightTimeCalculator&lt; ObservationScalarType, TimeType &gt; &gt; tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;::getLightTimeCalculator</definition>
+        <argsstring>()</argsstring>
+        <name>getLightTimeCalculator</name>
+        <briefdescription>
+<para>Function to get the object to calculate light time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to get the object to calculate light time. <simplesect kind="return"><para>Object to calculate light time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="135" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="135" bodyend="138"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for simulating angular position (right ascension/declination) observables. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class for simulating angular position (right ascension/declination), using light-time (with light-time corrections) to determine the states of the link ends (source and receiver). The user may add observation biases to model system-dependent deviations between measured and true observation. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 2, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::observation_models::AngularPositionObservationModel&lt; ObservationScalarType, TimeType &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::observation_models::ObservationModel&lt; 2, double, double &gt;</label>
+        <link refid="classtudat_1_1observation__models_1_1ObservationModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" line="34" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models/angularPositionObservationModel.h" bodystart="35" bodyend="147"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a068312c4c4c7eb164d5c0a78a0875822" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>AngularPositionObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1acc309e12a1396f0245d5faa48d2f6e13" prot="public" virt="virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeIdealObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a2289e13efc50aeb0e636a75c78e828d9" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9ecd10a922744f259f842d4b6a411347" prot="public" virt="pure-virtual" ambiguityscope="ObservationModel&lt; 2, double, double &gt;::"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeIdealObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a199cabb55653815809a71ae266c4a428" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeObservationEntry</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a9b9246a44342f0c05f6b0b49c269de2c" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeObservations</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1aa40d89c3432581dad61a0893b4a1bd07" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>computeObservationsWithLinkEndData</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a62fa9f5221030ce49de02fe505350dcf" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>getLightTimeCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a02a719feded8289f8f90c8d5080f1f8f" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>getObservableType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1af7bb363bb98b710155dd585a9a6fada2" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>getObservationBiasCalculator</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ae819c04040cf0dcdd4617d49592ce33e" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>getObservationSize</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ad22ad8c1f124d042c0110246da92fe24" prot="protected" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>isBiasnullptr_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a16e4ac92f32c3cf027f0347752124bef" prot="private" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>lightTimeCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1ac5e15b533fd970380b801078b822e66d" prot="protected" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>linkEndStates_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4e166ee91d8e8d52a4625d1daad99fd3" prot="protected" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>linkEndTimes_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a0117fc5ab1859bdad1124ddd12be3620" prot="protected" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>observableType_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a18d177b43452e3d1af4de8fa876b6df7" prot="protected" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>observationBiasCalculator_</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a2e356049328b9044bf8f1d05ad094802" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>ObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a5d26450ba1dd55d23ac3f3a636ae0ad6" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>PositionType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1aa27c590a945f43440568818a22e6aaa4" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>StateType</name></member>
+      <member refid="classtudat_1_1observation__models_1_1AngularPositionObservationModel_1a5f6ad2a2cb4c725458eb8e4d82efd972" prot="public" virt="non-virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>~AngularPositionObservationModel</name></member>
+      <member refid="classtudat_1_1observation__models_1_1ObservationModel_1a4b72c0c9d2d8ea5221bc7cf8fe64dda7" prot="public" virt="virtual"><scope>tudat::observation_models::AngularPositionObservationModel</scope><name>~ObservationModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

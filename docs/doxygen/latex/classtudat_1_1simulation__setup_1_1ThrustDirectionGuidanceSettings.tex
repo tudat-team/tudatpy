@@ -1,0 +1,64 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Thrust\+Direction\+Guidance\+Settings Class Reference}
+\label{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings}\index{tudat::simulation\_setup::ThrustDirectionGuidanceSettings@{tudat::simulation\_setup::ThrustDirectionGuidanceSettings}}
+
+
+Class defining settings for the thrust direction.  
+
+
+
+
+{\ttfamily \#include $<$thrust\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Thrust\+Direction\+Guidance\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.714286cm]{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af4b4e8138d479b7bbc692f32fde81710}{Thrust\+Direction\+Guidance\+Settings}} (const Thrust\+Direction\+Guidance\+Types thrust\+Direction\+Type, const std\+::string relative\+Body=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af28f900253a9b67ab632766426e950b2}\label{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af28f900253a9b67ab632766426e950b2}} 
+virtual \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af28f900253a9b67ab632766426e950b2}{$\sim$\+Thrust\+Direction\+Guidance\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a223c47bb269a0bbc08b4591c8f10faf9}\label{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a223c47bb269a0bbc08b4591c8f10faf9}} 
+Thrust\+Direction\+Guidance\+Types \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a223c47bb269a0bbc08b4591c8f10faf9}{thrust\+Direction\+Type\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Type of thrust direction that is to be used. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a32dddcb978b69c2e932fcd1c2f77e89c}\label{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a32dddcb978b69c2e932fcd1c2f77e89c}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_a32dddcb978b69c2e932fcd1c2f77e89c}{relative\+Body\+\_\+}}
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} relative to which thrust guidance algorithm is defined. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class defining settings for the thrust direction. 
+
+Class for providing settings the thrust direction of a single thrust model. This class is a functional (base) class for settings of thrust direction that require no information in addition to their type. Classes defining settings for thrust direction requiring additional information must be derived from this class. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af4b4e8138d479b7bbc692f32fde81710}\label{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings_af4b4e8138d479b7bbc692f32fde81710}} 
+\index{tudat::simulation\_setup::ThrustDirectionGuidanceSettings@{tudat::simulation\_setup::ThrustDirectionGuidanceSettings}!ThrustDirectionGuidanceSettings@{ThrustDirectionGuidanceSettings}}
+\index{ThrustDirectionGuidanceSettings@{ThrustDirectionGuidanceSettings}!tudat::simulation\_setup::ThrustDirectionGuidanceSettings@{tudat::simulation\_setup::ThrustDirectionGuidanceSettings}}
+\doxysubsubsection{\texorpdfstring{ThrustDirectionGuidanceSettings()}{ThrustDirectionGuidanceSettings()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Thrust\+Direction\+Guidance\+Settings\+::\+Thrust\+Direction\+Guidance\+Settings (\begin{DoxyParamCaption}\item[{const Thrust\+Direction\+Guidance\+Types}]{thrust\+Direction\+Type,  }\item[{const std\+::string}]{relative\+Body = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em thrust\+Direction\+Type} & Type of thrust direction that is to be used. \\
+\hline
+{\em relative\+Body} & \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1Body}{Body}} relative to which thrust guidance algorithm is defined (empty if N/A). \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/thrust\+Settings.\+h\end{DoxyCompactItemize}

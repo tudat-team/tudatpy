@@ -1,0 +1,384 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1system__models_1_1VehicleSystems" kind="class" language="C++" prot="public">
+    <compoundname>tudat::system_models::VehicleSystems</compoundname>
+    <includes refid="vehicleSystems_8h" local="no">vehicleSystems.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1VehicleSystems_1a1f5f05d57daf7b83e85498a035502fd7" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">EngineModel</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; EngineModel &gt; &gt; tudat::system_models::VehicleSystems::engineModels_</definition>
+        <argsstring></argsstring>
+        <name>engineModels_</name>
+        <briefdescription>
+<para>Named list of engine models in the vehicle. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="153" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1VehicleSystems_1afd4758addb53239da3924c753f583fb7" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::dryMass_</definition>
+        <argsstring></argsstring>
+        <name>dryMass_</name>
+        <briefdescription>
+<para>Total dry mass of the vehicle. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="156" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1VehicleSystems_1a2fb7cdf509677b768191f2624ca79c37" prot="private" static="no" mutable="no">
+        <type>std::map&lt; std::string, double &gt;</type>
+        <definition>std::map&lt; std::string, double &gt; tudat::system_models::VehicleSystems::currentControlSurfaceDeflections_</definition>
+        <argsstring></argsstring>
+        <name>currentControlSurfaceDeflections_</name>
+        <briefdescription>
+<para>List if current control surface deflections (with key the control surface id). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="159" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1VehicleSystems_1ae60dbffbbdb8fa6f2ec92fa03c0a341e" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::noseRadius_</definition>
+        <argsstring></argsstring>
+        <name>noseRadius_</name>
+        <briefdescription>
+<para>Nose radius of the vehicle (used for heating computations) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="162" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1VehicleSystems_1adcb0703bce032ae412ce0f8a6fb38896" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::wallEmissivity_</definition>
+        <argsstring></argsstring>
+        <name>wallEmissivity_</name>
+        <briefdescription>
+<para>Wall emissivity of the vehicle (used for heating computations) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="165" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a784bfb562166238a1b85f2825ace7145" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::system_models::VehicleSystems::VehicleSystems</definition>
+        <argsstring>(const double dryMass=TUDAT_NAN)</argsstring>
+        <name>VehicleSystems</name>
+        <param>
+          <type>const double</type>
+          <declname>dryMass</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dryMass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total dry mass of the vehicle (not defined; NaN by default). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="41" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="41" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1aab806f1b17f94930edf161990897f171" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::system_models::VehicleSystems::~VehicleSystems</definition>
+        <argsstring>()</argsstring>
+        <name>~VehicleSystems</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="45" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a6e99d4d685793121d6309c1ceb015dac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::map&lt; std::string, std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">EngineModel</ref> &gt; &gt;</type>
+        <definition>std::map&lt; std::string, std::shared_ptr&lt; EngineModel &gt; &gt; tudat::system_models::VehicleSystems::getEngineModels</definition>
+        <argsstring>()</argsstring>
+        <name>getEngineModels</name>
+        <briefdescription>
+<para>Function to retrieve the engine models. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the engine models <simplesect kind="return"><para>Named list of engine models in the vehicle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="52" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a330608f936eab6050e03545ea7573f63" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::system_models::VehicleSystems::setEngineModel</definition>
+        <argsstring>(const std::shared_ptr&lt; EngineModel &gt; engineModel, const std::string engineName=&quot;&quot;)</argsstring>
+        <name>setEngineModel</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1system__models_1_1EngineModel" kindref="compound">EngineModel</ref> &gt;</type>
+          <declname>engineModel</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>engineName</declname>
+          <defval>&quot;&quot;</defval>
+        </param>
+        <briefdescription>
+<para>Function to set a single engine in the vehicle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set a single engine in the vehicle. Each engine can be identified by a string. If only a single engine is set, the default (empty string) can be used. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>engineModel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Model of engine that is to be set </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>engineName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference id of the engine that is to be set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="64" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="64" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1aba36aa4e54902724f789a50c9329a77a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::getDryMass</definition>
+        <argsstring>()</argsstring>
+        <name>getDryMass</name>
+        <briefdescription>
+<para>Function to retrieve the total dry mass of the vehicle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the total dry mass of the vehicle <simplesect kind="return"><para>Total dry mass of the vehicle </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="81" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="81" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1aa7e18ba2906694277ccd5e5206fd7f8e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::system_models::VehicleSystems::setCurrentControlSurfaceDeflection</definition>
+        <argsstring>(const std::string &amp;controlSurfaceId, const double deflectionAngle)</argsstring>
+        <name>setCurrentControlSurfaceDeflection</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>controlSurfaceId</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>deflectionAngle</declname>
+        </param>
+        <briefdescription>
+<para>Function to set the current deflection of a single control surface. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to set the current deflection of a single control surface <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>controlSurfaceId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of control surface for which deflection is to be set </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>deflectionAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current deflection of control surface that is to be set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="92" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="92" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a68510241c2af9ba0b05e922fdafa1be7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::getCurrentControlSurfaceDeflection</definition>
+        <argsstring>(const std::string &amp;controlSurfaceId)</argsstring>
+        <name>getCurrentControlSurfaceDeflection</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>controlSurfaceId</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve the current deflection of a single control surface. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the current deflection of a single control surface <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>controlSurfaceId</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of control surface for which deflection is to be set </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current deflection of control surface that is requested. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="104" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="104" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a6053ba75d0a3fbd618a0e4dabdc22635" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::system_models::VehicleSystems::setNoseRadius</definition>
+        <argsstring>(const double noseRadius)</argsstring>
+        <name>setNoseRadius</name>
+        <param>
+          <type>const double</type>
+          <declname>noseRadius</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the vehicle nose radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the vehicle nose radius <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>noseRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The vehicle nose radius that is to be set </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="115" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="115" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1aa66a21c1a6096701d4396de981d3f268" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::getNoseRadius</definition>
+        <argsstring>()</argsstring>
+        <name>getNoseRadius</name>
+        <briefdescription>
+<para>Function to retrieve the vehicle nose radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the vehicle nose radius <simplesect kind="return"><para>The vehicle nose radius </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="125" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="125" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a336efcac875c575d2627be9d1d756adb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::system_models::VehicleSystems::setWallEmissivity</definition>
+        <argsstring>(const double wallEmissivity)</argsstring>
+        <name>setWallEmissivity</name>
+        <param>
+          <type>const double</type>
+          <declname>wallEmissivity</declname>
+        </param>
+        <briefdescription>
+<para>Function to (re)set the vehicle wall emissivity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to (re)set the vehicle wall emissivity <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wallEmissivity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The vehicle wall emissivity that is to be set </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="135" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="135" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1VehicleSystems_1a52daa570a304ad4287e482508d2833e2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::system_models::VehicleSystems::getWallEmissivity</definition>
+        <argsstring>()</argsstring>
+        <name>getWallEmissivity</name>
+        <briefdescription>
+<para>Function to retrieve the vehicle wall emissivity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the vehicle wall emissivity <simplesect kind="return"><para>The vehicle wall emissivity </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="145" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="145" bodyend="148"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Wrapper class that contains the relevant hardware systems of a vehicle. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wrapper class that contains the relevant hardware systems of a vehicle. Not all member objects need to be set; nullptr member objects denote that the vehicle does not contain the associated hardware. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/vehicleSystems.h" bodystart="33" bodyend="167"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a2fb7cdf509677b768191f2624ca79c37" prot="private" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>currentControlSurfaceDeflections_</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1afd4758addb53239da3924c753f583fb7" prot="private" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>dryMass_</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a1f5f05d57daf7b83e85498a035502fd7" prot="private" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>engineModels_</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a68510241c2af9ba0b05e922fdafa1be7" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>getCurrentControlSurfaceDeflection</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1aba36aa4e54902724f789a50c9329a77a" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>getDryMass</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a6e99d4d685793121d6309c1ceb015dac" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>getEngineModels</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1aa66a21c1a6096701d4396de981d3f268" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>getNoseRadius</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a52daa570a304ad4287e482508d2833e2" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>getWallEmissivity</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1ae60dbffbbdb8fa6f2ec92fa03c0a341e" prot="private" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>noseRadius_</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1aa7e18ba2906694277ccd5e5206fd7f8e" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>setCurrentControlSurfaceDeflection</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a330608f936eab6050e03545ea7573f63" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>setEngineModel</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a6053ba75d0a3fbd618a0e4dabdc22635" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>setNoseRadius</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a336efcac875c575d2627be9d1d756adb" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>setWallEmissivity</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1a784bfb562166238a1b85f2825ace7145" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>VehicleSystems</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1adcb0703bce032ae412ce0f8a6fb38896" prot="private" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>wallEmissivity_</name></member>
+      <member refid="classtudat_1_1system__models_1_1VehicleSystems_1aab806f1b17f94930edf161990897f171" prot="public" virt="non-virtual"><scope>tudat::system_models::VehicleSystems</scope><name>~VehicleSystems</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

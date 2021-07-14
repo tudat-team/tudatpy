@@ -1,0 +1,399 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::simulation_setup::ThrustInputParameterGuidance</compoundname>
+    <derivedcompoundref refid="classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance" prot="public" virt="non-virtual">tudat::simulation_setup::AccelerationLimitedThrottleGuidance</derivedcompoundref>
+    <includes refid="thrustSettings_8h" local="no">thrustSettings.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a7eb9a3b218117d9563401bbe9d23e8e8" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::simulation_setup::ThrustInputParameterGuidance::currentThrustGuidanceParameters_</definition>
+        <argsstring></argsstring>
+        <name>currentThrustGuidanceParameters_</name>
+        <briefdescription>
+<para>Vector of guidance-input parameters that are computed for the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="789" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="789" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ad9c6cba5fe4f3513fcdeda718c88d738" prot="protected" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::simulation_setup::ThrustInputParameterGuidance::currentSpecificImpulseParameters_</definition>
+        <argsstring></argsstring>
+        <name>currentSpecificImpulseParameters_</name>
+        <briefdescription>
+<para>Vector of guidance-input parameters that are computed for the specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="792" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="792" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a094b1b561616559ae6dc27eb39828245" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::numberOfThrustInputParameters_</definition>
+        <argsstring></argsstring>
+        <name>numberOfThrustInputParameters_</name>
+        <briefdescription>
+<para>Number of guidance-input parameters that are computed for the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="795" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="795" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a52a9cf24d20b1a71f470542975813ee7" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::numberOfSpecificImpulseInputParameters_</definition>
+        <argsstring></argsstring>
+        <name>numberOfSpecificImpulseInputParameters_</name>
+        <briefdescription>
+<para>Number of guidance-input parameters that are computed for the specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="798" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="798" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1aead2156f19faafac97b1a2e8b76492fd" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ThrustInputParameterGuidance::includeThrottleSetting_</definition>
+        <argsstring></argsstring>
+        <name>includeThrottleSetting_</name>
+        <briefdescription>
+<para>Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="801" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="801" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a953ac5f083df77b65d18f5c5cc5a1d77" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::throttleSettingIndex_</definition>
+        <argsstring></argsstring>
+        <name>throttleSettingIndex_</name>
+        <briefdescription>
+<para>Index in list of thrust guidance parameters that denotes the throttle setting (if any) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="804" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="804" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ad4cee947b4c3447fc2e125c0c6440cc0" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ThrustInputParameterGuidance::currentTime_</definition>
+        <argsstring></argsstring>
+        <name>currentTime_</name>
+        <briefdescription>
+<para>Current time of interface object (e.g. time to which object was last updated). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="807" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="807" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a3e4ab4fa35c3952998f4612b77cff06a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ThrustInputParameterGuidance::ThrustInputParameterGuidance</definition>
+        <argsstring>(const int numberOfThrustInputParameters, const int numberOfSpecificImpulseInputParameters, const bool includeThrottleSetting=false, const int throttleSettingIndex=-1)</argsstring>
+        <name>ThrustInputParameterGuidance</name>
+        <param>
+          <type>const int</type>
+          <declname>numberOfThrustInputParameters</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>numberOfSpecificImpulseInputParameters</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>includeThrottleSetting</declname>
+          <defval>false</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>throttleSettingIndex</declname>
+          <defval>-1</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numberOfThrustInputParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of guidance-input parameters that are computed for the thrust </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>numberOfSpecificImpulseInputParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of guidance-input parameters that are computed for the specific impulse </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>includeThrottleSetting</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>throttleSettingIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index in list of thrust guidance parameters that denotes the throttle setting (if any) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="674" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="674" bodyend="694"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a77b3fb63c4a7fd2b09d4ad17e4559cb4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::simulation_setup::ThrustInputParameterGuidance::~ThrustInputParameterGuidance</definition>
+        <argsstring>()</argsstring>
+        <name>~ThrustInputParameterGuidance</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="697" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="697" bodyend="697"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a6ac28e0721f2596e952743ebe7e15563" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::getNumberOfThrustInputParameters</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfThrustInputParameters</name>
+        <briefdescription>
+<para>Function to retrieve the number of guidance-input parameters that are computed for the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the number of guidance-input parameters that are computed for the thrust <simplesect kind="return"><para>Number of guidance-input parameters that are computed for the thrust </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="704" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="704" bodyend="707"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a55354aeee0de70b67311079e958071a7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::getNumberOfSpecificImpulseInputParameters</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfSpecificImpulseInputParameters</name>
+        <briefdescription>
+<para>Function to retrieve the number of guidance-input parameters that are computed for the specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the number of guidance-input parameters that are computed for the specific impulse <simplesect kind="return"><para>Number of guidance-input parameters that are computed for the specific impulse </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="714" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="714" bodyend="717"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a925a916ac013f6afdd22f9f6964c8c3c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ThrustInputParameterGuidance::getThrustInputGuidanceParameter</definition>
+        <argsstring>(const int inputParameterIndex)</argsstring>
+        <name>getThrustInputGuidanceParameter</name>
+        <param>
+          <type>const int</type>
+          <declname>inputParameterIndex</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a guidance-input parameter that for the thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a guidance-input parameter that for the thrust <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputParameterIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Entry of guidance-input vector for thrust that is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Guidance-input parameters that for the thrust at given index </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="725" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="725" bodyend="728"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a585be4b9929770a24eee59dc564e13d0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::simulation_setup::ThrustInputParameterGuidance::getSpecificImpulseInputGuidanceParameter</definition>
+        <argsstring>(const int inputParameterIndex)</argsstring>
+        <name>getSpecificImpulseInputGuidanceParameter</name>
+        <param>
+          <type>const int</type>
+          <declname>inputParameterIndex</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve a guidance-input parameter that for the specific impulse. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve a guidance-input parameter that for the specific impulse <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputParameterIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Entry of guidance-input vector for specific impulse that is to be retrieved. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Guidance-input parameters that for the specific impulse at given index </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="736" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="736" bodyend="739"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a967821d13e2239345ac761edfa069774" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ThrustInputParameterGuidance::getIncludeThrottleSetting</definition>
+        <argsstring>()</argsstring>
+        <name>getIncludeThrottleSetting</name>
+        <briefdescription>
+<para>Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting <simplesect kind="return"><para>Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="746" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="746" bodyend="749"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ab04a76de5687a1621a08bb9bb4d26910" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::simulation_setup::ThrustInputParameterGuidance::getThrottleSettingIndex</definition>
+        <argsstring>()</argsstring>
+        <name>getThrottleSettingIndex</name>
+        <briefdescription>
+<para>Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting (-1 if none) <simplesect kind="return"><para>Index in list of thrust guidance parameters that denotes the throttle setting </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="756" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="756" bodyend="759"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ae929c1969241aea9408a5ac20c2f5216" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::simulation_setup::ThrustInputParameterGuidance::updateGuidanceParameters</definition>
+        <argsstring>()=0</argsstring>
+        <name>updateGuidanceParameters</name>
+        <reimplementedby refid="classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_1a5b08d0dc0c2c16de63f7391fdff697d4">updateGuidanceParameters</reimplementedby>
+        <briefdescription>
+<para>Pure virtual function that updates the guidance algorithm to the current time/state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="762" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a6354aa338fdcdbe8cf844011ec21e83f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::simulation_setup::ThrustInputParameterGuidance::update</definition>
+        <argsstring>(const double time)</argsstring>
+        <name>update</name>
+        <param>
+          <type>const double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Update function for the guidance algorithm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update function for the guidance algorithm, calls the updateGuidanceParameters that is to be implemented in derived class. Calling this function with NaN time signals that a new time step has commenced. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> to which guidance object is to be updated </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="770" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="770" bodyend="784"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Interface base class that can be defined by user to make the use of the <ref refid="classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings" kindref="compound">ParameterizedThrustMagnitudeSettings</ref> class easier. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>For a specific user-defined guidance approach, a derived class must be defined, that computes the guidance/throttle commands at each time step/vehicle state. Using the createParameterizedThrustMagnitudeSettings functions, a <ref refid="classtudat_1_1simulation__setup_1_1ParameterizedThrustMagnitudeSettings" kindref="compound">ParameterizedThrustMagnitudeSettings</ref> can then be made. In the derived class, the user must define an updateGuidanceParameters function, which sets the entries of the currentThrustGuidanceParameters_ and currentSpecificImpulseParameters_ vectors (size must be compatible with <ref refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance" kindref="compound">ThrustInputParameterGuidance</ref> constructor). Note that the throttle setting is simply defined as one of the entries of currentThrustGuidanceParameters_. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::AccelerationLimitedThrottleGuidance</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::ThrustInputParameterGuidance</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance"/>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" line="660" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/propagation_setup/thrustSettings.h" bodystart="661" bodyend="809"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ad9c6cba5fe4f3513fcdeda718c88d738" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>currentSpecificImpulseParameters_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a7eb9a3b218117d9563401bbe9d23e8e8" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>currentThrustGuidanceParameters_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ad4cee947b4c3447fc2e125c0c6440cc0" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a967821d13e2239345ac761edfa069774" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getIncludeThrottleSetting</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a55354aeee0de70b67311079e958071a7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getNumberOfSpecificImpulseInputParameters</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a6ac28e0721f2596e952743ebe7e15563" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getNumberOfThrustInputParameters</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a585be4b9929770a24eee59dc564e13d0" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getSpecificImpulseInputGuidanceParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ab04a76de5687a1621a08bb9bb4d26910" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getThrottleSettingIndex</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a925a916ac013f6afdd22f9f6964c8c3c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>getThrustInputGuidanceParameter</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1aead2156f19faafac97b1a2e8b76492fd" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>includeThrottleSetting_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a52a9cf24d20b1a71f470542975813ee7" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>numberOfSpecificImpulseInputParameters_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a094b1b561616559ae6dc27eb39828245" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>numberOfThrustInputParameters_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a953ac5f083df77b65d18f5c5cc5a1d77" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>throttleSettingIndex_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a3e4ab4fa35c3952998f4612b77cff06a" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>ThrustInputParameterGuidance</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a6354aa338fdcdbe8cf844011ec21e83f" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>update</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1ae929c1969241aea9408a5ac20c2f5216" prot="public" virt="pure-virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>updateGuidanceParameters</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_1a77b3fb63c4a7fd2b09d4ad17e4559cb4" prot="public" virt="virtual"><scope>tudat::simulation_setup::ThrustInputParameterGuidance</scope><name>~ThrustInputParameterGuidance</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

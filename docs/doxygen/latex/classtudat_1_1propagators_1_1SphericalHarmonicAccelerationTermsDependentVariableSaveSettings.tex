@@ -1,0 +1,85 @@
+\hypertarget{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}{}\doxysection{tudat\+::propagators\+::Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings Class Reference}
+\label{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}\index{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}}
+
+
+Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration.  
+
+
+
+
+{\ttfamily \#include $<$propagation\+Output\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::propagators\+::Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a1f12d6388857f8ea46b8129a08aea978}{Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings}} (const std\+::string \&body\+Undergoing\+Acceleration, const std\+::string \&body\+Exerting\+Acceleration, const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&component\+Indices, const int component\+Index=-\/1, const bool use\+Acceleration\+Norm=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a80ed9d4d774902c814d370938503f3c1}{Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings}} (const std\+::string \&body\+Undergoing\+Acceleration, const std\+::string \&body\+Exerting\+Acceleration, const int maximum\+Degree, const int maximum\+Order, const int component\+Index=-\/1, const bool use\+Acceleration\+Norm=false)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a23041cdc6208256f2a1b93a61e293283}\label{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a23041cdc6208256f2a1b93a61e293283}} 
+std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \mbox{\hyperlink{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a23041cdc6208256f2a1b93a61e293283}{component\+Indices\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of degree/order terms that are to be saved. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a1f12d6388857f8ea46b8129a08aea978}\label{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a1f12d6388857f8ea46b8129a08aea978}} 
+\index{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}!SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}}
+\index{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}!tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings()}{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings\+::\+Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Undergoing\+Acceleration,  }\item[{const std\+::string \&}]{body\+Exerting\+Acceleration,  }\item[{const std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&}]{component\+Indices,  }\item[{const int}]{component\+Index = {\ttfamily -\/1},  }\item[{const bool}]{use\+Acceleration\+Norm = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Undergoing\+Acceleration} & Name of body undergoing the acceleration. \\
+\hline
+{\em body\+Exerting\+Acceleration} & Name of body exerting the acceleration. \\
+\hline
+{\em component\+Indices} & List of degree/order terms that are to be saved \\
+\hline
+{\em component\+Index} & Index of the acceleration vectors component to be saved. By default -\/1, i.\+e. all the components are saved. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a80ed9d4d774902c814d370938503f3c1}\label{classtudat_1_1propagators_1_1SphericalHarmonicAccelerationTermsDependentVariableSaveSettings_a80ed9d4d774902c814d370938503f3c1}} 
+\index{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}!SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}}
+\index{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}!tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings@{tudat::propagators::SphericalHarmonicAccelerationTermsDependentVariableSaveSettings}}
+\doxysubsubsection{\texorpdfstring{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings()}{SphericalHarmonicAccelerationTermsDependentVariableSaveSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::propagators\+::\+Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings\+::\+Spherical\+Harmonic\+Acceleration\+Terms\+Dependent\+Variable\+Save\+Settings (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{body\+Undergoing\+Acceleration,  }\item[{const std\+::string \&}]{body\+Exerting\+Acceleration,  }\item[{const int}]{maximum\+Degree,  }\item[{const int}]{maximum\+Order,  }\item[{const int}]{component\+Index = {\ttfamily -\/1},  }\item[{const bool}]{use\+Acceleration\+Norm = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. for saving all terms up to a given degree/order. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Undergoing\+Acceleration} & Name of body undergoing the acceleration. \\
+\hline
+{\em body\+Exerting\+Acceleration} & Name of body exerting the acceleration. \\
+\hline
+{\em maximum\+Degree} & Maximum degree to which terms are to be saved. \\
+\hline
+{\em maximum\+Order} & Maximum order to which terms are to be saved. \\
+\hline
+{\em component\+Index} & Index of the acceleration vectors component to be saved. By default -\/1, i.\+e. all the components are saved. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/propagation\+Output\+Settings.\+h\end{DoxyCompactItemize}

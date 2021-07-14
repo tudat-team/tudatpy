@@ -1,0 +1,238 @@
+\hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration}{}\doxysection{tudat\+::electromagnetism\+::Panelled\+Radiation\+Pressure\+Acceleration Class Reference}
+\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration}\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+
+
+Class for calculating the radiation pressure acceleration on a panelled body.  
+
+
+
+
+{\ttfamily \#include $<$panelled\+Radiation\+Pressure.\+h$>$}
+
+Inheritance diagram for tudat\+::electromagnetism\+::Panelled\+Radiation\+Pressure\+Acceleration\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a836e01cd98ca3d7e7ac1c45cc20a0332}{Panelled\+Radiation\+Pressure\+Acceleration}} (const std\+::function$<$ Eigen\+::\+Vector3d() $>$ source\+Position\+Function, const std\+::function$<$ Eigen\+::\+Vector3d() $>$ accelerated\+Body\+Position\+Function, const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&panel\+Emissivitty\+Functions, const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&panel\+Diffuse\+Reflection\+Coefficient\+Functions, const std\+::vector$<$ std\+::function$<$ Eigen\+::\+Vector3d() $>$ $>$ \&panel\+Surface\+Normal\+Functions, const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&panel\+Area\+Functions, const std\+::function$<$ double() $>$ radiation\+Pressure\+Function, const std\+::function$<$ double() $>$ mass\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor for setting up the acceleration model, with separate input variables for all required data. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a28e0433ccc61d61164adc3541b35e3b8}{Panelled\+Radiation\+Pressure\+Acceleration}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface}{Panelled\+Radiation\+Pressure\+Interface}} $>$ radiation\+Pressure\+Interface, const std\+::function$<$ double() $>$ mass\+Function)
+\begin{DoxyCompactList}\small\item\em Constructor for setting up the acceleration model, with input \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{Radiation\+Pressure\+Interface}} (and mass\+Function) \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ac559adaac58b1ee26afecfddd18bfb06}{get\+Acceleration}} ()
+\begin{DoxyCompactList}\small\item\em Get radiation pressure acceleration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ad05ddf61744bb3c351d1b08e7ddda459}{update\+Members}} (const double current\+Time=TUDAT\+\_\+\+NAN)
+\begin{DoxyCompactList}\small\item\em Update member variables used by the radiation pressure acceleration model. \end{DoxyCompactList}\item 
+std\+::function$<$ double() $>$ \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_aec5eb1d037874af399b77f295ee9f05e}{get\+Mass\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Returns the function returning the current mass of the body being accelerated. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a553a190566555634d5daff0dfbe8219d}{get\+Current\+Vector\+To\+Source}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current normalized vector from the accelerated body to the source body. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5fbdfd5136a6c44e83a3c39932c33413}{get\+Current\+Distance\+To\+Source}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current distance from the accelerated body to the source body. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a6d4fe9adaeab40f0a1b10a779fd650ec}{get\+Current\+Panel\+Acceleration}} (const int panel\+Index)
+\begin{DoxyCompactList}\small\item\em Returns the current acceleration due to the radiation pressure on a single panel. \end{DoxyCompactList}\item 
+Eigen\+::\+Vector3d \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0ca0a86c0b610ca32f023f670aa7d4cd}{get\+Current\+Panel\+Surface\+Normal\+In\+Propagation\+Frame}} (const int panel\+Index)
+\begin{DoxyCompactList}\small\item\em Returns the current surface normal in propagation frame of a single panel. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0476119da7d67d8023a433902c33053f}{get\+Current\+Radiation\+Pressure}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current radiation pressure at the accelerated body. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5eacc1060e31fc09825bbe739649c148}{get\+Current\+Mass}} ()
+\begin{DoxyCompactList}\small\item\em Returns the current mass of the accelerated body. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class for calculating the radiation pressure acceleration on a panelled body. 
+
+Class for calculating the radiation pressure acceleration on a panelled body, with the force due to each panel calculated from its area, orientation and emissivity. The emissivity determines the fraction that is absorbed (modelled as a force in line with the vector to th source) and one from reflection (modelled as a force normal to the panel). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a836e01cd98ca3d7e7ac1c45cc20a0332}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a836e01cd98ca3d7e7ac1c45cc20a0332}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!PanelledRadiationPressureAcceleration@{PanelledRadiationPressureAcceleration}}
+\index{PanelledRadiationPressureAcceleration@{PanelledRadiationPressureAcceleration}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{PanelledRadiationPressureAcceleration()}{PanelledRadiationPressureAcceleration()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::\+Panelled\+Radiation\+Pressure\+Acceleration (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{source\+Position\+Function,  }\item[{const std\+::function$<$ Eigen\+::\+Vector3d() $>$}]{accelerated\+Body\+Position\+Function,  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&}]{panel\+Emissivitty\+Functions,  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&}]{panel\+Diffuse\+Reflection\+Coefficient\+Functions,  }\item[{const std\+::vector$<$ std\+::function$<$ Eigen\+::\+Vector3d() $>$ $>$ \&}]{panel\+Surface\+Normal\+Functions,  }\item[{const std\+::vector$<$ std\+::function$<$ double() $>$ $>$ \&}]{panel\+Area\+Functions,  }\item[{const std\+::function$<$ double() $>$}]{radiation\+Pressure\+Function,  }\item[{const std\+::function$<$ double() $>$}]{mass\+Function }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for setting up the acceleration model, with separate input variables for all required data. 
+
+Constructor for setting up the acceleration model, with separate input variables for all required data. 
+\begin{DoxyParams}{Parameters}
+{\em source\+Position\+Function} & Function providing current position for the source body (i.\+e. the body from which the radiation originates) \\
+\hline
+{\em accelerated\+Body\+Position\+Function} & Function providing current position for the body on which the force is acting \\
+\hline
+{\em panel\+Emissivitty\+Functions} & Vector of functions returning emissivities for all panels \\
+\hline
+{\em panel\+Diffuse\+Reflection\+Coefficient\+Functions} & Vector of functions returning diffuse reflection coefficients for all panels \\
+\hline
+{\em panel\+Surface\+Normal\+Functions} & Vector of functions returning panel surface normal function, in the same frame as the position functions of the accelerated and radiating bodies. \\
+\hline
+{\em panel\+Area\+Functions} & Vector of functions returning areas for all panels \\
+\hline
+{\em radiation\+Pressure\+Function} & Function returning the current radiation pressure (i.\+e. incident flux, in W/m$^\wedge$2, divided by speed of light) \\
+\hline
+{\em mass\+Function} & Function returning the current mass of the body being accelerated \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a28e0433ccc61d61164adc3541b35e3b8}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a28e0433ccc61d61164adc3541b35e3b8}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!PanelledRadiationPressureAcceleration@{PanelledRadiationPressureAcceleration}}
+\index{PanelledRadiationPressureAcceleration@{PanelledRadiationPressureAcceleration}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{PanelledRadiationPressureAcceleration()}{PanelledRadiationPressureAcceleration()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::\+Panelled\+Radiation\+Pressure\+Acceleration (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface}{Panelled\+Radiation\+Pressure\+Interface}} $>$}]{radiation\+Pressure\+Interface,  }\item[{const std\+::function$<$ double() $>$}]{mass\+Function }\end{DoxyParamCaption})}
+
+
+
+Constructor for setting up the acceleration model, with input \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{Radiation\+Pressure\+Interface}} (and mass\+Function) 
+
+Constructor for setting up the acceleration model, with input \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{Radiation\+Pressure\+Interface}} (and mass\+Function). The mass\+Function is only used to convert force to acceleration. All radiation pressure properties are taken from the \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1RadiationPressureInterface}{Radiation\+Pressure\+Interface}} object. 
+\begin{DoxyParams}{Parameters}
+{\em radiation\+Pressure\+Interface} & Object in which radiation pressure properties of accelerated body due to radiation from body causing acceleration is stored. \\
+\hline
+{\em mass\+Function} & Function returning the current mass of the body being accelerated \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ac559adaac58b1ee26afecfddd18bfb06}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ac559adaac58b1ee26afecfddd18bfb06}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getAcceleration@{getAcceleration}}
+\index{getAcceleration@{getAcceleration}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getAcceleration()}{getAcceleration()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Acceleration (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Get radiation pressure acceleration. 
+
+Returns the panelled radiation pressure acceleration. No arguments are passed to this function. Instead, all data required for computation is to be obtained from pointers to functions/ classes/structs, etc which are to be set in a derived class and evaluated by the \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ad05ddf61744bb3c351d1b08e7ddda459}{update\+Members()}} function below. \begin{DoxyReturn}{Returns}
+acceleration. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a1f59960bc477fc02e7d52697ced99750}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5fbdfd5136a6c44e83a3c39932c33413}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5fbdfd5136a6c44e83a3c39932c33413}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentDistanceToSource@{getCurrentDistanceToSource}}
+\index{getCurrentDistanceToSource@{getCurrentDistanceToSource}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentDistanceToSource()}{getCurrentDistanceToSource()}}
+{\footnotesize\ttfamily double tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Distance\+To\+Source (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current distance from the accelerated body to the source body. 
+
+Returns the current distance from the accelerated body to the source body, as set by the last call to the update\+Members function (i.\+e. norm of the current vector from accelerated body to the source) \begin{DoxyReturn}{Returns}
+The current distance from the accelerated body to the source body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5eacc1060e31fc09825bbe739649c148}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a5eacc1060e31fc09825bbe739649c148}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentMass@{getCurrentMass}}
+\index{getCurrentMass@{getCurrentMass}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentMass()}{getCurrentMass()}}
+{\footnotesize\ttfamily double tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Mass (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current mass of the accelerated body. 
+
+Returns the current mass of the accelerated body, as set by the last call to the update\+Members function \begin{DoxyReturn}{Returns}
+The current mass of the accelerated body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a6d4fe9adaeab40f0a1b10a779fd650ec}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a6d4fe9adaeab40f0a1b10a779fd650ec}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentPanelAcceleration@{getCurrentPanelAcceleration}}
+\index{getCurrentPanelAcceleration@{getCurrentPanelAcceleration}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentPanelAcceleration()}{getCurrentPanelAcceleration()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Panel\+Acceleration (\begin{DoxyParamCaption}\item[{const int}]{panel\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current acceleration due to the radiation pressure on a single panel. 
+
+Returns the current acceleration due to the radiation pressure on a single panel, as calculated by the last call to the update\+Members function 
+\begin{DoxyParams}{Parameters}
+{\em panel\+Index} & Index of panel for which acceleration is to be retrieved \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The current acceleration due to the radiation pressure on a single panel 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0ca0a86c0b610ca32f023f670aa7d4cd}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0ca0a86c0b610ca32f023f670aa7d4cd}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentPanelSurfaceNormalInPropagationFrame@{getCurrentPanelSurfaceNormalInPropagationFrame}}
+\index{getCurrentPanelSurfaceNormalInPropagationFrame@{getCurrentPanelSurfaceNormalInPropagationFrame}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentPanelSurfaceNormalInPropagationFrame()}{getCurrentPanelSurfaceNormalInPropagationFrame()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Panel\+Surface\+Normal\+In\+Propagation\+Frame (\begin{DoxyParamCaption}\item[{const int}]{panel\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current surface normal in propagation frame of a single panel. 
+
+Returns the current surface normal in propagation frame of a single panel, as calculated by the last call to the update\+Members function 
+\begin{DoxyParams}{Parameters}
+{\em panel\+Index} & Index of panel for which acceleration is to be retrieved \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The current surface normal in propagation frame of a single panels 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0476119da7d67d8023a433902c33053f}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a0476119da7d67d8023a433902c33053f}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentRadiationPressure@{getCurrentRadiationPressure}}
+\index{getCurrentRadiationPressure@{getCurrentRadiationPressure}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentRadiationPressure()}{getCurrentRadiationPressure()}}
+{\footnotesize\ttfamily double tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Radiation\+Pressure (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current radiation pressure at the accelerated body. 
+
+Returns the current radiation pressure at the accelerated body, as set by the last call to the update\+Members function (i.\+e. incident flux, in W/m$^\wedge$2, divided by speed of light) \begin{DoxyReturn}{Returns}
+The current radiation pressure at the accelerated body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a553a190566555634d5daff0dfbe8219d}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_a553a190566555634d5daff0dfbe8219d}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getCurrentVectorToSource@{getCurrentVectorToSource}}
+\index{getCurrentVectorToSource@{getCurrentVectorToSource}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getCurrentVectorToSource()}{getCurrentVectorToSource()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector3d tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Current\+Vector\+To\+Source (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current normalized vector from the accelerated body to the source body. 
+
+Returns the current normalized vector from the accelerated body to the source body, as set by the last call to the update\+Members function \begin{DoxyReturn}{Returns}
+The current normalized vector from the accelerated body to the source body 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_aec5eb1d037874af399b77f295ee9f05e}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_aec5eb1d037874af399b77f295ee9f05e}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!getMassFunction@{getMassFunction}}
+\index{getMassFunction@{getMassFunction}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{getMassFunction()}{getMassFunction()}}
+{\footnotesize\ttfamily std\+::function$<$ double( ) $>$ tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::get\+Mass\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the function returning the current mass of the body being accelerated. 
+
+Returns the function returning the current mass of the body being accelerated. \begin{DoxyReturn}{Returns}
+Function returning the current mass of the body being accelerated. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ad05ddf61744bb3c351d1b08e7ddda459}\label{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ad05ddf61744bb3c351d1b08e7ddda459}} 
+\index{tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}!updateMembers@{updateMembers}}
+\index{updateMembers@{updateMembers}!tudat::electromagnetism::PanelledRadiationPressureAcceleration@{tudat::electromagnetism::PanelledRadiationPressureAcceleration}}
+\doxysubsubsection{\texorpdfstring{updateMembers()}{updateMembers()}}
+{\footnotesize\ttfamily void tudat\+::electromagnetism\+::\+Panelled\+Radiation\+Pressure\+Acceleration\+::update\+Members (\begin{DoxyParamCaption}\item[{const double}]{current\+Time = {\ttfamily TUDAT\+\_\+NAN} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Update member variables used by the radiation pressure acceleration model. 
+
+Updates member variables used by the acceleration model. This function evaluates all dependent variables to the \textquotesingle{}current\textquotesingle{} values of these parameters. Only these current values, not the function-\/pointers are then used by the \mbox{\hyperlink{classtudat_1_1electromagnetism_1_1PanelledRadiationPressureAcceleration_ac559adaac58b1ee26afecfddd18bfb06}{get\+Acceleration( )}} function. 
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1AccelerationModel_a966e85b72300b8cbc99ba60e40108d71}{tudat\+::basic\+\_\+astrodynamics\+::\+Acceleration\+Model$<$ Eigen\+::\+Vector3d $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/electromagnetism/panelled\+Radiation\+Pressure.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/electromagnetism/panelled\+Radiation\+Pressure.\+cpp\end{DoxyCompactItemize}

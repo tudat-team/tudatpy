@@ -1,0 +1,561 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface" kind="class" language="C++" prot="public">
+    <compoundname>tudat::electromagnetism::PanelledRadiationPressureInterface</compoundname>
+    <basecompoundref refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface" prot="public" virt="non-virtual">tudat::electromagnetism::RadiationPressureInterface</basecompoundref>
+    <includes refid="radiationPressureInterface_8h" local="no">radiationPressureInterface.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a84f6059cc5ccfdc0b15ad6245512186a" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; std::function&lt; Eigen::Vector3d(const double) &gt; &gt;</type>
+        <definition>std::vector&lt; std::function&lt; Eigen::Vector3d( const double ) &gt; &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::localFrameSurfaceNormals_</definition>
+        <argsstring></argsstring>
+        <name>localFrameSurfaceNormals_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector containing the time-dependent functions that return the surface normal for each panel, in body-fixed frame. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="486" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="486" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a4229f97ccb285c62a747a7a2291d8c1e" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::emissivities_</definition>
+        <argsstring></argsstring>
+        <name>emissivities_</name>
+        <briefdescription>
+<para>Vector containing the emissivitie for all panels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="489" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="489" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a662ce9c1b16c522597e9f33fb17b0981" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::areas_</definition>
+        <argsstring></argsstring>
+        <name>areas_</name>
+        <briefdescription>
+<para>Vector containing the area for all panels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="492" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="492" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ad99bb18b52f5820dc17da5e6f4a00215" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::diffusionCoefficients_</definition>
+        <argsstring></argsstring>
+        <name>diffusionCoefficients_</name>
+        <briefdescription>
+<para>Vector containing the diffuse reflection coefficient for all panels. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="495" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="495" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a276d3d0c689035950a52e19db9438452" prot="private" static="no" mutable="no">
+        <type>std::function&lt; Eigen::Quaterniond() &gt;</type>
+        <definition>std::function&lt; Eigen::Quaterniond( ) &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::rotationFromLocalToPropagationFrame_</definition>
+        <argsstring></argsstring>
+        <name>rotationFromLocalToPropagationFrame_</name>
+        <briefdescription>
+<para>Function returning the rotation from local to propagation frame. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="498" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="498" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a5cd2c358b66f8b135e160b4521e3037c" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::surfaceNormalsInPropagationFrame_</definition>
+        <argsstring></argsstring>
+        <name>surfaceNormalsInPropagationFrame_</name>
+        <briefdescription>
+<para>Vector containing the surface normal expressed in propagation frame for each panel. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="501" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="501" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a28fbeed844d6df8e798cc77e25f2ed48" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::electromagnetism::PanelledRadiationPressureInterface::PanelledRadiationPressureInterface</definition>
+        <argsstring>(const std::function&lt; double() &gt; sourcePower, const std::function&lt; Eigen::Vector3d() &gt; sourcePositionFunction, const std::function&lt; Eigen::Vector3d() &gt; targetPositionFunction, const std::vector&lt; std::function&lt; Eigen::Vector3d(const double) &gt; &gt; localFrameSurfaceNormals, const std::vector&lt; double &gt; emissivities, const std::vector&lt; double &gt; areas, const std::vector&lt; double &gt; diffusionCoefficients, const std::function&lt; Eigen::Quaterniond() &gt; rotationFromLocalToPropagationFrame, const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt; occultingBodyPositions=std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;(), const std::vector&lt; double &gt; occultingBodyRadii=std::vector&lt; double &gt;(), const double sourceRadius=0.0)</argsstring>
+        <name>PanelledRadiationPressureInterface</name>
+        <param>
+          <type>const std::function&lt; double() &gt;</type>
+          <declname>sourcePower</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>sourcePositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d() &gt;</type>
+          <declname>targetPositionFunction</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d(const double) &gt; &gt;</type>
+          <declname>localFrameSurfaceNormals</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>emissivities</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>areas</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>diffusionCoefficients</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Quaterniond() &gt;</type>
+          <declname>rotationFromLocalToPropagationFrame</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;</type>
+          <declname>occultingBodyPositions</declname>
+          <defval>std::vector&lt; std::function&lt; Eigen::Vector3d() &gt; &gt;()</defval>
+        </param>
+        <param>
+          <type>const std::vector&lt; double &gt;</type>
+          <declname>occultingBodyRadii</declname>
+          <defval>std::vector&lt; double &gt;()</defval>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sourceRadius</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Class construtor for panelled radiation pressure interface. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sourcePower</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current total power (in W) emitted by the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourcePositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the source body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetPositionFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning the current position of the target body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>localFrameSurfaceNormals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the functions returning the surface normal in body-fixed frame for each panel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>emissivities</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the emissivity for each panel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>areas</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the area for each panel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>diffusionCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the diffuse reflection coefficient for each panel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rotationFromLocalToPropagationFrame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector containing the functions that return the rotation from body-fixed to propagation frame for each panel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyPositions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of functions returning the positions of the bodies causing occultations (default none) NOTE: Multiple concurrent occultations may currently result in slighlty underestimted radiation pressure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>occultingBodyRadii</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of radii of the bodies causing occultations (default none). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sourceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Radius of the source body (used for occultation calculations) (default 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="341" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="341" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a0ac11f2d616da3d40e092e80e283a545" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::electromagnetism::PanelledRadiationPressureInterface::updateInterface</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateInterface</name>
+        <reimplements refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a0a6d161420b52a1a00d2c13db4c39d85">updateInterface</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Base class function to update the current properties of the panelled radiation pressure acceleration model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Base class function to update the current properties of the panelled radiation pressure acceleration model. This function is nominally called by the updateInterface function, which may be overridden by derived classes. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="372" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="372" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a1f9b20e0b03f7d3538828e8d460e01e9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::getEmissivities</definition>
+        <argsstring>()</argsstring>
+        <name>getEmissivities</name>
+        <briefdescription>
+<para>Function to return the panels emissivity vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the panels emissivity vector. <simplesect kind="return"><para>Vector containing the panels emissivities. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="390" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="390" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a7355da3c0b1eaceaf4b8cf94dc0d2f67" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::getAreas</definition>
+        <argsstring>()</argsstring>
+        <name>getAreas</name>
+        <briefdescription>
+<para>Function to return the panels area vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the panels area vector. <simplesect kind="return"><para>Vector containing the panels areas. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="400" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="400" bodyend="403"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a7496baf33752cb9da60eb2ae09de6cc9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; double &gt;</type>
+        <definition>std::vector&lt; double &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::getDiffusionCoefficients</definition>
+        <argsstring>()</argsstring>
+        <name>getDiffusionCoefficients</name>
+        <briefdescription>
+<para>Function to return the panels diffuse reflection coefficients vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the panels diffuse reflection coefficients vector. <simplesect kind="return"><para>Vector containing the panels diffuse reflection coefficients. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="410" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="410" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ad885643a8e985b9acc0e5924c3694499" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::PanelledRadiationPressureInterface::getArea</definition>
+        <argsstring>(const int index) const</argsstring>
+        <name>getArea</name>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Function to return the area of a given panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the area of a given panel. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the panel whose area is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Panel area </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="421" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="421" bodyend="424"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ac233b6edf15bf7574ec208126f57dfcc" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::PanelledRadiationPressureInterface::getEmissivity</definition>
+        <argsstring>(const int index) const</argsstring>
+        <name>getEmissivity</name>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Function to return the emissivity of a given panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the emissivity coefficient of a given panel. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the panel whose emissivity is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Panel emissivity </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="432" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="432" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a035d816ec7cb9b00c092995b0e2fd6c9" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::electromagnetism::PanelledRadiationPressureInterface::getDiffuseReflectionCoefficient</definition>
+        <argsstring>(const int index) const</argsstring>
+        <name>getDiffuseReflectionCoefficient</name>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Function to return the diffuse reflection coefficient of a given panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the diffuse reflection coefficient of a given panel. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the panel whose diffuse reflection coefficient is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Panel diffuse reflection coefficient </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="443" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="443" bodyend="446"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1afe5039b11e2d1515b99e4ac0541d2ede" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::electromagnetism::PanelledRadiationPressureInterface::getCurrentSurfaceNormal</definition>
+        <argsstring>(const int index) const</argsstring>
+        <name>getCurrentSurfaceNormal</name>
+        <param>
+          <type>const int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Function to return the current surface normal for a given panel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the current surface normal for a given panel. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of the panel whose surface normal is to be returned. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Panel current surface normal </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="454" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="454" bodyend="457"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1aa788e7ccd73cbd90fd5dd52e81bd7fce" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::vector&lt; Eigen::Vector3d &gt;</type>
+        <definition>std::vector&lt; Eigen::Vector3d &gt; tudat::electromagnetism::PanelledRadiationPressureInterface::getSurfaceNormalsInPropagationFrame</definition>
+        <argsstring>()</argsstring>
+        <name>getSurfaceNormalsInPropagationFrame</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return a vector containing the surface normal expressed in propagation frame for each panel.</para>
+<para>Function to return a vector containing the surface normal expressed in propagation frame for each panel. <simplesect kind="return"><para>Vector of surface normals in propagation frame </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="466" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="466" bodyend="469"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a11914f27fd712550a434a79b34b53b2e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tudat::electromagnetism::PanelledRadiationPressureInterface::getNumberOfPanels</definition>
+        <argsstring>()</argsstring>
+        <name>getNumberOfPanels</name>
+        <briefdescription>
+<para>Function to return the total number of panels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return the total number of panels. <simplesect kind="return"><para>Number of panels </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="476" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="476" bodyend="479"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class in which the properties of a panelled radiation pressure acceleration model are stored. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class in which the properties of a panelled radiation pressure acceleration model are stored and in which the current radiation pressure is calculated based on the source power and geometry, as well as from the boxes-and-wings model used to describe the vehicle undergoing the acceleration. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::electromagnetism::PanelledRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::electromagnetism::RadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::electromagnetism::PanelledRadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::electromagnetism::RadiationPressureInterface</label>
+        <link refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" line="316" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism/radiationPressureInterface.h" bodystart="317" bodyend="503"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a04e2d7077622e88aa02832215350d4f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>area_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a662ce9c1b16c522597e9f33fb17b0981" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>areas_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a3dff0ed23972323dec47c69afed013f6" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>currentRadiationPressure_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a1be95ff189b5346b83a03ab52a0f7fae" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>currentSolarVector_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a5f4c8a1288b0d61f06a0fef2e5e0215a" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ad99bb18b52f5820dc17da5e6f4a00215" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>diffusionCoefficients_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a4229f97ccb285c62a747a7a2291d8c1e" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>emissivities_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ad885643a8e985b9acc0e5924c3694499" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getArea</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8ba190d3660cba1a3e680d4cbf066595" prot="public" virt="non-virtual" ambiguityscope="tudat::electromagnetism::RadiationPressureInterface::"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getArea</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a7355da3c0b1eaceaf4b8cf94dc0d2f67" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getAreas</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a209a53f46c57d4ecc439669b4a66034f" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getCurrentRadiationPressure</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af8257a4166fd41c27cb046ac98dd9142" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getCurrentSolarVector</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1afe5039b11e2d1515b99e4ac0541d2ede" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getCurrentSurfaceNormal</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a95472ae33b7e22da62099cc0d0dfd5e0" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getCurrentTime</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a035d816ec7cb9b00c092995b0e2fd6c9" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getDiffuseReflectionCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a7496baf33752cb9da60eb2ae09de6cc9" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getDiffusionCoefficients</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a1f9b20e0b03f7d3538828e8d460e01e9" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getEmissivities</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1ac233b6edf15bf7574ec208126f57dfcc" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getEmissivity</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a11914f27fd712550a434a79b34b53b2e" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getNumberOfPanels</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a17cfffd8b6e1c27c27c4fda95653abbf" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getOccultingBodyPositions</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a9bb6a065c0f04b1075644aadd802332c" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getOccultingBodyRadii</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a092b541d1978c4c00e21a87356de70ff" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aa2cc240947befd9fe22a4285667b034d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getSourcePositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac1b08085990ede1988dd21f5151adb35" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getSourcePowerFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a611624c603a1276624899d043bc20e90" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getSourceRadius</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1aa788e7ccd73cbd90fd5dd52e81bd7fce" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getSurfaceNormalsInPropagationFrame</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6ce4e08815ae5bce50eb705b603976ee" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>getTargetPositionFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a84f6059cc5ccfdc0b15ad6245512186a" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>localFrameSurfaceNormals_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a53cfee0cbf69298d4a0d05bff7810132" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>occultingBodyPositions_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1aaf264645d6f27dbcef1352bec0d8c2ec" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>occultingBodyRadii_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a28fbeed844d6df8e798cc77e25f2ed48" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>PanelledRadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af23389ab985239758021e95a52eb7ac2" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>radiationPressureCoefficient_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a49136e9a7ef2e4dd136e32fe852f1f79" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>radiationPressureCoefficientFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a31cc26c88dd8f55447042462bdfddca3" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a6fac7e11f591ca2c87d1588ecaa79428" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>RadiationPressureInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a97e5df2678ff204facdcfb7fd2113d61" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>resetRadiationPressureCoefficient</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a965b7d578ec0b90c8724f2ab013b631d" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>resetRadiationPressureCoefficientFunction</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a276d3d0c689035950a52e19db9438452" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>rotationFromLocalToPropagationFrame_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a8b1e3589ef7f05e340de24e65c053f1f" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>sourcePositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1a649500ecb7092ec3b0e0304df9bb7e57" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>sourcePower_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af0b463560f437c33a7aa5b62c6a5ed4c" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>sourceRadius_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a5cd2c358b66f8b135e160b4521e3037c" prot="private" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>surfaceNormalsInPropagationFrame_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ac93f1f970d7d5a6277692c58dce24b47" prot="protected" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>targetPositionFunction_</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1PanelledRadiationPressureInterface_1a0ac11f2d616da3d40e092e80e283a545" prot="public" virt="virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>updateInterface</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1ab48c69a870e547367bb260a633085662" prot="public" virt="non-virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>updateInterfaceBase</name></member>
+      <member refid="classtudat_1_1electromagnetism_1_1RadiationPressureInterface_1af75e0844a60cdb32afcf1059f9fd804e" prot="public" virt="virtual"><scope>tudat::electromagnetism::PanelledRadiationPressureInterface</scope><name>~RadiationPressureInterface</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

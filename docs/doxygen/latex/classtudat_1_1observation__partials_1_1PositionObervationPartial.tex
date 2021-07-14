@@ -1,0 +1,108 @@
+\hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial}{}\doxysection{tudat\+::observation\+\_\+partials\+::Position\+Obervation\+Partial Class Reference}
+\label{classtudat_1_1observation__partials_1_1PositionObervationPartial}\index{tudat::observation\_partials::PositionObervationPartial@{tudat::observation\_partials::PositionObervationPartial}}
+
+
+Class to compute the partial derivatives of a three-\/dimensional position observable.  
+
+
+
+
+{\ttfamily \#include $<$position\+Partials.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+partials\+::Position\+Obervation\+Partial\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__partials_1_1PositionObervationPartial}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9d6f9c2a7ecc905fd3d013b45dd6c7c1}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9d6f9c2a7ecc905fd3d013b45dd6c7c1}} 
+typedef std\+::vector$<$ std\+::pair$<$ Eigen\+::\+Matrix$<$ double, 3, Eigen\+::\+Dynamic $>$, double $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9d6f9c2a7ecc905fd3d013b45dd6c7c1}{Position\+Observation\+Partial\+Return\+Type}}
+\begin{DoxyCompactList}\small\item\em Local typedef for return type (list of partial matrices and associated evaluation times). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9ee3af25814b275c815b7261031966b2}{Position\+Obervation\+Partial}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObservationScaling}{Position\+Observation\+Scaling}} $>$ position\+Observation\+Scaler, const std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \&position\+Partial\+List, const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier parameter\+Identifier)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa986ba72cb9b4a3148b377ae84e3e7c7}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa986ba72cb9b4a3148b377ae84e3e7c7}} 
+\mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa986ba72cb9b4a3148b377ae84e3e7c7}{$\sim$\+Position\+Obervation\+Partial}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9d6f9c2a7ecc905fd3d013b45dd6c7c1}{Position\+Observation\+Partial\+Return\+Type}} \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a6eaa12a24022868829c1d9e666761122}{calculate\+Partial}} (const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&states, const std\+::vector$<$ double $>$ \&times, const observation\+\_\+models\+::\+Link\+End\+Type link\+End\+Of\+Fixed\+Time, const Eigen\+::\+Vector3d \&current\+Observation=Eigen\+::\+Vector3d\+::\+Constant(TUDAT\+\_\+\+NAN))
+\begin{DoxyCompactList}\small\item\em Fnuction to calculate the observation partial(s) at required time and state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_aba01f162baa6d4068b563e975ebc9ed5}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_aba01f162baa6d4068b563e975ebc9ed5}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObservationScaling}{Position\+Observation\+Scaling}} $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_aba01f162baa6d4068b563e975ebc9ed5}{position\+Observation\+Scaler\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Scaling object used for mapping partials of positions to partials of observable. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a48e78e0e7eacde132c7d809f1e7383a2}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a48e78e0e7eacde132c7d809f1e7383a2}} 
+std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a48e78e0e7eacde132c7d809f1e7383a2}{position\+Partial\+List\+\_\+}}
+\begin{DoxyCompactList}\small\item\em List of position partial per link end. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa2b17ea9c2ff6b23c4b1cb8d438870b9}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa2b17ea9c2ff6b23c4b1cb8d438870b9}} 
+std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$\+::iterator \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_aa2b17ea9c2ff6b23c4b1cb8d438870b9}{position\+Partial\+Iterator\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Iterator over list of position partial per link end (predeclared for efficiency). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a860b97750fdf87d59379bd76728f3470}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a860b97750fdf87d59379bd76728f3470}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a860b97750fdf87d59379bd76728f3470}{current\+State\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared state variable to be used in calculate\+Partial function. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a53ab41066f1430a49d768231157adddc}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a53ab41066f1430a49d768231157adddc}} 
+double \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a53ab41066f1430a49d768231157adddc}{current\+Time\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Pre-\/declared time variable to be used in calculate\+Partial function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to compute the partial derivatives of a three-\/dimensional position observable. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9ee3af25814b275c815b7261031966b2}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9ee3af25814b275c815b7261031966b2}} 
+\index{tudat::observation\_partials::PositionObervationPartial@{tudat::observation\_partials::PositionObervationPartial}!PositionObervationPartial@{PositionObervationPartial}}
+\index{PositionObervationPartial@{PositionObervationPartial}!tudat::observation\_partials::PositionObervationPartial@{tudat::observation\_partials::PositionObervationPartial}}
+\doxysubsubsection{\texorpdfstring{PositionObervationPartial()}{PositionObervationPartial()}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+partials\+::\+Position\+Obervation\+Partial\+::\+Position\+Obervation\+Partial (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObservationScaling}{Position\+Observation\+Scaling}} $>$}]{position\+Observation\+Scaler,  }\item[{const std\+::map$<$ observation\+\_\+models\+::\+Link\+End\+Type, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__partials_1_1CartesianStatePartial}{Cartesian\+State\+Partial}} $>$ $>$ \&}]{position\+Partial\+List,  }\item[{const estimatable\+\_\+parameters\+::\+Estimateble\+Parameter\+Identifier}]{parameter\+Identifier }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em position\+Observation\+Scaler} & Scaling object used for mapping partials of positions to partials of observable \\
+\hline
+{\em position\+Partial\+List} & List of position partial per link end. \\
+\hline
+{\em parameter\+Identifier} & Id of parameter for which instance of class computes partial derivatives \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__partials_1_1PositionObervationPartial_a6eaa12a24022868829c1d9e666761122}\label{classtudat_1_1observation__partials_1_1PositionObervationPartial_a6eaa12a24022868829c1d9e666761122}} 
+\index{tudat::observation\_partials::PositionObervationPartial@{tudat::observation\_partials::PositionObervationPartial}!calculatePartial@{calculatePartial}}
+\index{calculatePartial@{calculatePartial}!tudat::observation\_partials::PositionObervationPartial@{tudat::observation\_partials::PositionObervationPartial}}
+\doxysubsubsection{\texorpdfstring{calculatePartial()}{calculatePartial()}}
+{\footnotesize\ttfamily virtual \mbox{\hyperlink{classtudat_1_1observation__partials_1_1PositionObervationPartial_a9d6f9c2a7ecc905fd3d013b45dd6c7c1}{Position\+Observation\+Partial\+Return\+Type}} tudat\+::observation\+\_\+partials\+::\+Position\+Obervation\+Partial\+::calculate\+Partial (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Eigen\+::\+Vector6d $>$ \&}]{states,  }\item[{const std\+::vector$<$ double $>$ \&}]{times,  }\item[{const observation\+\_\+models\+::\+Link\+End\+Type}]{link\+End\+Of\+Fixed\+Time,  }\item[{const Eigen\+::\+Vector3d \&}]{current\+Observation = {\ttfamily Eigen\+:\+:Vector3d\+:\+:Constant(~TUDAT\+\_\+NAN~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Fnuction to calculate the observation partial(s) at required time and state. 
+
+Function to calculate the observation partial(s) at required time and state. State and time are typically obtained from evaluation of observation model. 
+\begin{DoxyParams}{Parameters}
+{\em states} & Link end stats. Index maps to link end for a given Obsevable\+Type through get\+Link\+End\+Index function. \\
+\hline
+{\em times} & Link end time. \\
+\hline
+{\em link\+End\+Of\+Fixed\+Time} & Link end that is kept fixed when computing the observable. \\
+\hline
+{\em current\+Observation} & Value of the observation for which the partial is to be computed (default NaN for compatibility purposes) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector of pairs containing partial values and associated times. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/orbit\+\_\+determination/observation\+\_\+partials/position\+Partials.\+h\end{DoxyCompactItemize}

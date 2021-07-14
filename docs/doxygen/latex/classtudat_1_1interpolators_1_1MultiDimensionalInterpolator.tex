@@ -1,0 +1,357 @@
+\hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{}\doxysection{tudat\+::interpolators\+::Multi\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$ Class Template Reference}
+\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+
+
+Base class for interpolator with multiple independent variables.  
+
+
+
+
+{\ttfamily \#include $<$multi\+Dimensional\+Interpolator.\+h$>$}
+
+Inheritance diagram for tudat\+::interpolators\+::Multi\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.288828cm]{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_af28cffe9a71ce0509f3431a3f189cf78}{Multi\+Dimensional\+Interpolator}} (const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&boundary\+Handling=std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$(Number\+Of\+Dimensions, extrapolate\+\_\+at\+\_\+boundary), const std\+::vector$<$ std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ $>$ \&default\+Extrapolation\+Value=std\+::vector$<$ std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ $>$(Number\+Of\+Dimensions, std\+::make\+\_\+pair(\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$(), \mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$ Dependent\+Variable\+Type $>$())))
+\begin{DoxyCompactList}\small\item\em Default constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ac2511ef8990a450c946aa4b9e2daea4f}{Multi\+Dimensional\+Interpolator}} (const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&boundary\+Handling, const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&default\+Extrapolation\+Value)
+\begin{DoxyCompactList}\small\item\em Constructor taking single pair of default values. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a13faee42591c2ddaffe1862bcfcf4bba}{Multi\+Dimensional\+Interpolator}} (const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&boundary\+Handling, const Dependent\+Variable\+Type \&default\+Extrapolation\+Value)
+\begin{DoxyCompactList}\small\item\em Constructor taking single default value. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a24c9d57247dd6d962b0adfe7bebca93f}{$\sim$\+Multi\+Dimensional\+Interpolator}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_aebae2bb3772c8a893a6d4f9be0836746}{interpolate}} (const std\+::vector$<$ Independent\+Variable\+Type $>$ \&independent\+Variable\+Values)=0
+\begin{DoxyCompactList}\small\item\em Function to perform interpolation. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a6eff921f1aea578ea1cf4d3965675774}{get\+Number\+Of\+Dimensions}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the number of independent variables of the interpolation. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{Look\+Up\+Scheme}}$<$ Independent\+Variable\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a743ca4a89833f3caf973e1bae624671d}{get\+Look\+Up\+Scheme}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the lookup scheme used by the interpolator. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ Independent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a72e989ed7e1f52d45da5463a30a4b115}{get\+Independent\+Values}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the ector with independent variables used by the interpolator. \end{DoxyCompactList}\item 
+boost\+::multi\+\_\+array$<$ Dependent\+Variable\+Type, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a4a4959a451d0145773e19015eb7eba08}{get\+Dependent\+Values}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the ector with dependent variables used by the interpolator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a34a47806dcfd964a1c47084e15be52fa}{check\+Interpolation\+Boundary}} (const Independent\+Variable\+Type \&current\+Independent\+Variable, const unsigned int \&current\+Dimension)
+\begin{DoxyCompactList}\small\item\em Function to return the condition of the current independent variable. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0b612aad913ae5cf69a72627029a271f}{check\+Boundary\+Case}} (const unsigned int current\+Dimension, bool \&use\+Value, Independent\+Variable\+Type \&current\+Independent\+Variable, Dependent\+Variable\+Type \&dependent\+Variable)
+\begin{DoxyCompactList}\small\item\em Function to check whether boundary handling needs to be applied, depending on method chosen. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0979299609b23aa37712a2fdeca9fc0a}{make\+Lookup\+Schemes}} (const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}} selected\+Scheme)
+\begin{DoxyCompactList}\small\item\em Make the lookup scheme that is to be used. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{Look\+Up\+Scheme}}$<$ Independent\+Variable\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ab5209f8a4b02144d42f59326d6c184ec}{look\+Up\+Schemes\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector with pointers to look-\/up scheme. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::vector$<$ Independent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a05964484d7da556f534f712620b7b035}{independent\+Values\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Vector of vectors containing independent variables. \end{DoxyCompactList}\item 
+boost\+::multi\+\_\+array$<$ Dependent\+Variable\+Type, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions) $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a11b350427b56f373111d050430f294}{dependent\+Data\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Multi-\/dimensional array of dependent data. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a6effea51ef8760e8b89a5511718524}{boundary\+Handling\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Behavior of interpolator when independent variable is outside range. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ad5a2bfc8d8fd23cae50ee313c8de1e0a}{default\+Extrapolation\+Value\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Default value to be used for extrapolation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Independent\+Variable\+Type, typename Dependent\+Variable\+Type, unsigned int Number\+Of\+Dimensions$>$\newline
+class tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$}
+
+Base class for interpolator with multiple independent variables. 
+
+Base class for the interpolators in multiple independent variables included in Tudat. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Independent\+Variable\+Type} & Type of independent variable(s) \\
+\hline
+{\em Independent\+Variable\+Type} & Type of dependent variable \\
+\hline
+{\em Number\+Of\+Dimensions} & Number of independent variables. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_af28cffe9a71ce0509f3431a3f189cf78}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_af28cffe9a71ce0509f3431a3f189cf78}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!MultiDimensionalInterpolator@{MultiDimensionalInterpolator}}
+\index{MultiDimensionalInterpolator@{MultiDimensionalInterpolator}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{MultiDimensionalInterpolator()}{MultiDimensionalInterpolator()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{Multi\+Dimensional\+Interpolator}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&}]{boundary\+Handling = {\ttfamily std\+:\+:vector$<$~\mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}}~$>$(~NumberOfDimensions,~extrapolate\+\_\+at\+\_\+boundary~)},  }\item[{const std\+::vector$<$ std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ $>$ \&}]{default\+Extrapolation\+Value = {\ttfamily std\+:\+:vector$<$~std\+:\+:pair$<$~DependentVariableType,~DependentVariableType~$>$~$>$(~~~~~~~~~~~~~~~~NumberOfDimensions,~std\+:\+:make\+\_\+pair(~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~),~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\mbox{\hyperlink{classtudat_1_1IdentityElement_ab3bf500034128c13c2a34fdad21de2b1}{Identity\+Element\+::get\+Addition\+Identity}}$<$~DependentVariableType~$>$(~)~)~)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor. 
+
+Default constructor. 
+\begin{DoxyParams}{Parameters}
+{\em boundary\+Handling} & Vector of boundary handling methods, in case independent variable is outside the specified range. \\
+\hline
+{\em default\+Extrapolation\+Value} & Vector of pairs of default values to be used for extrapolation, in case of use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning as methods for boundary\+Handling. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ac2511ef8990a450c946aa4b9e2daea4f}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ac2511ef8990a450c946aa4b9e2daea4f}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!MultiDimensionalInterpolator@{MultiDimensionalInterpolator}}
+\index{MultiDimensionalInterpolator@{MultiDimensionalInterpolator}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{MultiDimensionalInterpolator()}{MultiDimensionalInterpolator()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{Multi\+Dimensional\+Interpolator}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&}]{boundary\+Handling,  }\item[{const std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ \&}]{default\+Extrapolation\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor taking single pair of default values. 
+
+Constructor taking single pair of default values. 
+\begin{DoxyParams}{Parameters}
+{\em boundary\+Handling} & Vector of boundary handling methods, in case independent variable is outside the specified range. \\
+\hline
+{\em default\+Extrapolation\+Value} & Pair of default values to be used for extrapolation, in case of use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning as methods for boundary\+Handling. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a13faee42591c2ddaffe1862bcfcf4bba}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a13faee42591c2ddaffe1862bcfcf4bba}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!MultiDimensionalInterpolator@{MultiDimensionalInterpolator}}
+\index{MultiDimensionalInterpolator@{MultiDimensionalInterpolator}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{MultiDimensionalInterpolator()}{MultiDimensionalInterpolator()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{Multi\+Dimensional\+Interpolator}} (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \&}]{boundary\+Handling,  }\item[{const Dependent\+Variable\+Type \&}]{default\+Extrapolation\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor taking single default value. 
+
+Constructor taking single default value. 
+\begin{DoxyParams}{Parameters}
+{\em boundary\+Handling} & Vector of boundary handling methods, in case independent variable is outside the specified range. \\
+\hline
+{\em default\+Extrapolation\+Value} & Default value to be used for extrapolation, in case of use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning as methods for boundary\+Handling. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a24c9d57247dd6d962b0adfe7bebca93f}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a24c9d57247dd6d962b0adfe7bebca93f}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!````~MultiDimensionalInterpolator@{$\sim$MultiDimensionalInterpolator}}
+\index{````~MultiDimensionalInterpolator@{$\sim$MultiDimensionalInterpolator}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$MultiDimensionalInterpolator()}{~MultiDimensionalInterpolator()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+virtual \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::$\sim$\mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{Multi\+Dimensional\+Interpolator}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Destructor. 
+
+Destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0b612aad913ae5cf69a72627029a271f}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0b612aad913ae5cf69a72627029a271f}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!checkBoundaryCase@{checkBoundaryCase}}
+\index{checkBoundaryCase@{checkBoundaryCase}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{checkBoundaryCase()}{checkBoundaryCase()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::check\+Boundary\+Case (\begin{DoxyParamCaption}\item[{const unsigned int}]{current\+Dimension,  }\item[{bool \&}]{use\+Value,  }\item[{Independent\+Variable\+Type \&}]{current\+Independent\+Variable,  }\item[{Dependent\+Variable\+Type \&}]{dependent\+Variable }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function to check whether boundary handling needs to be applied, depending on method chosen. 
+
+Function to check whether boundary handling needs to be applied, depending on method chosen. If independent variable is beyond its range definition, boundary handling will be applied, depending on the method specified in boundary\+Handling\+\_\+. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Dimension} & Value of current dimension. \\
+\hline
+{\em use\+Value} & Boolean denoting whether the value given by this function needs to be used. \\
+\hline
+{\em current\+Independent\+Variable} & Value of current independent variable. \\
+\hline
+{\em dependent\+Variable} & Value of current dependent variable, in case the independent variable is out-\/of-\/range and the selected method is use\+\_\+default\+\_\+value or use\+\_\+default\+\_\+value\+\_\+with\+\_\+warning. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a34a47806dcfd964a1c47084e15be52fa}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a34a47806dcfd964a1c47084e15be52fa}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!checkInterpolationBoundary@{checkInterpolationBoundary}}
+\index{checkInterpolationBoundary@{checkInterpolationBoundary}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{checkInterpolationBoundary()}{checkInterpolationBoundary()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::check\+Interpolation\+Boundary (\begin{DoxyParamCaption}\item[{const Independent\+Variable\+Type \&}]{current\+Independent\+Variable,  }\item[{const unsigned int \&}]{current\+Dimension }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Function to return the condition of the current independent variable. 
+
+Function to return the condition of the current independent variable, i.\+e. whether the variable is within, above or below its defined range range. 
+\begin{DoxyParams}{Parameters}
+{\em current\+Independent\+Variable} & Value of current independent variable. \\
+\hline
+{\em current\+Dimension} & Value of current dimension. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Condition with respect to boundary. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a4a4959a451d0145773e19015eb7eba08}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a4a4959a451d0145773e19015eb7eba08}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!getDependentValues@{getDependentValues}}
+\index{getDependentValues@{getDependentValues}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getDependentValues()}{getDependentValues()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+boost\+::multi\+\_\+array$<$ Dependent\+Variable\+Type, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions ) $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::get\+Dependent\+Values (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the ector with dependent variables used by the interpolator. 
+
+Function to return the ector with dependent variables used by the interpolator. \begin{DoxyReturn}{Returns}
+Dependent variables used by the interpolator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a72e989ed7e1f52d45da5463a30a4b115}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a72e989ed7e1f52d45da5463a30a4b115}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!getIndependentValues@{getIndependentValues}}
+\index{getIndependentValues@{getIndependentValues}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getIndependentValues()}{getIndependentValues()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::vector$<$ Independent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::get\+Independent\+Values (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the ector with independent variables used by the interpolator. 
+
+Function to return the ector with independent variables used by the interpolator. \begin{DoxyReturn}{Returns}
+Independent variables used by the interpolator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a743ca4a89833f3caf973e1bae624671d}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a743ca4a89833f3caf973e1bae624671d}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!getLookUpScheme@{getLookUpScheme}}
+\index{getLookUpScheme@{getLookUpScheme}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getLookUpScheme()}{getLookUpScheme()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{Look\+Up\+Scheme}}$<$ Independent\+Variable\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::get\+Look\+Up\+Scheme (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to return the lookup scheme used by the interpolator. 
+
+Function to return the lookup scheme used by the interpolator. \begin{DoxyReturn}{Returns}
+The lookup scheme used by the interpolator. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a6eff921f1aea578ea1cf4d3965675774}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a6eff921f1aea578ea1cf4d3965675774}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!getNumberOfDimensions@{getNumberOfDimensions}}
+\index{getNumberOfDimensions@{getNumberOfDimensions}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{getNumberOfDimensions()}{getNumberOfDimensions()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+int \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::get\+Number\+Of\+Dimensions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the number of independent variables of the interpolation. 
+
+Function to return the number of independent variables of the interpolation, i.\+e. size that the vector used as input for \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}{Interpolator\+::interpolate}} should be. \begin{DoxyReturn}{Returns}
+Number of independent variables of the interpolation. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a2fec09b3d811b2399d9abce5c8917b5a}{tudat\+::interpolators\+::\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_aebae2bb3772c8a893a6d4f9be0836746}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_aebae2bb3772c8a893a6d4f9be0836746}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!interpolate@{interpolate}}
+\index{interpolate@{interpolate}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{interpolate()}{interpolate()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+virtual Dependent\+Variable\+Type \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::interpolate (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ Independent\+Variable\+Type $>$ \&}]{independent\+Variable\+Values }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function to perform interpolation. 
+
+This function performs the interpolation. It calls the function that takes a vector of independent variable values, which is to be implemented in derived classes. 
+\begin{DoxyParams}{Parameters}
+{\em independent\+Variable\+Values} & Vector of values of independent variables at which the value of the dependent variable is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Interpolated value of dependent variable. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator_a0b8c3f199c7a2297928936f00790f190}{tudat\+::interpolators\+::\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type $>$}}.
+
+
+
+Implemented in \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiLinearInterpolator_ac41f7ee6508212d5827fb461c850a75f}{tudat\+::interpolators\+::\+Multi\+Linear\+Interpolator$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0979299609b23aa37712a2fdeca9fc0a}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a0979299609b23aa37712a2fdeca9fc0a}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!makeLookupSchemes@{makeLookupSchemes}}
+\index{makeLookupSchemes@{makeLookupSchemes}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{makeLookupSchemes()}{makeLookupSchemes()}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+void \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::make\+Lookup\+Schemes (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespacetudat_1_1interpolators_a31d6dcb244ab2e3055371ab377027bb1}{Available\+Lookup\+Scheme}}}]{selected\+Scheme }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Make the lookup scheme that is to be used. 
+
+This function creates the look up scheme that is to be used in determining the interval of the independent variable grid where the interpolation is to be performed. It takes the type of lookup scheme as an enum and constructs the lookup scheme from the independent\+Values\+\_\+ that have been set previously. 
+\begin{DoxyParams}{Parameters}
+{\em selected\+Scheme} & Type of look-\/up scheme that is to be used \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a6effea51ef8760e8b89a5511718524}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a6effea51ef8760e8b89a5511718524}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!boundaryHandling\_@{boundaryHandling\_}}
+\index{boundaryHandling\_@{boundaryHandling\_}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{boundaryHandling\_}{boundaryHandling\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ \mbox{\hyperlink{namespacetudat_1_1interpolators_a2a462da4b91afdc785987bc35a2325e8}{Boundary\+Interpolation\+Type}} $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::boundary\+Handling\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Behavior of interpolator when independent variable is outside range. 
+
+Behavior of interpolator when independent variable is outside range. \mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ad5a2bfc8d8fd23cae50ee313c8de1e0a}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ad5a2bfc8d8fd23cae50ee313c8de1e0a}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!defaultExtrapolationValue\_@{defaultExtrapolationValue\_}}
+\index{defaultExtrapolationValue\_@{defaultExtrapolationValue\_}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{defaultExtrapolationValue\_}{defaultExtrapolationValue\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::pair$<$ Dependent\+Variable\+Type, Dependent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::default\+Extrapolation\+Value\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Default value to be used for extrapolation. 
+
+Default value to be used for extrapolation. \mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a11b350427b56f373111d050430f294}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a1a11b350427b56f373111d050430f294}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!dependentData\_@{dependentData\_}}
+\index{dependentData\_@{dependentData\_}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{dependentData\_}{dependentData\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+boost\+::multi\+\_\+array$<$ Dependent\+Variable\+Type, static\+\_\+cast$<$ size\+\_\+t $>$ Number\+Of\+Dimensions ) $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::dependent\+Data\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Multi-\/dimensional array of dependent data. 
+
+Multi-\/dimensional array of dependent data at each point of hyper-\/rectangular grid formed by independent variable points. \mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a05964484d7da556f534f712620b7b035}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_a05964484d7da556f534f712620b7b035}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!independentValues\_@{independentValues\_}}
+\index{independentValues\_@{independentValues\_}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{independentValues\_}{independentValues\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::vector$<$ Independent\+Variable\+Type $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::independent\+Values\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Vector of vectors containing independent variables. 
+
+Vector of vectors containing independent variables. The size of the outer vector is equal to the number of dimensions of the interpolator. \mbox{\Hypertarget{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ab5209f8a4b02144d42f59326d6c184ec}\label{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator_ab5209f8a4b02144d42f59326d6c184ec}} 
+\index{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}!lookUpSchemes\_@{lookUpSchemes\_}}
+\index{lookUpSchemes\_@{lookUpSchemes\_}!tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$@{tudat::interpolators::MultiDimensionalInterpolator$<$ IndependentVariableType, DependentVariableType, NumberOfDimensions $>$}}
+\doxysubsubsection{\texorpdfstring{lookUpSchemes\_}{lookUpSchemes\_}}
+{\footnotesize\ttfamily template$<$typename Independent\+Variable\+Type , typename Dependent\+Variable\+Type , unsigned int Number\+Of\+Dimensions$>$ \\
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1LookUpScheme}{Look\+Up\+Scheme}}$<$ Independent\+Variable\+Type $>$ $>$ $>$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1MultiDimensionalInterpolator}{tudat\+::interpolators\+::\+Multi\+Dimensional\+Interpolator}}$<$ Independent\+Variable\+Type, Dependent\+Variable\+Type, Number\+Of\+Dimensions $>$\+::look\+Up\+Schemes\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Vector with pointers to look-\/up scheme. 
+
+Pointers to the look-\/up schemes that is used to determine in which interval the requested independent variable value falls. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/math/interpolators/multi\+Dimensional\+Interpolator.\+h\end{DoxyCompactItemize}

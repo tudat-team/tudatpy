@@ -1,0 +1,1826 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator" kind="class" language="C++" prot="public">
+    <compoundname>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</compoundname>
+    <basecompoundref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" prot="public" virt="non-virtual">tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</basecompoundref>
+    <includes refid="adamsBashforthMoultonIntegrator_8h" local="no">adamsBashforthMoultonIntegrator.h</includes>
+    <templateparamlist>
+      <param>
+        <type>typename IndependentVariableType</type>
+        <defval>double</defval>
+      </param>
+      <param>
+        <type>typename StateType</type>
+        <defval>Eigen::VectorXd</defval>
+      </param>
+      <param>
+        <type>typename StateDerivativeType</type>
+        <defval>Eigen::VectorXd</defval>
+      </param>
+      <param>
+        <type>typename TimeStepType</type>
+        <defval>IndependentVariableType</defval>
+      </param>
+    </templateparamlist>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a84ebef4b3f128797cd760db3215b3ae0" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator" kindref="compound">ReinitializableNumericalIntegrator</ref>&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</type>
+        <definition>typedef ReinitializableNumericalIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::ReinitializableNumericalIntegratorBase</definition>
+        <argsstring></argsstring>
+        <name>ReinitializableNumericalIntegratorBase</name>
+        <briefdescription>
+<para>Typedef for the base class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef of the base class with all template parameters filled in. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="67" column="2" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1f8d8ed5f296b42a2d9a6c7051ba81a7" prot="public" static="no">
+        <type><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::StateDerivativeFunction</ref></type>
+        <definition>typedef ReinitializableNumericalIntegratorBase::NumericalIntegratorBase:: StateDerivativeFunction tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::StateDerivativeFunction</definition>
+        <argsstring></argsstring>
+        <name>StateDerivativeFunction</name>
+        <briefdescription>
+<para>Typedef for the state derivative function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Typedef to the state derivative function inherited from the base class. <simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ac4a61ecbab0945f9c899808c95bed0b7" kindref="member">NumericalIntegrator::StateDerivativeFunction</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="75" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ab6737fd8f351b8e79752d00eb5776326" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>currentIndependentVariable_</name>
+        <briefdescription>
+<para>Current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current independent variable as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="657" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="657" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ab081077fe086363dd48a0df8b4b25cc2" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::currentState_</definition>
+        <argsstring></argsstring>
+        <name>currentState_</name>
+        <briefdescription>
+<para>Current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="663" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="663" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6fe035c4e27ba613098b7c3b7adb3046" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastIndependentVariable_</definition>
+        <argsstring></argsstring>
+        <name>lastIndependentVariable_</name>
+        <briefdescription>
+<para>Last independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last independent variable value as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="669" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="669" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0f786a58d02f716debdb68a3470df91b" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::minimumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>minimumStepSize_</name>
+        <briefdescription>
+<para>Minimum step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parameter that limits the value of the step size. Important to have to prevent infinite halving. Not initialised, constructor does so. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="677" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="677" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a8cc931338d0bb6c2da0d63df5334dd73" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::maximumStepSize_</definition>
+        <argsstring></argsstring>
+        <name>maximumStepSize_</name>
+        <briefdescription>
+<para>Maximum step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parameter that limits the value of the step size. Not really important, can be set pretty high. Not initialised, constructor does so. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="685" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="685" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af684828c5229bbb1f7f5d0e0e9543c58" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::relativeErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>relativeErrorTolerance_</name>
+        <briefdescription>
+<para>Maximum relative error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parameter that limits the truncation error. Which drives stepsize control. Not initialised, constructor does so. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="692" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="692" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a828cb09f0e29eacc6fe4b5ce8244b5f3" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::absoluteErrorTolerance_</definition>
+        <argsstring></argsstring>
+        <name>absoluteErrorTolerance_</name>
+        <briefdescription>
+<para>Maximum absolute error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parameter that limits the truncation error. Which drives stepsize control. Not initialised, constructor does so. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="699" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="699" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a50466ff2d5196b45b01846c12b23f9eb" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::bandwidth_</definition>
+        <argsstring></argsstring>
+        <name>bandwidth_</name>
+        <briefdescription>
+<para>Bandwidth. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Parameter that increases performance. Which drives stepsize control. Advisable to set at least 200 to prevent flutter. Not initialised, constructor does so. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="707" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="707" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aaaff349a22bed98865ef6180d5c9f10e" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::fixedStepSize_</definition>
+        <argsstring></argsstring>
+        <name>fixedStepSize_</name>
+        <briefdescription>
+<para>Fixed step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixes to step if set to true, can be manipulated through <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0e277ca791d3dd7bba3daf3dc82c6c6b" kindref="member">setFixedStepSize( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="713" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="713" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af1c374535d0f4925b886c9eee2941fea" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::strictCompare_</definition>
+        <argsstring></argsstring>
+        <name>strictCompare_</name>
+        <briefdescription>
+<para>Strict compare. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For a error vector to be better than another all its elements must be equal or small. Not strict compares the norm of the vectors instead. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="721" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="721" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a945aa1a98245e2217dcb709e711a747c" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::fixedOrder_</definition>
+        <argsstring></argsstring>
+        <name>fixedOrder_</name>
+        <briefdescription>
+<para>Fixed order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixes to order if set to true, can be manipulated through <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac1a7a72a6d8cd6c5b0b1306667106f1f" kindref="member">setFixedOrder( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="727" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="727" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0f8c07e48c6a96db82617dfd6dda75b5" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::absoluteError_</definition>
+        <argsstring></argsstring>
+        <name>absoluteError_</name>
+        <briefdescription>
+<para>Absolute truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Truncation error to be estimated by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a36df81b6fa64322e225ac2266445398b" kindref="member">estimateAbsoluteError( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="733" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="733" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a719159e2d2a79b5b137c7b83fa29d34a" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::relativeError_</definition>
+        <argsstring></argsstring>
+        <name>relativeError_</name>
+        <briefdescription>
+<para>Relative truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Truncation error to be estimated by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ae9772d4cebe217458dd8652788c8abc0" kindref="member">estimateRelativeError( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="739" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="739" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a494b41a39c876a5913282a49201dc54c" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::minimumOrder_</definition>
+        <argsstring></argsstring>
+        <name>minimumOrder_</name>
+        <briefdescription>
+<para>Minimum order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum order allowed. True mininum is 1, but very imprecise. Advised to be at least three. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="747" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="747" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a5855c6dc5030eb20e84952e5a1fbc99b" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::maximumOrder_</definition>
+        <argsstring></argsstring>
+        <name>maximumOrder_</name>
+        <briefdescription>
+<para>Maximum order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum order allowed. True maximum is 12, based on predetermined coefficients. However, double precision has shown to be incapable of estimation twelfth-order errors. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="754" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="754" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac1e0e7b76fa9dea5cc66b3f50a7ebc71" prot="protected" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::order_</definition>
+        <argsstring></argsstring>
+        <name>order_</name>
+        <briefdescription>
+<para>Order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Dynamic order. Starts at minimumOrder_ and is changed using order-control. Advisable to change for fixth-order integration runs. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="761" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="761" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a66b5435df93ad1b512747fb8998b852d" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::fixedSingleStep_</definition>
+        <argsstring></argsstring>
+        <name>fixedSingleStep_</name>
+        <briefdescription>
+<para>Fixed Single Step Integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Boolean value whether to only take fixed steps with the single-step integrator or whether to allow stepsize and error control by the integrator. While filling the first entry of then initial state and derivate history this can help to determine an appropriate step-size, but is undesirable for subsequent entries. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="770" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="770" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aab39ca9aff34603d44b62fbb2da8d20f" prot="protected" static="no" mutable="no">
+        <type>TimeStepType</type>
+        <definition>TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::stepSize_</definition>
+        <argsstring></argsstring>
+        <name>stepSize_</name>
+        <briefdescription>
+<para>Last used step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last used step size, passed to either <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo( )</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1006" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1006" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a4c08c7ec3f241800f9250e6603d5c88b" prot="protected" static="no" mutable="no">
+        <type>StateDerivativeType</type>
+        <definition>StateDerivativeType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::predictedDerivative_</definition>
+        <argsstring></argsstring>
+        <name>predictedDerivative_</name>
+        <briefdescription>
+<para>Predicted derivative state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Current state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>, after execution of <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac2be6512a90fc7b6cc07cd6055b0fb68" kindref="member">performPredictorStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1013" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1013" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1657ceb656ec153ecb4ba691ba80a6f4" prot="protected" static="no" mutable="no">
+        <type>std::deque&lt; StateType &gt;</type>
+        <definition>std::deque&lt;StateType&gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::stateHistory_</definition>
+        <argsstring></argsstring>
+        <name>stateHistory_</name>
+        <briefdescription>
+<para>State history. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>History of states, dynamic deque size depends on order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1019" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1019" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1abbcdabf1906f93f84bf6c4b89de290c5" prot="protected" static="no" mutable="no">
+        <type>std::deque&lt; StateType &gt;</type>
+        <definition>std::deque&lt;StateType&gt; tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::derivHistory_</definition>
+        <argsstring></argsstring>
+        <name>derivHistory_</name>
+        <briefdescription>
+<para>Derivative history. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>History of derivatives, dynamic deque size depends on order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1025" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1025" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1107987e2988f5d3e7f3c36cd60c5607" prot="protected" static="no" mutable="no">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastState_</definition>
+        <argsstring></argsstring>
+        <name>lastState_</name>
+        <briefdescription>
+<para>Last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last state as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1031" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1031" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a5150022e25c5dd148b64afb20a9798b9" prot="protected" static="no" mutable="no">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastStepSize_</definition>
+        <argsstring></argsstring>
+        <name>lastStepSize_</name>
+        <briefdescription>
+<para>Last step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last step size as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1037" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1037" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad0b126488ec19ce54a92a36e89c7ac28" prot="protected" static="no" mutable="no">
+        <type>StateDerivativeType</type>
+        <definition>StateDerivativeType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::lastDerivative_</definition>
+        <argsstring></argsstring>
+        <name>lastDerivative_</name>
+        <briefdescription>
+<para>Last state derivative. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Last state derivative as computed by <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="1043" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="1043" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-static-attrib">
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3afcb0d2d1e3e67bfb4ff78328114cb8" prot="protected" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::truncationErrorCoefficients</definition>
+        <argsstring>[12]</argsstring>
+        <name>truncationErrorCoefficients</name>
+        <initializer>= {
+    +2.00000000000000000e+00, +6.00000000000000000e+00, +1.00000000000000000e+01, +1.42105263157894743e+01,
+    +1.85925925925925917e+01, +2.31170336037079949e+01, +2.77629090909090905e+01, +3.25146526080169664e+01,
+    +3.73602765314851339e+01, +4.22902727113587602e+01, +4.72969156506348156e+01, +5.23738028029830431e+01
+}</initializer>
+        <briefdescription>
+<para>Numerical Single Step Integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Truncation error coefficients ( size: 1 x o )</para>
+<para>Single step integrator to perform intitialization of multi-step history. Truncation error coefficients.</para>
+<para>Coefficients for estimating the truncation error.</para>
+<para>truncationErrorCoefficients( o - 1 ) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="782" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="782" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aa41f38db835c9d91d7a0f829a27415ea" prot="protected" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::extrapolationCoefficients</definition>
+        <argsstring>[24][12]</argsstring>
+        <name>extrapolationCoefficients</name>
+        <briefdescription>
+<para>Extrapolation coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Extrapolation coefficients ( size: o * 2 X o )</para>
+<para>Coefficients of predictor and corrector extrapolation polynomials.</para>
+<para>extrapolationCoefficients( o * 2 - 2, i ) &lt;<mdash/> predictor coefficients extrapolationCoefficients( o * 2 - 1, i ) &lt;<mdash/> corrector coefficients </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="788" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="788" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad7bd08d17efca31dc328fcf6dbc209f9" prot="protected" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::interpolationCoefficients</definition>
+        <argsstring>[132][24]</argsstring>
+        <name>interpolationCoefficients</name>
+        <briefdescription>
+<para>Interpolation coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Interpolation coefficients ( size: o^2-o X 2 * o )</para>
+<para>Coefficients of state and derivative mid-points used during halving.</para>
+<para>interpolationCoefficients( ( o - 1 )^2 - o + 1 + j, i ) &lt;<mdash/> state coefficients for state history interpolationCoefficients( ( o - 1 )^2 - o + 1 + j, o + i ) &lt;<mdash/> state coefficients for deriv history interpolationCoefficients( ( o - 1 )^2 + j, i ) &lt;<mdash/> deriv coefficients for state history interpolationCoefficients( ( o - 1 )^2 + j, o + i ) &lt;<mdash/> deriv coefficients for deriv history</para>
+<para>Order k occupies : registers ( k - 1 )^2 - k + 1 to k^2 - k - 1 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="794" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="794" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a2ed7ecdddf813b407da88d1181d55651" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::AdamsBashforthMoultonIntegrator</definition>
+        <argsstring>(const StateDerivativeFunction &amp;stateDerivativeFunction, const IndependentVariableType intervalStart, const StateType &amp;initialState, const TimeStepType minimumStepSize, const TimeStepType maximumStepSize, const StateType &amp;relativeErrorTolerance, const StateType &amp;absoluteErrorTolerance, const TimeStepType bandwidth=200.)</argsstring>
+        <name>AdamsBashforthMoultonIntegrator</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1f8d8ed5f296b42a2d9a6c7051ba81a7" kindref="member">StateDerivativeFunction</ref> &amp;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>bandwidth</declname>
+          <defval>200.</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, taking a state derivative function as argument. Note that with the default settings the integrator has no incentive of changing the stepsize. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intervalStart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The start of the integration interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandwidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(optional) bandwidth (between min and max tolerance) (200 default) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator::NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="96" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="96" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6e1745e831750ed669c51b6f5fee35f4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::AdamsBashforthMoultonIntegrator</definition>
+        <argsstring>(const StateDerivativeFunction &amp;stateDerivativeFunction, const IndependentVariableType intervalStart, const StateType &amp;initialState, const TimeStepType minimumStepSize, const TimeStepType maximumStepSize, const typename StateType::Scalar relativeErrorTolerance, const typename StateType::Scalar absoluteErrorTolerance, const TimeStepType bandwidth=200.)</argsstring>
+        <name>AdamsBashforthMoultonIntegrator</name>
+        <param>
+          <type>const <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1f8d8ed5f296b42a2d9a6c7051ba81a7" kindref="member">StateDerivativeFunction</ref> &amp;</type>
+          <declname>stateDerivativeFunction</declname>
+        </param>
+        <param>
+          <type>const IndependentVariableType</type>
+          <declname>intervalStart</declname>
+        </param>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>initialState</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <param>
+          <type>const typename StateType::Scalar</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const typename StateType::Scalar</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>bandwidth</declname>
+          <defval>200.</defval>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor, taking a state derivative function as argument. Note that with the default settings the integrator has no incentive of changing the stepsize. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stateDerivativeFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State derivative function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>intervalStart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The start of the integration interval. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The initial state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The minimum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the minimum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The maximum step size to take. If this constraint is violated, an exception will be thrown and the next state is computed using the maximum value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The relative error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The absolute error tolerance, for each individual state vector element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bandwidth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(optional) bandwidth (between min and max tolerance) (200 default) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" kindref="member">NumericalIntegrator::NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="162" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="162" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af001f33ac2c6435aed040a9035da0ac4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::~AdamsBashforthMoultonIntegrator</definition>
+        <argsstring>()</argsstring>
+        <name>~AdamsBashforthMoultonIntegrator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="181" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="181" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac3f720d587a9278b66a0e5d8a0046677" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>TimeStepType</type>
+        <definition>virtual TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getNextStepSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getNextStepSize</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1ab8b38ad002b10d53adf7b2c2282a86cc">getNextStepSize</reimplements>
+        <briefdescription>
+<para>Get step size of the next step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the step size of the next step. If the performIntegrationStep( stepSize ) function is used during a variable stepsize scheme, this function can be used to find out which stepSize was deemed best for the next integration step by the integrator. <simplesect kind="return"><para>Step size to be used for the next step. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="192" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="192" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1dfbd34c384482550941514c5c8e678f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>unsigned int</type>
+        <definition>unsigned int tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getOrder</definition>
+        <argsstring>() const</argsstring>
+        <name>getOrder</name>
+        <briefdescription>
+<para>Get the order of next step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the order of the next step <simplesect kind="return"><para>Order of the next step </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="199" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="199" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3954d43a66d0ff47431fe7569e780975" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>TimeStepType</type>
+        <definition>virtual TimeStepType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getStepSize</definition>
+        <argsstring>() const</argsstring>
+        <name>getStepSize</name>
+        <briefdescription>
+<para>Get step size of the last step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the step size of the last step. If the step size is not defined by the user, the step size of last step can be retrieved with this function. <simplesect kind="return"><para>Step size to be used for the last step. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="207" column="26" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="207" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aee5eef485597f1972fa5e2ee115eba03" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>virtual StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentState</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a90b09d8d6a9b07d495bfabe9122748a1">getCurrentState</reimplements>
+        <briefdescription>
+<para>Get current state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current state of the integrator. <simplesect kind="return"><para>Current integrated state, </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="214" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="214" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a19d0ae06152a18cfa6e11b13b1a6fea7" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>virtual IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getCurrentIndependentVariable</definition>
+        <argsstring>() const</argsstring>
+        <name>getCurrentIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a8ca318a39081842472ccd1a165ec06a4">getCurrentIndependentVariable</reimplements>
+        <briefdescription>
+<para>Returns the current independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the current value of the independent variable of the integrator. <simplesect kind="return"><para>Current independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="221" column="37" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="221" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a47e17a813ea5a371338508d329840221" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>virtual StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performIntegrationStep</definition>
+        <argsstring>(const TimeStepType stepSize)</argsstring>
+        <name>performIntegrationStep</name>
+        <param>
+          <type>const TimeStepType</type>
+          <declname>stepSize</declname>
+        </param>
+        <briefdescription>
+<para>Perform a single integration step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Perform a single integration step. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The step size to take. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The state at the end of the interval, </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="232" column="23" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="232" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performIntegrationStep</definition>
+        <argsstring>()</argsstring>
+        <name>performIntegrationStep</name>
+        <briefdescription>
+<para>Perform a single integration step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Perform a single integration step. The stepSize as computed by integrator during the last stop. <simplesect kind="return"><para>The state at the end of the interval. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="267" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="267" bodyend="479"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad70afacde7c1898093455e890f14eff2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>bool</type>
+        <definition>virtual bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::rollbackToPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>rollbackToPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a87d34e8535b55d430a511fb7e345dc2b">rollbackToPreviousState</reimplements>
+        <briefdescription>
+<para>Rollback internal state to the last state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Performs rollback of internal state to the last state. This function can only be called once after calling <ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" kindref="member">integrateTo( )</ref> or <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref> unless specified otherwise by implementations, and can not be called before any of these functions have been called. Will return true if the rollback was succesful, and false otherwise. <simplesect kind="return"><para>True if the rollback was successful. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="489" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="489" bodyend="508"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aec342ec556a762808811166b54bd4617" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::modifyCurrentState</definition>
+        <argsstring>(const StateType &amp;newState, const bool allowRollback=false)</argsstring>
+        <name>modifyCurrentState</name>
+        <param>
+          <type>const StateType &amp;</type>
+          <declname>newState</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>allowRollback</declname>
+          <defval>false</defval>
+        </param>
+        <briefdescription>
+<para>Replace the state with a new value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Replace the state with a new value. This allows for discrete jumps in the state, often used in simulations of discrete events. In astro, this relates to simulations of rocket staging, impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either set the flag to true, or store the state before calling this function the first time, and call it again with the initial state as parameter to revert to the state before the discrete change. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>newState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The value of the new state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>allowRollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean denoting whether roll-back should be allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="520" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="520" bodyend="535"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a820620b30be66abce998bb9f2f8e172f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getMaximumError</definition>
+        <argsstring>()</argsstring>
+        <name>getMaximumError</name>
+        <briefdescription>
+<para>Return maximum truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return the truncation error to be estimated by computError( ). <simplesect kind="return"><para>Double value of the truncation error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="542" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="542" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a03c72b240616ff05f31138031959bcbd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getAbsoluteError</definition>
+        <argsstring>()</argsstring>
+        <name>getAbsoluteError</name>
+        <briefdescription>
+<para>Return absolute truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Vector of the absolute truncation error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="549" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="549" bodyend="549"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aa0874400d0b41490965c1d6ef4f9b874" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getRelativeError</definition>
+        <argsstring>()</argsstring>
+        <name>getRelativeError</name>
+        <briefdescription>
+<para>Return relative truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Vector of the relative truncation error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="556" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="556" bodyend="556"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3fa3d1024583352ad2114c530b628380" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateDerivativeType</type>
+        <definition>StateDerivativeType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getLastDerivative</definition>
+        <argsstring>()</argsstring>
+        <name>getLastDerivative</name>
+        <briefdescription>
+<para>Return list derivative . </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Return the last value of the derivative <simplesect kind="return"><para>last derivative value </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="563" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="563" bodyend="563"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0e277ca791d3dd7bba3daf3dc82c6c6b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setFixedStepSize</definition>
+        <argsstring>(bool fixedStepSize)</argsstring>
+        <name>setFixedStepSize</name>
+        <param>
+          <type>bool</type>
+          <declname>fixedStepSize</declname>
+        </param>
+        <briefdescription>
+<para>(Un )set fixed step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixes the step if set to true. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fixedStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>false or true to ( un)set fixed step size (default false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="570" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="570" bodyend="570"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac1a7a72a6d8cd6c5b0b1306667106f1f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setFixedOrder</definition>
+        <argsstring>(bool fixedOrder)</argsstring>
+        <name>setFixedOrder</name>
+        <param>
+          <type>bool</type>
+          <declname>fixedOrder</declname>
+        </param>
+        <briefdescription>
+<para>(Un)set fixed order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixes the order if set to true. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fixedOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>false or true to ( un)set fixed order (default false). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="577" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="577" bodyend="577"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1e0d84ce8e752881e42cde7290b9f09e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setOrder</definition>
+        <argsstring>(unsigned int order)</argsstring>
+        <name>setOrder</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Set order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the order to specified. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>desired. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="584" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="584" bodyend="584"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a66355f96b87ec16052414330942ffc92" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setStrictCompare</definition>
+        <argsstring>(bool strictCompare)</argsstring>
+        <name>setStrictCompare</name>
+        <param>
+          <type>bool</type>
+          <declname>strictCompare</declname>
+        </param>
+        <briefdescription>
+<para>(Un)set fixed order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For a error vector to be better than another all its elements must be equal or small. Not strict compares the norm of the vectors instead. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>strictCompare</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>false or true to ( un)set strict compare (default true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="593" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="593" bodyend="593"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aecf7f43fa51ce1e74975f7746eececa4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setStepSizeBounds</definition>
+        <argsstring>(IndependentVariableType minimumStepSize, IndependentVariableType maximumStepSize)</argsstring>
+        <name>setStepSizeBounds</name>
+        <param>
+          <type>IndependentVariableType</type>
+          <declname>minimumStepSize</declname>
+        </param>
+        <param>
+          <type>IndependentVariableType</type>
+          <declname>maximumStepSize</declname>
+        </param>
+        <briefdescription>
+<para>Set the minimum and maximum step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Change the bounds of the stepsize. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>minimumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>minimum stepsize </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumStepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>maximum stepsize </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="601" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="601" bodyend="605"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a2f439f15d66e1e02ad53c939985e19bb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setErrorTolerances</definition>
+        <argsstring>(StateType &amp;absoluteErrorTolerance, StateType &amp;relativeErrorTolerance)</argsstring>
+        <name>setErrorTolerances</name>
+        <param>
+          <type>StateType &amp;</type>
+          <declname>absoluteErrorTolerance</declname>
+        </param>
+        <param>
+          <type>StateType &amp;</type>
+          <declname>relativeErrorTolerance</declname>
+        </param>
+        <briefdescription>
+<para>Set the minimum and maximum truncation error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Change the bounds of the error. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>absoluteErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>absolute error tolerance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeErrorTolerance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relative error tolerance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="613" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="613" bodyend="617"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a82780ed95d797b2456b0e330650c07d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setStepSize</definition>
+        <argsstring>(IndependentVariableType stepSize)</argsstring>
+        <name>setStepSize</name>
+        <param>
+          <type>IndependentVariableType</type>
+          <declname>stepSize</declname>
+        </param>
+        <briefdescription>
+<para>Set step size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set step size, to be used with empty <ref refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" kindref="member">performIntegrationStep( )</ref>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepSize</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of the new integration step. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="624" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="624" bodyend="624"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a7405df27a904813fa9a2ef6eed827a79" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setMinimumOrder</definition>
+        <argsstring>(unsigned int minimumOrder)</argsstring>
+        <name>setMinimumOrder</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>minimumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the minimum order of the integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the minimum order of the integrator <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>minimumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New minimum order of the integrator </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="631" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="631" bodyend="631"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a863af58a36fe95f6bc1d6521b6e8d596" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::setMaximumOrder</definition>
+        <argsstring>(unsigned int maximumOrder)</argsstring>
+        <name>setMaximumOrder</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+<para>Function to reset the maximum order of the integrator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to reset the maximum order of the integrator <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New maximum order of the integrator </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="638" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="638" bodyend="638"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aecba907cbdcedd7f639dcc7b32080f59" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>IndependentVariableType</type>
+        <definition>IndependentVariableType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousIndependentVariable</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousIndependentVariable</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a5a1c2e20cb6ca8ddcb51bab3b1c5bc39">getPreviousIndependentVariable</reimplements>
+        <briefdescription>
+<para>Get previous independent variable. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previoius value of the independent variable of the integrator. Derived classes should override this and provide the computed independent variable. If not implemented, throws error. <simplesect kind="return"><para>Previous independent variable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="640" column="29" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="640" bodyend="643"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1affcef1fca0cd02fed5e3e2c5c04c1e4c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::getPreviousState</definition>
+        <argsstring>()</argsstring>
+        <name>getPreviousState</name>
+        <reimplements refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a83ea0ccadf61e7d630ea692b4f8454a8">getPreviousState</reimplements>
+        <briefdescription>
+<para>Get previous state value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the previous value of the state. Derived classes should override this and provide the computed state. If not implemented, throws error. <simplesect kind="return"><para>Previous state </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="645" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="645" bodyend="648"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aeef8b5bebc52a2067d3582a283e5084b" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performSingleStep</definition>
+        <argsstring>()</argsstring>
+        <name>performSingleStep</name>
+        <briefdescription>
+<para>Perform integration step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Perform integration step using built-in Runge-Kutta fourth order method. Ideally this could be replaced by a pointer to single-step method of choice by the user. <simplesect kind="return"><para>new integrated state </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="803" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="803" bodyend="855"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac2be6512a90fc7b6cc07cd6055b0fb68" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performPredictorStep</definition>
+        <argsstring>(unsigned int order, bool doubleStep)</argsstring>
+        <name>performPredictorStep</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>doubleStep</declname>
+        </param>
+        <briefdescription>
+<para>Perform predictor step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Using the order find predicted estimate using the Adams-Bashforth predictor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>doubleStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean if stepsize should be considered double, true for estimating doubling error. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>state after predictor step </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="864" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="864" bodyend="876"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af4240e8b9d121478769c3c13dbefd0c9" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::performCorrectorStep</definition>
+        <argsstring>(StateType predictedState, unsigned int order, bool doubleStep)</argsstring>
+        <name>performCorrectorStep</name>
+        <param>
+          <type>StateType</type>
+          <declname>predictedState</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>doubleStep</declname>
+        </param>
+        <briefdescription>
+<para>Perform correcter step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Using the order and predicted state, find corrected estimate using the Adams-Moulton corrector <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>predictedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>by the predictor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of the integration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>doubleStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>boolean if stepsize should be considered double, true for estimating doubling error. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>after corrector step </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="886" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="886" bodyend="898"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a36df81b6fa64322e225ac2266445398b" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::estimateAbsoluteError</definition>
+        <argsstring>(StateType predictedState, StateType correctedState, unsigned int order)</argsstring>
+        <name>estimateAbsoluteError</name>
+        <param>
+          <type>StateType</type>
+          <declname>predictedState</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>correctedState</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Estimate the absolute error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Based on order, predicted and corrected step find the error. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>predictedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>by the predictor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>correctedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>by the corrector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of the integration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>absolute error vector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="908" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="908" bodyend="912"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ae9772d4cebe217458dd8652788c8abc0" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>StateType</type>
+        <definition>StateType tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::estimateRelativeError</definition>
+        <argsstring>(StateType predictedState, StateType correctedState, StateType absoluteError)</argsstring>
+        <name>estimateRelativeError</name>
+        <param>
+          <type>StateType</type>
+          <declname>predictedState</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>correctedState</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>absoluteError</declname>
+        </param>
+        <briefdescription>
+<para>Estimate the relative error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Based on order, predicted and corrected step find the error. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>predictedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>by the predictor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>correctedState</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>by the corrector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteError</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>relative error vector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="922" column="15" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="922" bodyend="926"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1adbb5d70be41329155454b9171e85bd8d" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::errorCompare</definition>
+        <argsstring>(StateType absoluteError1, StateType relativeError1, StateType absoluteError2, StateType relativeError2)</argsstring>
+        <name>errorCompare</name>
+        <param>
+          <type>StateType</type>
+          <declname>absoluteError1</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>relativeError1</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>absoluteError2</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>relativeError2</declname>
+        </param>
+        <briefdescription>
+<para>Compare two errors. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compares two errors (absolute and relative form) and return true if first one is better than second (smaller is better). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>absoluteError1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>absolute error one. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeError1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relative error one. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>absoluteError2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>absolute error two. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeError2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relative error two. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if one is better than two, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="938" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="938" bodyend="957"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6b8de7f6cdb6bf781476fd116b752d24" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::errorTooLarge</definition>
+        <argsstring>(StateType absoluteError, StateType relativeError)</argsstring>
+        <name>errorTooLarge</name>
+        <param>
+          <type>StateType</type>
+          <declname>absoluteError</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>relativeError</declname>
+        </param>
+        <briefdescription>
+<para>Checks if error is too large. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks error (absolute and relative form) and return true if the exceed tolerance limits. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>absoluteError</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>absolute error. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeError</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relative error. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if one error is too big, false if within limits </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="967" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="967" bodyend="978"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6365117a96b11186c27d3c06e867d2a3" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;::errorTooSmall</definition>
+        <argsstring>(StateType absoluteError, StateType relativeError)</argsstring>
+        <name>errorTooSmall</name>
+        <param>
+          <type>StateType</type>
+          <declname>absoluteError</declname>
+        </param>
+        <param>
+          <type>StateType</type>
+          <declname>relativeError</declname>
+        </param>
+        <briefdescription>
+<para>Checks if error is too small. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks error (absolute and relative form) and return true if the exceed tolerance limits. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>absoluteError</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>absolute error. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeError</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relative error. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if one error is too small, false if within limits </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="988" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="988" bodyend="999"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Adams-Bashforth-Moulton Variable Order and Stepsize integrator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Class that implements the Adams-Bashforth-Moulton integrator, variable order, variable step size integrator. <parameterlist kind="templateparam"><parameteritem>
+<parameternamelist>
+<parametername>StateType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state. This type should support addition with StateDerivativeType. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>StateDerivativeType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the state derivative. This type should support multiplication with IndependentVariableType and doubles. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>IndependentVariableType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The type of the independent variable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator" kindref="compound">NumericalIntegrator</ref>. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::numerical_integrators::ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator"/>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>tudat::numerical_integrators::NumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator"/>
+      </node>
+      <node id="1">
+        <label>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator&lt; IndependentVariableType, StateType, StateDerivativeType, TimeStepType &gt;</label>
+        <link refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" line="55" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/integrators/adamsBashforthMoultonIntegrator.h" bodystart="58" bodyend="1044"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0f8c07e48c6a96db82617dfd6dda75b5" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>absoluteError_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a828cb09f0e29eacc6fe4b5ce8244b5f3" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>absoluteErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a2ed7ecdddf813b407da88d1181d55651" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>AdamsBashforthMoultonIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6e1745e831750ed669c51b6f5fee35f4" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>AdamsBashforthMoultonIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a50466ff2d5196b45b01846c12b23f9eb" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>bandwidth_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ab6737fd8f351b8e79752d00eb5776326" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>currentIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ab081077fe086363dd48a0df8b4b25cc2" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>currentState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1abbcdabf1906f93f84bf6c4b89de290c5" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>derivHistory_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1adbb5d70be41329155454b9171e85bd8d" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>errorCompare</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6b8de7f6cdb6bf781476fd116b752d24" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>errorTooLarge</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6365117a96b11186c27d3c06e867d2a3" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>errorTooSmall</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a36df81b6fa64322e225ac2266445398b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>estimateAbsoluteError</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ae9772d4cebe217458dd8652788c8abc0" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>estimateRelativeError</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aa41f38db835c9d91d7a0f829a27415ea" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>extrapolationCoefficients</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a945aa1a98245e2217dcb709e711a747c" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>fixedOrder_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a66b5435df93ad1b512747fb8998b852d" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>fixedSingleStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aaaff349a22bed98865ef6180d5c9f10e" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>fixedStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a03c72b240616ff05f31138031959bcbd" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getAbsoluteError</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a19d0ae06152a18cfa6e11b13b1a6fea7" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getCurrentIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aee5eef485597f1972fa5e2ee115eba03" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3fa3d1024583352ad2114c530b628380" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getLastDerivative</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a820620b30be66abce998bb9f2f8e172f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getMaximumError</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac3f720d587a9278b66a0e5d8a0046677" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getNextStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1dfbd34c384482550941514c5c8e678f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getOrder</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aecba907cbdcedd7f639dcc7b32080f59" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getPreviousIndependentVariable</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1affcef1fca0cd02fed5e3e2c5c04c1e4c" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a04532c99a84b6a68247c7134fbdb43ed" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getPropagationTerminationConditionReached</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aa0874400d0b41490965c1d6ef4f9b874" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getRelativeError</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abe7509347b34000520da61da0e090c47" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getStateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3954d43a66d0ff47431fe7569e780975" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>getStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aed0dfa86d274bd9e71c2fd6428edfd3e" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>integrateTo</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad7bd08d17efca31dc328fcf6dbc209f9" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>interpolationCoefficients</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad0b126488ec19ce54a92a36e89c7ac28" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>lastDerivative_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a6fe035c4e27ba613098b7c3b7adb3046" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>lastIndependentVariable_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1107987e2988f5d3e7f3c36cd60c5607" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>lastState_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a5150022e25c5dd148b64afb20a9798b9" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>lastStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a5855c6dc5030eb20e84952e5a1fbc99b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>maximumOrder_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a8cc931338d0bb6c2da0d63df5334dd73" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>maximumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a494b41a39c876a5913282a49201dc54c" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>minimumOrder_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0f786a58d02f716debdb68a3470df91b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>minimumStepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a1730c343a1fdb730ff4e576c1144657e" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>modifyCurrentIntegrationVariables</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aec342ec556a762808811166b54bd4617" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a64080c154d27dc673784b289deb1eb57" prot="public" virt="virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>modifyCurrentState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abc2bd9d5804101036116510ce87be2db" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1a156664f177b4a65af665415ed5b7f9e2" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>NumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac1e0e7b76fa9dea5cc66b3f50a7ebc71" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>order_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af4240e8b9d121478769c3c13dbefd0c9" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performCorrectorStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a47e17a813ea5a371338508d329840221" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3a0a750ed0e607774ee157bbbe29c437" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a125da80be4a16cd933707212caefe8a5" prot="public" virt="pure-virtual" ambiguityscope="ReinitializableNumericalIntegrator&lt; double, Eigen::VectorXd, Eigen::VectorXd, double &gt;::"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performIntegrationStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac2be6512a90fc7b6cc07cd6055b0fb68" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performPredictorStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aeef8b5bebc52a2067d3582a283e5084b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>performSingleStep</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a4c08c7ec3f241800f9250e6603d5c88b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>predictedDerivative_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a3ca1dd274c2cafb901624c5e5600082a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>propagationTerminationConditionReachedDuringStep_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1acda867c5c181bc9f00c8cab0d8b31a8b" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>propagationTerminationFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ac48067b658e3213d8cd7c4145dca9338" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>ReinitializableNumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a84ebef4b3f128797cd760db3215b3ae0" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>ReinitializableNumericalIntegratorBase</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a719159e2d2a79b5b137c7b83fa29d34a" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>relativeError_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af684828c5229bbb1f7f5d0e0e9543c58" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>relativeErrorTolerance_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ad70afacde7c1898093455e890f14eff2" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>rollbackToPreviousState</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a2f439f15d66e1e02ad53c939985e19bb" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setErrorTolerances</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1ac1a7a72a6d8cd6c5b0b1306667106f1f" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setFixedOrder</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a0e277ca791d3dd7bba3daf3dc82c6c6b" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setFixedStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a863af58a36fe95f6bc1d6521b6e8d596" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setMaximumOrder</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a7405df27a904813fa9a2ef6eed827a79" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setMinimumOrder</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1e0d84ce8e752881e42cde7290b9f09e" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setOrder</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aa1fa7e7a16150c2fd79e6daba5765644" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setPropagationTerminationFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a82780ed95d797b2456b0e330650c07d1" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setStepSize</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aecf7f43fa51ce1e74975f7746eececa4" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setStepSizeBounds</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1aeb76143b70710fa15543fc3df7d5e132" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setStepSizeControl</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a66355f96b87ec16052414330942ffc92" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>setStrictCompare</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1f8d8ed5f296b42a2d9a6c7051ba81a7" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>StateDerivativeFunction</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1a9da0d5b84797f0f84783447c6b6cffcf" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>stateDerivativeFunction_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a1657ceb656ec153ecb4ba691ba80a6f4" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>stateHistory_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1aab39ca9aff34603d44b62fbb2da8d20f" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>stepSize_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af1c374535d0f4925b886c9eee2941fea" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>strictCompare_</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1a3afcb0d2d1e3e67bfb4ff78328114cb8" prot="protected" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>truncationErrorCoefficients</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1AdamsBashforthMoultonIntegrator_1af001f33ac2c6435aed040a9035da0ac4" prot="public" virt="non-virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>~AdamsBashforthMoultonIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1NumericalIntegrator_1abaa3ce86883c7bc620b6473500557ccb" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>~NumericalIntegrator</name></member>
+      <member refid="classtudat_1_1numerical__integrators_1_1ReinitializableNumericalIntegrator_1ae5c26328c8f3017f136bb5c4bdb72eef" prot="public" virt="virtual"><scope>tudat::numerical_integrators::AdamsBashforthMoultonIntegrator</scope><name>~ReinitializableNumericalIntegrator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

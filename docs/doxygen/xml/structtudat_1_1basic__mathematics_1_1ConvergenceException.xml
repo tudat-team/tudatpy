@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1basic__mathematics_1_1ConvergenceException" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::basic_mathematics::ConvergenceException</compoundname>
+    <basecompoundref prot="public" virt="virtual">boost::exception</basecompoundref>
+    <basecompoundref prot="public" virt="virtual">std::exception</basecompoundref>
+    <includes refid="convergenceException_8h" local="no">convergenceException.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a75ce980718cfd6c3243f71f31fdfc8ed" prot="private" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tudat::basic_mathematics::ConvergenceException::message</definition>
+        <argsstring></argsstring>
+        <name>message</name>
+        <briefdescription>
+<para>Stored exception message. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="60" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a6fbd7c9e9111630ff59887df5f01dd4b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::ConvergenceException::ConvergenceException</definition>
+        <argsstring>()</argsstring>
+        <name>ConvergenceException</name>
+        <briefdescription>
+<para>Constructor that sets exception message to default string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="38" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="38" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1basic__mathematics_1_1ConvergenceException_1af5beda64cf5e208699380c5d30cec2cc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::ConvergenceException::ConvergenceException</definition>
+        <argsstring>(const char *errMessage)</argsstring>
+        <name>ConvergenceException</name>
+        <param>
+          <type>const char *</type>
+          <declname>errMessage</declname>
+        </param>
+        <briefdescription>
+<para>Constructor that sets exception message based on input character array. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="43" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a59da788f455791773cff49adef6400db" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_mathematics::ConvergenceException::ConvergenceException</definition>
+        <argsstring>(const std::string &amp;errMessage)</argsstring>
+        <name>ConvergenceException</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>errMessage</declname>
+        </param>
+        <briefdescription>
+<para>Constructor that sets exception message based on input string. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="48" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="48" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="structtudat_1_1basic__mathematics_1_1ConvergenceException_1add82358a514d0b5e6ffb7013de4a8e32" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* tudat::basic_mathematics::ConvergenceException::what</definition>
+        <argsstring>() const</argsstring>
+        <name>what</name>
+        <exceptions> throw ( )</exceptions>
+        <briefdescription>
+<para>Return what the exception message stored is. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="53" column="16" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="53" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Exception indicating that an algorithm could not complete convergence to a solution. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>You can add extra information using; void f() { throw ConvergenceExeption() &lt;&lt; my_info(42); }</para>
+<para><simplesect kind="see"><para>Boost.Exception. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_mathematics::ConvergenceException</label>
+        <link refid="structtudat_1_1basic__mathematics_1_1ConvergenceException"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::exception</label>
+      </node>
+      <node id="3">
+        <label>std::exception</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_mathematics::ConvergenceException</label>
+        <link refid="structtudat_1_1basic__mathematics_1_1ConvergenceException"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+        <childnode refid="3" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>boost::exception</label>
+      </node>
+      <node id="3">
+        <label>std::exception</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" line="33" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/convergenceException.h" bodystart="34" bodyend="61"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a6fbd7c9e9111630ff59887df5f01dd4b" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::ConvergenceException</scope><name>ConvergenceException</name></member>
+      <member refid="structtudat_1_1basic__mathematics_1_1ConvergenceException_1af5beda64cf5e208699380c5d30cec2cc" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::ConvergenceException</scope><name>ConvergenceException</name></member>
+      <member refid="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a59da788f455791773cff49adef6400db" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::ConvergenceException</scope><name>ConvergenceException</name></member>
+      <member refid="structtudat_1_1basic__mathematics_1_1ConvergenceException_1a75ce980718cfd6c3243f71f31fdfc8ed" prot="private" virt="non-virtual"><scope>tudat::basic_mathematics::ConvergenceException</scope><name>message</name></member>
+      <member refid="structtudat_1_1basic__mathematics_1_1ConvergenceException_1add82358a514d0b5e6ffb7013de4a8e32" prot="public" virt="non-virtual"><scope>tudat::basic_mathematics::ConvergenceException</scope><name>what</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

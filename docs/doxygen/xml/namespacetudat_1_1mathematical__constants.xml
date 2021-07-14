@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1mathematical__constants" kind="namespace" language="C++">
+    <compoundname>tudat::mathematical_constants</compoundname>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="mathematicalConstants_8h_1aec9726e60f6550249f8e016313e8d262" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr static double</type>
+        <definition>constexpr static double tudat::mathematical_constants::E</definition>
+        <argsstring></argsstring>
+        <name>E</name>
+        <initializer>= 2.7182818284590452353602874</initializer>
+        <briefdescription>
+<para>Constant E = exp(1) <formula id="149">$\approx$</formula> 2.71828. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The constant E is base of the natural logarithm, and is also known as Napier&apos;s constant. <simplesect kind="see"><para>Wolfram MathWorld, Constant: <ulink url="http://mathworld.wolfram.com/e.html">http://mathworld.wolfram.com/e.html</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="33" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="mathematicalConstants_8h_1ae8c6b2ac0795ecdb63039515e3a46e7d" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr static double</type>
+        <definition>constexpr static double tudat::mathematical_constants::GOLDEN_RATIO</definition>
+        <argsstring></argsstring>
+        <name>GOLDEN_RATIO</name>
+        <initializer>= 1.6180339887498948482</initializer>
+        <briefdescription>
+<para>The Golden ratio <formula id="149">$\approx$</formula> 1.6180. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The golden ratio, also known as the divine proportion, golden mean, or golden section, is a number often encountered when taking the ratios of distances in simple geometric figures such as the pentagon, pentagram, decagon and dodecahedron. <simplesect kind="see"><para>Wolfram MathWorld, Constant: <ulink url="http://mathworld.wolfram.com/GoldenRatio.html">http://mathworld.wolfram.com/GoldenRatio.html</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="42" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="mathematicalConstants_8h_1a0d3450243b106519a79b79dc60715e42" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr static std::complex&lt; double &gt;</type>
+        <definition>constexpr static std::complex&lt; double &gt; tudat::mathematical_constants::COMPLEX_I</definition>
+        <argsstring></argsstring>
+        <name>COMPLEX_I</name>
+        <initializer>= std::complex&lt; double &gt;( 0.0, 1.0 )</initializer>
+        <briefdescription>
+<para>Independent root of -1, typically denoted i. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Independent root of -1, typically denoted i. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="48" column="31" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="mathematicalConstants_8h_1a1921f9d1eba845ff95da0776929e04a0" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr static double</type>
+        <definition>constexpr static double tudat::mathematical_constants::PI</definition>
+        <argsstring></argsstring>
+        <name>PI</name>
+        <initializer>= 3.14159265358979323846</initializer>
+        <briefdescription>
+<para>The constant PI <formula id="149">$\approx$</formula> 3.14159. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The constant PI, denoted <formula id="111">$\pi$</formula>, is a real number defined as the ratio of a circle&apos;s circumference C to its diameter, d = 2r. <simplesect kind="see"><para>Wolfram MathWorld, Constant: <ulink url="http://mathworld.wolfram.com/Pi.html">http://mathworld.wolfram.com/Pi.html</ulink>. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="59" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="mathematicalConstants_8h_1a951b5337be7dba0c1fb18d7724131ba4" prot="public" static="yes" constexpr="yes" mutable="no">
+        <type>constexpr static long double</type>
+        <definition>constexpr static long double tudat::mathematical_constants::LONG_PI</definition>
+        <argsstring></argsstring>
+        <name>LONG_PI</name>
+        <initializer>= 3.14159265358979323846264338328L</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="62" column="30" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="mathematicalConstants_8h_1adb31f41b9e7a99b6ef7240442260b312" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>constexpr ScalarType</type>
+        <definition>constexpr ScalarType tudat::mathematical_constants::getFloatingInteger</definition>
+        <argsstring>(const int integer)</argsstring>
+        <name>getFloatingInteger</name>
+        <param>
+          <type>const int</type>
+          <declname>integer</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return an integer in a floating point representation, for arbitrary floating point type</para>
+<para>Function to return an integer in a floating point representation, for arbitrary floating point type. The function is defined as constexpr so that all operations occur at compile time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>integer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integer to be represented as floating point value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Integer in floating point representation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="83" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="83" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="mathematicalConstants_8h_1adab2098c15e400f160e37585100ace7d" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>constexpr ScalarType</type>
+        <definition>constexpr ScalarType tudat::mathematical_constants::getFloatingFraction</definition>
+        <argsstring>(const int numerator, const int denominator)</argsstring>
+        <name>getFloatingFraction</name>
+        <param>
+          <type>const int</type>
+          <declname>numerator</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>denominator</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return a rational number in a floating point representation, for arbitrary floating point type</para>
+<para>Function to return a rational number in a floating point representation, for arbitrary floating point type. The function is defined as constexpr so that all operations occur at compile time. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>numerator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Numerator of rational number to be represented as floating point value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>denominator</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Denominator of rational number to be represented as floating point value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Integer in floating point representation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="99" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="99" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="mathematicalConstants_8h_1a762664eb3b43125d6b28f13ac13aaa83" prot="public" static="no" constexpr="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ScalarType</type>
+          </param>
+        </templateparamlist>
+        <type>constexpr ScalarType</type>
+        <definition>constexpr ScalarType tudat::mathematical_constants::getPi</definition>
+        <argsstring>()</argsstring>
+        <name>getPi</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to return an the value of pi in a floating point representation, for arbitrary floating point type</para>
+<para>Function to return an the value of pi in a floating point representation, for arbitrary floating point type. The function is defined as constexpr so that all operations occur at compile time. <simplesect kind="return"><para>Pi in requested floating point representation. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="113" column="22" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" bodystart="113" bodyend="116"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math/basic/mathematicalConstants.h" line="25" column="1"/>
+  </compounddef>
+</doxygen>

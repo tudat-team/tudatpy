@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1system__models_1_1EngineModel" kind="class" language="C++" prot="public" abstract="yes">
+    <compoundname>tudat::system_models::EngineModel</compoundname>
+    <derivedcompoundref refid="classtudat_1_1system__models_1_1DirectEngineModel" prot="public" virt="non-virtual">tudat::system_models::DirectEngineModel</derivedcompoundref>
+    <includes refid="engineModel_8h" local="no">engineModel.h</includes>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1EngineModel_1ac10cbda6bb73094700c6cef241d5224a" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double tudat::system_models::EngineModel::currentThrust_</definition>
+        <argsstring></argsstring>
+        <name>currentThrust_</name>
+        <briefdescription>
+<para>Current magnitude of the thrust delivered by the engine. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="91" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1system__models_1_1EngineModel_1af77579b23f705ecc3ac02532ef1ab147" prot="protected" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::system_models::EngineModel::bodyFixedThrustDirection_</definition>
+        <argsstring></argsstring>
+        <name>bodyFixedThrustDirection_</name>
+        <briefdescription>
+<para>Vector denoting the direction of the thrust delivered by the engine in the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Vector denoting the direction of the thrust delivered by the engine in the body-fixed frame (for an ideal engine, this is the opposite direction of the nozzle direction). By default, this vector is set to the positive x-direction, along the longitudinal axis </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="99" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1a0a770a9f91472482180d18b4524bc717" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::system_models::EngineModel::EngineModel</definition>
+        <argsstring>(const Eigen::Vector3d bodyFixedThrustDirection=Eigen::Vector3d::UnitX())</argsstring>
+        <name>EngineModel</name>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>bodyFixedThrustDirection</declname>
+          <defval>Eigen::Vector3d::UnitX()</defval>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedThrustDirection</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector denoting the direction of the thrust delivered by the engine in the body-fixed frame (for an ideal engine, this is the opposite direction of the nozzle direction). By default, this vector is set to the positive x-direction, along the longitudinal axis. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="43" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="43" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1ac65de723c630a91dfdaf15e45b36f156" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual tudat::system_models::EngineModel::~EngineModel</definition>
+        <argsstring>()</argsstring>
+        <name>~EngineModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="50" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="50" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1ae9116f135ec5d1c49cfc3f6c74c89ade" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::system_models::EngineModel::getCurrentThrust</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentThrust</name>
+        <briefdescription>
+<para>Function to retrive the magnitude of the current engine thrust. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrive the magnitude of the current engine thrust, which was set by the last call to the updateEngineModel function (to be defined in the derived class). <simplesect kind="return"><para>Current engine thrust. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="58" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="58" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1acfe8c7ecd66348ad08d094990d79118f" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void tudat::system_models::EngineModel::updateEngineModel</definition>
+        <argsstring>(const double currentTime)=0</argsstring>
+        <name>updateEngineModel</name>
+        <reimplementedby refid="classtudat_1_1system__models_1_1DirectEngineModel_1aa0feefd12642c98463d84bb0d84128b7">updateEngineModel</reimplementedby>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+        </param>
+        <briefdescription>
+<para>Pure virtual function to update the engine model to the current time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to update the engine model to the current time. This function must be implemented in the derived class, wehre it typically resets the currentThrust_ variable (and any associated variables). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current itme in simulation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="69" column="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1a9e07041546adda4c8618f204d06609f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>double</type>
+        <definition>virtual double tudat::system_models::EngineModel::getCurrentMassRate</definition>
+        <argsstring>()=0</argsstring>
+        <name>getCurrentMassRate</name>
+        <reimplementedby refid="classtudat_1_1system__models_1_1DirectEngineModel_1add81d20ccdbf76fe5850b52cfb703e3a">getCurrentMassRate</reimplementedby>
+        <briefdescription>
+<para>Pure virtual function to retrieve the propellant mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pure virtual function to retrieve the propellant mass rate. <simplesect kind="return"><para>Propellant mass rate. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="76" column="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1system__models_1_1EngineModel_1acb5bd9eebce45b35d9bd76455e95ff4b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::system_models::EngineModel::getBodyFixedThrustDirection</definition>
+        <argsstring>()</argsstring>
+        <name>getBodyFixedThrustDirection</name>
+        <briefdescription>
+<para>Function to retrieve the vector denoting the direction of the thrust delivered by the engine in the body-fixed frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve the vector denoting the direction of the thrust delivered by the engine in the body-fixed frame <simplesect kind="return"><para>Vector denoting the direction of the thrust delivered by the engine in the body-fixed frame </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="83" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="83" bodyend="86"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Base class for a model of an engine, the mass rate/thrust computations are not implemented here. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Base class for a model of an engine, the mass rate/thrust computations are not implemented here, and should be performed in a derived class. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::system_models::EngineModel</label>
+        <link refid="classtudat_1_1system__models_1_1EngineModel"/>
+      </node>
+      <node id="2">
+        <label>tudat::system_models::DirectEngineModel</label>
+        <link refid="classtudat_1_1system__models_1_1DirectEngineModel"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" line="32" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models/engineModel.h" bodystart="33" bodyend="101"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1af77579b23f705ecc3ac02532ef1ab147" prot="protected" virt="non-virtual"><scope>tudat::system_models::EngineModel</scope><name>bodyFixedThrustDirection_</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1ac10cbda6bb73094700c6cef241d5224a" prot="protected" virt="non-virtual"><scope>tudat::system_models::EngineModel</scope><name>currentThrust_</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1a0a770a9f91472482180d18b4524bc717" prot="public" virt="non-virtual"><scope>tudat::system_models::EngineModel</scope><name>EngineModel</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1acb5bd9eebce45b35d9bd76455e95ff4b" prot="public" virt="non-virtual"><scope>tudat::system_models::EngineModel</scope><name>getBodyFixedThrustDirection</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1a9e07041546adda4c8618f204d06609f4" prot="public" virt="pure-virtual"><scope>tudat::system_models::EngineModel</scope><name>getCurrentMassRate</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1ae9116f135ec5d1c49cfc3f6c74c89ade" prot="public" virt="non-virtual"><scope>tudat::system_models::EngineModel</scope><name>getCurrentThrust</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1acfe8c7ecd66348ad08d094990d79118f" prot="public" virt="pure-virtual"><scope>tudat::system_models::EngineModel</scope><name>updateEngineModel</name></member>
+      <member refid="classtudat_1_1system__models_1_1EngineModel_1ac65de723c630a91dfdaf15e45b36f156" prot="public" virt="virtual"><scope>tudat::system_models::EngineModel</scope><name>~EngineModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

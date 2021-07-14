@@ -1,0 +1,287 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="lambertTargeterIzzo_8cpp" kind="file" language="C++">
+    <compoundname>lambertTargeterIzzo.cpp</compoundname>
+    <includes refid="lambertTargeterIzzo_8h" local="yes">tudat/astro/mission_segments/lambertTargeterIzzo.h</includes>
+    <includes refid="lambertRoutines_8h" local="yes">tudat/astro/mission_segments/lambertRoutines.h</includes>
+    <includes local="no">Eigen/Geometry</includes>
+    <incdepgraph>
+      <node id="15">
+        <label>functional</label>
+      </node>
+      <node id="9">
+        <label>limits</label>
+      </node>
+      <node id="14">
+        <label>tudat/math/root_finders/rootFinder.h</label>
+        <link refid="rootFinder_8h_source"/>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>tudat/astro/mission_segments/lambertRoutines.h</label>
+        <link refid="lambertRoutines_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="23">
+        <label>Eigen/Geometry</label>
+      </node>
+      <node id="8">
+        <label>cmath</label>
+      </node>
+      <node id="11">
+        <label>tudat/math/root_finders/newtonRaphson.h</label>
+        <link refid="newtonRaphson_8h_source"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+      </node>
+      <node id="18">
+        <label>stdexcept</label>
+      </node>
+      <node id="4">
+        <label>Eigen/Core</label>
+      </node>
+      <node id="19">
+        <label>string</label>
+      </node>
+      <node id="16">
+        <label>tudat/math/basic/function.h</label>
+        <link refid="function_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="17">
+        <label>tudat/math/root_finders/terminationConditions.h</label>
+        <link refid="terminationConditions_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertTargeterIzzo.cpp</label>
+        <link refid="lambertTargeterIzzo_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>vector</label>
+      </node>
+      <node id="5">
+        <label>tudat/astro/mission_segments/lambertTargeter.h</label>
+        <link refid="lambertTargeter_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="22">
+        <label>tudat/math/basic/convergenceException.h</label>
+        <link refid="convergenceException_8h_source"/>
+        <childnode refid="18" relation="include">
+        </childnode>
+      </node>
+      <node id="20">
+        <label>iostream</label>
+      </node>
+      <node id="6">
+        <label>tudat/math/basic/mathematicalConstants.h</label>
+        <link refid="mathematicalConstants_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>boost/bind.hpp</label>
+      </node>
+      <node id="2">
+        <label>tudat/astro/mission_segments/lambertTargeterIzzo.h</label>
+        <link refid="lambertTargeterIzzo_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>boost/make_shared.hpp</label>
+      </node>
+      <node id="7">
+        <label>complex</label>
+      </node>
+      <node id="3">
+        <label>memory</label>
+      </node>
+    </incdepgraph>
+    <innernamespace refid="namespacetudat">tudat</innernamespace>
+    <innernamespace refid="namespacetudat_1_1mission__segments">tudat::mission_segments</innernamespace>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*<sp/><sp/><sp/><sp/>Copyright<sp/>(c)<sp/>2010-2019,<sp/>Delft<sp/>University<sp/>of<sp/>Technology</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>All<sp/>rigths<sp/>reserved</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>the<sp/>Tudat.<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>exclusively</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>under<sp/>the<sp/>terms<sp/>of<sp/>the<sp/>Modified<sp/>BSD<sp/>license.<sp/>You<sp/>should<sp/>have<sp/>received</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>a<sp/>copy<sp/>of<sp/>the<sp/>license<sp/>with<sp/>this<sp/>file.<sp/>If<sp/>not,<sp/>please<sp/>or<sp/>visit:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>http://tudat.tudelft.nl/LICENSE.</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>References</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Battin,<sp/>R.H.<sp/>An<sp/>Introduction<sp/>to<sp/>the<sp/>math<sp/>and<sp/>Methods<sp/>of<sp/>astro,</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>AIAA<sp/>Education<sp/>Series,<sp/>1999.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>Izzo,<sp/>D.<sp/>lambert_problem.h,<sp/>keptoolbox.</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>Notes</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>This<sp/>code<sp/>is<sp/>an<sp/>implementation<sp/>of<sp/>the<sp/>method<sp/>developed<sp/>by<sp/>Dario<sp/>Izzo<sp/>from<sp/>ESA/ACT<sp/>and</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>publicly<sp/>available<sp/>at:<sp/>http://keptoolbox.sourceforge.net/.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>After<sp/>verification<sp/>and<sp/>validation,<sp/>it<sp/>was<sp/>proven<sp/>that<sp/>this<sp/>algorithm<sp/>is<sp/>faster<sp/>and<sp/>more</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>robust<sp/>than<sp/>the<sp/>implemented<sp/>Lancaster<sp/>&amp;<sp/>Blanchard<sp/>and<sp/>Gooding<sp/>method.<sp/>Notably,<sp/>this<sp/>method</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>does<sp/>not<sp/>suffer<sp/>from<sp/>the<sp/>near-pi<sp/>singularity<sp/>(pi-transfers<sp/>are<sp/>by<sp/>nature<sp/>singular).</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/mission_segments/lambertTargeterIzzo.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tudat/astro/mission_segments/lambertRoutines.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;Eigen/Geometry&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal"><ref refid="namespacetudat" kindref="compound">tudat</ref></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">namespace<sp/></highlight><highlight class="normal">mission_segments</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1a912b334947302675369e10f964770028" kindref="member">LambertTargeterIzzo::execute</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Call<sp/>Izzo&apos;s<sp/>Lambert<sp/>targeting<sp/>routine.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>solveLambertProblemIzzo(<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" kindref="member">cartesianPositionAtDeparture</ref>,<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" kindref="member">cartesianPositionAtArrival</ref>,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a74f0ac221b22693ba7fe0b7398007e9b" kindref="member">timeOfFlight</ref>,<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" kindref="member">gravitationalParameter</ref>,<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" kindref="member">cartesianVelocityAtDeparture</ref>,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" kindref="member">cartesianVelocityAtArrival</ref>,<sp/>isRetrograde_,<sp/>convergenceTolerance_,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>maximumNumberOfIterations_<sp/>);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1abad3427d519bc98b15567e1573163a93" kindref="member">LambertTargeterIzzo::getRadialVelocityAtDeparture</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Determine<sp/>radial<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>radialUnitVectorAtDeparture</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" kindref="member">cartesianPositionAtDeparture</ref>.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>radial<sp/>velocity<sp/>at<sp/>departure.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" kindref="member">cartesianVelocityAtDeparture</ref>.dot(<sp/>radialUnitVectorAtDeparture<sp/>);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1a0c5f399909e2e930dae9a98cd5d01746" kindref="member">LambertTargeterIzzo::getRadialVelocityAtArrival</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Determine<sp/>radial<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>radialUnitVectorAtArrival<sp/>=<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" kindref="member">cartesianPositionAtArrival</ref>.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>radial<sp/>velocity<sp/>at<sp/>arrival.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" kindref="member">cartesianVelocityAtArrival</ref>.dot(<sp/>radialUnitVectorAtArrival<sp/>);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1a28a61b1f42cee3c59360c80f7b1f4d6e" kindref="member">LambertTargeterIzzo::getTransverseVelocityAtDeparture</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>angular<sp/>momemtum<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>angularMomentumVector<sp/>=</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" kindref="member">cartesianPositionAtDeparture</ref>.cross(<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" kindref="member">cartesianVelocityAtDeparture</ref><sp/>);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>normalized<sp/>angular<sp/>momentum<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>angularMomentumUnitVector<sp/>=<sp/>angularMomentumVector.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Determine<sp/>radial<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>radialUnitVectorAtDeparture</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" kindref="member">cartesianPositionAtDeparture</ref>.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>tangential<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>tangentialUnitVectorAtDeparture<sp/>=</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>angularMomentumUnitVector.cross(<sp/>radialUnitVectorAtDeparture<sp/>);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>tangential<sp/>velocity<sp/>at<sp/>departure.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" kindref="member">cartesianVelocityAtDeparture</ref>.dot(<sp/>tangentialUnitVectorAtDeparture<sp/>);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1a8627ebb8af6b7a9112cb8d4c125602e7" kindref="member">LambertTargeterIzzo::getTransverseVelocityAtArrival</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>angular<sp/>momemtum<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>angularMomentumVector<sp/>=</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" kindref="member">cartesianPositionAtArrival</ref>.cross(<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" kindref="member">cartesianVelocityAtArrival</ref><sp/>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>normalized<sp/>angular<sp/>momentum<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>angularMomentumUnitVector<sp/>=<sp/>angularMomentumVector.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Determine<sp/>radial<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>Eigen::Vector3d<sp/>radialUnitVectorAtArrival<sp/>=<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab710c1fabfd56361c457449c99efd5fa" kindref="member">cartesianPositionAtArrival</ref>.normalized(<sp/>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>tangential<sp/>unit<sp/>vector.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>Eigen::Vector3d<sp/>tangentialUnitVectorAtArrival</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>angularMomentumUnitVector.cross(<sp/>radialUnitVectorAtArrival<sp/>);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>tangential<sp/>velocity<sp/>at<sp/>departure.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a7260e16ff3a70f4971945d66ef08e682" kindref="member">cartesianVelocityAtArrival</ref>.dot(<sp/>tangentialUnitVectorAtArrival<sp/>);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeterIzzo_1aee1bcc293abb0c136ad3153c30a341fe" kindref="member">LambertTargeterIzzo::getSemiMajorAxis</ref>(<sp/>)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>specific<sp/>orbital<sp/>energy:<sp/>eps<sp/>=<sp/>v^2/<sp/>-<sp/>mu/r.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>specificOrbitalEnergy<sp/>=<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a461475bd753a2ba590f1a403a8695794" kindref="member">cartesianVelocityAtDeparture</ref>.squaredNorm(<sp/>)<sp/>/<sp/>2.0</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" kindref="member">gravitationalParameter</ref><sp/>/<sp/><ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1a67d3a9e1b514c0ca2dad3f235c46941b" kindref="member">cartesianPositionAtDeparture</ref>.norm(<sp/>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Compute<sp/>semi-major<sp/>axis:<sp/>a<sp/>=<sp/>-mu<sp/>/<sp/>2*eps.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-<ref refid="classtudat_1_1mission__segments_1_1LambertTargeter_1ab22c920bfc0f13cdfee122fa2bb93ea2" kindref="member">gravitationalParameter</ref><sp/>/<sp/>(<sp/>2.0<sp/>*<sp/>specificOrbitalEnergy<sp/>);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>mission_segments</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}<sp/></highlight><highlight class="comment">//<sp/>namespace<sp/>tudat</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/lambertTargeterIzzo.cpp"/>
+  </compounddef>
+</doxygen>

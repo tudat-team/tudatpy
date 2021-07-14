@@ -1,0 +1,266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak" kind="class" language="C++" prot="public">
+    <compoundname>tudat::mission_segments::OscillatingFunctionNovak</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__mathematics_1_1Function" prot="public" virt="non-virtual">tudat::basic_mathematics::Function&lt; &gt;</basecompoundref>
+    <includes refid="oscillatingFunctionNovak_8h" local="no">oscillatingFunctionNovak.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1af3d040bec1c887f54fa8415944c8e622" prot="private" static="no" mutable="no">
+        <type>std::function&lt; std::pair&lt; Eigen::Vector2d, Eigen::Vector2d &gt;) &gt;</type>
+        <definition>std::function&lt; std::pair&lt; Eigen::Vector2d, Eigen::Vector2d &gt; ) &gt; tudat::mission_segments::OscillatingFunctionNovak::boundaryParameters_</definition>
+        <argsstring></argsstring>
+        <name>boundaryParameters_</name>
+        <briefdescription>
+<para>The parameters of the function, related to the boundary conditions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The four parameters of the function. These parameters determine the shape of the trajectory and are dependent on the initial and final boundary conditions.</para>
+<para>The first two parameters are dependent on the initial boundary conditions and the last two parameters are dependent on the final boundary conditions. The parameters correspond to Novak and Vasile [2011] in the following manner: the first two parameters are <formula id="90">$ b_0 $</formula> and <formula id="91">$ b_1 $</formula>; the last two parameters are <formula id="92">$ b_2 $</formula> and <formula id="93">$ b_3 $</formula>.</para>
+<para>The order is important! boundaryParameters_.first( 0 ) = b_0 boundaryParameters_.first( 1 ) = b_1 boundaryParameters_.second( 0 ) = b_2 boundaryParameters_.second( 1 ) = b_3 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="186" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ad24b8e814df4e7639b3d8c00caab3305" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::OscillatingFunctionNovak::OscillatingFunctionNovak</definition>
+        <argsstring>(const std::function&lt; std::pair&lt; Eigen::Vector2d, const Eigen::Vector2d &gt;() &gt; aSetOfBoundaryParameters)</argsstring>
+        <name>OscillatingFunctionNovak</name>
+        <param>
+          <type>const std::function&lt; std::pair&lt; Eigen::Vector2d, const Eigen::Vector2d &gt;() &gt;</type>
+          <declname>aSetOfBoundaryParameters</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor with immediate definition of parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor with immediate definition of parameters through std::functions. This setup allows for a flexible external manipulation of the values of the parameters.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aSetOfBoundaryParameters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A set of four parameters, related to the boundary conditions. These parameters are equivalent to the parameters b0, b1, b2, and b3 from Novak and Vasile [2011]. The order is important! aSetOfBoundaryParameters.first( 0 ) = b0 aSetOfBoundaryParameters.first( 1 ) = b1 aSetOfBoundaryParameters.second( 0 ) = b2 aSetOfBoundaryParameters.second( 1 ) = b3 </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="79" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" bodystart="79" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1acbdd7fcee056d0b6433dbe909e24cd89" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::mission_segments::OscillatingFunctionNovak::~OscillatingFunctionNovak</definition>
+        <argsstring>()</argsstring>
+        <name>~OscillatingFunctionNovak</name>
+        <briefdescription>
+<para>Default destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default destructor. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="87" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" bodystart="87" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1a3d0ac0b2d7a09ed14894740fab68a0e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::OscillatingFunctionNovak::evaluate</definition>
+        <argsstring>(const double anAzimuthalAngle)</argsstring>
+        <name>evaluate</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a69b59769da9784abaaa8a0a309d16de8">evaluate</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>anAzimuthalAngle</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the function value for a given (in-plane) azimuthal angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Evaluates the oscillating function for a given (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>.</para>
+<para>The function is given by Novak and Vasile [2011] as:</para>
+<para><formula id="83">\[ \phi ( \theta ) = \left( b_0 + b_1 \theta \right) \cos \theta + \left( b_2 + b_3 \theta \right) sin \theta \]</formula></para>
+<para>in which <formula id="84">$ \phi $</formula> is the (out-of-plane) elevation angle of the spacecraft, <formula id="65">$ \theta $</formula> is the (in-plane) azimuthal angle and <formula id="85">$ ( b_0 ,b_1, b_2, b_3) $</formula> are parameters that define the shape of the trajectory.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>anAzimuthalAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the (in-plane) azimuthal angle [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The (out-of-plane) elevation angle at <formula id="65">$ \theta $</formula> [m]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="107" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/oscillatingFunctionNovak.cpp" bodystart="40" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ab6a7579fe3bed9a3901140f9e58d004c" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::OscillatingFunctionNovak::computeDerivative</definition>
+        <argsstring>(const unsigned int order, const double anAzimuthalAngle)</argsstring>
+        <name>computeDerivative</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a0929cfbeb90a6cbc85d50455fd01d75f">computeDerivative</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>anAzimuthalAngle</declname>
+        </param>
+        <briefdescription>
+<para>Compute the derivative of the function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the derivative of a given order of the function, for a given (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>. It only evaluates the first, second or third derivative, therefore the order should be 1, 2 or 3.</para>
+<para>The first derivative of the function is:</para>
+<para><formula id="86">\[ \frac{ d \phi }{ d \theta } ( \theta ) = \left( b_1 + b_2 + b_3 \theta \right) \cos \theta - \left( b_0 + b_1 \theta - b_3 \right) \sin \theta \]</formula></para>
+<para>The second derivative of the function is:</para>
+<para><formula id="87">\[ \frac{ d^2 \phi }{ d \theta^2 } ( \theta ) = \left( - b_0 - b_1 \theta + 2 b_3 \right) \cos \theta - \left( 2 b_1 + b_2 + b_3 \theta \right) \sin \theta \]</formula></para>
+<para>The third derivative of the function is:</para>
+<para><formula id="88">\[ \frac{ d^3 \phi }{ d \theta^3 } ( \theta ) = - \left( 3 b_1 + b_2 + b_3 \theta \right) \cos \theta - \left( b_0 + b_1 \theta - 3 b_3 \right) \sin \theta \]</formula></para>
+<para>In these formulas <formula id="84">$ \phi $</formula> is the (out-of-plane) elevation angle of the spacecraft, <formula id="65">$ \theta $</formula> is the (in-plane) azimuthal angle, the prime indicates the derivative with respect to <formula id="65">$ \theta $</formula>, and <formula id="89">$ ( b_0 ,b_1, b_2, b_3 ) $</formula> are parameters that define the shape of the trajectory.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the derivative to evaluate. Can be either 1, 2 or 3. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>anAzimuthalAngle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value of the (in-plane) azimuthal angle [rad]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of the derivative of order 1, 2 or 3 of the function [-, rad^-1, rad^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="148" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/oscillatingFunctionNovak.cpp" bodystart="55" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ac8f56d30994eb778970c8b7d2b9a4568" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>double</type>
+        <definition>double tudat::mission_segments::OscillatingFunctionNovak::computeDefiniteIntegral</definition>
+        <argsstring>(const unsigned int order, const double lowerBound, const double upperBound)</argsstring>
+        <name>computeDefiniteIntegral</name>
+        <reimplements refid="classtudat_1_1basic__mathematics_1_1Function_1a74c5639b8c6288471368e65312569e52">computeDefiniteIntegral</reimplements>
+        <param>
+          <type>const unsigned int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>lowerBound</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>upperBound</declname>
+        </param>
+        <briefdescription>
+<para>Compute the definite integral of the function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function throws a runtime error when it is called. The integral of the inverse polynomial function is not part of the shape-based method.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the integral to evaluate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lowerBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration lower bound (integrate from this point). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>upperBound</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integration upper bound (integrate to this point). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of the integral.</para>
+</simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>std::runtime_error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>when this function is used. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="162" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/mission_segments/oscillatingFunctionNovak.cpp" bodystart="120" bodyend="130"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para>Oscillating function approximating the (out-of-plane) elevation angle of a thrusting spacecraft.</para>
+<para>This class contains an oscillating function, and its exact first and second derivative w.r.t. the azimuthal angle <formula id="65">$ \theta $</formula>. It is a mathematical function, and can be used to approximate the out-of-plane motion of a thrusting spacecraft. The function is documented by Novak and Vasile [2011]. It approximates the (out-of-plane) elevation angle of the spacecraft. The (out-of-plane) elevation angle is parameterized in terms of an independent variable, the (in-plane) azimuthal angle <formula id="65">$ \theta $</formula>. The first and second derivative are taken with respect to this independent variable.</para>
+<para>The function is completely described by the independent variable <formula id="65">$ \theta $</formula> and a set of four parameters. These parameters are related to the boundary conditions of the problem: two initial conditions and two final conditions. These parameters are passed to this class as std::functions to facilitate the flexible external manipulation of their values. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::mission_segments::OscillatingFunctionNovak</label>
+        <link refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::mission_segments::OscillatingFunctionNovak</label>
+        <link refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_mathematics::Function&lt; &gt;</label>
+        <link refid="classtudat_1_1basic__mathematics_1_1Function"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" line="62" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments/oscillatingFunctionNovak.h" bodystart="63" bodyend="187"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1af3d040bec1c887f54fa8415944c8e622" prot="private" virt="non-virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>boundaryParameters_</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ac8f56d30994eb778970c8b7d2b9a4568" prot="public" virt="virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>computeDefiniteIntegral</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ab6a7579fe3bed9a3901140f9e58d004c" prot="public" virt="virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>computeDerivative</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1a3d0ac0b2d7a09ed14894740fab68a0e6" prot="public" virt="virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>evaluate</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1a4b135236b9531d0329c151afeef8a2d8" prot="public" virt="non-virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>operator()</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1ad24b8e814df4e7639b3d8c00caab3305" prot="public" virt="non-virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>OscillatingFunctionNovak</name></member>
+      <member refid="classtudat_1_1basic__mathematics_1_1Function_1ae438d4c770503bfdf34c812e4f47cf09" prot="public" virt="virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>~Function</name></member>
+      <member refid="classtudat_1_1mission__segments_1_1OscillatingFunctionNovak_1acbdd7fcee056d0b6433dbe909e24cd89" prot="public" virt="non-virtual"><scope>tudat::mission_segments::OscillatingFunctionNovak</scope><name>~OscillatingFunctionNovak</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

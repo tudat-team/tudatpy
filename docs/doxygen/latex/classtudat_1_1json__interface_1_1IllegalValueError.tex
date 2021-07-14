@@ -1,0 +1,66 @@
+\hypertarget{classtudat_1_1json__interface_1_1IllegalValueError}{}\doxysection{tudat\+::json\+\_\+interface\+::Illegal\+Value\+Error Class Reference}
+\label{classtudat_1_1json__interface_1_1IllegalValueError}\index{tudat::json\_interface::IllegalValueError@{tudat::json\_interface::IllegalValueError}}
+
+
+Class for errors generated when trying to convert a {\ttfamily json} object to another type.  
+
+
+
+
+{\ttfamily \#include $<$error\+Handling.\+h$>$}
+
+Inheritance diagram for tudat\+::json\+\_\+interface\+::Illegal\+Value\+Error\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1json__interface_1_1IllegalValueError}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1json__interface_1_1IllegalValueError_ad917c8b921c178a01d64cf5270d0e939}{Illegal\+Value\+Error}} (const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1ValueAccessError_aa2034325482fe4f045241bc10b8c6e91}{key\+Path}}, const nlohmann\+::json \&\mbox{\hyperlink{classtudat_1_1json__interface_1_1IllegalValueError_a147ba7823a80b1e732b0dde392b42985}{value}}, const std\+::type\+\_\+info \&expected\+Type\+Info)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1IllegalValueError_aadb0ec45b224a81de604a00bac683526}\label{classtudat_1_1json__interface_1_1IllegalValueError_aadb0ec45b224a81de604a00bac683526}} 
+virtual const char $\ast$ \mbox{\hyperlink{classtudat_1_1json__interface_1_1IllegalValueError_aadb0ec45b224a81de604a00bac683526}{what}} () const  throw ( )
+\begin{DoxyCompactList}\small\item\em Full error message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1IllegalValueError_a147ba7823a80b1e732b0dde392b42985}\label{classtudat_1_1json__interface_1_1IllegalValueError_a147ba7823a80b1e732b0dde392b42985}} 
+nlohmann\+::json \mbox{\hyperlink{classtudat_1_1json__interface_1_1IllegalValueError_a147ba7823a80b1e732b0dde392b42985}{value}}
+\begin{DoxyCompactList}\small\item\em Associated (illegal) value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1IllegalValueError_a31887ccd3fefd77fb674f180483d6a5b}\label{classtudat_1_1json__interface_1_1IllegalValueError_a31887ccd3fefd77fb674f180483d6a5b}} 
+std\+::string \mbox{\hyperlink{classtudat_1_1json__interface_1_1IllegalValueError_a31887ccd3fefd77fb674f180483d6a5b}{expected\+Type\+Name}}
+\begin{DoxyCompactList}\small\item\em Expected type name. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for errors generated when trying to convert a {\ttfamily json} object to another type. 
+
+Class for errors generated when trying to convert a {\ttfamily json} object to another type. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1json__interface_1_1IllegalValueError_ad917c8b921c178a01d64cf5270d0e939}\label{classtudat_1_1json__interface_1_1IllegalValueError_ad917c8b921c178a01d64cf5270d0e939}} 
+\index{tudat::json\_interface::IllegalValueError@{tudat::json\_interface::IllegalValueError}!IllegalValueError@{IllegalValueError}}
+\index{IllegalValueError@{IllegalValueError}!tudat::json\_interface::IllegalValueError@{tudat::json\_interface::IllegalValueError}}
+\doxysubsubsection{\texorpdfstring{IllegalValueError()}{IllegalValueError()}}
+{\footnotesize\ttfamily tudat\+::json\+\_\+interface\+::\+Illegal\+Value\+Error\+::\+Illegal\+Value\+Error (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1json__interface_1_1KeyPath}{Key\+Path}} \&}]{key\+Path,  }\item[{const nlohmann\+::json \&}]{value,  }\item[{const std\+::type\+\_\+info \&}]{expected\+Type\+Info }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor. 
+\begin{DoxyParams}{Parameters}
+{\em key\+Path} & Key path {\ttfamily value} was retrieved from. \\
+\hline
+{\em value} & The {\ttfamily json} object that was going to be converted to the expected type. \\
+\hline
+{\em expected\+Type\+Info} & Type id info of the expected type. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/interface/json/support/error\+Handling.\+h\end{DoxyCompactItemize}

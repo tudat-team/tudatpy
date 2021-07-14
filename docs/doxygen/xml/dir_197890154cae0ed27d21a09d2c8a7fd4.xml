@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_197890154cae0ed27d21a09d2c8a7fd4" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat</compoundname>
+    <innerdir refid="dir_1cc219d3ce81967850d6b39b4c01dd1b">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro</innerdir>
+    <innerdir refid="dir_c20fcb78849ef3078f6210adce8f88f4">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/basics</innerdir>
+    <innerdir refid="dir_b80ff87a0ddc2cdc8d2d2b79861bd592">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface</innerdir>
+    <innerdir refid="dir_37db7d1a920e3c873a7e404aead31964">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/io</innerdir>
+    <innerdir refid="dir_d71667beed28203c848646c0d144cf38">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/math</innerdir>
+    <innerdir refid="dir_dfa10dcf0288f37e0589825c38493a49">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation</innerdir>
+    <innerfile refid="basics_8h">basics.h</innerfile>
+    <innerfile refid="constants_8h">constants.h</innerfile>
+    <innerfile refid="io_8h">io.h</innerfile>
+    <innerfile refid="paths_8hpp">paths.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/"/>
+  </compounddef>
+</doxygen>

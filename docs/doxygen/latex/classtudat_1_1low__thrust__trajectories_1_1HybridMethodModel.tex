@@ -1,0 +1,74 @@
+\hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel}{}\doxysection{tudat\+::low\+\_\+thrust\+\_\+trajectories\+::Hybrid\+Method\+Model Class Reference}
+\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel}\index{tudat::low\_thrust\_trajectories::HybridMethodModel@{tudat::low\_thrust\_trajectories::HybridMethodModel}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab7c136496e6fae4e26933166c768903e}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab7c136496e6fae4e26933166c768903e}} 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab7c136496e6fae4e26933166c768903e}{Hybrid\+Method\+Model}} (const Eigen\+::\+Vector6d \&state\+At\+Departure, const Eigen\+::\+Vector6d \&state\+At\+Arrival, const Eigen\+::\+Vector\+Xd \&initial\+Co\+States, const Eigen\+::\+Vector\+Xd \&final\+Co\+States, const double central\+Body\+Gravitational\+Parameter, const double maximum\+Thrust, const double specific\+Impulse, const double time\+Of\+Flight)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a84978a4111f6ece3639955a7404103e1}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a84978a4111f6ece3639955a7404103e1}} 
+\mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a84978a4111f6ece3639955a7404103e1}{$\sim$\+Hybrid\+Method\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a980879bb141aba6595648ca18c5c4626}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a980879bb141aba6595648ca18c5c4626}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AccelerationSettings}{simulation\+\_\+setup\+::\+Acceleration\+Settings}} $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a980879bb141aba6595648ca18c5c4626}{get\+MEEcostates\+Based\+Thrust\+Acceleration\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve MEE costates-\/based thrust acceleration. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a062a07d69bac42d33f208d024e80652f}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a062a07d69bac42d33f208d024e80652f}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustMagnitudeSettings}{simulation\+\_\+setup\+::\+Thrust\+Magnitude\+Settings}} $>$ {\bfseries get\+MEEcostates\+Based\+Thrust\+Magnitude\+Settings} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_af04a2cc655d25f495e5ba51dcda742d2}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_af04a2cc655d25f495e5ba51dcda742d2}} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustDirectionGuidanceSettings}{simulation\+\_\+setup\+::\+Thrust\+Direction\+Guidance\+Settings}} $>$ {\bfseries get\+MEEcostates\+Based\+Thrust\+Direction\+Settings} ()
+\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aa9827b0c7f4f03b14b11c7d3f77dbdfb}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aa9827b0c7f4f03b14b11c7d3f77dbdfb}} 
+basic\+\_\+astrodynamics\+::\+Acceleration\+Map \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aa9827b0c7f4f03b14b11c7d3f77dbdfb}{get\+Low\+Thrust\+Trajectory\+Acceleration\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Retrieve hybrid method acceleration model (including thrust and central gravity acceleration) \end{DoxyCompactList}\item 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a65bc869497d5db9fe7f2be74af3d74cd}{propagate\+Trajectory}} ()
+\begin{DoxyCompactList}\small\item\em Propagate the spacecraft trajectory to time of flight. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2f456d9319a8117b7f1bd70d2a513d31}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2f456d9319a8117b7f1bd70d2a513d31}} 
+Eigen\+::\+Vector6d \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2f456d9319a8117b7f1bd70d2a513d31}{propagate\+Trajectory}} (double initial\+Time, double final\+Time, Eigen\+::\+Vector6d initial\+State, double initial\+Mass)
+\begin{DoxyCompactList}\small\item\em Propagate the spacecraft trajectory to a given time. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aece0cae31865abd42eebd1e48aebcea3}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aece0cae31865abd42eebd1e48aebcea3}} 
+std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_aece0cae31865abd42eebd1e48aebcea3}{propagate\+Trajectory}} (std\+::vector$<$ double $>$ epochs, std\+::map$<$ double, Eigen\+::\+Vector6d $>$ \&propagated\+Trajectory)
+\begin{DoxyCompactList}\small\item\em Propagate the trajectory to set of epochs. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a0c2639461c5c54cb4570d83f64aa59aa}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a0c2639461c5c54cb4570d83f64aa59aa}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a0c2639461c5c54cb4570d83f64aa59aa}{compute\+DeltaV}} ()
+\begin{DoxyCompactList}\small\item\em Return the deltaV associated with the thrust profile of the trajectory. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ac637698e3305d55ca56f13dbdb9003f9}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ac637698e3305d55ca56f13dbdb9003f9}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ac637698e3305d55ca56f13dbdb9003f9}{get\+State\+At\+Leg\+Departure}} ()
+\begin{DoxyCompactList}\small\item\em Returns initial state at leg departure. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a1bcbffe7fae328d19230552b78097276}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a1bcbffe7fae328d19230552b78097276}} 
+Eigen\+::\+Vector\+Xd \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a1bcbffe7fae328d19230552b78097276}{get\+State\+At\+Leg\+Arrival}} ()
+\begin{DoxyCompactList}\small\item\em Returns final state at leg arrival. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2b3e3753e35df0fa5f84add46d231ff1}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2b3e3753e35df0fa5f84add46d231ff1}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a2b3e3753e35df0fa5f84add46d231ff1}{get\+Mass\+At\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Returns propagated mass when the time of flight is reached. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ae56c78536dcef9082909597beff8cb26}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ae56c78536dcef9082909597beff8cb26}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ae56c78536dcef9082909597beff8cb26}{get\+Maximum\+Thrust\+Value}} ()
+\begin{DoxyCompactList}\small\item\em Returns maximum allowed thrust. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab9ffd0738e0ba2ac21f957350fcaa164}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab9ffd0738e0ba2ac21f957350fcaa164}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ab9ffd0738e0ba2ac21f957350fcaa164}{get\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Returns time of flight. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ad9899c9a31ac15bd100c67651d79d027}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ad9899c9a31ac15bd100c67651d79d027}} 
+double \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_ad9899c9a31ac15bd100c67651d79d027}{get\+Total\+DeltaV}} ()
+\begin{DoxyCompactList}\small\item\em Return total deltaV required by the trajectory. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a401d5d4c80e02481f6efc6c3fe60584e}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a401d5d4c80e02481f6efc6c3fe60584e}} 
+std\+::function$<$ Eigen\+::\+Vector\+Xd(const double) $>$ \mbox{\hyperlink{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a401d5d4c80e02481f6efc6c3fe60584e}{get\+Costates\+Function\+\_\+}} ()
+\begin{DoxyCompactList}\small\item\em Return the current MEE co-\/states. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a65bc869497d5db9fe7f2be74af3d74cd}\label{classtudat_1_1low__thrust__trajectories_1_1HybridMethodModel_a65bc869497d5db9fe7f2be74af3d74cd}} 
+\index{tudat::low\_thrust\_trajectories::HybridMethodModel@{tudat::low\_thrust\_trajectories::HybridMethodModel}!propagateTrajectory@{propagateTrajectory}}
+\index{propagateTrajectory@{propagateTrajectory}!tudat::low\_thrust\_trajectories::HybridMethodModel@{tudat::low\_thrust\_trajectories::HybridMethodModel}}
+\doxysubsubsection{\texorpdfstring{propagateTrajectory()}{propagateTrajectory()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector6d tudat\+::low\+\_\+thrust\+\_\+trajectories\+::\+Hybrid\+Method\+Model\+::propagate\+Trajectory (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Propagate the spacecraft trajectory to time of flight. 
+
+Propagate the spacecraft trajectory to time-\/of-\/flight. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/low\+\_\+thrust/hybrid\+Method\+Model.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/low\+\_\+thrust/hybrid\+Method\+Model.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,254 @@
+\hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo}{}\doxysection{tudat\+::mission\+\_\+segments\+::Multi\+Revolution\+Lambert\+Targeter\+Izzo Class Reference}
+\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo}\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+
+
+Izzo Lambert targeting algorithm class (multiple revolution).  
+
+
+
+
+{\ttfamily \#include $<$multi\+Revolution\+Lambert\+Targeter\+Izzo.\+h$>$}
+
+Inheritance diagram for tudat\+::mission\+\_\+segments\+::Multi\+Revolution\+Lambert\+Targeter\+Izzo\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+EIGEN\+\_\+\+MAKE\+\_\+\+ALIGNED\+\_\+\+OPERATOR\+\_\+\+NEW \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_afe0dfe9e561220642db5a438b8518a47}{Multi\+Revolution\+Lambert\+Targeter\+Izzo}} (const Eigen\+::\+Vector3d \&a\+Cartesian\+Position\+At\+Departure, const Eigen\+::\+Vector3d \&a\+Cartesian\+Position\+At\+Arrival, const double a\+Time\+Of\+Flight, const double a\+Gravitational\+Parameter, const int a\+Number\+Of\+Revolutions=0, const bool a\+Is\+Right\+Branch=false, const bool a\+Is\+Retrograde=false, const double a\+Convergence\+Tolerance=1e-\/9, const int a\+Maximum\+Number\+Of\+Iterations=50)
+\begin{DoxyCompactList}\small\item\em Multiple revolution Lambert problem constructor for problem definition. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a043cf2017321acf61c66d0e1b3854cd2}{compute\+For\+Revolutions\+And\+Branch}} (const int a\+Number\+Of\+Revolutions, const bool a\+Is\+Right\+Branch)
+\begin{DoxyCompactList}\small\item\em Compute solution for N revolutions and branch. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a631d7f7fafb29a70736339d8880b9573}{get\+Maximum\+Number\+Of\+Revolutions}} ()
+\begin{DoxyCompactList}\small\item\em Get maximum number of revolutions calculated. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+static const int \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a13989fb53b66d6f5ddc3eb3283a9dd0d}{NO\+\_\+\+MAXIMUM\+\_\+\+REVOLUTIONS}} = -\/1
+\begin{DoxyCompactList}\small\item\em Flag indicating that the maximum number of revolutions has not yet been calculated! \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a85a8176d44d76522c7294003d6c438f0}{sanity\+Check\+Number\+Of\+Revolutions}} ()
+\begin{DoxyCompactList}\small\item\em Sanity check number of revolutions. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a12b1d8e5895d3e73bd6c8b9a462c90ae}{execute}} ()
+\begin{DoxyCompactList}\small\item\em Execute the solving procedure (for multiple revolutions). \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a757b698ee15bb15678118698cf178a0e}{compute\+Time\+Of\+Flight}} (const double x\+Parameter)
+\begin{DoxyCompactList}\small\item\em Compute time-\/of-\/flight using Lagrange\textquotesingle{}s equation (for multiple revolutions). \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a4dd9cff148719f99c31ace8234cef3dd}{compute\+Root\+Time\+Of\+Flight}} ()
+\begin{DoxyCompactList}\small\item\em Solve the time of flight equation for x (for multiple revolutions). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_abc7999d932142238f64050ec3c2d4d85}{number\+Of\+Revolutions}}
+\begin{DoxyCompactList}\small\item\em Number of revolutions in problem. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a6da335c19c0dfd2a914ec4c08e76a01f}{is\+Right\+Branch}}
+\begin{DoxyCompactList}\small\item\em Left/right branch flag. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a39d81688a72b0ff52cb5e938ea5af1c4}{maximum\+Number\+Of\+Revolutions}}
+\begin{DoxyCompactList}\small\item\em Maximum number of revolutions possible in problem. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Izzo Lambert targeting algorithm class (multiple revolution). 
+
+Solves the multi revolution (input parameter) Lambert problem using Izzo\textquotesingle{}s algorithms, i.\+e., the two point boundary value problem of what kind of unperturbed Keplerian orbit connects two positions in a certain time of flight.
+
+This class uses lazy evaluation, solving the algorithm is postponed until the function call relying on the computations.
+
+The algorithm used is the same algorithms as the zero revolution base class (Izzo\textquotesingle{}s method)\+: only the computation of the time of flight (based on Battin\textquotesingle{}s x-\/variable) now includes the number of revolutions. The branch is required for specifying the neighborhood of the two roots of the problem. Furthermore, the non-\/dimensionalized parameters are stored internally and reused for new calculations of new solutions for the same object.
+
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & For negative time of flight and gravitational parameter values. Also, the number of revolutions is checked for feasibility\+: no negative values are allowed and is checked against an automatic computation of the maximum number of revolutions. \\
+\hline
+{\em \mbox{\hyperlink{structtudat_1_1basic__mathematics_1_1ConvergenceException}{basic\+\_\+mathematics\+::\+Convergence\+Exception}}} & When the internal rootfinding algorithm fails to converge within a reasonable amount of iterations. \\
+\hline
+\end{DoxyExceptions}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_afe0dfe9e561220642db5a438b8518a47}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_afe0dfe9e561220642db5a438b8518a47}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!MultiRevolutionLambertTargeterIzzo@{MultiRevolutionLambertTargeterIzzo}}
+\index{MultiRevolutionLambertTargeterIzzo@{MultiRevolutionLambertTargeterIzzo}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{MultiRevolutionLambertTargeterIzzo()}{MultiRevolutionLambertTargeterIzzo()}}
+{\footnotesize\ttfamily EIGEN\+\_\+\+MAKE\+\_\+\+ALIGNED\+\_\+\+OPERATOR\+\_\+\+NEW tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{a\+Cartesian\+Position\+At\+Departure,  }\item[{const Eigen\+::\+Vector3d \&}]{a\+Cartesian\+Position\+At\+Arrival,  }\item[{const double}]{a\+Time\+Of\+Flight,  }\item[{const double}]{a\+Gravitational\+Parameter,  }\item[{const int}]{a\+Number\+Of\+Revolutions = {\ttfamily 0},  }\item[{const bool}]{a\+Is\+Right\+Branch = {\ttfamily false},  }\item[{const bool}]{a\+Is\+Retrograde = {\ttfamily false},  }\item[{const double}]{a\+Convergence\+Tolerance = {\ttfamily 1e-\/9},  }\item[{const int}]{a\+Maximum\+Number\+Of\+Iterations = {\ttfamily 50} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Multiple revolution Lambert problem constructor for problem definition. 
+
+Constructs a lambert problem with all relevant parameters for a multiple revolution problem (i.\+e. allowing multiple full revolutions in the solution). Constructor does not compute a solution in order to save on computations; solving is done on first member function call by user. 
+\begin{DoxyParams}{Parameters}
+{\em a\+Cartesian\+Position\+At\+Departure} & The initial position in xyz-\/coordinates. \mbox{[}m\mbox{]} \\
+\hline
+{\em a\+Cartesian\+Position\+At\+Arrival} & The final position in xyz-\/coordinates. \mbox{[}m\mbox{]} \\
+\hline
+{\em a\+Time\+Of\+Flight} & The time-\/of-\/flight between the two positions. \mbox{[}s\mbox{]} \\
+\hline
+{\em a\+Gravitational\+Parameter} & The gravitational parameter of the central body for the computed solution orbit. \mbox{[}m$^\wedge$3/s$^\wedge$2\mbox{]} \\
+\hline
+{\em a\+Number\+Of\+Revolutions} & The required number of revolutions in the problem solution (default 0). \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Is\+Right\+Branch} & A boolean flag to indicate whether the right or left branch (corresponding to a low or high energy transfer arc) should be used in the solution (default false). \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Is\+Retrograde} & A boolean flag to indicate retrograde motion with (default false). \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Convergence\+Tolerance} & The required tolerance for the root solving procedure. \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Maximum\+Number\+Of\+Iterations} & The required number of iterations the root solving procedure is allowed to go through (default 50). \mbox{[}-\/\mbox{]} \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a043cf2017321acf61c66d0e1b3854cd2}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a043cf2017321acf61c66d0e1b3854cd2}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!computeForRevolutionsAndBranch@{computeForRevolutionsAndBranch}}
+\index{computeForRevolutionsAndBranch@{computeForRevolutionsAndBranch}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{computeForRevolutionsAndBranch()}{computeForRevolutionsAndBranch()}}
+{\footnotesize\ttfamily void tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::compute\+For\+Revolutions\+And\+Branch (\begin{DoxyParamCaption}\item[{const int}]{a\+Number\+Of\+Revolutions,  }\item[{const bool}]{a\+Is\+Right\+Branch }\end{DoxyParamCaption})}
+
+
+
+Compute solution for N revolutions and branch. 
+
+Using the constants from the problem specified in the constructor, this calculates an alternative solution specified by the number of revolutions and branch selected. 
+\begin{DoxyParams}{Parameters}
+{\em a\+Number\+Of\+Revolutions} & Number of revolutions for the alternative solution. \mbox{[}-\/\mbox{]} \\
+\hline
+{\em a\+Is\+Right\+Branch} & A boolean flag to indicate retrograde motion. \mbox{[}-\/\mbox{]} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a4dd9cff148719f99c31ace8234cef3dd}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a4dd9cff148719f99c31ace8234cef3dd}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!computeRootTimeOfFlight@{computeRootTimeOfFlight}}
+\index{computeRootTimeOfFlight@{computeRootTimeOfFlight}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{computeRootTimeOfFlight()}{computeRootTimeOfFlight()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::compute\+Root\+Time\+Of\+Flight (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Solve the time of flight equation for x (for multiple revolutions). 
+
+Initializes and finds the root of the equation $ 0 = t_f - F( x ) $, where $ F( x ) $ is a function to compute the time-\/of-\/flight as a function of $ x $, for a multiple revolution solution. \begin{DoxyReturn}{Returns}
+x\+Parameter Computed x parameter. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_a98925d977adff13d26b20caf4a1faa49}{tudat\+::mission\+\_\+segments\+::\+Zero\+Revolution\+Lambert\+Targeter\+Izzo}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a757b698ee15bb15678118698cf178a0e}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a757b698ee15bb15678118698cf178a0e}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!computeTimeOfFlight@{computeTimeOfFlight}}
+\index{computeTimeOfFlight@{computeTimeOfFlight}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{computeTimeOfFlight()}{computeTimeOfFlight()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::compute\+Time\+Of\+Flight (\begin{DoxyParamCaption}\item[{const double}]{x\+Parameter }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Compute time-\/of-\/flight using Lagrange\textquotesingle{}s equation (for multiple revolutions). 
+
+Computes the time-\/of-\/flight according to Lagrange\textquotesingle{}s equation as a function of the x-\/parameter as used by Battin, using the class\textquotesingle{}s sub results, including multiple revolutions. 
+\begin{DoxyParams}{Parameters}
+{\em x\+Parameter} & x parameter in Izzo\textquotesingle{}s algorithm. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+time\+Of\+Flight Computed time-\/of-\/flight. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_a580304bcf54f4024c3ccf191ca5d2633}{tudat\+::mission\+\_\+segments\+::\+Zero\+Revolution\+Lambert\+Targeter\+Izzo}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a12b1d8e5895d3e73bd6c8b9a462c90ae}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a12b1d8e5895d3e73bd6c8b9a462c90ae}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!execute@{execute}}
+\index{execute@{execute}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{execute()}{execute()}}
+{\footnotesize\ttfamily void tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::execute (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Execute the solving procedure (for multiple revolutions). 
+
+Execute solving procedure (for multiple revolutions).
+
+Executes the de-\/dimensionalization of the input parameter, solves the root for the time of flight equation, and subsequently reconstructs the inertial velocities to obtain a solution to the Lambert problem specified by the constructor of the class. If the number of revolutions specified is zero, it automatically calls to the base class function to calculate for zero revolutions. 
+
+Reimplemented from \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ZeroRevolutionLambertTargeterIzzo_a1cb96dd1627e781c996d38b9303a57df}{tudat\+::mission\+\_\+segments\+::\+Zero\+Revolution\+Lambert\+Targeter\+Izzo}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a631d7f7fafb29a70736339d8880b9573}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a631d7f7fafb29a70736339d8880b9573}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!getMaximumNumberOfRevolutions@{getMaximumNumberOfRevolutions}}
+\index{getMaximumNumberOfRevolutions@{getMaximumNumberOfRevolutions}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{getMaximumNumberOfRevolutions()}{getMaximumNumberOfRevolutions()}}
+{\footnotesize\ttfamily int tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::get\+Maximum\+Number\+Of\+Revolutions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get maximum number of revolutions calculated. 
+
+Returns the maximum number of revolutions possible in a solution to the problem specified. \begin{DoxyReturn}{Returns}
+maximum\+Number\+Of\+Revolutions Maximum number of revolutions possible for the problem. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a85a8176d44d76522c7294003d6c438f0}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a85a8176d44d76522c7294003d6c438f0}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!sanityCheckNumberOfRevolutions@{sanityCheckNumberOfRevolutions}}
+\index{sanityCheckNumberOfRevolutions@{sanityCheckNumberOfRevolutions}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{sanityCheckNumberOfRevolutions()}{sanityCheckNumberOfRevolutions()}}
+{\footnotesize\ttfamily void tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::sanity\+Check\+Number\+Of\+Revolutions (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Sanity check number of revolutions. 
+
+Computes (if not done before) the maximum number of revolutions possible and checks whether the number of revolutions specified is within this solution space. This only yields a proper outcome after dimensions have been transformed. 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a6da335c19c0dfd2a914ec4c08e76a01f}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a6da335c19c0dfd2a914ec4c08e76a01f}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!isRightBranch@{isRightBranch}}
+\index{isRightBranch@{isRightBranch}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{isRightBranch}{isRightBranch}}
+{\footnotesize\ttfamily bool tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::is\+Right\+Branch\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Left/right branch flag. 
+
+Boolean indicator for left or right branch solution, corresponding to a low or high energy transfer of the multiple solutions. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a39d81688a72b0ff52cb5e938ea5af1c4}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a39d81688a72b0ff52cb5e938ea5af1c4}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!maximumNumberOfRevolutions@{maximumNumberOfRevolutions}}
+\index{maximumNumberOfRevolutions@{maximumNumberOfRevolutions}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{maximumNumberOfRevolutions}{maximumNumberOfRevolutions}}
+{\footnotesize\ttfamily int tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::maximum\+Number\+Of\+Revolutions\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Maximum number of revolutions possible in problem. 
+
+Number of full revolutions possible as a solution in the problem specified.
+
+NB\+: The following parameter is calculated on construction of the object and therefore not declared const. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a13989fb53b66d6f5ddc3eb3283a9dd0d}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_a13989fb53b66d6f5ddc3eb3283a9dd0d}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!NO\_MAXIMUM\_REVOLUTIONS@{NO\_MAXIMUM\_REVOLUTIONS}}
+\index{NO\_MAXIMUM\_REVOLUTIONS@{NO\_MAXIMUM\_REVOLUTIONS}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{NO\_MAXIMUM\_REVOLUTIONS}{NO\_MAXIMUM\_REVOLUTIONS}}
+{\footnotesize\ttfamily const int tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::\+NO\+\_\+\+MAXIMUM\+\_\+\+REVOLUTIONS = -\/1\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Flag indicating that the maximum number of revolutions has not yet been calculated! 
+
+When maximum\+Number\+Of\+Revolutions is this amount of revolutions, it has not yet been initialized. Initialization is done automatically for the user. \mbox{\Hypertarget{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_abc7999d932142238f64050ec3c2d4d85}\label{classtudat_1_1mission__segments_1_1MultiRevolutionLambertTargeterIzzo_abc7999d932142238f64050ec3c2d4d85}} 
+\index{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}!numberOfRevolutions@{numberOfRevolutions}}
+\index{numberOfRevolutions@{numberOfRevolutions}!tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo@{tudat::mission\_segments::MultiRevolutionLambertTargeterIzzo}}
+\doxysubsubsection{\texorpdfstring{numberOfRevolutions}{numberOfRevolutions}}
+{\footnotesize\ttfamily int tudat\+::mission\+\_\+segments\+::\+Multi\+Revolution\+Lambert\+Targeter\+Izzo\+::number\+Of\+Revolutions\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Number of revolutions in problem. 
+
+Number of full revolutions needed in the solution to the problem specified.
+
+NB\+: the following parameters can be readjusted by the appropriate public function and therefore not declared const. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/mission\+\_\+segments/multi\+Revolution\+Lambert\+Targeter\+Izzo.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/mission\+\_\+segments/multi\+Revolution\+Lambert\+Targeter\+Izzo.\+cpp\end{DoxyCompactItemize}

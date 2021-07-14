@@ -1,0 +1,87 @@
+\hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings}{}\doxysection{tudat\+::observation\+\_\+models\+::NWay\+Range\+Observation\+Settings Class Reference}
+\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings}\index{tudat::observation\_models::NWayRangeObservationSettings@{tudat::observation\_models::NWayRangeObservationSettings}}
+
+
+Class to define the settings for one-\/way differenced range-\/rate (e.\+g. closed-\/loop Doppler) observable.  
+
+
+
+
+{\ttfamily \#include $<$create\+Observation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::NWay\+Range\+Observation\+Settings\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1observation__models_1_1NWayRangeObservationSettings}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_a9f4af1105f69e320f1898a3edcd7ba70}{NWay\+Range\+Observation\+Settings}} (const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSettings}{Observation\+Settings}} $>$ $>$ one\+Way\+Range\+Obsevation\+Settings, const std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$ retransmission\+Times\+Function=std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$(), const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBiasSettings}{Observation\+Bias\+Settings}} $>$ bias\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_ac50d458f5e8f8a91f6dfdecabf0482b0}{NWay\+Range\+Observation\+Settings}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1LightTimeCorrectionSettings}{Light\+Time\+Correction\+Settings}} $>$ light\+Time\+Corrections, const int number\+Of\+Link\+Ends, const std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$ retransmission\+Times\+Function=std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$(), const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBiasSettings}{Observation\+Bias\+Settings}} $>$ bias\+Settings=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_abee250d1c97d0d35293f624b096fd512}\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_abee250d1c97d0d35293f624b096fd512}} 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_abee250d1c97d0d35293f624b096fd512}{$\sim$\+NWay\+Range\+Observation\+Settings}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_a42bf8d5521b2179aff7648470862c69a}\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_a42bf8d5521b2179aff7648470862c69a}} 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSettings}{Observation\+Settings}} $>$ $>$ {\bfseries one\+Way\+Range\+Obsevation\+Settings\+\_\+}
+\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_aa612eb60f4c6f976745bec7e9a865078}\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_aa612eb60f4c6f976745bec7e9a865078}} 
+std\+::function$<$ std\+::vector$<$ double $>$ const double) $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_aa612eb60f4c6f976745bec7e9a865078}{retransmission\+Times\+Function\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Function that returns the integration time of observable as a function of time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class to define the settings for one-\/way differenced range-\/rate (e.\+g. closed-\/loop Doppler) observable. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_a9f4af1105f69e320f1898a3edcd7ba70}\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_a9f4af1105f69e320f1898a3edcd7ba70}} 
+\index{tudat::observation\_models::NWayRangeObservationSettings@{tudat::observation\_models::NWayRangeObservationSettings}!NWayRangeObservationSettings@{NWayRangeObservationSettings}}
+\index{NWayRangeObservationSettings@{NWayRangeObservationSettings}!tudat::observation\_models::NWayRangeObservationSettings@{tudat::observation\_models::NWayRangeObservationSettings}}
+\doxysubsubsection{\texorpdfstring{NWayRangeObservationSettings()}{NWayRangeObservationSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+models\+::\+NWay\+Range\+Observation\+Settings\+::\+NWay\+Range\+Observation\+Settings (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationSettings}{Observation\+Settings}} $>$ $>$}]{one\+Way\+Range\+Obsevation\+Settings,  }\item[{const std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$}]{retransmission\+Times\+Function = {\ttfamily std\+:\+:function$<$~std\+:\+:vector$<$~double~$>$(~const~double~~)~$>$(~)},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBiasSettings}{Observation\+Bias\+Settings}} $>$}]{bias\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em one\+Way\+Range\+Obsevation\+Settings} & List of settings for one-\/way observables that make up n-\/way link (each must be for one\+\_\+way\+\_\+range\+\_\+ \\
+\hline
+{\em retransmission\+Times\+Function} & Function that returns the retransmission delay time of the signal as a function of observation timew. \\
+\hline
+{\em bias\+Settings} & Settings for the observation bias model that is to be used (default none\+: nullptr) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_ac50d458f5e8f8a91f6dfdecabf0482b0}\label{classtudat_1_1observation__models_1_1NWayRangeObservationSettings_ac50d458f5e8f8a91f6dfdecabf0482b0}} 
+\index{tudat::observation\_models::NWayRangeObservationSettings@{tudat::observation\_models::NWayRangeObservationSettings}!NWayRangeObservationSettings@{NWayRangeObservationSettings}}
+\index{NWayRangeObservationSettings@{NWayRangeObservationSettings}!tudat::observation\_models::NWayRangeObservationSettings@{tudat::observation\_models::NWayRangeObservationSettings}}
+\doxysubsubsection{\texorpdfstring{NWayRangeObservationSettings()}{NWayRangeObservationSettings()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily tudat\+::observation\+\_\+models\+::\+NWay\+Range\+Observation\+Settings\+::\+NWay\+Range\+Observation\+Settings (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1LightTimeCorrectionSettings}{Light\+Time\+Correction\+Settings}} $>$}]{light\+Time\+Corrections,  }\item[{const int}]{number\+Of\+Link\+Ends,  }\item[{const std\+::function$<$ std\+::vector$<$ double $>$(const double) $>$}]{retransmission\+Times\+Function = {\ttfamily std\+:\+:function$<$~std\+:\+:vector$<$~double~$>$(~const~double~~)~$>$(~)},  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBiasSettings}{Observation\+Bias\+Settings}} $>$}]{bias\+Settings = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor for same light-\/time corrections per link 
+\begin{DoxyParams}{Parameters}
+{\em light\+Time\+Corrections} & Settings for a single light-\/time correction that is to be used for the observation model (nullptr if none) \\
+\hline
+{\em number\+Of\+Link\+Ends} & Number of link ends in observable (equal to n+1 for \textquotesingle{}n\textquotesingle{}-\/way observable) \\
+\hline
+{\em retransmission\+Times\+Function} & Function that returns the retransmission delay time of the signal as a function of observation timew. \\
+\hline
+{\em bias\+Settings} & Settings for the observation bias model that is to be used (default none\+: nullptr) \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/estimation\+\_\+setup/create\+Observation\+Model.\+h\end{DoxyCompactItemize}

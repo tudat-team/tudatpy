@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" prot="public" virt="non-virtual">tudat::simulation_setup::AerodynamicCoefficientSettings</basecompoundref>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1ac8f04d86c637dd0bbc5876d5d6f684ab" prot="protected" static="no" mutable="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientSettings &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::baseSettings_</definition>
+        <argsstring></argsstring>
+        <name>baseSettings_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="293" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="293" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a5c7b95d516d17a58bb178549e2d41c64" prot="protected" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::forceScaling_</definition>
+        <argsstring></argsstring>
+        <name>forceScaling_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="295" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="295" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a9a13894e1196c4e85d4acb81087c37cc" prot="protected" static="no" mutable="no">
+        <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>const std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::momentScaling_</definition>
+        <argsstring></argsstring>
+        <name>momentScaling_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="297" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="297" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a24a0ea3448cf2f224b332241c44a2559" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::isScalingAbsolute_</definition>
+        <argsstring></argsstring>
+        <name>isScalingAbsolute_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="299" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="299" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a131f938abb762a33653f26945036da36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::ScaledAerodynamicCoefficientInterfaceSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; AerodynamicCoefficientSettings &gt; baseSettings, const Eigen::Vector3d forceScaling, const Eigen::Vector3d momentScaling, const bool isScalingAbsolute)</argsstring>
+        <name>ScaledAerodynamicCoefficientInterfaceSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> &gt;</type>
+          <declname>baseSettings</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>forceScaling</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>momentScaling</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isScalingAbsolute</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="243" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="243" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1af28c6b2f93d8429e50891bd7b12e97b6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::ScaledAerodynamicCoefficientInterfaceSettings</definition>
+        <argsstring>(const std::shared_ptr&lt; AerodynamicCoefficientSettings &gt; baseSettings, const std::function&lt; Eigen::Vector3d(const double) &gt; forceScaling, const std::function&lt; Eigen::Vector3d(const double) &gt; momentScaling, const bool isScalingAbsolute)</argsstring>
+        <name>ScaledAerodynamicCoefficientInterfaceSettings</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> &gt;</type>
+          <declname>baseSettings</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>forceScaling</declname>
+        </param>
+        <param>
+          <type>const std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+          <declname>momentScaling</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>isScalingAbsolute</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="258" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="258" bodyend="269"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a9c547d21b27791387cac144f5d48cb04" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings" kindref="compound">AerodynamicCoefficientSettings</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; AerodynamicCoefficientSettings &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::getBaseSettings</definition>
+        <argsstring>()</argsstring>
+        <name>getBaseSettings</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="271" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="271" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1addcab59eb693a7ae0c75649fd0138456" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::getForceScaling</definition>
+        <argsstring>()</argsstring>
+        <name>getForceScaling</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="276" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="276" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a3cb6b13f47d8e0b3ff7317e86a8c77ac" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::function&lt; Eigen::Vector3d(const double) &gt;</type>
+        <definition>std::function&lt; Eigen::Vector3d( const double ) &gt; tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::getMomentScaling</definition>
+        <argsstring>()</argsstring>
+        <name>getMomentScaling</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="281" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="281" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a33bcde5173e359c46001329470ef2d1c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings::getIsScalingAbsolute</definition>
+        <argsstring>()</argsstring>
+        <name>getIsScalingAbsolute</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="286" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="286" bodyend="289"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::simulation_setup::AerodynamicCoefficientSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" line="240" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h" bodystart="241" bodyend="300"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a6f8d194362dc8c73a8391f8781573ab6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>AerodynamicCoefficientSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1ac8f04d86c637dd0bbc5876d5d6f684ab" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>baseSettings_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a5c7b95d516d17a58bb178549e2d41c64" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>forceScaling_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1ac9cdc44679a42e11702489a3720b1e97" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getAerodynamicCoefficientType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a19ec87d7db67573936c8c60825f56875" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getAreCoefficientsInAerodynamicFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a8446d225c5c7011a81280fe0fa1958c3" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getAreCoefficientsInNegativeAxisDirection</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a9c547d21b27791387cac144f5d48cb04" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getBaseSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1aba42847c085870816fe1926ebd4abb54" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getControlSurfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1addcab59eb693a7ae0c75649fd0138456" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getForceScaling</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a884a3349c41d023ab72e7566053227aa" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getIndependentVariableNames</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a1e7156947a676bc0d776c109877715ac" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getInterpolatorSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a33bcde5173e359c46001329470ef2d1c" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getIsScalingAbsolute</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a22915d5cfb8a662caf82b7ac082d7368" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getLateralReferenceLength</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a16b2b67e431df72bc0267189dd0dd4cc" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getMomentReferencePoint</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a3cb6b13f47d8e0b3ff7317e86a8c77ac" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getMomentScaling</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a435aa9070052b7442625e9ad010e4c57" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getReferenceArea</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a1332da808b8afe7418344d4009904427" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>getReferenceLength</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a24a0ea3448cf2f224b332241c44a2559" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>isScalingAbsolute_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a9a13894e1196c4e85d4acb81087c37cc" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>momentScaling_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1a131f938abb762a33653f26945036da36" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>ScaledAerodynamicCoefficientInterfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1ScaledAerodynamicCoefficientInterfaceSettings_1af28c6b2f93d8429e50891bd7b12e97b6" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>ScaledAerodynamicCoefficientInterfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a32f14b3dab6e7333047e981829be21ba" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>setControlSurfaceSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1AerodynamicCoefficientSettings_1a2286359e82a186bbfa640447859dffcb" prot="public" virt="virtual"><scope>tudat::simulation_setup::ScaledAerodynamicCoefficientInterfaceSettings</scope><name>~AerodynamicCoefficientSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,272 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacestd" kind="namespace" language="C++">
+    <compoundname>std</compoundname>
+    <innerclass refid="structstd_1_1hash_3_01tudat_1_1propagators_1_1IntegratedStateType_01_4" prot="public">std::hash&lt; tudat::propagators::IntegratedStateType &gt;</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="valueConversions_8h_1a5a214290d5dfa4c38b40e20a570451f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename KeyType</type>
+          </param>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const unordered_map&lt; KeyType, ValueType &gt; &amp;unorderedMap)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const unordered_map&lt; KeyType, ValueType &gt; &amp;</type>
+          <declname>unorderedMap</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a <computeroutput>std::unordered_map</computeroutput> with arbitrary key type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="86" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="86" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a148c5aba88421794fd01007f68544fa8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename KeyType</type>
+          </param>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, unordered_map&lt; KeyType, ValueType &gt; &amp;unorderedMap)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>unordered_map&lt; KeyType, ValueType &gt; &amp;</type>
+          <declname>unorderedMap</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>std::map</computeroutput> with arbitrary key type from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="93" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="93" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a4772d72ec68d81a7c0a33a3d5bf7a0a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename KeyType</type>
+          </param>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const map&lt; KeyType, ValueType &gt; &amp;orderedMap)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const map&lt; KeyType, ValueType &gt; &amp;</type>
+          <declname>orderedMap</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a <computeroutput>std::map</computeroutput> with arbitrary key type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="103" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="103" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a290fa23583e0bf6dfe3966fde6b7754d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename KeyType</type>
+          </param>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, map&lt; KeyType, ValueType &gt; &amp;orderedMap)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>map&lt; KeyType, ValueType &gt; &amp;</type>
+          <declname>orderedMap</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>std::map</computeroutput> with arbitrary key type from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="110" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="110" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a0ded71b32e62151666def01f49e07bfe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const vector&lt; ValueType &gt; &amp;vectorInput)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const vector&lt; ValueType &gt; &amp;</type>
+          <declname>vectorInput</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a <computeroutput>std::map</computeroutput> with arbitrary key type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="120" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="120" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a9980ce98d72ec1f138327b2af28972c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename ValueType</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, vector&lt; ValueType &gt; &amp;myVector)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>vector&lt; ValueType &gt; &amp;</type>
+          <declname>myVector</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>std::vector</computeroutput> from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="127" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="127" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1aeea17adfc642cf31833f84f68fe225f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename V</type>
+          </param>
+          <param>
+            <type>typename W</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, pair&lt; V, W &gt; &amp;myPair)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>pair&lt; V, W &gt; &amp;</type>
+          <declname>myPair</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>std::pair</computeroutput> from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="151" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="151" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a62a240e893801dfd662a8511707e42ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const complex&lt; T &gt; &amp;complexNumber)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const complex&lt; T &gt; &amp;</type>
+          <declname>complexNumber</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>json</computeroutput> object from a <computeroutput>std::complex</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="164" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="164" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="valueConversions_8h_1a4903afb0ce24f5c37756a8a27d23b035" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename T</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void std::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, complex&lt; T &gt; &amp;complexNumber)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>complex&lt; T &gt; &amp;</type>
+          <declname>complexNumber</declname>
+        </param>
+        <briefdescription>
+<para>Create a <computeroutput>std::complex</computeroutput> from a <computeroutput>json</computeroutput> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" line="171" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/valueConversions.h" bodystart="171" bodyend="174"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators/singleStateTypeDerivative.h" line="254" column="1"/>
+  </compounddef>
+</doxygen>

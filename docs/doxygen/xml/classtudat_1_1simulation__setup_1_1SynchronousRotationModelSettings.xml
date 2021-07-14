@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings" kind="class" language="C++" prot="public">
+    <compoundname>tudat::simulation_setup::SynchronousRotationModelSettings</compoundname>
+    <basecompoundref refid="classtudat_1_1simulation__setup_1_1RotationModelSettings" prot="public" virt="non-virtual">tudat::simulation_setup::RotationModelSettings</basecompoundref>
+    <includes refid="createRotationModel_8h" local="no">createRotationModel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1a59ad80a8748266ff3038e40a22a7babe" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::SynchronousRotationModelSettings::centralBodyName_</definition>
+        <argsstring></argsstring>
+        <name>centralBodyName_</name>
+        <briefdescription>
+<para>Name of central body to which this body is locked. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="384" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="384" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1ad9a5bc9f02ddb354538614f0f106e7f7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::simulation_setup::SynchronousRotationModelSettings::SynchronousRotationModelSettings</definition>
+        <argsstring>(const std::string &amp;centralBodyName, const std::string &amp;baseFrameOrientation, const std::string &amp;targetFrameOrientation)</argsstring>
+        <name>SynchronousRotationModelSettings</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>centralBodyName</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>baseFrameOrientation</declname>
+        </param>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>targetFrameOrientation</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>centralBodyName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of central body to which this body is locked. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baseFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base frame of rotation model. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>targetFrameOrientation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target frame of rotation model. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="364" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="364" bodyend="369"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1afb41665e33a2751bd1e07b2ea60194d5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>std::string tudat::simulation_setup::SynchronousRotationModelSettings::getCentralBodyName</definition>
+        <argsstring>()</argsstring>
+        <name>getCentralBodyName</name>
+        <briefdescription>
+<para>Function to retrieve name of central body to which this body is locked. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve name of central body to which this body is locked. <simplesect kind="return"><para>Name of central body to which this body is locked. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="376" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="376" bodyend="379"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<para><ref refid="classtudat_1_1simulation__setup_1_1RotationModelSettings" kindref="compound">RotationModelSettings</ref> derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body) </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SynchronousRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>tudat::simulation_setup::RotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1RotationModelSettings"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>originalFrame_</edgelabel>
+          <edgelabel>targetFrame_</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>string</label>
+      </node>
+      <node id="1">
+        <label>tudat::simulation_setup::SynchronousRotationModelSettings</label>
+        <link refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" line="353" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/simulation/environment_setup/createRotationModel.h" bodystart="354" bodyend="385"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1a59ad80a8748266ff3038e40a22a7babe" prot="private" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>centralBodyName_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1afb41665e33a2751bd1e07b2ea60194d5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>getCentralBodyName</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a9ba9508d4c524bcd90f0a09e36b3bdd5" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>getOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1afbb5f870668604c75eab753968cb6b6d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>getRotationType</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a4f7f267d90d71182613fedfdc0363e4d" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>getTargetFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a3664732bd644fd17c1c56a9193816d60" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>originalFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a7a3e915574afe20bb1ca65577a032226" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>resetOriginalFrame</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aebe6e9ad90787c441e4736971b778396" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>RotationModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1af2b7a9868f25f739090e438acee36304" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>rotationType_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1SynchronousRotationModelSettings_1ad9a5bc9f02ddb354538614f0f106e7f7" prot="public" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>SynchronousRotationModelSettings</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1a5e950c3ec40646eac2ae85eea100ae6f" prot="protected" virt="non-virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>targetFrame_</name></member>
+      <member refid="classtudat_1_1simulation__setup_1_1RotationModelSettings_1aae3318a08e2fc5dd26b8b038fa51a451" prot="public" virt="virtual"><scope>tudat::simulation_setup::SynchronousRotationModelSettings</scope><name>~RotationModelSettings</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel" kind="class" language="C++" prot="public">
+    <compoundname>tudat::basic_astrodynamics::CustomMassRateModel</compoundname>
+    <basecompoundref refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel" prot="public" virt="non-virtual">tudat::basic_astrodynamics::MassRateModel</basecompoundref>
+    <includes refid="astro_2basic__astro_2massRateModel_8h" local="no">massRateModel.h</includes>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a2b2c834bce5373aa594cefd592fe761b" prot="private" static="no" mutable="no">
+        <type>std::function&lt; double(const double) &gt;</type>
+        <definition>std::function&lt; double( const double ) &gt; tudat::basic_astrodynamics::CustomMassRateModel::massRateFunction_</definition>
+        <argsstring></argsstring>
+        <name>massRateFunction_</name>
+        <briefdescription>
+<para>Function returning mass rate as a function of time. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" line="126" column="19" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1ad733dcd46f7b9b261f181e4e03b6ba9a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::CustomMassRateModel::CustomMassRateModel</definition>
+        <argsstring>(const std::function&lt; double(const double) &gt; massRateFunction)</argsstring>
+        <name>CustomMassRateModel</name>
+        <param>
+          <type>const std::function&lt; double(const double) &gt;</type>
+          <declname>massRateFunction</declname>
+        </param>
+        <briefdescription>
+<para>Constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constructor <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>massRateFunction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function returning mass rate as a function of time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" line="102" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" bodystart="102" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a9d1cccf92a73639b48121643cd84596e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::basic_astrodynamics::CustomMassRateModel::~CustomMassRateModel</definition>
+        <argsstring>()</argsstring>
+        <name>~CustomMassRateModel</name>
+        <briefdescription>
+<para>Destructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" line="107" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" bodystart="107" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a60655ab7f951063ed436fcbd6b6073ee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>void tudat::basic_astrodynamics::CustomMassRateModel::updateMembers</definition>
+        <argsstring>(const double currentTime=TUDAT_NAN)</argsstring>
+        <name>updateMembers</name>
+        <reimplements refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a73c723ea252c57f3ac3109bb4c1bed42">updateMembers</reimplements>
+        <param>
+          <type>const double</type>
+          <declname>currentTime</declname>
+          <defval>TUDAT_NAN</defval>
+        </param>
+        <briefdescription>
+<para>Update member variables used by the mass rate model and compute the mass rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Update member variables used by the mass rate model and compute the mass rate <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>currentTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> at which acceleration model is to be updated. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" line="114" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" bodystart="114" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Derived class for determining the rate of change of a body&apos;s mass, user-defined by a function pointer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Derived class for determining the rate of change of a body&apos;s mass, user-defined by a function pointer. This class can be used for any kind of mass rate model for which the user can define the dependency as a function of time. </para>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::CustomMassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::MassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>tudat::basic_astrodynamics::CustomMassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>tudat::basic_astrodynamics::MassRateModel</label>
+        <link refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel"/>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" line="93" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro/massRateModel.h" bodystart="94" bodyend="128"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a0275d5e4455508410ca4effa18e2c1ce" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>currentMassRate_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a036c0d6616d8bc654cb84276f1fd667c" prot="protected" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>currentTime_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1ad733dcd46f7b9b261f181e4e03b6ba9a" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>CustomMassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1aae103a96511649566f7bce8417a2f049" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>getMassRate</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a2b2c834bce5373aa594cefd592fe761b" prot="private" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>massRateFunction_</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a1683d8d274ad04b9cb92abbf8d2f7773" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>MassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1a40eab52663ad3e184899354596d0dbca" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>resetTime</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a60655ab7f951063ed436fcbd6b6073ee" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>updateMembers</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1CustomMassRateModel_1a9d1cccf92a73639b48121643cd84596e" prot="public" virt="non-virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>~CustomMassRateModel</name></member>
+      <member refid="classtudat_1_1basic__astrodynamics_1_1MassRateModel_1ab1417a088fd41b31e1709f316f7bbfc6" prot="public" virt="virtual"><scope>tudat::basic_astrodynamics::CustomMassRateModel</scope><name>~MassRateModel</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

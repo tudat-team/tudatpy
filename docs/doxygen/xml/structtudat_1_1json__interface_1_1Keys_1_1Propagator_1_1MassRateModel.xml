@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel" kind="struct" language="C++" prot="public">
+    <compoundname>tudat::json_interface::Keys::Propagator::MassRateModel</compoundname>
+      <sectiondef kind="public-static-attrib">
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1a5dd553caa80ebcdc7c900e3fdd8ad10c" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::MassRateModel::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <initializer>= &quot;type&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="429" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="429" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1ac2dd47060439591167a85c25fe6289ac" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::MassRateModel::useAllThrustModels</definition>
+        <argsstring></argsstring>
+        <name>useAllThrustModels</name>
+        <initializer>= &quot;useAllThrustModels&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="430" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="430" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1a18c81e422c2ede342eb150000d585cd0" prot="public" static="yes" mutable="no">
+        <type>const std::string</type>
+        <definition>const std::string tudat::json_interface::Keys::Propagator::MassRateModel::associatedThrustSource</definition>
+        <argsstring></argsstring>
+        <name>associatedThrustSource</name>
+        <initializer>= &quot;associatedThrustSource&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="431" column="38" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="431" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" line="427" column="9" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/support/keys.h" bodystart="428" bodyend="432"/>
+    <listofallmembers>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1a18c81e422c2ede342eb150000d585cd0" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::MassRateModel</scope><name>associatedThrustSource</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1a5dd553caa80ebcdc7c900e3fdd8ad10c" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::MassRateModel</scope><name>type</name></member>
+      <member refid="structtudat_1_1json__interface_1_1Keys_1_1Propagator_1_1MassRateModel_1ac2dd47060439591167a85c25fe6289ac" prot="public" virt="non-virtual"><scope>tudat::json_interface::Keys::Propagator::MassRateModel</scope><name>useAllThrustModels</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

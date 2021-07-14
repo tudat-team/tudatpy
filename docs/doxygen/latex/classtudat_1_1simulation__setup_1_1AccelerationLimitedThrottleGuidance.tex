@@ -1,0 +1,75 @@
+\hypertarget{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance}{}\doxysection{tudat\+::simulation\+\_\+setup\+::Acceleration\+Limited\+Throttle\+Guidance Class Reference}
+\label{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance}\index{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance@{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance}}
+
+
+{\ttfamily \#include $<$thrust\+Settings.\+h$>$}
+
+Inheritance diagram for tudat\+::simulation\+\_\+setup\+::Acceleration\+Limited\+Throttle\+Guidance\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a2e01686069488237fdc9c48fb36c4fe7}{Acceleration\+Limited\+Throttle\+Guidance}} (const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{System\+Of\+Bodies}} \&bodies, const std\+::string name\+Of\+Body\+With\+Guidance, const std\+::string name\+Of\+Central\+Body, const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$ independent\+Variables, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$ thrust\+Interpolator, const double maximum\+Acceleration)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a5b08d0dc0c2c16de63f7391fdff697d4}{update\+Guidance\+Parameters}} ()
+\begin{DoxyCompactList}\small\item\em Function that updates the guidance algorithm to the current time/state\+: sets the throttle value based on axia. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Class to compute throttling law for the parameterized thrust magnitude, where the throttle is determined from a maximum axial g-\/load.
+
+Class to compute throttling law for the parameterized thrust magnitude, where the throttle is determined from a maximum, the user must provide the interpolator for the (maximum) thrust, as well as the associated physical meaning of the independent variables. Also, a maximum axial acceleration must be provided. If the current thrust results in an acceleration less than this limit, the throttle is set to 1, if it is higher than the maximum, the throttle is set such that the acceleration is on this limit. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a2e01686069488237fdc9c48fb36c4fe7}\label{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a2e01686069488237fdc9c48fb36c4fe7}} 
+\index{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance@{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance}!AccelerationLimitedThrottleGuidance@{AccelerationLimitedThrottleGuidance}}
+\index{AccelerationLimitedThrottleGuidance@{AccelerationLimitedThrottleGuidance}!tudat::simulation\_setup::AccelerationLimitedThrottleGuidance@{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance}}
+\doxysubsubsection{\texorpdfstring{AccelerationLimitedThrottleGuidance()}{AccelerationLimitedThrottleGuidance()}}
+{\footnotesize\ttfamily tudat\+::simulation\+\_\+setup\+::\+Acceleration\+Limited\+Throttle\+Guidance\+::\+Acceleration\+Limited\+Throttle\+Guidance (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1SystemOfBodies}{System\+Of\+Bodies}} \&}]{bodies,  }\item[{const std\+::string}]{name\+Of\+Body\+With\+Guidance,  }\item[{const std\+::string}]{name\+Of\+Central\+Body,  }\item[{const std\+::vector$<$ propulsion\+::\+Thrust\+Independent\+Variables $>$}]{independent\+Variables,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1interpolators_1_1Interpolator}{interpolators\+::\+Interpolator}}$<$ double, double $>$ $>$}]{thrust\+Interpolator,  }\item[{const double}]{maximum\+Acceleration }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em bodies} & List of pointers to body objects defining the full simulation environment. \\
+\hline
+{\em name\+Of\+Body\+With\+Guidance} & Name of body for which thrust guidance is to be created. \\
+\hline
+{\em name\+Of\+Central\+Body} & Name of body w.\+r.\+t. which thrust guidance is computed (e.\+g. Earth if the altitude from Earth is used as an independent variable of the thrust). \\
+\hline
+{\em independent\+Variables} & Physical meaning of each of the independent variables used as input to the thrust\+Interpolator. \\
+\hline
+{\em thrust\+Interpolator} & Interpolator that computes the maximum thrust as a function of the independent variables. \\
+\hline
+{\em maximum\+Acceleration} & Maxmum allowable acceleration due to the thrust force. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a5b08d0dc0c2c16de63f7391fdff697d4}\label{classtudat_1_1simulation__setup_1_1AccelerationLimitedThrottleGuidance_a5b08d0dc0c2c16de63f7391fdff697d4}} 
+\index{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance@{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance}!updateGuidanceParameters@{updateGuidanceParameters}}
+\index{updateGuidanceParameters@{updateGuidanceParameters}!tudat::simulation\_setup::AccelerationLimitedThrottleGuidance@{tudat::simulation\_setup::AccelerationLimitedThrottleGuidance}}
+\doxysubsubsection{\texorpdfstring{updateGuidanceParameters()}{updateGuidanceParameters()}}
+{\footnotesize\ttfamily void tudat\+::simulation\+\_\+setup\+::\+Acceleration\+Limited\+Throttle\+Guidance\+::update\+Guidance\+Parameters (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function that updates the guidance algorithm to the current time/state\+: sets the throttle value based on axia. 
+
+Function that updates the guidance algorithm to the current time/state\+: sets the throttle value based on axial acceleration when using the maximum thrust. 
+
+Implements \mbox{\hyperlink{classtudat_1_1simulation__setup_1_1ThrustInputParameterGuidance_ae929c1969241aea9408a5ac20c2f5216}{tudat\+::simulation\+\_\+setup\+::\+Thrust\+Input\+Parameter\+Guidance}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/simulation/propagation\+\_\+setup/thrust\+Settings.\+h\end{DoxyCompactItemize}

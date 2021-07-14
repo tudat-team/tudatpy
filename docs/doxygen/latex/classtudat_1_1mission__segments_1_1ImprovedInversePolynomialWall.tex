@@ -1,0 +1,184 @@
+\hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall}{}\doxysection{tudat\+::mission\+\_\+segments\+::Improved\+Inverse\+Polynomial\+Wall Class Reference}
+\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall}\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+
+
+{\ttfamily \#include $<$improved\+Inverse\+Polynomial\+Wall.\+h$>$}
+
+Inheritance diagram for tudat\+::mission\+\_\+segments\+::Improved\+Inverse\+Polynomial\+Wall\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a4d9cd83d099860fd6376f18ff8bcbffb}{Improved\+Inverse\+Polynomial\+Wall}} (const std\+::function$<$ double() $>$ a\+Time\+Dependent\+Parameter, const std\+::function$<$ std\+::pair$<$ Eigen\+::\+Vector3d, Eigen\+::\+Vector3d $>$() $>$ a\+Set\+Of\+Boundary\+Parameters)
+\begin{DoxyCompactList}\small\item\em Default constructor with immediate definition of parameters. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aae77824552261821ddeb2a64aeaa5f0a}{$\sim$\+Improved\+Inverse\+Polynomial\+Wall}} ()
+\begin{DoxyCompactList}\small\item\em Default destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a9fe09f98e8bb360bba7b90d5462150ca}{evaluate}} (const double an\+Azimuthal\+Angle)
+\begin{DoxyCompactList}\small\item\em Evaluate the function value for a given (in-\/plane) azimuthal angle. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aeac28ab0027cf43dbb2e443ddd133d67}{compute\+Derivative}} (const unsigned int order, const double an\+Azimuthal\+Angle)
+\begin{DoxyCompactList}\small\item\em Compute the derivative of the function. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aafcdb10c4212c31db81a955030719e01}{compute\+Definite\+Integral}} (const unsigned int order, const double lower\+Bound, const double upper\+Bound)
+\begin{DoxyCompactList}\small\item\em Compute the definite integral of the function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Improved inverse polynomial function approximating the radial position of a thrusting spacecraft.
+
+This class contains an improved inverse polynomial function, and its exact first and second derivative w.\+r.\+t. the azimuthal angle $ \theta $. It is a mathematical function, and can be used to approximate the radial position of a thrusting spacecraft. The function is documented by Wall et al. \mbox{[}2010\mbox{]} as the \char`\"{}improved inverse polynomial method\char`\"{}. The radial position of the spacecraft is parameterized in terms of an independent variable, the (in-\/plane) azimuthal angle $ \theta $. The first and second derivative are taken with respect to this independent variable.
+
+The function is completely described by the independent variable $ \theta $ and a set of seven parameters. These parameters are related to the boundary conditions of the problem\+: three initial conditions, three final conditions and the total time-\/of-\/flight. One of the parameters is used to solve for the time-\/of-\/flight and is therefore a time-\/dependent parameter. These seven parameters are passed to this class as std\+::functions to facilitate the flexible external manipulation of their values. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a4d9cd83d099860fd6376f18ff8bcbffb}\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a4d9cd83d099860fd6376f18ff8bcbffb}} 
+\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}!ImprovedInversePolynomialWall@{ImprovedInversePolynomialWall}}
+\index{ImprovedInversePolynomialWall@{ImprovedInversePolynomialWall}!tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+\doxysubsubsection{\texorpdfstring{ImprovedInversePolynomialWall()}{ImprovedInversePolynomialWall()}}
+{\footnotesize\ttfamily tudat\+::mission\+\_\+segments\+::\+Improved\+Inverse\+Polynomial\+Wall\+::\+Improved\+Inverse\+Polynomial\+Wall (\begin{DoxyParamCaption}\item[{const std\+::function$<$ double() $>$}]{a\+Time\+Dependent\+Parameter,  }\item[{const std\+::function$<$ std\+::pair$<$ Eigen\+::\+Vector3d, Eigen\+::\+Vector3d $>$() $>$}]{a\+Set\+Of\+Boundary\+Parameters }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default constructor with immediate definition of parameters. 
+
+Default constructor with immediate definition of parameters through std\+::functions. This setup allows for a flexible external manipulation of the values of the parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em a\+Time\+Dependent\+Parameter} & The parameter that is used to solve for the time-\/of-\/flight. This parameter is equivalent to parameter d from Wall et al. \mbox{[}2010\mbox{]}. \\
+\hline
+{\em a\+Set\+Of\+Boundary\+Parameters} & A set of six parameters, related to the position boundary conditions. These parameters are equivalent to the parameters a, b, c, e, f, and g from Wall et al. \mbox{[}2010\mbox{]}. The order is important! a\+Set\+Of\+Boundary\+Parameters.\+first( 0 ) = a a\+Set\+Of\+Boundary\+Parameters.\+first( 1 ) = b a\+Set\+Of\+Boundary\+Parameters.\+first( 2 ) = c a\+Set\+Of\+Boundary\+Parameters.\+second( 0 ) = e a\+Set\+Of\+Boundary\+Parameters.\+second( 1 ) = f a\+Set\+Of\+Boundary\+Parameters.\+second( 2 ) = g \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aae77824552261821ddeb2a64aeaa5f0a}\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aae77824552261821ddeb2a64aeaa5f0a}} 
+\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}!````~ImprovedInversePolynomialWall@{$\sim$ImprovedInversePolynomialWall}}
+\index{````~ImprovedInversePolynomialWall@{$\sim$ImprovedInversePolynomialWall}!tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+\doxysubsubsection{\texorpdfstring{$\sim$ImprovedInversePolynomialWall()}{~ImprovedInversePolynomialWall()}}
+{\footnotesize\ttfamily tudat\+::mission\+\_\+segments\+::\+Improved\+Inverse\+Polynomial\+Wall\+::$\sim$\+Improved\+Inverse\+Polynomial\+Wall (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Default destructor. 
+
+Default destructor. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aafcdb10c4212c31db81a955030719e01}\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aafcdb10c4212c31db81a955030719e01}} 
+\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}!computeDefiniteIntegral@{computeDefiniteIntegral}}
+\index{computeDefiniteIntegral@{computeDefiniteIntegral}!tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+\doxysubsubsection{\texorpdfstring{computeDefiniteIntegral()}{computeDefiniteIntegral()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Improved\+Inverse\+Polynomial\+Wall\+::compute\+Definite\+Integral (\begin{DoxyParamCaption}\item[{const unsigned int}]{order,  }\item[{const double}]{lower\+Bound,  }\item[{const double}]{upper\+Bound }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Compute the definite integral of the function. 
+
+This function throws a runtime error when it is called. The integral of the inverse polynomial function is not part of the shape-\/based method and has not been implemented.
+
+
+\begin{DoxyParams}{Parameters}
+{\em order} & Order of the integral to evaluate. \\
+\hline
+{\em lower\+Bound} & Integration lower bound (integrate from this point). \\
+\hline
+{\em upper\+Bound} & Integration upper bound (integrate to this point). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value of the integral.
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em std\+::runtime\+\_\+error} & when this function is used. \\
+\hline
+\end{DoxyExceptions}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function_a74c5639b8c6288471368e65312569e52}{tudat\+::basic\+\_\+mathematics\+::\+Function$<$ $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aeac28ab0027cf43dbb2e443ddd133d67}\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_aeac28ab0027cf43dbb2e443ddd133d67}} 
+\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}!computeDerivative@{computeDerivative}}
+\index{computeDerivative@{computeDerivative}!tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+\doxysubsubsection{\texorpdfstring{computeDerivative()}{computeDerivative()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Improved\+Inverse\+Polynomial\+Wall\+::compute\+Derivative (\begin{DoxyParamCaption}\item[{const unsigned int}]{order,  }\item[{const double}]{an\+Azimuthal\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Compute the derivative of the function. 
+
+Computes the derivative of a given order of the function, for a given (in-\/plane) azimuthal angle $ \theta $. It only evaluates the first, second or third derivative, therefore the order should be 1, 2 or 3.
+
+The first derivative of the function is\+:
+
+\[ \frac{ dr }{ d\theta } ( \theta ) = -r^2 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right) \]
+
+The second derivative of the function is\+:
+
+\[ \frac{ d^2 r }{ d \theta^2 } ( \theta ) = 2 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right)^2 - r^2 \left( -b \cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) \]
+
+When substituting for the first derivative, the equation becomes\+:
+
+\[ \frac{ d^2 r }{ d \theta^2 } ( \theta ) = \frac{ 2 }{ r } r^{ \prime 2 } - r^2 \left( -b \cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) \]
+
+The third derivative of the function is\+:
+
+\[ \frac{ d^3 r }{ d \theta^3 } ( \theta ) = -6 r^4 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right)^3 + 6 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f \theta^4 + 6 g \theta^5 \right) \left( -b \cos \left( \theta + c \right) + d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right) - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2 + 120 g \theta^3 \right) \]
+
+When substituting for the first and second derivative, the equation becomes\+:
+
+\[ \frac{ d^3 r }{ d \theta^3 } ( \theta ) = \frac{ 6 r^{ \prime 3 } }{ r^2 } - \frac{ 6 r^{ \prime } }{ r } \left( \frac{ 2 r^{ \prime 2 } }{ r } - r^{ \prime \prime } \right) - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2 + 120 g \theta^3 \right) \]
+
+In these formulas $ r $ is the radial position of the spacecraft, $ \theta $ is the (in-\/plane) azimuthal angle, the prime indicates the derivative with respect to $ \theta $, and $ ( a, b, c, d, e, f, g ) $ are parameters that define the shape of the trajectory. The parameter $ d $ is the time-\/dependent parameter which is used to solve for a required time-\/of-\/flight.
+
+
+\begin{DoxyParams}{Parameters}
+{\em order} & Order of the derivative to evaluate. Can be either 1, 2 or 3. \\
+\hline
+{\em an\+Azimuthal\+Angle} & Value of the (in-\/plane) azimuthal angle \mbox{[}rad\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Value of the derivative of order 1, 2 or 3 of the function \mbox{[}-\/, rad$^\wedge$-\/1, rad$^\wedge$-\/2\mbox{]}. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function_a0929cfbeb90a6cbc85d50455fd01d75f}{tudat\+::basic\+\_\+mathematics\+::\+Function$<$ $>$}}.
+
+\mbox{\Hypertarget{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a9fe09f98e8bb360bba7b90d5462150ca}\label{classtudat_1_1mission__segments_1_1ImprovedInversePolynomialWall_a9fe09f98e8bb360bba7b90d5462150ca}} 
+\index{tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}!evaluate@{evaluate}}
+\index{evaluate@{evaluate}!tudat::mission\_segments::ImprovedInversePolynomialWall@{tudat::mission\_segments::ImprovedInversePolynomialWall}}
+\doxysubsubsection{\texorpdfstring{evaluate()}{evaluate()}}
+{\footnotesize\ttfamily double tudat\+::mission\+\_\+segments\+::\+Improved\+Inverse\+Polynomial\+Wall\+::evaluate (\begin{DoxyParamCaption}\item[{const double}]{an\+Azimuthal\+Angle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Evaluate the function value for a given (in-\/plane) azimuthal angle. 
+
+Evaluates the inverse polynomial function for a given (in-\/plane) azimuthal angle $ \theta $.
+
+The (improved version of the) inverse polynomial function is given by Wall et al. \mbox{[}2010\mbox{]} as\+:
+
+\[ r ( \theta ) = \frac{ 1 } { a + b \cos( \theta + c ) + d \theta^3 + e \theta^4 + f \theta^5 + g \theta^6 } \]
+
+in which $ r $ is the radial position of the spacecraft, $ \theta $ is the (in-\/plane) azimuthal angle and $ ( a, b, c, d, e, f, g ) $ are parameters that define the shape of the trajectory. The parameter $ d $ is the time-\/dependent parameter which is used to solve for a required time-\/of-\/flight.
+
+
+\begin{DoxyParams}{Parameters}
+{\em an\+Azimuthal\+Angle} & Value of the (in-\/plane) azimuthal angle \mbox{[}rad\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The radial position at $ \theta $ \mbox{[}m\mbox{]}. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__mathematics_1_1Function_a69b59769da9784abaaa8a0a309d16de8}{tudat\+::basic\+\_\+mathematics\+::\+Function$<$ $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/mission\+\_\+segments/improved\+Inverse\+Polynomial\+Wall.\+h\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/src/astro/mission\+\_\+segments/improved\+Inverse\+Polynomial\+Wall.\+cpp\end{DoxyCompactItemize}

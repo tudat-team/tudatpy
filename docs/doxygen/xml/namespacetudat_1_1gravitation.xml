@@ -1,0 +1,2889 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespacetudat_1_1gravitation" kind="namespace" language="C++">
+    <compoundname>tudat::gravitation</compoundname>
+    <innerclass refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations" prot="public">tudat::gravitation::BasicSolidBodyTideGravityFieldVariations</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel" prot="public">tudat::gravitation::CentralGravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel" prot="public">tudat::gravitation::CentralJ2GravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel" prot="public">tudat::gravitation::CentralJ2J3GravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel" prot="public">tudat::gravitation::CentralJ2J3J4GravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1CustomGravityFieldVariations" prot="public">tudat::gravitation::CustomGravityFieldVariations</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" prot="public">tudat::gravitation::DirectTidalDissipationAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1GravityFieldModel" prot="public">tudat::gravitation::GravityFieldModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1PairInterpolationInterface" prot="public">tudat::gravitation::PairInterpolationInterface</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1GravityFieldVariations" prot="public">tudat::gravitation::GravityFieldVariations</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1GravityFieldVariationsSet" prot="public">tudat::gravitation::GravityFieldVariationsSet</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel" prot="public">tudat::gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1SecondDegreeGravitationalTorqueModel" prot="public">tudat::gravitation::SecondDegreeGravitationalTorqueModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1SphericalHarmonicGravitationalTorqueModel" prot="public">tudat::gravitation::SphericalHarmonicGravitationalTorqueModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField" prot="public">tudat::gravitation::SphericalHarmonicsGravityField</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" prot="public">tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModel</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModelBase" prot="public">tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelBase</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1TabulatedGravityFieldVariations" prot="public">tudat::gravitation::TabulatedGravityFieldVariations</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration" prot="public">tudat::gravitation::ThirdBodyAcceleration</innerclass>
+    <innerclass refid="classtudat_1_1gravitation_1_1TimeDependentSphericalHarmonicsGravityField" prot="public">tudat::gravitation::TimeDependentSphericalHarmonicsGravityField</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75" prot="public" static="no" strong="no">
+        <type></type>
+        <name>BodiesWithPredefinedCentralGravityFields</name>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a9159d993d215995754ad3bb60c431a8a" prot="public">
+          <name>sun</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a1e9716648f6726fa87d6403c64b41d2d" prot="public">
+          <name>mercury</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75ac09f50d951bfd69a4c51d0d93fcf853e" prot="public">
+          <name>venus</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a4ff231aa0fab1e680745bbd04c192f95" prot="public">
+          <name>earth</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a9919722c77924b3a637fff3a0aef799b" prot="public">
+          <name>moon</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a6382e10e392ec9d49a35774bfaf36f47" prot="public">
+          <name>mars</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a5f294e787c6e0fef591b1fa5fea97bb3" prot="public">
+          <name>jupiter</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a36edfedabe5c8ac36ad3eb3193797aa5" prot="public">
+          <name>saturn</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a4d1a34912367bee001b808153c0bca57" prot="public">
+          <name>uranus</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldModel_8h_1a27d055b7d3c62a19b1e8e7de2073fe75a933a581167f31af956761eb7e7c9feb1" prot="public">
+          <name>neptune</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>List of bodies for which predefined central gravity fields may be created through the getPredefinedCentralGravityField function. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldModel.h" line="114" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldModel.h" bodystart="115" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="enum" id="gravityFieldVariations_8h_1a4b303c74c97a58ad26c2e50c46d4c9eb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>BodyDeformationTypes</name>
+        <enumvalue id="gravityFieldVariations_8h_1a4b303c74c97a58ad26c2e50c46d4c9eba21135b496ef805b8fbf3e13801445510" prot="public">
+          <name>basic_solid_body</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="gravityFieldVariations_8h_1a4b303c74c97a58ad26c2e50c46d4c9eba8e302809ef5c2953ee2c53e3bf3f9510" prot="public">
+          <name>tabulated_variation</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldVariations.h" line="26" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldVariations.h" bodystart="27" bodyend="30"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="centralGravityModel_8h_1a782d24fb90214a6e43e5f2fd4a88309f" prot="public" static="no">
+        <type><ref refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel" kindref="compound">CentralGravitationalAccelerationModel</ref>&lt; &gt;</type>
+        <definition>typedef CentralGravitationalAccelerationModel&lt; &gt; tudat::gravitation::CentralGravitationalAccelerationModel3d</definition>
+        <argsstring></argsstring>
+        <name>CentralGravitationalAccelerationModel3d</name>
+        <briefdescription>
+<para>Typedef for CentralGravitationalAccelerationModel3d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" line="251" column="47" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" bodystart="251" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="centralGravityModel_8h_1a0704a47cfceba725cdd6f908de8a3274" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel" kindref="compound">CentralGravitationalAccelerationModel3d</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CentralGravitationalAccelerationModel3d &gt; tudat::gravitation::CentralGravitationalAccelerationModel3dPointer</definition>
+        <argsstring></argsstring>
+        <name>CentralGravitationalAccelerationModel3dPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to CentralGravitationalAccelerationModel3d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" line="255" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="centralJ2GravityModel_8h_1a82773b172bfa77c8ed6dcb4e70e43dfc" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel" kindref="compound">CentralJ2GravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CentralJ2GravitationalAccelerationModel &gt; tudat::gravitation::CentralJ2GravitationalAccelerationModelPointer</definition>
+        <argsstring></argsstring>
+        <name>CentralJ2GravitationalAccelerationModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1gravitation_1_1CentralJ2GravitationalAccelerationModel" kindref="compound">CentralJ2GravitationalAccelerationModel</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2GravityModel.h" line="159" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2GravityModel.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="centralJ2J3GravityModel_8h_1a91c0071db964c8bda5ca9eda9f897282" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1CentralJ2J3GravitationalAccelerationModel" kindref="compound">CentralJ2J3GravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CentralJ2J3GravitationalAccelerationModel &gt; tudat::gravitation::CentralJ2J3GravitationalAccelerationModelPointer</definition>
+        <argsstring></argsstring>
+        <name>CentralJ2J3GravitationalAccelerationModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to CentralJ2J3GravitationalAccelerationModel3d. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" line="171" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="centralJ2J3J4GravityModel_8h_1a3ca6ca0b3f5958ec88c5f0faa406acdb" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel" kindref="compound">CentralJ2J3J4GravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; CentralJ2J3J4GravitationalAccelerationModel &gt; tudat::gravitation::CentralJ2J3J4GravitationalAccelerationModelPointer</definition>
+        <argsstring></argsstring>
+        <name>CentralJ2J3J4GravitationalAccelerationModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1gravitation_1_1CentralJ2J3J4GravitationalAccelerationModel" kindref="compound">CentralJ2J3J4GravitationalAccelerationModel</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3J4GravityModel.h" line="227" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3J4GravityModel.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="gravityFieldModel_8h_1af8c8a92e4236161a00e4dcbd2ff6cd1e" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">GravityFieldModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; GravityFieldModel &gt; tudat::gravitation::GravityFieldModelPointer</definition>
+        <argsstring></argsstring>
+        <name>GravityFieldModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">GravityFieldModel</ref> object. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldModel.h" line="120" column="25" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldModel.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="sphericalHarmonicsGravityModel_8h_1a473e78c4cab5005918427dac6597f1cb" prot="public" static="no">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef std::shared_ptr&lt; SphericalHarmonicsGravitationalAccelerationModel &gt; tudat::gravitation::SphericalHarmonicsGravitationalAccelerationModelPointer</definition>
+        <argsstring></argsstring>
+        <name>SphericalHarmonicsGravitationalAccelerationModelPointer</name>
+        <briefdescription>
+<para>Typedef for shared-pointer to <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModel.h" line="643" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModel.h" bodystart="643" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="thirdBodyPerturbation_8h_1acadcbb94020ae05ec32fcd95b8549887" prot="public" static="no">
+        <type><ref refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration" kindref="compound">ThirdBodyAcceleration</ref>&lt; <ref refid="classtudat_1_1gravitation_1_1CentralGravitationalAccelerationModel" kindref="compound">CentralGravitationalAccelerationModel3d</ref> &gt;</type>
+        <definition>typedef ThirdBodyAcceleration&lt; CentralGravitationalAccelerationModel3d &gt; tudat::gravitation::ThirdBodyCentralGravityAcceleration</definition>
+        <argsstring></argsstring>
+        <name>ThirdBodyCentralGravityAcceleration</name>
+        <briefdescription>
+<para>Typedef for third body central gravity acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" line="199" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="thirdBodyPerturbation_8h_1a3a44b5cdfcfb2300a88bc4ced2350c58" prot="public" static="no">
+        <type><ref refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration" kindref="compound">ThirdBodyAcceleration</ref>&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravitationalAccelerationModel" kindref="compound">SphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef ThirdBodyAcceleration&lt; SphericalHarmonicsGravitationalAccelerationModel &gt; tudat::gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel</definition>
+        <argsstring></argsstring>
+        <name>ThirdBodySphericalHarmonicsGravitationalAccelerationModel</name>
+        <briefdescription>
+<para>Typedef for third body spherical harmonic gravity acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" line="203" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="thirdBodyPerturbation_8h_1aab593830d100acc2a15b020ab6714dcb" prot="public" static="no">
+        <type><ref refid="classtudat_1_1gravitation_1_1ThirdBodyAcceleration" kindref="compound">ThirdBodyAcceleration</ref>&lt; <ref refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel" kindref="compound">MutualSphericalHarmonicsGravitationalAccelerationModel</ref> &gt;</type>
+        <definition>typedef ThirdBodyAcceleration&lt; MutualSphericalHarmonicsGravitationalAccelerationModel &gt; tudat::gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel</definition>
+        <argsstring></argsstring>
+        <name>ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel</name>
+        <briefdescription>
+<para>Typedef for third body mutual spherical harmonic gravity acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" line="207" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="gravityFieldVariation_8h_1aff68e4d559c6386c43a77028fcdd2498" prot="public" static="yes" mutable="no">
+        <type>std::map&lt; BodyDeformationTypes, std::string &gt;</type>
+        <definition>std::map&lt; BodyDeformationTypes, std::string &gt; tudat::gravitation::bodyDeformationTypes</definition>
+        <argsstring></argsstring>
+        <name>bodyDeformationTypes</name>
+        <initializer>=
+{
+    { basic_solid_body, &quot;basicSolidBody&quot; },
+    { tabulated_variation, &quot;tabulatedVariation&quot; }
+}</initializer>
+        <briefdescription>
+<para>Map of <computeroutput>BodyDeformationTypes</computeroutput> string representations. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" line="25" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="gravityFieldVariation_8h_1a1c842ac80080d2dd2de6ce882c469eed" prot="public" static="yes" mutable="no">
+        <type>std::vector&lt; BodyDeformationTypes &gt;</type>
+        <definition>std::vector&lt; BodyDeformationTypes &gt; tudat::gravitation::unsupportedBodyDeformationTypes</definition>
+        <argsstring></argsstring>
+        <name>unsupportedBodyDeformationTypes</name>
+        <initializer>=
+{
+}</initializer>
+        <briefdescription>
+<para><computeroutput>BodyDeformationTypes</computeroutput> not supported by <computeroutput>json_interface</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" line="32" column="20" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="basicSolidBodyTideGravityFieldVariations_8h_1aa4a971b1e83facbb7eecfe4e8eb44f52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::complex&lt; double &gt;</type>
+        <definition>std::complex&lt; double &gt; tudat::gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</definition>
+        <argsstring>(const std::complex&lt; double &gt; loveNumber, const double massRatio, const double radiusRatioPowerN, const double amplitude, const std::complex&lt; double &gt; tideArgument, const int degree, const int order)</argsstring>
+        <name>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</name>
+        <param>
+          <type>const std::complex&lt; double &gt;</type>
+          <declname>loveNumber</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massRatio</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>radiusRatioPowerN</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>amplitude</declname>
+        </param>
+        <param>
+          <type>const std::complex&lt; double &gt;</type>
+          <declname>tideArgument</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate solid body tide gravity field variations due to single body at single degree and order from precomputed quantaties.</para>
+<para>Function to calculate solid body tide gravity field variations due to single body at single degree and order, (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using complex tidal love numbers. Using this function requires the computation of a number of precomputed quantities (as is done by the <ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations" kindref="compound">BasicSolidBodyTideGravityFieldVariations</ref> class). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>loveNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Complex Love number for given degree and order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRatio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ratio of masses of body causing deformation to body being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radiusRatioPowerN</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ratio of equatorial radius of body being deformed over distance between center of body being deformed to center of body causing deformation to the power (n+1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>amplitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Amplitude of the tide. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tideArgument</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Argument of the tide. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of current coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of current coefficients </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Combined variation in cosine (Delta C_{n,m}) and sine (Delta S_{n,m}) coefficients as: Delta C_{n,m} - i * Delta S_{n,m}</para>
+</simplesect>
+Function to calculate solid body tide gravity field variation due to single body at single degree and order. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" line="23" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" bodystart="23" bodyend="34" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h" declline="55" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="function" id="basicSolidBodyTideGravityFieldVariations_8h_1ab1a6fd9bebc3490703eadb72e0480e11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::complex&lt; double &gt;</type>
+        <definition>std::complex&lt; double &gt; tudat::gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</definition>
+        <argsstring>(const std::complex&lt; double &gt; loveNumber, const double massRatio, const double referenceRadius, const Eigen::Vector3d &amp;relativeBodyFixedPosition, const int degree, const int order)</argsstring>
+        <name>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</name>
+        <param>
+          <type>const std::complex&lt; double &gt;</type>
+          <declname>loveNumber</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massRatio</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>relativeBodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate solid body tide gravity field variations due to single body at single degree and order directly from perturbing body&apos;s Cartesian state.</para>
+<para>Function to calculate solid body tide gravity field variations due to single body at single degree and order, (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using complex tidal love numbers. This function directly uses the perturbing body&apos;s Cartesian state, and should be used for &apos;external&apos; computations. The <ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations" kindref="compound">BasicSolidBodyTideGravityFieldVariations</ref> uses the alternative overloaded function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>loveNumber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Complex Love number for given degree and order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRatio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ratio of masses of body causing deformation to body being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeBodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position of body causing deformation in a frame centered on and fixed to the body that is being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of current coefficients </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of current coefficients </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Combined variation in cosine (Delta C_{n,m}) and sine (Delta S_{n,m}) coefficients as: Delta C_{n,m} - i * Delta S_{n,m}</para>
+</simplesect>
+Function to calculate solid body tide gravity field variations due to single body at single degree and order directly from perturbing body&apos;s Cartesian state. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" line="38" column="14" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" bodystart="38" bodyend="57" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h" declline="77" declcolumn="14"/>
+      </memberdef>
+      <memberdef kind="function" id="basicSolidBodyTideGravityFieldVariations_8h_1ad3b1318ef51171702e89b3eecab15377" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</definition>
+        <argsstring>(const std::map&lt; int, std::vector&lt; std::complex&lt; double &gt; &gt; &gt; loveNumbers, const double massRatio, const double referenceRadius, const Eigen::Vector3d &amp;relativeBodyFixedPosition, const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude</name>
+        <param>
+          <type>const std::map&lt; int, std::vector&lt; std::complex&lt; double &gt; &gt; &gt;</type>
+          <declname>loveNumbers</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massRatio</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>relativeBodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders from perturbing body&apos;s Cartesian state.</para>
+<para>Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using complex tidal love numbers. This function directly uses the perturbing body&apos;s Cartesian state, and should be used for &apos;external&apos; computations. The <ref refid="classtudat_1_1gravitation_1_1BasicSolidBodyTideGravityFieldVariations" kindref="compound">BasicSolidBodyTideGravityFieldVariations</ref> uses the alternative overloaded function. This function defines the maximum degree and order, and always starts at degree 2 and order 0 <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>loveNumbers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Complex Love numbers for each degree and order (index of first vector is degree-2; index of second vector is order. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massRatio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ratio of masses of body causing deformation to body being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>relativeBodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position of body causing deformation in a frame centered on and fixed to the body that is being deformed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of current coefficient corrections. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of current coefficient corrections. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Combined variation in cosine (Delta C_{n,m}) and sine (Delta S_{n,m}) matrices as first and second entry of pair, respectively. Both matrices start at degree and order 0.</para>
+</simplesect>
+Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders from perturbing body&apos;s Cartesian state. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" line="61" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/basicSolidBodyTideGravityFieldVariations.cpp" bodystart="61" bodyend="90" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h" declline="100" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="centralGravityModel_8h_1a976794ec46e479af60f8a632fb7ee7d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAcceleration</definition>
+        <argsstring>(const double universalGravitationalConstant, const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double massOfBodyExertingAcceleration, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration=Eigen::Vector3d::Zero())</argsstring>
+        <name>computeGravitationalAcceleration</name>
+        <param>
+          <type>const double</type>
+          <declname>universalGravitationalConstant</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational acceleration experienced by body1, due to its interaction with body2. The basis for this gravitational acceleration is that body2 is a point mass, generating acceleration due to Newton&apos;s gravitational force: <formula id="27">\[ \bar{a}_{gravity} = -\frac{G * m_{2}}{r_{12}^{3}} * \bar{r}_{12} \]</formula> where <formula id="28">$G$</formula> is the universal gravitational constant, <formula id="29">$m_{2}$</formula> is the mass of body2, and <formula id="30">$\bar{r}_{12}$</formula> is the relative position vector from body1 to body 2, with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universalGravitationalConstant</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Universal gravitational constant [m^3 kg^-1 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of body exerting acceleration (body2) [kg]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational acceleration exerted on body1 [m s^-2]. </para>
+</simplesect>
+<simplesect kind="see"><para>computeGravitationalForce. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" bodystart="22" bodyend="32" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" declline="48" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralGravityModel_8h_1aea40d4fffa9894f6b4723ff3a0c2359e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameterOfBodyExertingAcceleration, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration=Eigen::Vector3d::Zero())</argsstring>
+        <name>computeGravitationalAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational acceleration experienced by body1, due to its interaction with body2. The basis for this gravitational acceleration is that body2 is a point mass, generating acceleration due to Newton&apos;s gravitational force: <formula id="31">\[ \bar{a}_{gravity} = -\frac{\mu_{2}}{r_{12}^{3}} * \bar{r}_{12} \]</formula> where <formula id="32">$\mu_{2}$</formula> is the gravitational parameter of the body exerting acceleration, and <formula id="30">$\bar{r}_{12}$</formula> is the relative position vector from body1 to body 2, with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting acceleration (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational acceleration exerted on body1 [m s^-2]. </para>
+</simplesect>
+<simplesect kind="see"><para>computeGravitationalForce. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" line="35" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" bodystart="35" bodyend="44" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" declline="74" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralGravityModel_8h_1a1e1e9b92f5caa5753e976812489834de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalForce</definition>
+        <argsstring>(const double universalGravitationalParameter, const double massOfBodySubjectToForce, const Eigen::Vector3d &amp;positionOfBodySubjectToForce, const double massOfBodyExertingForce, const Eigen::Vector3d &amp;positionOfBodyExertingForce=Eigen::Vector3d::Zero())</argsstring>
+        <name>computeGravitationalForce</name>
+        <param>
+          <type>const double</type>
+          <declname>universalGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massOfBodySubjectToForce</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToForce</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>massOfBodyExertingForce</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingForce</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Compute gravitational force. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational force experienced by body1, due to its interaction with body2. The basis for this gravitational force is that both body1 and body2 are point masses, generating Newton&apos;s gravitational force: <formula id="33">\[ \bar{F}_{gravity} = -\frac{G * m_{1} * m_{2}}{r_{12}^{3}} * \bar{r}_{12} \]</formula> where <formula id="28">$G$</formula> is the universal gravitational constant, <formula id="34">$m_{1}$</formula> is the mass of body1, <formula id="29">$m_{2}$</formula> is the mass of body2, and <formula id="30">$\bar{r}_{12}$</formula> is the relative position vector from body1 to body 2, with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>universalGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Universal gravitational constant [m^3 kg^-1 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massOfBodySubjectToForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of body subject to force (body1) [kg]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to force (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>massOfBodyExertingForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of body exerting force (body2) [kg]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting force (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational force exerted on body1 [N]. </para>
+</simplesect>
+<simplesect kind="see"><para>computeGravitationalAcceleration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" line="47" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" bodystart="47" bodyend="57" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" declline="98" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralGravityModel_8h_1a79d9bf36108b57f2784d459cae0668d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalForce</definition>
+        <argsstring>(const double massOfBodySubjectToForce, const Eigen::Vector3d &amp;positionOfBodySubjectToForce, const double gravitationalParameterOfBodyExertingForce, const Eigen::Vector3d &amp;positionOfBodyExertingForce=Eigen::Vector3d::Zero())</argsstring>
+        <name>computeGravitationalForce</name>
+        <param>
+          <type>const double</type>
+          <declname>massOfBodySubjectToForce</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToForce</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingForce</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingForce</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Compute gravitational force. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational force experienced by body1, due to its interaction with another body (body2) The basis for this gravitational force is that both body1 and body2 are point masses, generating Newton&apos;s gravitational force: <formula id="35">\[ \bar{F}_{gravity} = -\frac{m_{1} * \mu_{2}}{r_{12}^{3}} * \bar{r}_{12} \]</formula> where <formula id="34">$m_{1}$</formula> is the mass of body1, <formula id="32">$\mu_{2}$</formula> is the gravitational parameter of the central body (body2), and <formula id="30">$\bar{r}_{12}$</formula> is the relative position vector from body1 to the body exerting the force (body2), with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>massOfBodySubjectToForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass of body subject to force (body1) [kg]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to force (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting force (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingForce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting force (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational force exerted on body1 [N]. </para>
+</simplesect>
+<simplesect kind="see"><para>computeGravitationalAcceleration. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" line="60" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralGravityModel.cpp" bodystart="60" bodyend="69" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralGravityModel.h" declline="124" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralJ2GravityModel_8h_1aff7421cc6f930cefd16af2d6d70eb3c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAccelerationDueToJ2</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameterOfBodyExertingAcceleration, const double equatorialRadiusOfBodyExertingAcceleration, const double j2CoefficientOfGravityField, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration)</argsstring>
+        <name>computeGravitationalAccelerationDueToJ2</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadiusOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>j2CoefficientOfGravityField</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration due to J2. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational acceleration experienced by body1, due to its interaction with another body (body2) with an irregular gravity field. The body exerting the acceleration has an irregular gravity field. The acceleration due to the J2-coefficient is given by (Melman, 2012): <formula id="36">\begin{eqnarray*} {a}_{gravity,x} &amp;=&amp; -\mu_{2}*\frac{x_{1}-x_{2}}{r^{3}} * \frac{3}{2}*J_{2} * \left(\frac{R}{r}\right)^{2} * (1-5*\hat{z}^2) \\ {a}_{gravity,y} &amp;=&amp; -\mu_{2}*\frac{y_{1}-y_{2}}{r^{3}} * \frac{3}{2}*J_{2} * \left(\frac{R}{r}\right)^{2} * (1-5*\hat{z}^2) \\ {a}_{gravity,z} &amp;=&amp; \frac{-\mu_{2}}{r^{2}} * \frac{3}{2}*J_{2} * \left(\frac{R}{r}\right)^{2} * (3-5*\hat{z}^2) * \hat{z} \\ \end{eqnarray*}</formula> where <formula id="32">$\mu_{2}$</formula> is the gravitational parameter of the body exerting acceleration, <formula id="37">$\hat{z} = \frac{z}{r}$</formula>, <formula id="38">$x$</formula>, <formula id="39">$y$</formula> and <formula id="40">$z$</formula> are the Cartesian position components, <formula id="41">$r$</formula> is the radial position, and <formula id="42">$J_{2}$</formula> is the second zonal coefficient of the gravity field of body2. The positions and accelerations are given with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to J2-acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting acceleration (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadiusOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body exerting acceleration (body2), in formulation of spherical harmonics expansion [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>j2CoefficientOfGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>J2-coefficient, describing irregularity of the gravity field of body2 [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational acceleration exerted on body1 due to J2-effect [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2GravityModel.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2GravityModel.cpp" bodystart="23" bodyend="63" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2GravityModel.h" declline="57" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralJ2J3GravityModel_8h_1a3454c148f5bee1961521887d454bfdbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAccelerationDueToJ3</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameterOfBodyExertingAcceleration, const double equatorialRadiusOfBodyExertingAcceleration, const double j3CoefficientOfGravityField, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration)</argsstring>
+        <name>computeGravitationalAccelerationDueToJ3</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadiusOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>j3CoefficientOfGravityField</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration due to J3. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational acceleration experienced by body1, due to its interaction with another body (body2) with an irregular gravity field. The body exerting the acceleration has an irregular gravity field. The acceleration due to the J3-coefficient is given by (Melman, 2012): <formula id="43">\begin{eqnarray*} {a}_{gravity,x} &amp;=&amp; -\mu_{2}*\frac{x_{1}-x_{2}}{r^{3}} * \frac{5}{2}*J_{3} * \left(\frac{R}{r}\right)^{3} * (3-7*\hat{z}^2) * \hat{z} \\ {a}_{gravity,y} &amp;=&amp; -\mu_{2}*\frac{y_{1}-y_{2}}{r^{3}} * \frac{5}{2}*J_{3} * \left(\frac{R}{r}\right)^{3} * (3-7*\hat{z}^2) * \hat{z} \\ {a}_{gravity,z} &amp;=&amp; \frac{-\mu_{2}}{r^{2}} * \frac{5}{2}*J_{3} * \left(\frac{R}{r}\right)^{3} * (-\frac{3}{5}+6*\hat{z}^2-7*\hat{z}^4) \\ \end{eqnarray*}</formula> where <formula id="32">$\mu_{2}$</formula> is the gravitational parameter of the body exerting acceleration, <formula id="37">$\hat{z} = \frac{z}{r}$</formula>, <formula id="38">$x$</formula>, <formula id="39">$y$</formula> and <formula id="40">$z$</formula> are the Cartesian position components, <formula id="41">$r$</formula> is the radial position, and <formula id="44">$J_{3}$</formula> is the third zonal coefficient of the gravity field of body2. The positions and accelerations are given with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to J3-acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting acceleration (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadiusOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body exerting acceleration (body2), in formulation of spherical harmonics expansion [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>j3CoefficientOfGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>J3-coefficient, describing irregularity of the gravity field of body2 [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational acceleration exerted on body1 due to J3-effect [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3GravityModel.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3GravityModel.cpp" bodystart="22" bodyend="62" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3GravityModel.h" declline="59" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralJ2J3J4GravityModel_8h_1ad73d26427691ddd87f329946eb764e9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAccelerationDueToJ4</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameterOfBodyExertingAcceleration, const double equatorialRadiusOfBodyExertingAcceleration, const double j4CoefficientOfGravityField, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration)</argsstring>
+        <name>computeGravitationalAccelerationDueToJ4</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadiusOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>j4CoefficientOfGravityField</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration due to J4. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes gravitational acceleration experienced by body1, due to its interaction with another body (body2) with an irregular gravity field. The body exerting the acceleration has an irregular gravity field. The acceleration due to the J4-coefficient is given by (Melman, 2012): <formula id="45">\begin{eqnarray*} {a}_{gravity,x} &amp;=&amp; \mu_{2}*\frac{x_{1}-x_{2}}{r^{3}} * \frac{35}{8}*J_{4} * \left(\frac{R}{r}\right)^{4} * (\frac{3}{7}-6*\hat{z}^2+9*\hat{z}^{4}) \\ {a}_{gravity,y} &amp;=&amp; \mu_{2}*\frac{y_{1}-y_{2}}{r^{3}} * \frac{35}{8}*J_{4} * \left(\frac{R}{r}\right)^{4} * (\frac{3}{7}-6*\hat{z}^2+9*\hat{z}^{4}) \\ {a}_{gravity,z} &amp;=&amp; \frac{\mu_{2}}{r^{2}} * \frac{35}{8}*J_{4} * \left(\frac{R}{r}\right)^{4} * (\frac{15}{7}-10*\hat{z}^2+9*\hat{z}^4) * \hat{z} \\ \end{eqnarray*}</formula> where <formula id="32">$\mu_{2}$</formula> is the gravitational parameter of the body exerting acceleration, <formula id="37">$\hat{z} = \frac{z}{r}$</formula>, <formula id="38">$x$</formula>, <formula id="39">$y$</formula> and <formula id="40">$z$</formula> are the Cartesian position components, <formula id="41">$r$</formula> is the radial position, and <formula id="46">$J_{4}$</formula> is the fourth zonal coefficient of the gravity field of body2. The positions and accelerations are given with respect to an inertial (barycentric) reference frame. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to J4-acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting acceleration (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadiusOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body exerting acceleration (body2), in formulation of spherical harmonics expansion [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>j4CoefficientOfGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>J4-coefficient, describing irregularity of the gravity field of body2 [-]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational acceleration exerted on body1 due to J4-effect [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3J4GravityModel.cpp" line="25" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3J4GravityModel.cpp" bodystart="25" bodyend="68" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3J4GravityModel.h" declline="66" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="centralJ2J3J4GravityModel_8h_1a48c8bf353a7de0542fdf536154b46e46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGravitationalAccelerationZonalSum</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameterOfBodyExertingAcceleration, const double equatorialRadiusOfBodyExertingAcceleration, const std::map&lt; int, double &gt; zonalCoefficientsOfGravityField, const Eigen::Vector3d &amp;positionOfBodyExertingAcceleration)</argsstring>
+        <name>computeGravitationalAccelerationZonalSum</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadiusOfBodyExertingAcceleration</declname>
+        </param>
+        <param>
+          <type>const std::map&lt; int, double &gt;</type>
+          <declname>zonalCoefficientsOfGravityField</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodyExertingAcceleration</declname>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration zonal sum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes sum of gravitational acceleration for given zonal terms experienced by body1, due to its interaction with another body (body2) with an irregular gravity field. The body exerting the acceleration has an irregular gravity field. This function essentially serves as a wrapper to compute the total gravitational acceleration up to a certain zonal terms (specified as input parameter). So given <formula id="47">$n$</formula> as the maximum order of the zonal terms, the total acceleration is computed as: <formula id="48">\begin{eqnarray*} {a}_{gravity sum,x} &amp;=&amp; {a}_{gravity central,x} + \sum\limits_{i=2}^{n} {a}_{gravity J_{n},x} \\ {a}_{gravity sum,y} &amp;=&amp; {a}_{gravity central,y} + \sum\limits_{i=2}^{n} {a}_{gravity J_{n},y} \\ {a}_{gravity sum,z} &amp;=&amp; {a}_{gravity central,z} + \sum\limits_{i=2}^{n} {a}_{gravity J_{n},z} \\ \end{eqnarray*}</formula> where <formula id="49">$J_{n}$</formula> is the coefficient describing the irregularity of the gravity field of body2 due to the nth zonal term. All accelerations are given with respect to an inertial (barycentric) reference frame. NOTE: Currently, this algorithm only computes accelerations up to <formula id="46">$J_{4}$</formula>. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body subject to J4-acceleration (body1) [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of body exerting acceleration (body2) [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadiusOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Equatorial radius of body exerting acceleration (body2), in formulation of spherical harmonics expansion [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>zonalCoefficientsOfGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coefficients of zonal terms, describing irregularity of the gravity field of body2 [-]. The map key contains the degree, and the map value contains the coefficient value. At the moment, the only degrees supported are 2 ( <formula id="42">$J_{2}$</formula>), 3 ( <formula id="44">$J_{3}$</formula>), and 4 ( <formula id="46">$J_{4}$</formula>) etc. An error is thrown for any other values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfBodyExertingAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position vector of body exerting acceleration (body2) [m]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total gravitational acceleration exerted on body1 due to given zonal terms [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3J4GravityModel.cpp" line="71" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/centralJ2J3J4GravityModel.cpp" bodystart="71" bodyend="151" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/centralJ2J3J4GravityModel.h" declline="106" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="directTidalDissipationAcceleration_8h_1ad854b1b2a316568addb091f2fe5d232b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeDirectTidalAccelerationDueToTideOnPlanet</definition>
+        <argsstring>(const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d planetAngularVelocityVector, const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent=true)</argsstring>
+        <name>computeDirectTidalAccelerationDueToTideOnPlanet</name>
+        <param>
+          <type>const Eigen::Vector6d</type>
+          <declname>relativeStateOfBodyExertingTide</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d</type>
+          <declname>planetAngularVelocityVector</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTidalAccelerationMultiplier</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeLag</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>includeDirectRadialComponent</declname>
+          <defval>true</defval>
+        </param>
+        <briefdescription>
+<para>Function to compute the acceleration acting on a satellite due to tidal deformation caused by this satellite on host planet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the acceleration acting on a satellite due to tidal deformation caused by this satellite on host planet. The computation is according to Lainey et al. (2007, 2009, 2012, etc.) and uses a single (degree 2) real Love number and a single time lag to include the dissipation in the host planet. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativeStateOfBodyExertingTide</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of satellite w.r.t. host planet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>planetAngularVelocityVector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angular velocity vector ogf host planet </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTidalAccelerationMultiplier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scalar multiplier that is common to all vector terms (term outside of brackets in Eq. (3) of Lainey et al. (2007)). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeLag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> lag of tidal bulge </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>includeDirectRadialComponent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if term independent of time lag is to be included, false otherwise </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of acceleration vector according to tidal model </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" line="23" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" bodystart="23" bodyend="40" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/directTidalDissipationAcceleration.h" declline="42" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="directTidalDissipationAcceleration_8h_1a47469fada99ae268bd0382c46f17b858" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeDirectTidalAccelerationDueToTideOnSatellite</definition>
+        <argsstring>(const Eigen::Vector6d relativeStateOfBodyExertingTide, const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent)</argsstring>
+        <name>computeDirectTidalAccelerationDueToTideOnSatellite</name>
+        <param>
+          <type>const Eigen::Vector6d</type>
+          <declname>relativeStateOfBodyExertingTide</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>currentTidalAccelerationMultiplier</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeLag</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>includeDirectRadialComponent</declname>
+        </param>
+        <briefdescription>
+<para>Function to compute the acceleration acting on a satellite due to tidal deformation caused in this satellite by host planet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to compute the acceleration acting on a satellite due to tidal deformation caused in this satellite by host planet. The computation is according to Lainey et al. (2007, 2009, 2012, etc.) and uses a single (degree 2) real Love number and a single time lag to include the dissipation in the host planet. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativeStateOfBodyExertingTide</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of satellite w.r.t. host planet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>currentTidalAccelerationMultiplier</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scalar multiplier that is common to all vector terms (term outside of brackets in Eq. (3) of Lainey et al. (2007), modified according to tide on satellite). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeLag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> lag of tidal bulge </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>includeDirectRadialComponent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if term independent of time lag is to be included, false otherwise </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of acceleration vector according to tidal model </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" line="43" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" bodystart="43" bodyend="59" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/directTidalDissipationAcceleration.h" declline="59" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="directTidalDissipationAcceleration_8h_1a441c88cf3798951bcf21c26820693106" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::vector&lt; std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> &gt; &gt;</type>
+        <definition>std::vector&lt; std::shared_ptr&lt; DirectTidalDissipationAcceleration &gt; &gt; tudat::gravitation::getTidalDissipationAccelerationModels</definition>
+        <argsstring>(const basic_astrodynamics::AccelerationMap accelerationModelList, const std::string bodyBeingDeformed, const std::vector&lt; std::string &gt; &amp;bodiesCausingDeformation)</argsstring>
+        <name>getTidalDissipationAccelerationModels</name>
+        <param>
+          <type>const basic_astrodynamics::AccelerationMap</type>
+          <declname>accelerationModelList</declname>
+        </param>
+        <param>
+          <type>const std::string</type>
+          <declname>bodyBeingDeformed</declname>
+        </param>
+        <param>
+          <type>const std::vector&lt; std::string &gt; &amp;</type>
+          <declname>bodiesCausingDeformation</declname>
+        </param>
+        <briefdescription>
+<para>Function to retrieve all <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> from an AccelerationMap, for specific deformed/deforming bodies. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to retrieve all <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> from an AccelerationMap, for specific deformed/deforming bodies <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>accelerationModelList</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total list of acceleration models for which <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> objects are to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyBeingDeformed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of body being deformed, for which <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> objects are to be retrieved </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodiesCausingDeformation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of bodies causing deformation, for which <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> objects are to be retrieved. If this list is empty, the selection is made only on the basis of the bodyBeingDeformed input. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>All <ref refid="classtudat_1_1gravitation_1_1DirectTidalDissipationAcceleration" kindref="compound">DirectTidalDissipationAcceleration</ref> from an accelerationModelList, for specific bodyBeingDeformed and bodiesCausingDeformation </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" line="62" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/directTidalDissipationAcceleration.cpp" bodystart="62" bodyend="114" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/directTidalDissipationAcceleration.h" declline="402" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="gravityFieldModel_8h_1a3ca94f34fed60df6ccc774f241a62ea4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldModel" kindref="compound">GravityFieldModel</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; GravityFieldModel &gt; tudat::gravitation::getPredefinedCentralGravityField</definition>
+        <argsstring>(BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField)</argsstring>
+        <name>getPredefinedCentralGravityField</name>
+        <param>
+          <type>BodiesWithPredefinedCentralGravityFields</type>
+          <declname>bodyWithPredefinedCentralGravityField</declname>
+        </param>
+        <briefdescription>
+<para>Function to create a central gravity field model of one of the planets, moon or sun. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Set predefined central gravity field settings.</para>
+<para>Function to create a central gravity field model of one of the planets, moon or sun. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyWithPredefinedCentralGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identified determining for which body a gravity field is to be created. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Central gravity field model of requested body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/gravityFieldModel.cpp" line="21" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/gravityFieldModel.cpp" bodystart="21" bodyend="135" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldModel.h" declline="130" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="gravityFieldVariations_8h_1ad771426fc3346c3c9e7ccc99ef51f291" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::function&lt; void(const double, Eigen::MatrixXd &amp;, Eigen::MatrixXd &amp;) &gt;</type>
+        <definition>std::function&lt; void(const double, Eigen::MatrixXd &amp;, Eigen::MatrixXd &amp;) &gt; tudat::gravitation::createInterpolatedSphericalHarmonicCorrectionFunctions</definition>
+        <argsstring>(std::shared_ptr&lt; GravityFieldVariations &gt; variationObject, const double initialTime, const double finalTime, const double timeStep, const std::shared_ptr&lt; interpolators::InterpolatorSettings &gt; interpolatorSettings=std::make_shared&lt; interpolators::InterpolatorSettings &gt;(interpolators::linear_interpolator, interpolators::huntingAlgorithm))</argsstring>
+        <name>createInterpolatedSphericalHarmonicCorrectionFunctions</name>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref> &gt;</type>
+          <declname>variationObject</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>initialTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>finalTime</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>timeStep</declname>
+        </param>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;</type>
+          <declname>interpolatorSettings</declname>
+          <defval>std::make_shared&lt; <ref refid="classtudat_1_1interpolators_1_1InterpolatorSettings" kindref="compound">interpolators::InterpolatorSettings</ref> &gt;(interpolators::linear_interpolator, interpolators::huntingAlgorithm)</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to create a function linearly interpolating the sine and cosine correction coefficients produced by an object of <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref> type.</para>
+<para>Function to create a function linearly interpolating the sine and cosine correction coefficients produced by an object of <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref> type. The function creates a function pointer to the getCosineSinePair function of <ref refid="classtudat_1_1gravitation_1_1PairInterpolationInterface" kindref="compound">PairInterpolationInterface</ref>. The object of type <ref refid="classtudat_1_1gravitation_1_1PairInterpolationInterface" kindref="compound">PairInterpolationInterface</ref> is created by generating an interpolator for sine/cosine coefficients from the variationObject object and the initial/final time and time step that are passed. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>variationObject</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object generating cosine and sine coefficient corrections. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initialTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start time of interpolator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>finalTime</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End time of interpolator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeStep</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="classtudat_1_1Time" kindref="compound">Time</ref> step between subsequent evaluations of coefficient corrections </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function pointer to function mimicing the addSphericalHarmonicsCorrections function of <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref>.</para>
+</simplesect>
+Function to create a function linearly interpolating the sine and cosine correction coefficients produced by an object of <ref refid="classtudat_1_1gravitation_1_1GravityFieldVariations" kindref="compound">GravityFieldVariations</ref> type. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/gravityFieldVariations.cpp" line="123" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/gravityFieldVariations.cpp" bodystart="123" bodyend="176" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/gravityFieldVariations.h" declline="326" declcolumn="1"/>
+      </memberdef>
+      <memberdef kind="function" id="jacobiEnergy_8h_1a50980504cebea6411ac1407435a27b97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::computeJacobiEnergy</definition>
+        <argsstring>(const double massParameter, const Eigen::VectorXd &amp;stateInNormalizedUnits)</argsstring>
+        <name>computeJacobiEnergy</name>
+        <param>
+          <type>const double</type>
+          <declname>massParameter</declname>
+        </param>
+        <param>
+          <type>const Eigen::VectorXd &amp;</type>
+          <declname>stateInNormalizedUnits</declname>
+        </param>
+        <briefdescription>
+<para>Compute Jacobi energy. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the value of the Jacobi energy in normalized units of the CRTBP, given in the following equation (Wakker, 2007): <formula id="50">\[ C_{J} = x^{2} + y^{2} + 2 * \left(\frac{1-\mu}{r_{1}} + \frac{\mu}{r_{2}}\right) - V^{2}, \]</formula> where <formula id="51">$C_{J}$</formula> is the Jacobi energy, <formula id="38">$x$</formula> and <formula id="39">$y$</formula> are Cartesian position coordinates of the third body, <formula id="52">$mu$</formula> is the gravitational parameter of the secondary, <formula id="53">$r_{1}$</formula> and <formula id="54">$r_{2}$</formula> are the distances from the third body to the primaries, and <formula id="55">$V$</formula> is the magnitude of the velocity of the third body. This equation assumes that the system has been normalized such that the mean motion of the primiaries, and their mutual distance is equal to 1. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>massParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass parameter of three-body system. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stateInNormalizedUnits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State of third body in normalized units. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Jacobi energy in normalized units. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/jacobiEnergy.cpp" line="26" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/jacobiEnergy.cpp" bodystart="26" bodyend="57" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/jacobiEnergy.h" declline="42" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="mutualSphericalHarmonicGravityModel_8h_1a6687c0036fe2c3968209f6da33d249ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::setDegreeAndOrderCoefficientToZero</definition>
+        <argsstring>(const std::function&lt; Eigen::MatrixXd() &gt; originalCosineCoefficientFunction)</argsstring>
+        <name>setDegreeAndOrderCoefficientToZero</name>
+        <param>
+          <type>const std::function&lt; Eigen::MatrixXd() &gt;</type>
+          <declname>originalCosineCoefficientFunction</declname>
+        </param>
+        <briefdescription>
+<para>Function to manually remove the C(0,0) term from cosine coefficients,. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to manually remove the C(0,0) term from cosine coefficients.</para>
+<para>Function to manually remove the C(0,0) term from cosine coefficients, used by <ref refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel" kindref="compound">MutualSphericalHarmonicsGravitationalAccelerationModel</ref>. By using this function, the original function returning the sh coefficients is left untouched, not compromising the environment model, while the C(0,0) term is not calculated doubly by the <ref refid="classtudat_1_1gravitation_1_1MutualSphericalHarmonicsGravitationalAccelerationModel" kindref="compound">MutualSphericalHarmonicsGravitationalAccelerationModel</ref> class. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/mutualSphericalHarmonicGravityModel.cpp" line="19" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/mutualSphericalHarmonicGravityModel.cpp" bodystart="19" bodyend="25" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h" declline="43" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="secondDegreeGravitationalTorque_8h_1aaceb89ffff1cda87965153ee089ac5de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::calculateSecondDegreeGravitationalTorque</definition>
+        <argsstring>(const Eigen::Vector3d &amp;relativePositionOfBodySubjectToTorque, const double premultipler, const Eigen::Vector3d &amp;inertiaTensorTimesRelativePositionOfBody)</argsstring>
+        <name>calculateSecondDegreeGravitationalTorque</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>relativePositionOfBodySubjectToTorque</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>premultipler</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>inertiaTensorTimesRelativePositionOfBody</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field, which is provided here as an inertia tensor. Higher order terms of the torque are omitted. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativePositionOfBodySubjectToTorque</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of body exerting torque, w.r.t. body undergoing torque (typically expressed in frame fixed to body undergoing torque). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>premultipler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Torque pre-multipler (3*mu/r^5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inertiaTensorTimesRelativePositionOfBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The inertia tensor of the body undergoing the torque, multiplied by relativePositionOfBodySubjectToTorque </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational torque of point mass on second-degree body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/secondDegreeGravitationalTorque.cpp" line="22" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/secondDegreeGravitationalTorque.cpp" bodystart="22" bodyend="29" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/secondDegreeGravitationalTorque.h" declline="39" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="secondDegreeGravitationalTorque_8h_1a164505e1bad5d655378b54949d778465" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::calculateSecondDegreeGravitationalTorque</definition>
+        <argsstring>(const Eigen::Vector3d &amp;relativePositionOfBodySubjectToTorque, const double gravitationalParameterOfAttractingBody, const Eigen::Matrix3d &amp;inertiaTensorOfRotatingBody)</argsstring>
+        <name>calculateSecondDegreeGravitationalTorque</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>relativePositionOfBodySubjectToTorque</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfAttractingBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>inertiaTensorOfRotatingBody</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field, which is provided here as an inertia tensor. Higher order terms of the torque are omitted. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relativePositionOfBodySubjectToTorque</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of body exerting torque, w.r.t. body undergoing torque (typically expressed in frame fixed to body undergoing torque). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfAttractingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tha gravitational parameter of the body that exerts the torque </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inertiaTensorOfRotatingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The inertia tensor of the body undergoing the torqie, in the same frame as relativePositionOfBodySubjectToTorque (typically frame fixed to body undergoing torque) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational torque of point mass on second-degree body. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/secondDegreeGravitationalTorque.cpp" line="32" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/secondDegreeGravitationalTorque.cpp" bodystart="32" bodyend="43" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/secondDegreeGravitationalTorque.h" declline="55" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityField_8h_1a7e04e72748df337cbc67124f25bd70dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::calculateSphericalHarmonicGravitationalPotential</definition>
+        <argsstring>(const Eigen::Vector3d &amp;bodyFixedPosition, const double gravitationalParameter, const double referenceRadius, const Eigen::MatrixXd &amp;cosineCoefficients, const Eigen::MatrixXd &amp;sineCoefficients, std::shared_ptr&lt; basic_mathematics::SphericalHarmonicsCache &gt; sphericalHarmonicsCache, const int minimumumDegree=0, const int minimumumOrder=0)</argsstring>
+        <name>calculateSphericalHarmonicGravitationalPotential</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>bodyFixedPosition</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>cosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>sineCoefficients</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">basic_mathematics::SphericalHarmonicsCache</ref> &gt;</type>
+          <declname>sphericalHarmonicsCache</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumumDegree</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>minimumumOrder</declname>
+          <defval>0</defval>
+        </param>
+        <briefdescription>
+<para>Function to calculate the gravitational potential from a spherical harmonic field expansion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate the gravitational potential from a spherical harmonic field expansion. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bodyFixedPosition</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position of point at which potential is to be calculated wrt the massive body, in the frame in which the expansion is defined (typically body-fixed). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter of massive body. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of spherical harmonic field expansion. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cosine spherical harmonic coefficients (geodesy normalized). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sine spherical harmonic coefficients (geodesy normalized). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicsCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cache object containing current values of trigonometric funtions of latitude anf longitude, as well as legendre polynomials at current state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of spherical harmonic expansion. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>minimumumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum order of spherical harmonic expansion.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Gravitational potential at position defined by bodyFixedPosition </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" line="32" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" bodystart="32" bodyend="100" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" declline="55" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityField_8h_1a9e14a7dd3a7abc1ac74ed9bf7a6dba14" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::gravitation::getInertiaTensor</definition>
+        <argsstring>(const double c20Coefficient, const double c21Coefficient, const double c22Coefficient, const double s21Coefficient, const double s22Coefficient, const double scaledMeanMomentOfInertia, const double bodyMass, const double referenceRadius)</argsstring>
+        <name>getInertiaTensor</name>
+        <param>
+          <type>const double</type>
+          <declname>c20Coefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>c21Coefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>c22Coefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>s21Coefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>s22Coefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bodyMass</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine a body&apos;s inertia tensor from its degree two unnormalized gravity field coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine a body&apos;s inertia tensor from its degree two unnormalized gravity field coefficients, and the mean moment of inertia. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c20Coefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree 2, order 0, unnormalized cosine spherical harmonic gravity field coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c21Coefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree 2, order 1, unnormalized cosine spherical harmonic gravity field coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c22Coefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree 2, order 2, unnormalized cosine spherical harmonic gravity field coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s21Coefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree 2, order 1, unnormalized sine spherical harmonic gravity field coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s22Coefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree 2, order 2, unnormalized sine spherical harmonic gravity field coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean moment of inertial, divided by (M*R^2) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyMass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass M of body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius R of the spherical harmonic coefficients </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertia tensor of body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" line="103" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" bodystart="103" bodyend="121" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" declline="362" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityField_8h_1a23f4dcbfdcf367eb9b2ae34627f537d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::gravitation::getInertiaTensor</definition>
+        <argsstring>(const Eigen::MatrixXd &amp;unnormalizedCosineCoefficients, const Eigen::MatrixXd &amp;unnormalizedSineCoefficients, const double scaledMeanMomentOfInertia, const double bodyMass, const double referenceRadius)</argsstring>
+        <name>getInertiaTensor</name>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedCosineCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>unnormalizedSineCoefficients</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bodyMass</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine a body&apos;s inertia tensor from its unnormalized gravity field coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine a body&apos;s inertia tensor from unnormalized gravity field coefficients, and the mean moment of inertia. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>unnormalizedCosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of cosine spherical harmonic coefficients, degree/order stored in row/column </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unnormalizedSineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block of sine spherical harmonic coefficients, degree/order stored in row/column </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean moment of inertial, divided by (M*R^2) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyMass</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mass M of body </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius R of the spherical harmonic coefficients </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertia tensor of body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" line="124" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" bodystart="124" bodyend="136" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" declline="383" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityField_8h_1a57c8edeb5d97b48e3e4e9f35f8c0824b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Matrix3d</type>
+        <definition>Eigen::Matrix3d tudat::gravitation::getInertiaTensor</definition>
+        <argsstring>(const std::shared_ptr&lt; SphericalHarmonicsGravityField &gt; sphericalHarmonicGravityField, const double scaledMeanMomentOfInertia)</argsstring>
+        <name>getInertiaTensor</name>
+        <param>
+          <type>const std::shared_ptr&lt; <ref refid="classtudat_1_1gravitation_1_1SphericalHarmonicsGravityField" kindref="compound">SphericalHarmonicsGravityField</ref> &gt;</type>
+          <declname>sphericalHarmonicGravityField</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <briefdescription>
+<para>Function to determine a body&apos;s inertia tensor from its gravity field model. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to determine a body&apos;s inertia tensor from its gravity field model, and the mean moment of inertia. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicGravityField</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Spherical harmonic gravity field from which the inertia tensor is to be computed </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the reference radius of the gravity field </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inertia tensor of body </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" line="139" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" bodystart="139" bodyend="169" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" declline="399" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityField_8h_1ad206a8da4302dbaaab87e29d1f8d3c77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::getDegreeTwoSphericalHarmonicCoefficients</definition>
+        <argsstring>(const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius, const bool useNormalizedCoefficients, Eigen::MatrixXd &amp;cosineCoefficients, Eigen::MatrixXd &amp;sineCoefficients, double &amp;scaledMeanMomentOfInertia)</argsstring>
+        <name>getDegreeTwoSphericalHarmonicCoefficients</name>
+        <param>
+          <type>const Eigen::Matrix3d</type>
+          <declname>inertiaTensor</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bodyGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>useNormalizedCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>cosineCoefficients</declname>
+        </param>
+        <param>
+          <type>Eigen::MatrixXd &amp;</type>
+          <declname>sineCoefficients</declname>
+        </param>
+        <param>
+          <type>double &amp;</type>
+          <declname>scaledMeanMomentOfInertia</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inertiaTensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Inertia tensor </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bodyGravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational paramater of gravity field </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of gravity field </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>useNormalizedCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean stating whether spherical harmonic coefficients are normalized </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cosine coefficients of of gravity field (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sine coefficients of of gravity field (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scaledMeanMomentOfInertia</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scaled mean moment of inertia (returned by reference) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" line="172" column="6" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityField.cpp" bodystart="172" bodyend="197" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityField.h" declline="414" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityModel_8h_1a84f3e2c72efa8b4aec4b00e1c94540b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeGeodesyNormalizedGravitationalAccelerationSum</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameter, const double equatorialRadius, const Eigen::MatrixXd &amp;cosineHarmonicCoefficients, const Eigen::MatrixXd &amp;sineHarmonicCoefficients, std::shared_ptr&lt; basic_mathematics::SphericalHarmonicsCache &gt; sphericalHarmonicsCache, std::map&lt; std::pair&lt; int, int &gt;, Eigen::Vector3d &gt; &amp;accelerationPerTerm, const bool saveSeparateTerms, const Eigen::Matrix3d &amp;accelerationRotation)</argsstring>
+        <name>computeGeodesyNormalizedGravitationalAccelerationSum</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>cosineHarmonicCoefficients</declname>
+        </param>
+        <param>
+          <type>const Eigen::MatrixXd &amp;</type>
+          <declname>sineHarmonicCoefficients</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">basic_mathematics::SphericalHarmonicsCache</ref> &gt;</type>
+          <declname>sphericalHarmonicsCache</declname>
+        </param>
+        <param>
+          <type>std::map&lt; std::pair&lt; int, int &gt;, Eigen::Vector3d &gt; &amp;</type>
+          <declname>accelerationPerTerm</declname>
+        </param>
+        <param>
+          <type>const bool</type>
+          <declname>saveSeparateTerms</declname>
+          <defval>0</defval>
+        </param>
+        <param>
+          <type>const Eigen::Matrix3d &amp;</type>
+          <declname>accelerationRotation</declname>
+          <defval>Eigen::Matrix3d::Identity()</defval>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration due to multiple spherical harmonics terms, defined using geodesy-normalization. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Compute gravitational acceleration due to multiple spherical harmonics terms, defined using geodesy-normalization.</para>
+<para>This function computes the acceleration caused by gravitational spherical harmonics, with the coefficients expressed using a geodesy-normalization. This acceleration is the summation of all harmonic terms from degree and order zero, up to a user-specified highest degree and order. The harmonic coefficients for the function must be provided in geodesy-normalized format. This geodesy-normalization is defined as: <formula id="56">\begin{eqnarray*} \bar{ C }_{ n, m } = \Pi_{ n, m } C_{ n, m } \\ \bar{ S }_{ n, m } = \Pi_{ n, m } S_{ n, m } \end{eqnarray*}</formula> in which <formula id="57">$ \bar{ C }_{ n, m } $</formula> and <formula id="58">$ \bar{ S }_{ n, m } $</formula> are a geodesy-normalized cosine and sine harmonic coefficient respectively (of degree <formula id="12">$ n $</formula> and order <formula id="59">$ m $</formula>). The unnormalized harmonic coefficients are represented by <formula id="60">$ C_{ n, m } $</formula> and <formula id="61">$ S_{ n, m } $</formula>. The normalization factor <formula id="62">$ \Pi_{ n, m } $</formula> is given by Heiskanen &amp; Moritz [1967] as: <formula id="63">\[ \Pi_{ n, m } = \sqrt{ \frac{ ( n + m )! }{ ( 2 - \delta_{ 0, m } ) ( 2 n + 1 ) ( n - m )! } } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order and <formula id="64">$ \delta_{ 0, m } $</formula> is the Kronecker delta. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position vector with respect to the reference frame that is associated with the harmonic coefficients. The order is important! position( 0 ) = x coordinate [m], position( 1 ) = y coordinate [m], position( 2 ) = z coordinate [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter associated with the spherical harmonics [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of the spherical harmonics [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineHarmonicCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix with <bold>geodesy-normalized</bold> cosine harmonic coefficients. The row index indicates the degree and the column index indicates the order of coefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineHarmonicCoefficients</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix with <bold>geodesy-normalized</bold> sine harmonic coefficients. The row index indicates the degree and the column index indicates the order of coefficients. The matrix must be equal in size to cosineHarmonicCoefficients. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicsCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cache object for computing/retrieving repeated terms in spherical harmonics potential gradient calculation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationPerTerm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List of contributions to accelerations at given degrees/orders, represented by first/second entry of map key pair. List is returned by reference only if saveSeparateTerms is set to true. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>saveSeparateTerms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean to denote whether the separate terms in the acceleration are to be stored term by term (in accelerationPerTerm map) by reference </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accelerationRotation</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation from body-fixed frame (in which coefficients are defined) to inertial frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cartesian acceleration vector resulting from the summation of all harmonic terms. The order is important! acceleration( 0 ) = x acceleration [m s^-2], acceleration( 1 ) = y acceleration [m s^-2], acceleration( 2 ) = z acceleration [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityModel.cpp" line="38" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityModel.cpp" bodystart="38" bodyend="128" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModel.h" declline="85" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="sphericalHarmonicsGravityModel_8h_1affa8a86326f03c643307af1463eac1cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration</definition>
+        <argsstring>(const Eigen::Vector3d &amp;positionOfBodySubjectToAcceleration, const double gravitationalParameter, const double equatorialRadius, const int degree, const int order, const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient, std::shared_ptr&lt; basic_mathematics::SphericalHarmonicsCache &gt; sphericalHarmonicsCache)</argsstring>
+        <name>computeSingleGeodesyNormalizedGravitationalAcceleration</name>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfBodySubjectToAcceleration</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>equatorialRadius</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>cosineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>sineHarmonicCoefficient</declname>
+        </param>
+        <param>
+          <type>std::shared_ptr&lt; <ref refid="classtudat_1_1basic__mathematics_1_1SphericalHarmonicsCache" kindref="compound">basic_mathematics::SphericalHarmonicsCache</ref> &gt;</type>
+          <declname>sphericalHarmonicsCache</declname>
+        </param>
+        <briefdescription>
+<para>Compute gravitational acceleration due to single spherical harmonics term. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function computes the acceleration caused by a single gravitational spherical harmonics term, with the coefficients expressed using a geodesy-normalization. The harmonic coefficients for the function must be provided in geodesy-normalized format. This geodesy-normalization is defined as: <formula id="56">\begin{eqnarray*} \bar{ C }_{ n, m } = \Pi_{ n, m } C_{ n, m } \\ \bar{ S }_{ n, m } = \Pi_{ n, m } S_{ n, m } \end{eqnarray*}</formula> in which <formula id="57">$ \bar{ C }_{ n, m } $</formula> and <formula id="58">$ \bar{ S }_{ n, m } $</formula> are a geodesy-normalized cosine and sine harmonic coefficient respectively (of degree <formula id="12">$ n $</formula> and order <formula id="59">$ m $</formula>). The unnormalized harmonic coefficients are represented by <formula id="60">$ C_{ n, m } $</formula> and <formula id="61">$ S_{ n, m } $</formula>. The normalization factor <formula id="62">$ \Pi_{ n, m } $</formula> is given by Heiskanen &amp; Moritz [1967] as: <formula id="63">\[ \Pi_{ n, m } = \sqrt{ \frac{ ( n + m )! }{ ( 2 - \delta_{ 0, m } ) ( 2 n + 1 ) ( n - m )! } } \]</formula> in which <formula id="12">$ n $</formula> is the degree, <formula id="59">$ m $</formula> is the order and <formula id="64">$ \delta_{ 0, m } $</formula> is the Kronecker delta. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>positionOfBodySubjectToAcceleration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cartesian position vector with respect to the reference frame that is associated with the harmonic coefficients. The order is important! position( 0 ) = x coordinate [m], position( 1 ) = y coordinate [m], position( 2 ) = z coordinate [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of the harmonic term. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of the harmonic term.<itemizedlist>
+<listitem></listitem></itemizedlist>
+</para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cosineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><bold>Geodesy-normalized</bold> cosine harmonic coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sineHarmonicCoefficient</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><bold>Geodesy-normalized</bold> sine harmonic coefficient. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gravitational parameter associated with the spherical harmonic [m^3 s^-2]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>equatorialRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of the spherical harmonic [m]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sphericalHarmonicsCache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cache object for computing/retrieving repeated terms in spherical harmonics potential gradient calculation. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Cartesian acceleration vector resulting from the spherical harmonic term. The order is important! acceleration( 0 ) = x acceleration [m s^-2], acceleration( 1 ) = y acceleration [m s^-2], acceleration( 2 ) = z acceleration [m s^-2]. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityModel.cpp" line="131" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/sphericalHarmonicsGravityModel.cpp" bodystart="131" bodyend="179" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/sphericalHarmonicsGravityModel.h" declline="137" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="thirdBodyPerturbation_8h_1a05876e993b0db23388c34b7288110627" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::gravitation::computeThirdBodyPerturbingAcceleration</definition>
+        <argsstring>(const double gravitationalParameterOfPerturbingBody, const Eigen::Vector3d &amp;positionOfPerturbingBody, const Eigen::Vector3d &amp;positionOfAffectedBody, const Eigen::Vector3d &amp;positionOfCentralBody=Eigen::Vector3d::Zero())</argsstring>
+        <name>computeThirdBodyPerturbingAcceleration</name>
+        <param>
+          <type>const double</type>
+          <declname>gravitationalParameterOfPerturbingBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfPerturbingBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfAffectedBody</declname>
+        </param>
+        <param>
+          <type>const Eigen::Vector3d &amp;</type>
+          <declname>positionOfCentralBody</declname>
+          <defval>Eigen::Vector3d::Zero()</defval>
+        </param>
+        <briefdescription>
+<para>Compute perturbing acceleration by third body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the perturbing acceleration on a point mass in orbit about a central body (point mass), caused by a third body (point mass). This acceleration is expressed with respect to a pseudo-inertial reference frame centered at the central body body, i.e, a non-rotating frame aligned with an inertial reference frame. This acceleration may be summed with other third body accelerations in order to get the total gravitational perturbation acceleration of N bodies (Wakker, 2010; Montenbruck &amp; Gill, 2005). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gravitationalParameterOfPerturbingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The gravitational parameter of the perturbing body, i.e., the third body. [m^3/s^2] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfPerturbingBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The position of the third body, the body that causes the perturbations, in Cartesian coordinates. positionOfPerturbingBody( 0 ) = x-position [m] positionOfPerturbingBody( 1 ) = y-position [m] positionOfPerturbingBody( 2 ) = z-position [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfAffectedBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The position of the second body, the body that experiences the perturbation, in Cartesian coordinates. positionOfAffectedBody( 0 ) = x-position [m] positionOfAffectedBody( 1 ) = y-position [m] positionOfAffectedBody( 2 ) = z-position [m] </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>positionOfCentralBody</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The position of the central body, the body w.r.t. which the acceleration is calculated the perturbation, in Cartesian coordinates (default=origin). positionOfAffectedBody( 0 ) = x-position [m] positionOfAffectedBody( 1 ) = y-position [m] positionOfAffectedBody( 2 ) = z-position [m] </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>perturbingAcceleration The perturbing acceleration in Cartesian components, that gives the difference of the total acceleration with the central two-body acceleration. perturbingAcceleration( 0 ) = x-acceleration [m/s^2] perturbingAcceleration( 1 ) = y-acceleration [m/s^2] perturbingAcceleration( 2 ) = z-acceleration [m/s^2] </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/thirdBodyPerturbation.cpp" line="25" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/thirdBodyPerturbation.cpp" bodystart="25" bodyend="39" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/thirdBodyPerturbation.h" declline="62" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1a98c441c76adc53a99e3be612d24b7bde" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity</definition>
+        <argsstring>(const double aSquaredMinusCSquared, const double bSquaredMinusCSquared, const double referenceRadius, const int degree, const int order)</argsstring>
+        <name>calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity</name>
+        <param>
+          <type>const double</type>
+          <declname>aSquaredMinusCSquared</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>bSquaredMinusCSquared</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>referenceRadius</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>degree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate (non-normalized) cosine spherical harmonic coefficient for a homogeneous triaxial ellipsoid</para>
+<para>Function to calculate (non-normalized) cosine spherical harmonic coefficient for a homogeneous triaxial ellipsoid, from method of Boyce (1997) at a given degree and order. X-axis is alligned with largest axis, y-axis with middle axis and z-axis with smallest axis <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aSquaredMinusCSquared</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square of largest axis minus square of shortest axis </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bSquaredMinusCSquared</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square of middle axis minus square of shortest axis </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>referenceRadius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference radius of spherical harmonic gravity field. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>degree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Degree of coefficient </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Order of coefficient </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Spherical harmonic cosine coefficient (non-normalized) of triaxial ellipsoid at requested degree and order.</para>
+</simplesect>
+Function to calculate (non-normalized) cosine spherical harmonic coefficient for a homogeneous triaxial ellipsoid </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="25" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="25" bodyend="67" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="37" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1a63abfa30ccdaeba17f3c33ac9e12cc3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::calculateTriAxialEllipsoidReferenceRadius</definition>
+        <argsstring>(const double axisA, const double axisB, const double axisC)</argsstring>
+        <name>calculateTriAxialEllipsoidReferenceRadius</name>
+        <param>
+          <type>const double</type>
+          <declname>axisA</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisB</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisC</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate triaxial ellipsoid reference radius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate triaxial ellipsoid reference radius of spherical harmonic expansion, per Balmino (1994) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>axisA</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Largest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisB</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Middle axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisC</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smallest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Triaxial ellipsoid reference radius of spherical harmonic expansion </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="70" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="70" bodyend="75" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="50" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1a2bd884fa6fe276c3862af4502a15b719" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::gravitation::calculateTriAxialEllipsoidVolume</definition>
+        <argsstring>(const double axisA, const double axisB, const double axisC)</argsstring>
+        <name>calculateTriAxialEllipsoidVolume</name>
+        <param>
+          <type>const double</type>
+          <declname>axisA</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisB</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisC</declname>
+        </param>
+        <briefdescription>
+<para>Function to calculate triaxial ellipsoid volume. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate triaxial ellipsoid volume <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>axisA</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Largest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisB</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Middle axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisC</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smallest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Volume of triaxial ellipsoid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="78" column="8" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="78" bodyend="82" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="61" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1ae6b0f575e6e1ea308732c5a7cd73852e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>Eigen::MatrixXd</type>
+        <definition>Eigen::MatrixXd tudat::gravitation::createTriAxialEllipsoidSphericalHarmonicCosineCoefficients</definition>
+        <argsstring>(const double axisA, const double axisB, const double axisC, const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>createTriAxialEllipsoidSphericalHarmonicCosineCoefficients</name>
+        <param>
+          <type>const double</type>
+          <declname>axisA</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisB</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisC</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate (non-normalized) cosine spherical harmonic coefficients for a homogeneous triaxial ellipsoid</para>
+<para>Function to calculate (non-normalized) cosine spherical harmonic coefficients for a homogeneous triaxial ellipsoid, from method of Boyce (1997) up to given degree and order. X-axis is aligned with largest axis, y-axis with middle axis and z-axis with smallest axis <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>axisA</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Largest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisB</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Middle axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisC</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smallest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of expansion </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum oredr of expansion </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Spherical harmonic cosine coefficient matrix (non-normalized) of triaxial ellipsoid up to requested degree and order.</para>
+</simplesect>
+Function to calculate (non-normalized) cosine spherical harmonic coefficients for a homogeneous triaxial ellipsoid </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="86" column="17" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="86" bodyend="117" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="78" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1ab91b66dd430dc0094e5ec41cfb6373bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::gravitation::createTriAxialEllipsoidSphericalHarmonicCoefficients</definition>
+        <argsstring>(const double axisA, const double axisB, const double axisC, const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>createTriAxialEllipsoidSphericalHarmonicCoefficients</name>
+        <param>
+          <type>const double</type>
+          <declname>axisA</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisB</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisC</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate (non-normalized) cosine and sine spherical harmonic coefficients for a homogeneous triaxial ellipsoid</para>
+<para>Function to calculate (non-normalized) cosine and sinespherical harmonic coefficients for a homogeneous triaxial ellipsoid, from method of Boyce (1997) up to given degree and order. X-axis is alligned with largest axis, y-axis with middle axis and z-axis with smallest axis. Note that all sine coefficients are zero for all homogeneous triaxila ellipsoids (in given frame). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>axisA</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Largest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisB</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Middle axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisC</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smallest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of expansion </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum oredr of expansion </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Spherical harmonic cosine and coefficient matrix (non-normalized) pair of triaxial ellipsoid up to requested degree and order.</para>
+</simplesect>
+Function to calculate (non-normalized) cosine and sine spherical harmonic coefficients for a homogeneous triaxial ellipsoid </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="121" column="11" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="121" bodyend="129" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="98" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="triAxialEllipsoidGravity_8h_1a6775a333129caeb1a6c571eebc22bdee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt;</type>
+        <definition>std::pair&lt; Eigen::MatrixXd, Eigen::MatrixXd &gt; tudat::gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients</definition>
+        <argsstring>(const double axisA, const double axisB, const double axisC, const int maximumDegree, const int maximumOrder)</argsstring>
+        <name>createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients</name>
+        <param>
+          <type>const double</type>
+          <declname>axisA</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisB</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>axisC</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumDegree</declname>
+        </param>
+        <param>
+          <type>const int</type>
+          <declname>maximumOrder</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Function to calculate (normalized) cosine and sine spherical harmonic coefficients for a homogeneous triaxial ellipsoid</para>
+<para>Function to calculate (normalized) cosine and sinespherical harmonic coefficients for a homogeneous triaxial ellipsoid, from method of Boyce (1997) up to given degree and order. X-axis is alligned with largest axis, y-axis with middle axis and z-axis with smallest axis. Note that all sine coefficients are zero for all homogeneous triaxila ellipsoids (in given frame). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>axisA</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Largest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisB</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Middle axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>axisC</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smallest axis of triaxial ellipsoid </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumDegree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum degree of expansion </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>maximumOrder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum oredr of expansion </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Spherical harmonic cosine and coefficient matrix (normalized) pair of triaxial ellipsoid up to requested degree and order.</para>
+</simplesect>
+Function to calculate (normalized) cosine and sine spherical harmonic coefficients for a homogeneous triaxial ellipsoid </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" line="134" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/triAxialEllipsoidGravity.cpp" bodystart="134" bodyend="159" declfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/triAxialEllipsoidGravity.h" declline="118" declcolumn="11"/>
+      </memberdef>
+      <memberdef kind="function" id="gravityFieldVariation_8h_1a461990f228352e4f829e29ec6a2cb55e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::to_json</definition>
+        <argsstring>(nlohmann::json &amp;jsonObject, const BodyDeformationTypes &amp;bodyDeformationType)</argsstring>
+        <name>to_json</name>
+        <param>
+          <type>nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>const BodyDeformationTypes &amp;</type>
+          <declname>bodyDeformationType</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>BodyDeformationTypes</computeroutput> to <computeroutput>json</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" line="37" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" bodystart="37" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="gravityFieldVariation_8h_1afa6af02882537999b9431940353b1c04" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::gravitation::from_json</definition>
+        <argsstring>(const nlohmann::json &amp;jsonObject, BodyDeformationTypes &amp;bodyDeformationType)</argsstring>
+        <name>from_json</name>
+        <param>
+          <type>const nlohmann::json &amp;</type>
+          <declname>jsonObject</declname>
+        </param>
+        <param>
+          <type>BodyDeformationTypes &amp;</type>
+          <declname>bodyDeformationType</declname>
+        </param>
+        <briefdescription>
+<para>Convert <computeroutput>json</computeroutput> to <computeroutput>BodyDeformationTypes</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" line="43" column="13" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/interface/json/environment/gravityFieldVariation.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h" line="33" column="1"/>
+  </compounddef>
+</doxygen>

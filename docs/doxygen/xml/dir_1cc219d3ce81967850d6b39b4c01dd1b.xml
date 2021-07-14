@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_1cc219d3ce81967850d6b39b4c01dd1b" kind="dir">
+    <compoundname>/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro</compoundname>
+    <innerdir refid="dir_1c73c2dff048f92c70818581b6a3e11e">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/aerodynamics</innerdir>
+    <innerdir refid="dir_8b6f12b81e0fd4d17eca1c5939b8ebc8">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/basic_astro</innerdir>
+    <innerdir refid="dir_b3ae2553827de86a1f8056e55fe14d31">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/earth_orientation</innerdir>
+    <innerdir refid="dir_777b525fdc1416b52467b5d1d6dd1d4f">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/electromagnetism</innerdir>
+    <innerdir refid="dir_434425cf12103c1e48dd16bcc9e73d92">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ephemerides</innerdir>
+    <innerdir refid="dir_43ab062f0355817774c71d888aebc912">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation</innerdir>
+    <innerdir refid="dir_a8049dafd8884d457700cbfe344eba70">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/ground_stations</innerdir>
+    <innerdir refid="dir_ded976fdf2f4356c1a1b4b1251e9d904">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/low_thrust</innerdir>
+    <innerdir refid="dir_d07d56b82e3375ee4f4603323f4bec82">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/mission_segments</innerdir>
+    <innerdir refid="dir_c3a002c0c5e003b582d31a4313985d52">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/observation_models</innerdir>
+    <innerdir refid="dir_b0053ceba73ab1cf01e133842aa81bbd">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/orbit_determination</innerdir>
+    <innerdir refid="dir_ee1c15819afb0f7d059274bad6655b6f">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propagators</innerdir>
+    <innerdir refid="dir_7b94bed90aaf3ad9f062e42a9a3e7201">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/propulsion</innerdir>
+    <innerdir refid="dir_adce206fe5c450af8da8d6fc90e169f1">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/reference_frames</innerdir>
+    <innerdir refid="dir_61ce3f880098281ce2d56d5faad114bf">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/relativity</innerdir>
+    <innerdir refid="dir_4623192978a701c93c5e777a1980377a">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/system_models</innerdir>
+    <innerdir refid="dir_8c3fc4065971cf7d5daeb56456c8561c">/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/trajectory_design</innerdir>
+    <innerfile refid="astro_2aerodynamics_8h">aerodynamics.h</innerfile>
+    <innerfile refid="basic__astro_8h">basic_astro.h</innerfile>
+    <innerfile refid="conversions_8h">conversions.h</innerfile>
+    <innerfile refid="earth__orientation_8h">earth_orientation.h</innerfile>
+    <innerfile refid="electromagnetism_8h">electromagnetism.h</innerfile>
+    <innerfile refid="ephemerides_8h">ephemerides.h</innerfile>
+    <innerfile refid="gravitation_8h">gravitation.h</innerfile>
+    <innerfile refid="ground__stations_8h">ground_stations.h</innerfile>
+    <innerfile refid="low__thrust_8h">low_thrust.h</innerfile>
+    <innerfile refid="mission__segments_8h">mission_segments.h</innerfile>
+    <innerfile refid="observation__models_8h">observation_models.h</innerfile>
+    <innerfile refid="orbit__determination_8h">orbit_determination.h</innerfile>
+    <innerfile refid="propagators_8h">propagators.h</innerfile>
+    <innerfile refid="propulsion_8h">propulsion.h</innerfile>
+    <innerfile refid="reference__frames_8h">reference_frames.h</innerfile>
+    <innerfile refid="relativity_8h">relativity.h</innerfile>
+    <innerfile refid="system__models_8h">system_models.h</innerfile>
+    <innerfile refid="trajectory__design_8h">trajectory_design.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/"/>
+  </compounddef>
+</doxygen>

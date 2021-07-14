@@ -1,0 +1,444 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint" kind="class" language="C++" prot="public">
+    <compoundname>tudat::circular_restricted_three_body_problem::LibrationPoint</compoundname>
+    <includes refid="librationPoint_8h" local="no">librationPoint.h</includes>
+      <sectiondef kind="public-type">
+      <memberdef kind="enum" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55" prot="public" static="no" strong="no">
+        <type></type>
+        <name>LagrangeLibrationPoints</name>
+        <enumvalue id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a8df07ffa733923487253311e816b8385" prot="public">
+          <name>l1</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a322fd9cd738305aa24f578282420b69e" prot="public">
+          <name>l2</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a643f760ccfa9d0cf1ef5df7a157a6c34" prot="public">
+          <name>l3</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55ab9e85ca5aabfd32e60e4d6b038e5829d" prot="public">
+          <name>l4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a4d21c68dd29bf3ec7106765a2333f726" prot="public">
+          <name>l5</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Lagrange libration points. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="59" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a47a890e08bfcdef129f9da23bd83e0b4" prot="private" static="no" mutable="no">
+        <type>const double</type>
+        <definition>const double tudat::circular_restricted_three_body_problem::LibrationPoint::massParameter</definition>
+        <argsstring></argsstring>
+        <name>massParameter</name>
+        <briefdescription>
+<para>Dimensionless mass parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="119" column="18" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab998f18d868110e80bf5f645dbc2b51d" prot="private" static="no" mutable="no">
+        <type>const root_finders::RootFinderPointer</type>
+        <definition>const root_finders::RootFinderPointer tudat::circular_restricted_three_body_problem::LibrationPoint::rootFinder</definition>
+        <argsstring></argsstring>
+        <name>rootFinder</name>
+        <briefdescription>
+<para>Shared pointer to the rootfinder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Shared pointer to the rootfinder. The rootfinder contains termination conditions inside. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="125" column="43" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1acc9b23369d14cb00af2ec6bb854fe3b5" prot="private" static="no" mutable="no">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::circular_restricted_three_body_problem::LibrationPoint::positionOfLibrationPoint_</definition>
+        <argsstring></argsstring>
+        <name>positionOfLibrationPoint_</name>
+        <briefdescription>
+<para>Cartesian position elements of a Lagrange libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Cartesian position elements of a Lagrange libration point. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="131" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a008eab6416d6b31b6460713fcdc293f0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::circular_restricted_three_body_problem::LibrationPoint::LibrationPoint</definition>
+        <argsstring>(const double aPrimaryGravitationalParameter, const double aSecondaryGravitationalParameter, const root_finders::RootFinderPointer aRootFinder)</argsstring>
+        <name>LibrationPoint</name>
+        <param>
+          <type>const double</type>
+          <declname>aPrimaryGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const double</type>
+          <declname>aSecondaryGravitationalParameter</declname>
+        </param>
+        <param>
+          <type>const root_finders::RootFinderPointer</type>
+          <declname>aRootFinder</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="62" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="62" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1af1713f44f1390269c06f4f8509d26051" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>tudat::circular_restricted_three_body_problem::LibrationPoint::LibrationPoint</definition>
+        <argsstring>(const double aMassParameter, const root_finders::RootFinderPointer aRootFinder)</argsstring>
+        <name>LibrationPoint</name>
+        <param>
+          <type>const double</type>
+          <declname>aMassParameter</declname>
+        </param>
+        <param>
+          <type>const root_finders::RootFinderPointer</type>
+          <declname>aRootFinder</declname>
+        </param>
+        <briefdescription>
+<para>Default constructor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>aMassParameter</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>aRootFinder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared pointer to the rootfinder which is used for finding the L1, L2 and L3 libration points. The rootfinder contains termination conditions inside. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="77" column="5" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="77" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a510779802237e5b00efdf6a39ca00616" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::getMassParameter</definition>
+        <argsstring>()</argsstring>
+        <name>getMassParameter</name>
+        <briefdescription>
+<para>Get dimensionless mass parameter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the dimensionless mass parameter based on the gravitational parameters of the primary and secondary bodies. <simplesect kind="return"><para>Dimensionless mass parameter. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="89" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="89" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ae020cab9d1d440319969e7c547d95b9c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>Eigen::Vector3d</type>
+        <definition>Eigen::Vector3d tudat::circular_restricted_three_body_problem::LibrationPoint::getLocationOfLagrangeLibrationPoint</definition>
+        <argsstring>()</argsstring>
+        <name>getLocationOfLagrangeLibrationPoint</name>
+        <briefdescription>
+<para>Get location of Lagrange libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns the position vector in Cartesian elements of a Lagrange libration point. The libration point is selected when the <ref refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab9a8f464a5d31a4cc91708d8da0f34e2" kindref="member">computeLocationOfLibrationPoint( )</ref> function is called. <simplesect kind="return"><para>Cartesian position elements of Lagrange libration point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="98" column="21" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab9a8f464a5d31a4cc91708d8da0f34e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tudat::circular_restricted_three_body_problem::LibrationPoint::computeLocationOfLibrationPoint</definition>
+        <argsstring>(LagrangeLibrationPoints lagrangeLibrationPoint)</argsstring>
+        <name>computeLocationOfLibrationPoint</name>
+        <param>
+          <type><ref refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55" kindref="member">LagrangeLibrationPoints</ref></type>
+          <declname>lagrangeLibrationPoint</declname>
+        </param>
+        <briefdescription>
+<para>Compute location of Lagrange libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes the location as a position vector in Cartesian elements of a given Lagrange libration point. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lagrangeLibrationPoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lagrange libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="109" column="10" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/src/astro/gravitation/librationPoint.cpp" bodystart="40" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a56822b7f1896d206a63e1d81d06f8da6" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL1LocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL1LocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute equation of motion for location of L1 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L1 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L1 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="140" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="140" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a0a425f8a31e9a161dc5c6120e34ba4e8" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL1FirstDerivativeLocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL1FirstDerivativeLocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of equation of motion for location of L1 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes derivative of equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L1 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L1 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of first derivative of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="154" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="154" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab12c8be515ec8f375f4b45f1f7e3d9ca" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL2LocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL2LocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute equation of motion for location of L2 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L2 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L2 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="168" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="168" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a672816ba4e325ae496801ed957ad6345" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL2FirstDerivativeLocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL2FirstDerivativeLocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of equation of motion for location of L2 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes derivative of equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L2 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L2 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of first derivative of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="182" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="182" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a1c95ed639dcb1221a18108cd020220d9" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL3LocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL3LocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute equation of motion for location of L3 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L3 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L3 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="196" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="196" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a33823e1b72336cc10b8c067c3bf362b5" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double tudat::circular_restricted_three_body_problem::LibrationPoint::computeL3FirstDerivativeLocationFunction</definition>
+        <argsstring>(const double xLocationEstimate)</argsstring>
+        <name>computeL3FirstDerivativeLocationFunction</name>
+        <param>
+          <type>const double</type>
+          <declname>xLocationEstimate</declname>
+        </param>
+        <briefdescription>
+<para>Compute derivative of equation of motion for location of L3 libration point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes derivative of equation of motion, whose root is the x-location in dimensionless coordinates of colinear libration point L3 in the CRTBP (van der Ham, 2012). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xLocationEstimate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Estimate of x-location of L3 libration point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value of first derivative of location function. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="210" column="12" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="210" bodyend="215"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Libration point class. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class includes functions to compute the location of Lagrange libration points in the CRTBP. </para>
+    </detaileddescription>
+    <location file="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" line="53" column="1" bodyfile="/Users/jonashener/tudatpy_dev/tudat-bundle/tudat/include/tudat/astro/gravitation/librationPoint.h" bodystart="54" bodyend="216"/>
+    <listofallmembers>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a0a425f8a31e9a161dc5c6120e34ba4e8" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL1FirstDerivativeLocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a56822b7f1896d206a63e1d81d06f8da6" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL1LocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a672816ba4e325ae496801ed957ad6345" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL2FirstDerivativeLocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab12c8be515ec8f375f4b45f1f7e3d9ca" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL2LocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a33823e1b72336cc10b8c067c3bf362b5" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL3FirstDerivativeLocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a1c95ed639dcb1221a18108cd020220d9" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeL3LocationFunction</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab9a8f464a5d31a4cc91708d8da0f34e2" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>computeLocationOfLibrationPoint</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ae020cab9d1d440319969e7c547d95b9c" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>getLocationOfLagrangeLibrationPoint</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a510779802237e5b00efdf6a39ca00616" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>getMassParameter</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a8df07ffa733923487253311e816b8385" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>l1</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a322fd9cd738305aa24f578282420b69e" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>l2</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a643f760ccfa9d0cf1ef5df7a157a6c34" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>l3</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55ab9e85ca5aabfd32e60e4d6b038e5829d" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>l4</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55a4d21c68dd29bf3ec7106765a2333f726" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>l5</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a4667e46577c38c8b837a55edc6fc7b55" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>LagrangeLibrationPoints</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a008eab6416d6b31b6460713fcdc293f0" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>LibrationPoint</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1af1713f44f1390269c06f4f8509d26051" prot="public" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>LibrationPoint</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1a47a890e08bfcdef129f9da23bd83e0b4" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>massParameter</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1acc9b23369d14cb00af2ec6bb854fe3b5" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>positionOfLibrationPoint_</name></member>
+      <member refid="classtudat_1_1circular__restricted__three__body__problem_1_1LibrationPoint_1ab998f18d868110e80bf5f645dbc2b51d" prot="private" virt="non-virtual"><scope>tudat::circular_restricted_three_body_problem::LibrationPoint</scope><name>rootFinder</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

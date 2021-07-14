@@ -1,0 +1,90 @@
+\hypertarget{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}{}\doxysection{tudat\+::observation\+\_\+models\+::Euler\+Angle313\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$ Class Template Reference}
+\label{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}\index{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$}}
+
+
+Class for simulating Z-\/\+X-\/Z Euler angle body orientation angles.  
+
+
+
+
+{\ttfamily \#include $<$euler\+Angle\+Observation\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::observation\+\_\+models\+::Euler\+Angle313\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.931034cm]{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_aa3396fa711c30a3ff6c4f54f3d9ad4fc}{Euler\+Angle313\+Observation\+Model}} (const std\+::function$<$ Eigen\+::\+Quaterniond(const Time\+Type) $>$ to\+Body\+Fixed\+Frame\+Function, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 3 $>$ $>$ observation\+Bias\+Calculator=nullptr)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a135c0a253c76648ad09fdd79300d08ec}\label{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a135c0a253c76648ad09fdd79300d08ec}} 
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a135c0a253c76648ad09fdd79300d08ec}{$\sim$\+Euler\+Angle313\+Observation\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a2f9e2dab461f66baf98b3fe4d8607489}{compute\+Ideal\+Observations\+With\+Link\+End\+Data}} (const Time\+Type time, const Link\+End\+Type link\+End\+Associated\+With\+Time, std\+::vector$<$ double $>$ \&link\+End\+Times, std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&link\+End\+States)
+\begin{DoxyCompactList}\small\item\em Function to compute ideal Euler angle observation at given time. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Observation\+Scalar\+Type = double, typename Time\+Type = double$>$\newline
+class tudat\+::observation\+\_\+models\+::\+Euler\+Angle313\+Observation\+Model$<$ Observation\+Scalar\+Type, Time\+Type $>$}
+
+Class for simulating Z-\/\+X-\/Z Euler angle body orientation angles. 
+
+Class for simulating Z-\/\+X-\/Z Euler angle body orientation angles, as generated with e.\+g. star tracker observations. The observable is a Vector of size 3, with entries \mbox{[}alpha,beta,gamma\mbox{]}, where the inertial-\/to-\/body-\/fixed rotation matrix is defined as R=R\+\_\+z(alpha)R\+\_\+x(beta)R\+\_\+z(gamma). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_aa3396fa711c30a3ff6c4f54f3d9ad4fc}\label{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_aa3396fa711c30a3ff6c4f54f3d9ad4fc}} 
+\index{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$}!EulerAngle313ObservationModel@{EulerAngle313ObservationModel}}
+\index{EulerAngle313ObservationModel@{EulerAngle313ObservationModel}!tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{EulerAngle313ObservationModel()}{EulerAngle313ObservationModel()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+\mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}{tudat\+::observation\+\_\+models\+::\+Euler\+Angle313\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::\mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}{Euler\+Angle313\+Observation\+Model}} (\begin{DoxyParamCaption}\item[{const std\+::function$<$ Eigen\+::\+Quaterniond(const Time\+Type) $>$}]{to\+Body\+Fixed\+Frame\+Function,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1ObservationBias}{Observation\+Bias}}$<$ 3 $>$ $>$}]{observation\+Bias\+Calculator = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor 
+\begin{DoxyParams}{Parameters}
+{\em to\+Body\+Fixed\+Frame\+Function} & Function that returns the rotation from inertial to body-\/fixed frame as a function of time \\
+\hline
+{\em observation\+Bias\+Calculator} & Object for calculating system-\/dependent errors in the observable, i.\+e. deviations from the physically ideal observable between reference points (default none) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a2f9e2dab461f66baf98b3fe4d8607489}\label{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel_a2f9e2dab461f66baf98b3fe4d8607489}} 
+\index{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$}!computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}}
+\index{computeIdealObservationsWithLinkEndData@{computeIdealObservationsWithLinkEndData}!tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$@{tudat::observation\_models::EulerAngle313ObservationModel$<$ ObservationScalarType, TimeType $>$}}
+\doxysubsubsection{\texorpdfstring{computeIdealObservationsWithLinkEndData()}{computeIdealObservationsWithLinkEndData()}}
+{\footnotesize\ttfamily template$<$typename Observation\+Scalar\+Type  = double, typename Time\+Type  = double$>$ \\
+Eigen\+::\+Matrix$<$ Observation\+Scalar\+Type, 3, 1 $>$ \mbox{\hyperlink{classtudat_1_1observation__models_1_1EulerAngle313ObservationModel}{tudat\+::observation\+\_\+models\+::\+Euler\+Angle313\+Observation\+Model}}$<$ Observation\+Scalar\+Type, Time\+Type $>$\+::compute\+Ideal\+Observations\+With\+Link\+End\+Data (\begin{DoxyParamCaption}\item[{const Time\+Type}]{time,  }\item[{const Link\+End\+Type}]{link\+End\+Associated\+With\+Time,  }\item[{std\+::vector$<$ double $>$ \&}]{link\+End\+Times,  }\item[{std\+::vector$<$ Eigen\+::\+Matrix$<$ double, 6, 1 $>$ $>$ \&}]{link\+End\+States }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Function to compute ideal Euler angle observation at given time. 
+
+This function computes the ideal Euler angle observation at a given time (without biases). The times and states of the link ends are also returned in full precision (determined by class template arguments). These states and times are returned by reference. For this observable, the link end states are NOT filled, as no translational state is used by the observation model. 
+\begin{DoxyParams}{Parameters}
+{\em time} & \mbox{\hyperlink{classtudat_1_1Time}{Time}} at which observable is to be evaluated. \\
+\hline
+{\em link\+End\+Associated\+With\+Time} & Link end at which given time is valid (must be observed\+\_\+body for this derived class) \\
+\hline
+{\em link\+End\+Times} & List of times at each link end during observation. \\
+\hline
+{\em link\+End\+States} & List of states at each link end during observation\+: filled with NaN vector by this function \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Ideal Euler angle position observable. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/observation\+\_\+models/euler\+Angle\+Observation\+Model.\+h\end{DoxyCompactItemize}

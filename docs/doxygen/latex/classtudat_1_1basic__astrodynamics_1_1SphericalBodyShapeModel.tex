@@ -1,0 +1,99 @@
+\hypertarget{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel}{}\doxysection{tudat\+::basic\+\_\+astrodynamics\+::Spherical\+Body\+Shape\+Model Class Reference}
+\label{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel}\index{tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}}
+
+
+Body shape model defined as a sphere.  
+
+
+
+
+{\ttfamily \#include $<$spherical\+Body\+Shape\+Model.\+h$>$}
+
+Inheritance diagram for tudat\+::basic\+\_\+astrodynamics\+::Spherical\+Body\+Shape\+Model\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a7634ef718c9665546f339c413da6b6e0}{Spherical\+Body\+Shape\+Model}} (const double radius)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a6b970b24654c7a96b0f4bc6a78d68b84}\label{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a6b970b24654c7a96b0f4bc6a78d68b84}} 
+\mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a6b970b24654c7a96b0f4bc6a78d68b84}{$\sim$\+Spherical\+Body\+Shape\+Model}} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_af58a594fa71dfd1791881c8961d571bb}{get\+Altitude}} (const Eigen\+::\+Vector3d \&body\+Fixed\+Position)
+\begin{DoxyCompactList}\small\item\em Calculates the altitude above the sphere. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a707e6c239b890936d39018762cd0a627}{get\+Average\+Radius}} ()
+\begin{DoxyCompactList}\small\item\em Function to return the mean radius of the shape model. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Body shape model defined as a sphere. 
+
+Body shape model defined as a sphere, defined by only its radius. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a7634ef718c9665546f339c413da6b6e0}\label{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a7634ef718c9665546f339c413da6b6e0}} 
+\index{tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}!SphericalBodyShapeModel@{SphericalBodyShapeModel}}
+\index{SphericalBodyShapeModel@{SphericalBodyShapeModel}!tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{SphericalBodyShapeModel()}{SphericalBodyShapeModel()}}
+{\footnotesize\ttfamily tudat\+::basic\+\_\+astrodynamics\+::\+Spherical\+Body\+Shape\+Model\+::\+Spherical\+Body\+Shape\+Model (\begin{DoxyParamCaption}\item[{const double}]{radius }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor. 
+
+Constructor, defines body shape. 
+\begin{DoxyParams}{Parameters}
+{\em radius} & Radius of sphere \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_af58a594fa71dfd1791881c8961d571bb}\label{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_af58a594fa71dfd1791881c8961d571bb}} 
+\index{tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}!getAltitude@{getAltitude}}
+\index{getAltitude@{getAltitude}!tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getAltitude()}{getAltitude()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Spherical\+Body\+Shape\+Model\+::get\+Altitude (\begin{DoxyParamCaption}\item[{const Eigen\+::\+Vector3d \&}]{body\+Fixed\+Position }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Calculates the altitude above the sphere. 
+
+Function to calculate the altitude above the sphere from a body fixed position. 
+\begin{DoxyParams}{Parameters}
+{\em body\+Fixed\+Position} & Cartesian, body-\/fixed position of the point at which the altitude is to be determined. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Altitude above the sphere. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_a8439cdf3a6dd14875fb8892341bde3ee}{tudat\+::basic\+\_\+astrodynamics\+::\+Body\+Shape\+Model}}.
+
+\mbox{\Hypertarget{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a707e6c239b890936d39018762cd0a627}\label{classtudat_1_1basic__astrodynamics_1_1SphericalBodyShapeModel_a707e6c239b890936d39018762cd0a627}} 
+\index{tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}!getAverageRadius@{getAverageRadius}}
+\index{getAverageRadius@{getAverageRadius}!tudat::basic\_astrodynamics::SphericalBodyShapeModel@{tudat::basic\_astrodynamics::SphericalBodyShapeModel}}
+\doxysubsubsection{\texorpdfstring{getAverageRadius()}{getAverageRadius()}}
+{\footnotesize\ttfamily double tudat\+::basic\+\_\+astrodynamics\+::\+Spherical\+Body\+Shape\+Model\+::get\+Average\+Radius (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Function to return the mean radius of the shape model. 
+
+Function to return the mean radius of the sphere, equal to its radius. \begin{DoxyReturn}{Returns}
+Average radius of shape model (equal to radius). 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classtudat_1_1basic__astrodynamics_1_1BodyShapeModel_a36f348a51efc73a5414d55438d4347eb}{tudat\+::basic\+\_\+astrodynamics\+::\+Body\+Shape\+Model}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jonashener/tudatpy\+\_\+dev/tudat-\/bundle/tudat/include/tudat/astro/basic\+\_\+astro/spherical\+Body\+Shape\+Model.\+h\end{DoxyCompactItemize}
