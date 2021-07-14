@@ -256,7 +256,7 @@ int getDependentVariableSize(
     case aerodynamic_moment_coefficients_dependent_variable:
         variableSize = 3;
         break;
-    case rotation_matrix_to_body_fixed_frame_variable:
+    case inertial_to_body_fixed_rotation_matrix_variable:
         variableSize = 9;
         break;
     case intermediate_aerodynamic_rotation_matrix_variable:

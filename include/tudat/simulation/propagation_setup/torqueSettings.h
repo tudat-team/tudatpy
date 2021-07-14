@@ -33,6 +33,8 @@ namespace simulation_setup
  *  (see createTorqueModels.h), but users may also chose to do so manually.
  *  (Derived) Class members are all public, for ease of access and modification.
  */
+
+//! @get_docstring(TorqueSettings.__docstring__)
 class TorqueSettings
 {
 public:
@@ -54,6 +56,7 @@ public:
 };
 
 //! Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
+//! @get_docstring(SphericalHarmonicTorqueSettings.__docstring__)
 class SphericalHarmonicTorqueSettings: public TorqueSettings
 {
 public:
@@ -84,6 +87,7 @@ inline Eigen::Vector3d applyTorqueScalingFunction(
     return torqueFunction( time ) * scalingFunction( time );
 }
 
+//! @get_docstring(CustomTorqueSettings.__docstring__)
 class CustomTorqueSettings: public TorqueSettings
 {
 public:
@@ -104,16 +108,19 @@ public:
     std::function< Eigen::Vector3d( const double ) > torqueFunction_;
 };
 
+//! @get_docstring(aerodynamicTorque)
 inline std::shared_ptr< TorqueSettings > aerodynamicTorque( )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::aerodynamic_torque );
 }
 
+//! @get_docstring(secondDegreeGravitationalTorque)
 inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::second_order_gravitational_torque );
 }
 
+//! @get_docstring(sphericalHarmonicGravitationalTorque)
 inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque(
         const int maximumDegree, const int maximumOrder)
 {
@@ -126,6 +133,7 @@ inline std::shared_ptr< TorqueSettings > dissipativeTorque(
     return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
 }
 
+//! @get_docstring(customTorqueSettings)
 inline std::shared_ptr< TorqueSettings > customTorqueSettings(
         const std::function< Eigen::Vector3d( const double ) > torqueFunction,
         const std::function< double( const double ) > scalingFunction = nullptr )

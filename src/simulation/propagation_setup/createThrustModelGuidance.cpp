@@ -20,7 +20,7 @@ namespace simulation_setup
 
 //! Function to create the object determining the direction of the thrust acceleration.
 std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
-        const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+        const std::shared_ptr< ThrustDirectionSettings > thrustDirectionGuidanceSettings,
         const SystemOfBodies& bodies,
         const std::string& nameOfBodyWithGuidance,
         const std::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
