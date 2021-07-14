@@ -125,7 +125,8 @@
                  " -Wall"
                  " -Wextra"
                  " -Wno-unused-parameter"
-                 " -Wno-unused-variable")
+                 " -Wno-unused-variable"
+                 )
          string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
      elseif (WIN32)

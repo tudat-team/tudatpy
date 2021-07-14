@@ -30,7 +30,7 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <memory>
 #include <boost/make_shared.hpp>
 #include <boost/math/special_functions/asinh.hpp>
@@ -41,6 +41,8 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/functionProxy.h"
+
+using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -236,7 +238,8 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
         }
         // Use bisection algorithm if root finder fails
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             // Set tolerance
             ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
@@ -389,7 +392,8 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
             hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
 
         }
-        catch( std::runtime_error )
+        catch( std::runtime_error const& )
+
         {
             rootFinder = createRootFinder< ScalarType >(
                         bisectionRootFinderSettings(
