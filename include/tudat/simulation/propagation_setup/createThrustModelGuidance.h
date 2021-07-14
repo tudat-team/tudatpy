@@ -75,7 +75,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
  * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
  * \param currentTime Time to which objects are to be updated.
  */
-void updateThrustMagnitudeAndDirection(
+void updateThrustSettings(
         const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime );
@@ -89,10 +89,10 @@ void updateThrustMagnitudeAndDirection(
 * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
 * \param currentTime New current time variable that is to be set.
 */
-void resetThrustMagnitudeAndDirectionTime(
+void resetThrustSettingsTime(
         const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime = TUDAT_NAN );
+        const double currentTime = TUDAT_NAN);
 
 } // namespace simulation_setup
 
