@@ -15,7 +15,9 @@
 
 #include <string>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>

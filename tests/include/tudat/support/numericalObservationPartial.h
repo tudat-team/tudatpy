@@ -13,7 +13,9 @@
 
 #include <memory>
 #include <functional>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/observation_models/observationModel.h"
