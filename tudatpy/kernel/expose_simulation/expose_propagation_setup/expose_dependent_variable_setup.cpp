@@ -357,9 +357,8 @@ namespace tudatpy {
               py::arg("body"),
               py::arg("central_body"));
 
-        // TODO: I propose to name it "inertial_to_body_fixed_rotation_frame"
-        m.def("rotation_matrix_to_body_fixed_frame",
-              &tp::rotationMatrixToBodyFixedFrameVariable,
+        m.def("inertial_to_body_fixed_rotation_frame",
+              &tp::inertialToBodyFixedRotationMatrixVariable,
               py::arg("body"));
 
         m.def("lvlh_to_inertial_rotation_matrix",
@@ -367,12 +366,10 @@ namespace tudatpy {
               py::arg("body"),
               py::arg("central_body"));
 
-        // TODO: Inconsistent (why Euler angles?)
         m.def("inertial_to_body_fixed_313_euler_angles",
               &tp::eulerAnglesToBodyFixed313Variable,
               py::arg("body"));
 
-        // TODO: inconsistent naming and signature
         m.def("intermediate_aerodynamic_rotation_matrix_variable",
               &tp::intermediateAerodynamicRotationMatrixVariable,
               py::arg("body"),
