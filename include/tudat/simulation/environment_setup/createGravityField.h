@@ -30,8 +30,8 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! List of gravity field models available in simulations
-/*!
+// List of gravity field models available in simulations
+/*
  *  List of gravity field models available in simulations. Gravity field models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
@@ -42,8 +42,8 @@ enum GravityFieldType
     spherical_harmonic
 };
 
-//! Class for providing settings for gravity field model.
-/*!
+// Class for providing settings for gravity field model.
+/*
  *  Class for providing settings for automatic gravity field model creation. This class is a
  *  functional (base) class for settings of gravity field models that require no information in
  *  addition to their type. Gravity field model classes defining requiring additional information
@@ -55,8 +55,8 @@ class GravityFieldSettings
 {
 public:
 
-    //! Constructor, sets type of gravity field model.
-    /*!
+    // Constructor, sets type of gravity field model.
+    /*
      *  Constructor, sets type of gravity field model. Settings for gravity field models requiring
      *  additional information should be defined in a derived class.
      *  \param gravityFieldType Type of gravity field model that is to be created.
@@ -64,11 +64,11 @@ public:
     GravityFieldSettings( const GravityFieldType gravityFieldType ):
         gravityFieldType_( gravityFieldType ){ }
 
-    //! Destructor
+    // Destructor
     virtual ~GravityFieldSettings( ){ }
 
-    //! Function to return type of gravity field model that is to be created.
-    /*!
+    // Function to return type of gravity field model that is to be created.
+    /*
      *  Function to return type of gravity field model that is to be created.
      *  \return Type of gravity field model that is to be created.
      */
@@ -76,18 +76,18 @@ public:
 
 protected:
 
-    //! Type of gravity field model that is to be created.
+    // Type of gravity field model that is to be created.
     GravityFieldType gravityFieldType_;
 };
 
-//! Derived class of GravityFieldSettings defining settings of point mass gravity field.
+// Derived class of GravityFieldSettings defining settings of point mass gravity field.
 //! @get_docstring(CentralGravityFieldSettings.__docstring__)
 class CentralGravityFieldSettings: public GravityFieldSettings
 {
 public:
 
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param gravitationalParameter Gravitational parameter of gravity field.
      */
@@ -96,8 +96,8 @@ public:
 
     virtual ~CentralGravityFieldSettings( ){ }
 
-    //! Function to return gravitational parameter for gravity field.
-    /*!
+    // Function to return gravitational parameter for gravity field.
+    /*
      *  Function to return gravitational parameter for gravity field.
      *  \return Gravitational parameter for gravity field.
      */
@@ -107,19 +107,19 @@ public:
 
 private:
 
-    //! Gravitational parameter for gravity field.
+    // Gravitational parameter for gravity field.
     double gravitationalParameter_;
 };
 
 
-//! Derived class of GravityFieldSettings defining settings of spherical harmonic gravity
-//! field representation.
+// Derived class of GravityFieldSettings defining settings of spherical harmonic gravity
+// field representation.
 //! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
 class SphericalHarmonicsGravityFieldSettings: public GravityFieldSettings
 {
 public:
-    //! Constructor.
-    /*!
+    // Constructor.
+    /*
      *  Constructor.
      *  \param gravitationalParameter Gravitational parameter of gravity field.
      *  \param referenceRadius Reference radius of spherical harmonic field expansion.
@@ -144,30 +144,30 @@ public:
 
     virtual ~SphericalHarmonicsGravityFieldSettings( ){ }
 
-    //! Function to return gravitational parameter for gravity field.
-    /*!
+    // Function to return gravitational parameter for gravity field.
+    /*
      *  Function to return gravitational parameter for gravity field.
      *  \return Gravitational parameter for gravity field.
      */
     double getGravitationalParameter( ){ return gravitationalParameter_; }
 
-    //! Function to reset gravitational parameter for gravity field.
-    /*!
+    // Function to reset gravitational parameter for gravity field.
+    /*
      *  Function to reset gravitational parameter for gravity field.
      *  \param gravitationalParameter New gravitational parameter for gravity field.
      */
     void resetGravitationalParameter( const double gravitationalParameter )
     { gravitationalParameter_ = gravitationalParameter; }
 
-    //! Function to return reference radius of spherical harmonic field expansion
-    /*!
+    // Function to return reference radius of spherical harmonic field expansion
+    /*
      *  Function to return reference radius of spherical harmonic field expansion
      *  \return Reference radius of spherical harmonic field expansion
      */
     double getReferenceRadius( ){ return referenceRadius_; }
 
-    //! Function to return cosine spherical harmonic coefficients (geodesy normalized).
-    /*!
+    // Function to return cosine spherical harmonic coefficients (geodesy normalized).
+    /*
      *  Function to return cosine spherical harmonic coefficients (geodesy normalized).
      *  \return Cosine spherical harmonic coefficients (geodesy normalized).
      */
@@ -176,8 +176,8 @@ public:
 
     void resetCosineCoefficients( const Eigen::MatrixXd cosineCoefficients ){ cosineCoefficients_ = cosineCoefficients; }
 
-    //! Function to return sine spherical harmonic coefficients (geodesy normalized).
-    /*!
+    // Function to return sine spherical harmonic coefficients (geodesy normalized).
+    /*
      *  Function to return sine spherical harmonic coefficients (geodesy normalized).
      *  \return Sine spherical harmonic coefficients (geodesy normalized).
      */
@@ -185,16 +185,16 @@ public:
 
     void resetSineCoefficients( const Eigen::MatrixXd sineCoefficients ){ sineCoefficients_ = sineCoefficients; }
 
-    //! Function to return identifier for body-fixed reference frame.
-    /*!
+    // Function to return identifier for body-fixed reference frame.
+    /*
      *  Function to return identifier for body-fixed reference frame to which the coefficients
      *  are referred.
      *  \return Identifier for body-fixed reference frame to which the coefficients are referred.
      */
     std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
 
-    //! Function to reset identifier for body-fixed reference frame to which the coefficients are referred.
-    /*!
+    // Function to reset identifier for body-fixed reference frame to which the coefficients are referred.
+    /*
      *  Function to reset identifier for body-fixed reference frame to which the coefficients are referred.
      *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the coefficients are referred.
      */
@@ -203,8 +203,8 @@ public:
         associatedReferenceFrame_ = associatedReferenceFrame;
     }
 
-    //! Function to retrieve boolean that denotes whether the field should be created as time-dependent
-    /*!
+    // Function to retrieve boolean that denotes whether the field should be created as time-dependent
+    /*
      *  Function to retrieve boolean that denotes whether the field should be created as time-dependent
      *  \return Boolean that denotes whether the field should be created as time-dependent
      */
@@ -213,8 +213,8 @@ public:
         return createTimeDependentField_;
     }
 
-    //! Function to reset boolean that denotes whether the field should be created as time-dependent
-    /*!
+    // Function to reset boolean that denotes whether the field should be created as time-dependent
+    /*
      *  Function to reset boolean that denotes whether the field should be created as time-dependent
      *  \param createTimeDependentField Boolean that denotes whether the field should be created as time-dependent
      */
@@ -226,28 +226,28 @@ public:
 protected:
 
 
-    //! Gravitational parameter for gravity field that is to be created.
+    // Gravitational parameter for gravity field that is to be created.
     double gravitationalParameter_;
 
-    //! Reference radius of spherical harmonic field expansion.
+    // Reference radius of spherical harmonic field expansion.
     double referenceRadius_;
 
-    //! Cosine spherical harmonic coefficients (geodesy normalized).
+    // Cosine spherical harmonic coefficients (geodesy normalized).
     Eigen::MatrixXd cosineCoefficients_;
 
-    //! Sine spherical harmonic coefficients (geodesy normalized).
+    // Sine spherical harmonic coefficients (geodesy normalized).
     Eigen::MatrixXd sineCoefficients_;
 
-    //! Identifier for body-fixed reference frame to which the coefficients are referred.
+    // Identifier for body-fixed reference frame to which the coefficients are referred.
     std::string associatedReferenceFrame_;
 
-    //! Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed intially)
+    // Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed intially)
     bool createTimeDependentField_;
 
 };
 
 
-//! Spherical harmonics models supported by Tudat.
+// Spherical harmonics models supported by Tudat.
 enum SphericalHarmonicsModel
 {
     customModel,
@@ -259,29 +259,29 @@ enum SphericalHarmonicsModel
     jgmro120d
 };
 
-//! Get the path of the SH file for a SH model.
-/*!
+// Get the path of the SH file for a SH model.
+/*
  * @copybrief getPathForSphericalHarmonicsModel
  * \param sphericalHarmonicsModel The spherical harmonics model.
  * \return The path of the SH file for a SH model.
  */
 std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
-//! Get the associated reference frame for a SH model.
-/*!
+// Get the associated reference frame for a SH model.
+/*
  * @copybrief getReferenceFrameForSphericalHarmonicsModel
  * \param sphericalHarmonicsModel The spherical harmonics model.
  * \return The associated reference frame for a SH model.
  */
 std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
-//! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
-//! field representation to be loaded from a spherical harmonics model file.
+// Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
+// field representation to be loaded from a spherical harmonics model file.
 class FromFileSphericalHarmonicsGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
 {
 public:
-    //! Constructor with custom model.
-    /*!
+    // Constructor with custom model.
+    /*
      * Constructor with custom model.
      * \param filePath Path of PDS gravity field file to be loaded.
      * \param associatedReferenceFrame Identifier for body-fixed reference frame to which the coefficients are referred.
@@ -302,16 +302,16 @@ public:
                                                     const int referenceRadiusIndex,
                                                     const double gravitationalParameter = TUDAT_NAN,
                                                     const double referenceRadius = TUDAT_NAN );
-    //! Constructor with model included in Tudat.
-    /*!
+    // Constructor with model included in Tudat.
+    /*
      * Constructor with model included in Tudat.
      * \param sphericalHarmonicsModel Spherical harmonics model to be used.
      */
     FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
     virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ){ }
-    //! Get the sphericals harmonics model.
-    /*!
+    // Get the sphericals harmonics model.
+    /*
      * @copybrief getSphericalHarmonicsModel
      * \return The sphericals harmonics model.
      */
@@ -320,8 +320,8 @@ public:
         return sphericalHarmonicsModel_;
     }
 
-    //! Get the sphericals harmonics model.
-    /*!
+    // Get the sphericals harmonics model.
+    /*
      * @copybrief getSphericalHarmonicsModel
      * \return The sphericals harmonics model.
      */
@@ -330,8 +330,8 @@ public:
         return filePath_;
     }
 
-    //! Get the maximum degree.
-    /*!
+    // Get the maximum degree.
+    /*
      * @copybrief getMaximumDegree
      * \return The maximum degree.
      */
@@ -340,8 +340,8 @@ public:
         return maximumDegree_;
     }
 
-    //! Get the maximum order.
-    /*!
+    // Get the maximum order.
+    /*
      * @copybrief getMaximumOrder
      * \return The maximum order.
      */
@@ -350,8 +350,8 @@ public:
         return maximumOrder_;
     }
 
-    //! Get the gravitational parameter index.
-    /*!
+    // Get the gravitational parameter index.
+    /*
      * @copybrief getGravitationalParameterIndex
      * \return The gravitational parameter index.
      */
@@ -360,8 +360,8 @@ public:
         return gravitationalParameterIndex_;
     }
 
-    //! Get the reference radius index.
-    /*!
+    // Get the reference radius index.
+    /*
      * @copybrief getReferenceRadiusIndex
      * \return The reference radius index.
      */
@@ -371,30 +371,30 @@ public:
     }
 
 protected:
-    //! Spherical harmonics model.
+    // Spherical harmonics model.
     SphericalHarmonicsModel sphericalHarmonicsModel_ = customModel;
 
-    //! Path of loaded PDS gravity field file.
+    // Path of loaded PDS gravity field file.
     std::string filePath_;
 
-    //! Maximum loaded degree from file.
+    // Maximum loaded degree from file.
     int maximumDegree_;
 
-    //! Maximum loaded order from file.
+    // Maximum loaded order from file.
     int maximumOrder_;
 
-    //! Index at which the gravitational parameter can be found in the first line of the file.
-    //! -1 if this information is not available in the file.
+    // Index at which the gravitational parameter can be found in the first line of the file.
+    // -1 if this information is not available in the file.
     int gravitationalParameterIndex_;
 
-    //! Index at which the reference radius can be found in the first line of the file.
-    //! -1 if this information is not available in the file.
+    // Index at which the reference radius can be found in the first line of the file.
+    // -1 if this information is not available in the file.
     int referenceRadiusIndex_;
 
 };
 
-//! Function to create gravity field settings for a homogeneous triaxial ellipsoid
-/*!
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid
+/*
  * Function to create gravity field settings for a homogeneous triaxial ellipsoid. The gravity field is expressed in
  * normalized spherical harmonic coefficients.  X-axis is alligned
  * with largest axis, y-axis with middle axis and z-axis with smallest axis
@@ -413,8 +413,8 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
         const int maximumDegree, const int maximumOrder,
         const std::string& associatedReferenceFrame  );
 
-//! Function to read a spherical harmonic gravity field file
-/*!
+// Function to read a spherical harmonic gravity field file
+/*
  *  Function to read a spherical harmonic gravity field file, returns (by reference) cosine and sine
  *  spherical harmomic coefficients.
  *  The file structure should be as follows: The first line may be a file header with metadata. If this is the case,
@@ -438,8 +438,8 @@ std::pair< double, double > readGravityFieldFile(
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients,
         const int gravitationalParameterIndex = -1, const int referenceRadiusIndex = -1 );
 
-//! Function to create a gravity field model.
-/*!
+// Function to create a gravity field model.
+/*
  *  Function to create a gravity field model based on model-specific settings for the gravity field.
  *  \param gravityFieldSettings Settings for the gravity field model that is to be created, defined
  *  a pointer to an object of class (derived from) GravityFieldSettings.

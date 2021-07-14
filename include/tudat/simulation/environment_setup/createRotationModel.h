@@ -30,8 +30,8 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! List of rotation models available in simulations
-/*!
+//List of rotation models available in simulations
+/*
  *  List of rotation models available in simulations. Rotation models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
@@ -44,8 +44,8 @@ enum RotationModelType
     planetary_rotation_model
 };
 
-//! Class for providing settings for rotation model.
-/*!
+//Class for providing settings for rotation model.
+/*
  *  Class for providing settings for automatic rotation model creation. This class is a
  *  functional (base) class for settings of rotation models that require no information in
  *  addition to their type. Rotation model classes defining requiring additional information
@@ -57,8 +57,8 @@ class RotationModelSettings
 {
 public:
 
-    //! Constructor, sets type of rotation model.
-    /*!
+    //Constructor, sets type of rotation model.
+    /*
      *  Constructor, sets type of rotation model and base and target frame identifiers.
      *  Settings for rotation models requiring additional information should be defined in a
      *  derived class.
@@ -73,27 +73,27 @@ public:
         rotationType_( rotationType ), originalFrame_( originalFrame ),
         targetFrame_( targetFrame ){ }
 
-    //! Destructor.
+    //Destructor.
     virtual ~RotationModelSettings( ){ }
 
-    //! Function to return the type of rotation model that is to be created.
-    /*!
+    //Function to return the type of rotation model that is to be created.
+    /*
      *  Function to return the type of rotation model that is to be created.
      *  \return Type of rotation model that is to be created.
      */
 
     RotationModelType getRotationType( ){ return rotationType_; }
 
-    //! Function to return the base frame of rotation model.
-    /*!
+    //Function to return the base frame of rotation model.
+    /*
      *  Function to return the base frame of rotation model.
      *  \return Base frame of rotation model.
      */
 
     std::string getOriginalFrame( ){ return originalFrame_; }
 
-    //! Function to return the target frame of rotation model.
-    /*!
+    //Function to return the target frame of rotation model.
+    /*
      *  Function to return the target frame of rotation model.
      *  \return Target frame of rotation model.
      */
@@ -101,8 +101,8 @@ public:
     std::string getTargetFrame( ){ return targetFrame_; }
 
 
-    //! Function to reset the orientation of the base frame.
-    /*!
+    //Function to reset the orientation of the base frame.
+    /*
      * Function to reset the orientation of the base frame.
      * \param originalFrame New base frame orientation
      */
@@ -114,23 +114,23 @@ public:
 
 protected:
 
-    //! Type of rotation model that is to be created.
+    //Type of rotation model that is to be created.
     RotationModelType rotationType_;
 
-    //! Target frame of rotation model.
+    //Target frame of rotation model.
     std::string originalFrame_;
 
-    //! Base frame of rotation model.
+    //Base frame of rotation model.
     std::string targetFrame_;
 
 };
 
-//! RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
+//RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
 class SimpleRotationModelSettings: public RotationModelSettings
 {
 public:
-    //! Constructor,
-    /*!
+    //Constructor,
+    /*
      *  Constructor, sets simple rotational ephemeris properties.
      *  \param originalFrame Base frame of rotation model.
      *  \param targetFrame Target frame of rotation model.
@@ -147,22 +147,22 @@ public:
         initialOrientation_( initialOrientation ),
         initialTime_( initialTime ), rotationRate_( rotationRate ){ }
 
-    //! Function to return rotation from base to target frame at initialTime.
-    /*!
+    //Function to return rotation from base to target frame at initialTime.
+    /*
      *  Function to return rotation from base to target frame at initialTime.
      *  \return Rotation from base to target frame at initialTime.
      */
     Eigen::Quaterniond getInitialOrientation( ){ return initialOrientation_; }
 
-    //! Function to return time at which initialOrientation represents the instantaneous rotation.
-    /*!
+    //Function to return time at which initialOrientation represents the instantaneous rotation.
+    /*
      *  Function to return time at which initialOrientation represents the instantaneous rotation.
      *  \return Time at which initialOrientation represents the instantaneous rotation.
      */
     double getInitialTime( ){ return initialTime_; }
 
-    //! Function to return rotation rate of body about its local z-axis.
-    /*!
+    //Function to return rotation rate of body about its local z-axis.
+    /*
      *  Function to return rotation rate of body about its local z-axis.
      *  \return Rotation rate of body about its local z-axis.
      */
@@ -170,23 +170,23 @@ public:
 
 private:
 
-    //!  Rotation from base to target frame at initialTime.
+    // Rotation from base to target frame at initialTime.
     Eigen::Quaterniond initialOrientation_;
 
-    //! Time at which initialOrientation represents the instantaneous rotation.
+    //Time at which initialOrientation represents the instantaneous rotation.
     double initialTime_;
 
-    //! Rotation rate of body about its local z-axis.
+    //Rotation rate of body about its local z-axis.
     double rotationRate_;
 };
 
 #ifdef TUDAT_BUILD_WITH_SOFA_INTERFACE
 
-//! Struct that holds settings for EOP short-period variation
+//Struct that holds settings for EOP short-period variation
 struct EopCorrectionSettings
 {
-    //! Constructor
-    /*!
+    //Constructor
+    /*
      *  Constructor
      *  \param conversionFactor Conversion factor to be used for amplitudes to multiply input values, typically for unit
      *  conversion purposes.
@@ -202,26 +202,26 @@ struct EopCorrectionSettings
         conversionFactor_( conversionFactor ), minimumAmplitude_( minimumAmplitude ),
         amplitudesFiles_( amplitudesFiles ), argumentMultipliersFile_( argumentMultipliersFile ){ }
 
-    //! Conversion factor to be used for amplitudes to multiply input values
+    //Conversion factor to be used for amplitudes to multiply input values
     double conversionFactor_;
 
-    //! Minimum amplitude that is read from files and considered in calculations.
+    //Minimum amplitude that is read from files and considered in calculations.
     double minimumAmplitude_;
 
-    //! List of files with amplitudes for corrections
+    //List of files with amplitudes for corrections
     std::vector< std::string > amplitudesFiles_;
 
-    //! Fundamental argument multiplier for corrections
+    //Fundamental argument multiplier for corrections
     std::vector< std::string > argumentMultipliersFile_;
 };
 
-//! Settings for creating a GCRS<->ITRS rotation model
+//Settings for creating a GCRS<->ITRS rotation model
 class GcrsToItrsRotationModelSettings: public RotationModelSettings
 {
 public:
 
-    //! Constructor
-    /*!
+    //Constructor
+    /*
      * \param baseFrameName Name of base frame (typically GCRS, which is default)
      * \param timeScale Time scale in which input to the rotation model class is provided, default TDB
      * \param nutationTheory IAU precession-nutation theory that is to be used.
@@ -262,11 +262,11 @@ public:
         eopFileFormat_( "C04" ), ut1CorrectionSettings_( ut1CorrectionSettings ),
         polarMotionCorrectionSettings_( polarMotionCorrectionSettings ){ }
 
-    //! Destructor
+    //Destructor
     ~GcrsToItrsRotationModelSettings( ){ }
 
-    //! Function to retrieve the time scale in which input to the rotation model class is provided
-    /*!
+    //Function to retrieve the time scale in which input to the rotation model class is provided
+    /*
      * Function to retrieve the time scale in which input to the rotation model class is provided
      * \return Time scale in which input to the rotation model class is provided
      */
@@ -274,8 +274,8 @@ public:
     {
         return inputTimeScale_;
     }
-    //! Function to retrieve the IAU precession-nutation theory that is to be used
-    /*!
+    //Function to retrieve the IAU precession-nutation theory that is to be used
+    /*
      * Function to retrieve the IAU precession-nutation theory that is to be used
      * \return IAU precession-nutation theory that is to be used
      */
@@ -284,8 +284,8 @@ public:
         return nutationTheory_;
     }
 
-    //! Function to retrieve the name of EOP file that is to be used
-    /*!
+    //Function to retrieve the name of EOP file that is to be used
+    /*
      * Function to retrieve the name of EOP file that is to be used
      * \return Name of EOP file that is to be used
      */
@@ -294,8 +294,8 @@ public:
         return eopFile_;
     }
 
-    //! Function to retrieve the identifier for file format that is provided
-    /*!
+    //Function to retrieve the identifier for file format that is provided
+    /*
      * Function to retrieve the identifier for file format that is provided
      * \return Identifier for file format that is provided
      */
@@ -304,8 +304,8 @@ public:
         return eopFileFormat_;
     }
 
-    //! Function to retrieve the settings for short-period UT1-UTC variations
-    /*!
+    //Function to retrieve the settings for short-period UT1-UTC variations
+    /*
      * Function to retrieve the settings for short-period UT1-UTC variations
      * \return Settings for short-period UT1-UTC variations
      */
@@ -314,8 +314,8 @@ public:
         return ut1CorrectionSettings_;
     }
 
-    //! Function to retrieve the settings for short-period polar motion variations
-    /*!
+    //Function to retrieve the settings for short-period polar motion variations
+    /*
      * Function to retrieve the Settings for short-period polar motion variations
      * \return settings for short-period polar motion variations
      */
@@ -326,36 +326,36 @@ public:
 
 private:
 
-    //! Time scale in which input to the rotation model class is provided
+    //Time scale in which input to the rotation model class is provided
     basic_astrodynamics::TimeScales inputTimeScale_;
 
-    //! IAU precession-nutation theory that is to be used
+    //IAU precession-nutation theory that is to be used
     basic_astrodynamics::IAUConventions nutationTheory_;
 
-    //! Name of EOP file that is to be used
+    //Name of EOP file that is to be used
     std::string eopFile_;
 
-    //! Identifier for file format that is provided
+    //Identifier for file format that is provided
     std::string eopFileFormat_;
 
-    //! Settings for short-period UT1-UTC variations
+    //Settings for short-period UT1-UTC variations
     std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings_;
 
-    //! Settings for short-period polar motion variations
+    //Settings for short-period polar motion variations
     std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings_;
 
 };
 #endif
 
 
-//! RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
-//! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
+//RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
+//pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
 class SynchronousRotationModelSettings: public RotationModelSettings
 {
 public:
 
-    //! Constructor
-    /*!
+    //Constructor
+    /*
      * Constructor
      * \param centralBodyName Name of central body to which this body is locked.
      * \param baseFrameOrientation Base frame of rotation model.
@@ -368,8 +368,8 @@ public:
         RotationModelSettings( synchronous_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         centralBodyName_( centralBodyName ){ }
 
-    //! Function to retrieve name of central body to which this body is locked.
-    /*!
+    //Function to retrieve name of central body to which this body is locked.
+    /*
      * Function to retrieve name of central body to which this body is locked.
      * \return  Name of central body to which this body is locked.
      */
@@ -380,12 +380,12 @@ public:
 
 private:
 
-    //!  Name of central body to which this body is locked.
+    // Name of central body to which this body is locked.
     std::string centralBodyName_;
 };
 
-//! Function to retrieve a state from one of two functions
-/*!
+//Function to retrieve a state from one of two functions
+/*
  *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.
  *  \param currentTime Time at which state function is to be evaluated
  *  \param useFirstFunction Boolean defining whether stateFunction1 or stateFunction2 is used
@@ -399,8 +399,8 @@ Eigen::Vector6d getStateFromSelectedStateFunction(
         const std::function< Eigen::Vector6d( const double ) > stateFunction1,
         const std::function< Eigen::Vector6d( const double ) > stateFunction2 );
 
-//! Function to create a state function for a body, valid both during propagation, and outside propagation
-/*!
+//Function to create a state function for a body, valid both during propagation, and outside propagation
+/*
  * Function to create a state function for a body, valid both during propagation, and outside propagation
  * \param bodies List of body objects
  * \param orbitingBody Body for which state function is to be created
@@ -616,8 +616,8 @@ private:
 };
 
 
-//! Function to create a state function for a body, valid both during propagation, and outside propagation
-/*!
+//Function to create a state function for a body, valid both during propagation, and outside propagation
+/*
  * Function to create a state function for a body, valid both during propagation, and outside propagation
  * \param bodies List of body objects
  * \param orbitingBody Body for which state function is to be created
@@ -629,8 +629,8 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
         const std::string orbitingBody,
         const std::string centralBody );
 
-//! Function to create a rotation model.
-/*!
+//Function to create a rotation model.
+/*
  *  Function to create a rotation model based on model-specific settings for the rotation.
  *  \param rotationModelSettings Settings for the rotation model that is to be created, defined
  *  a pointer to an object of class (derived from) RotationSettings.
