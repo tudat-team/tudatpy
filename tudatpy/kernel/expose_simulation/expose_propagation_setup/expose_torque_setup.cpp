@@ -61,7 +61,7 @@ namespace tudatpy {
               py::arg("torque_function"),
               py::arg("scaling_function") = nullptr);
 
-        // TODO: only unexposed torque model is dissipativeTorque
+        // NOTE: the only unexposed torque model is dissipativeTorque, but it is probably obsolete
     }
 
 } // namespace tudatpy
