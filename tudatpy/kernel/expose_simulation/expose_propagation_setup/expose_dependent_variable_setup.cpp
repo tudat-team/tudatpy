@@ -34,11 +34,16 @@ namespace tudatpy {
 
         py::enum_<tp::PropagationDependentVariables>(m, "PropagationDependentVariables")
                 // C++ legacy variable names.
-                .value("mach_number_type", tp::PropagationDependentVariables::mach_number_dependent_variable)
-                .value("altitude_type", tp::PropagationDependentVariables::altitude_dependent_variable)
-                .value("airspeed_type", tp::PropagationDependentVariables::airspeed_dependent_variable)
-                .value("local_density_type", tp::PropagationDependentVariables::local_density_dependent_variable)
-                .value("relative_speed_type", tp::PropagationDependentVariables::relative_speed_dependent_variable)
+                .value("mach_number_type",
+                       tp::PropagationDependentVariables::mach_number_dependent_variable)
+                .value("altitude_type",
+                       tp::PropagationDependentVariables::altitude_dependent_variable)
+                .value("airspeed_type",
+                       tp::PropagationDependentVariables::airspeed_dependent_variable)
+                .value("local_density_type",
+                       tp::PropagationDependentVariables::local_density_dependent_variable)
+                .value("relative_speed_type",
+                       tp::PropagationDependentVariables::relative_speed_dependent_variable)
                 .value("relative_position_type",
                        tp::PropagationDependentVariables::relative_position_dependent_variable)
                 .value("relative_distance_type",
@@ -77,7 +82,8 @@ namespace tudatpy {
                        tp::PropagationDependentVariables::geodetic_latitude_dependent_variable)
                 .value("control_surface_deflection_type",
                        tp::PropagationDependentVariables::control_surface_deflection_dependent_variable)
-                .value("total_mass_rate_type", tp::PropagationDependentVariables::total_mass_rate_dependent_variables)
+                .value("total_mass_rate_type",
+                       tp::PropagationDependentVariables::total_mass_rate_dependent_variables)
                 .value("lvlh_to_inertial_frame_rotation_type",
                        tp::PropagationDependentVariables::lvlh_to_inertial_frame_rotation_dependent_variable)
                 .value("periapsis_altitude_type",
@@ -86,11 +92,14 @@ namespace tudatpy {
                        tp::PropagationDependentVariables::total_torque_norm_dependent_variable)
                 .value("single_torque_norm_type",
                        tp::PropagationDependentVariables::single_torque_norm_dependent_variable)
-                .value("total_torque_type", tp::PropagationDependentVariables::total_torque_dependent_variable)
-                .value("single_torque_type", tp::PropagationDependentVariables::single_torque_dependent_variable)
+                .value("total_torque_type",
+                       tp::PropagationDependentVariables::total_torque_dependent_variable)
+                .value("single_torque_type",
+                       tp::PropagationDependentVariables::single_torque_dependent_variable)
                 .value("body_fixed_groundspeed_based_velocity_type",
                        tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable)
-                .value("keplerian_state_type", tp::PropagationDependentVariables::keplerian_state_dependent_variable)
+                .value("keplerian_state_type",
+                       tp::PropagationDependentVariables::keplerian_state_dependent_variable)
                 .value("modified_equinoctial_state_type",
                        tp::PropagationDependentVariables::modified_equinocial_state_dependent_variable)
                 .value("spherical_harmonic_acceleration_terms_type",
@@ -161,7 +170,7 @@ namespace tudatpy {
         m.def("create",
               &tp::createDependentVariableSaveSettings,
               py::arg("dependent_variable_list"),
-              py::arg("print_variable_indices") = 1);
+              py::arg("print_variable_indices") = true);
 
         m.def("mach_number",
               &tp::machNumberDependentVariable,
@@ -208,6 +217,11 @@ namespace tudatpy {
               py::arg("body"),
               py::arg("central_body"));
 
+        m.def("modified_equinoctial_state",
+              &tp::modifiedEquinoctialStateDependentVariable,
+              py::arg("body"),
+              py::arg("central_body"));
+
         m.def("single_acceleration",
               &tp::singleAccelerationDependentVariable,
               py::arg("acceleration_type"),
@@ -219,6 +233,34 @@ namespace tudatpy {
               py::arg("acceleration_type"),
               py::arg("body_undergoing_acceleration"),
               py::arg("body_exerting_acceleration"));
+
+        m.def("total_acceleration_norm",
+              &tp::totalAccelerationNormDependentVariable,
+              py::arg("body"));
+
+        m.def("total_acceleration",
+              &tp::totalAccelerationDependentVariable,
+              py::arg("body"));
+
+        m.def("single_torque_norm",
+              &tp::singleTorqueNormVariable,
+              py::arg("torque_type"),
+              py::arg("body_undergoing_torque"),
+              py::arg("body_exerting_torque"));
+
+        m.def("single_torque",
+              &tp::singleTorqueVariable,
+              py::arg("torque_type"),
+              py::arg("body_undergoing_torque"),
+              py::arg("body_exerting_torque"));
+
+        m.def("total_torque_norm",
+              &tp::totalTorqueNormDependentVariable,
+              py::arg("body"));
+
+        m.def("total_torque",
+              &tp::totalTorqueDependentVariable,
+              py::arg("body"));
 
         m.def("spherical_harmonic_terms_acceleration",
               &tp::sphericalHarmonicAccelerationTermsDependentVariable,
@@ -232,14 +274,6 @@ namespace tudatpy {
               py::arg("body_exerting_acceleration"),
               py::arg("component_indices"));
 
-        m.def("total_acceleration",
-              &tp::totalAccelerationDependentVariable,
-              py::arg("body_undergoing_acceleration"));
-
-        m.def("total_acceleration_norm",
-              &tp::totalAccelerationNormDependentVariable,
-              py::arg("body_undergoing_acceleration"));
-
         m.def("aerodynamic_force_coefficients",
               &tp::aerodynamicForceCoefficientDependentVariable,
               py::arg("body"));
@@ -250,6 +284,11 @@ namespace tudatpy {
 
         m.def("latitude",
               &tp::latitudeDependentVariable,
+              py::arg("body"),
+              py::arg("central_body"));
+
+        m.def("geodetic_latitude",
+              &tp::geodeticLatitudeDependentVariable,
               py::arg("body"),
               py::arg("central_body"));
 
@@ -345,6 +384,11 @@ namespace tudatpy {
               py::arg("body"),
               py::arg("central_body"));
 
+        m.def("control_surface_deflection",
+              &tp::controlSurfaceDeflectionDependentVariable,
+              py::arg("body"),
+              py::arg("control_surface"));
+
         m.def("central_body_fixed_spherical_position",
               &tp::centralBodyFixedSphericalPositionVariable,
               py::arg("body"),
@@ -364,39 +408,47 @@ namespace tudatpy {
               py::arg("body"),
               py::arg("emitting_body"));
 
-        m.def("dynamic_pressure",
-              &tp::dynamicPressureVariable,
-              py::arg("body"),
-              py::arg("central_body"));
+        m.def("local_temperature",
+              &tp::localTemperatureDependentVariable,
+              py::arg("body"));
 
+        m.def("local_dynamic_pressure",
+              &tp::localDynamicPressureDependentVariable,
+              py::arg("body"));
+
+        m.def("local_aerodynamic_heat_rate",
+              &tp::localAerodynamicHeatRateDependentVariable,
+              py::arg("body"));
+
+        m.def("local_aerodynamic_g_load",
+              &tp::totalAerodynamicGLoadDependentVariable,
+              py::arg("body"));
+
+        m.def("stagnation_point_heat_flux",
+              &tp::stagnationPointHeatFluxDependentVariable,
+              py::arg("body"));
+
+        m.def("total_mass_rate",
+              &tp::totalMassRateDependentVariable,
+              py::arg("body"));
+
+        // TODO: duplicate
         m.def("aerodynamic_g_load",
               &tp::aerodynamicGLoadVariable,
               py::arg("body"),
               py::arg("central_body"));
 
+        // TODO: duplicate
         m.def("atmospheric_temperature",
               &tp::atmosphericTemperatureVariable,
               py::arg("body"),
               py::arg("central_body"));
 
-        //    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueNormVariable(
-        //            const basic_astrodynamics::AvailableTorque torqueModelType,
-        //            const std::string& bodyUndergoingTorque,
-        //            const std::string& bodyExertingTorque )
-        //    {
-        //        return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-        //                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, true );
-        //    }
-
-        //    inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariable(
-        //            const basic_astrodynamics::AvailableTorque torqueModelType,
-        //            const std::string& bodyUndergoingTorque,
-        //            const std::string& bodyExertingTorque )
-        //    {
-        //        return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-        //                    torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
-        //    }
-
+        // TODO: duplicate
+        m.def("dynamic_pressure",
+              &tp::dynamicPressureVariable,
+              py::arg("body"),
+              py::arg("central_body"));
 
     }
 
